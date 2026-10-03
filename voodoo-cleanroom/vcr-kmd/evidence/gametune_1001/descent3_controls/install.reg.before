@@ -1,0 +1,48 @@
+REGEDIT4
+
+; Descent 3 - fleet install.reg
+; ===============================================================
+; Every value here was EXPORTED FROM A BOX, not guessed. box-123
+; walked the whole first-run chain by hand on .123 - "Welcome to
+; Descent 3!" -> "Multiplayer Profanity Filter Settings" ->
+; "Detail Level Setting Not Configured" -> "No Rendering Device
+; Selected!" - using the game's own Setup > Speed > Detect System
+; Properties and Setup > Video > Scan for the Selected Video
+; Devices, then read the registry back. This is that result.
+;
+; The four *Configured / *Settings flags are the ones that silence
+; the wizard; without them an unattended box stops on four modals
+; before it ever renders.
+;
+; PreferredRenderer=3 is Direct3D. RenderingDeviceName is what the
+; game's own scan chose on a Radeon; it is the generic primary
+; device name rather than a card-specific string, but if a box
+; ever renders wrongly, that is the first value to suspect -
+; re-run Setup > Video > Scan there and send the difference.
+; 3Dfx Glide was deliberately unchecked: no fleet box has had a
+; Voodoo since 2026-08-11.
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Outrage\Descent3]
+"ProfanityPrevention"=dword:00000000
+"StraightToSetup"=dword:00000000
+"PredefDetailSetting"=dword:00000001
+"DetailLevelConfigured"=dword:00000001
+"VideoDetectSettings"=dword:00000001
+"PreferredRenderer"=dword:00000003
+"RenderingDeviceName"="Primary Display Driver"
+"RS_vsync"=dword:00000001
+"net directory"=""
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Outrage\Descent3\Version]
+"Major"=dword:00000001
+"Minor"=dword:00000004
+"Build"=dword:00000000
+
+; Version updated 1.0.0 -> 1.4.0 when the official 1.4 file set from
+; http://descent3.com/patch/ was applied to this tree (29 files, per the
+; vendor's own patch.bat). The tree also now carries version.new, which is the
+; file the patch itself uses to declare the version - "Convert Version to
+; 1.4.0". Both are kept in step deliberately: the registry value is what an
+; installer or a patcher reads to decide whether a patch applies, and leaving
+; it at 1.0.0 would invite a later patch run to "upgrade" an already-current
+; tree.

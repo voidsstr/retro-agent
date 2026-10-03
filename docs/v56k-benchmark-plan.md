@@ -195,6 +195,19 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    left by the bench's allours lane (Quake II, Quake III), Unreal Gold and
    Deus Ex on D3DDrv. Steps: baseline sweep (`lan_sweep.py`, 49 shortcuts),
    route + tune per title (library-first, per-box launcher logic), re-sweep.
+   **Done so far:** baseline 38 PASS / 11 CHECK / 0 FAIL; vsync on everywhere
+   (system `FX_GLIDE_SWAPINTERVAL=1`, user's choice); ICD 0.1.82; 14 per-box
+   configs at full quality (`v56k_tune.py`; re-run after every ICD deploy);
+   Tribes 2 1280x960x32; **Descent 3 (2026-10-02)**: OpenGL at 1280x960, the
+   user's controls staged fleet-wide (pilot `sdf.plt` with the lcd1080 lane's
+   4096x4096 game window, `Default_pilot`, `-pilot SDF` in Play and Join),
+   `PredefDetailSetting` out of the library (a sync reset each box's own
+   detail), `-framecap %FR_HZ%` per box (game timedemo: 60.2 -> 63.9 fps with
+   vsync at 85 Hz; 79.0 is the ceiling with vsync off). **Next:** UE1 titles
+   through the launcher (Unreal Gold refresh/trilinear, Deus Ex on Glide, UT436
+   32-bit + trilinear), Hexen II's 1024x768 cap, Serious Sam presets, Turok 2 /
+   Carmageddon 2 modes, Descent II Win95's registration dialog, then the
+   re-sweep after a reboot (explorer picks up the vsync variable at log-on).
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).

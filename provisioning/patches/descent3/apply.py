@@ -14,22 +14,28 @@ the display (DescentDevelopers/Descent3 game.cpp SetScreenMode):
     InitGameScreen(gw, gh);          // clamps w,h to Max_window_w/h
     Current_pilot.set_hud_data(..., &Game_window_w, &Game_window_h);
 
-and the staged `sdf.plt` (the only pilot in the tree) stores 640x480.
+and the staged `sdf.plt` (the only pilot in the tree) stored 640x480. Since
+2026-10-02 the staged pilot is the USER'S (their WASD + F / mouse controls, set
+up on .124 and staged fleet-wide at their request), and the game saved .124's
+1280x960 into it - so at 1600x1200 on .123 the view was a 1280x960 box
+(nonblack 160,120-1440,1080), and on a 1080p panel it would be one too.
 
 THE FIX: raise the pilot's saved game window to 4096x4096. InitGameScreen clamps
 it to the display, so ONE staged constant is right on every box - 1920x1080 on
-the LCDs, the tube's own mode on a CRT. Verified on .240 (2026-09-29 01:12,
-`-pilot RVW -Width 1920 -Height 1080`): rvw.plt - byte-identical to this
-script's output except the three name bytes - opened the level full screen at
-1920x1080 (240_d3_rvw_ingame_noaspect.png). HW_VERIFIED below pins that file.
+the LCDs, the tube's own mode on a CRT. Verified twice on hardware. On .240
+(2026-09-29, the April pilot, version 0x2A, `-pilot RVW -Width 1920 -Height
+1080`): full screen at 1920x1080 (HW_VERIFIED_HISTORY). On .123 (2026-10-02,
+the user's pilot, version 0x2B, EXACTLY the file this script builds, joined to
+the dev host's server with `-pilot SDF -directip +connect` at 1600x1200): full
+screen, against the unpatched pilot's centred 1280x960 box (HW_VERIFIED).
 
 Both ways the game reaches the pilot keep the value: `-pilot SDF`
 (menu.cpp MainMenu -> PltReadFile) and the PILOTS dialog (pilot.cpp PilotSelect
 -> PltReadFile + VerifyPilotData, and pilot::verify() never touches the game
 window). Only the -pilot path was exercised on hardware.
 
-PILOT FILE LAYOUT (pilot_class.cpp pilot::read, version 0x2A):
-    int32   version                               0x2A (0x2B once the game saves it)
+PILOT FILE LAYOUT (pilot_class.cpp pilot::read, version 0x2A/0x2B):
+    int32   version                               0x2B (what 1.4 writes; 0x2A older)
     cstr    name                                  "sdf"
     cstr    ship_model                            "Pyro-GL"
     cstr    ship_logo, audio1, audio2             (read_custom_multiplayer_data)
@@ -46,7 +52,9 @@ PILOT FILE LAYOUT (pilot_class.cpp pilot::read, version 0x2A):
     uint8   lrearview, rrearview                  (version >= 0x2B only)
 The offsets therefore depend on the string lengths: this script PARSES the
 header, and additionally asserts the parse lands on the offsets recorded for
-the staged file (0x1F / 0x23), the version (0x2A) and the old values (640/480).
+the staged file (0x1F / 0x23), its version (0x2B) and its old values (1280/960).
+0x2B only appends the two rearview bytes AFTER the window, so the window sits
+where it does in 0x2A.
 
     apply.py --check                 read the staged pilot, assert, report
     apply.py --build [OUTDIR]        write patched copies + manifest.json
@@ -84,7 +92,7 @@ TITLE = "Descent3"
 SHARE_ROOT = "/mnt/retro-share"               # read-only CIFS mount - reads/verification only
 SHARE_LIB_REL = "Files/Games-Library"
 LIBRARY = SHARE_ROOT + "/" + SHARE_LIB_REL
-BACKUP_DIR = "originals-2026-09-29"
+BACKUP_DIR = "originals-2026-10-02"
 BACKUP_REL = SHARE_LIB_REL + "/_patches/" + TITLE + "/" + BACKUP_DIR
 DEFAULT_OUT = os.path.expanduser("~/.retro-fleet/patch-out/" + KEY)
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
@@ -95,45 +103,72 @@ SHAREWRITE = os.path.join(REPO, "scripts", "fleet", "sharewrite.py")
 TARGET_W = 4096
 TARGET_H = 4096
 
-# Every pilot file the staged tree holds, found case-insensitively (*.plt) on
-# 2026-09-29: exactly one. A new pilot appearing in the tree is a finding, so
-# --check fails on an unexpected .plt rather than silently leaving it 640x480.
+# Every pilot file the staged tree holds, found case-insensitively (*.plt):
+# exactly one. A new pilot appearing in the tree is a finding, so --check fails
+# on an unexpected .plt rather than silently leaving its own window size.
 PILOTS = {
-    # tree-relative path: expectations for the ORIGINAL staged file
+    # tree-relative path: expectations for the ORIGINAL staged file - since
+    # 2026-10-02 the user's own pilot from .124 (their controls), kept in git as
+    # voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/descent3_controls/sdf.plt
     "sdf.plt": {
-        "md5": "b03f1b0f19e6d430f3d64b8c426f4da6",
-        "size": 1770,
-        "version": 0x2A,
+        "md5": "6b8115ec9cfd5db60edf5216ccac00fa",
+        "size": 1772,
+        "version": 0x2B,
         "name": "sdf",
         "w_off": 0x1F,
         "h_off": 0x23,
-        "old_w": 640,
-        "old_h": 480,
+        "old_w": 1280,
+        "old_h": 960,
         # the exact original bytes at 0x1F..0x26 (two little-endian int32s)
-        "old_bytes": bytes.fromhex("80020000e0010000"),
+        "old_bytes": bytes.fromhex("00050000c0030000"),
         # what patch_pilot() makes of it; asserted on every build
-        "patched_md5": "a42937534d704dce2374df0a0deea849",
+        "patched_md5": "dd51fb8350f95511eb4cf006b19d72d1",
     },
 }
 
-# The pilot that was actually proven on hardware: the patched sdf.plt with its
-# name bytes (offset 4..6) changed to "rvw", run as `-pilot RVW` on .240.
-# Kept as .claude/evidence-1080p/review-dosbox-descent-carma/hw/rvw.plt.test-pilot
+# The staged pilot until 2026-10-02 (the library's April copy, 0x2A, 640x480),
+# replaced at the user's request by their own; kept in git as
+# .../descent3_controls/sdf.plt.library_20260416. Recorded so the history of
+# what this patch was proven on stays readable.
+PILOTS_HISTORY = {
+    "sdf.plt@2026-04-16": {
+        "md5": "b03f1b0f19e6d430f3d64b8c426f4da6", "size": 1770, "version": 0x2A,
+        "old_w": 640, "old_h": 480, "patched_md5": "a42937534d704dce2374df0a0deea849",
+    },
+}
+
+# The pilot proven on hardware: EXACTLY what this script builds from the
+# user's pilot, run on .123 (CRT, 1600x1200) by joining the dev host's
+# descent3-server with the staged Join launcher's own arguments - the join
+# enters the level through SetScreenMode(SM_GAME), which reads the pilot's
+# window. (The game's -timetest demo does NOT: it filled 1600x1200 with the
+# unpatched pilot too, so it cannot show this defect.)
 HW_VERIFIED = {
+    "name": "sdf",
+    "md5": "dd51fb8350f95511eb4cf006b19d72d1",
+    "box": "192.168.1.123 (XP, Direct3D, Gateway VX1120 CRT)",
+    "when": "2026-10-02 22:07-22:09 EDT",
+    "evidence": "voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/descent3_pilot_window/: "
+                "join at 1600x1200, nonblack bbox 0,0-1600,1200 (unpatched user "
+                "pilot: 160,120-1440,1080)",
+}
+# The first proof, on the April pilot (0x2A): the patched file with its name
+# bytes changed to "rvw", run as `-pilot RVW` on .240.
+HW_VERIFIED_HISTORY = [{
     "name": "rvw",
     "md5": "21a07b5456ca988d23a8d6c6b1a1ecc9",
     "box": "192.168.1.240 (XP, X800)",
     "when": "2026-09-29 01:12-01:13 EDT",
     "evidence": "240_d3_rvw_ingame_noaspect.png: nonblack bbox 0,0-1920,1080 "
                 "(unpatched: 640,300-1280,780)",
-}
+}]
 
 # Version gates from pilot_class.cpp
 PFV_AUDIOTAUNT3N4 = 0x22
 PFV_PROFANITY = 0x23
 PFV_AUDIOTAUNTS = 0x28
 PFV_REARVIEWINFO = 0x2B
-PATCHABLE_VERSIONS = (0x2A,)   # the only version verified on hardware
+PATCHABLE_VERSIONS = (0x2A, 0x2B)   # each verified on hardware (HW_VERIFIED*)
 
 
 class PilotError(ValueError):
@@ -545,10 +580,9 @@ def cmd_publish(outdir, dry_run):
                 return 3
             print("verified %s = %s through %s" % (o["share_path"], got, SHARE_ROOT))
     print("publish: %s" % ("dry run complete - nothing written" if dry_run else "OK"))
-    print("NEXT (not done here): the stage-fleetres.py 'fix' pair that adds -pilot SDF to"
-          " 'Play Descent 3.bat', then ONE bump of %s/_deploy_generation.txt after every"
-          " lane has published - without it no provisioned box re-syncs the title."
-          % SHARE_LIB_REL)
+    print("NEXT (not done here): ONE bump of %s/_deploy_generation.txt - without it no"
+          " provisioned box re-syncs the title. ('Play Descent 3.bat' passes -pilot SDF"
+          " since 2026-10-02, stage-fleetres.py.)" % SHARE_LIB_REL)
     return 0
 
 

@@ -5,7 +5,14 @@ the in-flight view stays a 640x480 box, because SetScreenMode(SM_GAME) sizes
 the game window from the PILOT file (game.cpp -> InitGameScreen, which clamps to
 the display) and the staged sdf.plt saved 640x480. Measured 2026-09-29 on .195
 and .240; the fix (4096x4096 in the pilot) verified on .240 with a test pilot
-that is this build's output with the name bytes changed (HW_VERIFIED).
+that was that build's output with the name bytes changed (HW_VERIFIED_HISTORY).
+
+Since 2026-10-02 the staged pilot is the user's own from .124 (their controls,
+version 0x2B, saved at 1280x960). The same patch on it was verified on .123:
+joined to the dev host's server at 1600x1200, the unpatched pilot drew a
+centred 1280x960 box and the patched file - EXACTLY this build's output -
+filled the screen (HW_VERIFIED). Both pilots are kept in git, so the builds are
+checked here without the share.
 
 Pure-logic tests build synthetic pilot files; share tests SKIP LOUDLY when the
 library is not mounted.
@@ -33,9 +40,13 @@ sys.modules["descent3_apply"] = d3
 _spec.loader.exec_module(d3)
 
 LIBRARY = "/mnt/retro-share/Files/Games-Library"
-ORIGINAL_MD5 = "b03f1b0f19e6d430f3d64b8c426f4da6"
-PATCHED_MD5 = "a42937534d704dce2374df0a0deea849"
+ORIGINAL_MD5 = "6b8115ec9cfd5db60edf5216ccac00fa"       # the user's pilot from .124
+PATCHED_MD5 = "dd51fb8350f95511eb4cf006b19d72d1"        # = the file run on .123
+APRIL_MD5 = "b03f1b0f19e6d430f3d64b8c426f4da6"          # the library's pilot until 10-02
+APRIL_PATCHED_MD5 = "a42937534d704dce2374df0a0deea849"
 RVW_VERIFIED_MD5 = "21a07b5456ca988d23a8d6c6b1a1ecc9"   # the pilot run on .240
+EVIDENCE = os.path.join(HERE, "..", "..", "voodoo-cleanroom", "vcr-kmd", "evidence",
+                        "gametune_1001", "descent3_controls")
 
 
 def make_pilot(name="sdf", version=0x2A, w=640, h=480, ship="Pyro-GL",
@@ -85,11 +96,14 @@ def test_synthetic_sdf_pilot_has_the_staged_offsets():
 
 def test_the_recorded_offsets_match_the_expectation_table():
     e = d3.PILOTS["sdf.plt"]
-    assert (e["w_off"], e["h_off"], e["version"]) == (0x1F, 0x23, 0x2A)
-    assert e["old_bytes"] == struct.pack("<ii", 640, 480)
+    assert (e["w_off"], e["h_off"], e["version"]) == (0x1F, 0x23, 0x2B)
+    assert e["old_bytes"] == struct.pack("<ii", 1280, 960)
     assert (e["md5"], e["patched_md5"]) == (ORIGINAL_MD5, PATCHED_MD5)
     assert (d3.TARGET_W, d3.TARGET_H) == (4096, 4096)
-    assert d3.HW_VERIFIED["md5"] == RVW_VERIFIED_MD5
+    # what was run on hardware IS what the build makes - no rename in between
+    assert d3.HW_VERIFIED["md5"] == PATCHED_MD5
+    assert [h["md5"] for h in d3.HW_VERIFIED_HISTORY] == [RVW_VERIFIED_MD5]
+    assert d3.PILOTS_HISTORY["sdf.plt@2026-04-16"]["md5"] == APRIL_MD5
 
 
 def test_offsets_move_with_the_name_length_so_the_parser_not_a_constant_decides():
@@ -131,13 +145,24 @@ def test_a_recorded_patched_md5_that_does_not_match_is_refused():
         d3.patch_pilot(src, e)
 
 
-def test_refuses_version_0x2B_a_pilot_the_game_has_already_rewritten():
+def test_patches_0x2B_the_version_the_game_writes_proven_on_123():
+    """0x2B appends the rearview bytes AFTER the window, so the window keeps
+    its offset; patched on hardware 2026-10-02 (HW_VERIFIED)."""
     src = make_pilot(version=0x2B)
-    p = d3.parse_pilot(src)          # the parser understands it...
+    p = d3.parse_pilot(src)
     assert (p["w_off"], p["game_window_w"]) == (0x1F, 640)
     e = exp_for(src)
     e["version"] = 0x2B
-    with pytest.raises(d3.PilotError):   # ...but the patch was only proven on 0x2A
+    out = d3.patch_pilot(src, e)
+    assert d3.parse_pilot(out)["game_window_w"] == 4096
+    assert out[0x27:0x29] == src[0x27:0x29]          # the rearview bytes untouched
+
+
+def test_refuses_a_version_no_hardware_has_run():
+    src = make_pilot(version=0x2C)
+    e = exp_for(src)
+    e["version"] = 0x2C
+    with pytest.raises(d3.PilotError):
         d3.patch_pilot(src, e)
 
 
@@ -231,7 +256,7 @@ def test_check_and_build_from_the_original(fake):
     m = json.loads((fake["out"] / "manifest.json").read_text())
     o = m["outputs"][0]
     assert (o["rel"], o["md5"], o["original_md5"]) == ("sdf.plt", md5(built), fake["e"]["md5"])
-    assert o["backup_share_path"] == "Files/Games-Library/_patches/Descent3/originals-2026-09-29/sdf.plt"
+    assert o["backup_share_path"] == "Files/Games-Library/_patches/Descent3/originals-2026-10-02/sdf.plt"
 
 
 def test_build_is_idempotent_and_still_works_once_the_share_is_patched(fake):
@@ -292,7 +317,7 @@ class FakeShare:
 
 
 LIVE = "Files/Games-Library/Descent3/sdf.plt"
-BACKUP = "Files/Games-Library/_patches/Descent3/originals-2026-09-29/sdf.plt"
+BACKUP = "Files/Games-Library/_patches/Descent3/originals-2026-10-02/sdf.plt"
 
 
 def _publish(fake, monkeypatch, share, dry_run=False):
@@ -386,16 +411,44 @@ def test_staged_pilot_is_the_original_or_already_patched():
 
 
 def test_building_from_the_share_gives_the_pilot_proven_on_hardware(tmp_path):
-    """The build's output, renamed to the test pilot 'rvw', is byte-for-byte the
-    file that opened the level full screen at 1920x1080 on .240."""
+    """The build's output is byte-for-byte the file that filled 1600x1200 on
+    .123 (HW_VERIFIED) - the user's controls with the window raised."""
     _need_share()
     assert d3.cmd_build(LIBRARY, str(tmp_path)) == 0
     built = (tmp_path / "Descent3" / "sdf.plt").read_bytes()
-    assert md5(built) == PATCHED_MD5
+    assert md5(built) == PATCHED_MD5 == d3.HW_VERIFIED["md5"]
     assert md5((tmp_path / "originals" / "Descent3" / "sdf.plt").read_bytes()) == ORIGINAL_MD5
     assert built[4:8] == b"sdf\0"
-    rvw = built[:4] + b"rvw\0" + built[8:]
-    assert md5(rvw) == RVW_VERIFIED_MD5
+
+
+# ---------------------------------------------------------------- the pilots kept in git
+
+def _evidence(name):
+    path = os.path.join(EVIDENCE, name)
+    assert os.path.isfile(path), "%s is gone from the repo - it is the only copy outside the share" % path
+    return open(path, "rb").read()
+
+
+def test_the_users_pilot_in_git_builds_the_file_proven_on_123():
+    data = _evidence("sdf.plt")
+    assert md5(data) == ORIGINAL_MD5
+    assert d3.state_of(data, d3.PILOTS["sdf.plt"]) == "original"
+    out = d3.patch_pilot(data, d3.PILOTS["sdf.plt"])
+    assert md5(out) == PATCHED_MD5 == d3.HW_VERIFIED["md5"]
+    # only the window moved: every byte of the user's controls is the same
+    diff = [i for i in range(len(data)) if data[i] != out[i]]
+    assert diff and min(diff) >= 0x1F and max(diff) <= 0x26
+    assert d3.parse_pilot(data)["game_window_w"] == 1280      # the old, buggy value
+
+
+def test_the_april_pilot_still_reproduces_the_240_proof():
+    data = _evidence("sdf.plt.library_20260416")
+    assert md5(data) == APRIL_MD5
+    h = d3.PILOTS_HISTORY["sdf.plt@2026-04-16"]
+    exp = dict(h, name="sdf", w_off=0x1F, h_off=0x23, old_bytes=struct.pack("<ii", 640, 480))
+    out = d3.patch_pilot(data, exp)
+    assert md5(out) == APRIL_PATCHED_MD5
+    assert md5(out[:4] + b"rvw\0" + out[8:]) == RVW_VERIFIED_MD5
 
 
 def test_check_on_the_share_passes():

@@ -77,6 +77,49 @@ TUNING = [
 ]
 
 
+# Per-box REGISTRY values: (root, key, name, REG_DWORD value).
+# Descent 3: PreferredRenderer 2 = OpenGL through our ICD (verified on .124
+# 2026-10-02, user: "level runs fine"). The staged launcher sets it at every
+# launch on a box whose screen the 3dfx card drives (stage-fleetres.py
+# d3_renderer) - GAMESYNC's install.reg merge puts 3 (Direct3D) back - so this
+# row only makes the box right before the next launch. NOT here, on purpose:
+#  * RS_resolution - the launcher's -Width/-Height adds a custom entry and the
+#    game saves ITS index (7 on .124); a table index from outside is wrong.
+#  * RS_bitdepth - D3's OpenGL renderer hard-codes a 16-bit mode
+#    (legacy/renderer/opengl.cpp: dmBitsPerPel = 16, the bit_depth line
+#    commented out); the ICD log showed colDepth 16 with RS_bitdepth 32.
+#  * PredefDetailSetting - main.exe applies a preset 0-3 OVER the per-option
+#    values at startup; 4 = custom keeps them. .124 holds the user's own maxed
+#    detail (pixel error 0, terrain distance 200), so it must stay 4.
+REG = [
+    ("HKLM", r"Software\Outrage\Descent3", "PreferredRenderer", 2),
+]
+
+
+async def apply_registry(host, dry_run):
+    import json
+    changed = 0
+    for root, key, name, value in REG:
+        try:
+            vals = {v["name"]: v.get("data") for v in
+                    json.loads(await call(host, f"REGREAD {root} {key}")).get("values", [])}
+        except ValueError:
+            print(f"  -- {root}\\{key}: not on the box - skipped")
+            continue
+        if vals.get(name) == value:
+            print(f"  ok {root}\\{key}\\{name} = {value}")
+            continue
+        print(f"  ~~ {root}\\{key}\\{name}: {vals.get(name)!r} -> {value}")
+        changed += 1
+        if not dry_run:
+            await call(host, f"REGWRITE {root} {key} {name} REG_DWORD {value}")
+            back = {v["name"]: v.get("data") for v in
+                    json.loads(await call(host, f"REGREAD {root} {key}")).get("values", [])}
+            if back.get(name) != value:
+                raise SystemExit(f"{root}\\{key}\\{name}: REGWRITE did not land (read back {back.get(name)!r})")
+    return changed
+
+
 def set_torque(text, wanted):
     """TorqueScript prefs: `$pref::A::b = "value";`. Same contract as set_cvars;
     a missing pref is appended, the value always quoted."""
@@ -174,6 +217,7 @@ async def amain(args):
         back = (await call(args.host, f"DOWNLOAD {path}", raw=True)).decode("latin-1", "replace")
         if back != new:
             raise SystemExit(f"{path}: the upload did not land - read back differs")
+    total += await apply_registry(args.host, args.dry_run)
     print(f"{'would change' if args.dry_run else 'changed'} {total} value(s)")
     return 0
 

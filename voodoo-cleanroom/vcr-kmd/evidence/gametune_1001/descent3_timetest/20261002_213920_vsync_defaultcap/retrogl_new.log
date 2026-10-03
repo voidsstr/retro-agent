@@ -1,0 +1,57 @@
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Descent3\main.exe' (pid=2088) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=2088)
+  host process : C:\Games\Descent3\main.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=2 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=2; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(2) -> 1
+wglCreateContext(hdc=0f0102e3) enter [curPFD=2]
+wglCreateContext: activation pump dispatched=2 paints-validated=1 quit=0
+wglCreateContext: hWnd=00fe00d6 GetClientRect=640x480 curPFD=2 pfd.cColorBits=16 mesaColDepth=16 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=00fe00d6, 640x480, mesaAttr[colDepth=16])
+fxBestResolution: request 640x480 -> res enum 7 (640x480), 252 supported modes queried
+fxBestRefresh: 640x480 max 120 Hz (EnumDisplaySettings) -> GR_REFRESH enum 8
+fxMesaCreateBestContext: win=16646358 640x480 -> res enum 7, ref enum 8
+fxMesaCreateContext: ENTER win=16646358 res=7 (640x480) ref=8
+fxMesaCreateContext: colDepth=16 fsaa=1 -> pixFmt=3 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=16646358 res=7 (640x480) ref=8 HavePixExt=1 pixFmt=3 aux=1 fxWinReq=0
+grSstWinOpenExt: win=16646358 res=7 (640x480) ref=8 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=3 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=640x480 colDepth=16 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=01456ce0 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=01456ce0)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+wglCreateContext(hdc=fb010217) enter [curPFD=2]
+wglCreateContext: activation pump dispatched=5 paints-validated=1 quit=0
+wglCreateContext: hWnd=00fe00d6 GetClientRect=1280x960 curPFD=2 pfd.cColorBits=16 mesaColDepth=16 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=00fe00d6, 1280x960, mesaAttr[colDepth=16])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=16646358 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=16646358 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=16 fsaa=1 -> pixFmt=3 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=16646358 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=3 aux=1 fxWinReq=0
+grSstWinOpenExt: win=16646358 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=3 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=16 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=01456ce0 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=01456ce0)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+### DllMain PROCESS_DETACH: retrogl process exit (pid=2088) ###
+cleangraphics: process exit -> grGlideShutdown()
+cleangraphics: grGlideShutdown returned

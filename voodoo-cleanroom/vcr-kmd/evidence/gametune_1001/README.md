@@ -113,3 +113,93 @@ at 640x480, switched the desktop to 1280x960 under it, our kernel ended the Glid
 session at the mode set, and the screen stayed black. With 1 it destroys and
 re-opens the context, and the ICD log shows the board opened at 640x480, closed,
 then opened at 1280x960. **User: "looks right".**
+
+## Descent 3 (2026-10-02 21:00-21:55)
+
+**Renderer and mode.** OpenGL through our ICD (`PreferredRenderer` 2) instead
+of the staged Direct3D. The menus always run at 640x480. A level runs at the
+launcher's `-Width/-Height` (1280x960 here), and the ICD log shows the board
+re-opened at 1280x960 for every level. **User: "level runs fine".** The game's
+OpenGL renderer is 16-bit only: the original code sets `dmBitsPerPel = 16` with
+the `bit_depth` line commented out (`legacy/renderer/opengl.cpp`, released
+source), and the ICD log shows `colDepth=16` with `RS_bitdepth` 32. So
+`RS_bitdepth` stays 16, and the V5's 16-bit postfilter is what the user sees.
+
+**The user's controls are on every box.** Descent 3 keeps the whole control
+mapping in the pilot file. The user set up WASD + F and the mouse on `.124`, so
+that `sdf.plt` (`descent3_controls/sdf.plt`, md5 6b8115ec) replaced the
+library's April copy, and `install.reg` gained `"Default_pilot"="sdf.plt"`.
+That value only pre-selects the pilot in the PILOTS menu (`pilot.cpp`
+`PilotSelect`); the Play and Join launchers pass `-pilot SDF`, which skips the
+menu. Deploy generation bumped at 21:24.
+`retro-autodeploy` synced `.123`, `.124`, `.197` and `.243` (all `failed_files`
+0), and the pilot read back md5 6b8115ec plus `Default_pilot` on `.123`,
+`.124` and `.197` (`.243` is gated for D3). Proved on `.124` first by deleting
+both and re-syncing: both came back from the library. A box that is off
+receives the pilot through `retro-autodeploy` when it next answers.
+
+**`PredefDetailSetting` is out of `install.reg`.** At start-up main.exe reads
+the per-option detail values and then applies this preset (0-3) over all of
+them; 4 = custom keeps them (`init.cpp` `LoadGameSettings`). The staged 1 reset
+each box's own detail at every sync. The 21:26 sync did that to `.124`, whose
+user had maxed the custom sliders (pixel error 0, render distance 200 - above
+the very-high preset), and an earlier `v56k_tune.py` row had written 3 over it
+too. Without the value, main.exe uses medium, which is what the staged 1 gave a
+fresh box. `.124` is back on 4, and a later sync kept it (verified).
+
+**Per box, in the library launcher** (`stage-fleetres.py` `d3_renderer`, marker
+`D3_RENDERER`): `PreferredRenderer` 2 where the 3dfx card drives the screen
+(FR_UE1DEV = Glide). GAMESYNC re-merges install.reg's 3 at every sync, so the
+launcher sets the value at every launch. `-framecap %FR_HZ%`: main.exe caps
+itself at 60 fps (16 ms), which under vsync at 75-100 Hz presents frames at
+uneven one- and two-refresh steps. 60 Hz boxes keep the default. Checked on the
+boxes by running the launcher with `echo` in place of `start`: `.124`
+`-framecap 85` with the renderer set to 2; `.123` (no 3dfx) `-framecap 100`
+with the renderer left at 3.
+
+**The game's own benchmark** (`descent3_timetest/`,
+`scripts/benchmarks/d3_timetest.py`): retail 1.4 `-timetest Secret2.dem` plays
+the shipped demo and writes `fps.txt`. Average and per-second fps; every run
+exited by itself.
+
+| box | path | run | avg | median | max |
+|---|---|---|---|---|---|
+| `.124` | OpenGL, our ICD + h5 Glide, 1280x960x16 @ 85 Hz, user's maxed detail | vsync off, stock cap | 58.8 | 63 | 65 |
+| `.124` | " | **vsync on, stock cap** (the user's play until now) | 60.2 | 64 | 65 |
+| `.124` | " | **vsync on, `-framecap 85`** (now staged) | **63.9** | 64 | 78 |
+| `.124` | " | vsync off, `-framecap 200` (the ceiling) | 79.0 | 78 | 120 |
+| `.123` | Direct3D, 1280x960 | stock cap | 60.1 | 64 | 65 |
+| `.123` | " | `-framecap 100` (now staged) | 60.5 | 64 | 73 |
+
+The stock cap held `.124` at 62-65 fps, and the card can average 79. With
+vsync on, a frame that misses an 85 Hz refresh waits for the next one, so the
+raised cap is worth +6% rather than the full 79. `.123` gains little, with no
+regression; its GDI captures (`*_123_*/*.png`) show the demo playing. On `.124`
+GDI cannot capture a Glide frame: it reads the desktop surface in the board's
+tiled layout, so those captures were deleted rather than kept as evidence. The
+agent's own environment lacks the system `FX_GLIDE_SWAPINTERVAL=1` that a
+desktop launch inherits, so the runner sets it explicitly for the vsync rows.
+
+**The pilot also sizes the 3D view** (`descent3_pilot_window/`). At a level
+start `SetScreenMode(SM_GAME)` takes the game window from the pilot and clamps
+it to the display. The user's pilot saved .124's 1280x960, so on any larger
+display the view would be a box. A/B on `.123` (XP, Direct3D, CRT) at
+1600x1200, joined to the dev host's `descent3-server` with the Join launcher's
+own arguments (`-pilot SDF -directip +connect`). The game's `-timetest` demo
+cannot show this: it filled 1600x1200 with either pilot.
+
+| pilot | md5 | window in the file | non-black area at 1600x1200 |
+|---|---|---|---|
+| the user's, as saved on `.124` | 6b8115ec | 1280x960 | **160,120-1440,1080** (a centred box) |
+| the same, window raised to 4096x4096 | dd51fb83 | 4096x4096 | **0,0-1600,1200** (full, cockpit + HUD) |
+
+The 4096x4096 patch was the `lcd1080` lane's
+(`provisioning/patches/descent3/apply.py`, proven 2026-09-29 on `.240` on the
+April pilot, version 0x2A). It had never been published. The tool is rebased
+onto the user's pilot (version 0x2B, which appends two rearview bytes after the
+window) and published with its own backup-then-put:
+`_patches/Descent3/originals-2026-10-02/sdf.plt` = the user's original
+(6b8115ec), `Descent3/sdf.plt` = the patched file (dd51fb83, exactly the file
+run in the B row). Every byte of the user's controls is unchanged; only
+0x1F..0x26 differ.
+

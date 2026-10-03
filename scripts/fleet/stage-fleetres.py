@@ -586,6 +586,54 @@ UE1_GLIDE_DEV = "GlideDrv.GlideRenderDevice"
 UE1_GLIDE_LADDER = [(640, 480), (800, 600), (1024, 768), (1600, 1200)]
 
 
+def d3_renderer():
+    """Descent 3, per box: its renderer and its frame cap.
+
+    RENDERER. install.reg stages PreferredRenderer 3 (Direct3D) - right on
+    every fleet GPU - and GAMESYNC re-merges it at every sync, so a per-box
+    choice made on the box does not survive. Where the 3dfx card drives the
+    screen (GlideRender = 1, so FR_UE1DEV is Glide: .124's Voodoo 5 6000 on
+    vcr-kmd) OpenGL through the 3dfx ICD is the card's own path - verified
+    there 2026-10-02: every level re-opened the board at 1280x960 and the user
+    reported "level runs fine". Values: 2 OpenGL, 3 Direct3D, 4 Glide.
+
+    FRAME CAP. main.exe 1.4 caps itself at 60 fps (Min_allowed_frametime =
+    1000/60 = 16 ms, "a default framecap of 60 to deal with stuttering"), i.e.
+    62-65 fps. Under vsync on a 75-100 Hz CRT that presents frames at uneven
+    one- and two-refresh steps. -framecap <the monitor's rate> instead, from
+    FR_HZ; 60 Hz boxes and a box with no measured rate keep the default.
+    Measured with the game's own -timetest Secret2.dem on .124 (1280x960,
+    vsync 85 Hz): 60.2 fps at the stock cap, 63.9 at -framecap 85; 79.0 with
+    vsync off, i.e. the card is past the stock cap. D3HZ is a number before
+    the IF reads it whatever FR_HZ holds - set to 0 first, then set /a (which
+    reads an empty or missing FR_HZ as 0, and on a non-number fails and leaves
+    the 0) - so the IF can never be a syntax error; one of those ends a batch
+    file before the game starts."""
+    return ['rem ---- per-box RENDERER - D3_RENDERER (see stage-fleetres.py) -------------',
+            'if /i "%%FR_UE1DEV%%"=="%s" reg add "HKLM\\Software\\Outrage\\Descent3" '
+            '/v PreferredRenderer /t REG_DWORD /d 2 /f >nul' % UE1_GLIDE_DEV,
+            'rem ---- and the FRAME CAP: main.exe stops at 60 fps; cap at the monitor\'s rate',
+            'set D3CAP=',
+            'set D3HZ=0',
+            'set /a D3HZ=FR_HZ+0 >nul 2>nul',
+            'if %D3HZ% GTR 60 set D3CAP=-framecap %D3HZ%']
+
+
+# The start lines. OLD must not be a substring of NEW (repair() would apply it
+# again on every run), so each pair ends at the line break, and each OLD is the
+# state the LIBRARY holds - the stager's only target. Play: -pilot SDF, the
+# staged pilot that carries the user's controls (set up on .124, 2026-10-02) and
+# the 4096x4096 game window (provisioning/patches/descent3) - without it the
+# game opens the PILOTS menu first (pilot.cpp PilotSelect; Default_pilot only
+# pre-selects). The hand-written Join launcher already passes it.
+D3_START = 'start "" "%~dp0main.exe" -launched -Width %FR_W% -Height %FR_H%'
+D3_START_FINAL = D3_START + ' -pilot SDF %D3CAP%'
+D3_START_FIX = [(D3_START + ' %D3CAP%\r\n', D3_START_FINAL + '\r\n')]
+D3_JOIN = ('start "" "%~dp0main.exe" -launched -nointro -pilot SDF -directip '
+           '+connect %HOSTIP% -Width %FR_W% -Height %FR_H%')
+D3_JOIN_FIX = [(D3_JOIN + '\r\n', D3_JOIN + ' %D3CAP%\r\n')]
+
+
 def ue1_glide_viewport(ini):
     e = '"%~dp0FLEETRES.EXE"'
     i = '"%%~dp0%s"' % ini
@@ -2254,10 +2302,22 @@ TITLES = {
         "launchers": {
             "Play Descent 3.bat": rec(
                 'cd /d "%~dp0"', [CALL],
-                (re.escape('start "" "%~dp0main.exe" -launched'),
-                 'start "" "%~dp0main.exe" -launched -Width %FR_W% '
-                 '-Height %FR_H%')),
+                (re.escape('start "" "%~dp0main.exe" -launched') + r'(?! -Width)',
+                 D3_START_FINAL)),
         },
+        "fix": {"Play Descent 3.bat": D3_START_FIX,
+                "Join Descent 3 - LAN.bat": D3_JOIN_FIX},
+        "post": [{
+            "file": "Play Descent 3.bat",
+            "marker": "D3_RENDERER",
+            "before": 'start "" "%~dp0main.exe" -launched -Width',
+            "lines": d3_renderer(),
+        }, {
+            "file": "Join Descent 3 - LAN.bat",
+            "marker": "D3_RENDERER",
+            "before": 'start "" "%~dp0main.exe" -launched -nointro -pilot SDF -directip',
+            "lines": d3_renderer(),
+        }],
     },
     "Quake2Complete": {
         # Already staged and carrying MARK, so a recipe change never reaches

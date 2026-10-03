@@ -1,0 +1,15 @@
+{
+  "host": "192.168.1.124",
+  "demo": "Secret2.dem",
+  "width": 1280,
+  "height": 960,
+  "env": [
+    "FX_GLIDE_SWAPINTERVAL=1"
+  ],
+  "extra": "-framecap 85",
+  "started": "2026-10-02 21:40:53",
+  "elapsed_s": 73.3,
+  "exited_by_itself": true,
+  "fps_txt": "63.90 Descent3 v1.4\r\n32 Min\r\n78 Max\r\n65 Second 1\r\n65 Second 2\r\n58 Second 3\r\n53 Second 4\r\n67 Second 5\r\n55 Second 6\r\n62 Second 7\r\n66 Second 8\r\n65 Second 9\r\n64 Second 10\r\n64 Second 11\r\n64 Second 12\r\n68 Second 13\r\n72 Second 14\r\n64 Second 15\r\n64 Second 16\r\n32 Second 17\r\n64 Second 18\r\n64 Second 19\r\n64 Second 20\r\n64 Second 21\r\n64 Second 22\r\n64 Second 23\r\n64 Second 24\r\n64 Second 25\r\n64 Second 26\r\n64 Second 27\r\n64 Second 28\r\n71 Second 29\r\n65 Second 30\r\n66 Second 31\r\n72 Second 32\r\n67 Second 33\r\n62 Second 34\r\n68 Second 35\r\n71 Second 36\r\n70 Second 37\r\n75 Second 38\r\n77 Second 39\r\n62 Second 40\r\n69 Second 41\r\n72 Second 42\r\n74 Second 43\r\n78 Second 44\r\n68 Second 45\r\n69 Second 46\r\n68 Second 47\r\n34 Second 48\r\n61 Second 49\r\n60 Second 50\r\n53 Second 51\r\n65 Second 52\r\n73 Second 53\r\n64 Second 54\r\n64 Second 55\r\n63 Second 56",
+  "icd_log_lines": 57
+}

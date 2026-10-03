@@ -1,0 +1,13 @@
+{
+  "host": "192.168.1.123",
+  "demo": "Secret2.dem",
+  "width": 1600,
+  "height": 1200,
+  "env": [],
+  "extra": "-pilot sdf",
+  "started": "2026-10-02 22:02:32",
+  "elapsed_s": 69.3,
+  "exited_by_itself": true,
+  "fps_txt": "60.04 Descent3 v1.4\r\n60 Min\r\n65 Max\r\n64 Second 1\r\n64 Second 2\r\n64 Second 3\r\n65 Second 4\r\n64 Second 5\r\n64 Second 6\r\n64 Second 7\r\n65 Second 8\r\n65 Second 9\r\n64 Second 10\r\n64 Second 11\r\n64 Second 12\r\n64 Second 13\r\n65 Second 14\r\n64 Second 15\r\n65 Second 16\r\n65 Second 17\r\n64 Second 18\r\n64 Second 19\r\n60 Second 20\r\n65 Second 21\r\n64 Second 22\r\n65 Second 23\r\n64 Second 24\r\n64 Second 25\r\n64 Second 26\r\n64 Second 27\r\n64 Second 28\r\n65 Second 29\r\n65 Second 30\r\n64 Second 31\r\n65 Second 32\r\n65 Second 33\r\n64 Second 34\r\n64 Second 35\r\n64 Second 36\r\n64 Second 37\r\n64 Second 38\r\n64 Second 39\r\n65 Second 40\r\n64 Second 41\r\n64 Second 42\r\n64 Second 43\r\n64 Second 44\r\n64 Second 45\r\n64 Second 46\r\n64 Second 47\r\n64 Second 48\r\n64 Second 49\r\n64 Second 50\r\n64 Second 51\r\n60 Second 52\r\n65 Second 53\r\n64 Second 54\r\n64 Second 55\r\n65 Second 56\r\n64 Second 57",
+  "icd_log_lines": 0
+}

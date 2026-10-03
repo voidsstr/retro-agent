@@ -1,0 +1,57 @@
+{
+  "pilot": "sdf.plt",
+  "pilot_md5": "6b8115ec9cfd5db60edf5216ccac00fa",
+  "mode": "1600x1200",
+  "started": "2026-10-02 22:06:37",
+  "shots": {
+    "25": {
+      "size": [
+        1600,
+        1200
+      ],
+      "nonblack_bbox": [
+        160,
+        120,
+        1440,
+        1080
+      ]
+    },
+    "45": {
+      "size": [
+        1600,
+        1200
+      ],
+      "nonblack_bbox": [
+        160,
+        120,
+        1440,
+        1080
+      ]
+    },
+    "65": {
+      "size": [
+        1600,
+        1200
+      ],
+      "nonblack_bbox": [
+        160,
+        120,
+        1440,
+        1080
+      ]
+    }
+  },
+  "prockill": [
+    [
+      1168,
+      "OK"
+    ]
+  ],
+  "main_exe_after": [],
+  "desktop_after": {
+    "persisted": "1280x1024",
+    "persisted_hz": 100,
+    "live": "1280x1024",
+    "bpp": 32
+  }
+}
