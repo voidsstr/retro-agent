@@ -681,6 +681,24 @@ def ue1_glide_device(ini):
     return out + ue1_glide_viewport(ini)
 
 
+H2_START = 'start "" glh2.exe -width %FR_W%'
+H2_LAUNCHERS = ("Play Hexen II.bat", "Host Hexen II - LAN.bat", "Join Hexen II - LAN.bat")
+
+
+def h2_uncap():
+    """Hexen II's launchers on the share call FLEETRES with `-cap 1024 768`:
+    on .240 (ATI X800) glh2.exe refused 1920x1080, 1280x1024 AND 1280x960 with
+    "Specified video mode not available" (2026-08-31, the launcher's own
+    comment) - while .145 later ran it at 1920x1080 (this recipe's comment).
+    The mode list is the DRIVER's, so the answer is per box. Where the 3dfx card
+    drives the screen it is our driver's, and glh2 opens 1280x960 there: .124,
+    2026-10-02 - the ICD opened the board at 1280x960x32@85 in 4-chip SLI, the
+    menu rendered (vcrctl fbshot), the game quit cleanly from its own menu. So
+    FLEETRES runs again there without the cap; every other box keeps it."""
+    return ['rem ---- per-box HEXEN II MODE - H2_UNCAP (see stage-fleetres.py) ------',
+            'if /i "%%FR_UE1DEV%%"=="%s" call "%%~dp0FLEETRES.BAT"' % UE1_GLIDE_DEV]
+
+
 # The per-box DISPLAY SYSTEM for NewDark (Thief II 1.26). Same shape as the
 # render-device block above: one staged tree, and a display path that is right
 # on every GPU the fleet has EXCEPT the one whose Direct3D HAL is ours.
@@ -2098,6 +2116,8 @@ TITLES = {
             for n in ("Play Hexen II.bat", "Host Hexen II - LAN.bat",
                       "Join Hexen II - LAN.bat")
         },
+        "post": [{"file": n, "marker": "H2_UNCAP", "before": H2_START,
+                  "lines": h2_uncap()} for n in H2_LAUNCHERS],
     },
     "HiddenAndDangerous": {
         # There is no fullscreen or resolution switch on this engine: HDE.exe

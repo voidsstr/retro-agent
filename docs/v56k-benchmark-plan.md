@@ -203,11 +203,16 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    4096x4096 game window, `Default_pilot`, `-pilot SDF` in Play and Join),
    `PredefDetailSetting` out of the library (a sync reset each box's own
    detail), `-framecap %FR_HZ%` per box (game timedemo: 60.2 -> 63.9 fps with
-   vsync at 85 Hz; 79.0 is the ceiling with vsync off). **Next:** UE1 titles
-   through the launcher (Unreal Gold refresh/trilinear, Deus Ex on Glide, UT436
-   32-bit + trilinear), Hexen II's 1024x768 cap, Serious Sam presets, Turok 2 /
-   Carmageddon 2 modes, Descent II Win95's registration dialog, then the
-   re-sweep after a reboot (explorer picks up the vsync variable at log-on).
+   vsync at 85 Hz; 79.0 is the ceiling with vsync off). **UE1 (2026-10-02):**
+   UT 436 and Deus Ex join Unreal Gold on GlideDrv per box (UTbench: Glide 63.4
+   vs OpenGL 57.0, CPU-bound), Glide refresh 85 Hz instead of the staged 60,
+   board read 1024x768x16@85 SLI for all three; quit from the game's menu (an
+   outside WM_CLOSE trips UE1's RenDev assertion). **Hexen II** 1280x960 on
+   .124 (the 1024x768 cap was .240's ATI driver). Explorer now carries the
+   vsync variable (envbcast). **Next:** Serious Sam presets, Turok 2 /
+   Carmageddon 2 modes, Descent II Win95's registration dialog, one
+   deploy-generation bump for the other boxes (the new blocks are no-ops
+   there), then the re-sweep.
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).

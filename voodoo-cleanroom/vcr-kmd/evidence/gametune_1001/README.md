@@ -275,3 +275,10 @@ AmigaMerlin's `3dfxOGL.dll` while `OpenGLDrivers\3dfx\DLL` named our
 `icd_source` per title). The rows' own `gl_renderer` (`[voodoo-cleanroom
 0.1.82]`) had been right all along.
 
+## Hexen II at 1280x960 (2026-10-02 23:15, `hexen2_1280x960/`)
+
+The fleet-wide `-cap 1024 768` came from `.240`'s ATI driver, which refused
+every larger mode. On `.124` glh2 opened 1280x960x32@85 through our ICD in
+4-chip SLI, rendered, and quit cleanly from its menu. `stage-fleetres.py`
+`h2_uncap` lifts the cap only where the 3dfx card drives the screen. `.124`'s
+Play, Host and Join launchers now build 1280x960; `.123` still builds 1024x768.
