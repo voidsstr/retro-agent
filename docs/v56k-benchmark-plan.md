@@ -96,6 +96,54 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-10-04 16:45) - the Serious Sam fixes are on every box that is on; the rest take them at power-on; panel 2.1.2 proven on `.124`
+
+**The deploy generation was bumped at 16:36.** postskip-35 released its hold
+at that time; its LAN boxes were idle in the Descent lobby. The new line reads
+`2026-10-04 16:35 Serious Sam TFE+TSE ...`, md5 verified through `/mnt`.
+Autodeploy synced every box that answered. Each run was recorded with
+`state=done`, `failed_files 0`, `gameres_verify_wrong 0`, and done + gated = 116
+= the library:
+
+| box | finished | done + gated | files written |
+|---|---|---|---|
+| `.110` | 16:37 | 52 + 64 | 30 |
+| `.123` | 16:37 | 52 + 64 | 30 |
+| `.124` | 16:38 | 47 + 69 | 13 (had the Serious Sam files since 10-03) |
+| `.145` | 16:39 | 52 + 64 | 30 |
+| `.197` | 16:39 | 52 + 64 | 30 |
+
+On `.123` and `.110`, every one of these matches the library in size:
+- TFE's `Scripts\GLSettings\GLSettings.lst` (6,577 B) and `3Dfx-V5-Mesa.ini`;
+- both Play launchers;
+- `auto-demo0001.dem`.
+
+The demos also carry the library's re-dated write time.
+
+**Still owed, all powered off:** `.133`, `.143`, `.171`, `.184`, `.186` and
+`.240`. Autodeploy keeps a generation per box, so each one syncs within one
+full sweep (about 6 min) of its next power-on. Nobody has to switch them on for
+this. `.243` syncs when it is back in Windows; Serious Sam is gated there anyway.
+
+**3dfx Control Panel 2.1.2 is on `.124` now.** The 10-03 note below claimed
+2.1.2 was there, but the exe on the box was still 2.1.1 (md5 `809675c5`). It
+has the same 427,434 bytes as 2.1.2 and an older write time. After an agent
+`RESTART` at 16:40, `fxpanel_ensure` copied the new build:
+- `FxPanelBoot` = `ok: 2 copied, 0 current`;
+- the box md5 is `fe3d2ccc`, the same as the share's.
+
+The size-or-write-time copy rule therefore works on hardware.
+
+**Also done:** the 10-01 baseline sweep's 98 frames are committed as five
+contact sheets (`gametune_1001/sweep_baseline/contact_*.jpg`). The full-size
+PNGs are kept on the dev host.
+
+**Next:**
+- The AA items need a supervised session.
+- `vcrctl fbshot` under D3D exclusive mode is deferred kernel work.
+- GAMERES `ssam-tse` reaches the boxes with the next agent release, whoever
+  cuts it.
+
 ### Resume point (2026-10-03 10:40) - ICD 0.1.84 on `.124`; Serious Sam both Encounters right; library fixes waiting on one generation bump
 
 **`.124` state:**
