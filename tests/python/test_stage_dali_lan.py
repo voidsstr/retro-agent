@@ -116,3 +116,16 @@ def test_dos4gw_is_capped_before_each_descent_starts():
         lines = [l.strip() for l in s.rdlan_bat(t).decode('ascii').replace('\r\n', '\n').split('\n')]
         assert 'set DOS16M=:32M' in lines, name
         assert lines.index('set DOS16M=:32M') < lines.index(t['game']), name
+
+
+def test_wboot_flushes_dos_buffers_before_it_resets():
+    """WBOOT ran straight after a program exited and warm-reset the P1 before
+    DOS wrote its BUFFERS back: a check's output file vanished and a deleted
+    batch came back (.243, 2026-10-04). Descent saves the pilot at quit, right
+    before WBOOT. It must flush (INT 21h AH=0Dh) and settle before outp(0x64)."""
+    src = open(os.path.join(REPO, 'scripts', 'dosgames', 'dali', 'wboot.c')).read()
+    main = src[src.index('int main(void)'):]
+    assert main.index('flush_and_settle();') < main.index('outp(0x64, 0xFE);')
+    body = src[src.index('static void flush_and_settle(void)'):src.index('int main(void)')]
+    assert 'r.h.ah = 0x0D;' in body and 'intdos(&r, &r);' in body
+    assert 'volatile unsigned long far *tick' in body       # or the wait is optimised away
