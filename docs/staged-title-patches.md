@@ -39,6 +39,7 @@ hand when a title is staged or patched.
 |---|---|---|---|
 | UT2004 | **3369** (`Build.ini` `UT2004_Build_[2005-11-23_16.22]`, `Version: 3369 (128.29)`) | 3369 official final; OldUnreal's community **3374** is a release candidate (seen on internet servers as `v3374-RC1`) and is **not** staged - not on the share, and the fleet server runs 3369.3 | joins the fleet server and OpenSpy-listed internet servers |
 | UT2003 | **2225** (`UT2003_Build_[2003-04-07_17.42]`) | 2225 official final | no CD check after the patch |
+| HalfLife2 (+ Counter-Strike: Source) | **2004-11-16 build** (`hl2.exe`/`bin\engine.dll` dated 2004-11-16; non-Steam tree from `Files/Games/Windows XP/Half-Life 2.ISO`, `bin\Steam.dll` an emulator, `Steam.dll.bak` the original) | Valve's later Source updates (and Episodes) ship only through Steam, which no longer runs on XP; there is no offline patch for this build | single player. CS:Source online play needs a server on the same 2004 protocol - none on the fleet yet (staging in progress 2026-10-04) |
 
 ### UT2003 / UT2004 stability settings (2026-09-30)
 
