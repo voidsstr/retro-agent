@@ -1752,6 +1752,22 @@ TITLES = {
             ],
         },
     },
+    # HALF-LIFE 2 + COUNTER-STRIKE: SOURCE - Valve Source engine, the 2004
+    # non-Steam tree from Files/Games/Windows XP/Half-Life 2.ISO (bin\\Steam.dll
+    # is an emulator, the original kept as Steam.dll.bak). The "exe" slot of
+    # the "new" tuple carries the -game directory; hl2.exe starts both.
+    "HalfLife2": {
+        "new": {
+            "Play Half-Life 2.bat": ("hl2", None),
+            "Play Counter-Strike Source.bat": ("cstrike", None),
+        },
+        "launch_txt": [
+            ("Play Half-Life 2.bat", "Half-Life 2",
+             "platform\\steam\\games\\hl2.ico"),
+            ("Play Counter-Strike Source.bat", "Counter-Strike - Source",
+             "platform\\steam\\games\\Counter-Strike Source.ico"),
+        ],
+    },
     # DOOM 3 (2004, id Tech 4). No cfg_strip and no fleetres.cfg: see
     # doom3_args() - this engine re-applies the command line AFTER its config,
     # so the launcher's +set wins and there is nothing staged to fight with.
@@ -2786,6 +2802,27 @@ rem from "the game never started".
 exit
 """
 
+NEW_SOURCE = """\
+@echo off
+rem {title} - fleet launcher (Valve Source engine, 2004 non-Steam build).
+rem
+rem The resolution comes from the COMMAND LINE: Source keeps its mode in
+rem HKCU\\Software\\Valve\\Source\\<mod>\\Settings and in <mod>\\cfg\\config.cfg,
+rem both written on exit by whichever box ran it last, and -width/-height/-full
+rem override both. These are the exact switch names this build's engine.dll and
+rem launcher.dll contain (2026-10-04); the short -w/-h are NOT in this build.
+rem -freq is in engine.dll and takes FR_HZ, the persisted desktop rate.
+cd /d "%~dp0"
+
+{block}
+
+start "" hl2.exe -game {mod} -width %FR_W% -height %FR_H% -full -freq %FR_HZ% -novid %*
+
+rem Close this console - a launcher that lingers stacks a window per launch.
+exit
+"""
+
+
 NEW_DOOM3 = """\
 @echo off
 rem {title} - fleet launcher.
@@ -3077,6 +3114,10 @@ class Runner:
                 "with make-mount-launcher.py." % (title, name))
             return
         disp = name[len("Play "):-len(".bat")] if name.startswith("Play ") else name
+        if title == "HalfLife2":
+            text = NEW_SOURCE.format(title=disp, mod=exe, block=CALL)
+            self.put(path, crlf(text), "%s/%s" % (title, name))
+            return
         if title == "Doom3":
             block = CALL
             text = NEW_DOOM3.format(title=disp, exe=exe, block=block,
