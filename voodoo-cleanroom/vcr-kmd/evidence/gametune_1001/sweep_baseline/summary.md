@@ -49,3 +49,24 @@
 | Unreal Tournament 2003 | PASS | 640x480 1280x1024 | UT2003.exe | yes |
 | Unreal Tournament 2004 | PASS | 1280x960 1280x1024 | UT2004.exe | yes |
 | Unreal Tournament 436 | PASS | 1280x960 | UnrealTournament.exe | yes |
+
+## Frames
+
+The sweep took two `SCREENSHOT 1` frames of every shortcut, at 30 s and 60 s
+(98 PNGs, 640x480, 39 MB). The repo keeps them as five contact sheets,
+`contact_1_of_5.jpg` .. `contact_5_of_5.jpg` (1.2 MB). Each tile is captioned
+with its shortcut and verdict. The full-size PNGs are on the dev host in
+`~/.retro-fleet/evidence/v56k-gametune_1001-sweep_baseline-20261001_192225/`,
+under the names `sweep.json` gives them. They were copied there and compared
+byte for byte on 2026-10-04.
+
+**Read the thumbnails with care.** `SCREENSHOT` is a GDI capture. For a Glide
+title it reads 2D video memory, not the image on the monitor, so most Glide
+tiles show desktop icons, stripes or noise while the game was rendering
+normally. The verdicts come from:
+
+- the processes running;
+- the dialogs;
+- the board check.
+
+The scanned-out frame comes from `vcrctl fbshot`.
