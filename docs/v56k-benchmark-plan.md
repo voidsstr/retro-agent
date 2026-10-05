@@ -140,7 +140,7 @@ PNGs are kept on the dev host.
 
 **Next:**
 - The AA items need a supervised session.
-- `vcrctl fbshot` under D3D exclusive mode is deferred kernel work.
+- ~~`vcrctl fbshot` under D3D exclusive mode~~ done the same evening: `fbshot --probe` (item 4 below).
 - GAMERES `ssam-tse` reaches the boxes with the next agent release, whoever
   cuts it.
 
@@ -320,9 +320,20 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    `ogl_bExclusive=0`: 79.1 fps). `.124` runs 0.1.84 (`be518e43`).
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive. The GDI escape waits on
    the display lock; a user-mode timeout cannot help, because the thread stuck
-   in win32k keeps the process alive and the agent's EXEC waits on it. A real
-   fix needs a capture path that does not take the devlock (kernel work). It
-   only matters for Direct3D titles, which are outside this campaign.
+   in win32k keeps the process alive and the agent's EXEC waits on it.
+   ~~A real fix needs kernel work~~ **Done 2026-10-04 without kernel work:**
+   `fbshot --probe` reads through the existing `vcrprobe.sys` and asks the
+   display driver nothing. On `.124`:
+   - the desktop is pixel-identical to the default path;
+   - the Quake II 4-chip overlay gives the same plan;
+   - under Max Payne's menu the default path printed nothing in 25 s, while
+     `--probe` finished: ~120 s at normal priority, 38 s at high priority, the
+     game holding the CPU.
+
+   **Max Payne stopped responding during that session** (the user saw it
+   frozen, Num Lock alive). A forced close restored the desktop. The cause is
+   not established, so no D3D title goes in an unattended sweep
+   (`gametune_1001/fbshot_probe/`).
    Quake II's WM_CLOSE SwapBuffers dialog: `lan_sweep` now quits it through
    its console (2026-10-03).
 5. Housekeeping: ~~`push_3dfxctl.py 192.168.1.124 --deploy`~~ done 2026-10-03

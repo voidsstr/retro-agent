@@ -61,6 +61,8 @@
 #ifndef VCR_FBSHOT_H
 #define VCR_FBSHOT_H
 
+#include "vcr_regs.h"        /* the PCI ids the probe path matches */
+
 #define VCR_FB_TILE_W       128u       /* bytes */
 #define VCR_FB_TILE_H       32u        /* lines */
 #define VCR_FB_TILE_BYTES   4096u
@@ -477,6 +479,108 @@ static __inline const char *vcr_fb_gate_name(int g)
     case VCR_FB_G_SLI_CHANGED:  return "stopped: the SLI units changed during the read";
     }
     return "?";
+}
+
+/* ---- `fbshot --probe`: vcrprobe.sys instead of the display driver (2026-10-04) ----
+ * The default path asks the display driver for everything: VCR_ESC_INFO, the
+ * HWCEXT mapping of the registers and memBase1, and the config reads. Every
+ * one of those is an ExtEscape, and win32k runs DrvEscape under its display
+ * lock. A Direct3D game that holds that lock (Max Payne on .124, 2026-09-29)
+ * parks fbshot inside the kernel. No user-mode timeout can end it there: the
+ * thread is in a kernel wait, so the process cannot exit, and the agent's
+ * EXEC waits it out.
+ *
+ * vcrprobe.sys (probe/vcrprobe.c) reads physical memory and PCI config space
+ * without that lock, so `--probe` takes everything from it and calls no GDI
+ * at all:
+ *   - the board: the first 3dfx display chip the HAL lists, function 0
+ *     (vcr_fb_probe_is_board), its BAR0 (registers) and BAR1 (memBase1);
+ *   - memory per chip: the HardwareInformation.MemorySize value vcr-kmd's
+ *     miniport publishes in its video key, found through DEVICEMAP\VIDEO.
+ *     Another driver's value means something else, so the probe path is
+ *     vcr-kmd only (vcr_fb_probe_is_vcrkmd);
+ *   - the registers and memBase1, through IOCTL_VCRPROBE_MEM: dword reads,
+ *     at most 4 KB per call (vcr_fb_probe_chunk).
+ *
+ * What it cannot know without the driver it assumes conservatively. Counting
+ * a VSA-100's hidden slave chips takes raw 0xCF8 cycles outside the HAL's
+ * lock, so a VSA-100 counts as multi-chip. The gate then ALWAYS reads the
+ * master's cfgSliLfbCtrl/cfgAALfbCtrl, and reads them again while it reads.
+ * An LFB read with multi-chip AA live froze the V5 6000, and that rule does
+ * not get weaker on this path. With no kernel session count (sli_chips 0),
+ * SLI comes from the register's own unit count.
+ *
+ * Writes nothing, so it reads no CLUT (dacAddr is a write): an 8 bpp frame
+ * comes out greyscale. */
+#define VCR_FB_PROBE_CHUNK  4096u           /* IOCTL_VCRPROBE_MEM's most */
+#define VCR_FB_PROBE_BUSES  16u             /* buses the probe looks on */
+
+/* a 3dfx display chip's function 0, from the first 12 bytes of its config
+ * space: Banshee (0003), Voodoo3 (0005) or a Napalm part (VSA-100 0009),
+ * class 03 (display) */
+static __inline int vcr_fb_probe_is_board(const unsigned char *cfg)
+{
+    unsigned vendor = cfg[0] | (unsigned)cfg[1] << 8;
+    unsigned device = cfg[2] | (unsigned)cfg[3] << 8;
+    return vendor == VCR_PCI_VENDOR_3DFX && cfg[0x0b] == 0x03 &&
+           (device == VCR_DEV_BANSHEE || device == VCR_DEV_VOODOO3 || VCR_IS_NAPALM(device));
+}
+
+/* the chips the probe path assumes: a Napalm part may be one of two or four
+ * (V5 5500/6000), so it counts as multi-chip and the gate reads the master's
+ * SLI/AA registers; Banshee and Voodoo3 are single-chip parts */
+static __inline unsigned long vcr_fb_probe_board_chips(unsigned device)
+{
+    return VCR_IS_NAPALM(device) ? 2u : 1u;
+}
+
+/* The next probe read of the run [off, off + len). It must be dword aligned
+ * and at most VCR_FB_PROBE_CHUNK long. Returns the aligned start. *alen is the
+ * read's length, *skip the bytes in front of `off`, *take the bytes of the
+ * run it yields (<= len). The caller advances off and len by *take. */
+static __inline unsigned long vcr_fb_probe_chunk(unsigned long off, unsigned long len,
+                                                 unsigned long *alen, unsigned long *skip,
+                                                 unsigned long *take)
+{
+    unsigned long a = off & ~3UL, end = (off + len + 3) & ~3UL;
+    if (end - a > VCR_FB_PROBE_CHUNK)
+        end = a + VCR_FB_PROBE_CHUNK;
+    *alen = end - a;
+    *skip = off - a;
+    *take = *alen - *skip;
+    if (*take > len)
+        *take = len;
+    return a;
+}
+
+/* DEVICEMAP\VIDEO names a video key as "\Registry\Machine\System\...": the
+ * key under HKLM, or NULL for anything else (case-insensitive, as the
+ * registry is) */
+static __inline const char *vcr_fb_hklm_subkey(const char *nt)
+{
+    static const char pre[] = "\\registry\\machine\\";
+    unsigned i;
+    for (i = 0; pre[i]; i++) {
+        char c = nt[i];
+        if (c >= 'A' && c <= 'Z')
+            c = (char)(c - 'A' + 'a');
+        if (c != pre[i])
+            return 0;
+    }
+    return nt + i;
+}
+
+/* HardwareInformation.AdapterString (UTF-16LE, REG_BINARY) is vcr-kmd's own
+ * (miniport/vcrmp.c hwinfo): only then does MemorySize mean memory a chip */
+static __inline int vcr_fb_probe_is_vcrkmd(const unsigned char *w, unsigned long bytes)
+{
+    static const char want[] = "vcr-kmd open 3dfx driver";
+    unsigned long i;
+    for (i = 0; want[i]; i++)
+        if (2 * i + 1 >= bytes || w[2 * i] != (unsigned char)want[i] || w[2 * i + 1])
+            return 0;
+    /* the string ends there: a terminator, or the end of the value */
+    return 2 * i + 1 >= bytes || (!w[2 * i] && !w[2 * i + 1]);
 }
 
 #endif /* VCR_FBSHOT_H */

@@ -96,6 +96,15 @@
  *                          every flip and every 64 lines, and the read stops
  *                          the moment they say AA. Black lines = ok:false,
  *                          partial:true. include/vcr_fbshot.h
+ *   fbshot [path.bmp] --probe
+ *                          the same frame through vcrprobe.sys alone (load it
+ *                          first): no GDI, no escape. The default path's escapes
+ *                          run under win32k's display lock, and a Direct3D game
+ *                          holding it (Max Payne) parks fbshot in the kernel for
+ *                          good. vcr-kmd only (memBase1's extent is its
+ *                          MemorySize); the SLI/AA gate always runs (a VSA-100
+ *                          counts as multi-chip); 8 bpp comes out greyscale (a
+ *                          CLUT read writes dacAddr). JSON "io":"probe"
  *   sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI]
  *         --i-am-at-the-box [--force-desktop-pll]
  *                          any HWCEXT driver: Glide's HWCEXT_SLI_AA_REQUEST, sent
@@ -954,6 +963,196 @@ static int pci_rd(ULONG target, ULONG off, ULONG *val)
     return 1;
 }
 
+/* ---- where fbshot's reads come from -----------------------------------------
+ * The default: the display driver - VCR_ESC_INFO, the HWCEXT mapping of the
+ * registers and memBase1, and VCR_ESC_PCI. `--probe`: vcrprobe.sys alone, no
+ * GDI and no escape, because every escape runs under win32k's display lock and
+ * a Direct3D game holding it parks the escape in the kernel for good
+ * (include/vcr_fbshot.h, "fbshot --probe"). */
+typedef struct fb_io {
+    int probe;
+    HANDLE h;                       /* \\.\VcrProbe */
+    volatile UCHAR *regs, *lfb;     /* the HWCEXT mappings */
+    ULONG bus, dev, device;         /* the board, function 0 (probe) */
+    ULONG bar0, bar1;               /* physical (probe) */
+    ULONG fb_per_chip;              /* vcr-kmd's MemorySize (probe) */
+    ULONG ioctls, errors;
+} fb_io;
+
+/* one dword-aligned read of <= 4 KB of physical memory, through vcrprobe.sys */
+static int fb_probe_mem(fb_io *io, ULONG phys, void *dst, ULONG len)
+{
+    static vcr_probe_mem q;
+    DWORD got = 0;
+    memset(&q, 0, sizeof q);
+    q.phys = phys;
+    q.len = len;
+    io->ioctls++;
+    if (!DeviceIoControl(io->h, IOCTL_VCRPROBE_MEM, &q, sizeof q, &q, sizeof q, &got, NULL) ||
+        got != sizeof q) {
+        io->errors++;
+        return 0;
+    }
+    memcpy(dst, q.data, len);
+    return 1;
+}
+
+/* `len` bytes of function 0's config space, through the HAL (never raw
+ * 0xCF8 cycles: those race the HAL's own) */
+static int fb_probe_cfg(fb_io *io, ULONG bus, ULONG dev, ULONG off, ULONG len, unsigned char *dst)
+{
+    static vcr_probe_pci q;
+    DWORD got = 0;
+    memset(&q, 0, sizeof q);
+    q.bus = bus;
+    q.dev = dev;
+    q.offset = off;
+    q.len = len;
+    io->ioctls++;
+    if (!DeviceIoControl(io->h, IOCTL_VCRPROBE_PCI, &q, sizeof q, &q, sizeof q, &got, NULL) ||
+        q.got < len)
+        return 0;
+    memcpy(dst, q.data, len);
+    return 1;
+}
+
+/* HardwareInformation.MemorySize of the video key whose AdapterString is
+ * vcr-kmd's (DEVICEMAP\VIDEO names each key as \Registry\Machine\System\...).
+ * 0 when there is none: another driver's MemorySize means something else. */
+static ULONG fb_probe_memsize(void)
+{
+    HKEY map, k;
+    char name[256], val[512];
+    unsigned char as[128];
+    DWORD i, nlen, vlen, type, alen, mlen, mem = 0;
+    LONG r;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\VIDEO", 0, KEY_READ, &map) !=
+        ERROR_SUCCESS)
+        return 0;
+    for (i = 0;; i++) {
+        const char *sub;
+        nlen = sizeof name;
+        vlen = sizeof val - 1;
+        r = RegEnumValueA(map, i, name, &nlen, NULL, &type, (LPBYTE)val, &vlen);
+        if (r == ERROR_NO_MORE_ITEMS)
+            break;
+        if (r != ERROR_SUCCESS || type != REG_SZ)
+            continue;
+        val[vlen] = 0;
+        sub = vcr_fb_hklm_subkey(val);
+        if (!sub || RegOpenKeyExA(HKEY_LOCAL_MACHINE, sub, 0, KEY_READ, &k) != ERROR_SUCCESS)
+            continue;
+        alen = sizeof as;
+        mlen = sizeof mem;
+        if (RegQueryValueExA(k, "HardwareInformation.AdapterString", NULL, NULL, as, &alen) ==
+                ERROR_SUCCESS &&
+            vcr_fb_probe_is_vcrkmd(as, alen) &&
+            RegQueryValueExA(k, "HardwareInformation.MemorySize", NULL, NULL, (LPBYTE)&mem,
+                             &mlen) == ERROR_SUCCESS &&
+            mlen == sizeof mem) {
+            RegCloseKey(k);
+            break;
+        }
+        mem = 0;
+        RegCloseKey(k);
+    }
+    RegCloseKey(map);
+    return mem;
+}
+
+/* the board: the first 3dfx display chip the HAL lists, its two BARs, and
+ * vcr-kmd's memory per chip */
+static int fb_probe_open(fb_io *io, const char **why)
+{
+    unsigned char cfg[0x18];
+    ULONG bus, dev;
+    io->h = CreateFileA("\\\\.\\VcrProbe", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+                        0, NULL);
+    if (io->h == INVALID_HANDLE_VALUE) {
+        *why = "\\\\.\\VcrProbe is not loaded: sc create vcrprobe type= kernel start= demand "
+               "binPath= C:\\\\vcr\\\\vcrprobe.sys, then sc start vcrprobe";
+        return 0;
+    }
+    for (bus = 0; bus < VCR_FB_PROBE_BUSES; bus++)
+        for (dev = 0; dev < 32; dev++)
+            if (fb_probe_cfg(io, bus, dev, 0, sizeof cfg, cfg) && vcr_fb_probe_is_board(cfg)) {
+                io->bus = bus;
+                io->dev = dev;
+                io->device = cfg[2] | (ULONG)cfg[3] << 8;
+                io->bar0 = *(ULONG *)(cfg + 0x10);
+                io->bar1 = *(ULONG *)(cfg + 0x14);
+                goto found;
+            }
+    *why = "no 3dfx display chip on PCI buses 0-15";
+    return 0;
+found:
+    if ((io->bar0 & 1) || (io->bar1 & 1) || !(io->bar0 & ~0xfUL) || !(io->bar1 & ~0xfUL)) {
+        *why = "the board's BAR0/BAR1 are not memory BARs";
+        return 0;
+    }
+    io->bar0 &= ~0xfUL;
+    io->bar1 &= ~0xfUL;
+    io->fb_per_chip = fb_probe_memsize();
+    if (!io->fb_per_chip) {
+        *why = "no vcr-kmd video key with HardwareInformation.MemorySize - the probe path "
+               "knows memBase1's extent only from vcr-kmd";
+        return 0;
+    }
+    return 1;
+}
+
+static void fb_io_close(fb_io *io)
+{
+    if (!io->probe)
+        hwc_close();
+    else if (io->h && io->h != INVALID_HANDLE_VALUE)
+        CloseHandle(io->h);
+}
+
+/* a register of the master, by its offset in memBase0 */
+static int fb_reg(fb_io *io, ULONG off, ULONG *v)
+{
+    if (!io->probe) {
+        *v = *(volatile ULONG *)(io->regs + off);
+        return 1;
+    }
+    return fb_probe_mem(io, io->bar0 + off, v, 4);
+}
+
+/* the master's cfgSliLfbCtrl and cfgAALfbCtrl: the AA gate's two registers */
+static int fb_sliaa(fb_io *io, ULONG *sli, ULONG *aa)
+{
+    unsigned char c[VCR_CFG_AALFBCTRL + 4 - VCR_CFG_SLILFBCTRL];
+    if (!io->probe)
+        return pci_rd(0, VCR_CFG_SLILFBCTRL, sli) && pci_rd(0, VCR_CFG_AALFBCTRL, aa);
+    if (!fb_probe_cfg(io, io->bus, io->dev, VCR_CFG_SLILFBCTRL, sizeof c, c))
+        return 0;
+    *sli = *(ULONG *)c;
+    *aa = *(ULONG *)(c + (VCR_CFG_AALFBCTRL - VCR_CFG_SLILFBCTRL));
+    return 1;
+}
+
+/* `run` bytes of memBase1 from `off` */
+static int fb_lfb(fb_io *io, ULONG off, unsigned char *dst, ULONG run)
+{
+    static unsigned char chunk[VCR_FB_PROBE_CHUNK];
+    if (!io->probe) {
+        memcpy(dst, (const void *)(io->lfb + off), run);
+        return 1;
+    }
+    while (run) {
+        unsigned long alen, skip, take;
+        unsigned long a = vcr_fb_probe_chunk(off, run, &alen, &skip, &take);
+        if (!fb_probe_mem(io, io->bar1 + a, chunk, alen))
+            return 0;
+        memcpy(dst, chunk + skip, take);
+        dst += take;
+        off += take;
+        run -= take;
+    }
+    return 1;
+}
+
 /* Read-only: registers through the HWC mapping and config reads, then the
  * scanned-out memory through memBase1 as include/vcr_fbshot.h plans it - raw
  * memory below lfbMemoryConfig's tile aperture, and a tiled Glide buffer
@@ -969,50 +1168,70 @@ static int pci_rd(ULONG target, ULONG off, ULONG *val)
  * (an LFB read in an AA configuration once froze this board hard). A frame
  * with lines left black (a buffer flipped to that did not plan) is written
  * but reported "ok":false, "partial":true. (integration review, 2026-09-28) */
-static int cmd_fbshot(const char *path)
+static int cmd_fbshot(const char *path, int probe)
 {
     static unsigned long clut[256];
     hwc_state st;
     MEMORY_BASIC_INFORMATION mbi;
-    volatile UCHAR *regs, *lfb;
-    ULONG vpc, lmc, stride_reg, ss, fmt, start_off, cur, x, y, xb, rowbytes, lfb_len, limit;
+    ULONG vpc = 0, lmc = 0, stride_reg = 0, ss = 0, sreg = 0;
+    ULONG fmt, start_off, cur, x, y, xb, rowbytes, lfb_len, limit;
     ULONG sli_ctrl = 0, aa_ctrl = 0, sli_chips, board_chips, bufs[4], stop_line = 0;
     double luma = 0;
     int overlay, have_info, have_cfg = 0, gate, flips = 0, unmapped = 0, nbufs = 0, planned, i;
-    int multi, rechecks = 0, stop_gate = 0;
+    int multi, rechecks = 0, stop_gate = 0, read_errors = 0;
     unsigned pitch_bpp = 0;
-    const char *layer, *clut_src = NULL, *clut_why = NULL;
+    const char *layer, *clut_src = NULL, *clut_why = NULL, *why = NULL;
     unsigned char *line, *bmp;
     FILE *f;
     vcr_info v;
     vcr_fb_layer l;
     vcr_fb_aperture ap;
     vcr_fb_plan plan, next;
+    fb_io io;
 
     memset(&v, 0, sizeof v);
-    have_info = esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0;
-    if (!hwc_open(&st, 0))
-        return fail("fbshot", "HWCEXT mapping refused");
-    /* the chips in a live SLI/AA session: our kernel says; any other driver
-     * on a multi-chip board is an unknown (refused below) */
-    sli_chips = have_info ? v.sli_chips : (st.nchips > 1 ? 0xffffffffUL : 0);
-    /* the chips on the CARD: on a multi-chip Napalm board the master's two
-     * SLI/AA registers are read whatever the kernel's session count says -
-     * an AA read hand-off it did not set up freezes the board the same */
-    board_chips = have_info ? v.nchips : 0;
-    if ((ULONG)st.nchips > board_chips)
-        board_chips = st.nchips;
+    memset(&io, 0, sizeof io);
+    io.probe = probe;
+    if (probe) {
+        /* vcrprobe.sys alone: no GDI, no escape (include/vcr_fbshot.h) */
+        if (!fb_probe_open(&io, &why)) {
+            fb_io_close(&io);
+            return fail("fbshot", why);
+        }
+        have_info = 0;
+        /* no kernel session count: SLI is what the register's units say */
+        sli_chips = 0;
+        /* a Napalm part counts as multi-chip: the SLI/AA registers are read */
+        board_chips = vcr_fb_probe_board_chips(io.device);
+    } else {
+        have_info = esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0;
+        if (!hwc_open(&st, 0))
+            return fail("fbshot", "HWCEXT mapping refused");
+        io.regs = (volatile UCHAR *)(ULONG_PTR)st.base0;
+        io.lfb = (volatile UCHAR *)(ULONG_PTR)st.base1;
+        /* the chips in a live SLI/AA session: our kernel says; any other driver
+         * on a multi-chip board is an unknown (refused below) */
+        sli_chips = have_info ? v.sli_chips : (st.nchips > 1 ? 0xffffffffUL : 0);
+        /* the chips on the CARD: on a multi-chip Napalm board the master's two
+         * SLI/AA registers are read whatever the kernel's session count says -
+         * an AA read hand-off it did not set up freezes the board the same */
+        board_chips = have_info ? v.nchips : 0;
+        if ((ULONG)st.nchips > board_chips)
+            board_chips = st.nchips;
+    }
     multi = board_chips > 1 || sli_chips > 1;
-    if (multi && have_info)
-        have_cfg = pci_rd(0, VCR_CFG_SLILFBCTRL, &sli_ctrl) && pci_rd(0, VCR_CFG_AALFBCTRL, &aa_ctrl);
+    if (multi && (have_info || io.probe))
+        have_cfg = fb_sliaa(&io, &sli_ctrl, &aa_ctrl);
     gate = vcr_fb_mb1_gate_board(board_chips, sli_chips, have_cfg, sli_ctrl, aa_ctrl);
 
-    regs = (volatile UCHAR *)(ULONG_PTR)st.base0;
-    lfb = (volatile UCHAR *)(ULONG_PTR)st.base1;
-    vpc = *(volatile ULONG *)(regs + VCR_R_VIDPROCCFG);
-    lmc = *(volatile ULONG *)(regs + VCR_R_LFBMEMORYCONFIG);
-    stride_reg = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPOVERLAYSTRIDE);
-    ss = *(volatile ULONG *)(regs + VCR_R_VIDSCREENSIZE);
+    fb_reg(&io, VCR_R_VIDPROCCFG, &vpc);
+    fb_reg(&io, VCR_R_LFBMEMORYCONFIG, &lmc);
+    fb_reg(&io, VCR_R_VIDDESKTOPOVERLAYSTRIDE, &stride_reg);
+    fb_reg(&io, VCR_R_VIDSCREENSIZE, &ss);
+    if (io.errors) {
+        fb_io_close(&io);
+        return fail("fbshot", "vcrprobe.sys refused a register read");
+    }
     overlay = (vpc & VCR_VPC_OVERLAY_EN) != 0;
     memset(&l, 0, sizeof l);
     l.w = ss & 0xfff;
@@ -1034,7 +1253,8 @@ static int cmd_fbshot(const char *path)
         fmt = (vpc & VCR_VPC_DESKTOP_FMT_MASK) >> VCR_VPC_DESKTOP_FMT_SHIFT;
     }
     l.bpp = vcr_fb_bytespp(fmt);
-    cur = l.start = vcr_fb_start(*(volatile ULONG *)(regs + start_off));
+    fb_reg(&io, start_off, &sreg);
+    cur = l.start = vcr_fb_start(sreg);
     bufs[nbufs++] = cur;
 
     memset(&ap, 0, sizeof ap);
@@ -1044,7 +1264,10 @@ static int cmd_fbshot(const char *path)
     ap.sli_shift = have_cfg ? vcr_fb_sli_shift(sli_ctrl) : 0;
 
     /* memBase1 decodes twice the memory a chip has (vcr_sli.h fb_bytes) */
-    lfb_len = VirtualQuery((LPCVOID)lfb, &mbi, sizeof mbi) ? (ULONG)mbi.RegionSize : 0;
+    if (io.probe)
+        lfb_len = io.fb_per_chip * 2;   /* the miniport keeps it to half of BAR1 */
+    else
+        lfb_len = VirtualQuery((LPCVOID)io.lfb, &mbi, sizeof mbi) ? (ULONG)mbi.RegionSize : 0;
     limit = lfb_len;
     if (have_info && v.fb_per_chip && v.fb_per_chip * 2 < limit)
         limit = v.fb_per_chip * 2;
@@ -1064,17 +1287,26 @@ static int cmd_fbshot(const char *path)
            sli_ctrl, aa_ctrl,
            ap.sli_shift, pitch_bpp, vcr_fb_gate_name(gate), vcr_fb_method_name(plan.method),
            plan.first, plan.end, limit);
+    if (io.probe)
+        printf("\"io\":\"probe\",\"pci\":\"%lu:%lu.0\",\"device\":\"%04lx\",\"bar0\":\"%08lx\","
+               "\"bar1\":\"%08lx\",\"fb_per_chip\":%lu,", io.bus, io.dev, io.device, io.bar0,
+               io.bar1, io.fb_per_chip);
+    else
+        printf("\"io\":\"hwcext\",");
     if (gate || plan.method <= 0 || !strcmp(layer, "none")) {
         printf("\"ok\":false,\"error\":\"%s\"}\n",
                gate ? vcr_fb_gate_name(gate)
                : !strcmp(layer, "none") ? "neither the desktop nor the overlay is on"
                : vcr_fb_method_name(plan.method));
-        hwc_close();
+        fb_io_close(&io);
         return 1;
     }
     fflush(stdout);             /* what it was about to read, should the read go wrong */
 
-    if (fmt == VCR_VPC_FMT_PAL8) {
+    if (fmt == VCR_VPC_FMT_PAL8 && io.probe) {
+        clut_why = "the probe path writes nothing, and reading the CLUT writes dacAddr: "
+                   "8 bpp comes out greyscale";
+    } else if (fmt == VCR_VPC_FMT_PAL8) {
         int kernel = have_info && (v.flags & VCR_INFO_F_CLUT_READ);
         clut_src = clut_read(vpc & VCR_VPC_DESKTOP_CLUT_SELECT ? 256 : 0, kernel, clut, &clut_why);
     }
@@ -1083,12 +1315,13 @@ static int cmd_fbshot(const char *path)
     bmp = (unsigned char *)calloc((l.w * 3 + 3) & ~3u, l.h);
     if (!line || !bmp) {
         printf("\"ok\":false,\"error\":\"out of memory\"}\n");
-        hwc_close();
+        fb_io_close(&io);
         return 1;
     }
     planned = 1;
     for (y = 0; y < l.h; y++) {
-        ULONG s = vcr_fb_start(*(volatile ULONG *)(regs + start_off));
+        /* a probe read that failed is not a flip */
+        ULONG s = fb_reg(&io, start_off, &sreg) ? vcr_fb_start(sreg) : cur;
         unsigned char *row = bmp + (l.h - 1 - y) * ((l.w * 3 + 3) & ~3u);
         int flipped = s != cur;
         if (flipped) {
@@ -1108,7 +1341,7 @@ static int cmd_fbshot(const char *path)
             /* the gate again, from the registers as they are NOW - before
              * this line's memBase1 read (include/vcr_fbshot.h) */
             ULONG s2 = 0, a2 = 0;
-            int hc = pci_rd(0, VCR_CFG_SLILFBCTRL, &s2) && pci_rd(0, VCR_CFG_AALFBCTRL, &a2);
+            int hc = fb_sliaa(&io, &s2, &a2);
             rechecks++;
             stop_gate = vcr_fb_mb1_recheck(board_chips, sli_chips, hc, s2, a2, ap.sli_shift);
             if (stop_gate) {
@@ -1125,7 +1358,10 @@ static int cmd_fbshot(const char *path)
         for (xb = 0; xb < rowbytes;) {
             ULONG run;
             ULONG off = vcr_fb_plan_addr(&plan, xb, y, &run);
-            memcpy(line + xb, (const void *)(lfb + off), run);
+            if (!fb_lfb(&io, off, line + xb, run)) {
+                memset(line + xb, 0, run);      /* a probe read refused: left black */
+                read_errors++;
+            }
             xb += run;
         }
         for (x = 0; x < l.w; x++) {
@@ -1137,7 +1373,7 @@ static int cmd_fbshot(const char *path)
             luma += (0.299 * (c >> 16 & 255) + 0.587 * (c >> 8 & 255) + 0.114 * (c & 255));
         }
     }
-    hwc_close();
+    fb_io_close(&io);
     if (stop_gate) {
         /* nothing more was read: no picture of a frame that was not taken */
         free(line);
@@ -1174,20 +1410,25 @@ static int cmd_fbshot(const char *path)
     free(line);
     free(bmp);
     /* a line left black is not a picture of the frame: written, and said */
-    printf("\"ok\":%s,%s\"flips\":%d,\"rechecks\":%d,\"buffers\":[", unmapped ? "false" : "true",
+    printf("\"ok\":%s,%s%s\"flips\":%d,\"rechecks\":%d,\"read_errors\":%d,\"buffers\":[",
+           unmapped || read_errors ? "false" : "true",
            unmapped ? "\"partial\":true,\"error\":\"lines left black: a buffer the game flipped "
-                      "to did not plan\"," : "", flips, rechecks);
+                      "to did not plan\"," : "",
+           !unmapped && read_errors ? "\"partial\":true,\"error\":\"vcrprobe.sys refused reads: "
+                                      "those runs are black\"," : "",
+           flips, rechecks, read_errors);
     for (i = 0; i < nbufs; i++)
         printf("%s\"%08lx\"", i ? "," : "", bufs[i]);
     printf("],\"unmapped_lines\":%d,\"clut\":%d,\"clut_source\":\"%s\",", unmapped,
            clut_src != NULL, clut_src ? clut_src : fmt == VCR_VPC_FMT_PAL8 ? "none" : "n/a");
     if (clut_why)
         printf("\"clut_error\":\"%s\",", clut_why);
-    printf("\"mean_luma\":%.1f,\"path\":\"", luma / ((double)l.w * l.h));
+    printf("\"mean_luma\":%.1f,\"probe_ioctls\":%lu,\"path\":\"", luma / ((double)l.w * l.h),
+           io.ioctls);
     for (; *path; path++)
         printf(*path == '\\' ? "\\\\" : "%c", *path);
     printf("\"}\n");
-    return unmapped ? 1 : 0;
+    return unmapped || read_errors ? 1 : 0;
 }
 
 static int cmd_hwc(void)
@@ -1843,14 +2084,25 @@ static int cmd_clock(int argc, char **argv)
 int main(int argc, char **argv)
 {
     const char *cmd = argc > 1 ? argv[1] : "info";
-    int rc;
+    const char *fbpath = "C:\\vcr\\fbshot.bmp";
+    int rc, i, fbprobe = 0;
     /* EXEC runs us hidden: a Watson or critical-error box would sit where
      * nobody can dismiss it, holding a test mode on the monitor and the agent
      * command until its timeout. Fail at once and let the host see it. */
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
-    g_dc = GetDC(NULL);
-    if (!g_dc)
-        return fail(cmd, "GetDC failed");
+    if (!strcmp(cmd, "fbshot"))
+        for (i = 2; i < argc; i++) {
+            if (!strcmp(argv[i], "--probe"))
+                fbprobe = 1;
+            else
+                fbpath = argv[i];
+        }
+    /* `fbshot --probe` touches no GDI at all: not even a DC (include/vcr_fbshot.h) */
+    if (!fbprobe) {
+        g_dc = GetDC(NULL);
+        if (!g_dc)
+            return fail(cmd, "GetDC failed");
+    }
     if (!strcmp(cmd, "info"))
         rc = cmd_info();
     else if (!strcmp(cmd, "log"))
@@ -1870,7 +2122,7 @@ int main(int argc, char **argv)
     else if (!strcmp(cmd, "clut"))
         rc = cmd_clut(argc > 2 ? strtoul(argv[2], NULL, 0) : 0, argc > 3 ? strtoul(argv[3], NULL, 0) : 256);
     else if (!strcmp(cmd, "fbshot"))
-        rc = cmd_fbshot(argc > 2 ? argv[2] : "C:\\vcr\\fbshot.bmp");
+        rc = cmd_fbshot(fbpath, fbprobe);
     else if (!strcmp(cmd, "crtc") && argc > 2)
         rc = cmd_regop("crtc", VCR_REG_VGA_CRTC, 0, strtoul(argv[2], NULL, 16));
     else if (!strcmp(cmd, "pci") && argc > 3)
@@ -1923,7 +2175,8 @@ int main(int argc, char **argv)
         rc = r == DISP_CHANGE_SUCCESSFUL ? 0 : 1;
     } else
         rc = fail(cmd, "unknown command or missing arguments");
-    ReleaseDC(NULL, g_dc);
+    if (g_dc)
+        ReleaseDC(NULL, g_dc);
     /* vcr_pace.h's exit hold can keep this process alive for the floor after
      * main returns; what it printed must already be out if the host's
      * timeout kills it there */

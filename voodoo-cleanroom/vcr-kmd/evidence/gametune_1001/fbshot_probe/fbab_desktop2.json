@@ -1,0 +1,25 @@
+{
+ "esc": {
+  "seconds": 1.1,
+  "output": "{\"cmd\":\"fbshot\",\"vidProcCfg\":\"080c0081\",\"start\":\"03b00000\",\"stride\":\"00001400\",\"w\":1280,\"h\":1024,\"fmt\":3,\"tiled\":0,\"overlay\":0,\"sli_active\":0,\"lfb_view\":268435456,\"layer\":\"desktop\",\"lfbMemoryConfig\":\"01803fff\",\"ap_base\":\"07fff000\",\"ap_line\":2048,\"ap_tiles\":0,\"board_chips\":4,\"sli_chips\":0,\"cfgSliLfbCtrl\":\"00000000\",\"cfgAALfbCtrl\":\"00000000\",\"sli_shift\":0,\"pitch_bpp\":0,\"gate\":\"ok\",\"method\":\"raw-linear\",\"mb1_first\":\"03b00000\",\"mb1_end\":\"04000000\",\"limit\":\"08000000\",\"io\":\"hwcext\",\"ok\":true,\"flips\":0,\"rechecks\":16,\"read_errors\":0,\"buffers\":[\"03b00000\"],\"unmapped_lines\":0,\"clut\":0,\"clut_source\":\"n/a\",\"mean_luma\":20.1,\"probe_ioctls\":0,\"path\":\"C:\\\\vcr\\\\fbab_desktop2_esc.bmp\"}",
+  "png": "fbab_desktop2_esc.png",
+  "size": [
+   1280,
+   1024
+  ]
+ },
+ "probe": {
+  "seconds": 1.4,
+  "output": "{\"cmd\":\"fbshot\",\"vidProcCfg\":\"080c0081\",\"start\":\"03b00000\",\"stride\":\"00001400\",\"w\":1280,\"h\":1024,\"fmt\":3,\"tiled\":0,\"overlay\":0,\"sli_active\":-1,\"lfb_view\":134217728,\"layer\":\"desktop\",\"lfbMemoryConfig\":\"01803fff\",\"ap_base\":\"07fff000\",\"ap_line\":2048,\"ap_tiles\":0,\"board_chips\":2,\"sli_chips\":0,\"cfgSliLfbCtrl\":\"00000000\",\"cfgAALfbCtrl\":\"00000000\",\"sli_shift\":0,\"pitch_bpp\":0,\"gate\":\"ok\",\"method\":\"raw-linear\",\"mb1_first\":\"03b00000\",\"mb1_end\":\"04000000\",\"limit\":\"08000000\",\"io\":\"probe\",\"pci\":\"3:0.0\",\"device\":\"0009\",\"bar0\":\"d0000000\",\"bar1\":\"c0000000\",\"fb_per_chip\":67108864,\"ok\":true,\"flips\":0,\"rechecks\":16,\"read_errors\":0,\"buffers\":[\"03b00000\"],\"unmapped_lines\":0,\"clut\":0,\"clut_source\":\"n/a\",\"mean_luma\":20.1,\"probe_ioctls\":3191,\"path\":\"C:\\\\vcr\\\\fbab_desktop2_probe.bmp\"}",
+  "png": "fbab_desktop2_probe.png",
+  "size": [
+   1280,
+   1024
+  ]
+ },
+ "compare": {
+  "differing_pixels": 0,
+  "bbox": null,
+  "total": 1310720
+ }
+}

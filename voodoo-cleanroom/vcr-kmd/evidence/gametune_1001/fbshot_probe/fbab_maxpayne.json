@@ -1,0 +1,10 @@
+{
+ "probe": {
+  "seconds": 120.1,
+  "output": "{\"cmd\":\"fbshot\",\"vidProcCfg\":\"000c0081\",\"start\":\"004b0000\",\"stride\":\"00001400\",\"w\":1280,\"h\":960,\"fmt\":3,\"tiled\":0,\"overlay\":0,\"sli_active\":-1,\"lfb_view\":134217728,\"layer\":\"desktop\",\"lfbMemoryConfig\":\"01803fff\",\"ap_base\":\"07fff000\",\"ap_line\":2048,\"ap_tiles\":0,\"board_chips\":2,\"sli_chips\":0,\"cfgSliLfbCtrl\":\"00000000\",\"cfgAALfbCtrl\":\"00000000\",\"sli_shift\":0,\"pitch_bpp\":0,\"gate\":\"ok\",\"method\":\"raw-linear\",\"mb1_first\":\"004b0000\",\"mb1_end\":\"00960000\",\"limit\":\"08000000\",\"io\":\"probe\",\"pci\":\"3:0.0\",\"device\":\"0009\",\"bar0\":\"d0000000\",\"bar1\":\"c0000000\",\"fb_per_chip\":67108864,\n[EXECW: timed out, process tree killed]"
+ },
+ "esc": {
+  "seconds": 25.1,
+  "output": "[EXECW: timed out, process tree killed]"
+ }
+}

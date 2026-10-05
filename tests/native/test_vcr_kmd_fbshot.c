@@ -684,6 +684,134 @@ TEST(raw_reads_are_refused_under_sli)
     CHECK(vcr_fb_method_name(VCR_FB_R_SLI_RAW)[0] == 'r', "a refusal has a name");
 }
 
+/* ---- fbshot --probe (2026-10-04): vcrprobe.sys instead of the display driver.
+ * Its memory reads must be dword aligned and at most 4 KB, so a run of
+ * memBase1 is cut into such reads; together they must yield the run byte for
+ * byte, with no gaps and no overlap. */
+TEST(probe_reads_cover_any_run_exactly)
+{
+    static unsigned char mem[3 * 4096 + 64], out[3 * 4096 + 64];
+    unsigned long i, off, len;
+    for (i = 0; i < sizeof mem; i++)
+        mem[i] = (unsigned char)(i * 7 + 3);
+    for (off = 0; off < 9; off++)
+        for (len = 1; len < 3 * 4096 + 40; len += len < 24 ? 1 : 509) {
+            unsigned long o = off, n = len, got = 0, reads = 0;
+            memset(out, 0, sizeof out);
+            while (n) {
+                unsigned long alen, skip, take, a = vcr_fb_probe_chunk(o, n, &alen, &skip, &take);
+                CHECK(a % 4 == 0 && alen % 4 == 0, "every read dword aligned");
+                CHECK(alen >= 4 && alen <= VCR_FB_PROBE_CHUNK, "at most one IOCTL's 4 KB");
+                CHECK(a + skip == o && skip < 4, "starts at the run's next byte");
+                CHECK(take > 0 && take <= n && skip + take <= alen, "a step forward, inside the read");
+                memcpy(out + got, mem + a + skip, take);
+                got += take;
+                o += take;
+                n -= take;
+                reads++;
+            }
+            CHECK_EQ_U(got, len);
+            CHECK(memcmp(out, mem + off, len) == 0, "the run, byte for byte");
+            CHECK(reads <= len / VCR_FB_PROBE_CHUNK + 2, "no more reads than needed");
+        }
+    /* .124's desktop line, 1280 px at 32 bpp from an aligned start: 4096 + 1024 */
+    {
+        unsigned long alen, skip, take;
+        CHECK_EQ_U(vcr_fb_probe_chunk(0x03b00000ul, 5120, &alen, &skip, &take), 0x03b00000ul);
+        CHECK_EQ_U(alen, 4096);
+        CHECK_EQ_U(take, 4096);
+        CHECK_EQ_U(vcr_fb_probe_chunk(0x03b01000ul, 1024, &alen, &skip, &take), 0x03b01000ul);
+        CHECK_EQ_U(alen, 1024);
+        CHECK_EQ_U(take, 1024);
+        /* a 24 bpp run that ends mid-dword reads the whole dword, takes 3 */
+        CHECK_EQ_U(vcr_fb_probe_chunk(8, 3, &alen, &skip, &take), 8);
+        CHECK_EQ_U(alen, 4);
+        CHECK_EQ_U(take, 3);
+    }
+}
+
+/* the board the probe path finds, and the gate it then cannot skip: with no
+ * kernel to count the slave chips, a VSA-100 counts as multi-chip, so the
+ * master's SLI/AA registers are always read - the rule that keeps an LFB read
+ * away from live multi-chip AA (it froze the V5 6000) holds on this path too */
+TEST(the_probe_path_finds_the_board_and_never_skips_the_aa_gate)
+{
+    unsigned char cfg[16];
+    memset(cfg, 0, sizeof cfg);
+    cfg[0] = 0x1a; cfg[1] = 0x12; cfg[2] = 0x09; cfg[0x0b] = 0x03;
+    CHECK(vcr_fb_probe_is_board(cfg), ".124's master: 121a:0009, class 03");
+    cfg[0x0b] = 0x04;
+    CHECK(!vcr_fb_probe_is_board(cfg), "not a display controller");
+    cfg[0x0b] = 0x03;
+    cfg[2] = 0x05;
+    CHECK(vcr_fb_probe_is_board(cfg), "a Voodoo3");
+    cfg[2] = 0x03;
+    CHECK(vcr_fb_probe_is_board(cfg), "a Banshee");
+    cfg[2] = 0x02;
+    CHECK(!vcr_fb_probe_is_board(cfg), "a Voodoo 2 has no display of its own");
+    cfg[0] = 0x02; cfg[1] = 0x11;       /* 1102:0002 is a Creative SB Live! */
+    CHECK(!vcr_fb_probe_is_board(cfg), "another vendor's 0002");
+
+    CHECK_EQ_U(vcr_fb_probe_board_chips(VCR_DEV_VSA100), 2);
+    CHECK_EQ_U(vcr_fb_probe_board_chips(VCR_DEV_VOODOO3), 1);
+    CHECK_EQ_U(vcr_fb_probe_board_chips(VCR_DEV_BANSHEE), 1);
+    /* sli_chips 0 (no kernel count): the registers decide, every refusal kept */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(2, 0, 0, 0, 0), VCR_FB_G_CFG_UNKNOWN);
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(2, 0, 1, 0, VCR_FB_AALFB_ACTIVE), VCR_FB_G_AA);
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(2, 0, 1, 0x0e1f0060ul, 0), VCR_FB_G_SLI_NOREAD);
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(2, 0, 1, 0x1e1f0060ul, 0), 0);  /* Quake III, READ_EN */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(2, 0, 1, 0, 0), 0);             /* the desktop */
+    /* ...and asked again while it reads */
+    CHECK_EQ_I(vcr_fb_mb1_recheck(2, 0, 1, 0x1e1f0060ul, VCR_FB_AALFB_ACTIVE, 2), VCR_FB_G_AA);
+    CHECK_EQ_I(vcr_fb_mb1_recheck(2, 0, 1, 0x1d1f0020ul, 0, 2), VCR_FB_G_SLI_CHANGED);
+    CHECK_EQ_I(vcr_fb_mb1_recheck(2, 0, 1, 0x1e1f0060ul, 0, 2), 0);
+}
+
+/* memBase1's extent comes from vcr-kmd's own HardwareInformation.MemorySize,
+ * found through DEVICEMAP\VIDEO - .124's values as read 2026-10-04 */
+static unsigned long utf16(unsigned char *w, const char *s, int terminate)
+{
+    unsigned long n = 0;
+    for (; *s; s++) {
+        w[n++] = (unsigned char)*s;
+        w[n++] = 0;
+    }
+    if (terminate) {
+        w[n++] = 0;
+        w[n++] = 0;
+    }
+    return n;
+}
+
+TEST(the_probe_path_reads_memory_per_chip_from_vcrkmds_key_only)
+{
+    unsigned char w[128];
+    unsigned long n;
+    const char *sub = vcr_fb_hklm_subkey("\\Registry\\Machine\\System\\CurrentControlSet\\Control"
+                                         "\\Video\\{919B6B70-D4BE-429E-BA88-B764A6812C33}\\0000");
+    CHECK(sub && !strcmp(sub, "System\\CurrentControlSet\\Control\\Video\\"
+                              "{919B6B70-D4BE-429E-BA88-B764A6812C33}\\0000"), "the key under HKLM");
+    CHECK(vcr_fb_hklm_subkey("\\REGISTRY\\Machine\\System\\CurrentControlSet\\Services\\TSDDD"
+                             "\\Device0") != NULL, "the registry is case-insensitive");
+    CHECK(vcr_fb_hklm_subkey("\\Registry\\User\\S-1-5-18") == NULL, "not HKLM");
+    CHECK(vcr_fb_hklm_subkey("\\Registry") == NULL, "too short");
+    CHECK(vcr_fb_hklm_subkey("") == NULL, "empty");
+
+    n = utf16(w, "vcr-kmd open 3dfx driver", 1);
+    CHECK_EQ_U(n, 50);                  /* what the miniport writes, terminator included */
+    CHECK(vcr_fb_probe_is_vcrkmd(w, n), "vcr-kmd's AdapterString");
+    CHECK(vcr_fb_probe_is_vcrkmd(w, n - 2), "without its terminator");
+    CHECK(!vcr_fb_probe_is_vcrkmd(w, n - 4), "cut short");
+    n = utf16(w, "vcr-kmd open 3dfx driverX", 1);
+    CHECK(!vcr_fb_probe_is_vcrkmd(w, n), "a longer string");
+    n = utf16(w, "3dfx VSA-100 (vcr-kmd)", 1);
+    CHECK(!vcr_fb_probe_is_vcrkmd(w, n), "the ChipType string");
+    n = utf16(w, "3Dfx Voodoo5 6000 AGP", 1);
+    CHECK(!vcr_fb_probe_is_vcrkmd(w, n), "a vendor driver");
+    memcpy(w, "vcr-kmd open 3dfx driver", 25);
+    CHECK(!vcr_fb_probe_is_vcrkmd(w, 25), "ASCII is not the registry's UTF-16");
+}
+
 MUNIT_MAIN("vcr-kmd fbshot decoding (include/vcr_fbshot.h)", {
     RUN(the_124_desktop_registers_decode);
     RUN(the_start_address_keeps_every_bit_a_64mb_chip_needs);
@@ -703,4 +831,7 @@ MUNIT_MAIN("vcr-kmd fbshot decoding (include/vcr_fbshot.h)", {
     RUN(the_board_not_the_kernels_count_decides_the_gate);
     RUN(a_read_stops_at_the_next_recheck_after_aa_goes_live);
     RUN(raw_reads_are_refused_under_sli);
+    RUN(probe_reads_cover_any_run_exactly);
+    RUN(the_probe_path_finds_the_board_and_never_skips_the_aa_gate);
+    RUN(the_probe_path_reads_memory_per_chip_from_vcrkmds_key_only);
 })

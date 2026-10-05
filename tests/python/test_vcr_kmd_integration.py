@@ -211,19 +211,21 @@ def test_c_a_named_check_that_was_skipped_is_not_a_pass():
 
 
 def test_d_e_f_fbshot_rechecks_the_gate_while_it_reads():
-    fb = func(CTL, "static int cmd_fbshot(const char *path)")
+    fb = func(CTL, "static int cmd_fbshot(const char *path, int probe)")
     c = code(fb)
     # (e) the board's chips decide; the registers are read on any multi-chip card
     assert "board_chips = have_info ? v.nchips : 0;" in c
     assert "multi = board_chips > 1 || sli_chips > 1;" in c
-    assert "if (multi && have_info)" in c
+    assert "if (multi && (have_info || io.probe))" in c
     assert "gate = vcr_fb_mb1_gate_board(board_chips, sli_chips, have_cfg, sli_ctrl, aa_ctrl);" in c
     assert "vcr_fb_mb1_gate(sli_chips" not in c
     # (d) asked again before the line's read, at flips and every N lines, and it stops
     loop = c[c.index("for (y = 0; y < l.h; y++) {"):]
     re_at = loop.index("if (multi && vcr_fb_recheck_due(y, flipped)) {")
-    assert re_at < loop.index("memcpy(line + xb")
-    assert "pci_rd(0, VCR_CFG_SLILFBCTRL, &s2) && pci_rd(0, VCR_CFG_AALFBCTRL, &a2)" in loop
+    assert re_at < loop.index("fb_lfb(&io, off, line + xb, run)")
+    assert "int hc = fb_sliaa(&io, &s2, &a2);" in loop
+    sliaa = code(func(CTL, "static int fb_sliaa("))
+    assert "pci_rd(0, VCR_CFG_SLILFBCTRL, sli) && pci_rd(0, VCR_CFG_AALFBCTRL, aa)" in sliaa
     assert "vcr_fb_mb1_recheck(board_chips, sli_chips, hc, s2, a2, ap.sli_shift)" in loop
     assert "break;" in loop[re_at:loop.index("if (!planned)")]
     at = c.index("\n    if (stop_gate) {")          # after the loop: nothing more is read
@@ -232,11 +234,51 @@ def test_d_e_f_fbshot_rechecks_the_gate_while_it_reads():
     assert '\\"ok\\":false,\\"stopped_at_line\\"' in fb
     assert re.search(r"#define VCR_FB_RECHECK_LINES\s+64u", FBH)
     # (f) black lines are not a frame; raw reads under SLI are refused in the plan
-    assert 'unmapped ? "false" : "true"' in c
+    assert 'unmapped || read_errors ? "false" : "true"' in c
     assert '\\"partial\\":true' in fb
-    assert "return unmapped ? 1 : 0;" in c
+    assert "return unmapped || read_errors ? 1 : 0;" in c
     pm = func(FBH, "static __inline int vcr_fb_plan_make(")
     assert "if (ap->sli_shift)\n            return p->method = VCR_FB_R_SLI_RAW;" in pm
+
+
+def test_fbshot_probe_asks_the_display_driver_nothing_and_keeps_the_aa_gate():
+    """`fbshot --probe` (2026-10-04). Every escape runs under win32k's display
+    lock, and a Direct3D game holding it (Max Payne on .124) parked the default
+    fbshot in the kernel, where no timeout ends it. The probe path takes the
+    board, the registers and memBase1 from vcrprobe.sys and calls no GDI - and
+    it must not weaken the rule that keeps an LFB read away from live
+    multi-chip AA (include/vcr_fbshot.h)."""
+    fb = code(func(CTL, "static int cmd_fbshot(const char *path, int probe)"))
+    at = fb.index("if (probe) {")
+    branch = fb[at:fb.index("} else {", at)]
+    assert "fb_probe_open(&io, &why)" in branch
+    for gdi in ("esc(", "hwc_open(", "pci_rd(", "ExtEscape", "GetDC"):
+        assert gdi not in branch, gdi
+    # a VSA-100 counts as multi-chip: the SLI/AA registers are always read
+    assert "board_chips = vcr_fb_probe_board_chips(io.device);" in branch
+    assert "if (multi && (have_info || io.probe))" in fb
+    # every read goes through the I/O layer, whose probe half is vcrprobe only
+    for name, ioctl in (("static int fb_reg(", "fb_probe_mem(io, io->bar0 + off"),
+                        ("static int fb_sliaa(", "fb_probe_cfg(io, io->bus, io->dev"),
+                        ("static int fb_lfb(", "fb_probe_mem(io, io->bar1 + a")):
+        body = code(func(CTL, name))
+        assert body.index("if (!io->probe)") < body.index(ioctl), name
+        for gdi in ("esc(", "hwc_open(", "ExtEscape"):
+            assert gdi not in body[body.index(ioctl) - 40:], (name, gdi)
+    assert "IOCTL_VCRPROBE_MEM" in code(func(CTL, "static int fb_probe_mem("))
+    cfg = code(func(CTL, "static int fb_probe_cfg("))
+    assert "IOCTL_VCRPROBE_PCI" in cfg
+    assert "raw" not in cfg      # raw 0xCF8 cycles race the HAL's own config access
+    # memBase1's extent only from vcr-kmd's MemorySize; no CLUT read (a write)
+    assert "lfb_len = io.fb_per_chip * 2;" in fb
+    assert "vcr_fb_probe_is_vcrkmd(as, alen)" in code(func(CTL, "static ULONG fb_probe_memsize("))
+    pal = fb.index("if (fmt == VCR_VPC_FMT_PAL8 && io.probe) {")
+    assert pal < fb.index("clut_read(")
+    # main() takes no DC for it
+    main = code(func(CTL, "int main(int argc, char **argv)"))
+    assert "if (!fbprobe) {\n        g_dc = GetDC(NULL);" in main
+    assert "rc = cmd_fbshot(fbpath, fbprobe);" in main
+    assert "if (g_dc)\n        ReleaseDC(NULL, g_dc);" in main
 
 
 def test_g_the_offset_0_comments_agree_with_the_heap_manager():

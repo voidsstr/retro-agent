@@ -1,0 +1,30 @@
+{
+ "esc": {
+  "seconds": 3.4,
+  "output": "{\"cmd\":\"fbshot\",\"vidProcCfg\":\"026c0101\",\"start\":\"03c3e000\",\"stride\":\"00000028\",\"w\":1280,\"h\":960,\"fmt\":3,\"tiled\":1,\"overlay\":1,\"sli_active\":1,\"lfb_view\":268435456,\"layer\":\"overlay\",\"lfbMemoryConfig\":\"00a87c3e\",\"ap_base\":\"03c3e000\",\"ap_line\":8192,\"ap_tiles\":40,\"board_chips\":4,\"sli_chips\":4,\"cfgSliLfbCtrl\":\"1e0f0030\",\"cfgAALfbCtrl\":\"00000000\",\"sli_shift\":2,\"pitch_bpp\":4,\"gate\":\"ok\",\"method\":\"aperture\",\"mb1_first\":\"03c3e000\",\"mb1_end\":\"043bd400\",\"limit\":\"08000000\",\"io\":\"hwcext\",\"ok\":true,\"flips\":104,\"rechecks\":116,\"read_errors\":0,\"buffers\":[\"03c3e000\",\"03d7e000\"],\"unmapped_lines\":0,\"clut\":0,\"clut_source\":\"n/a\",\"mean_luma\":32.3,\"probe_ioctls\":0,\"path\":\"C:\\\\vcr\\\\fbab_quake2_esc.bmp\"}",
+  "png": "fbab_quake2_esc.png",
+  "size": [
+   1280,
+   960
+  ]
+ },
+ "probe": {
+  "seconds": 3.2,
+  "output": "{\"cmd\":\"fbshot\",\"vidProcCfg\":\"026c0101\",\"start\":\"03d7e000\",\"stride\":\"00000028\",\"w\":1280,\"h\":960,\"fmt\":3,\"tiled\":1,\"overlay\":1,\"sli_active\":-1,\"lfb_view\":134217728,\"layer\":\"overlay\",\"lfbMemoryConfig\":\"00a87c3e\",\"ap_base\":\"03c3e000\",\"ap_line\":8192,\"ap_tiles\":40,\"board_chips\":2,\"sli_chips\":0,\"cfgSliLfbCtrl\":\"1e0f0030\",\"cfgAALfbCtrl\":\"00000000\",\"sli_shift\":2,\"pitch_bpp\":4,\"gate\":\"ok\",\"method\":\"aperture\",\"mb1_first\":\"0443e000\",\"mb1_end\":\"04bbd400\",\"limit\":\"08000000\",\"io\":\"probe\",\"pci\":\"3:0.0\",\"device\":\"0009\",\"bar0\":\"d0000000\",\"bar1\":\"c0000000\",\"fb_per_chip\":67108864,\"ok\":true,\"flips\":75,\"rechecks\":90,\"read_errors\":0,\"buffers\":[\"03d7e000\",\"03c3e000\"],\"unmapped_lines\":0,\"clut\":0,\"clut_source\":\"n/a\",\"mean_luma\":29.5,\"probe_ioctls\":3073,\"path\":\"C:\\\\vcr\\\\fbab_quake2_probe.bmp\"}",
+  "png": "fbab_quake2_probe.png",
+  "size": [
+   1280,
+   960
+  ]
+ },
+ "compare": {
+  "differing_pixels": 1226405,
+  "bbox": [
+   0,
+   0,
+   1280,
+   960
+  ],
+  "total": 1228800
+ }
+}
