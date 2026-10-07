@@ -245,6 +245,35 @@ def test_glidelab_edges_is_for_a_person_to_look_at_and_reads_nothing_back():
     assert '"edges"' in glr
 
 
+def test_glidelab_tbuffer_is_for_a_person_and_reads_nothing_back():
+    """glidelab tbuffer (2026-10-07): the T-buffer write mask, left half drawn
+    with every sample at the average grey, right half one sample at a time -
+    the halves match when each sample reaches its own chip and buffer. It is an
+    AA run, so it must never read the LFB, must refuse a non-AA config instead
+    of drawing a meaningless picture, and must leave the mask on every sample."""
+    gl = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
+          / "glidelab.c").read_text()
+    tb = gl[gl.index("static int do_tbuffer(void)"):gl.index("static unsigned line_code(int y)")]
+    assert "grLfbReadRegion" not in tb
+    assert 'p_grGetProcAddress("grTBufferWriteMaskExt")' in tb   # an extension, not an export
+    assert "if (n < 2 || n > 8) {" in tb and "not an AA configuration" in tb
+    # every sample on the left, then each alone on the right, then all again before the swap
+    assert tb.index("tbm(all);") < tb.index("tbm(1u << s);") < tb.rindex("tbm(all);") \
+        < tb.index("p_grBufferSwap(1);")
+    assert "(s & 1) ? 0xff000000u : 0xffffffffu" in tb and "0xff808080u" in tb
+    # black under the right half: an unrouted sample must show, not blend in
+    assert "p_grBufferClear(0, 0, 0xffff);" in tb
+    assert "rc = do_tbuffer();" in gl
+    # the samples the config gives (gpci.c) and the override Glide honours
+    ef = gl[gl.index("static void effective_config(void)"):]
+    ef = ef[:ef.index("\n}\n")]
+    assert "(g_eff_cfg == 4 || g_eff_cfg == 7) ? 4 : g_eff_cfg == 8 ? 8 : 1" in ef
+    assert "g_eff_samples = aa_set ? aa_samples" in ef
+    glr = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
+           / "glidelab_run.py").read_text()
+    assert '"tbuffer"' in glr
+
+
 def test_glidelab_aa_jitter_zero_is_process_environment_only():
     """--aa-jitter zero (2026-09-28): the cfg 3 ghost's render-side arm sets
     FX_GLIDE_AA2_OFFSET_X0/X1/Y0/Y1 = -0.5 (aaCtrl 0 on every chip) through

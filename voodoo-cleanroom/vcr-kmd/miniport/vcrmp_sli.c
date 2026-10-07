@@ -1208,7 +1208,7 @@ static int sli_disable_video(const vcr_sli_io *io, vcr_u32 n)
     return 0;
 }
 
-static int sli_disable(const vcr_sli_io *io, vcr_u32 n)
+static int sli_disable(const vcr_sli_io *io, vcr_u32 n, vcr_u32 flags)
 {
     vcr_u32 c;
     int warn = 0;
@@ -1219,6 +1219,11 @@ static int sli_disable(const vcr_sli_io *io, vcr_u32 n)
      * master's write reaches every slave even if a slave's own does not. */
     for (c = 0; c < n; c++)
         warn |= write_3d(io, VCR_SLI_S_OFF_SLICTRL, c, VCR_3D_SLICTRL, 0, "sliCtrl = 0");
+    /* ours, under its flag (vcr_sli.h VCR_SLI_F_OFF_AACTRL): aaCtrl the same
+     * way, so no AA jitter or enable outlives the session */
+    if (flags & VCR_SLI_F_OFF_AACTRL)
+        for (c = 0; c < n; c++)
+            warn |= write_3d(io, VCR_SLI_S_OFF_AACTRL, c, VCR_3D_AACTRL, 0, "aaCtrl = 0");
 
     warn |= sli_disable_video(io, n);
     lg(io, VCR_SLI_S_OFF_DONE, n, 0, (vcr_u32)warn, "hwcSetSLIAAMode: disable done");
@@ -1567,7 +1572,7 @@ int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags)
     p.aa = r->ChipInfo.dwaaEn ? 1 : 0;
     /* A disable request carries garbage in everything but dwChips. */
     if (!p.sli && !p.aa)
-        return sli_disable(io, p.n);
+        return sli_disable(io, p.n, flags);
 
     p.analog = r->ChipInfo.dwsliAaAnalog ? 1 : 0;
     p.high = p.aa ? r->ChipInfo.dwaaSampleHigh : 0;   /* only ever read together with aa */

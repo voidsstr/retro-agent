@@ -160,6 +160,7 @@ typedef struct VCR_EXT {
     ULONG     clock_6k_hz;          /* last external clock programmed */
     ULONG     sli_aa_live;          /* an AA session is live: Diag\\SliAALive = 1 (vcr_aaguard.h) */
     ULONG     sli_persist_all;      /* Diag\\SliPersistAll: every SLI step is a flushed phase */
+    ULONG     sli_off_aactrl;       /* Diag\\SliOffAaCtrl: the disable zeroes aaCtrl too (vcr_sli.h) */
     vcr_sli_poke_memo poke_memo;    /* PCI_OP refusals already persisted (vcr_sli_poke_first) */
     vcr_u32   sli_pci0[VCR_SLI_MAX_CHIPS];  /* pciInit0 as the last enable WROTE it (k_log) */
     vcr_u32   sli_pci0_mask;        /* bit c: sli_pci0[c] was written by that enable */

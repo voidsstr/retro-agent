@@ -96,6 +96,77 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-10-07 07:00) - agent 1.97.2 released; both AA-path fixes PREPARED, waiting for a supervised session; `.124` unchanged
+
+**Agent 1.97.2 is published.** It carries only the GAMERES `ssam-tse` body,
+the one agent change since 1.97.1.
+- Tag `v1.97.2` is pushed.
+- The binary (md5 `f1e950cd`) is published as the archive, then the latest
+  pointer, then `.ver` last. Each was read back through `/mnt`.
+- The nsc-assistant dashboard is rebuilt with it.
+
+XP boxes pull it at their next agent start, and Win98 boxes at their next
+logon.
+
+**The user chose "prepare now, test later" for the two AA items.** Nothing on
+`.124` changed. It still runs vcr-kmd `fda1b8c9`/`b63ea6a5`, h5 Glide
+`07c96fd9` and ICD 0.1.84. Everything below is staged in
+`~/.retro-fleet/staging/aa-prep-20261007/` (`MANIFEST.md5`):
+
+| item | where | state |
+|---|---|---|
+| Glide T-buffer routing: "not SLI" is `sliCount <= 1` (3dfx tested `!gc->sliCount`, never true after an open, so on four chips 4x and 8x took the SLI mapping in `grTBufferWriteMaskExt`) | fork branch `tbuffer-slicount` `cabede4`, **not merged**; `glide3x_h5_tbuffer-slicount.dll` `cd648864` (C triangle setup, dual-ABI) | compiled; no game or our ICD calls it |
+| kernel: the SLI/AA disable zeroes every chip's 3D `aaCtrl` (`Diag\SliOffAaCtrl`, **default 0**) | master; `vcrmp.sys` `08e9fba9` + `vcrdd.dll` `0face410` (the DLL is the deployed code - only its link timestamp differs) | native-tested: off writes exactly the old sequence, on adds 4 writes between sliCtrl and snoop-off |
+| `glidelab tbuffer` (the test for the Glide fix) | master; `glidelab.exe` `47a31b96` | built |
+
+**Why the kernel change - corrected from the first reading.** A clean Glide
+close already writes `aaCtrl` = 0, because the no-AA jitter row is all zeros.
+The gap is a killed or crashed AA client:
+- it never closes;
+- a non-AA open never writes `aaCtrl`;
+- the kernel's off path zeroed `sliCtrl` only, and `Reset3D` clears chip 0
+  only.
+
+So AA_ENABLE and the jitter offsets outlive the session on every chip.
+
+**The supervised session.**
+
+Setup: the person is at the box. Check activation and use `safe-reboot.py` for
+any reboot. Arm `Diag\SliAA` = 1 as in `evidence/glidelab/aa_supervised/` and
+disarm it afterwards.
+1. **T-buffer, deployed Glide first.** Run `glidelab tbuffer --cfg 3`, then
+   `--cfg 7`, then `--cfg 8`. For each, the person says whether the right half
+   matches the left grey. Expected:
+   - cfg 3 (2x SLI, the control) matches;
+   - cfg 7 (4x) is BLACK on the right;
+   - cfg 8 (8x) is a darker grey on the right.
+2. **T-buffer, fixed Glide.** The same three runs with
+   `glide3x_h5_tbuffer-slicount.dll` beside `glidelab.exe`. Expected: all three
+   match.
+
+   If they do, merge `tbuffer-slicount` and rebuild with `build-stack.sh`. Then
+   add a source assertion test, the way `test_icd_child_window_source.py`
+   does it.
+
+   If step 1 already matches on cfg 7/8, the routing does not matter on this
+   board. Say so, and drop the branch.
+3. **aaCtrl, deploy.** Deploy the staged `vcrmp.sys`/`vcrdd.dll`
+   (`deploy_box.py`, safe reboot). The switch is still 0. Run one normal
+   4-chip Glide game and confirm nothing changed.
+4. **aaCtrl, reproduce the gap.** With the switch at 0:
+   - run `glidelab abandon --cfg 7` (AA 4x, exits without closing);
+   - then run `glidelab edges --cfg 5` (no AA) and have the person look at
+     the edges;
+   - then reboot to clear the leftover state.
+5. **aaCtrl, with the fix.** `REGWRITE` `Diag\SliOffAaCtrl` = 1. No reboot is
+   needed: it is read at every SLI request. Repeat step 4.
+   - `vcrctl log` must show step 508 on all four chips at the off that follows
+     the abandon.
+   - The edges must look like a clean non-AA run.
+
+   If step 4 showed damage and step 5 does not, move the default to 1 (a
+   `MOVED_DIAG` entry, with the evidence).
+
 ### Resume point (2026-10-04 16:45) - the Serious Sam fixes are on every box that is on; the rest take them at power-on; panel 2.1.2 proven on `.124`
 
 **The deploy generation was bumped at 16:36.** postskip-35 released its hold
@@ -340,7 +411,8 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    (Start Menu + desktop shortcuts; panel 2.1.2 on the share);
    ~~`_staging194`~~ deleted 2026-10-03; remove the `v56k-bench` worktree when
    the campaign ends. AA-path items (the T-buffer `!gc->sliCount` latent fix,
-   the aaCtrl zero in the kernel disable) wait for a supervised AA session.
+   the aaCtrl zero in the kernel disable): **prepared 2026-10-07** and staged,
+   with the supervised procedure in that day's resume point.
 
 ### Resume point (2026-09-29 05:40) - the graphics clock set LIVE; the full-desktop sweep done (74 shortcuts); the stale 75 Hz Glide override removed
 

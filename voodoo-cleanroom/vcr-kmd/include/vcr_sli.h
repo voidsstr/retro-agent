@@ -189,6 +189,7 @@ typedef struct vcr_sli_io {
     VCR_SLI_STEP(VCR_SLI_S_OFF_DAC,        505, "slave dacMode: DPMS both syncs") \
     VCR_SLI_STEP(VCR_SLI_S_OFF_VIDPROC,    506, "slave vidProcCfg: video processor off") \
     VCR_SLI_STEP(VCR_SLI_S_OFF_DONE,       507, "val=result") \
+    VCR_SLI_STEP(VCR_SLI_S_OFF_AACTRL,     508, "3D aaCtrl = 0 (ours: VCR_SLI_F_OFF_AACTRL, Diag\\SliOffAaCtrl)") \
     /* 9xx trouble */ \
     VCR_SLI_STEP(VCR_SLI_S_TIMEOUT,        900, "bounded wait expired: reg=register polled val=last value") \
     VCR_SLI_STEP(VCR_SLI_S_REFUSED,        901, "request refused before any write: reg=reason val=value") \
@@ -234,6 +235,18 @@ enum vcr_sli_step { VCR_SLI_STEP_TABLE VCR_SLI_S__END };
 #define VCR_SLI_F_FEEDER_LEAD_C1  0x4u
 #define VCR_SLI_F_FEEDER_LEAD_C3  0x8u
 #define VCR_SLI_F_CFG3_ARMS  (VCR_SLI_F_AAFIFO_GATE | VCR_SLI_F_FEEDER_LEAD_C1 | VCR_SLI_F_FEEDER_LEAD_C3)
+/* OFF_AACTRL (Diag\SliOffAaCtrl = 1, default OFF - prepared 2026-10-07, not
+ * yet run on silicon): the disable also writes the 3D aaCtrl = 0 on every
+ * chip, beside sliCtrl and while snooping is still on. A clean Glide close
+ * already does that (gsst.c grSstWinClose -> _grAAOffsetValue with the all-0
+ * no-AA jitter row), but a KILLED or crashed AA client never gets there, and a
+ * non-AA open never writes aaCtrl (gsst.c: only when grPixelSample > 1) - so
+ * every chip would carry AA_ENABLE and the jitter offsets into the next
+ * session. The kernel's own off path (VcrSliOff at the mode set or display
+ * reset that follows the dead client) zeroes sliCtrl only, and Reset3D clears
+ * chip 0 only. 0 is the non-AA value the vendor HAL runs Direct3D with
+ * (vcr_3dseq.h). Affects the disable alone; an enable never reads this flag. */
+#define VCR_SLI_F_OFF_AACTRL      0x10u
 
 /* The request's shape, one nibble per field, so a hex dump reads left to
  * right as {chips, sli, aa, sampleHigh, analog}: cfg 1 as Glide sends it on

@@ -140,7 +140,7 @@ def test_only_a_vsa100_is_given_an_sli_aa_request():
     master = seq.index("if (!is_vsa100(io, 0))")
     assert seq.index("return refuse(io, VCR_SLI_R_NODEV, 0);") > master
     # before the disable branch and before anything is written
-    assert master < seq.index("return sli_disable(io, p.n);") < seq.index("sli_enable(io, &p)")
+    assert master < seq.index("return sli_disable(io, p.n, flags);") < seq.index("sli_enable(io, &p)")
 
 
 def test_diag_sliaa_defaults_to_off_and_is_read_per_request():
@@ -236,7 +236,11 @@ def test_the_vendor_recipe_is_the_default_and_read_per_request():
     assert "SliAAVendorRecipe" not in func_body(src, "void VcrMultiInit(")
     assert "SliAAVendorRecipe" not in (KMD / "miniport" / "vcrmp.c").read_text()
     # the only caller of the sequence with a flag; the disable keeps the default
-    assert "return vcr_sli_set(&io, &r);" in func_body(src, "static int sli_disable(")
+    # the disable carries no recipe - only its own default-off aaCtrl flag
+    # (Diag\\SliOffAaCtrl, 2026-10-07, cached: the off path reads no registry)
+    dis = func_body(src, "static int sli_disable(")
+    assert "return vcr_sli_set_ex(&io, &r, x->sli_off_aactrl ? VCR_SLI_F_OFF_AACTRL : 0);" in dis
+    assert "sli_recipe" not in dis and "VcrDiagGet" not in dis
 
 
 def test_the_aa_state_is_recorded_after_the_enable_by_config_cycles_only():

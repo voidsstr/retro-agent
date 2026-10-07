@@ -155,6 +155,7 @@ void VcrMultiInit(VCR_EXT *x)
     x->glide_chips = 1;
     /* before the first step is logged: the slave placement below is steps too */
     x->sli_persist_all = VcrDiagGet(L"SliPersistAll", 0);
+    x->sli_off_aactrl = VcrDiagGet(L"SliOffAaCtrl", 0);
     if (x->backend != VCR_HW_VOODOO || !VCR_IS_NAPALM(x->device) || n < 2)
         return;
     if (!VcrDiagGet(L"Sli", 1)) {
@@ -217,6 +218,8 @@ void VcrMultiInit(VCR_EXT *x)
          "%u chips placed and mapped - Glide may use SLI", n);
 }
 
+/* Diag\SliOffAaCtrl, as cached at the last SLI request (or at init): a
+ * VcrSliOff from a mode set or a display reset reads no registry */
 static int sli_disable(VCR_EXT *x, ULONG n)
 {
     vcr_sli_io io;
@@ -224,7 +227,7 @@ static int sli_disable(VCR_EXT *x, ULONG n)
     VideoPortZeroMemory(&r, sizeof r);
     r.ChipInfo.dwChips = n;
     make_io(x, &io);
-    return vcr_sli_set(&io, &r);
+    return vcr_sli_set_ex(&io, &r, x->sli_off_aactrl ? VCR_SLI_F_OFF_AACTRL : 0);
 }
 
 void VcrSliOff(VCR_EXT *x, const char *why)
@@ -360,6 +363,7 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
          r->ChipInfo.dwsli_nlines, "SLI_AA_REQUEST: %u chips, analog %u, sample %u, bpp %u",
          n, r->ChipInfo.dwsliAaAnalog, r->ChipInfo.dwaaSampleHigh, r->MemInfo.dwBpp);
     x->sli_persist_all = VcrDiagGet(L"SliPersistAll", 0);
+    x->sli_off_aactrl = VcrDiagGet(L"SliOffAaCtrl", 0);
     /* the vendor AA recipe changes AA requests only - read for those alone */
     recipe = (en && r->ChipInfo.dwaaEn) ? (sli_recipe() | sli_cfg3_arms()) : 0;
 

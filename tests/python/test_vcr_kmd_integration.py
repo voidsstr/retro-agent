@@ -89,6 +89,10 @@ STATE_DIAG = {"SliAALive": "0", "PrevBootCount": "0"}
 # vendor arm (READ_EN on the master pair, as 3dfx) 2x, 4x and 8x ran clean.
 # vcrmp_multi.c sli_recipe(), tests/native/test_vcr_kmd_sli.c.
 MOVED_DIAG = {"SliAAVendorRecipe": "1"}
+# PREPARED, NOT YET ON SILICON (2026-10-07): the SLI/AA disable also zeroes
+# every chip's 3D aaCtrl - for a killed AA client, whose AA enables otherwise
+# outlive it (vcr_sli.h VCR_SLI_F_OFF_AACTRL). OFF until a supervised run.
+AA_PREP_DIAG = {"SliOffAaCtrl": "0"}
 
 
 def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
@@ -97,7 +101,7 @@ def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
         for name, dflt in re.findall(r'VcrDiagGet\(L"(\w+)",\s*([^)]+)\)', f.read_text()):
             assert got.setdefault(name, dflt.strip()) == dflt.strip(), \
                 f"Diag\\{name} read with two defaults"
-    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG, **STATE_DIAG, **MOVED_DIAG)
+    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG, **STATE_DIAG, **MOVED_DIAG, **AA_PREP_DIAG)
     assert got == want, {k: (got.get(k), want.get(k)) for k in set(got) | set(want)
                          if got.get(k) != want.get(k)}
 

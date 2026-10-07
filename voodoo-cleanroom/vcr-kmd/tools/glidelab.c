@@ -20,6 +20,17 @@
  *            and torn down again and again (the kernel's enable/disable path).
  *            At most GLIDELAB_MAX_CYCLES, whatever is asked: every open and
  *            every close is a monitor re-sync.
+ *   tbuffer  (2026-10-07, for a person at the box, AA configs only) the T-buffer
+ *            write mask: the LEFT half drawn once with every sample at 50%
+ *            grey, the RIGHT half drawn sample by sample through
+ *            grTBufferWriteMaskExt - even samples white, odd black, on black.
+ *            When every sample reaches its own chip and buffer, the merged
+ *            right half is the same grey as the left. 3dfx's routing tested
+ *            !gc->sliCount, never true after an open, so on four chips 4x
+ *            (cfg 7) comes out BLACK on the right and 8x (cfg 8) a darker
+ *            grey; 2x with SLI (cfg 3) is routed right either way - the
+ *            control. Fixed on the h5 fork branch tbuffer-slicount. No LFB
+ *            read: the observer compares the halves.
  *   abandon  open, draw, and exit WITHOUT grSstWinClose/grGlideShutdown -
  *            what a crashed or force-killed game leaves; the kernel driver
  *            must put the desktop back and turn SLI off by itself. Run it,
@@ -190,6 +201,8 @@ GFN(void, grTexCombine, (GrChipID_t, GrCombineFunction_t, GrCombineFactor_t, GrC
 GFN(void, grTexFilterMode, (GrChipID_t, GrTextureFilterMode_t, GrTextureFilterMode_t))
 GFN(void, grTexMipMapMode, (GrChipID_t, GrMipMapMode_t, FxBool))
 GFN(void, grTexClampMode, (GrChipID_t, GrTextureClampMode_t, GrTextureClampMode_t))
+/* tbuffer only: Glide extensions are looked up through grGetProcAddress */
+GFN(GrProc, grGetProcAddress, (char *))
 
 static int bind_glide(void)
 {
@@ -201,6 +214,7 @@ static int bind_glide(void)
     B(grDepthBufferMode); B(grDepthMask); B(grCullMode); B(grSstOrigin); B(grLfbReadRegion);
     B(grTexMinAddress); B(grTexMaxAddress); B(grTexTextureMemRequired); B(grTexDownloadMipMap);
     B(grTexSource); B(grTexCombine); B(grTexFilterMode); B(grTexMipMapMode); B(grTexClampMode);
+    B(grGetProcAddress);
 #undef B
     if (!p_grGlideInit || !p_grSstWinOpen || !p_grSstWinClose || !p_grDrawTriangle ||
         !p_grVertexLayout || !p_grColorCombine || !p_grConstantColorValue ||
@@ -366,6 +380,7 @@ static int glide_setting(const char *name, char *val, DWORD vlen, char *src, siz
 /* the configuration Glide will open, and whether it anti-aliases; *why says
  * where each came from */
 static int g_eff_cfg = 2, g_eff_aa;
+static int g_eff_samples = 1;       /* AA samples per pixel (tbuffer) */
 static char g_eff_why[400];
 
 static void effective_config(void)
@@ -387,6 +402,10 @@ static void effective_config(void)
         aa_samples = atoi(v);
     }
     g_eff_aa = aa_set ? aa_samples > 1 : aa_config(g_eff_cfg);
+    /* gpci.c: 1/3/6 = 2-sample, 4/7 = 4-sample, 8 = 8-sample */
+    g_eff_samples = aa_set ? aa_samples
+                  : (g_eff_cfg == 1 || g_eff_cfg == 3 || g_eff_cfg == 6) ? 2
+                  : (g_eff_cfg == 4 || g_eff_cfg == 7) ? 4 : g_eff_cfg == 8 ? 8 : 1;
     _snprintf(g_eff_why, sizeof g_eff_why, "cfg %d from %s%s%s%s -> %s", g_eff_cfg, src,
               aa_set ? ", FX_GLIDE_AA_SAMPLE=" : "", aa_set ? v : "",
               aa_set ? " overrides the samples" : "", g_eff_aa ? "AA" : "no AA");
@@ -873,6 +892,52 @@ static int do_edges(void)
     return g_focus_lost ? 12 : 0;
 }
 
+/* tbuffer: see the header. Every sample of the right half is drawn on its own
+ * through the T-buffer write mask, so any sample the routing sends to the
+ * wrong chip or buffer - or to none - leaves black, or another sample's
+ * colour, in the merge. The mask is put back to every sample before the swap. */
+static int do_tbuffer(void)
+{
+    typedef void (__stdcall *tbuf_fn)(FxU32);
+    tbuf_fn tbm = p_grGetProcAddress ? (tbuf_fn)p_grGetProcAddress("grTBufferWriteMaskExt") : NULL;
+    const int n = g_eff_samples;
+    const FxU32 all = n >= 32 ? 0xffffffffu : (1u << n) - 1u;
+    int f, s;
+    if (n < 2 || n > 8) {
+        say("RESULT {\"mode\":\"tbuffer\",\"error\":\"not an AA configuration (%d sample%s): "
+            "the T-buffer mask routes AA samples\",\"cfg\":%d}", n, n == 1 ? "" : "s", g_eff_cfg);
+        return 2;
+    }
+    if (!tbm) {
+        say("RESULT {\"mode\":\"tbuffer\",\"error\":\"grGetProcAddress has no grTBufferWriteMaskExt\","
+            "\"cfg\":%d}", g_eff_cfg);
+        return 2;
+    }
+    flat_state();
+    say("step: tbuffer, %d samples, held for %d frames: left = all samples 50%% grey, right = "
+        "each sample alone, even white / odd black", n, O.frames);
+    for (f = 0; f < O.frames && !g_focus_lost; f++) {
+        tbm(all);
+        p_grBufferClear(0, 0, 0xffff);
+        p_grConstantColorValue(0xff808080u);
+        quad(0, 0, (float)O.w / 2, (float)O.h);
+        for (s = 0; s < n; s++) {
+            tbm(1u << s);
+            p_grConstantColorValue((s & 1) ? 0xff000000u : 0xffffffffu);
+            quad((float)O.w / 2, 0, (float)O.w, (float)O.h);
+        }
+        tbm(all);
+        p_grBufferSwap(1);
+        pump();
+    }
+    p_grFinish();
+    say("RESULT {\"mode\":\"tbuffer\",\"res\":\"%s\",\"cfg\":%d,\"chips\":%d,\"samples\":%d,"
+        "\"frames\":%d,\"frames_run\":%d,\"observe\":\"right half = left half grey when every "
+        "sample is routed to its own buffer\"%s}", O.res, g_eff_cfg, chips_in_use(), n, O.frames, f,
+        tail_json());
+    return g_focus_lost ? 12 : 0;
+}
+
 static unsigned line_code(int y)
 {
     unsigned v = (unsigned)y * 40503u + 0x2d1u;
@@ -1245,6 +1310,8 @@ int main(int argc, char **argv)
             rc = do_texmem();
         } else if (!strcmp(O.mode, "edges")) {
             rc = do_edges();
+        } else if (!strcmp(O.mode, "tbuffer")) {
+            rc = do_tbuffer();
         } else if (!strcmp(O.mode, "abandon")) {
             int f;
             flat_state();

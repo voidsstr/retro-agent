@@ -2742,6 +2742,87 @@ TEST(step_codes_are_unique) {
             CHECK(codes[i] != codes[j], "duplicate SLI step code");
 }
 
+/* ---- Diag\SliOffAaCtrl (prepared 2026-10-07, default OFF, not yet on silicon) --
+ * A clean Glide close writes aaCtrl = 0 itself, but a killed AA client never
+ * closes, a non-AA open never writes aaCtrl, and the kernel's off path zeroed
+ * sliCtrl only - so AA_ENABLE and the jitter offsets outlived the session on
+ * every chip. Under VCR_SLI_F_OFF_AACTRL the disable writes the 3D aaCtrl = 0
+ * on every chip: after every sliCtrl = 0 and before cfgInitEnable turns
+ * snooping off, the same window _grDisableSliCtrl uses. Without the flag the
+ * disable writes exactly what it wrote before, not one write more. */
+static unsigned aactrl_off_run(mock *m, vcr_u32 flags, int *first_aa, int *last_sli,
+                               int *first_snoop_off)
+{
+    vcr_sli_io io;
+    vcr_sli_aa_req on = req(4, 1, 0, 0, 1, 32, 16), off;
+    unsigned i, aa = 0;
+    mapped(m, &io, 4);
+    CHECK(vcr_sli_set(&io, &on) >= 0, "enable failed");
+    memset(&off, 0xa5, sizeof off);
+    off.ChipInfo.dwChips = 4;
+    off.ChipInfo.dwsliEn = 0;
+    off.ChipInfo.dwaaEn = 0;
+    m->nw = 0;
+    m->unlogged = 0;
+    CHECK_EQ_I(vcr_sli_set_ex(&io, &off, flags), VCR_SLI_OK);
+    *first_aa = *last_sli = *first_snoop_off = -1;
+    for (i = 0; i < m->nw; i++) {
+        const wrec *w = &m->w[i];
+        if (w->kind == 'i' && w->off == VCR_3D_AACTRL) {
+            CHECK_EQ_U(w->val, 0);
+            if (*first_aa < 0)
+                *first_aa = (int)i;
+            aa |= 1u << w->chip;
+        }
+        if (w->kind == 'i' && w->off == VCR_3D_SLICTRL)
+            *last_sli = (int)i;
+        if (w->kind == 'c' && w->off == 0x40 && *first_snoop_off < 0)
+            *first_snoop_off = (int)i;
+    }
+    no_bus_faults(m);
+    return aa;
+}
+
+TEST(the_disable_zeroes_aactrl_only_under_its_flag) {
+    mock *m = &M;
+    int first_aa, last_sli, snoop_off;
+    unsigned nw_plain, c;
+
+    /* default (the miniport passes no flag unless Diag\SliOffAaCtrl = 1) */
+    CHECK_EQ_U(aactrl_off_run(m, 0, &first_aa, &last_sli, &snoop_off), 0);
+    CHECK(first_aa < 0, "an aaCtrl write without the flag");
+    nw_plain = m->nw;
+    /* the vendor AA recipe flag does not arm it either */
+    CHECK_EQ_U(aactrl_off_run(m, VCR_SLI_F_VENDOR_AA | VCR_SLI_F_CFG3_ARMS, &first_aa, &last_sli,
+                              &snoop_off), 0);
+    CHECK_EQ_U(m->nw, nw_plain);
+
+    /* with the flag: every chip, 0, between the last sliCtrl and snooping off */
+    CHECK_EQ_U(aactrl_off_run(m, VCR_SLI_F_OFF_AACTRL, &first_aa, &last_sli, &snoop_off), 0xfu);
+    CHECK(first_aa > last_sli && snoop_off > first_aa,
+          "aaCtrl = 0 belongs after sliCtrl = 0 and before cfgInitEnable drops snooping");
+    CHECK_EQ_U(m->nw, nw_plain + 4);
+    for (c = 0; c < 4; c++)
+        CHECK_EQ_U(m->slictrl[c], 0);
+    /* an enable never reads it: the same writes with or without the flag */
+    {
+        vcr_sli_io io;
+        vcr_sli_aa_req on = req(4, 1, 0, 0, 1, 32, 16);
+        unsigned nw_on;
+        vcr_u32 h;
+        mapped(m, &io, 4);
+        m->nw = 0;
+        CHECK(vcr_sli_set_ex(&io, &on, 0) >= 0, "enable failed");
+        nw_on = m->nw;
+        h = wr_hash(m);
+        mapped(m, &io, 4);
+        m->nw = 0;
+        CHECK(vcr_sli_set_ex(&io, &on, VCR_SLI_F_OFF_AACTRL) >= 0, "enable failed");
+        CHECK_EQ_U(m->nw, nw_on);
+        CHECK_EQ_U(wr_hash(m), h);
+    }
+}
+
 MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(map_puts_each_slave_32mb_above_the_last_and_all_bar1s_above_the_master);
     RUN(map_narrows_a_master_still_in_its_power_up_decode);
@@ -2790,5 +2871,6 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_cfg3_arms_are_visible_in_the_persisted_phases);
     RUN(no_arm_can_reach_the_vsync_offset_that_froze_the_board);
     RUN(vcrctl_sliaa_refuses_every_enable_without_a_person_at_the_box);
+    RUN(the_disable_zeroes_aactrl_only_under_its_flag);
     RUN(step_codes_are_unique);
 )
