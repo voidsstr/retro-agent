@@ -170,9 +170,19 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   13 Chromium GPU helpers (12 from about 09:29, 1 per later gate run) plus
   Xwayland and ibus-x11, about 660 MB RSS in total. ollama's CPU fallback held
   28.9 GB RSS at about 390% CPU, leaving about 8 GB of the 61 GB free.
+- **OOM (16:34:08):** memory ran out with the model on CPU. A `chrome-headless`
+  allocation invoked the OOM killer (`global_oom`), and it killed ollama's
+  `llama-server` (pid 2173534, anon-rss 24.6 GB plus file-rss 3.4 GB). ollama
+  reloaded the model at about 16:35. It held 22.9 GB at 17:15, with about 7 GB
+  of the 61 GB available and no further OOM. By then 44 processes (2.2 GB RSS)
+  were in D state, and 7 implementer scopes were stuck at the deploy gate.
 - **Response:** the KTLO loop emailed the operator at about 10:08 (Graph delivery
   confirmed) asking for a cold power cycle, and did not reboot. A follow-up at
-  about 11:20 reported the blocked deploy gates. Per signature 2,
+  about 11:20 reported the blocked deploy gates. To stop adding hung gate runs it
+  stopped, without disabling, `agent-specpicks-site-functional-tests.timer`
+  (12:25), then the two `*-user-growth-strategist` timers and
+  `agent-specpicks-shelf-audit-agent.timer` (17:14). These three dispatch code
+  changes straight to the implementer. A reboot starts them all again. Per signature 2,
   an ordinary reboot with the GPU gone hangs in nvidia-modeset. On 09-28 an Xid 79
   (10:59) was followed by an MCE panic about 5 h later (15:48). After the power
   cycle, check `nvidia-smi`, a real `POST /generate`, and
