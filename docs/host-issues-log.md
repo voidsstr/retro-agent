@@ -176,6 +176,13 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   reloaded the model at about 16:35. It held 22.9 GB at 17:15, with about 7 GB
   of the 61 GB available and no further OOM. By then 44 processes (2.2 GB RSS)
   were in D state, and 7 implementer scopes were stuck at the deploy gate.
+- **ollama stopped (17:55):** on CPU the fleet model (`qwen3.8:27b`, 64K
+  context) answered about 8 of roughly 300 `POST /api/chat` calls between 09:33
+  and 17:51. The rest returned 500 after 2.5 to 5 min. By 17:53 the runner was
+  back at 24.8 GB, swap was full and 5.7 GB was available. The KTLO loop ran
+  `sudo systemctl stop ollama` (still enabled, so it starts on the next boot),
+  and available memory rose to 31.9 GB. A post-fault `llama-server` GPU probe
+  (pid 3010964) is itself in D state, so the unit stays `deactivating`.
 - **Response:** the KTLO loop emailed the operator at about 10:08 (Graph delivery
   confirmed) asking for a cold power cycle, and did not reboot. A follow-up at
   about 11:20 reported the blocked deploy gates. To stop adding hung gate runs it
