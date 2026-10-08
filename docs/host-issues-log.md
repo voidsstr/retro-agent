@@ -158,8 +158,21 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 - **Cap in effect:** 400 W plus the 210–2400 MHz clock lock, x16 link, kernel
   7.0.0-34, driver 595.91.07. This is the first Xid 79 since the 09-28/09-29
   run of faults. It follows 8 d 17 h of clean uptime under the cap and lock.
+- **Knock-on (found 11:15):** any process that opens the NVIDIA DRM node
+  (`/dev/dri/renderD129`, vendor 0x10de; `renderD128` is the Intel iGPU) blocks
+  in D state at `drm_open`. This includes Playwright's
+  `chrome-headless-shell --type=gpu-process`, even with
+  `--use-angle=swiftshader-webgl`. The browser can't close, so the test worker
+  is force-killed after 300 s ("worker-0 process did not exit within 300000ms")
+  and the run exits 1 although every test passes. That blocked the aisleprompt
+  agent deploy gate (`run-local-suite.sh --grep @smoke`) at 10:28 and 10:56, and
+  it will block specpicks' gate too. By 11:15 there were 17 D-state processes:
+  13 Chromium GPU helpers (12 from about 09:29, 1 per later gate run) plus
+  Xwayland and ibus-x11, about 660 MB RSS in total. ollama's CPU fallback held
+  28.9 GB RSS at about 390% CPU, leaving about 8 GB of the 61 GB free.
 - **Response:** the KTLO loop emailed the operator at about 10:08 (Graph delivery
-  confirmed) asking for a cold power cycle, and did not reboot. Per signature 2,
+  confirmed) asking for a cold power cycle, and did not reboot. A follow-up at
+  about 11:20 reported the blocked deploy gates. Per signature 2,
   an ordinary reboot with the GPU gone hangs in nvidia-modeset. On 09-28 an Xid 79
   (10:59) was followed by an MCE panic about 5 h later (15:48). After the power
   cycle, check `nvidia-smi`, a real `POST /generate`, and
