@@ -139,6 +139,32 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-10-08 09:33:21: Xid 79 under 400 W + 2400 MHz lock, box stays up (signature 1)
+
+- **Boot ID:** `d3bc0e94…` (up since 09-29 16:47:20, about 8 d 17 h). No reboot yet.
+- **Fault:** `09:33:21 NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the bus`,
+  then `Xid ... 154, GPU recovery action changed from 0x0 (None) to 0x2 (Node
+  Reboot Required)` in the same second. There is no `PCIe Bus Error`/AER line.
+  The kernel then logged about 5,900 `NVRM: _issueRpcAndWait: rpcSendMessage
+  failed with status 0x0000000f` lines in the first 30 min and was still logging
+  them at 10:05.
+- **Evidence the card is gone (10:05):** `nvidia-smi` gives "Unable to determine
+  the device handle for GPU0: 0000:01:00.0: Unknown Error / No devices were
+  found". `lspci -vv -s 01:00.0` shows Region 0 `[virtual]` and Regions 1/3/5 `[disabled]`.
+- **Load:** routine ollama traffic (`POST /api/chat` taking 24–30 s at 09:31:49 and
+  09:31:59). ollama's llama-server restarted at about 09:33 and is serving on CPU
+  at about 370% (signature 1's CPU fallback). `local-image-gen` is still
+  `active`, but per signature 1 its health check can't be trusted.
+- **Cap in effect:** 400 W plus the 210–2400 MHz clock lock, x16 link, kernel
+  7.0.0-34, driver 595.91.07. This is the first Xid 79 since the 09-28/09-29
+  run of faults. It follows 8 d 17 h of clean uptime under the cap and lock.
+- **Response:** the KTLO loop emailed the operator at about 10:08 (Graph delivery
+  confirmed) asking for a cold power cycle, and did not reboot. Per signature 2,
+  an ordinary reboot with the GPU gone hangs in nvidia-modeset. On 09-28 an Xid 79
+  (10:59) was followed by an MCE panic about 5 h later (15:48). After the power
+  cycle, check `nvidia-smi`, a real `POST /generate`, and
+  `journalctl --list-boots`, then update this entry.
+
 ### 2026-09-30 09:44:04: wired LAN frozen by `.124` hard-frozen under 2x AA - NOT the host NIC (signature 7)
 
 - **Boot:** `d3bc0e94…` (up since 09-29 16:47:20; no host reboot). `enp129s0` logged 27 `NETDEV WATCHDOG:
