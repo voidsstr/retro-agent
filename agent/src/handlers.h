@@ -159,6 +159,15 @@ const char *gameres_reg_owner(const char *root, const char *subkey,
  * their own (Quake II and GoldSrc carry no refresh cvar at all) get the
  * monitor's best rate. Must run BEFORE gameres_apply_title(). */
 int  gameres_apply_display(void);
+
+/* Detect the monitor and set every installed game to a mode it supports, on
+ * EVERY agent start. Called from the gamesync startup thread ABOVE the
+ * gamesync.done marker return - that return is the normal path on a
+ * provisioned box, and until 1.98.0 it meant a box whose monitor changed kept
+ * the old panel's resolutions forever. Returns values changed, -1 if refused
+ * (modern host, or the games folder is unusable). HKLM\Software\RetroAgent\
+ * GameRes=0 switches it off; GameResBoot records each run. */
+int  gameres_startup(void);
 /* Apply the fleet's desktop icon layout. Auto Arrange by default; the legacy
  * icon bay when HKLM\Software\RetroAgent\IconAutoArrange is 0. Called on
  * every agent startup, after a GAMESYNC, and by the ICONARRANGE command.

@@ -50,6 +50,10 @@
 #endif
 
 #define GR_REGKEY "Software\\RetroAgent"
+/* The startup pass's switch and its result, read by the operator rather than
+ * the log - same contract as QuakeBindsBoot / PostSkipBoot / FxPanelBoot. */
+#define GR_REG_SWITCH "GameRes"
+#define GR_REG_BOOT   "GameResBoot"
 
 /* Its own log tag. GAMESYNC's LOG_GS is private to gamesync.c, and this pass
  * is worth telling apart in the log anyway - it answers a different question
@@ -1517,6 +1521,177 @@ int gameres_verify_sync(int *wrong, int *absent)
 /* GAMERES command                                                          */
 /* ---------------------------------------------------------------------- */
 
+/*
+ * gr_apply_all - walk every rule title installed on this box and apply it.
+ *
+ * ONE walker, two callers: the GAMERES APPLY command and the startup pass
+ * below. They were one copy each for about ten minutes and that is exactly
+ * long enough for them to disagree about which titles count as installed -
+ * after which "APPLY says 0 changed" and "the boot pass says 3 changed" are
+ * both true and neither is wrong, which is the least useful state this file
+ * could be in.
+ *
+ * `want` filters to one title ("" = all). The caller probes first: this does
+ * not, because the startup pass wants the probe logged separately.
+ */
+static int gr_apply_all(const char *want, int *titles_out, int *absent_out)
+{
+    char dir[MAX_PATH], root[160];
+    char done[64][64];
+    int  ndone = 0;
+    int  titles = 0, changed = 0, absent = 0, absent1;
+    int  i, k;
+
+    gameres_apply_display();            /* before the titles - see the note */
+    for (i = 0; i < GR_RULE_COUNT; i++) {
+        int seen = 0;
+        for (k = 0; k < ndone; k++)
+            if (_stricmp(done[k], gr_rules[i].title) == 0) { seen = 1; break; }
+        if (seen) continue;
+        if (want && want[0] && _stricmp(want, gr_rules[i].title) != 0) continue;
+        if (ndone >= (int)(sizeof(done) / sizeof(done[0])))
+            break;                  /* more distinct titles than we can track */
+        lstrcpynA(done[ndone++], gr_rules[i].title, sizeof(done[0]));
+
+        if (!gs_games_dir(root, sizeof(root)))
+            break;                  /* GamesDir set but unusable: nothing is "installed" */
+        _snprintf(dir, sizeof(dir) - 1, "%s\\%s", root, gr_rules[i].title);
+        dir[sizeof(dir) - 1] = 0;
+        if (GetFileAttributesA(dir) == 0xFFFFFFFF)
+            continue;               /* not installed on this box */
+        titles++;
+        absent1 = 0;
+        changed += gameres_apply_title(dir, gr_rules[i].title, &absent1);
+        absent  += absent1;
+    }
+    /* What this pass rewrote must be on disk before the next sync looks, or
+     * that sync copies the library's files straight back (the 1.93.2 ledger). */
+    gameres_ledger_save();
+    if (titles_out) *titles_out = titles;
+    if (absent_out) *absent_out = absent;
+    return changed;
+}
+
+/* HKLM\Software\RetroAgent\GameRes - absent or 1: enforce at startup. 0: off. */
+static int gr_switch_on(int *present, DWORD *raw)
+{
+    HKEY  h;
+    DWORD v = 1, sz = sizeof(v), type = 0;
+    *present = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, GR_REGKEY, 0, KEY_READ, &h) == ERROR_SUCCESS) {
+        if (RegQueryValueExA(h, GR_REG_SWITCH, NULL, &type, (LPBYTE)&v, &sz) == ERROR_SUCCESS
+                && type == REG_DWORD)
+            *present = 1;
+        RegCloseKey(h);
+    }
+    *raw = *present ? v : 1;
+    return (*present && v == 0) ? 0 : 1;
+}
+
+/* The boot pass's own verdict, where the operator can read it without the log
+ * (the same contract as PostSkipBoot / QuakeBindsBoot / FxPanelBoot). */
+static void gr_store_boot(const char *msg)
+{
+    HKEY h;
+    SYSTEMTIME st;
+    char line[400];
+    GetLocalTime(&st);
+    _snprintf(line, sizeof(line) - 1, "%04u-%02u-%02u %02u:%02u %s", st.wYear,
+              st.wMonth, st.wDay, st.wHour, st.wMinute, msg);
+    line[sizeof(line) - 1] = 0;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, GR_REGKEY, 0, NULL, 0,
+                        KEY_SET_VALUE, NULL, &h, NULL) != ERROR_SUCCESS)
+        return;
+    RegSetValueExA(h, GR_REG_BOOT, 0, REG_SZ, (const BYTE *)line,
+                   (DWORD)strlen(line) + 1);
+    RegCloseKey(h);
+}
+
+/*
+ * gameres_startup - detect the monitor and set every installed game to a mode
+ *                   it supports, on EVERY agent start.
+ *
+ * WHY THIS EXISTS (found on .123, 2026-10-08). Until now the only thing that
+ * ran this pass was gs_run(), and on a provisioned box the startup GAMESYNC
+ * thread returns at the gamesync.done marker BEFORE reaching it:
+ *
+ *      if (gs_file_exists(GS_MARKER)) { "already provisioned - idle"; return; }
+ *
+ * So a box whose MONITOR CHANGED kept every game at the old panel's
+ * resolution, across any number of reboots, until somebody ran GAMERES APPLY
+ * or GAMESYNC RESET by hand. That is exactly the failure the whole per-box
+ * resolution mechanism exists to prevent, and nothing anywhere said so: the
+ * configs were internally consistent, the sync reported success, and the games
+ * asked for a mode the new monitor could not show.
+ *
+ * It is placed ABOVE that marker return, beside qbinds_startup(), for the
+ * reason CLAUDE.md gives: the return is the NORMAL path on a fleet box, so
+ * anything below it runs on almost no machine while looking installed.
+ *
+ * A SETTLED BOX WRITES 0. Every writer compares before it writes, so a box
+ * whose monitor has not changed logs "0 value(s) changed" - and a box
+ * reporting the same non-zero count on consecutive boots is announcing a real
+ * fault (two writers fighting over one file), which is the signal this line is
+ * for. It never fails the start, and it reports the POST-CONDITION (a verify
+ * read back), not the number of writes.
+ */
+int gameres_startup(void)
+{
+    char  msg[400], games[200], why[200];
+    int   titles = 0, changed = 0, absent = 0, present = 0;
+    DWORD raw = 1;
+    gr_vsum_t vs;
+
+    if (host_policy_skip("gameres (game resolutions)"))
+        return -1;
+    if (!gr_switch_on(&present, &raw)) {
+        _snprintf(msg, sizeof(msg) - 1, "off: %s=0", GR_REG_SWITCH);
+        msg[sizeof(msg) - 1] = 0;
+        log_msg(LOG_GR, "gameres: %s", msg);
+        gr_store_boot(msg);
+        return 0;
+    }
+    /* The games folder, not C:, and never a silent fallback to it - the same
+     * rule GAMESYNC and QBINDS follow (GamesDir, agent 1.93.0). */
+    if (!gs_games_dir_why(games, sizeof(games), why, sizeof(why))) {
+        _snprintf(msg, sizeof(msg) - 1, "NOT APPLIED: the games folder is "
+                  "unusable - %s (never falls back to C:)", why);
+        msg[sizeof(msg) - 1] = 0;
+        log_msg(LOG_GR, "*** GAME RESOLUTIONS NOT APPLIED *** %s", msg);
+        gr_store_boot(msg);
+        return -1;
+    }
+
+    gameres_probe();                    /* the monitor may have changed */
+    log_msg(LOG_GR, "gameres: monitor %s%s, persisted desktop %dx%d@%d -> "
+            "target %dx%d (4:3 %dx%d) @%dHz",
+            g_gr.t.lcd ? "LCD" : "CRT",
+            g_gr.panel.ok ? "" : " (no EDID - inferred)",
+            g_gr.reg_w, g_gr.reg_h, g_gr.reg_hz,
+            g_gr.t.w, g_gr.t.h, g_gr.t.w43, g_gr.t.h43, g_gr.t.hz);
+
+    changed = gr_apply_all("", &titles, &absent);
+
+    memset(&vs, 0, sizeof(vs));
+    if (gr_verify_run("", NULL, &vs) < 0)
+        vs.wrong = vs.ok = vs.absent = -1;
+    _snprintf(msg, sizeof(msg) - 1,
+              "ok: %d title(s), %d value(s) changed, %d absent, target %dx%d "
+              "(4:3 %dx%d); verify ok=%d wrong=%d absent=%d",
+              titles, changed, absent, g_gr.t.w, g_gr.t.h, g_gr.t.w43,
+              g_gr.t.h43, vs.ok, vs.wrong, vs.absent);
+    msg[sizeof(msg) - 1] = 0;
+    /* A non-zero `wrong` after our own pass just wrote the values is the one
+     * outcome worth shouting about: it means a writer could not make the value
+     * stick, not that the monitor is unusual. */
+    if (vs.wrong > 0)
+        log_msg(LOG_GR, "*** GAME RESOLUTIONS WRONG AFTER APPLY *** %s", msg);
+    else
+        log_msg(LOG_GR, "gameres: %s", msg);
+    gr_store_boot(msg);
+    return changed;
+}
+
 void handle_gameres(SOCKET sock, const char *args)
 {
     const char *a = str_skip_spaces(args ? args : "");
@@ -1551,34 +1726,11 @@ void handle_gameres(SOCKET sock, const char *args)
 
     if (str_starts_with(a, "APPLY")) {
         const char *want = str_skip_spaces(a + 5);
-        char  dir[MAX_PATH], root[160];
-        int   titles = 0, changed = 0, absent = 0, absent1;
-        char  done[64][64];
-        int   ndone = 0;
+        int   titles = 0, changed = 0, absent = 0;
 
         gameres_probe();                /* the monitor may have changed */
-        gameres_apply_display();        /* before the titles - see the note */
-        for (i = 0; i < GR_RULE_COUNT; i++) {
-            int seen = 0, k;
-            for (k = 0; k < ndone; k++)
-                if (_stricmp(done[k], gr_rules[i].title) == 0) { seen = 1; break; }
-            if (seen) continue;
-            if (want[0] && _stricmp(want, gr_rules[i].title) != 0) continue;
-            if (ndone >= (int)(sizeof(done) / sizeof(done[0])))
-                break;              /* more distinct titles than we can track */
-            lstrcpynA(done[ndone++], gr_rules[i].title, sizeof(done[0]));
-
-            if (!gs_games_dir(root, sizeof(root)))
-                break;                  /* GamesDir set but unusable: nothing is "installed" */
-            _snprintf(dir, sizeof(dir) - 1, "%s\\%s", root, gr_rules[i].title);
-            dir[sizeof(dir) - 1] = 0;
-            if (GetFileAttributesA(dir) == 0xFFFFFFFF)
-                continue;               /* not installed on this box */
-            titles++;
-            absent1 = 0;
-            changed += gameres_apply_title(dir, gr_rules[i].title, &absent1);
-            absent  += absent1;
-        }
+        /* The SAME walker the startup pass uses - see gr_apply_all(). */
+        changed = gr_apply_all(want, &titles, &absent);
         /* THE POST-CONDITION, not the count of writes: the same checks the
          * writers just made, read back. After a clean pass `wrong` is 0. */
         {
@@ -1595,9 +1747,8 @@ void handle_gameres(SOCKET sock, const char *args)
                       g_gr.t.w43, g_gr.t.h43, vs.ok, vs.wrong, vs.absent);
         }
         json[sizeof(json) - 1] = 0;
-        /* What this pass rewrote must be on disk before the next sync looks,
-         * or that sync copies the library's files straight back. */
-        gameres_ledger_save();
+        /* gr_apply_all() already saved the ledger - it must happen before the
+         * next sync looks, or that sync copies the library's files back. */
         send_text_response(sock, json);
         return;
     }

@@ -6389,6 +6389,15 @@ DWORD WINAPI gamesync_thread(LPVOID param)
      * screensaver were caught by once). A settled box writes nothing. */
     qbinds_startup();
 
+    /* The per-box game RESOLUTIONS (agent 1.98.0, src/gameres.c): detect the
+     * monitor and set every installed title to a mode it supports, on EVERY
+     * start. HERE for the same reason qbinds_startup() is here, and because
+     * until now the ONLY caller of this pass was gs_run() - which on a
+     * provisioned box is never reached, the marker return below being the
+     * normal path. A box whose monitor was swapped therefore kept the old
+     * panel's modes across every reboot, silently. A settled box writes 0. */
+    gameres_startup();
+
     /* Two independent signals, and they answer different questions.
      *
      *   newimage.flag  is placed BY THE IMAGE, so its presence is positive
