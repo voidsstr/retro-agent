@@ -189,7 +189,15 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   stopped, without disabling, `agent-specpicks-site-functional-tests.timer`
   (12:25), then the two `*-user-growth-strategist` timers and
   `agent-specpicks-shelf-audit-agent.timer` (17:14). These three dispatch code
-  changes straight to the implementer. A reboot starts them all again. Per signature 2,
+  changes straight to the implementer. A reboot starts them all again. At 20:03
+  it stopped the 7 hung implementer scopes, which had held the backlog dispatcher
+  at "throttled: 7 scope(s) in flight >= cap 1" and would have blocked the 10-09
+  articles. Their D-state processes stayed (44 in all), but the scopes went
+  `inactive`. It also set the storage config
+  `config/implementer-allowed-dispatch-kinds.json` to the kinds that skip the
+  deploy gate (`article-author`, `article-refresh`, `catalog-audit`, `h2h`).
+  **This one persists across a reboot. Restore `["*"]` once a gate passes.**
+  Per signature 2,
   an ordinary reboot with the GPU gone hangs in nvidia-modeset. On 09-28 an Xid 79
   (10:59) was followed by an MCE panic about 5 h later (15:48). After the power
   cycle, check `nvidia-smi`, a real `POST /generate`, and
