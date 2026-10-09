@@ -3455,6 +3455,53 @@ those two calls silently restores the bug.
   runs the pass now. `GAMERES VERIFY [title]` checks every installed title
   (below).
 
+### The pass runs on EVERY agent start (agent 1.98.0) — it did not before
+
+**Until 1.98.0 `gameres` had exactly ONE caller, `gs_run()`, and on a
+provisioned box the startup GAMESYNC thread returns before reaching it:**
+
+    if (gs_file_exists(GS_MARKER)) { "already provisioned - idle"; return 0; }
+
+That return is the NORMAL path on a fleet box. So **a machine whose MONITOR was
+changed kept every game at the old panel's resolution, across any number of
+reboots**, until somebody ran `GAMERES APPLY` or `GAMESYNC RESET` by hand —
+which is exactly the failure this whole per-box mechanism exists to prevent,
+and nothing reported it: the configs were internally consistent, the sync said
+`state=done`, and the game simply asked for a mode the new monitor could not
+show. Found on `.123` (2026-10-09), which now has a **CRT with no EDID at
+1280x1024** and had Counter-Strike pinned at **1600x1200**. `.145` and `.197`
+each carried the same one stale value — a rule added after their last sync,
+which had therefore never reached them.
+
+`gameres_startup()` (`agent/src/gameres.c`) now runs from the gamesync startup
+thread **above** that marker return, beside `qbinds_startup()` — the placement
+this file requires, because anything below it runs on almost no machine while
+looking installed.
+
+- **`HKLM\Software\RetroAgent\GameResBoot`** records each run; `GameRes`=0
+  switches it off. Refused on a modern host, and it **refuses rather than
+  falling back to `C:`** when `GamesDir` is unusable.
+- **A SETTLED BOX READS `0 value(s) changed`.** The same non-zero count on
+  consecutive boots means two writers are fighting over one file — the
+  project's signature fault, and this line is what makes it visible.
+- **`GAMERES APPLY` and the startup pass share ONE walker** (`gr_apply_all()`).
+  Two copies disagree about which titles count as installed, after which
+  "APPLY says 0 changed" and "the boot pass says 3" are both true.
+- **`REGREAD` takes a KEY, not a value** — `REGREAD HKLM Software\RetroAgent\GameResBoot`
+  errors and reads as "absent". Read the key and pick the value out, or you
+  will report a present value as missing (it happened here with
+  `QuakeBindsBoot`).
+- **1080p is the RIGHT answer on the 1080p boxes.** `.145` and `.197` are
+  EDID-confirmed 1080p LCDs; check the panel before treating 1920x1080 as the
+  bug.
+
+Verified on hardware (`.123`, 2026-10-09): broke the GoldSrc key back to
+1600x1200 → `GAMERES VERIFY` `wrong=2` → one agent `RESTART` → `GameResBoot`
+`2 value(s) changed … verify wrong=0` and the value read back 1280x960. Final
+state 83 ok / 0 wrong / 0 absent across 53 titles. Test:
+`tests/python/test_gameres_startup.py` (it fails when the call is moved below
+the marker return — checked both ways).
+
 ### GAMERES VERIFY — is every installed title ACTUALLY at its resolution?
 
 `APPLY`'s `values_changed` says the pass ran; it does not say a box is right,
