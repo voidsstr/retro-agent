@@ -139,6 +139,37 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-10-11 08:26:04: abrupt end of the 10-08 Xid boot, likely the requested cold power cycle - GPU back, all clear
+
+- **Boot IDs:** `d3bc0e94…` (09-29 16:47:20 → 10-11 08:26:04, about 11 d 15 h,
+  the boot that took the 10-08 Xid 79) → `f68a5dc0…` (08:26:41). Gap 37 s.
+- **Signature:** the previous boot's journal **just stops** at 08:26:04 (last
+  line `gsd-media-keys: Unable to get default sink`) - no systemd shutdown
+  sequence, no `Reached target ... Power-Off/Reboot`. No new kdump in
+  `/var/crash/` (only the boot-time `kexec_cmd`/`kdump_lock`), no BERT /
+  `Hardware Error` / MCE in the new boot's kernel log, no panic line in the
+  old one. That is an external cut (power button or mains), not a crash the
+  kernel saw. **Likely the cold power cycle the 10-08 entry asked the operator
+  for; unproven** - nobody recorded pressing it. An ordinary `reboot` would
+  have hung in nvidia-modeset with the GPU gone (signature 2), which is why a
+  cold cycle was the request.
+- **After (checked 08:30-08:35):** `nvidia-smi` sees the RTX 5090 again, x16,
+  27 C; `nvidia-power-cap.service` re-applied **400 W** and the **210-2400 MHz**
+  lock at 08:26:58; 0 `Xid` lines this boot. ollama is `active` and answered a
+  real `POST /api/generate` (qwen3:14b) on the GPU: 95 s cold model load, then
+  5 tokens in 122 ms.
+- **Kernel:** this is the first boot on **7.0.0-38** (installed 10-07 06:39,
+  before the Xid); the 10-08 fault was on 7.0.0-34. Driver unchanged.
+- **Knock-on state restored by the reboot itself:** the five gate-dispatching
+  timers the 10-08 response stopped (`agent-{specpicks,aisleprompt}-shelf-audit-agent`,
+  `-user-growth-strategist`, `agent-specpicks-site-functional-tests`) are all
+  `active` again, and the D-state processes are gone with the old boot.
+  **Still open from 10-08:** `config/implementer-allowed-dispatch-kinds.json`
+  is limited to deploy-free kinds; restore `["*"]` once a deploy gate passes
+  on this boot.
+- **Not touched:** the cap and clock lock stay as they are; nothing in this
+  event argues for changing them.
+
 ### 2026-10-08 09:33:21: Xid 79 under 400 W + 2400 MHz lock, box stays up (signature 1)
 
 - **Boot ID:** `d3bc0e94…` (up since 09-29 16:47:20, about 8 d 17 h). No reboot yet.
