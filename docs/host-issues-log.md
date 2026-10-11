@@ -258,6 +258,20 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   (10:59) was followed by an MCE panic about 5 h later (15:48). After the power
   cycle, check `nvidia-smi`, a real `POST /generate`, and
   `journalctl --list-boots`, then update this entry.
+- **Recovery (2026-10-11 08:26):** boot `d3bc0e94` ended at 08:26:04 with
+  ordinary log traffic up to the last line: no shutdown sequence, no panic, no
+  new `/var/crash` dump. That fits a hard power-off; the logs can't say whether
+  it was the operator's cold cycle or an instant power loss. The GPU was off the
+  bus for about 71 h. New boot `f68a5dc0…` at 08:26:41, now on kernel
+  7.0.0-38. At 08:29 `nvidia-smi` lists the RTX 5090 (400 W limit, 24 °C, idle),
+  ollama logs `inference compute library=CUDA`, and a real `POST /generate`
+  returned a 360 KB PNG in 4.6 s. The kernel logged 2 DMAR faults at 08:26:50,
+  both from device `80:14.3` (chipset), not `01:00.0`, so this is not the
+  wedged-card fault storm. There were 3 short-lived D-state processes from boot
+  I/O (localsearch, apt-check, journalctl) and none on `drm_open`. The timers the
+  KTLO loop had stopped came back with the boot. The dispatch-kind allowlist is
+  still restricted on purpose: the aisleprompt image refiller has to fill the
+  130 imageless recipes before deploys resume (see the KTLO post-reboot checklist).
 
 ### 2026-09-30 09:44:04: wired LAN frozen by `.124` hard-frozen under 2x AA - NOT the host NIC (signature 7)
 
