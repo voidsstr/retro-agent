@@ -1,0 +1,133 @@
+{
+ "game": "ut99",
+ "time": "2026-10-13T09:27:14",
+ "roster": [
+  [
+   "Fleet133",
+   null,
+   false
+  ],
+  [
+   "Fleet240",
+   null,
+   false
+  ],
+  [
+   "Fleet124",
+   null,
+   false
+  ],
+  [
+   "Fleet184",
+   null,
+   false
+  ],
+  [
+   "Fleet171",
+   null,
+   false
+  ],
+  [
+   "Fleet110",
+   null,
+   false
+  ],
+  [
+   "Fleet143",
+   null,
+   false
+  ],
+  [
+   "Fleet123",
+   null,
+   false
+  ],
+  [
+   "Fleet145",
+   null,
+   false
+  ],
+  [
+   "Fleet197",
+   null,
+   false
+  ],
+  [
+   "__info__",
+   "10",
+   "10"
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_110.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "123": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_123.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "124": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_124.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "133": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_133.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "143": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_143.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "145": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_145.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "171": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_171.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "184": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_184.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "197": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_197.jpg",
+   "black": true,
+   "named_on_server": true
+  },
+  "240": {
+   "running": true,
+   "foreground": "Unreal Tournament",
+   "shot": "ut99_240.jpg",
+   "black": false,
+   "named_on_server": true
+  }
+ }
+}

@@ -1,0 +1,176 @@
+
+  WARNING: calculated CPU speed different than stored in registry!
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.5
+
+Executable: Z:\game\Bin\DedicatedServer.exe
+Assumed engine directory: Z:\game\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 6.1, build 7601
+  Misc: Service Pack 1
+
+Detecting CPU...
+  Vendor: GenuineIntel
+  Type: 0, Family: 6, Model: 6, Stepping: 2
+  MMX : Yes
+  CMOV: Yes
+  Clock: 5700MHz
+
+Global memory status...
+  Physical memory used:    0/2047MB
+  Page file used:       4095/4095MB
+  Virtual memory used:    16/2047MB
+  Memory load:  40%
+  Process working set: 32MB-32MB
+
+Cannot load variable from 'DefaultMod.txt':
+Cannot open file `Z:\game\DefaultMod.txt' (No such file or directory) ()
+Current mod: <none>
+Loading group files...
+  Z:\game\SE1_00_Music.gro: 43 files
+  Z:\game\SE1_00_Levels.gro: 49 files
+  Z:\game\SE1_00_ExtraTools.gro: 1044 files
+  Z:\game\SE1_00_Extra.gro: 107 files
+  Z:\game\SE1_00.gro: 3142 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1280x1024
+  Virtual screen: 1280x1024
+  Monitors directly reported: 1
+
+Initializing sound...
+  vorbisfile.dll loaded, ogg playing enabled
+MPX playing disabled: Cannot load amp11lib.dll.
+  Detected devices: 0
+
+
+WARNING: Gamma, brightness and contrast are not adjustable!
+
+IFeel mouse not found.
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'Z:\game\Bin\GameMP.dll'...
+Scripts\Game_startup.ini(3): Identifier 'sam_strTechTestLevel' is not declared
+Scripts\Game_startup.ini(3): Cannot assign: different types
+Cannot load game settings:
+Cannot open file `Z:\game\Data\DedicatedServer.gms' (No such file or directory) ()
+  Using defaults
+Serious Sam version: v1.05
+Executing: 'Scripts\Dedicated_startup.ini'
+Executing: 'Scripts\Dedicated\NSCFleet\init.ini'
+Executing: 'Scripts\Dedicated\NSCFleet\1_begin.ini'
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx (192.168.1.132, 192.168.1.252, 172.18.0.1, 172.19.0.1, 172.20.0.1, 172.21.0.1, 172.22.0.1, 172.17.0.1)
+  port: 25610
+  opened socket: 
+Starting session: 'NSC Retro Fleet Arena (Serious Sam TSE)'
+  level: 'Levels\LevelsMP\DeathMatch\Yodeller.wld'
+  spawnflags: 00020002
+  max players: 16
+  waiting: 0
+  network is on
+  started.
+
+ALL OK: Dedicated server is now running!
+Use Ctrl+C to shutdown the server.
+DO NOT use the 'Close' button, it might leave the port hanging!
+
+Server: Connection initiated from '192.168.1.171'.
+Server: Accepted session connection by '192.168.1.171'
+Server: Connection initiated from '192.168.1.123'.
+Server: Accepted session connection by '192.168.1.123'
+Server: Connection initiated from '192.168.1.240'.
+Server: Accepted session connection by '192.168.1.240'
+Server: Connection initiated from '192.168.1.143'.
+Server: Accepted session connection by '192.168.1.143'
+Server: Connection initiated from '192.168.1.110'.
+Server: Accepted session connection by '192.168.1.110'
+Server: Connection initiated from '192.168.1.184'.
+Server: Accepted session connection by '192.168.1.184'
+Server: Connection initiated from '192.168.1.124'.
+Server: Accepted session connection by '192.168.1.124'
+Server: Connection initiated from '192.168.1.133'.
+Server: Accepted session connection by '192.168.1.133'
+Server: Connection initiated from '192.168.1.145'.
+Server: Accepted session connection by '192.168.1.145'
+Server: Sent initialization info to '192.168.1.171' (2k)
+Server: Sent initialization info to '192.168.1.123' (2k)
+Server: Sent initialization info to '192.168.1.240' (2k)
+Server: Sent initialization info to '192.168.1.143' (2k)
+Server: Sent initialization info to '192.168.1.110' (2k)
+Server: Sent initialization info to '192.168.1.184' (2k)
+Server: Sent initialization info to '192.168.1.124' (2k)
+Server: Sent initialization info to '192.168.1.133' (2k)
+Server: Sent initialization info to '192.168.1.145' (2k)
+Server: Connection initiated from '192.168.1.197'.
+Server: Accepted session connection by '192.168.1.197'
+Server: Sent initialization info to '192.168.1.197' (2k)
+Server: Sent connection data to '192.168.1.145' (209k->86k->15k)
+Server: Sent CRC challenge to '192.168.1.145' (10k)
+Server: Client '192.168.1.145', CRC check OK
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.197' (215k->89k->14k)
+Server: Sent CRC challenge to '192.168.1.197' (10k)
+Server: Client '192.168.1.197', CRC check OK
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.123' (225k->34k->13k)
+Server: Sent CRC challenge to '192.168.1.123' (10k)
+Server: Client '192.168.1.123', CRC check OK
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.171' (233k->42k->14k)
+Server: Sent connection data to '192.168.1.110' (232k->41k->13k)
+Server: Sent connection data to '192.168.1.124' (232k->41k->13k)
+Server: Sent CRC challenge to '192.168.1.171' (10k)
+Server: Client '192.168.1.171', CRC check OK
+^oPlayer 0^r joined
+Server: Sent CRC challenge to '192.168.1.110' (10k)
+Server: Client '192.168.1.110', CRC check OK
+^oPlayer 0^r joined
+Server: Sent CRC challenge to '192.168.1.124' (10k)
+Server: Client '192.168.1.124', CRC check OK
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.143' (251k->60k->15k)
+Server: Sent CRC challenge to '192.168.1.143' (10k)
+Server: Client '192.168.1.143', CRC check OK
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.184' (260k->70k->16k)
+Server: Sent connection data to '192.168.1.133' (260k->70k->16k)
+Server: Sent CRC challenge to '192.168.1.184' (10k)
+Server: Client '192.168.1.184', CRC check OK
+Server: Sent CRC challenge to '192.168.1.133' (10k)
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.240' (264k->74k->16k)
+Server: Client '192.168.1.133', CRC check OK
+^oPlayer 0^r joined
+^oPlayer 0^r telefragged ^oPlayer 0^r
+^oPlayer 0^r telefragged ^oPlayer 0^r
+Server: Sent CRC challenge to '192.168.1.240' (10k)
+Server: Client '192.168.1.240', CRC check OK
+^oPlayer 0^r joined

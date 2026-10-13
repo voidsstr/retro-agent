@@ -1,0 +1,14 @@
+rcon status on cs16-server (:27018, joined through the :27015 proxy, hence 127.0.0.1), 2026-10-13 ~09:25
+map     :  de_airstrip
+players :  10 active (16 max)
+# 4 "Jucator - www.bcs16.ro"     343 STEAM_ID_LAN 0 02:16 11 0 127.0.0.1:34560
+# 5 "(1)Jucator - www.bcs16.ro"  344 STEAM_ID_LAN 0 02:16 10 0 127.0.0.1:41516
+# 6 "(2)Jucator - www.bcs16.ro"  345 STEAM_ID_LAN 0 02:16  8 0 127.0.0.1:56925
+# 7 "(3)Jucator - www.bcs16.ro"  346 STEAM_ID_LAN 0 02:13 12 0 127.0.0.1:39353
+# 8 "(4)Jucator - www.bcs16.ro"  347 STEAM_ID_LAN 0 02:13 13 0 127.0.0.1:34481
+# 9 "RIAM - www.bcs16.ro"        348 STEAM_ID_LAN 0 02:12  2 0 127.0.0.1:45478
+#10 "(5)Jucator - www.bcs16.ro"  349 STEAM_ID_LAN 0 02:12 14 0 127.0.0.1:55430
+#11 "(6)Jucator - www.bcs16.ro"  350 STEAM_ID_LAN 0 02:09 13 0 127.0.0.1:43826
+#12 "(7)Jucator - www.bcs16.ro"  351 STEAM_ID_LAN 0 02:09 13 0 127.0.0.1:46863
+#13 "(8)Jucator - www.bcs16.ro"  352 STEAM_ID_LAN 0 02:00 12 0 127.0.0.1:37597
+10 users (the 3 fill bots were kicked to make room)

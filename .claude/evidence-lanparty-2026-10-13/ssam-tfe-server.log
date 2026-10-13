@@ -1,0 +1,197 @@
+
+  WARNING: calculated CPU speed different than stored in registry!
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.1
+
+Executable: Z:\game\Bin\DedicatedServer.exe
+Assumed engine directory: Z:\game\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 6.1, build 7601
+  Misc: Service Pack 1
+
+Detecting CPU...
+  Vendor: GenuineIntel
+  Type: 0, Family: 6, Model: 6, Stepping: 2
+  MMX : Yes
+  CMOV: Yes
+  Clock: 5700MHz
+
+Global memory status...
+  Physical memory used:    0/2047MB
+  Page file used:       4095/4095MB
+  Virtual memory used:    16/2047MB
+  Memory load:  40%
+  Process working set: 32MB-32MB
+
+Loading group files...
+  Z:\game\1_00_music.gro: 55 files
+  Z:\game\1_00_ExtraTools.gro: 58 files
+  Z:\game\1_00.gro: 2267 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1280x1024
+  Virtual screen: 1280x1024
+  Monitors directly reported: 1
+
+Initializing sound...
+Setting sound format ...
+  (no sound)
+  amp11lib.dll loaded, mpx playing enabled
+  Detected devices: 0
+
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'Z:\game\Bin\Game.dll'...
+Cannot load game settings:
+Cannot open file `Z:\game\Data\DedicatedServer.gms' (No such file or directory) ()
+  Using defaults
+Serious Sam version: v1.00
+Executing: 'Scripts\Dedicated_startup.ini'
+Executing: 'Scripts\Dedicated\NSCFleet\init.ini'
+Executing: 'Scripts\Dedicated\NSCFleet\1_begin.ini'
+"-------------------- NSC Retro Fleet Arena: DesertTemple --------------------"
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx (192.168.1.132, 192.168.1.252, 172.18.0.1, 172.19.0.1, 172.20.0.1, 172.21.0.1, 172.22.0.1, 172.17.0.1)
+  port: 25600
+  opened socket: 
+Starting session: 'NSC Retro Fleet Arena (Serious Sam TFE)'
+  level: 'Levels\Deathmatch\DesertTemple.wld'
+  spawnflags: 00020002
+  max players: 16
+  waiting: 0
+  network is on
+  started.
+
+ALL OK: Dedicated server is now running!
+Use Ctrl+C to shutdown the server.
+DO NOT use the 'Close' button, it might leave the port hanging!
+
+Server: Connection initiated from '192.168.1.197'.
+Server: Accepted session connection by '192.168.1.197'
+Server: Connection initiated from '192.168.1.123'.
+Server: Accepted session connection by '192.168.1.123'
+Server: Connection initiated from '192.168.1.143'.
+Server: Accepted session connection by '192.168.1.143'
+Server: Connection initiated from '192.168.1.145'.
+Server: Accepted session connection by '192.168.1.145'
+Server: Connection initiated from '192.168.1.124'.
+Server: Accepted session connection by '192.168.1.124'
+Server: Connection initiated from '192.168.1.110'.
+Server: Accepted session connection by '192.168.1.110'
+Server: Connection initiated from '192.168.1.240'.
+Server: Accepted session connection by '192.168.1.240'
+Server: Connection initiated from '192.168.1.171'.
+Server: Accepted session connection by '192.168.1.171'
+Server: Connection initiated from '192.168.1.133'.
+Server: Accepted session connection by '192.168.1.133'
+Server: Connection initiated from '192.168.1.184'.
+Server: Accepted session connection by '192.168.1.184'
+Server: Sent initialization info to '192.168.1.197' (2k)
+Server: Sent initialization info to '192.168.1.123' (2k)
+Server: Sent initialization info to '192.168.1.143' (2k)
+Server: Sent initialization info to '192.168.1.145' (2k)
+Server: Sent initialization info to '192.168.1.124' (2k)
+Server: Sent initialization info to '192.168.1.110' (2k)
+Server: Sent initialization info to '192.168.1.240' (2k)
+Server: Sent initialization info to '192.168.1.171' (2k)
+Server: Sent initialization info to '192.168.1.133' (2k)
+Server: Sent initialization info to '192.168.1.184' (2k)
+Server: Sent connection data to '192.168.1.145' (262k->123k->8k)
+Server: Sent CRC challenge to '192.168.1.145' (7k)
+Server: Client '192.168.1.145', CRC check OK
+^oSerious Sam^r joined
+Server: Sent connection data to '192.168.1.197' (270k->28k->9k)
+Server: Sent CRC challenge to '192.168.1.197' (7k)
+Server: Client '192.168.1.197', CRC check OK
+^oSerious Sam^r joined
+Server: Sent connection data to '192.168.1.123' (273k->32k->10k)
+Server: Sent CRC challenge to '192.168.1.123' (7k)
+Server: Client '192.168.1.123', CRC check OK
+^oSerious Sam^r joined
+Server: Sent connection data to '192.168.1.240' (279k->38k->10k)
+Server: Sent connection data to '192.168.1.171' (282k->41k->10k)
+Server: Sent CRC challenge to '192.168.1.240' (7k)
+Server: Client '192.168.1.240', CRC check OK
+^oSerious Sam^r joined
+Server: Sent CRC challenge to '192.168.1.171' (7k)
+Server: Client '192.168.1.171', CRC check OK
+Server: Sent connection data to '192.168.1.124' (289k->49k->11k)
+^oSerious Sam^r joined
+Server: Sent connection data to '192.168.1.110' (292k->52k->11k)
+Server: Sent connection data to '192.168.1.143' (296k->55k->11k)
+Server: Sent CRC challenge to '192.168.1.124' (7k)
+Server: Client '192.168.1.124', CRC check OK
+Server: Client '192.168.1.124', CRC check OK
+Server: Client '192.168.1.124', CRC check OK
+Server: Client '192.168.1.124', CRC check OK
+Server: Sent CRC challenge to '192.168.1.110' (7k)
+Server: Client '192.168.1.110', CRC check OK
+^oSerious Sam^r joined
+Server: Sent CRC challenge to '192.168.1.143' (7k)
+Server: Client '192.168.1.143', CRC check OK
+^oSerious Sam^r joined
+Server: Sent connection data to '192.168.1.133' (308k->68k->12k)
+Server: Sent connection data to '192.168.1.184' (308k->68k->12k)
+Server: Sent CRC challenge to '192.168.1.184' (7k)
+Server: Sent CRC challenge to '192.168.1.133' (7k)
+Server: Client '192.168.1.184', CRC check OK
+^oSerious Sam^r joined
+Server: Client '192.168.1.133', CRC check OK
+Server: Client '192.168.1.133', CRC check OK
+Server: Client '192.168.1.133', CRC check OK
+Server: Client '192.168.1.133', CRC check OK
+Client '192.168.1.124' ordered to disconnect: Connection timeout
+Client '192.168.1.124' ordered to disconnect: Connection timeout
+Forcing client '192.168.1.124' to disconnect
+Server: Client '192.168.1.124' disconnected.
+Client '192.168.1.133' ordered to disconnect: Connection timeout
+Client '192.168.1.133' ordered to disconnect: Connection timeout
+Forcing client '192.168.1.133' to disconnect
+Server: Client '192.168.1.133' disconnected.
+Server: Connection initiated from '192.168.1.133'.
+Server: Accepted session connection by '192.168.1.133'
+Server: Sent initialization info to '192.168.1.133' (2k)
+Server: Sent connection data to '192.168.1.133' (313k->74k->12k)
+Server: Sent CRC challenge to '192.168.1.133' (7k)
+Server: Client '192.168.1.133', CRC check OK
+^oSerious Sam^r joined
+Server: Resending sequences 2097-2097(1) to '192.168.1.143'... sent 2097-2098(0 - 64b)
+Server: Resending sequences 3354-3354(1) to '192.168.1.133'... sent 3354-3355(0 - 62b)
+Server: Resending sequences 3396-3396(1) to '192.168.1.143'... sent 3396-3397(0 - 64b)
+Server: Resending sequences 3744-3744(1) to '192.168.1.143'... sent 3744-3745(0 - 64b)
+Server: Connection initiated from '192.168.1.124'.
+Server: Accepted session connection by '192.168.1.124'
+Server: Sent initialization info to '192.168.1.124' (2k)
+Server: Sent connection data to '192.168.1.124' (319k->81k->13k)
+Server: Sent CRC challenge to '192.168.1.124' (7k)
+Server: Client '192.168.1.124', CRC check OK
+^oSerious Sam^r joined
+^oSerious Sam^r telefragged ^oSerious Sam^r
+Server: Resending sequences 4736-4736(1) to '192.168.1.143'... sent 4736-4737(0 - 67b)

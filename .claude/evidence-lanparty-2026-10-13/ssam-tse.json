@@ -1,0 +1,133 @@
+{
+ "game": "ssam-tse",
+ "time": "2026-10-13T09:19:01",
+ "roster": [
+  [
+   "Player 0",
+   38,
+   false
+  ],
+  [
+   "Player 0",
+   33,
+   false
+  ],
+  [
+   "Player 0",
+   11,
+   false
+  ],
+  [
+   "Player 0",
+   61,
+   false
+  ],
+  [
+   "Player 0",
+   30,
+   false
+  ],
+  [
+   "Player 0",
+   53,
+   false
+  ],
+  [
+   "Player 0",
+   53,
+   false
+  ],
+  [
+   "Player 0",
+   17,
+   false
+  ],
+  [
+   "Player 0",
+   58,
+   false
+  ],
+  [
+   "Player 0",
+   54,
+   false
+  ],
+  [
+   "__info__",
+   "10",
+   "16"
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_110.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "123": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_123.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "124": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_124.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "133": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_133.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "143": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_143.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "145": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_145.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "171": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_171.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "184": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_184.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "197": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_197.jpg",
+   "black": true,
+   "named_on_server": false
+  },
+  "240": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tse_240.jpg",
+   "black": false,
+   "named_on_server": false
+  }
+ }
+}

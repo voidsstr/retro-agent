@@ -1,0 +1,133 @@
+{
+ "game": "ut2004",
+ "time": "2026-10-13T09:29:21",
+ "roster": [
+  [
+   "NSC-C543575F526",
+   null,
+   false
+  ],
+  [
+   "NSC-CABE14B7486",
+   null,
+   false
+  ],
+  [
+   "P3-DUAL",
+   null,
+   false
+  ],
+  [
+   "USER-41EA3B3330",
+   null,
+   false
+  ],
+  [
+   "NSC-5B996B81319",
+   null,
+   false
+  ],
+  [
+   "NSC-5C5396FAF9D",
+   null,
+   false
+  ],
+  [
+   "1GHZ",
+   null,
+   false
+  ],
+  [
+   "NSC-B20C188E96D",
+   null,
+   false
+  ],
+  [
+   "ADMIN-PC",
+   null,
+   false
+  ],
+  [
+   "DELL",
+   null,
+   false
+  ],
+  [
+   "__info__",
+   "10",
+   "12"
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_110.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "123": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_123.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "124": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_124.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "133": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_133.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "143": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_143.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "145": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_145.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "171": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_171.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "184": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_184.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "197": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_197.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "240": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_240.jpg",
+   "black": false,
+   "named_on_server": false
+  }
+ }
+}

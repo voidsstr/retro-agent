@@ -1,0 +1,77 @@
+{
+ "game": "cs",
+ "time": "2026-10-13T09:24:49",
+ "roster": [],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_110.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "123": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_123.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "124": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_124.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "133": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_133.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "143": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_143.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "145": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_145.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "171": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_171.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "184": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_184.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "197": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_197.jpg",
+   "black": true,
+   "named_on_server": false
+  },
+  "240": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_240.jpg",
+   "black": false,
+   "named_on_server": false
+  }
+ }
+}

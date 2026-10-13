@@ -1,0 +1,143 @@
+{
+ "game": "q3",
+ "time": "2026-10-13T09:20:44",
+ "roster": [
+  [
+   "Klesk",
+   0,
+   true
+  ],
+  [
+   "Cadavre",
+   0,
+   true
+  ],
+  [
+   "Hossman",
+   0,
+   true
+  ],
+  [
+   "Fleet197",
+   18,
+   false
+  ],
+  [
+   "Fleet145",
+   6,
+   false
+  ],
+  [
+   "Fleet123",
+   0,
+   false
+  ],
+  [
+   "Fleet110",
+   0,
+   false
+  ],
+  [
+   "Fleet171",
+   0,
+   false
+  ],
+  [
+   "Fleet143",
+   3,
+   false
+  ],
+  [
+   "Fleet240",
+   4,
+   false
+  ],
+  [
+   "Fleet184",
+   1,
+   false
+  ],
+  [
+   "Fleet133",
+   0,
+   false
+  ],
+  [
+   "Fleet124",
+   1,
+   false
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_110.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "123": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_123.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "124": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_124.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "133": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_133.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "143": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_143.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "145": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_145.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "171": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_171.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "184": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_184.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "197": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_197.jpg",
+   "black": true,
+   "named_on_server": true
+  },
+  "240": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_240.jpg",
+   "black": false,
+   "named_on_server": true
+  }
+ }
+}

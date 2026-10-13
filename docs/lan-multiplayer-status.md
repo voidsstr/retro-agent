@@ -66,6 +66,54 @@ lost `.123` mid-session — see the last section.*
 
 ---
 
+## ALL TEN BOXES IN ONE GAME — measured 2026-10-13
+
+**User directive: "run the common games we play including serious sam on all
+the connected computers in multiplayer and validate its working on all
+computers except the pentium 1 computer".** Boxes live: `.110 .123 .124 .133
+.143 .145 .171 .184 .197 .240` (`.186` was off; `.243`, the Win98 P1, excluded
+by request). One game at a time, every box joined the fleet server on this host.
+
+| Title | Server | In one game at once | Evidence |
+|---|---|---|---|
+| **Serious Sam TFE** | `:25600` | **10 of 10** | server 10/16; all ten IPs `CRC check OK` in `ssam-tfe-server.log`; no drop after `.124` rejoined |
+| **Serious Sam TSE** | `:25610` | **10 of 10** | server 10/16; all ten IPs in `ssam-tse-server.log`, zero disconnects; `.171` shows another player on screen |
+| **Quake III Arena** | `:27961` | **10 of 10** | `getstatus` lists `Fleet110` … `Fleet240` beside the 3 bots; every in-game scoreboard shows all ten |
+| **Quake II** | `:27910` | **10 of 10** | `status` lists all ten `Fleet<octet>` names; every box in q2dm1 |
+| **Counter-Strike 1.6** | `:27015` | **10 of 10** | `rcon status`: 10 active, fill bots kicked (`cs-rcon-status.txt`) |
+| **Unreal Tournament (436 client)** | `:7797` | **10 of 10** | server 10/10 - full; HUD reads `Rank n/10` |
+| **UT2004** | `:7777` | **10 of 10** | GameSpy `\status\` lists all ten hostnames; each box's player list matches |
+
+Evidence: `.claude/evidence-lanparty-2026-10-13/` (per-box frames, a grid per
+game, the server's roster as JSON). Tool: **`scripts/fleet/lanparty.py run
+<game>`** (`ssam-tfe ssam-tse q3 q2 cs ut99 ut2004`) writes a per-box launcher
+to `C:\fleetmp\`, which runs the title's own `FLEETRES.BAT` and joins as
+`Fleet<octet>`. Then `check <game>` reads the SERVER's roster and screenshots
+every box. `.197` (Win7) captures black in every exclusive-fullscreen title, and
+`.124`'s Voodoo 5 6000 hands back a stale frame, so for those two the server is
+the witness.
+
+What it took, and what to know next time:
+
+- **Serious Sam's servers were capped at 8 players** (`gam_ctMaxPlayers`); both
+  are 16 now (`init-t?e.ini` here and on the host). UT99's server was capped at
+  10, exactly this fleet. It is now 16 in `~/.utpg/System/UnrealTournament.ini`,
+  which is host-only and not in the repo (`.pre-16slots` backup beside it).
+- **Serious Sam shows two first-run screens** after a run that never exited
+  cleanly: an `Information` "starting for the first time" box and **Connection
+  Settings**. Drive them with `UIKEY RETURN`, then `DOWN` x4 (LAN) + `RETURN`,
+  then `RETURN` on START. Both are saved only on a clean exit, so ending the game
+  with `PROCKILL` brings them back.
+- **`.124` timed out of TFE once** after `CRC check OK` and was dropped. A
+  relaunch joined and held. Read the server log; that box's screen capture
+  cannot show it.
+- **CS 1.6 ignores `+name`**: the staged client (a BCS16 repack) names every box
+  `(n)Jucator - www.bcs16.ro`, and joins through the `:27015` proxy show as
+  `127.0.0.1`, so the count is the per-box witness. `5` picks auto-assign at
+  Select Team; the class menu's auto-select is **`6`**, not `5`.
+
+---
+
 ## ALL SIX BOXES IN ONE GAME — measured 2026-09-01
 
 **User directive: "have them run them on all connected computers together i want

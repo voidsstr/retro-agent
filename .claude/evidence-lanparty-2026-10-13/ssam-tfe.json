@@ -1,0 +1,133 @@
+{
+ "game": "ssam-tfe",
+ "time": "2026-10-13T09:15:11",
+ "roster": [
+  [
+   "Serious Sam",
+   36,
+   false
+  ],
+  [
+   "Serious Sam",
+   31,
+   false
+  ],
+  [
+   "Serious Sam",
+   19,
+   false
+  ],
+  [
+   "Serious Sam",
+   47,
+   false
+  ],
+  [
+   "Serious Sam",
+   18,
+   false
+  ],
+  [
+   "Serious Sam",
+   50,
+   false
+  ],
+  [
+   "Serious Sam",
+   21,
+   false
+  ],
+  [
+   "Serious Sam",
+   33,
+   false
+  ],
+  [
+   "Serious Sam",
+   20,
+   false
+  ],
+  [
+   "Serious Sam",
+   31,
+   false
+  ],
+  [
+   "__info__",
+   "10",
+   "16"
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "Serious Sam (FullScreen 1280x960)",
+   "shot": "ssam-tfe_110.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "123": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_123.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "124": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_124.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "133": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_133.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "143": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_143.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "145": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_145.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "171": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_171.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "184": {
+   "running": true,
+   "foreground": "Serious Sam (FullScreen 1024x768)",
+   "shot": "ssam-tfe_184.jpg",
+   "black": false,
+   "named_on_server": false
+  },
+  "197": {
+   "running": true,
+   "foreground": "Serious Sam (FullScreen 1920x1080)",
+   "shot": "ssam-tfe_197.jpg",
+   "black": true,
+   "named_on_server": false
+  },
+  "240": {
+   "running": true,
+   "foreground": "",
+   "shot": "ssam-tfe_240.jpg",
+   "black": false,
+   "named_on_server": false
+  }
+ }
+}

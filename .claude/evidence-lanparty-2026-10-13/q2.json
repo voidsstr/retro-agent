@@ -1,0 +1,128 @@
+{
+ "game": "q2",
+ "time": "2026-10-13T09:22:05",
+ "roster": [
+  [
+   "Fleet197",
+   30,
+   false
+  ],
+  [
+   "Fleet145",
+   16,
+   false
+  ],
+  [
+   "Fleet123",
+   16,
+   false
+  ],
+  [
+   "Fleet171",
+   16,
+   false
+  ],
+  [
+   "Fleet110",
+   21,
+   false
+  ],
+  [
+   "Fleet240",
+   16,
+   false
+  ],
+  [
+   "Fleet143",
+   16,
+   false
+  ],
+  [
+   "Fleet184",
+   16,
+   false
+  ],
+  [
+   "Fleet133",
+   16,
+   false
+  ],
+  [
+   "Fleet124",
+   16,
+   false
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_110.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "123": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_123.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "124": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_124.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "133": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_133.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "143": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_143.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "145": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_145.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "171": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_171.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "184": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_184.jpg",
+   "black": false,
+   "named_on_server": true
+  },
+  "197": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_197.jpg",
+   "black": true,
+   "named_on_server": true
+  },
+  "240": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_240.jpg",
+   "black": false,
+   "named_on_server": true
+  }
+ }
+}
