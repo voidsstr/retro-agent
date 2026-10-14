@@ -139,6 +139,31 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-10-14 05:38:13: Xid 79 again (400 W + 2400 MHz lock, x16), box up 7 h on the iGPU, then an abrupt end at 12:36:25
+
+- **Boot IDs:** `f68a5dc0…` (10-11 08:26:41 → 10-14 12:36:25, about 3 d 4 h)
+  → `ee9f0d8b…` (12:37:18). Gap 53 s.
+- **Signature 1:** `NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the
+  bus` at **05:38:13**, Xid 154 (`Node Reboot Required`) in the same second,
+  then `API_GPU_ATTACHED_SANITY_CHECK failed!`. ollama hit `CUDA error:
+  unspecified launch failure` at 05:39:27. No `pcieport` AER line this time.
+  Cap 400 W and the 210-2400 MHz lock were in force, link x16, kernel
+  7.0.0-38 (so the 10-07 kernel update did not end it). Three days after the
+  previous one (10-08 09:33).
+- **The end:** the journal stops at 12:36:25 with no shutdown sequence. Just
+  before, at 12:36:18-21, `ptyxis` crashed (empty `_usr_bin_ptyxis.1000.crash`)
+  and every terminal scope, along with the gnome crash-recovery scope, was
+  torn down. No kdump, no MCE/BERT in either boot. **Likely the operator's cold power
+  cycle to revive the GPU; unproven.**
+- **After (checked 12:37-12:50):**
+  - the GPU is back at x16;
+  - `nvidia-power-cap.service` re-applied 400 W and 210-2400 MHz at 12:37:27;
+  - 0 Xid this boot;
+  - ollama generated on the GPU (qwen3:14b: 47 s cold load, then 5 tokens in 153 ms);
+  - wired `.132` came up by itself (the 10-13 autoconnect fix held);
+  - game servers 23/30 on loopback at 12:41 while the Wine containers were still starting.
+- **Not touched:** cap, lock and kernel unchanged.
+
 ### 2026-10-11 08:26:04: abrupt end of the 10-08 Xid boot, likely the requested cold power cycle - GPU back, all clear
 
 - **Boot IDs:** `d3bc0e94…` (09-29 16:47:20 → 10-11 08:26:04, about 11 d 15 h,
