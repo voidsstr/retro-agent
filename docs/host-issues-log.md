@@ -162,6 +162,26 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   - ollama generated on the GPU (qwen3:14b: 47 s cold load, then 5 tokens in 153 ms);
   - wired `.132` came up by itself (the 10-13 autoconnect fix held);
   - game servers 23/30 on loopback at 12:41 while the Wine containers were still starting.
+- **Load:** routine ollama traffic. The last successful `POST /api/chat` was at
+  05:36:00 EDT (6.5 s); the first 500 came at 05:39:28. ollama's llama-server
+  then restarted on CPU, and by 10:12Z it held 30 GB RSS at about 250% CPU, with
+  30 GB of the 61 GB available.
+- **Different from 10-08 so far:** at 10:12Z there were 0 D-state processes,
+  and agent deploy gates still passed after the fault (specpicks deployed
+  20261014-0951 and -0956 with smoke_ok). One specpicks gate failed at 09:54Z
+  (`TEST FAILED scope=legacy rc=1`). It is not yet known whether the GPU loss
+  caused that.
+- **Response:** the KTLO loop ran `sudo systemctl stop ollama` at about 10:20Z.
+  The unit is still enabled, so it returns with the next boot. The stop exited
+  cleanly with no D-state probe, and available memory rose to 47 GB. KTLO also
+  emailed the operator (Graph delivery confirmed) asking for a cold power cycle,
+  and did not reboot. The dispatch-kind allowlist is unchanged because the gates
+  are passing. KTLO is watching every 20 min for `drm_open` D-state hangs.
+- **Until the reboot:** the box stayed up on CPU for 7 h. Every check from 10:20Z
+  to 16:11Z showed 0 D-state processes and 46–47 GB available. Deploy gates kept
+  passing: specpicks shipped 1042, 1235 and 1341, and aisleprompt shipped 1102,
+  1217, 1249 and 1447, all with smoke_ok. Each later deploy also carried the
+  guarded catalog-audit migration `20261014T090208Z` (it deactivates 1 recipe).
 - **Not touched:** cap, lock and kernel unchanged.
 
 ### 2026-10-11 08:26:04: abrupt end of the 10-08 Xid boot, likely the requested cold power cycle - GPU back, all clear
@@ -194,7 +214,6 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   on this boot.
 - **Not touched:** the cap and clock lock stay as they are; nothing in this
   event argues for changing them.
-
 ### 2026-10-08 09:33:21: Xid 79 under 400 W + 2400 MHz lock, box stays up (signature 1)
 
 - **Boot ID:** `d3bc0e94…` (up since 09-29 16:47:20, about 8 d 17 h). No reboot yet.
