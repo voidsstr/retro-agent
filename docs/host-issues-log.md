@@ -139,6 +139,34 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-10-14 14:33:34: Xid 79 1 h 56 min after the power cycle (signature 1), box up on CPU until a power-key off at 10-15 08:44
+
+- **Boot ID:** `ee9f0d8b…` (up from 10-14 12:37:18). The fault came 1 h 56 min
+  after the cold power cycle that cleared the 05:38 fault. That is the third
+  Xid 79 in 7 days (10-08, 10-14 05:38, 10-14 14:33), and the shortest uptime
+  yet.
+- **Fault:** `14:33:34 EDT NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off
+  the bus` and `Xid ... 154 ... (Node Reboot Required)`. The pair is the same
+  as 10-08 and 05:38. About 3,000 `NVRM` lines followed in that boot.
+  `gnome-session-shutdown.target` was reached at 14:34:27, which looks like
+  the desktop session restarting on the iGPU.
+- **Load:** routine ollama chat traffic. ollama was serving requests at 14:30:19.
+  The fault cannot be pinned on a single request.
+- **Cap in effect:** 400 W plus the 210–2400 MHz clock lock, x16, kernel
+  7.0.0-38, driver 595.91.07.
+- **Response:** none was logged. ollama was not stopped and was still serving on
+  CPU at 10-15 08:40.
+- **End:** `systemd-logind: Power key pressed short` at 10-15 08:44:36. That
+  was a CLEAN power-off: units stopped, docker unmounted, journal flushed.
+  Boot `8a64ad06…` started at 08:45:16.
+- **Recovery:** the 5090 came back at x16 and 400 W. There is no Xid or AER on
+  the new boot yet.
+- **Note:** the cap and clock lock have not stopped Xid 79. With the
+  interval now down to ~2 h, the open physical items in the Current state
+  table become the likely next step: the 12V-2x6 connector at both ends, a
+  separate PSU cable instead of a daisy-chain, PSU wattage, and a logging
+  UPS/meter. This is unproven.
+
 ### 2026-10-14 05:38:13: Xid 79 again (400 W + 2400 MHz lock, x16), box up 7 h on the iGPU, then an abrupt end at 12:36:25
 
 - **Boot IDs:** `f68a5dc0…` (10-11 08:26:41 → 10-14 12:36:25, about 3 d 4 h)
