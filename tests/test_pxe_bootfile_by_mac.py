@@ -153,6 +153,28 @@ def test_win7_build_traps():
     check('drvload is skipped when an RTL8167 driver is already bound',
           'find /i "RTL8167"' in cmd and 'goto inboxnic' in cmd
           and cmd.index('find /i "RTL8167"') < cmd.index('drvload "'))
+    # .145 (2026-10-15): Setup finished and Windows 7 booted with no network -
+    # a driver drvload'ed in WinPE never reaches the installed image.
+    import xml.dom.minidom
+    ua_path = os.path.join(PXE, 'win7-unattend.xml')
+    ua = xml.dom.minidom.parse(ua_path)
+    passes = [e.getAttribute('pass') for e in ua.getElementsByTagName('settings')]
+    archs = sorted(c.getAttribute('processorArchitecture')
+                   for c in ua.getElementsByTagName('component'))
+    paths = [p.firstChild.data for p in ua.getElementsByTagName('Path')]
+    check('unattend: offlineServicing ONLY, so every Setup page stays interactive',
+          passes == ['offlineServicing'])
+    check('unattend: PnpCustomizationsNonWinPE for amd64 and x86',
+          archs == ['amd64', 'x86'] and all(
+              c.getAttribute('name') == 'Microsoft-Windows-PnpCustomizationsNonWinPE'
+              for c in ua.getElementsByTagName('component')))
+    check('unattend: injects X:\\fleet\\drivers', paths == ['X:\\fleet\\drivers'] * 2)
+    check('unattend: no product key or password in a served file',
+          not any(t in open(ua_path).read() for t in ('ProductKey', 'Password', '<Key>')))
+    check('build stages unattend.xml and install.cmd passes it to setup.exe',
+          'peadd/fleet/unattend.xml' in sh
+          and 'set UA=/unattend:X:\\fleet\\unattend.xml' in cmd
+          and 'setup.exe %UA%' in cmd)
     check('no sc.exe (WinPE 3.0 does not ship it)',
           not any(l.strip().lower().startswith('sc ') or ' sc query' in l.lower()
                   for l in cmd.splitlines() if not l.lower().startswith('rem')))

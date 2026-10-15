@@ -9,7 +9,8 @@
 #   setup.exe from Files/OS/Win7PRO-<x64|x86>-PXE (install.wim stays on the NAS)
 #
 # Only MACs listed in pxe_config.json "bootfile_by_mac" get this; every other
-# machine keeps the XP default. Setup is INTERACTIVE (no unattend, no key in
+# machine keeps the XP default. Setup is INTERACTIVE (its only unattend adds the
+# NIC drivers to the installed Windows - win7-unattend.xml; no key in
 # any served file): someone picks the disk at the machine.
 #
 # Three things that are not obvious, all measured 2026-10-14/15:
@@ -102,6 +103,7 @@ with Auth() as a:
     rm -rf peadd hive rtk && mkdir -p peadd/fleet/drivers hive rtk
     printf '[LaunchApps]\r\nX:\\Windows\\System32\\cmd.exe\r\n' > peadd/winpeshl.ini
     sed 's/$/\r/' "$HERE/win7-install.cmd" > peadd/fleet/install.cmd
+    sed 's/$/\r/' "$HERE/win7-unattend.xml" > peadd/fleet/unattend.xml
     local cabf="$STAGE/build/rtl8168-win7-$A.cab"
     [ -f "$cabf" ] || curl -sfL -o "$cabf" "$CAB"
     echo "$SHA  $cabf" | sha256sum -c --quiet \

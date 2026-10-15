@@ -66,7 +66,11 @@ goto fail
 :run
 if not exist %SRC%\sources\setup.exe goto nosrc
 echo  Starting Windows Setup from %SRC% ...
-%SRC%\sources\setup.exe
+rem /unattend only adds X:\fleet\drivers to the installed Windows (offlineServicing);
+rem every Setup page is still interactive. See win7-unattend.xml.
+set UA=
+if exist X:\fleet\unattend.xml set UA=/unattend:X:\fleet\unattend.xml
+%SRC%\sources\setup.exe %UA%
 goto :eof
 :nonet
 echo.

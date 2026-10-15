@@ -359,8 +359,11 @@ sudo python3 scripts/pxe/pxe_selftest.py --mac d4:be:d9:b9:bf:93   # 34 checks
 - **List the MAC BEFORE the machine boots.** An unlisted machine gets XP, which
   is unattended and repartitions. Two machines asked for Windows 7 got XP that way
   (`.186` on 2026-10-14, reinstalled; `.145` on 10-15, stopped by a host crash).
-- **Setup is interactive.** No unattend file and no product key in any served
-  file; pick the disk and enter (or skip) the key at the machine.
+- **Setup is interactive.** No product key in any served file; pick the
+  edition (Professional), the disk and enter (or skip) the key at the machine.
+  The one unattend file (`win7-unattend.xml`, `setup.exe /unattend:`) holds a
+  single offlineServicing `DriverPaths` = `X:\fleet\drivers`, so the Realtek
+  driver lands in the INSTALLED Windows too; it answers no page.
 - **Afterwards take the MAC out of `bootfile_by_mac`** (and add it to
   `never_offer` if it boots from the network first). The hold covers the 6 h
   after the loader download; after that a network-first box lands in Setup
@@ -380,10 +383,20 @@ bash scripts/pxe/make-win7-source.sh --upload   # also push the DVDs to the NAS
 Traps, all measured in QEMU guests booted through the real server (and the
 first one on real hardware):
 
-- **Setup's WinPE has no usable RTL8168/8111 driver.** `netrtl32` is 8139-only,
-  and the inbox `netrtx32` in install.wim (2008) stops at REV_03: `.145`
-  (Dell, RTL8111E, REV_06) stopped at "No network" on 2026-10-15. Realtek's
-  catalog drivers above cover both targets (`.145` REV_06, `.186` REV_02).
+- **Windows 7's inbox RTL8168 driver (`netrtx32`/`netrtx64`, 7.2.1127.2008)
+  stops at REV_03.** It IS in Setup's WinPE driver store, so a REV_01-03 card
+  (`.186`, RTL8111C REV_02) binds by itself, but `.145` (Dell, RTL8111E,
+  REV_06) stopped at "No network" on 2026-10-15. Realtek's catalog drivers
+  above cover both targets.
+- **Never drvload over the inbox driver.** Both are service `RTL8167` with the
+  same file name, so on `.186` drvload had to overwrite a LOADED `Rt64win7.sys`
+  and failed - "Loading network drivers" and an error (2026-10-15). The
+  launcher waits up to 30 s for an `Enum\PCI` instance whose `Service` is
+  `RTL8167` (WinPE 3.0 has no `sc.exe`) and only drvloads when none appears.
+- **A driver drvload'ed in WinPE stays in WinPE.** `.145` finished Setup and
+  booted Windows 7 with no network (2026-10-15) - hence the unattend above.
+  For a box already installed: the same driver is in
+  `win7-stage/<arch>/rtk/`; `pnputil -i -a rt64win7.inf` on the box.
   **Stage every file the INF's `[SourceDisksFiles]` names** - without
   `RtNicProp*.dll`/`RTNUninst*.dll` drvload fails `0x80070002`; the build
   checks that list.
