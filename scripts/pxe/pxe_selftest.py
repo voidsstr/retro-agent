@@ -56,15 +56,16 @@ def bad(msg):
 
 # --------------------------------------------------------------- proxyDHCP
 
-def dhcp_probe(server, timeout=5.0):
-    """Return the decoded OFFER, or None."""
+def dhcp_probe(server, timeout=5.0, mac='00:11:22:33:44:55'):
+    """Return the decoded OFFER, or None. `mac` is who we claim to be - the
+    proxy picks the boot file per MAC (bootfile_by_mac)."""
     def opt(code, payload):
         return bytes([code, len(payload)]) + payload
 
     xid = 0x13572468
     pkt = struct.pack('!BBBBIHH', 1, 1, 6, 0, xid, 0, 0x8000)
     pkt += b'\x00' * 16
-    pkt += bytes.fromhex('001122334455') + b'\x00' * 10
+    pkt += bytes.fromhex(mac.replace(':', '').replace('-', '')) + b'\x00' * 10
     pkt += b'\x00' * 64 + b'\x00' * 128 + MAGIC
     pkt += opt(53, b'\x01')                               # DISCOVER
     pkt += opt(93, struct.pack('!H', 0))                  # arch: BIOS x86
@@ -206,10 +207,41 @@ def check_unattend(sif_bytes):
             '%s = %s%s' % (key, got, '' if got.lower() == want else
                            '  (want %s - %s)' % (want, why)))
 
+WIN7_HTTP_FILES = ['wimboot.i386', 'bootmgr', 'bcd', 'boot.sdi', 'boot.wim']
+WIN7_NAS = '/mnt/retro-share/Files/OS/Win7PRO-x86-PXE'
+
+
+def check_win7(server, bootfile, http_port=8069):
+    """The Windows 7 chain: iPXE over TFTP, then wimboot + Setup's WinPE over
+    HTTP, then Setup itself from the NAS copy of the DVD."""
+    import urllib.request
+    print('Windows 7 chain (iPXE -> wimboot -> WinPE -> Setup from the NAS)')
+    for name in (bootfile, 'win7/boot.ipxe'):
+        d, err = tftp_get(server, name)
+        (ok if d else bad)(f'TFTP {name}: ' + (f'{len(d)} bytes' if d else str(err)))
+        if d and name.endswith('boot.ipxe'):
+            (ok if b'http://' in d else bad)('boot.ipxe fetches the payload over HTTP')
+    for name in WIN7_HTTP_FILES:
+        url = f'http://{server}:{http_port}/win7/{name}'
+        try:
+            req = urllib.request.Request(url, method='HEAD')
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                ok(f'HTTP {name}: {resp.headers.get("Content-Length")} bytes')
+        except Exception as exc:                    # noqa: BLE001
+            bad(f'HTTP {url}: {exc}')
+    for rel in ('sources/setup.exe', 'sources/install.wim', 'sources/ei.cfg'):
+        path = os.path.join(WIN7_NAS, rel)
+        (ok if os.path.isfile(path) else bad)(
+            f'NAS {rel}' + (f': {os.path.getsize(path)} bytes'
+                            if os.path.isfile(path) else ' MISSING'))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--server', default=None, help='PXE host (default: this host)')
     ap.add_argument('--tftp-only', action='store_true')
+    ap.add_argument('--mac', help='probe AS this machine and check the boot '
+                    'chain it would get (e.g. a bootfile_by_mac Windows 7 box)')
     args = ap.parse_args()
 
     server = args.server
@@ -221,8 +253,11 @@ def main():
 
     if not args.tftp_only:
         print('proxyDHCP (what the boot ROM asks first)')
-        r = dhcp_probe(server)
-        if r == 'noroot':
+        r = dhcp_probe(server, mac=args.mac) if args.mac else dhcp_probe(server)
+        if r is None and args.mac:
+            bad(f'no OFFER for {args.mac} - held or never_offer? '
+                f'(pxe_server.py --list-holds)')
+        elif r == 'noroot':
             print('  SKIP  need root to bind port 68 - re-run with sudo, '
                   'or use --tftp-only')
         elif r is None:
@@ -239,6 +274,9 @@ def main():
             (ok if r['opts'].get(53) == b'\x02' else bad)('message type is OFFER')
             (ok if r['opts'].get(60, b'').startswith(b'PXEClient') else bad)(
                 'vendor class is PXEClient')
+            if args.mac and r['file'].startswith('win7/'):
+                print()
+                check_win7(server, r['file'])
         print()
 
     print('TFTP (what it fetches next)')

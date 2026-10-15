@@ -141,6 +141,12 @@ retro-agent/tests/
                                                   disk" menu (the Dell 4600's Intel
                                                   ROM sat on DHCP given silence);
                                                   other held MACs still get silence
+                          test_pxe_bootfile_by_mac.py  a bootfile_by_mac MAC gets the
+                                                  Windows 7 iPXE chain, every other
+                                                  MAC keeps XP; the hold arms on
+                                                  EVERY servable boot file; the
+                                                  HTTP payload server lists nothing;
+                                                  make-win7-source.sh's traps
                           test_pxe_txtsetup.py, test_pxe_bind_device.py,
                           test_pxe_boot_hold.py, test_binl.py
 ```

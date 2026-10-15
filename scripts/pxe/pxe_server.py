@@ -319,7 +319,18 @@ class ProxyDHCP(threading.Thread):
                                for m in cfg.get('localboot_macs', ())}
 
     def bootfile(self, req):
-        """Pick the NBP for the client's architecture (option 93)."""
+        """Pick the NBP: a per-MAC override first, then the client's
+        architecture (option 93), then the default.
+
+        bootfile_by_mac is how ONE machine gets a different install (the
+        Windows 7 iPXE chain, win7/undionly.kpxe) while every other machine
+        keeps the XP default. The XP path is unattended and repartitions the
+        disk, so a box meant for Windows 7 must be listed BEFORE it boots.
+        """
+        by_mac = {m.strip().lower(): f
+                  for m, f in self.cfg.get('bootfile_by_mac', {}).items()}
+        if req.mac and req.mac.lower() in by_mac:
+            return by_mac[req.mac.lower()]
         arches = self.cfg.get('bootfile_by_arch', {})
         return arches.get(str(req.arch)) or self.cfg['bootfile']
 
@@ -558,6 +569,58 @@ class ProxyDHCP(threading.Thread):
 OP_RRQ, OP_WRQ, OP_DATA, OP_ACK, OP_ERROR, OP_OACK = 1, 2, 3, 4, 5, 6
 
 
+def norm_bootpath(name):
+    """'\\win7\\undionly.kpxe' / '/win7/undionly.kpxe' -> 'win7/undionly.kpxe'."""
+    return str(name).replace('\\', '/').strip('/').lower()
+
+
+def servable_bootfiles(cfg):
+    """Every boot file the proxy can hand out - what arms the boot hold."""
+    files = [cfg.get('bootfile', '')]
+    files += list(cfg.get('bootfile_by_arch', {}).values())
+    files += list(cfg.get('bootfile_by_mac', {}).values())
+    return {norm_bootpath(f) for f in files if f}
+
+
+class HTTPServer(threading.Thread):
+    """Read-only HTTP for the big iPXE payloads (win7/boot.wim is 145 MB).
+
+    WHY NOT TFTP. Measured 2026-10-14: three full TFTP transfers of boot.wim
+    that this server logged as DONE, and iPXE accepted only the third - the
+    first stalled at 59% on screen, near the 65535-block wrap. iPXE has HTTP
+    built in, and TCP does not care how many blocks a file has. Serves the
+    TFTP root (so a file's URL path equals its TFTP path), GET/HEAD only, no
+    directory listings.
+    """
+    daemon = True
+
+    def __init__(self, cfg):
+        super().__init__(name='http')
+        self.root = cfg['tftp_root']
+        self.port = int(cfg.get('http_port', 8069))
+
+    def run(self):
+        import functools
+        import http.server
+
+        class Handler(http.server.SimpleHTTPRequestHandler):
+            def list_directory(self, path):
+                self.send_error(404)
+                return None
+
+            def log_message(self, fmt, *args):
+                log(f'http {self.client_address[0]} ' + fmt % args)
+
+        handler = functools.partial(Handler, directory=self.root)
+        try:
+            srv = http.server.ThreadingHTTPServer(('', self.port), handler)
+        except OSError as exc:
+            log(f'http: cannot bind port {self.port}: {exc}')
+            return
+        log(f'HTTP listening on TCP {self.port}, root={self.root}')
+        srv.serve_forever()
+
+
 class TFTPServer(threading.Thread):
     daemon = True
 
@@ -673,17 +736,15 @@ class TFTPServer(threading.Thread):
             # Arm only on the boot file itself. Setup fetches a dozen other
             # files over TFTP; any of them would be the wrong trigger.
             #
-            # WARNING TO ANYONE ADDING A SECOND BOOT FILE (a Linux imager, a
-            # restore environment, iPXE): this compares against cfg['bootfile']
-            # ONLY. A machine served a DIFFERENT boot file never arms the hold,
-            # so it is re-offered on every single boot - an unbounded reinstall
-            # loop. That is the same failure that destroyed a finished install
-            # on 2026-09-02, and it will be silent. Make the comparison cover
-            # every servable boot file before you add one.
+            # EVERY servable boot file arms it - the default, the per-arch and
+            # the per-MAC ones. A machine served a boot file this did not
+            # recognise would never arm the hold and would be re-offered on
+            # every boot: an unbounded reinstall loop, the failure that
+            # destroyed a finished install on 2026-09-02. Matched on the full
+            # path, so win7/undionly.kpxe arms it and a stray file of the
+            # same name elsewhere does not.
             hold = self.cfg.get('_hold')
-            if hold is not None and os.path.basename(
-                    filename.replace('\\', '/')).lower() == str(
-                    self.cfg.get('bootfile', '')).lower():
+            if hold is not None and norm_bootpath(filename) in servable_bootfiles(self.cfg):
                 hold.arm(mac_for_ip(addr[0]))
         except OSError as exc:
             log(f'tftp {addr[0]} error on {filename}: {exc}')
@@ -764,6 +825,10 @@ DEFAULT_CONFIG = {
     'tftp_root': os.path.join(_ROOT, 'tftp'),
     'bootfile': 'startrom.n12',
     'bootfile_by_arch': {},
+    # {"aa:bb:cc:dd:ee:ff": "win7/undionly.kpxe"} - see ProxyDHCP.bootfile().
+    'bootfile_by_mac': {},
+    # iPXE payloads (win7/*) are fetched over HTTP from the TFTP root.
+    'http_port': 8069,
     'logfile': os.path.join(_ROOT, 'pxe_server.log'),
     # Once a machine has taken the boot file, stand aside for this long so
     # it can boot the disk it just installed. 0 disables the hold and
@@ -984,7 +1049,7 @@ def main():
         log(f'FATAL: tftp root {cfg["tftp_root"]} does not exist')
         return 1
 
-    threads = [TFTPServer(cfg), ProxyDHCP(cfg, 67), ProxyDHCP(cfg, 4011),
+    threads = [TFTPServer(cfg), HTTPServer(cfg), ProxyDHCP(cfg, 67), ProxyDHCP(cfg, 4011),
                RogueWatch(cfg['server_ip'], cfg.get('rogue_check_seconds', 600),
                           first=others)]
     for t in threads:

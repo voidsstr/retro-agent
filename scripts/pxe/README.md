@@ -1,8 +1,10 @@
 # Retro fleet PXE server (proxyDHCP + TFTP)
 
-Network-boot installer host for the fleet. Currently serves a **Windows XP SP3
+Network-boot installer host for the fleet. Serves a **Windows XP SP3
 network install** (RIS-style: `startrom.n12` -> `ntldr`/setupldr -> `winnt.sif` ->
-SMB source), so a machine with no optical drive can be installed over the LAN.
+SMB source), so a machine with no optical drive can be installed over the LAN -
+and, for a MAC listed in `bootfile_by_mac`, a **Windows 7** install instead
+(see "Windows 7 for ONE machine" below).
 
 ```
 target PC  --DHCP DISCOVER(PXEClient)-->  router DHCP  (gives the IP)
@@ -324,6 +326,69 @@ ten minutes and reboots to continue into GUI setup. The machine coming back to
 PXE ~10 minutes later is that reboot, and the boot hold refusing it is the hold
 doing its job - `--release` there re-images a box that had just finished. See
 `e60f121`.
+
+## Windows 7 for ONE machine: `bootfile_by_mac` (2026-10-15)
+
+The default install is still XP. A MAC listed in `pxe_config.json`
+`bootfile_by_mac` gets the **Windows 7 Professional x86** chain instead:
+
+```
+ROM --proxyDHCP--> win7/undionly.kpxe (TFTP)  iPXE v2.0.0, script baked in
+iPXE ------------> win7/boot.ipxe     (TFTP)  editable without a rebuild
+wimboot + bootmgr/BCD/boot.sdi/boot.wim  --HTTP :8069-->  Setup's own WinPE
+X:\fleet\install.cmd: drvload RTL8168, net use \\192.168.1.122\files (guest)
+setup.exe from Files\OS\Win7PRO-x86-PXE   install.wim (2 GB) stays on the NAS
+```
+
+```json
+"bootfile_by_mac": {"d4:be:d9:b9:bf:93": "win7/undionly.kpxe"}
+```
+
+then `sudo systemctl restart retro-pxe` and check the chain AS that machine:
+
+```bash
+sudo python3 scripts/pxe/pxe_selftest.py --mac d4:be:d9:b9:bf:93   # 29 checks
+```
+
+- **List the MAC BEFORE the machine boots.** An unlisted machine gets XP, which
+  is unattended and repartitions. Two machines asked for Windows 7 got XP that way
+  (`.186` on 2026-10-14, reinstalled; `.145` on 10-15, stopped by a host crash).
+- **Setup is interactive.** No unattend file and no product key in any served
+  file; pick the disk and enter (or skip) the key at the machine.
+- **Afterwards take the MAC out of `bootfile_by_mac`** (and add it to
+  `never_offer` if it boots from the network first). The hold covers the 6 h
+  after the loader download; after that a network-first box would land in
+  Setup again. That is harmless - Setup changes nothing until someone clicks -
+  but the box will not reach its own disk until the BIOS order or the list
+  changes.
+- **The hold arms on every servable boot file** now, including per-MAC ones
+  (`servable_bootfiles()`); before, only `cfg['bootfile']` armed it.
+
+Build (`/srv/retro-pxe/win7-stage`, ~5 min; reproduces the live files
+byte-for-byte, checked 2026-10-15):
+
+```bash
+bash scripts/pxe/make-win7-source.sh            # build + stage win7/
+bash scripts/pxe/make-win7-source.sh --upload   # also push the DVD to the NAS
+```
+
+Three traps, all measured in a QEMU guest booted through the real server:
+
+- **WinPE 3.0's `winpeshl.exe` drops the arguments on a `[LaunchApps]` line**:
+  `cmd.exe, /k X:\fleet\install.cmd` opened a bare prompt (`/c` closed it, and
+  winpeshl rebooted). The script now starts from cmd's own `AutoRun` value
+  (written into the image's SOFTWARE hive with `hivexsh`), behind a `FLEETRAN`
+  guard so nested cmd windows do not re-run it.
+- **Setup's WinPE has no RTL8168/8111 driver** - `netrtl32.inf` covers
+  8138/8139 only - and both Windows 7 targets have one. `netrtx32`
+  (`Rt86win7.sys`, Microsoft's inbox copy, DEV_8136/8167/8168/8169) is taken from
+  `install.wim` and `drvload`ed, then `wpeutil InitializeNetwork`. QEMU has no
+  8168 to test it on; the inbox Intel/Marvell drivers cover the other cards in
+  this server's BINL log.
+- **`boot.wim` over this TFTP is unreliable**: three full transfers that the
+  server logged DONE, of which iPXE accepted only the third (the first stalled
+  near the 65,535-block wrap). Hence the HTTP thread (`HTTPServer`, GET/HEAD,
+  no listings, rooted at the TFTP root).
 
 ## `OemPreinstall = No` installs a machine that does nothing
 
