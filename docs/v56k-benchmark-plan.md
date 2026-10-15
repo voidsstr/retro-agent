@@ -96,6 +96,58 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-10-15 09:00) - Direct3D titles on `.124`: the sweep started, AvP diagnosed, the box powered off
+
+**The user's next request (2026-10-14): every OpenGL, Direct3D and Glide game
+on `.124` stable and performant.** The OpenGL/Glide half is done (item 3b). The
+Direct3D titles were kept out of unattended sweeps after the Max Payne freeze,
+so they are next.
+
+The D3D shortcuts on `.124`:
+- Aliens vs Predator, BF1942 (3 shortcuts), Halo, Hidden and Dangerous Deluxe;
+- Jedi Knight DF2 and Mysteries of the Sith, Red Faction, Shogo;
+- System Shock 2, Thief Gold, Thief II, Rainbow Six, UT2003, UT2004, Max Payne.
+
+The sweep runs
+`lan_sweep.py --only "^(Aliens vs Predator|Battlefield 1942|Halo Combat Evolved|Hidden and Dangerous Deluxe|Jedi Knight - |Red Faction|System Shock 2|Thief Gold|Thief II|Tom Clancy|Unreal Tournament 200[34]|Shogo - Mobile)"`
+into `voodoo-cleanroom/vcr-kmd/evidence/d3dtune_1014/`. Run Max Payne on its
+own, with a person watching.
+
+**Aliens vs Predator (2026-10-14 12:52, the first title):**
+- The user, at the box, reported "the half life game is all garbled".
+- No box was running `hl.exe`.
+- The screen was AvP's 640x480x16 mode showing the old 1280x1024x32 desktop
+  still in video memory, read at the wrong depth. The Half-Life lambda in it
+  is the desktop icon (`sweep_baseline/20261014_125245/*.png`).
+- The flight recorder: exclusive DirectDraw, mode 76 (640x480x16@85),
+  CreateSurface for the primary flip chain (back buffer at 0x96000), and one
+  SYSTEM-memory 3DDEVICE offscreen surface (caps 0x2840).
+- Then nothing for 113 s: no D3D context, no DP2, `DestroyDDLocal: flips of 0`.
+- AvP ignored WM_CLOSE. `start /high taskkill /f` ended it, the desktop came
+  back at 1280x1024x32@85, and `glideprobe --noopen` is ok.
+
+So AvP stalls before it makes a hardware D3D device. Next on the box: read
+`C:\Games\AliensVsPredator\LOGFILE.TXT`. The engine logs its device choice
+(`AwSetD3DDevice ...`), and the 08-29 README-FLEET records an asset-load
+assertion (`alt_tab.cpp` line 198, `pSurface`) as one known way it dies.
+
+The sweep was stopped after AvP. **`.124` was off on 10-15 09:00** (ARP
+FAILED; the fleet has no Wake-on-LAN). `Diag\D3D32`=1 and `D3DBigTex`=7 are
+still armed.
+
+**Open D3D items:**
+- AvP: no device.
+- Red Faction: black frame through our HAL (09-29).
+- Rainbow Six: "RAINBOW SIX ERROR" with D3D32/BigTex armed; the clean-desktop
+  A/B was never run.
+- Max Payne: froze once (10-04).
+- BF1942 SP: SafeDisc 2.80, not a driver fault.
+
+HAL gaps read in `display/vcrdd_d3d.c`:
+- lines and points are parsed and skipped, though the caps advertise lines;
+- MODULATE2X/4X are drawn as MODULATE;
+- separate alpha blend factors are ignored (alpha is always ONE/ZERO).
+
 ### Resume point (2026-10-07 07:00) - agent 1.97.2 released; both AA-path fixes PREPARED, waiting for a supervised session; `.124` unchanged
 
 **Agent 1.97.2 is published.** It carries only the GAMERES `ssam-tse` body,
