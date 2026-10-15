@@ -167,6 +167,32 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   separate PSU cable instead of a daisy-chain, PSU wattage, and a logging
   UPS/meter. This is unproven.
 
+### 2026-10-14 14:33:34: Xid 79 two hours after the power cycle (400 W + 2400 MHz lock, x16), recovered by a power-button power-off on 10-15 08:44
+
+- **Boot IDs:** `ee9f0d8b…` (10-14 12:37:18 → 10-15 08:44:40, about 20 h)
+  → `8a64ad06…` (08:45:16). Gap 36 s.
+- **Signature 1:** `NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the
+  bus` at **14:33:34**, then a flood of `GPU lost from the bus
+  [NV_ERR_GPU_IS_LOST]` asserts at 14:33:35. No `pcieport` AER line. Cap
+  400 W and the 210-2400 MHz lock were in force, link x16, kernel 7.0.0-38.
+  **Only 1 h 56 min after the cold power cycle that ended the 05:38 fault** -
+  the shortest interval yet.
+- **Load:** ollama was busy. Its llama-server had just started a 64 K-context
+  slot (14:33:45-55, `n_threads = 4`, i.e. already back on CPU). The 7 LAN-party
+  game servers were idle, and no fleet box was on.
+- **The end:** `systemd-logind: Power key pressed short` → `Powering off...`
+  at 08:44:36. This was an orderly power-off (units stopped and the journal
+  flushed), not the signature-2 hang, so the power button was the operator's.
+  The box was then powered back on, so this counts as a cold cycle.
+- **After (checked 08:47-08:55):** the GPU is back at x16 and
+  `nvidia-power-cap.service` re-applied 400 W at 08:45:28. There are 0 Xid
+  this boot. ollama is active and holds 9.4 GB VRAM at 2347 MHz. Wired
+  `.132` came up by itself.
+- **Response:** logged only. **Cause unproven;** it is the third Xid 79
+  under the 400 W + lock regime in a week (10-08, 10-14 05:38, 10-14 14:33),
+  which points back at the open physical items (12V-2x6 connector, PSU
+  cabling) rather than at the power or clock settings.
+
 ### 2026-10-14 05:38:13: Xid 79 again (400 W + 2400 MHz lock, x16), box up 7 h on the iGPU, then an abrupt end at 12:36:25
 
 - **Boot IDs:** `f68a5dc0…` (10-11 08:26:41 → 10-14 12:36:25, about 3 d 4 h)
