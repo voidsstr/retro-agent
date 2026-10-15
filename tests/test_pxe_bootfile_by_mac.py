@@ -148,6 +148,14 @@ def test_win7_build_traps():
           not any(l.lower().startswith('rem') and ('<' in l or '>' in l)
                   for l in cmd.splitlines()))
     check('the repo copy is LF (the build converts to CRLF)', '\r' not in cmd)
+    # .186 (REV_02, 2026-10-15): WinPE's inbox netrtx64 had already bound, and
+    # drvload of the same-named Rt64win7.sys failed over it - "errored out".
+    check('drvload is skipped when an RTL8167 driver is already bound',
+          'find /i "RTL8167"' in cmd and 'goto inboxnic' in cmd
+          and cmd.index('find /i "RTL8167"') < cmd.index('drvload "'))
+    check('no sc.exe (WinPE 3.0 does not ship it)',
+          not any(l.strip().lower().startswith('sc ') or ' sc query' in l.lower()
+                  for l in cmd.splitlines() if not l.lower().startswith('rem')))
 
 
 def test_pxe_bootfile_by_mac():

@@ -17,11 +17,31 @@ rem 2026-10-15: "Starting the network..." forever), so wpeinit and the network
 rem bring-up run in the background and the ping loop below decides.
 echo  [1/4] Starting Windows PE (wpeinit, in the background)...
 start "wpeinit" /min wpeinit
-ping -n 6 127.0.0.1 >nul
-rem NIC drivers Setup's WinPE lacks (it has no RTL8168/8111 driver at all; this is
-rem Realtek's rt86win7 7.072, REV_02-09).
+rem Realtek's own driver (rt86win7 7.072 / rt64win7 7.100) for chips WinPE's
+rem inbox netrtx32/netrtx64 (2008, REV_01-03) does not cover - .145 is REV_06.
+rem Both are service RTL8167 with the SAME file name, so when the inbox one has
+rem already bound (.186, REV_02, 2026-10-15) drvload has to overwrite a loaded
+rem Rt64win7.sys and fails, leaving the card dead. Wait for PnP to bind the
+rem inbox driver; only load ours if nothing did. WinPE has no sc.exe: a bound
+rem card is an Enum\PCI\VEN_10EC... instance whose Service value is RTL8167.
 echo  [2/4] Loading network drivers...
-if exist X:\fleet\drivers\*.inf for %%i in (X:\fleet\drivers\*.inf) do drvload "%%i"
+set w=0
+:waitpnp
+set /a w+=1
+reg query HKLM\SYSTEM\CurrentControlSet\Enum\PCI /s /v Service 2>nul | find /i "RTL8167" >nul && goto inboxnic
+if %w% GEQ 15 goto loaddrv
+ping -n 3 127.0.0.1 >nul
+goto waitpnp
+:inboxnic
+echo        Windows PE's own Realtek driver is running - nothing to load.
+goto netup
+:loaddrv
+if not exist X:\fleet\drivers\*.inf goto netup
+for %%i in (X:\fleet\drivers\*.inf) do (
+  drvload "%%i"
+  if errorlevel 1 echo        drvload %%~nxi failed - continuing, the NAS check decides.
+)
+:netup
 echo  [3/4] Starting the network (in the background)...
 start "network" /min wpeutil InitializeNetwork
 echo  [4/4] Waiting for the NAS at 192.168.1.122 (up to 3 minutes)...
