@@ -12,50 +12,60 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" set SRC=Z:\Files\OS\Win7PRO-x64-PXE
 echo.
 echo  NSC Retro Fleet - Windows 7 Professional network install (%PROCESSOR_ARCHITECTURE%)
 echo  =====================================================================
-rem NOTHING here may block. wpeinit never returned on .186 (ASUS P5QL, ICH10,
-rem 2026-10-15: "Starting the network..." forever), so wpeinit and the network
-rem bring-up run in the background and the ping loop below decides.
-echo  [1/4] Starting Windows PE (wpeinit, in the background)...
-start "wpeinit" /min wpeinit
-rem Realtek's own driver (rt86win7 7.072 / rt64win7 7.100) for chips WinPE's
-rem inbox netrtx32/netrtx64 (2008, REV_01-03) does not cover - .145 is REV_06.
-rem Both are service RTL8167 with the SAME file name, so when the inbox one has
-rem already bound (.186, REV_02, 2026-10-15) drvload has to overwrite a loaded
-rem Rt64win7.sys and fails, leaving the card dead. Wait for PnP to bind the
-rem inbox driver; only load ours if nothing did. WinPE has no sc.exe: a bound
-rem card is an Enum\PCI\VEN_10EC... instance whose Service value is RTL8167.
-echo  [2/4] Loading network drivers...
-set w=0
-:waitpnp
-set /a w+=1
+rem NOTHING here may block, and wpeinit does not run first. On .186 (ASUS P5QL,
+rem ICH10) wpeinit's device install never finishes ("Starting the network..."
+rem forever, 2026-10-15), and drvload queues behind that same device install:
+rem with wpeinit started first the screen sat at "Loading network drivers" and
+rem the card never sent a packet. So: drvload first, in the background, with
+rem nothing ahead of it; wpeinit only as a fallback if the NAS never answers.
+rem Realtek's own driver (rt86win7 7.072 / rt64win7 7.100) covers chips WinPE's
+rem inbox netrtx32/netrtx64 (2008, REV_01-03) does not - .145 is REV_06. Both are
+rem service RTL8167 with the SAME file name, so drvload must never run over an
+rem inbox driver that already bound (it fails, leaving the card dead). WinPE has
+rem no sc.exe or tasklist: a bound card is an Enum\PCI instance whose Service
+rem value is RTL8167.
+echo  [1/4] Loading the network driver...
+set WPEINIT=
 reg query HKLM\SYSTEM\CurrentControlSet\Enum\PCI /s /v Service 2>nul | find /i "RTL8167" >nul && goto inboxnic
-if %w% GEQ 15 goto loaddrv
-ping -n 3 127.0.0.1 >nul
-goto waitpnp
-:inboxnic
-echo        Windows PE's own Realtek driver is running - nothing to load.
-goto netup
-:loaddrv
 if not exist X:\fleet\drivers\*.inf goto netup
-for %%i in (X:\fleet\drivers\*.inf) do (
-  drvload "%%i"
-  if errorlevel 1 echo        drvload %%~nxi failed - continuing, the NAS check decides.
-)
+start "drvload" /min cmd /c for %%i in (X:\fleet\drivers\*.inf) do drvload "%%i"
+set w=0
+:waitdrv
+set /a w+=1
+reg query HKLM\SYSTEM\CurrentControlSet\Enum\PCI /s /v Service 2>nul | find /i "RTL8167" >nul && goto drvok
+if %w% GEQ 20 goto drvslow
+ping -n 3 127.0.0.1 >nul
+goto waitdrv
+:inboxnic
+echo        A Realtek driver is already running - nothing to load.
+goto netup
+:drvok
+echo        Realtek driver installed.
+goto netup
+:drvslow
+echo        No Realtek card took the driver within 40 s - carrying on.
 :netup
-echo  [3/4] Starting the network (in the background)...
+echo  [2/4] Starting the network (in the background)...
 start "network" /min wpeutil InitializeNetwork
-echo  [4/4] Waiting for the NAS at 192.168.1.122 (up to 3 minutes)...
+echo  [3/4] Waiting for the NAS at 192.168.1.122 (up to 3 minutes)...
 set n=0
 :waitnet
 set /a n+=1
 ping -n 1 -w 1000 192.168.1.122 >nul && goto map
 if %n% GEQ 60 goto nonet
 set /a m=n %% 10
+if %m%==0 echo        still waiting - %n% of 60
 if %m%==0 start "network" /min wpeutil InitializeNetwork
+if %n%==15 if not defined WPEINIT goto fallback
 ping -n 3 127.0.0.1 >nul
 goto waitnet
+:fallback
+set WPEINIT=1
+echo        No network yet - starting Windows PE's own device setup, wpeinit, in the background.
+start "wpeinit" /min wpeinit
+goto waitnet
 :map
-echo  Connecting to the NAS (\\192.168.1.122\files)...
+echo  [4/4] Connecting to the NAS (\\192.168.1.122\files)...
 net use Z: \\192.168.1.122\files "" /user:guest >nul 2>&1 && goto run
 net use Z: \\192.168.1.122\files "" /user:"" >nul 2>&1 && goto run
 net use Z: \\192.168.1.122\files /user:MEDIASERVER\guest "" >nul 2>&1 && goto run

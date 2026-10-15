@@ -175,6 +175,13 @@ def test_win7_build_traps():
           'peadd/fleet/unattend.xml' in sh
           and 'set UA=/unattend:X:\\fleet\\unattend.xml' in cmd
           and 'setup.exe %UA%' in cmd)
+    # .186 again (18:44): wpeinit's device install never finishes on that board
+    # and drvload queued behind it - stuck at "Loading network drivers".
+    check('drvload runs before wpeinit, which is only a fallback',
+          cmd.index('drvload "') < cmd.index('start "wpeinit" /min wpeinit')
+          and ':fallback' in cmd and 'if not defined WPEINIT goto fallback' in cmd)
+    check('drvload never blocks the launcher',
+          'start "drvload" /min cmd /c for %%i in (X:\\fleet\\drivers\\*.inf) do drvload "%%i"' in cmd)
     check('no sc.exe (WinPE 3.0 does not ship it)',
           not any(l.strip().lower().startswith('sc ') or ' sc query' in l.lower()
                   for l in cmd.splitlines() if not l.lower().startswith('rem')))
