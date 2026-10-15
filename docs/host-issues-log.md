@@ -139,6 +139,45 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-10-14 14:33:34: Xid 79 again, 2 h after the power cycle; the desktop hung and took the KTLO loop with it
+
+- **Boot IDs:** `ee9f0d8b…` (10-14 12:37:18 → 10-15 08:44:40)
+  → `8a64ad06…` (08:45:16). The fault came 1 h 56 m into the boot that
+  followed the 05:38 power cycle.
+- **Signature 1:** `NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the bus`
+  at **14:33:34**, with Xid 154 (`Node Reboot Required`) in the same second.
+- **Load:** ollama was serving qwen3.8:27b and started a new prompt at 14:33:55.
+  KTLO had read 387–388 W on the card under that load at 12:50 and 13:52, and
+  4 W idle at 14:23.
+- **Different from 05:38:** the display stack hung. The kernel logged 10
+  `blocked for more than 122 seconds` tasks at 14:36 and 14:38 (`nvidia-modeset`,
+  `Xwayland`, `mutter-x11-fram`, `gdm-session-wor`, `gnome-remote-de`), and
+  `gnome-remote-desktop-daemon` dumped core at 14:34. The GNOME session shut down
+  at 14:34:27. That killed the terminal running the KTLO loop, so **nothing
+  watched the host for 18 h.**
+- **During the outage:** agents kept committing to both site repos, but prod
+  never changed (specpicks stayed on 20261014-1341, aisleprompt on -1447). The
+  aisleprompt catalog audit committed migration `20261015T090200Z`, which
+  deactivates image-less recipes 166203–166206. Those recipes were image-less
+  only because image generation was down.
+- **Recovery:** at 08:44:36 on 10-15 the operator pressed the power key
+  (`Power key pressed short`). The box shut down cleanly and powered off, and
+  boot `8a64ad06` started at 08:45:16. The card came back at 400 W and
+  2385 MHz with 0 IOMMU faults.
+- **KTLO after the boot:** the refiller's 6 h retry backoff
+  (`image_searched_at`) would have skipped the 5 active image-less recipes
+  (166203–166207), because they had been attempted during the outage. KTLO
+  cleared that column on those rows and ran the refiller by hand. All 5 had
+  images by 08:52, before any aisleprompt deploy, so the guarded migration
+  deactivates nothing.
+  - Two aisleprompt dispatches raced on `docker compose up` for the `:4001`
+    gate container. One failed with `container is marked for removal` (rc=1,
+    9 recs); those recs were already committed, so they ship with the next
+    deploy.
+- **Lesson:** a loop that runs inside the GNOME session dies when a GPU fault
+  hangs the display, so it cannot report the very fault it is there to catch.
+  KTLO, or at least an Xid alert, needs to run outside the desktop session.
+
 ### 2026-10-14 05:38:13: Xid 79 again (400 W + 2400 MHz lock, x16), box up 7 h on the iGPU, then an abrupt end at 12:36:25
 
 - **Boot IDs:** `f68a5dc0…` (10-11 08:26:41 → 10-14 12:36:25, about 3 d 4 h)
