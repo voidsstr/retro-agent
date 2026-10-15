@@ -8,21 +8,30 @@ title NSC Retro Fleet - Windows 7 network install
 rem Served by retro-pxe on 192.168.1.132 (scripts/pxe/make-win7-source.sh).
 rem Setup runs from the NAS copy of the DVD; install.wim is 2 GB and stays there.
 set SRC=Z:\Files\OS\Win7PRO-x86-PXE
+if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" set SRC=Z:\Files\OS\Win7PRO-x64-PXE
 echo.
-echo  NSC Retro Fleet - Windows 7 Professional network install
-echo  =========================================================
-echo  Starting the network...
-wpeinit
-rem NIC drivers Setup's WinPE lacks (it has no RTL8168/8111 driver at all; that one
-rem is netrtx32 from install.wim). The card comes up only after the network is
-rem re-initialised, so drvload then wpeutil InitializeNetwork.
-if exist X:\fleet\drivers\*.inf for %%i in (X:\fleet\drivers\*.inf) do drvload "%%i" >nul
-if exist X:\fleet\drivers\*.inf wpeutil InitializeNetwork >nul
+echo  NSC Retro Fleet - Windows 7 Professional network install (%PROCESSOR_ARCHITECTURE%)
+echo  =====================================================================
+rem NOTHING here may block. wpeinit never returned on .186 (ASUS P5QL, ICH10,
+rem 2026-10-15: "Starting the network..." forever), so wpeinit and the network
+rem bring-up run in the background and the ping loop below decides.
+echo  [1/4] Starting Windows PE (wpeinit, in the background)...
+start "wpeinit" /min wpeinit
+ping -n 6 127.0.0.1 >nul
+rem NIC drivers Setup's WinPE lacks (it has no RTL8168/8111 driver at all; this is
+rem Realtek's rt86win7 7.072, REV_02-09).
+echo  [2/4] Loading network drivers...
+if exist X:\fleet\drivers\*.inf for %%i in (X:\fleet\drivers\*.inf) do drvload "%%i"
+echo  [3/4] Starting the network (in the background)...
+start "network" /min wpeutil InitializeNetwork
+echo  [4/4] Waiting for the NAS at 192.168.1.122 (up to 3 minutes)...
 set n=0
 :waitnet
 set /a n+=1
 ping -n 1 -w 1000 192.168.1.122 >nul && goto map
-if %n% GEQ 45 goto nonet
+if %n% GEQ 60 goto nonet
+set /a m=n %% 10
+if %m%==0 start "network" /min wpeutil InitializeNetwork
 ping -n 3 127.0.0.1 >nul
 goto waitnet
 :map
@@ -43,7 +52,9 @@ goto :eof
 echo.
 echo  ** No network: 192.168.1.122 never answered. Windows PE probably has no
 echo  ** driver for this network card. Adapter state:
-ipconfig
+ipconfig /all
+echo  ** Network-class devices drvload could not match (send this line to the operator):
+reg query HKLM\SYSTEM\CurrentControlSet\Enum\PCI /s /f VEN_ /k 2>nul | find /i "VEN_"
 goto fail
 :nosrc
 echo  ** %SRC%\sources\setup.exe is missing on the NAS.

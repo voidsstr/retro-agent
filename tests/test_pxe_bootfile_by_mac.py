@@ -129,12 +129,21 @@ def test_win7_build_traps():
           "X:\\\\Windows\\\\System32\\\\cmd.exe\\r\\n' > peadd/winpeshl.ini" in sh)
     check('no grep -m1 in a pipe under pipefail (SIGPIPE, exit 141)',
           '| grep -m1' not in sh and 'set -euo pipefail' in sh)
-    check('RTL8168 driver lifted from install.wim', 'netrtx32' in sh and 'Rt86win7.sys' in sh)
+    check('RTL8168 drivers for both arches, sha256-pinned (inbox netrtx32 stops at REV_03)',
+          'rt86win7' in sh and 'rt64win7' in sh and 'sha256sum -c' in sh
+          and 'X86_SHA=' in sh and 'X64_SHA=' in sh)
+    check('boot.ipxe picks x64 by CPU long mode, x86 otherwise',
+          "cpuid --ext 29 && set a x64 || set a x86" in sh)
+    check('install.cmd takes the NAS copy matching its own architecture',
+          '"%PROCESSOR_ARCHITECTURE%"=="AMD64" set SRC=Z:\\Files\\OS\\Win7PRO-x64-PXE' in cmd)
+    check('wpeinit and the network bring-up never block the launcher',
+          'start "wpeinit" /min wpeinit' in cmd
+          and 'start "network" /min wpeutil InitializeNetwork' in cmd)
     check('payload goes over HTTP', 'set s http://' in sh)
     check('install.cmd guards against AutoRun re-entry',
           'if defined FLEETRAN goto :eof' in cmd and 'set FLEETRAN=1' in cmd)
     check('install.cmd re-initialises the network after drvload',
-          'drvload' in cmd and 'wpeutil InitializeNetwork' in cmd)
+          cmd.index('drvload') < cmd.index('wpeutil InitializeNetwork'))
     check('install.cmd has no < or > in a rem line (cmd parser)',
           not any(l.lower().startswith('rem') and ('<' in l or '>' in l)
                   for l in cmd.splitlines()))

@@ -207,33 +207,44 @@ def check_unattend(sif_bytes):
             '%s = %s%s' % (key, got, '' if got.lower() == want else
                            '  (want %s - %s)' % (want, why)))
 
-WIN7_HTTP_FILES = ['wimboot.i386', 'bootmgr', 'bcd', 'boot.sdi', 'boot.wim']
-WIN7_NAS = '/mnt/retro-share/Files/OS/Win7PRO-x86-PXE'
+WIN7_ARCH_FILES = ['bootmgr', 'bcd', 'boot.sdi', 'boot.wim']
+WIN7_NAS = '/mnt/retro-share/Files/OS/Win7PRO-{arch}-PXE'
 
 
 def check_win7(server, bootfile, http_port=8069):
     """The Windows 7 chain: iPXE over TFTP, then wimboot + Setup's WinPE over
-    HTTP, then Setup itself from the NAS copy of the DVD."""
+    HTTP (win7/x64 for a CPU with long mode, win7/x86 otherwise), then Setup
+    itself from the NAS copy of that architecture's DVD."""
     import urllib.request
     print('Windows 7 chain (iPXE -> wimboot -> WinPE -> Setup from the NAS)')
+    script = b''
     for name in (bootfile, 'win7/boot.ipxe'):
         d, err = tftp_get(server, name)
         (ok if d else bad)(f'TFTP {name}: ' + (f'{len(d)} bytes' if d else str(err)))
         if d and name.endswith('boot.ipxe'):
+            script = d
             (ok if b'http://' in d else bad)('boot.ipxe fetches the payload over HTTP')
-    for name in WIN7_HTTP_FILES:
-        url = f'http://{server}:{http_port}/win7/{name}'
+    arches = ['x86'] + (['x64'] if b'set a x64' in script else [])
+    print(f'  ....  boot.ipxe serves: {", ".join(arches)}'
+          + ('' if 'x64' in arches else ' (x64 not built - every machine gets x86)'))
+
+    def head(path):
+        url = f'http://{server}:{http_port}/win7/{path}'
         try:
             req = urllib.request.Request(url, method='HEAD')
             with urllib.request.urlopen(req, timeout=5) as resp:
-                ok(f'HTTP {name}: {resp.headers.get("Content-Length")} bytes')
+                ok(f'HTTP {path}: {resp.headers.get("Content-Length")} bytes')
         except Exception as exc:                    # noqa: BLE001
             bad(f'HTTP {url}: {exc}')
-    for rel in ('sources/setup.exe', 'sources/install.wim', 'sources/ei.cfg'):
-        path = os.path.join(WIN7_NAS, rel)
-        (ok if os.path.isfile(path) else bad)(
-            f'NAS {rel}' + (f': {os.path.getsize(path)} bytes'
-                            if os.path.isfile(path) else ' MISSING'))
+    head('wimboot.i386')
+    for arch in arches:
+        for name in WIN7_ARCH_FILES:
+            head(f'{arch}/{name}')
+        for rel in ('sources/setup.exe', 'sources/install.wim'):
+            path = os.path.join(WIN7_NAS.format(arch=arch), rel)
+            (ok if os.path.isfile(path) else bad)(
+                f'NAS {arch} {rel}' + (f': {os.path.getsize(path)} bytes'
+                                       if os.path.isfile(path) else ' MISSING'))
 
 
 def main():

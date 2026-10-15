@@ -330,15 +330,21 @@ doing its job - `--release` there re-images a box that had just finished. See
 ## Windows 7 for ONE machine: `bootfile_by_mac` (2026-10-15)
 
 The default install is still XP. A MAC listed in `pxe_config.json`
-`bootfile_by_mac` gets the **Windows 7 Professional x86** chain instead:
+`bootfile_by_mac` gets **Windows 7 Professional** instead - **64-bit when the
+CPU has long mode, 32-bit otherwise**, decided by iPXE at boot:
 
 ```
 ROM --proxyDHCP--> win7/undionly.kpxe (TFTP)  iPXE v2.0.0, script baked in
-iPXE ------------> win7/boot.ipxe     (TFTP)  editable without a rebuild
-wimboot + bootmgr/BCD/boot.sdi/boot.wim  --HTTP :8069-->  Setup's own WinPE
-X:\fleet\install.cmd: drvload RTL8168, net use \\192.168.1.122\files (guest)
-setup.exe from Files\OS\Win7PRO-x86-PXE   install.wim (2 GB) stays on the NAS
+iPXE ------------> win7/boot.ipxe     (TFTP)  cpuid --ext 29 -> x64 | x86
+wimboot + win7/<arch>/bootmgr,BCD,boot.sdi,boot.wim  --HTTP :8069-->  Setup's WinPE
+X:\fleet\install.cmd: drvload Realtek, net use \\192.168.1.122\files (guest)
+setup.exe from Files\OS\Win7PRO-<x64|x86>-PXE  (install.wim stays on the NAS)
 ```
+
+| arch | media (NAS `Files/OS/`) | WinPE NIC driver (Microsoft Update Catalog, sha256-pinned) |
+|---|---|---|
+| x64 | `en_windows_7_professional_with_sp1_x64_dvd_u_676939.iso` (SHA-1 `0bcfc540...2b58`, MSDN) | rt64win7 7.100.0422.2016, RTL8168 REV_01-09 |
+| x86 | `en_windows_7_professional_x86_dvd_x15-65804.iso` | rt86win7 7.072.0410.2013, RTL8168 REV_02-09 |
 
 ```json
 "bootfile_by_mac": {"d4:be:d9:b9:bf:93": "win7/undionly.kpxe"}
@@ -347,7 +353,7 @@ setup.exe from Files\OS\Win7PRO-x86-PXE   install.wim (2 GB) stays on the NAS
 then `sudo systemctl restart retro-pxe` and check the chain AS that machine:
 
 ```bash
-sudo python3 scripts/pxe/pxe_selftest.py --mac d4:be:d9:b9:bf:93   # 29 checks
+sudo python3 scripts/pxe/pxe_selftest.py --mac d4:be:d9:b9:bf:93   # 34 checks
 ```
 
 - **List the MAC BEFORE the machine boots.** An unlisted machine gets XP, which
@@ -357,38 +363,43 @@ sudo python3 scripts/pxe/pxe_selftest.py --mac d4:be:d9:b9:bf:93   # 29 checks
   file; pick the disk and enter (or skip) the key at the machine.
 - **Afterwards take the MAC out of `bootfile_by_mac`** (and add it to
   `never_offer` if it boots from the network first). The hold covers the 6 h
-  after the loader download; after that a network-first box would land in
-  Setup again. That is harmless - Setup changes nothing until someone clicks -
-  but the box will not reach its own disk until the BIOS order or the list
-  changes.
-- **The hold arms on every servable boot file** now, including per-MAC ones
+  after the loader download; after that a network-first box lands in Setup
+  again - harmless (Setup changes nothing until someone clicks), but it will not
+  reach its own disk.
+- **The hold arms on every servable boot file**, per-MAC ones included
   (`servable_bootfiles()`); before, only `cfg['bootfile']` armed it.
 
-Build (`/srv/retro-pxe/win7-stage`, ~5 min; reproduces the live files
-byte-for-byte, checked 2026-10-15):
+Build (`/srv/retro-pxe/win7-stage/<arch>`, both arches; x64 is skipped and every
+machine gets x86 when its ISO is absent):
 
 ```bash
 bash scripts/pxe/make-win7-source.sh            # build + stage win7/
-bash scripts/pxe/make-win7-source.sh --upload   # also push the DVD to the NAS
+bash scripts/pxe/make-win7-source.sh --upload   # also push the DVDs to the NAS
 ```
 
-Three traps, all measured in a QEMU guest booted through the real server:
+Traps, all measured in QEMU guests booted through the real server (and the
+first one on real hardware):
 
-- **WinPE 3.0's `winpeshl.exe` drops the arguments on a `[LaunchApps]` line**:
-  `cmd.exe, /k X:\fleet\install.cmd` opened a bare prompt (`/c` closed it, and
-  winpeshl rebooted). The script now starts from cmd's own `AutoRun` value
-  (written into the image's SOFTWARE hive with `hivexsh`), behind a `FLEETRAN`
-  guard so nested cmd windows do not re-run it.
-- **Setup's WinPE has no RTL8168/8111 driver** - `netrtl32.inf` covers
-  8138/8139 only - and both Windows 7 targets have one. `netrtx32`
-  (`Rt86win7.sys`, Microsoft's inbox copy, DEV_8136/8167/8168/8169) is taken from
-  `install.wim` and `drvload`ed, then `wpeutil InitializeNetwork`. QEMU has no
-  8168 to test it on; the inbox Intel/Marvell drivers cover the other cards in
-  this server's BINL log.
-- **`boot.wim` over this TFTP is unreliable**: three full transfers that the
-  server logged DONE, of which iPXE accepted only the third (the first stalled
-  near the 65,535-block wrap). Hence the HTTP thread (`HTTPServer`, GET/HEAD,
-  no listings, rooted at the TFTP root).
+- **Setup's WinPE has no usable RTL8168/8111 driver.** `netrtl32` is 8139-only,
+  and the inbox `netrtx32` in install.wim (2008) stops at REV_03: `.145`
+  (Dell, RTL8111E, REV_06) stopped at "No network" on 2026-10-15. Realtek's
+  catalog drivers above cover both targets (`.145` REV_06, `.186` REV_02).
+  **Stage every file the INF's `[SourceDisksFiles]` names** - without
+  `RtNicProp*.dll`/`RTNUninst*.dll` drvload fails `0x80070002`; the build
+  checks that list.
+- **Nothing in the launcher may block.** `wpeinit` never returned on `.186`
+  (ASUS P5QL, ICH10): "Starting the network..." forever. wpeinit and
+  `wpeutil InitializeNetwork` now run with `start /min`, and a ping loop to the
+  NAS (3 min, re-kicking the network every 30 s) decides; on failure it prints
+  `ipconfig /all` and the PCI ids.
+- **WinPE 3.0's `winpeshl.exe` drops the arguments on a `[LaunchApps]` line**,
+  so the launcher starts from cmd's own `AutoRun` value (SOFTWARE hive via
+  `hivexsh`) behind a `FLEETRAN` guard.
+- **`boot.wim` over this TFTP is unreliable** (three transfers logged DONE,
+  one accepted by iPXE), hence the HTTP thread (`HTTPServer`, GET/HEAD, no
+  listings, rooted at the TFTP root).
+- One wimboot (`wimboot.i386`) serves both: a BIOS bootmgr is 32-bit and loads
+  the 64-bit winload itself.
 
 ## `OemPreinstall = No` installs a machine that does nothing
 
