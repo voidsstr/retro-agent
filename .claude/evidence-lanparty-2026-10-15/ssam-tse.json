@@ -1,0 +1,55 @@
+{
+ "game": "ssam-tse",
+ "time": "2026-10-15T19:34:25",
+ "roster": [
+  [
+   "Player 0",
+   25,
+   false
+  ],
+  [
+   "ArchoN",
+   42,
+   false
+  ],
+  [
+   "Player 0",
+   234,
+   false
+  ],
+  [
+   "Player 0",
+   10,
+   false
+  ],
+  [
+   "Player 0",
+   18,
+   false
+  ],
+  [
+   "Player 0",
+   39,
+   false
+  ],
+  [
+   "Player 0",
+   18,
+   false
+  ],
+  [
+   "__info__",
+   "7",
+   "16"
+  ]
+ ],
+ "boxes": {
+  "110": {
+   "running": false,
+   "foreground": "Serious Sam - The First Encounter",
+   "shot": "ssam-tse_110.jpg",
+   "black": false,
+   "named_on_server": false
+  }
+ }
+}

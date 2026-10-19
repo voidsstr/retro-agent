@@ -1,0 +1,20 @@
+{
+ "game": "q2",
+ "time": "2026-10-15T19:22:58",
+ "roster": [
+  [
+   "Fleet145",
+   16,
+   false
+  ]
+ ],
+ "boxes": {
+  "145": {
+   "running": true,
+   "foreground": "Quake 2",
+   "shot": "q2_145.jpg",
+   "black": true,
+   "named_on_server": true
+  }
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "game": "cs",
+ "time": "2026-10-15T19:16:27",
+ "roster": [
+  [
+   "Flying Martini",
+   null,
+   null
+  ],
+  [
+   "Brandon",
+   null,
+   null
+  ],
+  [
+   "bussemann",
+   null,
+   null
+  ]
+ ],
+ "boxes": {
+  "145": {
+   "running": true,
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "cs_145.jpg",
+   "black": true,
+   "named_on_server": false
+  }
+ }
+}

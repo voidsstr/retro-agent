@@ -1,0 +1,25 @@
+{
+ "game": "ut99",
+ "time": "2026-10-15T19:19:07",
+ "roster": [
+  [
+   "Fleet145",
+   null,
+   false
+  ],
+  [
+   "__info__",
+   "1",
+   "16"
+  ]
+ ],
+ "boxes": {
+  "145": {
+   "running": true,
+   "foreground": "Retro Remote Agent Version 1.98.0",
+   "shot": "ut99_145.jpg",
+   "black": false,
+   "named_on_server": true
+  }
+ }
+}

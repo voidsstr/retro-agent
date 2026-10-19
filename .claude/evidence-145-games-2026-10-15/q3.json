@@ -1,0 +1,35 @@
+{
+ "game": "q3",
+ "time": "2026-10-15T19:13:39",
+ "roster": [
+  [
+   "Grunt",
+   0,
+   true
+  ],
+  [
+   "Slash",
+   0,
+   true
+  ],
+  [
+   "Anarki",
+   0,
+   true
+  ],
+  [
+   "Fleet145",
+   0,
+   false
+  ]
+ ],
+ "boxes": {
+  "145": {
+   "running": true,
+   "foreground": "ioquake3",
+   "shot": "q3_145.jpg",
+   "black": true,
+   "named_on_server": true
+  }
+ }
+}

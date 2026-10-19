@@ -1,0 +1,25 @@
+{
+ "game": "ut2004",
+ "time": "2026-10-15T19:17:47",
+ "roster": [
+  [
+   "DELL2-PC",
+   null,
+   false
+  ],
+  [
+   "__info__",
+   "3",
+   "12"
+  ]
+ ],
+ "boxes": {
+  "145": {
+   "running": true,
+   "foreground": "Unreal Tournament 2004",
+   "shot": "ut2004_145.jpg",
+   "black": false,
+   "named_on_server": false
+  }
+ }
+}
