@@ -23,7 +23,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | Item | State | Since |
 |---|---|---|
 | GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
-| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, MCE panics on 09-28 15:48 and 09-29 06:13 (the second under the clock lock), each followed by a wedged-card boot) | |
+| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, MCE panics on 09-28 15:48 and 09-29 06:13 (the second under the clock lock), each followed by a wedged-card boot; then Xid 79 on 10-08, 10-14 05:38, 10-14 14:33 and 10-20 14:49, all at x16 under the lock) | |
 | GPU clock lock | **210–2400 MHz** graphics (`nvidia-smi -lgc 210,2400`; stock boost reaches 3090 MHz). Added to `nvidia-power-cap.service` (ExecStart; `-rgc` on stop) and to `reusable-agents/install/configure-local-models.sh` (`GPU_CLOCK_LOCK_MHZ`, empty disables it). Applied live 09-28 23:3x after the 15:48 MCE panic at the 400 W floor; under load the clock peaks at 2385 MHz | 2026-09-28 |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
@@ -139,33 +139,31 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
-### 2026-10-14 14:33:34: Xid 79 1 h 56 min after the power cycle (signature 1), box up on CPU until a power-key off at 10-15 08:44
+### 2026-10-20 14:49:49: Xid 79 after 5 d 6 h (400 W + 2400 MHz lock, x16), box still up on the iGPU, GPU gone, NOT yet recovered
 
-- **Boot ID:** `ee9f0d8b…` (up from 10-14 12:37:18). The fault came 1 h 56 min
-  after the cold power cycle that cleared the 05:38 fault. That is the third
-  Xid 79 in 7 days (10-08, 10-14 05:38, 10-14 14:33), and the shortest uptime
-  yet.
-- **Fault:** `14:33:34 EDT NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off
-  the bus` and `Xid ... 154 ... (Node Reboot Required)`. The pair is the same
-  as 10-08 and 05:38. About 3,000 `NVRM` lines followed in that boot.
-  `gnome-session-shutdown.target` was reached at 14:34:27, which looks like
-  the desktop session restarting on the iGPU.
-- **Load:** routine ollama chat traffic. ollama was serving requests at 14:30:19.
-  The fault cannot be pinned on a single request.
-- **Cap in effect:** 400 W plus the 210–2400 MHz clock lock, x16, kernel
-  7.0.0-38, driver 595.91.07.
-- **Response:** none was logged. ollama was not stopped and was still serving on
-  CPU at 10-15 08:40.
-- **End:** `systemd-logind: Power key pressed short` at 10-15 08:44:36. That
-  was a CLEAN power-off: units stopped, docker unmounted, journal flushed.
-  Boot `8a64ad06…` started at 08:45:16.
-- **Recovery:** the 5090 came back at x16 and 400 W. There is no Xid or AER on
-  the new boot yet.
-- **Note:** the cap and clock lock have not stopped Xid 79. With the
-  interval now down to ~2 h, the open physical items in the Current state
-  table become the likely next step: the 12V-2x6 connector at both ends, a
-  separate PSU cable instead of a daisy-chain, PSU wattage, and a logging
-  UPS/meter. This is unproven.
+- **Boot ID:** `8a64ad06…` (up since 10-15 08:45:16, the power-key cycle
+  below). Still the running boot on 10-22 14:30 - no reboot, no power event.
+- **Signature 1:** `14:49:49 NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen
+  off the bus` and `Xid ... 154 ... (Node Reboot Required)`, the same pair
+  as the three before it. No `pcieport` AER line in that second. The fourth
+  Xid 79 in 13 days (10-08, 10-14 05:38, 10-14 14:33, 10-20 14:49), all under
+  400 W + the clock lock at x16, kernel 7.0.0-38, driver 595.91.07.
+- **Load:** ollama (`qwen3.8:27b`) was mid-request - `CUDA error:
+  unspecified launch failure` in `ggml_backend_cuda_synchronize` at
+  14:49:49, and its llama-server crashed. The previous ollama activity was
+  14:43:19. The game servers were up with bots only; no fleet box needed the
+  host's GPU.
+- **Unnoticed for ~2 days:** found 10-22 14:29 by a resumed session
+  (`nvidia-smi`: "Unable to determine the device handle for GPU0 ... Unknown
+  Error / No devices were found"). Nothing alerted. `lspci` still lists the
+  card's BARs, but the driver has lost it. ollama is `active` and has
+  `qwen3.8:27b` loaded, i.e. on CPU.
+- **Response:** logged only. **Needs the operator: a COLD power cycle
+  (power button, not a reboot - signature 2)** to bring the card back.
+- **Note:** this interval (5 d 6 h) is longer than the last two, so the
+  cap/lock regime is not making it worse, but it is not preventing it
+  either. The open physical items in the Current state table remain the next
+  step (unproven).
 
 ### 2026-10-14 14:33:34: Xid 79 two hours after the power cycle (400 W + 2400 MHz lock, x16), recovered by a power-button power-off on 10-15 08:44
 
@@ -188,7 +186,9 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   `nvidia-power-cap.service` re-applied 400 W at 08:45:28. There are 0 Xid
   this boot. ollama is active and holds 9.4 GB VRAM at 2347 MHz. Wired
   `.132` came up by itself.
-- **Response:** logged only. **Cause unproven;** it is the third Xid 79
+- **Response:** logged only; ollama was not stopped and was still serving
+  on CPU at 10-15 08:40 (two sessions wrote this incident up 6 s apart on
+  10-15; their entries were merged here on 10-22). **Cause unproven;** it is the third Xid 79
   under the 400 W + lock regime in a week (10-08, 10-14 05:38, 10-14 14:33),
   which points back at the open physical items (12V-2x6 connector, PSU
   cabling) rather than at the power or clock settings.
