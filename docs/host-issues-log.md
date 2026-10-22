@@ -139,6 +139,33 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-10-20 14:49:49 EDT: Xid 79 again (signature 1); box stayed up for 2 days with no GPU, and the desktop crash took the KTLO loop with it
+
+- **Boot ID:** unchanged, `8a64ad06…` (up since 10-15 08:45:16). The GPU dropped
+  5 d 6 h into the boot. There was no reboot: the box was still up 7 d 5 h at
+  10-22 14:29.
+- **Signature:** 1. The evidence is in the kernel log:
+  `NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the bus.`, then
+  `Xid ... 154, GPU recovery action changed from 0x0 (None) to 0x2 (Node Reboot Required)`
+  and a stream of `GPU lost from the bus [NV_ERR_GPU_IS_LOST]` lines to 14:50:09.
+  `nvidia-smi` still reports `Unable to determine the device handle for GPU0:
+  0000:01:00.0: Unknown Error`. The IOMMU fault count for this boot is 0.
+- **Load:** the cap was 400 W with the 2400 MHz lock. KTLO read the GPU at
+  243–382 W, 14–92% (ollama serving) at 13:31 EDT. It was idle at 14:03 EDT, and
+  nothing was sampled at the moment of the drop.
+- **What happened next:** gnome-shell and gnome-remote-desktop-daemon crashed at
+  14:49–14:50, with apport files in `/var/crash`. That killed every Claude Code
+  terminal, including the KTLO loop, which stayed dead until it was resumed at
+  10-22 14:29 EDT. The user systemd manager and all agent units stayed up.
+  Both sites kept deploying through the gate (specpicks `20261022-1448`,
+  aisleprompt `20261022-1428`), and both returned 200 throughout.
+- **Impact:** ollama fell back to the CPU: `llama-server` ran at about 400% CPU
+  with `qwen3.8:27b` loaded. local-image-gen is still active but has no GPU.
+  Anything that needs GPU inference is slow or failing until the card is back.
+- **Response:** a cold power cycle is needed (Xid 154 says "Node Reboot
+  Required", and a warm reboot has not revived the card before). That is an
+  operator action. It was escalated by email on 10-22.
+
 ### 2026-10-19 09:20 EDT: desktop session restarted; no reboot, no GPU fault
 
 - **Boot ID:** unchanged, `8a64ad06…` (up since 10-15 08:45:16). Kernel uptime
