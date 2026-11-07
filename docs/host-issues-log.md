@@ -23,7 +23,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | Item | State | Since |
 |---|---|---|
 | GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
-| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, MCE panics on 09-28 15:48 and 09-29 06:13 (the second under the clock lock), each followed by a wedged-card boot; then Xid 79 on 10-08, 10-14 05:38, 10-14 14:33 and 10-20 14:49, all at x16 under the lock) | |
+| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, MCE panics on 09-28 15:48 and 09-29 06:13 (the second under the clock lock), each followed by a wedged-card boot; then Xid 79 on 10-08, 10-14 05:38, 10-14 14:33 and 10-20 14:49, all at x16 under the lock; MCE panic 11-07 16:01 under the lock) | |
 | GPU clock lock | **210–2400 MHz** graphics (`nvidia-smi -lgc 210,2400`; stock boost reaches 3090 MHz). Added to `nvidia-power-cap.service` (ExecStart; `-rgc` on stop) and to `reusable-agents/install/configure-local-models.sh` (`GPU_CLOCK_LOCK_MHZ`, empty disables it). Applied live 09-28 23:3x after the 15:48 MCE panic at the 400 W floor; under load the clock peaks at 2385 MHz | 2026-09-28 |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
@@ -31,7 +31,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | `pcie_aspm=off` in GRUB | present, **no effect** (the link can't use ASPM) | 2026-09-16 |
 | PCIe link width | **x16** since the 09-24 17:39 boot (`392ee1f9`, the first boot after the 09-24 mains loss). The kernel's `limited by 32.0 GT/s PCIe x8 link at 0000:00:06.0` line is on every retained boot through 09-23 18:30 (`504edd27`) and on none from 09-24 17:39 on, and sysfs `current_link_width` reads 16 on 09-28. The 09-24 19:18 MCE, both power-offs and the 09-28 Xid 79 all happened at x16, which confirms x8 was not the crash cause (see 09-23) | 2026-09-24 17:39 |
 | Host IP | **Wired `enp129s0` 192.168.1.132 (static, plus DHCP .196) and Wi-Fi `.252`**, wired default route metric 100. The 09-30 Wi-Fi-only switch ("go through wifi for everything") turned off autoconnect on `Profile 1`. Wired came back by hand afterwards (it was up on 10-03), but autoconnect stayed off, so the 10-11 08:26 boot came up with **no .132**. Carmageddon 2 then refused to start (8,600+ restarts), css-server bound Wi-Fi and read as mute, and PXE advertised an address nobody owned. 2026-10-13 09:01: `nmcli device set enp129s0 autoconnect yes` + `nmcli connection modify "Profile 1" connection.autoconnect yes` + `connection up`; all 27 game servers then read UP. To go back to Wi-Fi only: `nmcli connection modify "Profile 1" connection.autoconnect no && nmcli connection down "Profile 1"`, knowing that every .132 consumer breaks. **The RTL8125B is not known to be faulty** - see signature 7 and the 09-30 09:44 entry | 2026-10-13 09:01 |
-| Open physical items | 12V-2x6 connector at both ends; separate PSU cables vs daisy-chain; PSU wattage; a UPS/meter with logging | |
+| Open items | **PCIe Gen4 pin in BIOS (recommended 09-16, still not applied; link still trains Gen5)**; BIOS/ME update check; 12V-2x6 connector at both ends; separate PSU cables vs daisy-chain; PSU wattage; a UPS/meter with logging | |
 
 ---
 
@@ -138,6 +138,46 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 ---
 
 ## Incident log (newest first)
+
+### 2026-11-07 16:01:31: MCE panic (signature 3) 7 h 13 min after a cold start, kdump captured, back at 16:06:33
+
+- **Boot IDs:** `d83d052f…` (11-07 08:48:58 → 16:01:31) → `f9ce9437…`
+  (16:01:58 → 16:05:14, the **kdump capture kernel**: `elfcorehdr=` /
+  `nr_cpus=1` on its command line; the NULL-deref traces at 16:02 are module
+  probes in that 1-CPU kernel, not a new fault; it hung ~3 min after saving
+  before rebooting) → `b40311a3…` (16:06:33).
+- **Signature 3:** `/var/crash/202611071602/dmesg.202611071602` (root-only;
+  read by the crash-recovery session) at 25,967 s: `mce: CPUs not responding
+  to MCE broadcast (may include false positives): 0,4-6` → `Kernel panic -
+  not syncing: Timeout: Not all CPUs entered broadcast exception handler`.
+  No Xid, AER or bank decode before it. The current boot has no BERT record
+  and 0 rasdaemon mce rows.
+- **Load:** ollama mid-generation (131 tok/s at 16:01:20), the same shape as
+  the 09-28 and 09-29 MCE panics. Game servers up with bots.
+- **Cap in effect:** 400 W + 210–2400 MHz lock (`nvidia-power-cap.service`
+  re-applied both on each boot), x16, kernel 7.0.0-38, driver 595.91.07.
+  CPU Core Ultra 9 285K, microcode 0x11b, BIOS F.20 (2025-11-13).
+- **After (16:10):** GPU back at x16, 400 W, 0 Xid. `host-duties.py`: all
+  duties up except descent3/farcry still `activating` 3 min after boot.
+- **PCIe Gen4 pinning is STILL NOT APPLIED.** It was recommended 09-16,
+  09-21 and 09-22; the 09-23 reseat fixed x8 → x16 only, and the link still
+  advertises/trains Gen5 (LnkCap/LnkCtl2 32 GT/s). Forcing Gen4 in the BIOS
+  (plus a BIOS/ME update check) is the cheapest untried step left before the
+  physical items. Cause unproven.
+- Five Claude sessions failed to auto-resume at 16:08 ("Login expired")
+  until the user logged in again.
+
+### 2026-11-07 08:48:15: abrupt end of the 10-20 Xid boot after ~18 days without the GPU (signature 4 or an operator power-off)
+
+- **Boot ID:** `8a64ad06…` (10-15 08:45:16 → 11-07 08:48:15; `--list-boots`
+  shows it starting 11-05 only because the journal has rotated) →
+  `d83d052f…` (08:48:58). Gap 43 s.
+- The journal stops mid-line (hlds bot chatter): no shutdown, no panic, no
+  kdump. The 5090 had been gone since the 10-20 14:49 Xid 79 (below), and no
+  boot came in between, so **the host ran on CPU/iGPU for ~18 days**.
+  Most likely this is the operator's hold-the-button cold cycle that the
+  10-20 entry asked for (the card came back on the next boot, which only a
+  cold cycle does); unproven, since an instant power-off looks identical.
 
 ### 2026-10-20 14:49:49: Xid 79 after 5 d 6 h (400 W + 2400 MHz lock, x16), box still up on the iGPU, GPU gone, NOT yet recovered
 
