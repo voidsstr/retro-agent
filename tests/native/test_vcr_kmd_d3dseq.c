@@ -298,7 +298,10 @@ TEST(the_z_list_follows_the_render_depths_not_the_desktop) {
     /* a pair of the wrong sizes stays refused before any write: the list
      * offering both sizes is safe because ContextCreate asks vcr_rt_format */
     CHECK_EQ_U(vcr_rt_format(1, 32, 16), VCR_RT_REFUSED);
-    CHECK_EQ_U(vcr_rt_format(1, 16, 32), VCR_RT_REFUSED);
+    /* ...except a 16 bpp target over a 32-bit Z: drawn 16/16 in the Z's
+     * rows (Rainbow Six's DX6 pick, .124 2026-11-08); never without rt32 */
+    CHECK_EQ_U(vcr_rt_format(1, 16, 32), VCR_RT_16);
+    CHECK_EQ_U(vcr_rt_format(0, 16, 32), VCR_RT_REFUSED);
     CHECK_EQ_U(vcr_rt_format(1, 16, 16), VCR_RT_16);
     CHECK_EQ_U(vcr_rt_format(1, 32, 32), VCR_RT_32);
 }

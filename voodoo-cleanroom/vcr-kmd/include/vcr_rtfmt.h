@@ -17,7 +17,9 @@
  *                      pixel, 24 of depth under 8 of STENCIL (gglide.c
  *                      grBufferClear: "the depth buffer is 24bpp") - so a
  *                      32 bpp target needs a 32-bit Z (D24X8 / D24S8) and a
- *                      16 bpp one a 16-bit Z. A mismatch is refused, as the
+ *                      16 bpp one a 16-bit Z (a 32-bit Z surface serves one: its
+ *                      rows hold the 16-bit aux buffer). A 32 bpp target with a
+ *                      16-bit Z is refused, as the
  *                      DX7-DDI runtime itself treats a DX7 driver's Z (D3D8's
  *                      CheckDepthStencilMatch wants equal depths without the
  *                      DX8 format op).
@@ -65,10 +67,20 @@
 /* the 3D pixel size for a colour target of rt_bits with a Z of z_bits
  * (0: no Z buffer), or VCR_RT_REFUSED. rt32: 32 bpp targets are allowed - a
  * VSA-100 with Diag\D3D32 = 1 (never a Banshee/Voodoo3) */
+/* A 16 bpp target with a 32-BIT Z (only offered with rt32) is drawn as
+ * 16/16: the aux buffer stays 16 bits a pixel and simply uses the first half
+ * of each of the Z surface's 4-byte-a-pixel rows (its pitch is the stride).
+ * A DirectX 6 application enumerates Z formats at the 32 bpp desktop, takes
+ * the deepest, then switches to 16 bpp: Rainbow Six (1998) did exactly that
+ * on .124 and its CreateDevice failed - "16 bpp target with a 32-bit Z"
+ * (2026-11-08). The depth is 16-bit, which is all a 16 bpp target ever had;
+ * an application that LOCKS that Z and reads it as 24 bits sees our 16-bit
+ * values in the low half of each row - none known. */
 static __inline unsigned vcr_rt_format(unsigned rt32, unsigned rt_bits, unsigned z_bits)
 {
     if (rt_bits == 16)
-        return (z_bits == 0 || z_bits == 16) ? VCR_RT_16 : VCR_RT_REFUSED;
+        return (z_bits == 0 || z_bits == 16 || (rt32 && z_bits == 32)) ? VCR_RT_16
+                                                                       : VCR_RT_REFUSED;
     if (rt_bits == 32 && rt32)
         return (z_bits == 0 || z_bits == 32) ? VCR_RT_32 : VCR_RT_REFUSED;
     return VCR_RT_REFUSED;          /* 8/24 bpp, or 32 bpp not allowed here */

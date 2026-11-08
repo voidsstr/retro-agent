@@ -96,7 +96,7 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
-### Resume point (2026-11-08 05:00) - D3D sweep done on `.124`; two HAL bugs fixed (half-pixel centre, texture alignment) - UT2003 reads cleanly
+### Resume point (2026-11-08 07:45) - D3D on `.124`: three HAL bugs fixed (half-pixel centre, texture alignment, 16 bpp over a 32-bit Z) - UT2003 and Rainbow Six fixed
 
 **Sweep 2026-11-08 00:48** (`vcr-kmd/evidence/d3dtune_1014/sweep_1108/`, AvP
 left out, Max Payne kept for an attended run). The box stayed healthy
@@ -159,6 +159,24 @@ placement. Test: `test_every_texture_is_placed_16_byte_aligned_by_the_driver`.
 42/42 and the big-texture/DXT matrix 100/0, and **UT2003's menu reads
 cleanly** (`sweep_1108/UT2003_menu_{before,after}_align_fix.png`).
 `Diag\LogLevel` is back to 3 and `LogEntries` is deleted (default 1024).
+
+**Rainbow Six, fixed: a 16 bpp target on a 32-bit Z.** Its `Sherman.log`
+said `CreateDevice ... Generic failure` at 640x480x16, and the ring said
+`ContextCreate refused: 16 bpp target with a 32-bit Z`. This DX6 title
+enumerates Z formats at the 32 bpp desktop, where `Diag\D3D32` lists
+D24X8/D24S8. It takes the deepest, then switches to 16 bpp. The VSA-100 has
+no 16/32 mode, but a 32-bit Z surface's rows hold a 16-bit aux buffer (its
+pitch is the stride), so `vcr_rt_format` now draws that pair as 16/16 (rt32
+only). `vcrdd.dll` **95678704**: Rainbow Six plays its intro and reaches its
+main menu (`sweep_1108_fixed/RainbowSix_intro_then_menu_z16in32.png`); render
+42/42 windowed and 40/40 fullscreen 640x480x16. A D3D8 application cannot
+reach this pair: the D3D8 runtime refuses it in CreateDevice (`8876086a`,
+d3dprobe `--zfmt d24x8 --bpp 16`), before the driver is asked.
+
+**Re-sweep on the fixed driver** (`sweep_1108_fixed/`, 02:08): every title
+matches or beats the first run. Halo's all-white 60 s frame is its animated
+menu (checked at 45/60/75/95 s). The open D3D list is now: BF1942 SP (SafeDisc
+2.80, not ours), Max Payne (attended run), AvP (game data).
 
 **AvP:** a game-data assertion before its D3D device (next entry), not ours.
 

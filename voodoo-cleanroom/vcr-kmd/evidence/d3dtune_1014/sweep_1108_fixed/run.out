@@ -1,0 +1,28 @@
+[02:08:42] 125 shortcuts, 13 to sweep: ['Battlefield 1942', 'Halo Combat Evolved', 'Hidden and Dangerous Deluxe', 'Jedi Knight - Dark Forces II', 'Jedi Knight - Mysteries of the Sith', 'Red Faction', 'Shogo - Mobile Armor Division', 'System Shock 2', 'Thief Gold', 'Thief II - The Metal Age', "Tom Clancy's Rainbow Six", 'Unreal Tournament 2003', 'Unreal Tournament 2004']
+[02:08:42] --- Battlefield 1942: C:\Games\BF1942\Play Battlefield 1942.bat 
+[02:09:50]     CHECK: dialog: Cannot locate the CD-ROM  samples=[(30, ['BF1942.exe', '~e5d141.tmp'], (1280, 1024, 22.7, 50.3)), (60, ['BF1942.exe', '~e5d141.tmp'], (1280, 1024, 22.7, 50.3))]
+[02:09:50] --- Halo Combat Evolved: C:\Games\Halo\Play Halo.bat 
+[02:10:58]     PASS  samples=[(30, ['halo.exe'], (1280, 960, 162.1, 111.2)), (60, ['halo.exe'], (1280, 960, 255.0, 0.0))]
+[02:10:58] --- Hidden and Dangerous Deluxe: C:\Games\HiddenAndDangerous\Play Hidden and Dangerous Deluxe.bat 
+[02:12:35]     PASS  samples=[(30, ['HDE.exe'], (1280, 960, 90.3, 28.6)), (60, ['HDE.exe'], (1280, 960, 90.5, 28.8))]
+[02:12:35] --- Jedi Knight - Dark Forces II: C:\Games\JediKnightDF2\JK.EXE 
+[02:13:41]     PASS  samples=[(30, ['JK.EXE'], (640, 480, 2.7, 15.4)), (60, ['JK.EXE'], (640, 480, 3.2, 15.2))]
+[02:13:41] --- Jedi Knight - Mysteries of the Sith: C:\Games\JediKnightMotS\JKM.EXE 
+[02:14:47]     PASS  samples=[(30, ['JKM.EXE'], (640, 480, 2.2, 14.1)), (60, ['JKM.EXE'], (640, 480, 11.6, 40.7))]
+[02:14:47] --- Red Faction: C:\Games\RedFaction\Play Red Faction.bat 
+[02:16:55]     CHECK: had to be forced closed; close keys withheld - the WM_CLOSE took the game's window and its keyboard (it had the focus at 60s)  samples=[(30, ['rf.exe'], (640, 480, 1.9, 11.4)), (60, ['rf.exe'], (640, 480, 126.6, 54.3))]
+[02:16:55] --- Shogo - Mobile Armor Division: C:\Games\Shogo\Play Shogo - direct engine.bat 
+[02:18:02]     PASS  samples=[(30, ['Client.exe'], (1280, 960, 12.9, 5.7)), (60, ['Client.exe'], (1280, 960, 2.0, 5.3))]
+[02:18:02] --- System Shock 2: C:\Games\SystemShock2\Play System Shock 2.bat 
+[02:20:02]     CHECK: had to be forced closed  samples=[(30, ['SHOCK2.ICD', 'shock2.exe'], (640, 480, 27.9, 30.4)), (60, ['SHOCK2.ICD', 'shock2.exe'], (640, 480, 27.8, 30.4))]
+[02:20:02] --- Thief Gold: C:\Games\ThiefGold\Play Thief Gold.bat 
+[02:22:01]     CHECK: had to be forced closed  samples=[(30, ['THIEF.EXE'], (640, 480, 11.8, 11.5)), (60, ['THIEF.EXE'], (640, 480, 104.4, 76.9))]
+[02:22:01] --- Thief II - The Metal Age: C:\Games\Thief2\Play Thief 2.bat 
+[02:24:01]     CHECK: had to be forced closed  samples=[(30, ['Thief2.exe'], (1280, 960, 30.6, 38.0)), (60, ['Thief2.exe'], (1280, 960, 30.5, 37.9))]
+[02:24:01] --- Tom Clancy's Rainbow Six: C:\Games\RainbowSix\Play Rainbow Six.bat 
+[02:25:06]     CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX ERROR  samples=[(30, ['RainbowSix.exe'], (640, 480, 0.0, 0.0)), (60, ['RainbowSix.exe'], (640, 480, 0.0, 0.0))]
+[02:25:06] --- Unreal Tournament 2003: C:\Games\UT2003\Play UT2003.bat 
+[02:26:17]     PASS  samples=[(30, ['UT2003.exe'], (1280, 960, 11.1, 45.1)), (60, ['UT2003.exe'], (1280, 960, 0.3, 4.9))]
+[02:26:17] --- Unreal Tournament 2004: C:\Games\UT2004\Play UT2004.bat 
+[02:27:30]     PASS  samples=[(30, ['UT2004.exe'], (1280, 1024, 30.8, 64.0)), (60, ['UT2004.exe'], (1280, 960, 40.4, 37.4))]
+[02:27:30] results -> voodoo-cleanroom/vcr-kmd/evidence/d3dtune_1014/sweep_1108_fixed/20261108_020841/sweep.json

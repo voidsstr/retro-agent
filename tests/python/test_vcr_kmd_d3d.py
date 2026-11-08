@@ -232,7 +232,7 @@ int main(void) {
         vcr_rt_format(0, 16, 16), vcr_rt_format(0, 16, 0),
         vcr_rt_format(0, 32, 0),  vcr_rt_format(0, 32, 32),     /* Voodoo3: refused */
         vcr_rt_format(1, 32, 32), vcr_rt_format(1, 32, 0),
-        vcr_rt_format(1, 32, 16), vcr_rt_format(1, 16, 32),     /* mismatch: refused */
+        vcr_rt_format(1, 32, 16), vcr_rt_format(1, 16, 32),     /* 32/16 refused; 16 on a 32-bit Z = 16 */
         vcr_rt_format(1, 16, 16), vcr_rt_format(1, 24, 0));
     printf("%x %x %x %x\n", vcr_rt_rendermode(VCR_RT_16), vcr_rt_rendermode(VCR_RT_32),
         vcr_rt_zmax(VCR_RT_16), vcr_rt_zmax(VCR_RT_32));
@@ -246,7 +246,9 @@ int main(void) {
         subprocess.run([cc, "-Wall", "-Werror", "-I", str(KMD / "include"), str(c), "-o", str(exe)],
                        check=True)
         out = subprocess.run([str(exe)], check=True, capture_output=True, text=True).stdout.split("\n")
-    assert out[0].split() == ["16", "16", "0", "0", "32", "32", "0", "0", "16", "0"]
+    # (1, 16, 32) = 16: a 16 bpp target draws 16/16 in a 32-bit Z's rows -
+    # Rainbow Six's DX6 pick on .124 (2026-11-08); 32 bpp over a 16-bit Z stays refused
+    assert out[0].split() == ["16", "16", "0", "0", "32", "32", "0", "16", "16", "0"]
     # renderMode: 16 bpp = 0, 32 bpp = 2 (SST_RM_32BPP), RGBA write enables bits 17..20
     assert out[1].split() == ["1e0000", "1e0002", "ffff", "ffffff"]
 
