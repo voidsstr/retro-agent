@@ -739,3 +739,17 @@ def test_vertices_get_the_half_pixel_centre_offset():
     assert "d->xy_bias = 0.5f;" in init
     vtx = func(E3D, "static BOOL vertex(")
     assert "p[0] + d->xy_bias" in vtx and "p[1] + d->xy_bias" in vtx
+
+
+def test_every_texture_is_placed_16_byte_aligned_by_the_driver():
+    # DirectDraw's linear heap places surfaces on 4-byte boundaries and
+    # texBaseAddr holds bits 25:4, so a texture at ...4 is sampled from 4
+    # bytes before it: UT2003's single-level DXT5 font pages at 0x91d6b4 /
+    # 0x93d6b4 drew as coloured noise on .124 (2026-11-08). Single levels go
+    # through the chain allocator (HeapVidMemAllocAligned, 16) like chains;
+    # render-target textures keep DirectDraw's placement.
+    f = func(D3D, "static int mipchain_ext(")
+    assert "(DDSCAPS_TEXTURE | DDSCAPS_MIPMAP)) !=" not in f
+    assert "!(top->ddsCaps.dwCaps & DDSCAPS_TEXTURE)" in f
+    assert "DDSCAPS_SYSTEMMEMORY | DDSCAPS_3DDEVICE" in f
+    assert "al.dwStartAlignment = 16;" in f and "HeapVidMemAllocAligned(" in f

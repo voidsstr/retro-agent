@@ -96,7 +96,7 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
-### Resume point (2026-11-08 02:00) - D3D sweep done on `.124`; half-pixel bug found in our HAL, fix built
+### Resume point (2026-11-08 05:00) - D3D sweep done on `.124`; two HAL bugs fixed (half-pixel centre, texture alignment) - UT2003 reads cleanly
 
 **Sweep 2026-11-08 00:48** (`vcr-kmd/evidence/d3dtune_1014/sweep_1108/`, AvP
 left out, Max Payne kept for an attended run). The box stayed healthy
@@ -138,6 +138,27 @@ Fixed (`xy_bias = 0.5f`), with the test
 `test_vertices_get_the_half_pixel_centre_offset`. The new `vcrdd.dll` is
 `ef30672a` (`vcrmp.sys` stays `fda1b8c9`; the rollback copy is
 `C:\vcr\vcrdd_b63ea6a5.dll`).
+
+**UT2003's noise, the real cause: textures off the 16-byte boundary.** The
+half-pixel fix did not change the menu. A one-off build logging each distinct
+texture/combine set-up (`log_combo`, event 513 what 21-23, INFO, the first 64
+per context; kept) showed every set-up that drew right used the same registers
+as the broken one. The broken textures were the only ones DirectDraw had
+placed itself: single-level DXT5 512x256 at **0x91d6b4**, 512x128 at
+**0x93d6b4**, an A8R8G8B8 1024x512 at 0x71d6b4 - each ending in 4
+(`sweep_1108/UT2003_combos_unaligned.txt`). DirectDraw's linear heap places
+surfaces on 4-byte boundaries (`dwTextureAlign` is not applied there), and
+`texBaseAddr` keeps bits 25:4, so the chip read every DXT block 4 bytes early.
+Every mip chain our allocator placed was aligned. d3dprobe never saw it
+because its textures happened to land aligned.
+
+**Fix:** `mipchain_ext` places EVERY texture, a single level being a chain of
+one (HeapVidMemAllocAligned, 16). Render-target textures keep DirectDraw's
+placement. Test: `test_every_texture_is_placed_16_byte_aligned_by_the_driver`.
+`vcrdd.dll` **13256e46** on `.124` (`vcrmp.sys` fda1b8c9 unchanged): render
+42/42 and the big-texture/DXT matrix 100/0, and **UT2003's menu reads
+cleanly** (`sweep_1108/UT2003_menu_{before,after}_align_fix.png`).
+`Diag\LogLevel` is back to 3 and `LogEntries` is deleted (default 1024).
 
 **AvP:** a game-data assertion before its D3D device (next entry), not ours.
 

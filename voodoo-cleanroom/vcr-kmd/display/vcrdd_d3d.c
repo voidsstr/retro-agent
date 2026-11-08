@@ -70,6 +70,7 @@ typedef struct vcr_d3dctx {
     ULONG               tex1_w, tex1_h;            /* TMU1's, with two stages */
     PVOID               fpu;            /* EngSaveFloatingPointState buffer */
     ULONG               tris, clears, dp2s, unparsed, tex_flushes;
+    ULONG               combo_seen[64], combos;     /* log_combo: what was logged */
 } vcr_d3dctx;
 
 typedef struct handle_ent {
@@ -377,8 +378,16 @@ static int mipchain_ext(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
     if (!p->dwSCnt || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
         return 0;
     top = p->lplpSList[0];
-    if ((top->ddsCaps.dwCaps & (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP)) !=
-            (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP) || (top->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
+    /* Every texture, not only a mipmap chain: a single level is a chain of
+     * one. DirectDraw's linear heap places a surface on a 4-byte boundary
+     * (dwTextureAlign is not applied there), and texBaseAddr holds bits
+     * 25:4 - a texture at ...4 is sampled from 4 bytes before it. On .124,
+     * UT2003's single-level DXT5 font pages (0x91d6b4, 0x93d6b4) and a 1024x512
+     * A8R8G8B8 drew as noise (2026-11-08); every chain this allocated was
+     * aligned and drew right. A render-target texture keeps DirectDraw's
+     * placement (its pitch follows the 3D target rules, not w x bytes). */
+    if (!(top->ddsCaps.dwCaps & DDSCAPS_TEXTURE) ||
+        (top->ddsCaps.dwCaps & (DDSCAPS_SYSTEMMEMORY | DDSCAPS_3DDEVICE)))
         return 0;
     /* The storage the chain is PACKED as must be the one every later reader
      * takes: ext_layout (sampling), texblt / texblt_dxt_level (the copies) and
@@ -864,6 +873,51 @@ static ULONG stage1_combine(const DWORD *tss)
     return tc | tca;
 }
 
+/* Each distinct texture/combine set-up a context draws with, logged ONCE
+ * (the first 64; a texture shape counts): the stage ops and arguments as the app set
+ * them and the registers they became (INFO: LogLevel 2 keeps them while
+ * dropping the per-draw debug events). A game whose surfaces come out wrong
+ * while every d3dprobe check passes (UT2003's menu text, 2026-11-08) is
+ * using a combination no check does - this names it. */
+static void log_combo(vcr_d3dctx *c, PDD_SURFACE_LOCAL t, int tex, int two)
+{
+    const vcr3d_regs *r = &c->regs;
+    ULONG h = r->fbzColorPath * 31u + r->alphaMode, i, fmt = 0, wh = 0;
+    h = h * 31u + (tex ? r->textureMode : 0) + (two ? r->textureMode1 * 7u : 0);
+    h = h * 31u + c->tss[D3DTSS_COLOROP] + (c->tss[D3DTSS_COLORARG1] << 4) +
+        (c->tss[D3DTSS_COLORARG2] << 10) + (c->tss[D3DTSS_ALPHAOP] << 16) +
+        (c->tss[D3DTSS_ALPHAARG1] << 21) + (c->tss[D3DTSS_ALPHAARG2] << 26);
+    h = h * 31u + c->tss1[D3DTSS_COLOROP] + (c->tss1[D3DTSS_ALPHAOP] << 8);
+    if (t && t->lpGbl)                  /* each texture shape too: a font page is its own */
+        h = h * 31u + (surf_fcc(t) ^ t->lpGbl->ddpfSurface.dwRGBBitCount) +
+            ((ULONG)t->lpGbl->wWidth << 16) + t->lpGbl->wHeight;
+    for (i = 0; i < c->combos; i++)
+        if (c->combo_seen[i] == h)
+            return;
+    if (c->combos >= sizeof c->combo_seen / sizeof c->combo_seen[0])
+        return;
+    c->combo_seen[c->combos++] = h;
+    if (t && t->lpGbl) {
+        fmt = surf_fcc(t) ? surf_fcc(t) : t->lpGbl->ddpfSurface.dwRGBBitCount;
+        wh = ((ULONG)t->lpGbl->wWidth << 16) | t->lpGbl->wHeight;
+    }
+    /* two events: a ring message holds 95 characters (VCR_LOG_MSG_LEN) */
+    VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 21, r->fbzColorPath, tex ? r->textureMode : 0,
+          r->alphaMode, "combine %u: cp %x tm %x tm1 %x am %x fmt %x %ux%u two %u",
+          c->combos, r->fbzColorPath, tex ? r->textureMode : 0, two ? r->textureMode1 : 0,
+          r->alphaMode, fmt, wh >> 16, wh & 0xffff, two);
+    VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 22, c->tss[D3DTSS_COLOROP], c->tss[D3DTSS_ALPHAOP],
+          c->tss1[D3DTSS_COLOROP], "combine %u ops: s0 %u %x %x a %u %x %x s1 %u a %u",
+          c->combos, c->tss[D3DTSS_COLOROP], c->tss[D3DTSS_COLORARG1],
+          c->tss[D3DTSS_COLORARG2], c->tss[D3DTSS_ALPHAOP], c->tss[D3DTSS_ALPHAARG1],
+          c->tss[D3DTSS_ALPHAARG2], c->tss1[D3DTSS_COLOROP], c->tss1[D3DTSS_ALPHAOP]);
+    if (tex && t && t->lpGbl)
+        VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 23, (ULONG)t->lpGbl->fpVidMem, r->texBaseAddr, r->tLOD,
+              "combine %u tex: at %x pitch %d base %x tlod %x mip %x caps %x", c->combos,
+              (ULONG)t->lpGbl->fpVidMem, t->lpGbl->lPitch, r->texBaseAddr, r->tLOD,
+              (ULONG)t->dwReserved1, t->ddsCaps.dwCaps);
+}
+
 static void compute_regs(vcr_d3dctx *c)
 {
     vcr3d_regs *r = &c->regs;
@@ -970,6 +1024,7 @@ static void compute_regs(vcr_d3dctx *c)
         r->setupMode |= SM_CULL | SM_CULL_NEGATIVE;
     else if (cull == D3DCULL_CW)
         r->setupMode |= SM_CULL;
+    log_combo(c, tex ? t : NULL, tex, two);
     c->dirty = 0;
 }
 
