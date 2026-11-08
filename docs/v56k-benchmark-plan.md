@@ -96,6 +96,51 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-11-08 02:00) - D3D sweep done on `.124`; half-pixel bug found in our HAL, fix built
+
+**Sweep 2026-11-08 00:48** (`vcr-kmd/evidence/d3dtune_1014/sweep_1108/`, AvP
+left out, Max Payne kept for an attended run). The box stayed healthy
+throughout, and every game exited back to 1280x1024x32@85.
+
+| title | result (60 s frame) |
+|---|---|
+| Halo, Hidden and Dangerous, Jedi Knight, MotS, Shogo, System Shock 2, Thief Gold, Thief II, UT2004 | render their menus or intros correctly |
+| **Red Faction** | **now renders its menu** (a black frame on 09-29) |
+| BF1942 host LAN server | runs (dedicated) |
+| BF1942 SP | "Cannot locate the CD-ROM" - SafeDisc 2.80, not ours |
+| BF1942 join | needs a partner (started nothing alone) |
+| Rainbow Six | "RAINBOW SIX ERROR" again (D3D32/BigTex armed) - open |
+| **UT2003** | menu text is coloured noise; it had also dropped itself to 640x480 |
+
+Several titles ignore WM_CLOSE and were force-closed (H&D, Red Faction,
+SS2, both Thiefs), with the desktop always restored. These are menu-state
+games with no quit path from WM_CLOSE, not a driver fault.
+
+**UT2003's noise, chased down with `d3dprobe`.** Its fonts are DXT5 512xN
+(`UT2003Fonts.utx`). UT2004's, which draw right, are DXT5 256xN. New probe
+tests, all run windowed on `.124`:
+- `dxt5_512`/`_512x256`/`_512x128`/`dxt1_512`, `tex8888_256/512/512x128` and
+  the `*_upd`/`*_copy` variants (UpdateTexture / CopyRects into a DEFAULT
+  texture) all pass. Big DXT, 32-bit, and both upload routes are fine.
+- `dxt1/3/5_decode` (32x32 varied blocks, both endpoint orders, both DXT5
+  alpha modes, 4x magnified): every RGB texel matches a reference decoder.
+  The alpha pass fails only because the HAL ignores `D3DTA_ALPHAREPLICATE`
+  (color_path masks the modifier off - a gap, rare in games).
+- `rgb565_decode1` (plain 565 drawn ONE TEXEL A PIXEL): **1024/1024 wrong.**
+  Every pixel shows texel (x+1, y+1).
+
+**Cause: no half-pixel offset.** D3D's pixel centre is the integer
+coordinate; the Voodoo samples at +0.5. `vcrdd_3d.c` set `xy_bias = 0` since
+the first HAL (56e0bc1). 3dfx's H5 HAL adds 0.5 by default (`D3RSTATE.C`
+`pixelOffset`, `PIXELCENTER=1`). Every D3D triangle on `.124` therefore sat
+half a pixel up-left, and 1:1 textures (UI text, fonts) sampled texel edges.
+Fixed (`xy_bias = 0.5f`), with the test
+`test_vertices_get_the_half_pixel_centre_offset`. The new `vcrdd.dll` is
+`ef30672a` (`vcrmp.sys` stays `fda1b8c9`; the rollback copy is
+`C:\vcr\vcrdd_b63ea6a5.dll`).
+
+**AvP:** a game-data assertion before its D3D device (next entry), not ours.
+
 ### Resume point (2026-10-15 09:00) - Direct3D titles on `.124`: the sweep started, AvP diagnosed, the box powered off
 
 **The user's next request (2026-10-14): every OpenGL, Direct3D and Glide game
@@ -135,8 +180,21 @@ The sweep was stopped after AvP. **`.124` was off on 10-15 09:00** (ARP
 FAILED; the fleet has no Wake-on-LAN). `Diag\D3D32`=1 and `D3DBigTex`=7 are
 still armed.
 
+**AvP, read 2026-11-08 from `LOGFILE.TXT` (written 10-14 16:42): not a
+driver fault.** DirectDraw 6 object, sound up, then `CL_LoadImageOnce()` fails
+on every `Menus\*.rim` ("relative to Graphics"), then
+`AwCreateGraphic(): ERROR: No data medium is specified` and `ASSERTION FAILED!
+pSurface, ..\3dc\win95\alt_tab.cpp line 198`. The assert box sits behind the
+exclusive mode, which is the "stall" and why WM_CLOSE did nothing. The log
+has no `Loaded FastFile:` line and every sound comes `by ExtractWavFile`, so
+the fastfile loader never served anything. The box's `fastfile\` is the
+library's, 114 files, no missing file and no size difference, and the sweep
+starts it from its own directory. AvP has never been verified on any box
+(compat: `untested`). It stays out of the D3D sweeps until the tree problem is
+solved (README-FLEET in the title has the history).
+
 **Open D3D items:**
-- AvP: no device.
+- AvP: game-data assertion before any D3D device (above), a library item.
 - Red Faction: black frame through our HAL (09-29).
 - Rainbow Six: "RAINBOW SIX ERROR" with D3D32/BigTex armed; the clean-desktop
   A/B was never run.

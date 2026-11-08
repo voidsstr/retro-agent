@@ -1,0 +1,32 @@
+[00:48:57] 125 shortcuts, 15 to sweep: ['Battlefield 1942 - Host LAN Server', 'Battlefield 1942 - Join LAN Game', 'Battlefield 1942', 'Halo Combat Evolved', 'Hidden and Dangerous Deluxe', 'Jedi Knight - Dark Forces II', 'Jedi Knight - Mysteries of the Sith', 'Red Faction', 'Shogo - Mobile Armor Division', 'System Shock 2', 'Thief Gold', 'Thief II - The Metal Age', "Tom Clancy's Rainbow Six", 'Unreal Tournament 2003', 'Unreal Tournament 2004']
+[00:48:57] --- Battlefield 1942 - Host LAN Server: C:\Games\BF1942\Host Battlefield 1942 - LAN.bat 
+[00:50:04]     PASS  samples=[(30, ['BF1942_w32ded.exe'], (1280, 1024, 14.1, 43.1)), (60, ['BF1942_w32ded.exe'], (1280, 1024, 14.1, 43.1))]
+[00:50:04] --- Battlefield 1942 - Join LAN Game: C:\Games\BF1942\Join Battlefield 1942 - LAN.bat 
+[00:51:07]     CHECK: started no process  samples=[(30, [], (1280, 1024, 18.6, 50.3)), (60, [], (1280, 1024, 18.6, 50.4))]
+[00:51:07] --- Battlefield 1942: C:\Games\BF1942\Play Battlefield 1942.bat 
+[00:52:14]     CHECK: dialog: Cannot locate the CD-ROM  samples=[(30, ['BF1942.exe', '~e5d141.tmp'], (1280, 1024, 22.0, 49.4)), (60, ['BF1942.exe', '~e5d141.tmp'], (1280, 1024, 22.0, 49.4))]
+[00:52:14] --- Halo Combat Evolved: C:\Games\Halo\Play Halo.bat 
+[00:53:24]     PASS  samples=[(30, ['halo.exe'], (1280, 960, 152.6, 113.4)), (60, ['halo.exe'], (1280, 960, 243.6, 31.1))]
+[00:53:24] --- Hidden and Dangerous Deluxe: C:\Games\HiddenAndDangerous\Play Hidden and Dangerous Deluxe.bat 
+[00:55:32]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['HDE.exe'], (1280, 960, 90.4, 28.5)), (60, ['HDE.exe'], (1280, 960, 90.8, 29.4))]
+[00:55:32] --- Jedi Knight - Dark Forces II: C:\Games\JediKnightDF2\JK.EXE 
+[00:56:38]     PASS  samples=[(30, ['JK.EXE'], (640, 480, 0.0, 0.0)), (60, ['JK.EXE'], (640, 480, 3.6, 17.3))]
+[00:56:38] --- Jedi Knight - Mysteries of the Sith: C:\Games\JediKnightMotS\JKM.EXE 
+[00:57:43]     PASS  samples=[(30, ['JKM.EXE'], (640, 480, 2.7, 16.9)), (60, ['JKM.EXE'], (640, 480, 11.6, 40.6))]
+[00:57:43] --- Red Faction: C:\Games\RedFaction\Play Red Faction.bat 
+[00:59:45]     CHECK: had to be forced closed; close keys withheld - the WM_CLOSE took the game's window and its keyboard (it had the focus at 60s)  samples=[(30, ['rf.exe'], (640, 480, 17.3, 56.5)), (60, ['rf.exe'], (640, 480, 127.2, 53.6))]
+[00:59:45] --- Shogo - Mobile Armor Division: C:\Games\Shogo\Play Shogo - direct engine.bat 
+[01:00:52]     PASS  samples=[(30, ['Client.exe'], (1280, 960, 12.3, 5.4)), (60, ['Client.exe'], (1280, 960, 16.4, 16.3))]
+[01:00:52] --- System Shock 2: C:\Games\SystemShock2\Play System Shock 2.bat 
+[01:02:59]     CHECK: had to be forced closed  samples=[(30, ['SHOCK2.ICD', 'shock2.exe'], (640, 480, 27.8, 30.4)), (60, ['SHOCK2.ICD', 'shock2.exe'], (640, 480, 27.9, 30.4))]
+[01:02:59] --- Thief Gold: C:\Games\ThiefGold\Play Thief Gold.bat 
+[01:04:58]     CHECK: had to be forced closed  samples=[(30, ['THIEF.EXE'], (640, 480, 10.2, 9.3)), (60, ['THIEF.EXE'], (640, 480, 19.9, 19.2))]
+[01:04:58] --- Thief II - The Metal Age: C:\Games\Thief2\Play Thief 2.bat 
+[01:06:59]     CHECK: had to be forced closed  samples=[(30, ['Thief2.exe'], (1280, 960, 30.5, 37.8)), (60, ['Thief2.exe'], (1280, 960, 30.6, 38.0))]
+[01:06:59] --- Tom Clancy's Rainbow Six: C:\Games\RainbowSix\Play Rainbow Six.bat 
+[01:08:04]     CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX ERROR  samples=[(30, ['RainbowSix.exe'], (640, 480, 0.0, 0.0)), (60, ['RainbowSix.exe'], (640, 480, 0.0, 0.0))]
+[01:08:04] --- Unreal Tournament 2003: C:\Games\UT2003\Play UT2003.bat 
+[01:09:10]     PASS  samples=[(30, ['UT2003.exe'], (640, 480, 3.0, 10.7)), (60, ['UT2003.exe'], (640, 480, 107.7, 118.0))]
+[01:09:10] --- Unreal Tournament 2004: C:\Games\UT2004\Play UT2004.bat 
+[01:10:31]     PASS  samples=[(30, ['UT2004.exe', 'verclsid.exe'], (1280, 960, 0.0, 0.0)), (60, ['UT2004.exe', 'find.exe', 'tasklist.exe'], (1280, 960, 69.1, 60.8))]
+[01:10:31] results -> voodoo-cleanroom/vcr-kmd/evidence/d3dtune_1014/sweep_1108/20261108_004856/sweep.json

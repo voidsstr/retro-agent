@@ -294,7 +294,14 @@ void VcrDd3dDrawTarget(vcr3d_draw *d, const vcr3d_target *t)
 
 void VcrDd3dDrawInit(vcr3d_draw *d, const vcr3d_target *t)
 {
-    d->xy_bias = 0.0f;
+    /* Direct3D puts a pixel's centre on the integer coordinate; the Voodoo
+     * samples it at +0.5. 3dfx's own H5 HAL adds 0.5 to x and y by default
+     * (D3RSTATE.C pixelOffset, PIXELCENTER=1). At 0 every triangle was half a
+     * pixel up-left, and a texture drawn one texel a pixel (UI text, fonts)
+     * sampled each pixel on a texel EDGE - point sampling took texel
+     * (x+1, y+1): d3dprobe rgb565_decode1 1024/1024 wrong on .124, and
+     * UT2003's menu text came out as noise (2026-11-08). */
+    d->xy_bias = 0.5f;
     d->s_scale = d->t_scale = 256.0f;
     VcrDd3dDrawTarget(d, t);
 }

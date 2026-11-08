@@ -1,0 +1,897 @@
+[
+ {
+  "shortcut": "Battlefield 1942 - Host LAN Server",
+  "target": "C:\\Games\\BF1942\\Host Battlefield 1942 - LAN.bat",
+  "args": "",
+  "t0": "00:48:57",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "BF1942_w32ded.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     14.1,
+     43.1
+    ],
+    "file": "Battlefield_1942_Host_LAN_Server_30s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Battlefield 1942 Dedicated Server v1.61",
+     "pid": 1820,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "BF1942_w32ded.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     14.1,
+     43.1
+    ],
+    "file": "Battlefield_1942_Host_LAN_Server_60s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Battlefield 1942 Dedicated Server v1.61",
+     "pid": 1820,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "BF1942_w32ded.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Battlefield 1942 - Join LAN Game",
+  "target": "C:\\Games\\BF1942\\Join Battlefield 1942 - LAN.bat",
+  "args": "",
+  "t0": "00:50:04",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [],
+    "stats": [
+     1280,
+     1024,
+     18.6,
+     50.3
+    ],
+    "file": "Battlefield_1942_Join_LAN_Game_30s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Retro Chat",
+     "pid": 1064,
+     "game": false
+    }
+   },
+   {
+    "at": 60,
+    "alive": [],
+    "stats": [
+     1280,
+     1024,
+     18.6,
+     50.4
+    ],
+    "file": "Battlefield_1942_Join_LAN_Game_60s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Retro Chat",
+     "pid": 1064,
+     "game": false
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [],
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: started no process"
+ },
+ {
+  "shortcut": "Battlefield 1942",
+  "target": "C:\\Games\\BF1942\\Play Battlefield 1942.bat",
+  "args": "",
+  "t0": "00:51:07",
+  "dialogs": {
+   "002600C6": "Cannot locate the CD-ROM"
+  },
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "BF1942.exe",
+     "~e5d141.tmp"
+    ],
+    "stats": [
+     1280,
+     1024,
+     22.0,
+     49.4
+    ],
+    "file": "Battlefield_1942_30s.png",
+    "foreground": {
+     "class": "#32770",
+     "title": "Cannot locate the CD-ROM",
+     "pid": 1948,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "BF1942.exe",
+     "~e5d141.tmp"
+    ],
+    "stats": [
+     1280,
+     1024,
+     22.0,
+     49.4
+    ],
+    "file": "Battlefield_1942_60s.png",
+    "foreground": {
+     "class": "#32770",
+     "title": "Cannot locate the CD-ROM",
+     "pid": 1948,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "BF1942.exe",
+   "~e5d141.tmp"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog: Cannot locate the CD-ROM"
+ },
+ {
+  "shortcut": "Halo Combat Evolved",
+  "target": "C:\\Games\\Halo\\Play Halo.bat",
+  "args": "",
+  "t0": "00:52:14",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "halo.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     152.6,
+     113.4
+    ],
+    "file": "Halo_Combat_Evolved_30s.png",
+    "foreground": {
+     "class": "Halo",
+     "title": "Halo",
+     "pid": 632,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "halo.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     243.6,
+     31.1
+    ],
+    "file": "Halo_Combat_Evolved_60s.png",
+    "foreground": {
+     "class": "Halo",
+     "title": "Halo",
+     "pid": 632,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "halo.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Hidden and Dangerous Deluxe",
+  "target": "C:\\Games\\HiddenAndDangerous\\Play Hidden and Dangerous Deluxe.bat",
+  "args": "",
+  "t0": "00:53:24",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "HDE.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     90.4,
+     28.5
+    ],
+    "file": "Hidden_and_Dangerous_Deluxe_30s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Retro Chat",
+     "pid": 1064,
+     "game": false
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "HDE.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     90.8,
+     29.4
+    ],
+    "file": "Hidden_and_Dangerous_Deluxe_60s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Retro Chat",
+     "pid": 1064,
+     "game": false
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "HDE.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Chat\" pid 1064",
+   "TILDE: focus is ConsoleWindowClass \"Retro Chat\" pid 1064"
+  ],
+  "forced": [
+   "HDE.exe"
+  ],
+  "force_output": [
+   "1068: SUCCESS: The process with PID 1068 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Jedi Knight - Dark Forces II",
+  "target": "C:\\Games\\JediKnightDF2\\JK.EXE",
+  "args": "",
+  "t0": "00:55:32",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "JK.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     0.0,
+     0.0
+    ],
+    "file": "Jedi_Knight_Dark_Forces_II_30s.png",
+    "foreground": {
+     "class": "wKernel",
+     "title": "Jedi Knight",
+     "pid": 1424,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "JK.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     3.6,
+     17.3
+    ],
+    "file": "Jedi_Knight_Dark_Forces_II_60s.png",
+    "foreground": {
+     "class": "wKernel",
+     "title": "Jedi Knight",
+     "pid": 1424,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "JK.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Jedi Knight - Mysteries of the Sith",
+  "target": "C:\\Games\\JediKnightMotS\\JKM.EXE",
+  "args": "",
+  "t0": "00:56:38",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "JKM.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     2.7,
+     16.9
+    ],
+    "file": "Jedi_Knight_Mysteries_of_the_Sith_30s.png",
+    "foreground": {
+     "class": "wKernel",
+     "title": "Mysteries of the Sith",
+     "pid": 700,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "JKM.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     11.6,
+     40.6
+    ],
+    "file": "Jedi_Knight_Mysteries_of_the_Sith_60s.png",
+    "foreground": {
+     "class": "wKernel",
+     "title": "Mysteries of the Sith",
+     "pid": 700,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "JKM.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Red Faction",
+  "target": "C:\\Games\\RedFaction\\Play Red Faction.bat",
+  "args": "",
+  "t0": "00:57:43",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "rf.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     17.3,
+     56.5
+    ],
+    "file": "Red_Faction_30s.png",
+    "foreground": {
+     "class": "Volition",
+     "title": "Red Faction",
+     "pid": 820,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "rf.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     127.2,
+     53.6
+    ],
+    "file": "Red_Faction_60s.png",
+    "foreground": {
+     "class": "Volition",
+     "title": "Red Faction",
+     "pid": 820,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "rf.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Chat\" pid 1064",
+   "TILDE: focus is ConsoleWindowClass \"Retro Chat\" pid 1064"
+  ],
+  "forced": [
+   "rf.exe"
+  ],
+  "force_output": [
+   "820: SUCCESS: The process with PID 820 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - the WM_CLOSE took the game's window and its keyboard (it had the focus at 60s)"
+ },
+ {
+  "shortcut": "Shogo - Mobile Armor Division",
+  "target": "C:\\Games\\Shogo\\Play Shogo - direct engine.bat",
+  "args": "",
+  "t0": "00:59:45",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Client.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     12.3,
+     5.4
+    ],
+    "file": "Shogo_Mobile_Armor_Division_30s.png",
+    "foreground": {
+     "class": "LithTech",
+     "title": "LithTech",
+     "pid": 1088,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Client.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     16.4,
+     16.3
+    ],
+    "file": "Shogo_Mobile_Armor_Division_60s.png",
+    "foreground": {
+     "class": "LithTech",
+     "title": "LithTech",
+     "pid": 1088,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Client.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "System Shock 2",
+  "target": "C:\\Games\\SystemShock2\\Play System Shock 2.bat",
+  "args": "",
+  "t0": "01:00:52",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SHOCK2.ICD",
+     "shock2.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     27.8,
+     30.4
+    ],
+    "file": "System_Shock_2_30s.png",
+    "foreground": {
+     "class": "LookingGlassTechnologies_WindowsGameShell_v2",
+     "title": "System Shock 2 Final 1.15   ",
+     "pid": 1660,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SHOCK2.ICD",
+     "shock2.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     27.9,
+     30.4
+    ],
+    "file": "System_Shock_2_60s.png",
+    "foreground": {
+     "class": "LookingGlassTechnologies_WindowsGameShell_v2",
+     "title": "System Shock 2 Final 1.15   ",
+     "pid": 1660,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SHOCK2.ICD",
+   "shock2.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "forced": [
+   "SHOCK2.ICD",
+   "shock2.exe"
+  ],
+  "force_output": [
+   "320: SUCCESS: The process with PID 320 has been terminated.",
+   "1660: SUCCESS: The process with PID 1660 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed"
+ },
+ {
+  "shortcut": "Thief Gold",
+  "target": "C:\\Games\\ThiefGold\\Play Thief Gold.bat",
+  "args": "",
+  "t0": "01:02:59",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "THIEF.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     10.2,
+     9.3
+    ],
+    "file": "Thief_Gold_30s.png",
+    "foreground": {
+     "class": "LookingGlassTechnologies_WindowsGameShell_v2",
+     "title": "Thief  1.37 ",
+     "pid": 216,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "THIEF.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     19.9,
+     19.2
+    ],
+    "file": "Thief_Gold_60s.png",
+    "foreground": {
+     "class": "LookingGlassTechnologies_WindowsGameShell_v2",
+     "title": "Thief  1.37 ",
+     "pid": 216,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "THIEF.EXE"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "forced": [
+   "THIEF.EXE"
+  ],
+  "force_output": [
+   "216: SUCCESS: The process with PID 216 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed"
+ },
+ {
+  "shortcut": "Thief II - The Metal Age",
+  "target": "C:\\Games\\Thief2\\Play Thief 2.bat",
+  "args": "",
+  "t0": "01:04:58",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Thief2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     30.5,
+     37.8
+    ],
+    "file": "Thief_II_The_Metal_Age_30s.png",
+    "foreground": {
+     "class": "LookingGlassTechnologies_WindowsGameShell_v2",
+     "title": "Thief 2 Final 1.26",
+     "pid": 1352,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Thief2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     30.6,
+     38.0
+    ],
+    "file": "Thief_II_The_Metal_Age_60s.png",
+    "foreground": {
+     "class": "LookingGlassTechnologies_WindowsGameShell_v2",
+     "title": "Thief 2 Final 1.26",
+     "pid": 1352,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Thief2.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "forced": [
+   "Thief2.exe"
+  ],
+  "force_output": [
+   "1352: SUCCESS: The process with PID 1352 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed"
+ },
+ {
+  "shortcut": "Tom Clancy's Rainbow Six",
+  "target": "C:\\Games\\RainbowSix\\Play Rainbow Six.bat",
+  "args": "",
+  "t0": "01:06:59",
+  "dialogs": {
+   "003200B6": "RAINBOW SIX ERROR"
+  },
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "RainbowSix.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     0.0,
+     0.0
+    ],
+    "file": "Tom_Clancy_s_Rainbow_Six_30s.png",
+    "foreground": {
+     "class": "#32770",
+     "title": "RAINBOW SIX ERROR",
+     "pid": 1776,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "RainbowSix.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     0.0,
+     0.0
+    ],
+    "file": "Tom_Clancy_s_Rainbow_Six_60s.png",
+    "foreground": {
+     "class": "#32770",
+     "title": "RAINBOW SIX ERROR",
+     "pid": 1776,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [
+   "RAINBOW SIX ERROR"
+  ],
+  "running_at_end": [
+   "RainbowSix.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX ERROR"
+ },
+ {
+  "shortcut": "Unreal Tournament 2003",
+  "target": "C:\\Games\\UT2003\\Play UT2003.bat",
+  "args": "",
+  "t0": "01:08:04",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UT2003.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     3.0,
+     10.7
+    ],
+    "file": "Unreal_Tournament_2003_30s.png",
+    "foreground": {
+     "class": "UT2003UnrealWWindowsViewportWindow",
+     "title": "Unreal Tournament 2003",
+     "pid": 836,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UT2003.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     107.7,
+     118.0
+    ],
+    "file": "Unreal_Tournament_2003_60s.png",
+    "foreground": {
+     "class": "UT2003UnrealWWindowsViewportWindow",
+     "title": "Unreal Tournament 2003",
+     "pid": 836,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UT2003.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Tournament 2004",
+  "target": "C:\\Games\\UT2004\\Play UT2004.bat",
+  "args": "",
+  "t0": "01:09:10",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UT2004.exe",
+     "verclsid.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     0.0,
+     0.0
+    ],
+    "file": "Unreal_Tournament_2004_30s.png",
+    "foreground": {
+     "class": "UT2004UnrealWWindowsViewportWindow",
+     "title": "Unreal Tournament 2004",
+     "pid": 1652,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UT2004.exe",
+     "find.exe",
+     "tasklist.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     69.1,
+     60.8
+    ],
+    "file": "Unreal_Tournament_2004_60s.png",
+    "foreground": {
+     "class": "UT2004UnrealWWindowsViewportWindow",
+     "title": "Unreal Tournament 2004",
+     "pid": 1652,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UT2004.exe",
+   "find.exe",
+   "tasklist.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

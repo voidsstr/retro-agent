@@ -472,19 +472,20 @@ static void dxt_block(unsigned char *p, D3DFORMAT f, DWORD c)
 }
 
 static int g_lock_pitch;        /* what the last cells() LockRect answered */
+static D3DPOOL g_cells_pool = D3DPOOL_MANAGED;  /* the *_def tests: D3DPOOL_DEFAULT */
 
-/* a size x size one-level MANAGED texture of format f (R5G6B5, A8R8G8B8,
+/* a w x h one-level MANAGED texture of format f (R5G6B5, A8R8G8B8,
  * DXT1/3/5) holding the 8 x 8 cells. A DXT level is written as D3D8
- * documents it - rows of 4x4 blocks, (size / 4) x block bytes apart - and the
+ * documents it - rows of 4x4 blocks, (w / 4) x block bytes apart - and the
  * runtime's own Pitch is only reported (g_lock_pitch): writing at a pitch
  * that is not a block row's would run past the runtime's buffer */
-static IDirect3DTexture8 *cells(const char *t, int size, D3DFORMAT f, DWORD c0, DWORD c1)
+static IDirect3DTexture8 *cells(const char *t, int w, int h, D3DFORMAT f, DWORD c0, DWORD c1)
 {
     IDirect3DTexture8 *tx = NULL;
     D3DLOCKED_RECT lr;
     HRESULT hr;
-    int x, y, cell = size / 8;
-    hr = IDirect3DDevice8_CreateTexture(g_dev, size, size, 1, 0, f, D3DPOOL_MANAGED, &tx);
+    int x, y, cw = w / 8, ch = h / 8;
+    hr = IDirect3DDevice8_CreateTexture(g_dev, w, h, 1, 0, f, g_cells_pool, &tx);
     if (FAILED(hr)) {
         failed(t, "CreateTexture", hr);
         return NULL;
@@ -497,17 +498,17 @@ static IDirect3DTexture8 *cells(const char *t, int size, D3DFORMAT f, DWORD c0, 
     }
     g_lock_pitch = lr.Pitch;
     if (f == D3DFMT_DXT1 || f == D3DFMT_DXT3 || f == D3DFMT_DXT5) {
-        int blk = f == D3DFMT_DXT1 ? 8 : 16, bw = size / 4;
+        int blk = f == D3DFMT_DXT1 ? 8 : 16, bw = w / 4;
         say("  %s: LockRect pitch %d (a block row is %d)", t, lr.Pitch, bw * blk);
-        for (y = 0; y < size / 4; y++)
+        for (y = 0; y < h / 4; y++)
             for (x = 0; x < bw; x++)
                 dxt_block((unsigned char *)lr.pBits + y * bw * blk + x * blk, f,
-                          cell_colour(x * 4 / cell, y * 4 / cell, c0, c1));
+                          cell_colour(x * 4 / cw, y * 4 / ch, c0, c1));
     } else {
-        for (y = 0; y < size; y++) {
+        for (y = 0; y < h; y++) {
             char *row = (char *)lr.pBits + y * lr.Pitch;
-            for (x = 0; x < size; x++) {
-                DWORD c = cell_colour(x / cell, y / cell, c0, c1);
+            for (x = 0; x < w; x++) {
+                DWORD c = cell_colour(x / cw, y / ch, c0, c1);
                 if (f == D3DFMT_A8R8G8B8)
                     ((DWORD *)row)[x] = c | 0xff000000;
                 else
@@ -517,6 +518,47 @@ static IDirect3DTexture8 *cells(const char *t, int size, D3DFORMAT f, DWORD c0, 
     }
     IDirect3DTexture8_UnlockRect(tx, 0);
     return tx;
+}
+
+/* the cells in a SYSTEMMEM texture, copied into a DEFAULT-pool one the way an
+ * engine that keeps its own copies uploads: UpdateTexture (DP2 TEXBLT) or
+ * CopyRects (the DirectDraw Blt), by=0/1 (UT2003's fonts, 2026-11-08) */
+static IDirect3DTexture8 *cells_copied(const char *t, int w, int h, D3DFORMAT f, int by)
+{
+    IDirect3DTexture8 *src, *dst = NULL;
+    IDirect3DSurface8 *ss = NULL, *ds = NULL;
+    HRESULT hr;
+    g_cells_pool = D3DPOOL_SYSTEMMEM;
+    src = cells(t, w, h, f, 0xffff0000, 0xff0000ff);
+    g_cells_pool = D3DPOOL_MANAGED;
+    if (!src)
+        return NULL;
+    hr = IDirect3DDevice8_CreateTexture(g_dev, w, h, 1, 0, f, D3DPOOL_DEFAULT, &dst);
+    if (FAILED(hr)) {
+        failed(t, "CreateTexture(DEFAULT)", hr);
+        IDirect3DTexture8_Release(src);
+        return NULL;
+    }
+    if (by == 0) {
+        hr = IDirect3DDevice8_UpdateTexture(g_dev, (IDirect3DBaseTexture8 *)src,
+                                            (IDirect3DBaseTexture8 *)dst);
+        if (FAILED(hr))
+            failed(t, "UpdateTexture", hr);
+    } else {
+        IDirect3DTexture8_GetSurfaceLevel(src, 0, &ss);
+        IDirect3DTexture8_GetSurfaceLevel(dst, 0, &ds);
+        hr = IDirect3DDevice8_CopyRects(g_dev, ss, NULL, 0, ds, NULL);
+        if (FAILED(hr))
+            failed(t, "CopyRects", hr);
+        if (ss) IDirect3DSurface8_Release(ss);
+        if (ds) IDirect3DSurface8_Release(ds);
+    }
+    IDirect3DTexture8_Release(src);
+    if (FAILED(hr)) {
+        IDirect3DTexture8_Release(dst);
+        return NULL;
+    }
+    return dst;
 }
 
 /* the cells texture drawn over [Q0,Q1) - 24 px a cell - and five cells read */
@@ -545,11 +587,11 @@ static void draw_cells(const char *t, IDirect3DTexture8 *tx)
 }
 
 /* tex512 / tex1024 / tex2048 / tex8888 / dxt1 / dxt3 / dxt5 */
-static void test_cells(const char *t, int size, D3DFORMAT f)
+static void test_cells(const char *t, int w, int h, D3DFORMAT f)
 {
     IDirect3DTexture8 *tx;
     char why[96];
-    if ((int)g_caps.MaxTextureWidth < size || (int)g_caps.MaxTextureHeight < size) {
+    if ((int)g_caps.MaxTextureWidth < w || (int)g_caps.MaxTextureHeight < h) {
         _snprintf(why, sizeof why, "MaxTexture %lux%lu", g_caps.MaxTextureWidth,
                   g_caps.MaxTextureHeight);
         why[sizeof why - 1] = 0;
@@ -562,10 +604,184 @@ static void test_cells(const char *t, int size, D3DFORMAT f)
         skipped(t, why);
         return;
     }
-    if ((tx = cells(t, size, f, 0xffff0000, 0xff0000ff)) == NULL)
+    if ((tx = cells(t, w, h, f, 0xffff0000, 0xff0000ff)) == NULL)
         return;
     draw_cells(t, tx);
     IDirect3DTexture8_Release(tx);
+}
+
+
+/* ---- dxt*_decode: does the TMU decode a DXT block as D3D does? ----------------
+ * The cells tests use SOLID blocks (one colour, every index 0), which say
+ * nothing about the inside of a block. UT2003's DXT5 font pages drew as
+ * coloured noise in glyph-shaped boxes on .124 (2026-11-08) while the solid
+ * tests passed at every size, so this one fills a DXD x DXD texture with
+ * varied blocks - both endpoint orders, every index, DXT5's 6- and 8-alpha
+ * modes, DXT3's explicit alpha - draws it g_dxm x g_dxm pixels a texel with
+ * point sampling, and compares EVERY texel's centre pixel with the reference
+ * decode below (RGB, then the alpha as white x alpha through the blender).
+ * The *_decode1 tests draw one texel a pixel: that is what found the HAL's
+ * missing half-pixel offset (every pixel showed texel x+1, y+1). */
+static unsigned g_lcg = 12345u;
+static unsigned lcg(void) { g_lcg = g_lcg * 1103515245u + 12345u; return g_lcg >> 8; }
+
+static void c565(WORD v, int *r, int *g, int *b)
+{
+    *r = (v >> 11) & 31; *g = (v >> 5) & 63; *b = v & 31;
+    *r = *r << 3 | *r >> 2; *g = *g << 2 | *g >> 4; *b = *b << 3 | *b >> 2;
+}
+
+/* the reference: texel (x,y) of a block, as 0xAARRGGBB */
+static DWORD dxt_ref(const unsigned char *blk, D3DFORMAT f, int x, int y)
+{
+    const unsigned char *col = f == D3DFMT_DXT1 ? blk : blk + 8;
+    WORD c0 = (WORD)(col[0] | col[1] << 8), c1 = (WORD)(col[2] | col[3] << 8);
+    int r[4], g[4], b[4], a = 255, i, idx;
+    DWORD bits = (DWORD)col[4] | (DWORD)col[5] << 8 | (DWORD)col[6] << 16 | (DWORD)col[7] << 24;
+    c565(c0, &r[0], &g[0], &b[0]);
+    c565(c1, &r[1], &g[1], &b[1]);
+    if (f != D3DFMT_DXT1 || c0 > c1) {
+        r[2] = (2 * r[0] + r[1]) / 3; g[2] = (2 * g[0] + g[1]) / 3; b[2] = (2 * b[0] + b[1]) / 3;
+        r[3] = (r[0] + 2 * r[1]) / 3; g[3] = (g[0] + 2 * g[1]) / 3; b[3] = (b[0] + 2 * b[1]) / 3;
+    } else {
+        r[2] = (r[0] + r[1]) / 2; g[2] = (g[0] + g[1]) / 2; b[2] = (b[0] + b[1]) / 2;
+        r[3] = g[3] = b[3] = 0;
+    }
+    idx = (bits >> (2 * (y * 4 + x))) & 3;
+    if (f == D3DFMT_DXT1 && c0 <= c1 && idx == 3)
+        a = 0;
+    if (f == D3DFMT_DXT3) {
+        int n = (blk[(y * 4 + x) / 2] >> (((y * 4 + x) & 1) * 4)) & 15;
+        a = n << 4 | n;
+    } else if (f == D3DFMT_DXT5) {
+        int a0 = blk[0], a1 = blk[1], al[8], ai;
+        unsigned long long ab = 0;
+        for (i = 0; i < 6; i++)
+            ab |= (unsigned long long)blk[2 + i] << (8 * i);
+        al[0] = a0; al[1] = a1;
+        if (a0 > a1) {
+            for (i = 1; i < 7; i++)
+                al[i + 1] = ((7 - i) * a0 + i * a1) / 7;
+        } else {
+            for (i = 1; i < 5; i++)
+                al[i + 1] = ((5 - i) * a0 + i * a1) / 5;
+            al[6] = 0; al[7] = 255;
+        }
+        ai = (int)((ab >> (3 * (y * 4 + x))) & 7);
+        a = al[ai];
+    }
+    return (DWORD)a << 24 | (DWORD)r[idx] << 16 | (DWORD)g[idx] << 8 | (DWORD)b[idx];
+}
+
+#define DXD 32                  /* the decode texture: DXD x DXD texels... */
+static int g_dxm = 4;           /* ...drawn g_dxm x g_dxm pixels each, read at the centre */
+static int g_dump_decode = 1;  /* the RGB frame of a failed decode test in the log */
+static void test_dxt_decode(const char *t, D3DFORMAT f)
+{
+    static unsigned char data[DXD * DXD * 2];   /* the larger of 16-byte blocks and 565 texels */
+    IDirect3DTexture8 *tx = NULL;
+    D3DLOCKED_RECT lr;
+    HRESULT hr;
+    int blk = f == D3DFMT_DXT1 ? 8 : 16, bw = DXD / 4, i, x, y, pass, bad[2] = { 0, 0 };
+    int raw = f == D3DFMT_R5G6B5;      /* not a DXT: 2-byte texels, rows of DXD */
+    if (raw) { blk = 32; }             /* a "block" = one 4x4 tile's bytes is not used: see below */
+    if (!tex_format_ok(f)) {
+        skipped(t, "format not offered");
+        return;
+    }
+    g_lcg = 12345u;
+    for (i = 0; i < bw * bw * blk; i++)
+        data[i] = (unsigned char)lcg();
+    for (i = 0; i < (raw ? 0 : bw * bw); i++) { /* both colour orders, both DXT5 alpha modes */
+        unsigned char *b = data + i * blk, *col = f == D3DFMT_DXT1 ? b : b + 8;
+        WORD c0 = (WORD)(col[0] | col[1] << 8), c1 = (WORD)(col[2] | col[3] << 8);
+        if (((i & 1) != 0) != (c0 > c1)) {
+            col[0] = (unsigned char)c1; col[1] = (unsigned char)(c1 >> 8);
+            col[2] = (unsigned char)c0; col[3] = (unsigned char)(c0 >> 8);
+        }
+        if (f == D3DFMT_DXT5 && (((i >> 1) & 1) != 0) != (b[0] > b[1])) {
+            unsigned char s = b[0]; b[0] = b[1]; b[1] = s;
+        }
+    }
+    hr = IDirect3DDevice8_CreateTexture(g_dev, DXD, DXD, 1, 0, f, D3DPOOL_MANAGED, &tx);
+    if (FAILED(hr)) { failed(t, "CreateTexture", hr); return; }
+    hr = IDirect3DTexture8_LockRect(tx, 0, &lr, NULL, 0);
+    if (FAILED(hr)) { failed(t, "LockRect", hr); IDirect3DTexture8_Release(tx); return; }
+    if (raw) {
+        for (y = 0; y < DXD; y++)
+            memcpy((char *)lr.pBits + y * lr.Pitch, data + y * DXD * 2, DXD * 2);
+    } else {
+        memcpy(lr.pBits, data, bw * bw * blk);
+    }
+    IDirect3DTexture8_UnlockRect(tx, 0);
+    for (pass = 0; pass < 2; pass++) {  /* 0: RGB, 1: alpha (white x alpha, blended) */
+        int shown = 0;
+        if (pass && (f == D3DFMT_DXT1 || raw))
+            break;
+        if (!frame_begin(0))
+            break;
+        /* the alpha pass: white diffuse times the texture's alpha, by the
+         * blender (SRCALPHA, ZERO) onto the black clear - not ALPHAREPLICATE,
+         * which the vcr-kmd HAL does not do (color_path masks the modifier) */
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_ALPHABLENDENABLE, pass ? TRUE : FALSE);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_DESTBLEND, D3DBLEND_ZERO);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_ALPHATESTENABLE, FALSE);
+        IDirect3DDevice8_SetTexture(g_dev, 0, (IDirect3DBaseTexture8 *)tx);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG1,
+                                              pass ? D3DTA_DIFFUSE : D3DTA_TEXTURE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MINFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_NONE);
+        quad_t(Q0 - 0.5f, Q0 - 0.5f, Q0 + DXD * g_dxm - 0.5f, Q0 + DXD * g_dxm - 0.5f, 0xffffffff, 1.0f);
+        frame_end();
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_ALPHABLENDENABLE, FALSE);
+        IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
+        for (y = 0; y < DXD; y++)
+            for (x = 0; x < DXD; x++) {
+                DWORD r, want, got;
+                if (raw) {
+                    int rr, gg, bb;
+                    c565((WORD)(data[(y * DXD + x) * 2] | data[(y * DXD + x) * 2 + 1] << 8),
+                         &rr, &gg, &bb);
+                    r = 0xff000000u | (DWORD)rr << 16 | (DWORD)gg << 8 | (DWORD)bb;
+                } else {
+                    r = dxt_ref(data + ((y / 4) * bw + x / 4) * blk, f, x & 3, y & 3);
+                }
+                int k, ok = 1;
+                if (pass)
+                    want = (r >> 24) * 0x010101u;
+                else
+                    want = r & 0xffffff;
+                got = px(Q0 + x * g_dxm + g_dxm / 2, Q0 + y * g_dxm + g_dxm / 2);
+                for (k = 0; k < 3; k++)
+                    if (abs((int)(got >> (8 * k) & 255) - (int)(want >> (8 * k) & 255)) > 12)
+                        ok = 0;
+                if (!ok) {
+                    bad[pass]++;
+                    if (shown++ < 12)
+                        say("  %s %s texel (%d,%d) block %d sub (%d,%d): got %06lx want %06lx",
+                            t, pass ? "alpha" : "rgb", x, y, (y / 4) * bw + x / 4, x & 3, y & 3,
+                            got, want);
+                }
+            }
+        if (!pass && bad[0] && g_dump_decode) {   /* the RGB frame, to work out the rule */
+            for (y = 0; y < DXD; y++) {
+                char line[DXD * 7 + 1];
+                for (x = 0; x < DXD; x++)
+                    sprintf(line + 7 * x, "%06lx ", px(Q0 + x * g_dxm + g_dxm / 2, Q0 + y * g_dxm + g_dxm / 2));
+                say("  DUMP %s %d %s", t, y, line);
+            }
+        }
+    }
+    IDirect3DTexture8_Release(tx);
+    say("  %s: %d of %d rgb texels wrong, %d alpha", t, bad[0], DXD * DXD, bad[1]);
+    js("%s{\"test\":\"%s\",\"at\":\"every texel\",\"rgb_wrong\":%d,\"alpha_wrong\":%d,\"ok\":%d}",
+       sep(), t, bad[0], bad[1], !bad[0] && !bad[1]);
+    if (!bad[0] && !bad[1]) g_pass++; else g_fail++;
 }
 
 /* mip2048: a full 2048 chain, each level one colour - 0 red, 1 green, 2 blue,
@@ -666,7 +882,12 @@ static void test_texhigh(const char *t)
     say("  texhigh: %d fill textures, %d KB drawn before the probe", nf, nf * 128);
     _snprintf(what, sizeof what, "after %d KB", nf * 128);
     what[sizeof what - 1] = 0;
-    if ((tx = cells(t, 64, D3DFMT_R5G6B5, 0xffff0000, 0xff0000ff)) != NULL) {
+    if (!strcmp(t, "texhigh_dxt5")) {
+        /* the same with a single-level DXT5 512x512 (DirectDraw places it)
+         * and the decode check - UT2003's font pages load late (2026-11-08) */
+        test_cells("texhigh_dxt5_512", 512, 512, D3DFMT_DXT5);
+        test_dxt_decode("texhigh_dxt5_decode", D3DFMT_DXT5);
+    } else if ((tx = cells(t, 64, 64, D3DFMT_R5G6B5, 0xffff0000, 0xff0000ff)) != NULL) {
         draw_cells(t, tx);
         IDirect3DTexture8_Release(tx);
     }
@@ -912,22 +1133,75 @@ static void run_test(const char *t)
         expect(t, "far quad hidden", 180, 128, 0x00ff00, 8);
         expect(t, "near quad drawn", 64, 128, 0x0000ff, 8);
     } else if (!strcmp(t, "tex512")) {
-        test_cells(t, 512, D3DFMT_R5G6B5);
+        test_cells(t, 512, 512, D3DFMT_R5G6B5);
     } else if (!strcmp(t, "tex1024")) {
-        test_cells(t, 1024, D3DFMT_R5G6B5);
+        test_cells(t, 1024, 1024, D3DFMT_R5G6B5);
     } else if (!strcmp(t, "tex2048")) {
-        test_cells(t, 2048, D3DFMT_R5G6B5);
+        test_cells(t, 2048, 2048, D3DFMT_R5G6B5);
     } else if (!strcmp(t, "tex8888")) {
-        test_cells(t, 64, D3DFMT_A8R8G8B8);
+        test_cells(t, 64, 64, D3DFMT_A8R8G8B8);
     } else if (!strcmp(t, "dxt1")) {
-        test_cells(t, 128, D3DFMT_DXT1);
+        test_cells(t, 128, 128, D3DFMT_DXT1);
     } else if (!strcmp(t, "dxt3")) {
-        test_cells(t, 128, D3DFMT_DXT3);
+        test_cells(t, 128, 128, D3DFMT_DXT3);
     } else if (!strcmp(t, "dxt5")) {
-        test_cells(t, 128, D3DFMT_DXT5);
+        test_cells(t, 128, 128, D3DFMT_DXT5);
+    } else if (!strcmp(t, "dxt5_512")) {          /* UT2003's font pages (2026-11-08) */
+        test_cells(t, 512, 512, D3DFMT_DXT5);
+    } else if (!strcmp(t, "dxt5_512x256")) {
+        test_cells(t, 512, 256, D3DFMT_DXT5);
+    } else if (!strcmp(t, "dxt5_512x128")) {
+        test_cells(t, 512, 128, D3DFMT_DXT5);
+    } else if (!strcmp(t, "dxt5_256x128")) {      /* UT2004's, which draw right */
+        test_cells(t, 256, 128, D3DFMT_DXT5);
+    } else if (!strcmp(t, "dxt5_512x128_def") || !strcmp(t, "dxt5_128_def") ||
+               !strcmp(t, "tex8888_512x128_def")) {
+        /* the same cells in a DEFAULT-pool texture, locked in video memory */
+        g_cells_pool = D3DPOOL_DEFAULT;
+        if (t[0] == 't')
+            test_cells(t, 512, 128, D3DFMT_A8R8G8B8);
+        else if (t[5] == '5')
+            test_cells(t, 512, 128, D3DFMT_DXT5);
+        else
+            test_cells(t, 128, 128, D3DFMT_DXT5);
+        g_cells_pool = D3DPOOL_MANAGED;
+    } else if (!strncmp(t, "dxt5_512x128_", 13) || !strncmp(t, "dxt5_128_", 9) ||
+               !strncmp(t, "tex8888_512x128_", 16)) {
+        int big = t[0] == 't' || t[5] == '5', upd = strstr(t, "_upd") != NULL;
+        D3DFORMAT f = t[0] == 't' ? D3DFMT_A8R8G8B8 : D3DFMT_DXT5;
+        IDirect3DTexture8 *tx;
+        if (!upd && !strstr(t, "_copy")) {
+            say("  unknown test %s", t);
+        } else if (!tex_format_ok(f)) {
+            skipped(t, "format not offered");
+        } else if ((tx = cells_copied(t, big ? 512 : 128, big ? 128 : 128, f, !upd)) != NULL) {
+            draw_cells(t, tx);
+            IDirect3DTexture8_Release(tx);
+        }
+    } else if (!strcmp(t, "tex8888_512")) {
+        test_cells(t, 512, 512, D3DFMT_A8R8G8B8);
+    } else if (!strcmp(t, "tex8888_512x128")) {
+        test_cells(t, 512, 128, D3DFMT_A8R8G8B8);
+    } else if (!strcmp(t, "tex8888_256")) {
+        test_cells(t, 256, 256, D3DFMT_A8R8G8B8);
+    } else if (!strcmp(t, "dxt1_512")) {
+        test_cells(t, 512, 512, D3DFMT_DXT1);
+    } else if (!strcmp(t, "dxt1_decode1") || !strcmp(t, "dxt5_decode1") ||
+               !strcmp(t, "rgb565_decode1") || !strcmp(t, "rgb565_decode")) {
+        /* the same at one texel a pixel (a font drawn 1:1), and a plain 565 control */
+        if (strstr(t, "decode1"))
+            g_dxm = 1;
+        test_dxt_decode(t, t[0] == 'r' ? D3DFMT_R5G6B5 : t[3] == '1' ? D3DFMT_DXT1 : D3DFMT_DXT5);
+        g_dxm = 4;
+    } else if (!strcmp(t, "dxt1_decode")) {
+        test_dxt_decode(t, D3DFMT_DXT1);
+    } else if (!strcmp(t, "dxt3_decode")) {
+        test_dxt_decode(t, D3DFMT_DXT3);
+    } else if (!strcmp(t, "dxt5_decode")) {
+        test_dxt_decode(t, D3DFMT_DXT5);
     } else if (!strcmp(t, "mip2048")) {
         test_mip2048(t);
-    } else if (!strcmp(t, "texhigh")) {
+    } else if (!strcmp(t, "texhigh") || !strcmp(t, "texhigh_dxt5")) {
         test_texhigh(t);
     } else {
         say("  unknown test %s", t);

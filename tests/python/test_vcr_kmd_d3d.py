@@ -728,3 +728,14 @@ def test_d3dprobe_run_passes_noz_and_refuses_it_before_anything_connects(monkeyp
     # and argparse knows the flag
     run = (KMD / "tools" / "d3dprobe_run.py").read_text()
     assert 'ap.add_argument("--noz", action="store_true",' in run
+
+
+def test_vertices_get_the_half_pixel_centre_offset():
+    # D3D pixel centres are integers, the Voodoo samples at +0.5 (3dfx's H5
+    # HAL: pixelOffset 0.5, PIXELCENTER=1 by default). With 0 a 1:1 texture
+    # sampled texel (x+1, y+1) everywhere - d3dprobe rgb565_decode1 failed
+    # 1024/1024 on .124 and UT2003's fonts were noise (2026-11-08).
+    init = func(E3D, "void VcrDd3dDrawInit(")
+    assert "d->xy_bias = 0.5f;" in init
+    vtx = func(E3D, "static BOOL vertex(")
+    assert "p[0] + d->xy_bias" in vtx and "p[1] + d->xy_bias" in vtx
