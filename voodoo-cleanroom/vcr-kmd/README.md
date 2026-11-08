@@ -574,6 +574,20 @@ probably reads 0 through the blank.
 
 ## Findings (measured)
 
+- **Three D3D HAL bugs, found by the 2026-11-08 Direct3D sweep on `.124`**
+  (`docs/v56k-benchmark-plan.md`, resume point 2026-11-08). (1) **No
+  half-pixel centre:** D3D's pixel centre is the integer coordinate and the
+  Voodoo samples at +0.5, so `xy_bias` is now 0.5, as in 3dfx's H5 HAL
+  (`d3dprobe rgb565_decode1` went from 1024/1024 wrong to 0). (2) **Textures
+  off the 16-byte boundary:** DirectDraw's linear heap places surfaces on
+  4-byte boundaries and `texBaseAddr` keeps bits 25:4, which turned
+  UT2003's DXT5 font pages into noise. `mipchain_ext` now places every
+  texture, aligned (`log_combo`, event 513 what 21-23, found it). (3) **A
+  16 bpp target over a 32-bit Z** (Rainbow Six's DX6 pick from the 32 bpp
+  desktop) now draws 16/16 in the Z's rows. d3dprobe's new `*_decode`,
+  `*_decode1`, `dxt5_big_*` and `texhigh_dxt5` checks compare every texel
+  with a reference decoder. Solid-colour cells hide all of this.
+
 - **Descent's "black" 640x400 is a DOSBox fallback, not a scan-out fault
   (2026-09-28, offline from the night's evidence).** `vcrctl fbshot` at
   640x400x32 read `start 03f06000, stride 0a00`: exactly the primary at the
