@@ -254,6 +254,25 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   either. The open physical items in the Current state table remain the next
   step (unproven).
 
+### 2026-10-19 09:20 EDT: desktop session restarted; no reboot, no GPU fault
+
+- **Boot ID:** unchanged, `8a64ad06…` (up since 10-15 08:45:16). Kernel uptime
+  was 4 d 0 h 35 m at 09:21.
+- **Signature:** none of 1–6. This was not a host crash. The kernel log for this
+  boot has 0 Xid lines. The only DMAR fault is the boot-time one at 10-15
+  08:45:25 on device `80:14.3`, which is not the GPU.
+- **What happened:** a Chrome Remote Desktop client connected at 09:19:57 and
+  started a Mutter remote-desktop session. By 09:20 the GDM greeter and a new
+  GNOME user session had come up, and apport wrote crash files for
+  `chrome` and `gnome-session-init-worker` at 09:20. Every Claude Code terminal
+  in the old desktop session died, and they were resumed at about 09:21.
+  Cause: likely the remote-desktop attach. Unproven.
+- **Load:** the GPU was near its cap. KTLO read 386 W, 90% at 09:19 (ollama
+  serving), and 8 W idle at 09:21. The cap was 400 W.
+- **Impact:** none on the fleet. The user systemd manager and every agent unit
+  (drainer, host-worker, local-image-gen) stayed up from 10-15 08:45:30. The
+  only loss was the KTLO loop's pending wakeup, which was re-armed.
+
 ### 2026-10-14 14:33:34: Xid 79 two hours after the power cycle (400 W + 2400 MHz lock, x16), recovered by a power-button power-off on 10-15 08:44
 
 - **Boot IDs:** `ee9f0d8b…` (10-14 12:37:18 → 10-15 08:44:40, about 20 h)

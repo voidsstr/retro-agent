@@ -8,10 +8,15 @@
     "00:04:61:2f:8f:84",
     "00:04:61:f7:25:84",
     "00:0c:f1:d7:98:4a",
+    "d4:be:d9:b9:bf:93",
     "e0:cb:4e:26:ec:a0"
   ],
   "_localboot_comment": "A HELD MAC here is ANSWERED with a PXE 'boot from local disk' menu (option 43, menu item type 0, prompt timeout 0) instead of silence. Some ROMs never fall through on silence: the Dell Dimension 4600's Intel Boot Agent sat on 'DHCP' until someone pressed F12 (2026-09-26). Machines not held still get the normal boot file.",
   "localboot_macs": [
     "00:0c:f1:d7:98:4a"
-  ]
+  ],
+  "_bootfile_by_mac_comment": "MACs here get a DIFFERENT boot file from the XP default. win7/undionly.kpxe is the Windows 7 network install (iPXE -> wimboot -> Setup's WinPE over HTTP :8069 -> setup.exe from the NAS copy at Files/OS/Win7PRO-<x64|x86>-PXE; build: scripts/pxe/make-win7-source.sh). List the box BEFORE it PXE boots - the XP default is unattended and repartitions. Remove the MAC once it is installed. Restart retro-pxe after editing.",
+  "bootfile_by_mac": {},
+  "_never_offer_dell_145": "d4:be:d9:b9:bf:93 = .145 Dell (i5-2400): Windows 7 x64 installed by PXE 2026-10-15; boots from the network first.",
+  "_never_offer_asus_186": "2026-11-07: .186 (ASUS P5QL) has Windows 7 Pro installed 2026-10-26 with working LAN; never PXE-offer it again."
 }
