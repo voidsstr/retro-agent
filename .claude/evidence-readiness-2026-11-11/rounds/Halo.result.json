@@ -1,0 +1,70 @@
+{
+ "key": "Halo",
+ "title": "Halo PC",
+ "mode": "peer_box_host (haloded on .123)",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Halo",
+   "evidence": "Re-checked at 17:01: haloded on .123:2302 GameSpy \\status\\ reported 4/16 non-bot players (Hambone, New001, Carter, Mopey) = the 4 launched clients; fresh frame Halo_110.jpg: Blood Gulch first person 800x600 with full HUD (battery, shield, motion tracker, plasma pistol); foreground Halo."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Halo",
+   "evidence": "Re-checked at 17:01: haloded on .123:2302 GameSpy \\status\\ reported 4/16 non-bot players (Hambone, New001, Carter, Mopey) = the 4 launched clients; host: haloded.exe + halo.exe (-port 2304 -cport 2305) running; fresh frame Halo_123.jpg Blood Gulch 640x480 with HUD; foreground Halo."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched: d3d124=true.",
+   "reason": "D3D on vcr-kmd is supervised-only; Halo has never joined a game there (menu only) - needs a supervised session."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "NA",
+   "evidence": "No Halo tree; gate: CPU lacks SSE2 (Pentium III 701 MHz)."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "NA",
+   "evidence": "No Halo tree; gate: CPU lacks SSE (Athlon 1000)."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Halo",
+   "evidence": "Re-checked at 17:01: haloded on .123:2302 GameSpy \\status\\ reported 4/16 non-bot players (Hambone, New001, Carter, Mopey) = the 4 launched clients; fresh frame Halo_171.jpg Blood Gulch 640x480 with HUD, red player marker on tracker (another player near); foreground Halo."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "NA",
+   "evidence": "No Halo tree; gate: CPU lacks SSE2 (Pentium III 845 MHz), GeForce2 only tnl."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Windows 7 on Standard VGA stub: no Direct3D HAL, Halo has no software renderer."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Halo",
+   "evidence": "Re-checked at 17:01: haloded on .123:2302 GameSpy \\status\\ reported 4/16 non-bot players (Hambone, New001, Carter, Mopey) = the 4 launched clients; fresh frame Halo_240.jpg (half-scale of 1920x1080) Blood Gulch 16:9 with HUD on the X1950 Pro; foreground Halo."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Win98 Pentium 166, no Direct3D-capable card; operator override 'not wanted on .243'."
+  }
+ ],
+ "players_in_one_game": 4,
+ "summary": "4 boxes (.110, .123 host+client, .171, .240) proven in one Halo Blood Gulch slayer game on .123's haloded: server count 4/16 matched the 4 launched clients and every box's fresh frame shows the in-game HUD. .124 BLOCKED (D3D on vcr-kmd supervised-only); .133/.143/.184/.186/.243 NA. Closed gracefully on all boxes.",
+ "issues": [
+  "Server names are Halo profile names (Hambone/New001/Carter/Mopey), not Fleet<octet>, and \\status\\ gives no IPs: per-box identity rests on count match + each box's in-game frame, no packet counts (peer-hosted title is not sniffed).",
+  "kill/close: all halo.exe/haloded.exe closed gracefully; PROCLIST confirms none remain; each box's foreground is the agent console/desktop."
+ ],
+ "closed_cleanly": true,
+ "library_fix_needed": []
+}

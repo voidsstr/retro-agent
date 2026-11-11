@@ -1,0 +1,9 @@
+=== 16:15:00
+(123, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet123 -directip +connect 192.168.1.132 -Width 1280 -Height 960 -framecap 100'])
+(110, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet110 -directip +connect 192.168.1.132 -Width 1600 -Height 1200 -framecap 85'])
+(124, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet124 -directip +connect 192.168.1.132 -Width 1280 -Height 960 -framecap 85'])
+(133, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet133 -directip +connect 192.168.1.132 -Width 1280 -Height 960 -framecap 85'])
+(143, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet143 -directip +connect 192.168.1.132 -Width 1280 -Height 960'])
+(171, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet171 -directip +connect 192.168.1.132 -Width 1280 -Height 960 -framecap 85'])
+(184, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet184 -directip +connect 192.168.1.132 -Width 1024 -Height 768 -framecap 85'])
+(240, ['CommandLine="C:\\Games\\Descent3\\main.exe"  -launched -nointro -pilot Fleet240 -directip +connect 192.168.1.132 -Width 1920 -Height 1080'])

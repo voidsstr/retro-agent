@@ -1,0 +1,80 @@
+Client 0 connecting with 50 challenge ping
+ClientConnect: 0
+ClientUserinfoChanged: 0 n\Fleet123\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet123^7 connected\n"
+Client 1 connecting with 50 challenge ping
+ClientConnect: 1
+ClientUserinfoChanged: 1 n\Fleet240\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet240^7 connected\n"
+Client 2 connecting with 0 challenge ping
+ClientConnect: 2
+ClientUserinfoChanged: 2 n\Fleet110\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet110^7 connected\n"
+Client 3 connecting with 0 challenge ping
+ClientConnect: 3
+ClientUserinfoChanged: 3 n\Fleet171\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet171^7 connected\n"
+Client 4 connecting with 0 challenge ping
+ClientConnect: 4
+ClientUserinfoChanged: 4 n\Fleet143\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet143^7 connected\n"
+Client 5 connecting with 0 challenge ping
+ClientConnect: 5
+ClientUserinfoChanged: 5 n\Fleet184\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet184^7 connected\n"
+Client 6 connecting with 50 challenge ping
+ClientConnect: 6
+ClientUserinfoChanged: 6 n\Fleet124\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet124^7 connected\n"
+ClientUserinfoChanged: 0 n\Fleet123\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 0
+ClientUserinfoChanged: 1 n\Fleet240\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 1
+Client 7 connecting with 50 challenge ping
+ClientConnect: 7
+ClientUserinfoChanged: 7 n\Fleet133\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+broadcast: print "Fleet133^7 connected\n"
+ClientUserinfoChanged: 2 n\Fleet110\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 2
+ClientUserinfoChanged: 0 n\Fleet123\t\2\model\multi/bluesoldier1\head\bluesoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 0
+ClientUserinfoChanged: 3 n\Fleet171\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 3
+say: Fleet123: Fleet123 reporting in
+Fleet123^7: Fleet123 reporting in
+ClientUserinfoChanged: 1 n\Fleet240\t\2\model\multi/bluesoldier1\head\bluesoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 1
+ClientUserinfoChanged: 2 n\Fleet110\t\1\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 2
+say: Fleet240: Fleet240 reporting in
+Fleet240^7: Fleet240 reporting in
+say: Fleet110: Fleet110 reporting in
+Fleet110^7: Fleet110 reporting in
+ClientUserinfoChanged: 3 n\Fleet171\t\2\model\multi/bluesoldier1\head\bluesoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 3
+say: Fleet171: Fleet171 reporting in
+Fleet171^7: Fleet171 reporting in
+ClientUserinfoChanged: 4 n\Fleet143\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 4
+ClientUserinfoChanged: 4 n\Fleet143\t\1\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 4
+ClientUserinfoChanged: 5 n\Fleet184\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 5
+say: Fleet143: Fleet143 reporting in
+Fleet143^7: Fleet143 reporting in
+ClientUserinfoChanged: 7 n\Fleet133\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 7
+ClientUserinfoChanged: 6 n\Fleet124\t\3\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientUserinfoChanged: 5 n\Fleet184\t\1\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 5
+ClientBegin: 6
+say: Fleet184: Fleet184 reporting in
+Fleet184^7: Fleet184 reporting in
+ClientUserinfoChanged: 7 n\Fleet133\t\2\model\multi/bluesoldier1\head\bluesoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 7
+say: Fleet133: Fleet133 reporting in
+Fleet133^7: Fleet133 reporting in
+ClientUserinfoChanged: 6 n\Fleet124\t\1\model\multi_axis/redsoldier1\head\redsoldier1\c1\4\hc\100\w\0\l\0
+ClientBegin: 6
+say: Fleet124: Fleet124 reporting in
+Fleet124^7: Fleet124 reporting in

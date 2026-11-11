@@ -1,0 +1,114 @@
+{
+ "game": "RedAlert2",
+ "time": "2026-11-11T16:56:02",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_124.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "game.exe",
+    "ra2.exe"
+   ],
+   "foreground": "Red Alert 2",
+   "shot": "RedAlert2_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

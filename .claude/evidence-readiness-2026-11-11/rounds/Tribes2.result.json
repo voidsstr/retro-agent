@@ -1,0 +1,80 @@
+{
+ "key": "Tribes2",
+ "title": "Tribes 2",
+ "mode": "host-server (tribes2-lan docker, -nologin, 192.168.1.132:28001), Classic CTF Desiccator",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet110. A 10 s tcpdump counted 129 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_110.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet123. A 10 s tcpdump counted 146 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_123.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet124. A 10 s tcpdump counted 150 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_124_final.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet133. A 10 s tcpdump counted 148 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_133.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet143. A 10 s tcpdump counted 150 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_143.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet171. A 10 s tcpdump counted 149 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_171.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet184. A 10 s tcpdump counted 150 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_184.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Tribes2",
+   "evidence": "Final verification 2026-11-11 ~17:22. The tribes2-lan Torque roster (192.168.1.132:28001, 8/32, no bots) names Fleet240. A 10 s tcpdump counted 135 UDP packets to :28001 (12 s earlier: similar). The foreground was 'Darkstar Window Class / Tribes 2'. Frame Tribes2_240.jpg shows it spawned on Desiccator CTF with the HUD and a weapon."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Excluded by the recipe.",
+   "reason": "Windows 7 32-bit. The GTX 1650 runs on the Standard VGA stub: no vendor driver exists for this OS, so there is no hardware OpenGL."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Excluded by the recipe. The title is gated on this box.",
+   "reason": "Win98 Pentium 166 (165 MHz) is below Tribes 2's 500 MHz floor. The title is not deployed there and an operator override marks it 'not wanted'."
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "Verified independently: all 8 applicable XP boxes (.110 .123 .124 .133 .143 .171 .184 .240) were in ONE Tribes 2 CTF game on tribes2-lan at the same time. The server roster names all 8 Fleet<octet> players. Each box sent 129-150 packets per 10 s to :28001. Every frame shows the box spawned with the HUD up. .186 (no 3D driver on Win7) and .243 (P166, gated) are NA. The game was then closed gracefully on all 8 boxes, and no tribes2.exe process remains.",
+ "issues": [
+  ".124 auto-updated its agent 1.98.0 -> 1.100.1 in the middle of the first check. Its agent console took the foreground, the fbshot caught the desktop, and 9898/9897 refused for a short time. The game kept sending packets. Once the agent was back, Tribes 2 had the foreground again, and a re-check plus fbshot (Tribes2_124_final.jpg) showed it in-game. The box did not reboot (uptime 6.4 h).",
+  ".240 raised a modal 'Color Depth' dialog on launch ('To run in 16 bit color, you must set your desktop to 16 bit color. Continue in 32 bit color?'). It needed one RETURN before the box connected. To make the join unattended, the staged ClientPrefs should preset 32-bit.",
+  "Every box loads in observer mode and needs one FIRE click to spawn (.171 needed three). Not a blocker for joining.",
+  "The main tribes2-server on :28000 runs -online with TribesNext auth, and no box can join it unattended. Only the -nologin tribes2-lan instance on :28001 works for the fleet.",
+  "After the close, all 8 boxes are back at their desktops in normal modes (110 1600x1200, 123/124/133/143/171 1280x1024, 184 1024x768, 240 1920x1080). No crash dialogs."
+ ],
+ "library_fix_needed": [
+  "Tribes2: preset 32-bit colour depth in the staged client prefs so the 'Color Depth' modal never blocks the join (seen on .240)."
+ ],
+ "closed_cleanly": true
+}

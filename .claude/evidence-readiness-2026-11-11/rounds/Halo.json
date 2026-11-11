@@ -1,0 +1,89 @@
+{
+ "game": "Halo",
+ "time": "2026-11-11T17:01:22",
+ "roster": [
+  [
+   "Hambone",
+   null,
+   false,
+   null
+  ],
+  [
+   "New001",
+   null,
+   false,
+   null
+  ],
+  [
+   "Carter",
+   null,
+   false,
+   null
+  ],
+  [
+   "Mopey",
+   null,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "4",
+   "16"
+  ]
+ ],
+ "packets": null,
+ "port": 2302,
+ "host": "192.168.1.123",
+ "boxes": {
+  "110": {
+   "running": [
+    "halo.exe"
+   ],
+   "foreground": "Halo",
+   "shot": "Halo_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "halo.exe",
+    "haloded.exe"
+   ],
+   "foreground": "Halo",
+   "shot": "Halo_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "171": {
+   "running": [
+    "halo.exe"
+   ],
+   "foreground": "Halo",
+   "shot": "Halo_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "halo.exe"
+   ],
+   "foreground": "Halo",
+   "shot": "Halo_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

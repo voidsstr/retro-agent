@@ -1,0 +1,169 @@
+{
+ "game": "Tribes2",
+ "time": "2026-11-11T17:21:06",
+ "roster": [
+  [
+   "Fleet123",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   null,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   8,
+   32
+  ]
+ ],
+ "packets": {
+  "192.168.1.171": 149,
+  "192.168.1.143": 150,
+  "192.168.1.124": 150,
+  "192.168.1.184": 150,
+  "192.168.1.133": 148,
+  "192.168.1.240": 135,
+  "192.168.1.123": 146,
+  "192.168.1.110": 129
+ },
+ "port": 28001,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 129,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 146,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 150,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 148,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 150,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 149,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 150,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "tribes2.exe"
+   ],
+   "foreground": "Tribes 2",
+   "shot": "Tribes2_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 135,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -87,7 +87,9 @@ add('Quake3Arena', ['Quake3-TeamArena'], title='Quake III Arena (baseq3, q3-serv
     note='Derived from the Team Arena recipe launcher: baseq3, profile C:\\fleetmp\\q3a, q3-server :27961.',
     bats=[{'boxes': [str(b) for b in boxes_of(bats_of('Quake3-TeamArena'))], 'bat': q3}],
     query=['q3', 27961], port=27961, exe=exes('Quake3-TeamArena'), wait=120)
-add('Descent3', ['Descent3'], title='Descent 3', mode='host_server', bats=bats_of('Descent3'),
+# 2026-11-11 round: '-directip +connect <ip>' broadcast its connect on .110/.124/.240; '-directip <ip>' joined .133/.171
+d3 = [{'boxes': b['boxes'], 'bat': b['bat'].replace('-directip +connect {host}', '-directip {host}')} for b in bats_of('Descent3')]
+add('Descent3', ['Descent3'], title='Descent 3', mode='host_server', bats=d3,
     files=[{'boxes': ['*'], 'path': 'C:\\fleetmp\\{name}.plt', 'gen': 'd3pilot'}],
     query=['gamespy', 20142], roster_ignore=['-Server-'], port=2092, exe=['main.exe'], wait=90)
 add('RedAlert2', ['RedAlert2'], title='Red Alert 2', mode='peer_box_host', peer_host='240',

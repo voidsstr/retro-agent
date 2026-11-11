@@ -1,0 +1,74 @@
+{
+ "key": "ReturnToCastleWolfenstein",
+ "title": "Return to Castle Wolfenstein",
+ "mode": "host_server",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet110 (ping 0, human); 1081 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_110.jpg shows a spawned Axis player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet123 (ping 3, human); 1081 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_123.jpg shows a spawned Allies player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet124 (ping 1, human); 337 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_124.jpg shows a spawned Axis player on mp_depot with weapon, 100 HP and the team list naming fleet boxes. fbshot frame shows teammate '[S] Fleet110' in view. OpenGL title, so the vcr-kmd D3D exclusion does not apply; lower packet rate is its frame rate."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet133 (ping 6, human); 783 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_133.jpg shows a spawned Allies player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet143 (ping 0, human); 1081 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_143.jpg shows a spawned Axis player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet171 (ping 1, human); 686 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_171.jpg shows a spawned Allies player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet184 (ping 1, human); 1069 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_184.jpg shows a spawned Axis player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched.",
+   "reason": "Win7 GTX 1650 on the Standard VGA stub: no OpenGL ICD, and RTCW has no software renderer (GLW_StartOpenGL fails)."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "ReturnToCastleWolfenstein",
+   "evidence": "Re-checked 17:07: rtcw-server getstatus roster names Fleet240 (ping 1, human); 1081 packets to 192.168.1.132:27963 in 12 s; WolfMP.exe running and foreground 'Wolfenstein'; fresh frame ReturnToCastleWolfenstein_240.jpg shows a spawned Allies player on mp_depot with weapon, 100 HP and the team list naming fleet boxes."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not launched.",
+   "reason": "RTCW is not installed (operator gate 'not wanted on .243'); P166, Win98, Voodoo 2 with no full OpenGL ICD."
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "8/8 applicable boxes verified again in the same 4v4 match on the dev-host ioRTCW server (192.168.1.132:27963, mp_depot): the roster names Fleet110/123/124/133/143/171/184/240, every box has a sustained packet stream, and every fresh frame shows a spawned player. .186 and .243 are NA.",
+ "issues": [
+  "The graceful close on .124 needed the force step: WolfMP.exe did not exit on WM_CLOSE within 12 s, so it was killed. Afterwards .124 was at its desktop at 1280x1024x32@85 with no crash dialog (ReturnToCastleWolfenstein_124_afterclose.png). The other 7 boxes closed gracefully. PROCLIST on all 8 shows no wolfmp/wolf/wolfsp process left."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

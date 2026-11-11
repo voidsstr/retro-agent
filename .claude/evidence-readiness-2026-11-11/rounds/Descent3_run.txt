@@ -1,0 +1,25 @@
+=== wave 1 (.123 canary: 8-char callsign) 2026-11-11 16:10:09
+(123, 'launched', [], '{"pid":224,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+rc=0
+=== wave 2 (.110 .124 .133 .143 .171 .184 .240) 2026-11-11 16:10:25
+(110, 'launched', [], '{"pid":608,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+(124, 'launched', [], '{"pid":488,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+(133, 'launched', [], '{"pid":1508,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+(143, 'launched', [], '{"pid":2044,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+(171, 'launched', [], '{"pid":1132,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+(184, 'launched', [], '{"pid":2024,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+(240, 'launched', [], '{"pid":1676,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+rc=0
+=== solo relaunch .143 (concurrency test) 2026-11-11 16:15:24
+(143, 'launched', ['main.exe (forced)'], '{"pid":844,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')
+rc=0
+16:15:41 2 [('-Server-', '0'), ('Fleet123', '16')]
+16:15:46 2 [('-Server-', '0'), ('Fleet123', '16')]
+16:15:51 2 [('-Server-', '0'), ('Fleet123', '15')]
+16:15:56 2 [('-Server-', '0'), ('Fleet123', '16')]
+16:16:01 2 [('-Server-', '0'), ('Fleet123', '17')]
+16:16:06 2 [('-Server-', '0'), ('Fleet123', '16')]
+16:16:11 2 [('-Server-', '0'), ('Fleet123', '17')]
+16:16:16 2 [('-Server-', '0'), ('Fleet123', '15')]
+=== .143 relaunch with full host<->.143 capture 16:16:50
+(143, 'launched', ['main.exe (forced)'], '{"pid":1812,"command":"\\"C:\\\\fleetmp\\\\Descent3.bat\\""}')

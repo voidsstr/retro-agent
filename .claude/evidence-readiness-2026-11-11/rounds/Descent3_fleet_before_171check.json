@@ -1,0 +1,37 @@
+{
+ "game": "Descent3",
+ "time": "2026-11-11T16:41:14",
+ "roster": [
+  [
+   "Fleet123",
+   17,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "2",
+   "12"
+  ]
+ ],
+ "packets": {
+  "192.168.1.123": 5,
+  "192.168.1.133": 7
+ },
+ "port": 2092,
+ "host": "192.168.1.132",
+ "boxes": {
+  "124": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_124.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 0,
+   "frame": "fbshot",
+   "host": false
+  }
+ }
+}

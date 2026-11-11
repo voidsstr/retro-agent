@@ -1,0 +1,148 @@
+{
+ "game": "Descent3",
+ "time": "2026-11-11T16:45:31",
+ "roster": [
+  [
+   "Fleet123",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   32,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   15,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "6",
+   "12"
+  ]
+ ],
+ "packets": {
+  "192.168.1.133": 95,
+  "192.168.1.143": 92,
+  "192.168.1.123": 7,
+  "192.168.1.171": 90,
+  "192.168.1.184": 91
+ },
+ "port": 2092,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 0,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 7,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_124.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 0,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 95,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 92,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 90,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 91,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 0,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

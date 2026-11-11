@@ -1,0 +1,15 @@
+=== check 2026-11-11 16:12:43
+
+Descent 3: server roster (1 non-bot):
+    ('Fleet123', 16, False, None)
+    ('__info__', '2', '12')
+  packets to 192.168.1.132:2092 in 10s: {'192.168.1.123': 6}
+  .110: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3'
+  .123: running=['main.exe'] on_server=yes packets=6 black=False fg='Descent 3'
+  .124: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3' fbshot
+  .133: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3'
+  .143: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3'
+  .171: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3'
+  .184: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3'
+  .240: running=['main.exe'] on_server=? packets=0 black=False fg='Descent 3'
+rc=0

@@ -1,0 +1,19 @@
+=== any UDP to 192.168.1.132 from the LAN, 6 s, 16:14:28
+      4 192.168.1.123 -> 2092
+      1 ... -> 
+=== server.log tail
+[entry] starting main.exe
+[entry] wine pid 109
+[entry] DISPLAY=:100 WINEPREFIX=/tmp/wp CFG=Dedicated.cfg
+wine: created the configuration directory '/tmp/wp'
+wine: configuration in L"/tmp/wp" has been updated.
+[entry] wineboot rc=0
+[entry] starting main.exe
+[entry] wine pid 107
+d3srv
+[entry] DISPLAY=:100 WINEPREFIX=/tmp/wp CFG=Dedicated.cfg
+wine: created the configuration directory '/tmp/wp'
+wine: configuration in L"/tmp/wp" has been updated.
+[entry] wineboot rc=0
+[entry] starting main.exe
+[entry] wine pid 103

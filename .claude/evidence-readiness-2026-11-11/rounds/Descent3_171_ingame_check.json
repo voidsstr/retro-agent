@@ -1,0 +1,64 @@
+{
+ "game": "Descent3",
+ "time": "2026-11-11T16:44:34",
+ "roster": [
+  [
+   "Fleet123",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   15,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   15,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   16,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "6",
+   "12"
+  ]
+ ],
+ "packets": {
+  "192.168.1.171": 62,
+  "192.168.1.184": 61,
+  "192.168.1.133": 62,
+  "192.168.1.143": 61,
+  "192.168.1.123": 5
+ },
+ "port": 2092,
+ "host": "192.168.1.132",
+ "boxes": {
+  "171": {
+   "running": [
+    "main.exe"
+   ],
+   "foreground": "Descent 3",
+   "shot": "Descent3_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 62,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

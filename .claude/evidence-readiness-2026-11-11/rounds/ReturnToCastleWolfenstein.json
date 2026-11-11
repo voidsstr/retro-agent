@@ -1,0 +1,164 @@
+{
+ "game": "ReturnToCastleWolfenstein",
+ "time": "2026-11-11T17:07:12",
+ "roster": [
+  [
+   "Fleet123",
+   3,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   0,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   0,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   6,
+   false,
+   null
+  ]
+ ],
+ "packets": {
+  "192.168.1.240": 1081,
+  "192.168.1.184": 1069,
+  "192.168.1.143": 1081,
+  "192.168.1.110": 1081,
+  "192.168.1.123": 1081,
+  "192.168.1.133": 783,
+  "192.168.1.171": 686,
+  "192.168.1.124": 337
+ },
+ "port": 27963,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1081,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1081,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 337,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 783,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1081,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 686,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1069,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "wolfmp.exe"
+   ],
+   "foreground": "Wolfenstein",
+   "shot": "ReturnToCastleWolfenstein_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1081,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

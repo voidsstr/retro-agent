@@ -1,0 +1,78 @@
+{
+ "key": "RedAlert2",
+ "title": "Command & Conquer: Red Alert 2",
+ "mode": "peer LAN, .240 hosts",
+ "boxes": [
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "HOST of 'Fleet240's Game' (Arctic Circle 2-8). Its in-match Diplomacy screen lists Fleet240,143,184,133,123,124,110,171 - 8 players in one match. Re-checked 16:56: game.exe in foreground, battlefield frame RedAlert2_240.jpg at 1920x1080."
+  },
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet110 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_110.jpg."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet123 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_123.jpg."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet124 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_124.jpg. fbshot frame; RA2 is DirectDraw, not D3D, launched once."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet133 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_133.jpg."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet143 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_143.jpg."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet171 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_171.jpg."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "RedAlert2",
+   "evidence": "Re-checked 16:56 (lanparty check): game.exe+ra2.exe running, 'Red Alert 2' foreground, fresh frame shows its own base on Arctic Circle battlefield, no disconnect dialog; listed as Fleet184 in host .240's in-match Diplomacy roster (RedAlert2_240_diplomacy.jpg, 8 active players, Arctic Circle 2-8). Frame RedAlert2_184.jpg."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Agent answers PING. Excluded by the recipe: Windows 7 on the Standard VGA stub (no 3D/DirectDraw-accelerated driver exists for this OS), no Westwood serial or AppCompat setup. The 8 XP boxes also fill RA2's 8-player cap.",
+   "reason": "no display driver on Win7 VGA stub; game full at 8"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Agent answers PING. RA2 is not installed there: operator gate override 'not wanted on .243', and the P166 is below the title's 266 MHz CPU floor.",
+   "reason": "gate: CPU floor 266 MHz, operator override"
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "PASS: 8 fleet XP boxes (.110 .123 .124 .133 .143 .171 .184 + host .240) were in ONE Red Alert 2 LAN match on Arctic Circle (2-8). Proof: the host's in-match Diplomacy roster names all 8 Fleet<octet> players, and fresh frames at 16:56 show each box on its own base on the same map, with no disconnect dialog. .186 and .243 are NA. The game was then closed on all 8 boxes.",
+ "issues": [
+  "Graceful close did not work: RA2 ignored WM_CLOSE in-game on all 8 boxes, so lanparty forced game.exe and ra2.exe after 12 s. No processes are left, no crash dialog appeared, and every desktop is back at its normal mode (e.g. .240 1920x1080, .110 1600x1200, .184 1024x768).",
+  "The [MultiPlayer] Handle preset in the launcher's RA2.INI has no effect: the lobby name field came up empty, and the round agent typed each name by hand. ScenIndex=27 (Arctic Circle) does work.",
+  "Peer traffic was not sniffed (the switched LAN gives no view of box-to-box UDP from .132). The proof is the host's roster plus each joiner's frame."
+ ],
+ "closed_cleanly": true,
+ "library_fix_needed": [
+  "RedAlert2 launcher: the RA2.INI [MultiPlayer] Handle=Fleet<octet> preset is not applied in the Network lobby. Find the key RA2 actually reads for the LAN name (or accept typing it by hand)."
+ ]
+}

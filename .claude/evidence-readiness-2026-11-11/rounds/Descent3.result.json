@@ -1,0 +1,83 @@
+{
+ "key": "Descent3",
+ "title": "Descent 3 (v1.4) on the dev-host dedicated server 192.168.1.132:2092",
+ "mode": "MP host-server",
+ "players_in_one_game": 5,
+ "boxes": [
+  {
+   "ip": "192.168.1.123",
+   "client": "Descent3",
+   "verdict": "PASS_MP",
+   "evidence": "Final check 16:45: GameSpy roster names Fleet123 (ping 16) in the same 6/12 game as Fleet133/143/171/184; 7 packets to :2092 in 12 s; frame shows the arena in an observer/dead view (earlier frames had the MP HUD). Only box that auto-joined with the staged '-directip +connect' launcher."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "Descent3",
+   "verdict": "PASS_MP",
+   "evidence": "Roster Fleet133 ping 16; 95 packets in 12 s; frame Descent3_133.jpg shows MP HUD with scoreboard (Fleet133/184/171). Joined via box-local launcher C:\\fleetmp\\D3T133.bat using '-directip 192.168.1.132', not the round launcher."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "Descent3",
+   "verdict": "PASS_MP",
+   "evidence": "Roster Fleet143 ping 32; 92 packets in 12 s; frame shows MP HUD + scoreboard. Joined through the in-game menu (Multiplayer > Direct TCP/IP > Join Selected) after the launcher auto-connect failed."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "Descent3",
+   "verdict": "PASS_MP",
+   "evidence": "Roster Fleet171 ping 15; 90 packets in 12 s; frame shows MP HUD + scoreboard. Joined via box-local C:\\fleetmp\\D3T171.bat with '-directip 192.168.1.132'."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "Descent3",
+   "verdict": "PASS_MP",
+   "evidence": "Roster Fleet184 ping 16; 91 packets in 12 s; frame shows MP HUD + scoreboard. Joined through the in-game Direct TCP/IP menu."
+  },
+  {
+   "ip": "192.168.1.110",
+   "client": "Descent3",
+   "verdict": "FAIL",
+   "reason": "Launcher '-directip +connect 192.168.1.132' makes the client send its connect handshake to 255.255.255.255:2092; server replies, client never continues and drops to the main menu silently. My menu-join attempt (DOWN x5 RET, DOWN x4 RET, TAB x5 RET) left a black frame, not on roster.",
+   "evidence": "Final check: main.exe fg, not on roster, 0 packets; Descent3_110_join_sniff*.txt (broadcast handshake); Descent3_final_menujoin/Descent3_110.jpg black."
+  },
+  {
+   "ip": "192.168.1.124",
+   "client": "Descent3",
+   "verdict": "FAIL",
+   "reason": "Renders on Glide (vcr-kmd) to the main menu fine, but the same '-directip +connect' broadcast-join defect; relaunch budget for .124 exhausted so the '-directip <ip>' fix was not tried there. Not a hardware block.",
+   "evidence": "fbshot Descent3_124.jpg = main menu; not on roster; 0 packets; Descent3_124_join_sniff.txt shows 4/11-byte packets to 255.255.255.255:2092."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "Descent3",
+   "verdict": "FAIL",
+   "reason": "Same broadcast-join defect (Descent3_240_relaunch*_sniff.txt). My menu-join key sequence landed in a single-player New Game (Guidebot HUD, 'Score 0') instead of Direct TCP/IP because the menu's initial selection differed - not on the server.",
+   "evidence": "Final check: not on roster, 0 packets; Descent3_final_menujoin/Descent3_240.jpg shows single-player level."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Windows 7 on the Standard VGA stub (GTX 1650, no 3D driver for this OS); Descent 3 needs a 3D renderer; gate hides its shortcuts."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Pentium 166 below the 200 MHz floor, operator override 'not wanted on .243', title not deployed, COMMAND.COM cannot run the cmd-dialect launchers."
+  }
+ ],
+ "summary": "5 boxes (.123 .133 .143 .171 .184) proven together in one Descent 3 game on 192.168.1.132:2092 (roster 6/12 incl. -Server-, sustained packets, MP HUD frames). Only .123 got there with the round/staged launcher; .133/.171 needed '-directip <ip>' and .143/.184 a menu join. .110 .124 .240 FAIL on the launcher defect. Game closed on all 8 boxes.",
+ "issues": [
+  "Launcher switch order '-directip +connect <ip>' (lanparty_titles.json Descent3 bats and staged 'Join Descent 3 - LAN.bat') makes clients broadcast the connect handshake to 255.255.255.255:2092 and silently fall back to the menu; '-directip <ip>' proven on .133 and .171.",
+  "lanparty.py sniff counts only dst 192.168.1.132; a broadcast join attempt reads as 0 packets. Also roster parse returns ip None for this engine.",
+  "Menu-driven join key sequence depends on initial menu selection: on .240 it started a single-player New Game.",
+  "kill needed force on all 8 boxes (main.exe ignored WM_CLOSE within 12 s); .143 error.log shows AVs on close.",
+  "Box-local leftovers: C:\\fleetmp\\D3B.bat (.124), D3T133.bat (.133), D3T171.bat (.171). A stray 'm' may sit in .240's retro_chat input (sibling fixer helper mis-target).",
+  "Descent 3 renders 640x480 on .143 despite -Width 1280 -Height 960."
+ ],
+ "library_fix_needed": [
+  "Games-Library\\Descent3\\Join Descent 3 - LAN.bat (at its generator): '-directip %HOSTIP%' instead of '-directip +connect %HOSTIP%'; fix the comment and recipe note claiming the order is correct.",
+  "scripts/fleet/lanparty_titles.json Descent3 bats: '-directip {host}'."
+ ],
+ "closed_cleanly": true
+}

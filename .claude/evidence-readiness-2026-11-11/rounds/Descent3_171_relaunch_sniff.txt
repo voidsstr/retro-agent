@@ -1,0 +1,12 @@
+
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on enp129s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+2026-11-11 16:36:26.328991 IP 192.168.1.132.2092 > 192.168.1.171.2092: UDP, length 5
+2026-11-11 16:36:26.344240 IP 192.168.1.132.2092 > 192.168.1.171.2092: UDP, length 15
+2026-11-11 16:36:27.389784 IP 192.168.1.132.2092 > 192.168.1.171.2092: UDP, length 15
+2026-11-11 16:36:27.389815 IP 192.168.1.132.2092 > 192.168.1.171.2092: UDP, length 15
+2026-11-11 16:36:27.390708 IP 192.168.1.132.2092 > 192.168.1.171.2092: UDP, length 5
+
+5 packets captured
+5 packets received by filter
+0 packets dropped by kernel
