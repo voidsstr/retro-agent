@@ -140,6 +140,21 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-11 16:16:16: Xid 79 5 h 19 min after the cold cycle (7th since 10-08), box up on the iGPU, GPU gone, NOT yet recovered
+
+- **Boot ID:** `64f0fa51…` (up since 11-11 10:56:55). No reboot: the
+  desktop session crashed with the card (gnome-shell/Xwayland `.crash` files
+  16:16-16:17, another gnome-shell at 16:31), which is what auto-resumed the
+  Claude sessions.
+- **Signature 1:** `Xid ... 79, pid=1229, name=nvidia-modeset/, GPU has fallen
+  off the bus` with GSP RPC sanity-check failures in the same second. BAR0 now
+  reads `[virtual]`; `nvidia-smi` says "No devices were found".
+- **Load:** ollama generating (264 journal lines in the minute of the drop).
+- **Cap in effect:** 400 W + the 210–2400 MHz lock, x16 at Gen5 (still not
+  pinned to Gen4), **kernel 7.0.0-43**, driver 595.99.02. A new kernel and a
+  new driver have both now failed. **Needs a cold power cycle** (signature 1:
+  a warm reboot won't bring the card back and may hang, signature 2).
+
 ### 2026-11-11 10:55:34: abrupt end of the 11-10 Xid boot after ~23 h without the GPU (most likely the operator's cold cycle)
 
 - **Boot ID:** `c00c8d4e…` (11-10 10:10:27 → 11-11 10:55:34) → `64f0fa51…`
