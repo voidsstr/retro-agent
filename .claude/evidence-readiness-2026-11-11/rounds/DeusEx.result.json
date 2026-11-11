@@ -1,0 +1,77 @@
+{
+ "key": "DeusEx",
+ "title": "Deus Ex",
+ "mode": "host_server",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet110 (9/16, no bots), the box sent 323 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_110.jpg shows the DXMP_Cathedral map."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet123 (9/16, no bots), the box sent 352 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_123.jpg shows the DXMP_Cathedral map."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet124 (9/16, no bots), the box sent 344 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_124.jpg shows the DXMP_Cathedral map. Frame is an fbshot (GlideDrv on vcr-kmd, not D3D)."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet133 (9/16, no bots), the box sent 439 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_133.jpg shows the DXMP_Cathedral map."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet143 (9/16, no bots), the box sent 325 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_143.jpg shows the DXMP_Cathedral map. SoftDrv launcher; no bugcheck."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet171 (9/16, no bots), the box sent 324 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_171.jpg shows the DXMP_Cathedral map."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet184 (9/16, no bots), the box sent 377 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_184.jpg shows the DXMP_Cathedral map."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet186 (9/16, no bots), the box sent 326 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_186.jpg shows the DXMP_Cathedral map. SoftDrv on the Win7 VGA stub."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "DeusEx",
+   "evidence": "Verified at 18:28: the deusex-server roster on .132:7790 names Fleet240 (9/16, no bots), the box sent 324 pkts to :7790 in 12 s, the foreground was the 'Deus Ex' window with deusex.exe running, and the fresh frame DeusEx_240.jpg shows the DXMP_Cathedral map."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "client": "",
+   "evidence": "Not launched; agent answered PING.",
+   "reason": "Win98 Pentium 166 is below the recipe's 300 MHz floor; the operator override says 'not wanted on .243'; the title is not deployed there."
+  }
+ ],
+ "players_in_one_game": 9,
+ "summary": "All 9 applicable boxes were re-verified together in one Deus Ex MP game on deusex-server (.132:7790, DXMP_Cathedral). The roster named Fleet110/123/124/133/143/171/184/186/240 and every box sent 323-439 pkts in 12 s; each fresh frame shows the map. .243 is NA. The game was closed everywhere and no deusex.exe remains.",
+ "issues": [
+  ".124's deusex.exe ignored the graceful close and was force-killed after 12 s. The box is back at its 1280x1024@85 desktop and the agent answers.",
+  "The HUD-less frames the round agent reported for .143/.184 were transient: in the re-check .143 showed its HUD and .184 a partial HUD, while .133 showed no HUD at that instant. Respawn/view timing, not a fault.",
+  "Persistent User.ini edits on every box (PageUp bind 'open 192.168.1.132:7790?Name=Fleet<octet>', player name); .186 keeps SoftDrv."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

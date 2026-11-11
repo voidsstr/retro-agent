@@ -1,0 +1,74 @@
+{
+ "key": "Shogo",
+ "title": "Shogo",
+ "mode": "host_server",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet110 (7/16, no bots), 220 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_110.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet123 (7/16, no bots), 224 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_123.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet133 (7/16, no bots), 220 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_133.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet143 (7/16, no bots), 224 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_143.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet171 (7/16, no bots), 215 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_171.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet184 (7/16, no bots), 220 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_184.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Shogo",
+   "evidence": "Re-checked 18:45: shogo-server 192.168.1.132:27888 roster names Fleet240 (7/16, no bots), 222 UDP packets to :27888 in 12 s, client.exe running, foreground LithTech, fresh frame Shogo_240.jpg shows the city level fullscreen."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched: Shogo is Direct3D (d3d.ren) and D3D on vcr-kmd is supervised-only.",
+   "reason": "needs a supervised session for D3D on the vcr-kmd driver"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Win7 running its GTX 1650 on the Standard VGA stub: no Direct3D. Excluded by the recipe.",
+   "reason": "no 3D driver exists for this OS/card"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not installed. Gate operator override says 'not wanted on .243'. The box is a P166, below the 200 MHz floor, and Shogo has no Glide renderer.",
+   "reason": "gate/CPU floor/no Glide renderer"
+  }
+ ],
+ "players_in_one_game": 7,
+ "summary": "Seven XP boxes (.110 .123 .133 .143 .171 .184 .240) were proven together on shogo-server :27888. Proof per box: the roster names each one, packets are steady, and a fresh frame shows the level. .124 BLOCKED (D3D on vcr-kmd). .186 and .243 NA. kill closed client.exe gracefully on all seven, and PROCLIST then showed no client.exe or shogo.exe.",
+ "issues": [
+  "lanparty.py kill takes the game as a positional argument ('kill Shogo'); '--game' is rejected"
+ ],
+ "closed_cleanly": true,
+ "library_fix_needed": []
+}

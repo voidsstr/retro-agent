@@ -1,0 +1,188 @@
+{
+ "game": "DeusEx",
+ "time": "2026-11-11T18:28:19",
+ "roster": [
+  [
+   "Fleet186",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet123",
+   null,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "9",
+   "16"
+  ]
+ ],
+ "packets": {
+  "192.168.1.110": 323,
+  "192.168.1.184": 377,
+  "192.168.1.171": 324,
+  "192.168.1.124": 344,
+  "192.168.1.143": 325,
+  "192.168.1.123": 352,
+  "192.168.1.133": 439,
+  "192.168.1.186": 326,
+  "192.168.1.240": 324
+ },
+ "port": 7790,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 323,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 352,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 344,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 439,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 325,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 324,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 377,
+   "frame": "gdi",
+   "host": false
+  },
+  "186": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_186.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 326,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "deusex.exe"
+   ],
+   "foreground": "Deus Ex",
+   "shot": "DeusEx_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 324,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

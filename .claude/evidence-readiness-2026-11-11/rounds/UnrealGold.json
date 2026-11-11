@@ -1,0 +1,188 @@
+{
+ "game": "UnrealGold",
+ "time": "2026-11-11T18:20:30",
+ "roster": [
+  [
+   "Fleet186",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet243",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet123",
+   null,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "9",
+   "12"
+  ]
+ ],
+ "packets": {
+  "192.168.1.124": 1011,
+  "192.168.1.240": 714,
+  "192.168.1.186": 1524,
+  "192.168.1.110": 1010,
+  "192.168.1.123": 713,
+  "192.168.1.171": 672,
+  "192.168.1.243": 247,
+  "192.168.1.133": 5,
+  "192.168.1.184": 14
+ },
+ "port": 7807,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1010,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1011,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 5,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 672,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 14,
+   "frame": "gdi",
+   "host": false
+  },
+  "186": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_186.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1524,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 714,
+   "frame": "gdi",
+   "host": false
+  },
+  "243": {
+   "running": [
+    "unreal.exe"
+   ],
+   "foreground": "Unreal",
+   "shot": "UnrealGold_243.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 247,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

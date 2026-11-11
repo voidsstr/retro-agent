@@ -1,0 +1,77 @@
+{
+ "key": "SeriousSamSecondEncounter",
+ "title": "Serious Sam: The Second Encounter",
+ "mode": "host-server ssam-tse-server 192.168.1.132:25610 (+quickjoin)",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.110, CRC check OK' then 'JabyBesus joined', no later disconnect; GameSpy roster 8/16 lists 'JabyBesus'; 250 pkts/12s to :25610; frame SeriousSamSecondEncounter_110.jpg: HUD + revolver, FRAGS LEFT 19, health 100."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.123, CRC check OK' then 'Toaster joined', no later disconnect; GameSpy roster 8/16 lists 'Toaster'; 249 pkts/12s to :25610; frame SeriousSamSecondEncounter_123.jpg: world render (houses), no HUD drawn at that instant."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.124, CRC check OK' then 'Xypher Orion joined', no later disconnect; GameSpy roster 8/16 lists 'Xypher Orion'; 250 pkts/12s to :25610; frame SeriousSamSecondEncounter_124.jpg: fbshot: HUD + revolver, light scanline artifacts on tree."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.133, CRC check OK' then 'Player 0 joined', no later disconnect; GameSpy roster 8/16 lists 'Player 0'; 250 pkts/12s to :25610; frame SeriousSamSecondEncounter_133.jpg: HUD, frags 1, revolver."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.143, CRC check OK' then 'Player 0 joined', no later disconnect; GameSpy roster 8/16 lists 'Player 0'; 249 pkts/12s to :25610; frame SeriousSamSecondEncounter_143.jpg: HUD + frag list, shotgun, health 100."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.171, CRC check OK' then 'Carter joined', no later disconnect; GameSpy roster 8/16 lists 'Carter'; 250 pkts/12s to :25610; frame SeriousSamSecondEncounter_171.jpg: world render (mountains/windmill), no HUD drawn at that instant."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.184, CRC check OK' then 'ArchoN joined', no later disconnect; GameSpy roster 8/16 lists 'ArchoN'; 250 pkts/12s to :25610; frame SeriousSamSecondEncounter_184.jpg: HUD + frag list + revolver, 512x384 capture."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "SeriousSamSecondEncounter",
+   "evidence": "Re-checked 18:42: TSE server log (~/ssam-tse-server/Dedicated_NSCFleet.log) 'Client 192.168.1.240, CRC check OK' then 'Player 0 joined', no later disconnect; GameSpy roster 8/16 lists 'Player 0'; 250 pkts/12s to :25610; frame SeriousSamSecondEncounter_240.jpg: HUD + frag list + shotgun, health 100."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Excluded by recipe",
+   "reason": "Win7 on Standard VGA stub: no 3D driver; Serious Engine has no software renderer; no disc mounter gates the Join shortcut."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not installed (gated)",
+   "reason": "P166 below the title's 233 MHz floor plus operator override 'not wanted on .243'."
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "All 8 applicable boxes (.110 .123 .124 .133 .143 .171 .184 .240) were independently re-verified in ONE TSE match on the dev host at 18:42: server roster 8/16 non-bot, each IP has CRC-OK + joined in the TSE engine log with no disconnect, ~250 packets/12 s from every box, and fresh frames show the Yodeller map on all 8 (HUD visible on 6). .186 and .243 NA. Game closed gracefully on all 8; PROCLIST shows no serioussam.exe and every desktop is back at its normal mode.",
+ "issues": [
+  ".123 and .171 frames show the world without a HUD/weapon at capture time (likely respawn/death view); membership proven by log, roster and packets.",
+  ".124 fbshot frame shows light scanline artifacts on foliage (vcr-kmd/Glide path) - cosmetic.",
+  "Three boxes (.133 .143 .240) join as default name 'Player 0' - SE names are not set per box; identified by IP in the engine log.",
+  "Note: ~/ssam-tfe-server/Dedicated_NSCFleet.log is the TFE server (earlier round); the TSE log is ~/ssam-tse-server/Dedicated_NSCFleet.log."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

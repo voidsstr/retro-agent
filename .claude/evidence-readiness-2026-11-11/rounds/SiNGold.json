@@ -1,0 +1,191 @@
+{
+ "game": "SiNGold",
+ "time": "2026-11-11T18:12:03",
+ "roster": [
+  [
+   "Fleet123",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   28,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   16,
+   false,
+   null
+  ],
+  [
+   "Blade",
+   33,
+   false,
+   null
+  ],
+  [
+   "Fleet186",
+   21,
+   false,
+   null
+  ]
+ ],
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.123",
+ "boxes": {
+  "123": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "110": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "186": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_186.jpg",
+   "black": true,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "243": {
+   "running": [
+    "sin.exe"
+   ],
+   "foreground": "Sin",
+   "shot": "SiNGold_243.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -1,0 +1,101 @@
+{
+ "game": "HalfLife1",
+ "time": "2026-11-11T17:57:49",
+ "roster": [
+  [
+   "Fleet240",
+   0,
+   false,
+   null
+  ],
+  [
+   "Player",
+   12,
+   false,
+   "192.168.1.123"
+  ],
+  [
+   "(1)Player",
+   14,
+   false,
+   "192.168.1.110"
+  ],
+  [
+   "(2)Player",
+   11,
+   false,
+   "192.168.1.171"
+  ],
+  [
+   "(3)Player",
+   16,
+   false,
+   "192.168.1.133"
+  ]
+ ],
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.240",
+ "boxes": {
+  "240": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Half-Life",
+   "shot": "HalfLife1_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "123": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Half-Life",
+   "shot": "HalfLife1_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Half-Life",
+   "shot": "HalfLife1_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Half-Life",
+   "shot": "HalfLife1_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "110": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Half-Life",
+   "shot": "HalfLife1_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "key": "SiNGold",
+ "title": "SiN Gold",
+ "mode": "peer listen server hosted on .123",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet110 at 192.168.1.110:22441; fg 'Sin'; frame SiNGold_110.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: host of listen server NSC_Retro_Fleet_SiN map spry, rcon status slot 0 Fleet123 loopback; fg 'Sin'; frame SiNGold_123.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.124",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet124 at 192.168.1.124:22441; fg 'Sin'; frame SiNGold_124.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet133 at 192.168.1.133:22441; fg 'Sin'; frame SiNGold_133.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet143 at 192.168.1.143:22441; fg 'Sin'; frame SiNGold_143.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet171 at 192.168.1.171:22441; fg 'Sin'; frame SiNGold_171.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet184 at 192.168.1.184:22441; fg 'Sin'; frame SiNGold_184.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.186",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet186 at 192.168.1.186:22441; sin.exe running, fg 'Sin'; frame black (software renderer on Win7 VGA stub) - roster is the witness"
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Fleet240 at 192.168.1.240:22441; fg 'Sin'; frame SiNGold_240.jpg shows spry in first person with HUD"
+  },
+  {
+   "ip": "192.168.1.243",
+   "client": "SiNGold",
+   "verdict": "PASS_MP",
+   "evidence": "18:12 re-check: rcon status on .123 listen server (map spry) lists Blade at 192.168.1.243:22441; sin.exe running, fg 'Sin'; frame is 2D desktop (Voodoo 2 invisible to GDI); joined under default name 'Blade', identified by IP"
+  }
+ ],
+ "players_in_one_game": 10,
+ "summary": "All 10 online boxes were proven together in one SiN Gold deathmatch, re-verified at 18:12. The rcon status on the .123 listen server lists every box's IP. 9 boxes joined as Fleet<octet>; .243 joined as 'Blade'. 8 frames show the game rendering. The .186 frame is black (software renderer) and the .243 frame shows only the desktop (GDI cannot see the Voodoo 2); for those two, the roster is the proof. The game was closed on all boxes and PROCLIST shows no sin.exe anywhere.",
+ "issues": [
+  "The .243 launcher does not pass +set name on the command line, so the box joins as SiN's default 'Blade' and lanparty's name match reports on_server='?'. The rcon address column confirms it is in the game.",
+  "Packets were not measured (packets=None): this is a peer title hosted on .123, so the dev host's tcpdump cannot see the traffic. The host's own rcon status is the witness.",
+  "sin.exe ignored the graceful WM_CLOSE on all 9 NT boxes. lanparty force-killed it after 12 s, and PROCKILL ended it on .243. Afterwards every box showed its desktop or agent console in the foreground, with no crash dialogs."
+ ],
+ "library_fix_needed": [
+  "SiNGold .243 launcher (C:\\FLEETMP 8.3 batch / lanparty_titles.json bats entry): add +set name Fleet243 on the command line, as the XP launchers do."
+ ],
+ "closed_cleanly": true
+}

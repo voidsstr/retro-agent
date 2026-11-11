@@ -1,0 +1,80 @@
+{
+ "key": "HalfLife1",
+ "title": "Half-Life (WON 1.1.0.8 deathmatch, listen server on .240)",
+ "mode": "peer listen server on fleet box .240",
+ "boxes": [
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "evidence": "HOST. Re-check at 18:03: hl.exe running, foreground Half-Life, rcon roster lists Fleet240 (loopback). Frame HalfLife1_240.jpg shows crossfire in 3D fullscreen (black speckle artefacts across the image).",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "evidence": "Re-check 18:03: rcon roster 'Player' 192.168.1.143 ping 11, hl.exe in foreground, frame HalfLife1_143.jpg crossfire 3D with 'Connection accepted by 192.168.1.240:27015'.",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "evidence": "Re-check 18:03: rcon roster '(1)Player' 192.168.1.184 ping 11, frame HalfLife1_184.jpg crossfire 3D with 'Connection accepted'.",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "evidence": "Re-check 18:03: rcon roster '(2)Player' 192.168.1.124 ping 12, fbshot HalfLife1_124.jpg crossfire 3D at 1280x960 with 'Connection accepted by 192.168.1.240:27015' (OpenGL over MesaFX/vcr-kmd; thin streaks in the console area).",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "PASS_MP",
+   "evidence": "Re-check 18:03: rcon roster '(3)Player' 192.168.1.243 ping 26, foreground Half-Life. GDI cannot see the Voodoo 2, so the roster is the witness.",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "evidence": "Proven in wave A on the same .240 listen server (FleetHL1, crossfire): rcon roster named it by IP (HalfLife1_waveA.json); its frame showed crossfire in 3D with 'Connection accepted by 192.168.1.240:27015'. Not in the 18:03 re-check because the 5-players-per-CD-key cap (measured: a 6th client got 'CD Key already in use.') limits one game to 5 boxes. Also used as the 6th client: it was refused with 'CD Key already in use.'",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "evidence": "Proven in wave A on the same .240 listen server (FleetHL1, crossfire): rcon roster named it by IP (HalfLife1_waveA.json); its frame showed crossfire in 3D with 'Connection accepted by 192.168.1.240:27015'. Not in the 18:03 re-check because the 5-players-per-CD-key cap (measured: a 6th client got 'CD Key already in use.') limits one game to 5 boxes.",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "evidence": "Proven in wave A on the same .240 listen server (FleetHL1, crossfire): rcon roster named it by IP (HalfLife1_waveA.json); its frame showed crossfire in 3D with 'Connection accepted by 192.168.1.240:27015'. Not in the 18:03 re-check because the 5-players-per-CD-key cap (measured: a 6th client got 'CD Key already in use.') limits one game to 5 boxes.",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "evidence": "Proven in wave A on the same .240 listen server (FleetHL1, crossfire): rcon roster named it by IP (HalfLife1_waveA.json); its frame showed crossfire in 3D with 'Connection accepted by 192.168.1.240:27015'. Not in the 18:03 re-check because the 5-players-per-CD-key cap (measured: a 6th client got 'CD Key already in use.') limits one game to 5 boxes.",
+   "client": "HalfLife1"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched.",
+   "reason": "Windows 7 32-bit with a GTX 1650 on the Standard VGA stub: no 32-bit 3D driver exists for it, so there is no OpenGL/D3D renderer for WON hl.exe (recipe exclusion)."
+  }
+ ],
+ "players_in_one_game": 5,
+ "closed_cleanly": true,
+ "summary": "9 of the 9 applicable boxes were proven in Half-Life multiplayer on .240's listen server (crossfire), but in two waves of 5 because the shared CD key allows 5 players per game. The 18:03 re-check confirmed wave B live (host .240 plus .143, .184, .124 and .243, all named by IP in the rcon roster). Wave A (.123, .110, .171, .133) is proven by its saved rcon roster and frames. .186 is NA (no 3D driver). The game was closed everywhere and PROCLIST shows no hl.exe.",
+ "issues": [
+  "One game holds at most 5 players: a 6th client got 'CD Key already in use.' Getting all 9 boxes into one game needs a second Half-Life key.",
+  "+name is ignored on WON joiners (they show as Player/(n)Player), so joiners are identified by IP.",
+  "The host .240's frame shows black speckle artefacts, and the .124 fbshot shows thin horizontal streaks in the console area.",
+  "kill needed a force on .124, .143, .184 and .240 (no graceful exit within 12 s), and .243 was killed by PROCKILL. Every box was then at the agent console or desktop with no crash dialogs. GDI cannot show .243's Voodoo 2 pass-through state, so nobody has checked its screen.",
+  ".124's agent now reports 1.100.1 (it was updated by another session during the round)."
+ ],
+ "library_fix_needed": [
+  "Half-Life is limited to 5 boxes per game by one shared CD key. A second distinct key would be needed for a 9-box party."
+ ]
+}

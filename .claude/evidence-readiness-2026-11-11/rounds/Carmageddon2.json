@@ -1,0 +1,118 @@
+{
+ "game": "Carmageddon2",
+ "time": "2026-11-11T18:55:36",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_124.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "243": {
+   "running": [
+    "carma2_hw.exe"
+   ],
+   "foreground": "Carmageddon II",
+   "shot": "Carmageddon2_243.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "key": "Carmageddon2",
+ "title": "Carmageddon 2",
+ "mode": "multiplayer, dev-host carmageddon2-server (IPXWrapper) lobby/race",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_110.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET110 row highlighted; 200 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET110 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_123.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET123 row highlighted; 284 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET123 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_124.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET124 row highlighted; 372 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET124 READY; state.json racing, races=1. fbshot via vcr-kmd (Glide, 4-chip SLI)."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_133.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET133 row highlighted; 145 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET133 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_143.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET143 row highlighted; 143 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET143 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_171.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET171 row highlighted; 216 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET171 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_184.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET184 row highlighted; 143 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET184 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched.",
+   "reason": "Windows 7 on the Standard VGA stub: no 3D driver; CARMA2_HW.EXE needs nGlide on a D3D9 device."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Carmageddon2",
+   "evidence": "Re-checked 18:55 EST: carma2_hw.exe running, foreground 'Carmageddon II'; fresh frame Carmageddon2_240.jpg shows the race HUD with the 9-row scoreboard (FLEET110/123/124/133/143/171/184/240 + FLEET HOST) and this box's own FLEET240 row highlighted; 295 pkts/12 s from this box to the host's IPXWrapper port 48703 (Carmageddon2_priv_sniff_final.txt). Host lobby frame (Carmageddon2_host_race-start.png) listed FLEET240 READY; state.json racing, races=1."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "BLOCKED",
+   "client": "Carmageddon2",
+   "evidence": "carma2_hw.exe was running with foreground 'Carmageddon II' and no dialog (lanparty check 18:55); GDI frame black because the Voodoo 2 pass-through output is invisible to GDI. 0 packets to the host (expected).",
+   "reason": "Multiplayer is impossible on Win9x (IPXWrapper does not load there), and the single-player Voodoo 2 render cannot be proven remotely. A person has to look at the screen to confirm it renders fullscreen."
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "8 XP boxes (.110 .123 .124 .133 .143 .171 .184 .240) were re-verified in the same running Carmageddon 2 race on the dev host. Each fresh frame shows the shared 9-car scoreboard with the box's own row highlighted, and each box sent sustained packets to the host's private IPXWrapper port. .243 ran single-player only and its render is unproven (BLOCKED). .186 is NA. The game was closed on all 9 boxes and each desktop is back at its normal mode.",
+ "issues": [
+  "lanparty check cannot witness this title by itself: its roster shows 0 and packets=None because the title has no query port. The proof is the host lobby frame plus a manual sniff of the IPXWrapper port 48703.",
+  "Close: 7 XP boxes needed a forced kill after the 12 s WM_CLOSE grace (no graceful in-game quit). .124 closed gracefully. .243 was PROCKILLed.",
+  ".243's Voodoo 2 render is never photographed; a person is needed to confirm it.",
+  "The kill printed no GLRESET9 confirmation for .243 even though the round notes say it needs one. Its desktop reads 800x600x16 with Shell_TrayWnd in the foreground, but nobody checked whether the screen is still on the Voodoo 2 pass-through.",
+  "carmageddon2-server state.json reports players=0 while racing, so it does not count players."
+ ],
+ "closed_cleanly": true,
+ "library_fix_needed": [
+  "Compat DB/docs: Carmageddon2 status needs_human -> verified (join with UIDRAG at 265,103 / 440,134 / 573,276)",
+  "The .143 FLEETRES ghost-key fix is still owed (round notes)"
+ ]
+}

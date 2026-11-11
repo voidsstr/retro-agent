@@ -1,0 +1,57 @@
+Server: Connection initiated from '192.168.1.123'.
+Server: Accepted session connection by '192.168.1.123'
+Server: Connection initiated from '192.168.1.110'.
+Server: Accepted session connection by '192.168.1.110'
+Server: Sent initialization info to '192.168.1.123' (2k)
+Server: Sent initialization info to '192.168.1.110' (2k)
+Server: Connection initiated from '192.168.1.171'.
+Server: Accepted session connection by '192.168.1.171'
+Server: Sent initialization info to '192.168.1.171' (2k)
+Server: Connection initiated from '192.168.1.240'.
+Server: Accepted session connection by '192.168.1.240'
+Server: Sent initialization info to '192.168.1.240' (2k)
+Server: Sent connection data to '192.168.1.123' (210k->85k->12k)
+Server: Sent CRC challenge to '192.168.1.123' (10k)
+Server: Client '192.168.1.123', CRC check OK
+^oToaster^r joined
+Server: Sent connection data to '192.168.1.110' (218k->26k->12k)
+Server: Sent CRC challenge to '192.168.1.110' (10k)
+Server: Client '192.168.1.110', CRC check OK
+^oJabyBesus^r joined
+Server: Connection initiated from '192.168.1.124'.
+Server: Accepted session connection by '192.168.1.124'
+Server: Connection initiated from '192.168.1.143'.
+Server: Accepted session connection by '192.168.1.143'
+Server: Sent connection data to '192.168.1.240' (225k->34k->13k)
+Server: Sent initialization info to '192.168.1.124' (2k)
+Server: Sent initialization info to '192.168.1.143' (2k)
+Server: Connection initiated from '192.168.1.184'.
+Server: Accepted session connection by '192.168.1.184'
+Server: Sent CRC challenge to '192.168.1.240' (10k)
+Server: Client '192.168.1.240', CRC check OK
+^oPlayer 0^r joined
+Server: Sent initialization info to '192.168.1.184' (2k)
+Server: Sent connection data to '192.168.1.171' (233k->42k->14k)
+Server: Sent CRC challenge to '192.168.1.171' (10k)
+Server: Client '192.168.1.171', CRC check OK
+^oCarter^r joined
+Server: Connection initiated from '192.168.1.133'.
+Server: Accepted session connection by '192.168.1.133'
+Server: Sent initialization info to '192.168.1.133' (2k)
+Server: Sent connection data to '192.168.1.124' (239k->48k->14k)
+Server: Sent connection data to '192.168.1.143' (239k->48k->14k)
+Server: Sent CRC challenge to '192.168.1.124' (10k)
+Server: Client '192.168.1.124', CRC check OK
+^oXypher Orion^r joined
+Server: Sent CRC challenge to '192.168.1.143' (10k)
+Server: Client '192.168.1.143', CRC check OK
+^oPlayer 0^r joined
+Server: Sent connection data to '192.168.1.184' (254k->64k->16k)
+Server: Sent CRC challenge to '192.168.1.184' (10k)
+Server: Client '192.168.1.184', CRC check OK
+^oArchoN^r joined
+Server: Sent connection data to '192.168.1.133' (260k->70k->16k)
+Server: Sent CRC challenge to '192.168.1.133' (10k)
+Server: Client '192.168.1.133', CRC check OK
+^oPlayer 0^r joined
+^oPlayer 0^r telefragged ^oCarter^r

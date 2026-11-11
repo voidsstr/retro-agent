@@ -1,0 +1,76 @@
+{
+ "key": "SeriousSamFirstEncounter",
+ "title": "Serious Sam: The First Encounter",
+ "mode": "host-server ssam-tfe-server 192.168.1.132:25600",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 102/103 = single CRC check OK for 192.168.1.110 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 250 pkts to :25600 in 12 s; 1600x1200 frame: HUD health 100, 8-name frag list, ArchoN visible."
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 109/110 (toaster) = single CRC check OK for 192.168.1.123 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 250 pkts to :25600 in 12 s; 1280x960 frame: HUD health 100 + frag list (Desert Temple)."
+  },
+  {
+   "ip": "192.168.1.124",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 147/148 = single CRC check OK for 192.168.1.124 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 250 pkts to :25600 in 12 s; fbshot frame (V5 6000, vcr-kmd, OpenGL): HUD health 100 + frag list."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 152/153 = single CRC check OK for 192.168.1.133 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 249 pkts to :25600 in 12 s; frame: HUD health 100 + frag list."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 132/133 = single CRC check OK for 192.168.1.143 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 250 pkts to :25600 in 12 s; frame: HUD health 100 + frag list."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 123/124 = single CRC check OK for 192.168.1.171 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 249 pkts to :25600 in 12 s; frame: HUD health 100 + frag list."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 141/142 (ArchoN) = single CRC check OK for 192.168.1.184 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 249 pkts to :25600 in 12 s; 1024x768 frame: level renders with another player in view, no HUD drawn (roster ArchoN ping 45)."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "SeriousSamFirstEncounter",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 18:35: ssam-tfe-server log lines 116/117 = single CRC check OK for 192.168.1.240 followed by its joined line, no disconnect/timeout after; GameSpy roster 8/16 no bots; 250 pkts to :25600 in 12 s; 1920x1080 frame: HUD health 100 + frag list."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Excluded by recipe; not launched.",
+   "reason": "Win7 32-bit, GTX 1650 on the Standard VGA stub: no OpenGL ICD, and Serious Engine 1 has no software renderer; disc_mount=false so no Join shortcut."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Excluded by recipe; not contacted.",
+   "reason": "Title not installed (operator override \"not wanted on .243\"); P166 below the 233 MHz floor; no disc mounter."
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "All 8 applicable boxes (.110 .123 .124 .133 .143 .171 .184 .240) independently re-verified in the same TFE game on the dev-host server: one CRC-OK+joined pair per IP in the engine log with no drops, GameSpy 8/16 players (no bots), ~250 packets/12 s from each box, and fresh fullscreen frames of the level (7 with HUD). .186 and .243 NA. Game closed gracefully on all 8; PROCLIST shows no SeriousSam.exe; every box at its agent/chat console on the desktop.",
+ "issues": [
+  ".184 check frame shows the level but no HUD in both the round check and this re-check; the server log, roster (ArchoN) and packets prove it is in the game. Cosmetic or a HUD setting, not a join failure.",
+  "lanparty on_server column reads \"?\" for this title because the GameSpy roster carries no IPs; the engine log is the per-box witness.",
+  "lanparty.py kill takes the game as a positional argument; the documented \"--game\" flag is rejected."
+ ],
+ "closed_cleanly": true,
+ "library_fix_needed": []
+}

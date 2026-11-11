@@ -1,0 +1,79 @@
+{
+ "key": "UnrealGold",
+ "title": "Unreal Gold",
+ "mode": "host_server",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet110 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.110' + 'Join succeeded: Fleet110', no Close/timeout since; 1010 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_110.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet123 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.123' + 'Join succeeded: Fleet123', no Close/timeout since; 713 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_123.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet124 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.124' + 'Join succeeded: Fleet124', no Close/timeout since; 1011 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_124.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names. GlideDrv on vcr-kmd (not D3D), fbshot frame.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet133 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.133' + 'Join succeeded: Fleet133', no Close/timeout since; 5 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_133.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names. Upstream anomaly: only 5 pkts/12 s to the server (host sniff: server->.133 199 pkts/10 s, .133->server 5), yet the box stays on the roster with a ping (99 / 148 on the scoreboard) and its frames keep advancing. .184 sent 821/12 s at first and fell to 10-14 later.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "NA",
+   "evidence": "Not launched: recipe exclusion - Unreal.exe bugchecks .143 (8 nv4_disp minidumps under Unreal.exe).",
+   "client": "UnrealGold",
+   "reason": "driver/hardware limit: nv4_disp bugchecks under the Unreal Gold client on this box"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet171 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.171' + 'Join succeeded: Fleet171', no Close/timeout since; 672 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_171.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet184 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.184' + 'Join succeeded: Fleet184', no Close/timeout since; 14 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_184.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names. Upstream anomaly: only 14 pkts/12 s to the server (host sniff: server->.133 199 pkts/10 s, .133->server 5), yet the box stays on the roster with a ping (99 / 148 on the scoreboard) and its frames keep advancing. .184 sent 821/12 s at first and fell to 10-14 later.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet186 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.186' + 'Join succeeded: Fleet186', no Close/timeout since; 1524 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_186.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names. SoftDrv software renderer (Win7 VGA stub).",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet240 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.240' + 'Join succeeded: Fleet240', no Close/timeout since; 714 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_240.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names.",
+   "client": "UnrealGold"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 23:2x UTC: GameSpy roster on 192.168.1.132:7808 lists Fleet243 (9 humans/12, bots excluded); server.log has 'Open MyLevel ... 192.168.1.243' + 'Join succeeded: Fleet243', no Close/timeout since; 247 pkts/12 s to :7807; WINLIST foreground Unreal; fresh frame UnrealGold_243.jpg shows the DmDeck16 scoreboard listing all 9 Fleet names. GDI sees only the 2D window (Voodoo 2 pass-through); roster+log+packets are the witness.",
+   "client": "UnrealGold"
+  }
+ ],
+ "players_in_one_game": 9,
+ "summary": "All 9 applicable online boxes (.110 .123 .124 .133 .171 .184 .186 .240 .243) were verified again in ONE Unreal Gold 226 deathmatch on the host server 192.168.1.132:7807 (DmDeck16): the GameSpy roster names all nine Fleet<octet> players, server.log has an IP line and 'Join succeeded' for each with no disconnect, and every fresh frame shows the shared scoreboard. .143 is NA (Unreal.exe bugchecks nv4_disp). The game was closed on all 9 boxes and PROCLIST confirms it. .243's User.ini was put back to its original (md5 b532260a..., read back).",
+ "issues": [
+  ".133 (whole round) and .184 (later in the round) sent almost no client traffic to :7807: 3-5 and 10-14 packets per 8-12 s, against 250-1500 from the others. The server kept sending to them at about 20/s and kept both on the roster with pings, and their frames advanced. They were connected and receiving, but their uplink rate is unexplained: low client tick/fps, or input not being sent. Check it on each box (client framerate, NetSpeed, Unreal.log) before relying on them for real play.",
+  "UICLICK (Fire) did not respawn a dead player on any box tested (.110, .133, .184), so click-based input could not be used to tell a healthy uplink from a weak one.",
+  "kill: unreal.exe had to be FORCED on .110 .124 .133 .171 .240 (WM_CLOSE was ignored for 12 s). It closed gracefully on .123 .184 .186. .243 was quit via its console and then PROCKILL. Desktop modes after the forced kills were not re-read; the next round should confirm that .124 (vcr-kmd) and .243 (Voodoo 2) are back at their desktop.",
+  ".186 still has an orphaned 'Windows Security Alert' firewall dialog from the launch.",
+  "XP boxes and .186 keep the round's User.ini edits (Name=Fleet<octet>, NetSpeed 20000, F9=open 192.168.1.132:7807). They are harmless but differ from the library, and the next GAMESYNC may overwrite them."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

@@ -1,0 +1,169 @@
+{
+ "game": "SeriousSamFirstEncounter",
+ "time": "2026-11-11T18:35:13",
+ "roster": [
+  [
+   "Serious Sam",
+   50,
+   false,
+   null
+  ],
+  [
+   "toaster",
+   19,
+   false,
+   null
+  ],
+  [
+   "Serious Sam",
+   53,
+   false,
+   null
+  ],
+  [
+   "Serious Sam",
+   37,
+   false,
+   null
+  ],
+  [
+   "Serious Sam",
+   38,
+   false,
+   null
+  ],
+  [
+   "ArchoN",
+   45,
+   false,
+   null
+  ],
+  [
+   "Serious Sam",
+   36,
+   false,
+   null
+  ],
+  [
+   "Serious Sam",
+   33,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "8",
+   "16"
+  ]
+ ],
+ "packets": {
+  "192.168.1.123": 250,
+  "192.168.1.124": 250,
+  "192.168.1.143": 250,
+  "192.168.1.240": 250,
+  "192.168.1.184": 249,
+  "192.168.1.110": 250,
+  "192.168.1.171": 249,
+  "192.168.1.133": 249
+ },
+ "port": 25600,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "Serious Sam (FullScreen 1600x1200)",
+   "shot": "SeriousSamFirstEncounter_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 250,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "Serious Sam (FullScreen 1280x960)",
+   "shot": "SeriousSamFirstEncounter_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 250,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "",
+   "shot": "SeriousSamFirstEncounter_124.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 250,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "",
+   "shot": "SeriousSamFirstEncounter_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 249,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "",
+   "shot": "SeriousSamFirstEncounter_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 250,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "",
+   "shot": "SeriousSamFirstEncounter_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 249,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "Serious Sam (FullScreen 1024x768)",
+   "shot": "SeriousSamFirstEncounter_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 249,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "serioussam.exe"
+   ],
+   "foreground": "Serious Sam (FullScreen 1920x1080)",
+   "shot": "SeriousSamFirstEncounter_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": 250,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -1,0 +1,150 @@
+{
+ "game": "Shogo",
+ "time": "2026-11-11T18:45:58",
+ "roster": [
+  [
+   "Fleet123",
+   10,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   28,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   10,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   12,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   1,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "7",
+   "16"
+  ]
+ ],
+ "packets": {
+  "192.168.1.143": 224,
+  "192.168.1.123": 224,
+  "192.168.1.133": 220,
+  "192.168.1.171": 215,
+  "192.168.1.184": 220,
+  "192.168.1.240": 222,
+  "192.168.1.110": 220
+ },
+ "port": 27888,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 220,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 224,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 220,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 224,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 215,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 220,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "client.exe"
+   ],
+   "foreground": "LithTech",
+   "shot": "Shogo_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 222,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}
