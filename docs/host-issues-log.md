@@ -25,7 +25,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
 | Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, MCE panics on 09-28 15:48 and 09-29 06:13 (the second under the clock lock), each followed by a wedged-card boot; then Xid 79 on 10-08, 10-14 05:38, 10-14 14:33 and 10-20 14:49, all at x16 under the lock; MCE panic 11-07 16:01 and Xid 79 11-08 10:47, both under the lock) | |
 | GPU clock lock | **210–2400 MHz** graphics (`nvidia-smi -lgc 210,2400`; stock boost reaches 3090 MHz). Added to `nvidia-power-cap.service` (ExecStart; `-rgc` on stop) and to `reusable-agents/install/configure-local-models.sh` (`GPU_CLOCK_LOCK_MHZ`, empty disables it). Applied live 09-28 23:3x after the 15:48 MCE panic at the 400 W floor; under load the clock peaks at 2385 MHz | 2026-09-28 |
-| Kernel / NVIDIA driver | **7.0.0-43 / 595.99.02** since the 11-11 10:56 boot (7.0.0-42 from 11-10 10:10; Xid 79 recurred on it 11-10 12:07) (unattended upgrades on 11-08 06:26 and 11-09 06:40; every fault up to 11-08 was on 7.0.0-38 / 595.91.07). Unattended upgrades still update the NVIDIA packages, which leaves userspace and kernel module mismatched until the next reboot | 2026-11-10 |
+| Kernel / NVIDIA driver | **7.0.0-43 / 595.99.02** since the 11-11 10:56 boot (7.0.0-42 from 11-10 10:10; Xid 79 recurred on it 11-10 12:07; and on 7.0.0-43 at 11-11 16:16) (unattended upgrades on 11-08 06:26 and 11-09 06:40; every fault up to 11-08 was on 7.0.0-38 / 595.91.07). Unattended upgrades still update the NVIDIA packages, which leaves userspace and kernel module mismatched until the next reboot | 2026-11-10 |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
 | kdump | enabled; dumps land in `/var/crash/` | |
@@ -154,6 +154,24 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   pinned to Gen4), **kernel 7.0.0-43**, driver 595.99.02. A new kernel and a
   new driver have both now failed. **Needs a cold power cycle** (signature 1:
   a warm reboot won't bring the card back and may hang, signature 2).
+
+### 2026-11-11 16:16:16: Xid 79 5 h 19 min after the cold cycle, the first fault on 7.0.0-43 (7th overall)
+
+- **Boot ID:** `64f0fa51…` (up since 11-11 10:56:55). Not a reboot: the host
+  stayed up without its GPU, as with every Xid 79 here.
+- **Signature 1:** `Xid ... 79, pid=1229, name=nvidia-modeset/, GPU has fallen
+  off the bus` → GSP `Heartbeat timed out` / `Consistently Bad TimeLo value
+  ffffffff` → `Xid ... 154 ... (Node Reboot Required)`. No `pcieport`/AER line.
+- **Load:** ollama mid-generation (task 143752, ~128 tok/s, 1,931 tokens out at
+  16:16:13); its next sync died with `CUDA error: unspecified launch failure`
+  at the same second. Every fault since 10-20 has come during ollama
+  generation; still correlation, not proof.
+- **Cap in effect:** 400 W, 210–2400 MHz clock lock, Gen5 x16.
+- **After:** `nvidia-smi` → `Unable to determine the device handle ... Unknown
+  Error`; the link still reports 32.0 GT/s. The desktop session's Claude
+  sessions were interrupted (this entry was written from a resumed one).
+- **Response:** logged only. The card needs a cold cycle; the Gen4 BIOS pin is
+  still unapplied.
 
 ### 2026-11-11 10:55:34: abrupt end of the 11-10 Xid boot after ~23 h without the GPU (most likely the operator's cold cycle)
 
