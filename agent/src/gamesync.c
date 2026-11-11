@@ -161,6 +161,8 @@ static CRITICAL_SECTION g_gs_lock;
 static int       g_gs_lock_ready;
 static gs_state_t g_gs;
 static volatile LONG g_gs_running;
+static int g_gs_gr_blind;   /* this run cannot see a monitor - gs_session0_is_blind() */
+static int gs_session0_is_blind(void);
 static volatile LONG g_gs_abort;
 
 /* Sliding-window rate measurement, touched only by the worker thread. */
@@ -5762,7 +5764,15 @@ static void gs_run(const char *library)
      * mid-sync. The log line it emits is also the only place an operator can
      * see WHY a box was given the resolution it was given. */
     gs_set_msg("reading the monitor");
-    gameres_probe();
+    g_gs_gr_blind = gs_session0_is_blind();
+    if (g_gs_gr_blind)
+        log_msg(LOG_GS, "*** GAME RESOLUTIONS NOT SET: this agent runs in Windows "
+                        "session 0, which has no monitor (a virtual 1024x768). Every "
+                        "title keeps the library's settings. Run the agent in the "
+                        "logged-on user's session (an interactive scheduled task) "
+                        "and sync again. ***");
+    else
+        gameres_probe();
     /* Raise the desktop to the panel's best refresh BEFORE any title is
      * written: the id Tech 3 configs carry the persisted rate so they agree
      * with what each title's own launcher writes, so the desktop has to be on
@@ -5770,7 +5780,7 @@ static void gs_run(const char *library)
      * every engine that has no refresh setting of its own, which on this
      * library is most of them. NOT on a games-only box: its desktop mode is
      * the household's, not ours. */
-    if (!host_games_only())
+    if (!host_games_only() && !g_gs_gr_blind)
         gameres_apply_display();
 
     {
@@ -6112,7 +6122,10 @@ static void gs_run(const char *library)
              * written after it ran. Anything that later re-orders these two
              * calls silently restores that bug.
              */
-            gr_changed += gameres_apply_title(dst, titles[i], &gr_absent);
+            if (!g_gs_gr_blind)
+                gr_changed += gameres_apply_title(dst, titles[i], &gr_absent);
+            else
+                gr_absent = 0;
             gr_absent_t += gr_absent;
             if (gameres_has_rules(titles[i]))
                 gr_titles++;
@@ -6148,7 +6161,7 @@ static void gs_run(const char *library)
      * Before `state` turns done, so a STATUS that reads done carries it.
      * Skipped on an aborted run, which never reached every title. */
     gr_vok = -1;
-    if (!g_gs_abort)
+    if (!g_gs_abort && !g_gs_gr_blind)
         gr_vok = gameres_verify_sync(&gr_vwrong, &gr_vabsent);
 
     EnterCriticalSection(&g_gs_lock);
@@ -6304,6 +6317,36 @@ static DWORD WINAPI gs_worker(LPVOID param)
         g_gs_CoUninitialize();
     InterlockedExchange((LONG *)&g_gs_running, 0);
     return 0;
+}
+
+/* 1 = this process runs in Vista+ SESSION 0, which has no monitor: Windows
+ * gives it a virtual 1024x768 display with no EDID. Found on .139 (Windows
+ * 10, agent 1.100.0, 2026-11-11): its agent starts from a "run whether the
+ * user is logged on or not" scheduled task, and GAMERES there read "NO EDID -
+ * assuming a 4:3 tube, 1024x768" for an LG 2560x1440 144 Hz panel and was
+ * about to pin every game to it. A measurement that cannot be taken must not
+ * be replaced by a guess, so the sync then leaves every game's resolution as
+ * the library ships it and says so (the launchers' FLEETRES still runs in the
+ * player's session at launch). On XP, session 0 IS the console - not blind.
+ * ProcessIdToSessionId is LoadLibrary'd: Win98's kernel32 lacks it, and a
+ * static import would stop the agent loading there (ntdyn.h). */
+static int gs_session0_is_blind(void)
+{
+    typedef BOOL (WINAPI *pid2sess_t)(DWORD, DWORD *);
+    OSVERSIONINFOA v;
+    pid2sess_t f;
+    DWORD sess = 1;
+    HMODULE k = GetModuleHandleA("kernel32.dll");
+
+    memset(&v, 0, sizeof(v));
+    v.dwOSVersionInfoSize = sizeof(v);
+    if (!GetVersionExA(&v) || v.dwPlatformId != VER_PLATFORM_WIN32_NT ||
+        v.dwMajorVersion < 6 || !k)
+        return 0;
+    f = (pid2sess_t)GetProcAddress(k, "ProcessIdToSessionId");
+    if (!f || !f(GetCurrentProcessId(), &sess))
+        return 0;
+    return sess == 0;
 }
 
 static int gs_start(const char *library)

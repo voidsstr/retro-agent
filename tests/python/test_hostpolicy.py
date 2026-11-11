@@ -341,3 +341,17 @@ def test_games_only_run_skips_every_host_change():
 
 def test_hwprofile_reports_games_only():
     assert 'json_kv_bool(&j, "games_only", host_games_only())' in read(SRC / "hwprofile.c")
+
+
+def test_a_session0_sync_never_guesses_the_monitor():
+    """.139 (2026-11-11): a session-0 agent saw a virtual 1024x768 'CRT' and
+    was about to pin every game to it. Session 0 must skip GAMERES, loudly."""
+    s = read(SRC / "gamesync.c")
+    f = _function_body(s, "gs_session0_is_blind")
+    assert 'GetProcAddress(k, "ProcessIdToSessionId")' in f   # never a static import
+    assert "dwMajorVersion < 6" in f                          # XP session 0 is the console
+    body = _function_body(s, "gs_run")
+    assert body.index("gs_session0_is_blind()") < body.index("gameres_probe();")
+    for call in ("gameres_apply_title(", "gameres_verify_sync(", "gameres_apply_display();"):
+        at = body.index(call)
+        assert body.rfind("g_gs_gr_blind", 0, at) > at - 300, call
