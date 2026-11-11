@@ -2251,6 +2251,14 @@ startup thread still never provisions a modern box - start it with `GAMESYNC
 START` (and `GAMESYNC RESET` to redo). `HWPROFILE` reports
 `host_policy.games_only`. Made for `.139`. Tests: `test_hostpolicy.py` (games-only
 block).
+**Run the agent in the USER's session on such a box, not session 0.** `.139`'s
+agent started from a "run whether the user is logged on or not" task: Vista+
+session 0 has no monitor, so GAMERES saw a virtual 1024x768 "CRT" for a
+2560x1440 panel. 1.100.1 makes a session-0 sync skip resolutions loudly
+(`gs_session0_is_blind()`); the task is now `InteractiveToken` +
+`HighestAvailable` at logon (elevated, so it can write the Public desktop and
+HKLM). First sync there: 52 titles / 56.8 GB, 64 gated (the Win98 DOS packs,
+`max_os win9x`), 0 failed, 105 shortcuts, GAMERES verify wrong 0.
 
 **NEVER detect the OS with `GetVersionEx` here.** It reports **6.2 (Windows 8)**
 on every 8.1/10/11 machine unless the EXE carries a manifest naming the newer
