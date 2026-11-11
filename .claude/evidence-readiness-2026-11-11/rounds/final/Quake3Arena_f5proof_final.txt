@@ -1,0 +1,16 @@
+{"ip": "192.168.1.110", "fg": {"hwnd": "000200E4", "pid": 1292, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.123", "fg": {"hwnd": "000200DC", "pid": 1328, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.124", "fg": {"hwnd": "009000CE", "pid": 948, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.133", "fg": {"hwnd": "000400E4", "pid": 1768, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.143", "fg": {"hwnd": "000200EA", "pid": 208, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.171", "fg": {"hwnd": "0002014E", "pid": 1656, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.184", "fg": {"hwnd": "000200E0", "pid": 836, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+{"ip": "192.168.1.240", "fg": {"hwnd": "001E0036", "pid": 1484, "class": "SDL_app", "title": "ioquake3"}, "f5": "OK", "f5_at": "15:47:18"}
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet171: Fleet171 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet123: Fleet123 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet110: Fleet110 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet133: Fleet133 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet184: Fleet184 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet143: Fleet143 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet124: Fleet124 in game
+2026-11-11T15:47:18-05:00 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx ioq3ded[7192]: say: Fleet240: Fleet240 in game

@@ -1,0 +1,89 @@
+{
+ "key": "Quake3Arena",
+ "title": "Quake III Arena (baseq3, q3-server)",
+ "mode": "host_server",
+ "players_in_one_game": 8,
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet110 ^7192.168.1.110' ping 3 (not CNCT). 1486 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 1292), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet110: Fleet110 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_110.jpg: 800x600 GDI frame (half of 1600x1200): live 3D q3tourney2, HUD 100/87. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet123 ^7192.168.1.123' ping 4 (not CNCT). 1486 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 1328), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet123: Fleet123 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_123.jpg: 640x480 GDI frame (half of 1280x960): live 3D q3tourney2, HUD 100/68. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet124 ^7192.168.1.124' ping 1 (not CNCT). 505 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 948), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet124: Fleet124 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_124.jpg: 1280x960 vcrctl fbshot: live 3D q3tourney2 at 42 fps, name tag Fleet171 visible in the arch (cross-visibility with .171). Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet133 ^7192.168.1.133' ping 3 (not CNCT). 1484 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 1768), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet133: Fleet133 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_133.jpg: 640x480 GDI frame (half of 1280x960): live 3D q3tourney2, HUD 100/100. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet143 ^7192.168.1.143' ping 0 (not CNCT). 1342 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 208), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet143: Fleet143 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_143.jpg: 640x480 GDI frame (half of 1280x960): live 3D q3tourney2, HUD 100/100. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet171 ^7192.168.1.171' ping 1 (not CNCT). 1104 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 1656), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet171: Fleet171 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_171.jpg: 640x480 GDI frame (half of 1280x960): live 3D q3tourney2, name tag Fleet124 visible (cross-visibility with .124); 3D view inset in a dark border (cosmetic, cg_viewsize < 100), status bar drawn. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet184 ^7192.168.1.184' ping 3 (not CNCT). 1056 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 836), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet184: Fleet184 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_184.jpg: 512x384 GDI frame (half of 1024x768): live 3D q3tourney2, HUD 100/100. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena tree (C:\\Games\\Quake3-TeamArena), baseq3, ioquake3.x86.exe, profile C:\\fleetmp\\q3a, launcher C:\\fleetmp\\Quake3Arena.bat",
+   "evidence": "Checked by me 15:46-15:48. rcon status 15:46:42 on quake3-server :27961 (map q3tourney2) row 'Fleet240 ^7192.168.1.240' ping 3 (not CNCT). 1486 UDP packets to 192.168.1.132:27961 in a 12 s tcpdump. WINLIST foreground SDL_app 'ioquake3' (pid 1484), then UIKEY F5 at 15:47:18; the server journal logged 'say: Fleet240: Fleet240 in game' at 15:47:18, so this box's input reached the server during play. Frame /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/final/Quake3Arena_240.jpg: 960x540 GDI frame (half of 1920x1080): live widescreen 3D q3tourney2, HUD 100/100. Closed gracefully (WM_CLOSE, 'closed', no force); PROCLIST afterwards has no ioquake3.x86.exe/quake3.exe.",
+   "reason": "In the one shared baseq3 FFA game with the other 7 boxes at the same time."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "client": "",
+   "evidence": "HWPROFILE read by me 15:47: active adapter 'Standard VGA Graphics Adapter', PCI 10DE:1F82 (GeForce GTX 1650), 16 MB, empty driver version, Windows 7 6.1.7600 with no service pack. Not launched.",
+   "reason": "No 3D driver: the GTX 1650 (Turing) has no NVIDIA driver for 32-bit Windows 7 (that branch ended at R390), and id Tech 3 has no software renderer. Re-including it needs 64-bit Win7 SP1+ with NVIDIA 430+, or a card with a 32-bit Win7 driver."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "client": "",
+   "evidence": "compat.py status --box .243 (host-side, box not contacted): Quake3-TeamArena 'gated, operator override: not wanted on .243'; Quake3Arena 'gated, ships inside the Quake3-TeamArena tree'. The title is not installed there. Not launched.",
+   "reason": "Gate plus operator override: the Pentium 166 is below requires.json min_cpu_mhz 233, and the operator marked it not wanted on .243."
+  }
+ ],
+ "summary": "8 of 8 applicable boxes (.110 .123 .124 .133 .143 .171 .184 .240) were proven in the SAME live baseq3 FFA game on the dev host's quake3-server :27961 (q3tourney2), at the same time. I checked this myself, not from the round agent's report: rcon status mapped every Fleet<octet> name to its own IP, with no CNCT. All 8 sent sustained packets (505-1486 in 12 s). All 8 frames show live 3D at the box's fullscreen target. .124 and .171 each show the other's name tag in the world. A fresh F5 on each box (foreground ioquake3 checked first) produced a new 'say: FleetNNN' line on the server at 15:47:18 for all 8. .186 and .243 are NA: .186 has no 3D driver on 32-bit Win7, and .243 is gated with an operator override. lanparty.py kill closed ioquake3 gracefully on all 8 at 15:48 (WM_CLOSE, no force). PROCLIST then showed no game process and no crash reporter. Every desktop is back at its persisted mode, and the server roster is back to its 3 bots.",
+ "issues": [
+  "lanparty.py kill does not accept '--game' (argparse exit 2, 'unrecognized arguments: --game'). The working form is 'lanparty.py kill Quake3Arena --out ...'. The orchestrator's prompt template uses '--game': fix the template or the tool. Warning: a bare 'lanparty.py kill' with no game closes EVERY party game on the default box list.",
+  ".171 (cosmetic): its 3D view is inset inside a dark border (cg_viewsize below 100). This probably comes from the stray box-local q3config.cfg in the install tree, which the recipe review found on .124 .133 .143 .171 and which GAMESYNC never deletes. In my 15:46 frame the status bar and score box DO draw, which corrects the round agent's 'no status bar' note.",
+  ".124 is the slowest client: 42 fps in its frame and 505 pkts/12 s against ~1486 on the fast boxes. It is still sustained and in game. It runs entirely on our own stack (MesaFX ICD + h5 Glide + vcr-kmd on the V5 6000). It was closed with WM_CLOSE and needed no relaunch.",
+  "quake3-server: according to the round agent, with only bots connected it froze at intermission (q3dm17, 'Exit: Timelimit hit.' from 14:20:29 until the round) and needed one human UIKEY RETURN to change map. It now holds only its 3 bots on q3tourney2, so a later round may again find it at intermission and need one RETURN on a box whose foreground is ioquake3.",
+  "Not a round leftover: .124's foreground after the close is its pre-existing agent watchdog console 'cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd'. retro_chat consoles are open on .133 .143 .240 as usual. There are no crash dialogs or wrong desktop modes: live == persisted on all 8.",
+  "Evidence from this final pass is under rounds/final/ (check report Quake3Arena.json, frames Quake3Arena_<octet>.jpg, grid_final.jpg, rcon status, server journal, F5 proof, kill log, post-close PROCLIST/WINLIST/DISPLAYCFG, GAMERES modes, post-close desktop frames grid_postkill.jpg). The round agent's evidence in rounds/ was left untouched."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

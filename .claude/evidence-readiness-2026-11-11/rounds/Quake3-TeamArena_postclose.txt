@@ -1,0 +1,8 @@
+.110: title_procs_left=[] crash_dialogs=[] fg=Shell_TrayWnd/'' | {"width":1600,"height":1200,"bpp":32,"refresh":85} | frame=gdi (800, 600)
+.123: title_procs_left=[] crash_dialogs=[] fg=Shell_TrayWnd/'' | {"width":1280,"height":1024,"bpp":32,"refresh":100} | frame=gdi (640, 512)
+.124: title_procs_left=[] crash_dialogs=[] fg=Shell_TrayWnd/'' | {"width":1280,"height":1024,"bpp":32,"refresh":85} | frame=fbshot (1280, 1024)
+.133: title_procs_left=[] crash_dialogs=[] fg=ConsoleWindowClass/'C:\\RETRO_AGENT\\retro_chat.exe' | {"width":1280,"height":1024,"bpp":32,"refresh":85} | frame=gdi (640, 512)
+.143: title_procs_left=[] crash_dialogs=[] fg=ConsoleWindowClass/'C:\\RETRO_AGENT\\retro_chat.exe' | {"width":1280,"height":1024,"bpp":32,"refresh":60} | frame=gdi (640, 512)
+.171: title_procs_left=[] crash_dialogs=[] fg=Shell_TrayWnd/'' | {"width":1280,"height":1024,"bpp":32,"refresh":85} | frame=gdi (640, 512)
+.184: title_procs_left=[] crash_dialogs=[] fg=Shell_TrayWnd/'' | {"width":1024,"height":768,"bpp":32,"refresh":85} | frame=gdi (512, 384)
+.240: title_procs_left=[] crash_dialogs=[] fg=ConsoleWindowClass/'C:\\RETRO_AGENT\\retro_chat.exe' | {"width":1920,"height":1080,"bpp":32,"refresh":60} | frame=gdi (960, 540)

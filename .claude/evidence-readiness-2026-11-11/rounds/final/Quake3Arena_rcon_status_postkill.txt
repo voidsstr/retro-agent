@@ -1,0 +1,8 @@
+map: q3tourney2
+cl score ping name            address                                 rate 
+-- ----- ---- --------------- --------------------------------------- -----
+ 0     0    0 Sorlag          ^7bot                                     16384
+ 1     1    0 Major           ^7bot                                     16384
+ 2     0    0 ^1A^2n^3a^4r^5k^6i          ^7bot                                     16384
+
+

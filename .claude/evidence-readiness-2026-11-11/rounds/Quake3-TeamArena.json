@@ -1,0 +1,164 @@
+{
+ "game": "Quake3-TeamArena",
+ "time": "2026-11-11T15:57:18",
+ "roster": [
+  [
+   "Fleet123",
+   0,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   6,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   0,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   0,
+   false,
+   null
+  ]
+ ],
+ "packets": {
+  "192.168.1.171": 672,
+  "192.168.1.143": 1316,
+  "192.168.1.184": 483,
+  "192.168.1.133": 1018,
+  "192.168.1.110": 1476,
+  "192.168.1.124": 368,
+  "192.168.1.240": 1451,
+  "192.168.1.123": 1485
+ },
+ "port": 27962,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1476,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1485,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 368,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1018,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1316,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 672,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 483,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "ioquake3.x86.exe"
+   ],
+   "foreground": "ioquake3",
+   "shot": "Quake3-TeamArena_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 1451,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -1,0 +1,10 @@
+prelaunch: rcon 'map mpteam1' -> '==== ShutdownGame ====\nShutdownGame:\n------------------------------------------------------------\nAAS shutdown.\n------ S'
+prelaunch: slept 8s
+(110, 'launched', [], '{"pid":1232,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(123, 'launched', [], '{"pid":288,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(124, 'launched', [], '{"pid":540,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(133, 'launched', [], '{"pid":736,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(143, 'launched', [], '{"pid":1740,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(171, 'launched', [], '{"pid":336,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(184, 'launched', [], '{"pid":1612,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')
+(240, 'launched', [], '{"pid":940,"command":"\\"C:\\\\fleetmp\\\\Quake3-TeamArena.bat\\""}')

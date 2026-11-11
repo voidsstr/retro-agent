@@ -1,0 +1,36 @@
+{
+ "hostname": "ADMIN-PC",
+ "os": {
+  "product": "Windows 7",
+  "version": "6.1.7600",
+  "service_pack": "",
+  "level": "win7",
+  "level_num": 5
+ },
+ "gpu": {
+  "name": "Standard VGA Graphics Adapter",
+  "pci_ven": "0x10DE",
+  "pci_dev": "0x1F82",
+  "hardware_id": "PCI\\VEN_10DE&DEV_1F82&SUBSYS_8D921462&REV_A1",
+  "vram_mb": 16,
+  "driver_version": "",
+  "driver_date": "",
+  "feature_level": "sm3.0",
+  "feature_level_num": 5,
+  "source": "EnumDisplayDevices(active)"
+ },
+ "display": {
+  "width": 1920,
+  "height": 1080,
+  "bpp": 32,
+  "panel_w": 1920,
+  "panel_h": 1080,
+  "panel_source": "registry",
+  "edid_w": 1920,
+  "edid_h": 1080,
+  "panel_hz": 60,
+  "panel_digital": 1,
+  "panel_name": "DELL P2312H"
+ },
+ "profile_hash": "8fe1838e2c779bda"
+}

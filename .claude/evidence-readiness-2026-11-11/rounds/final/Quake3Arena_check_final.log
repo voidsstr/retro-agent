@@ -1,0 +1,19 @@
+
+Quake III Arena (baseq3, q3-server): server roster (8 non-bot):
+    ('Fleet123', 1, False, None)
+    ('Fleet110', 3, False, None)
+    ('Fleet171', 1, False, None)
+    ('Fleet240', 3, False, None)
+    ('Fleet143', 1, False, None)
+    ('Fleet184', 0, False, None)
+    ('Fleet133', 3, False, None)
+    ('Fleet124', 3, False, None)
+  packets to 192.168.1.132:27961 in 12s: {'192.168.1.110': 1486, '192.168.1.123': 1486, '192.168.1.133': 1484, '192.168.1.240': 1486, '192.168.1.171': 1104, '192.168.1.143': 1342, '192.168.1.184': 1056, '192.168.1.124': 505}
+  .110: running=['ioquake3.x86.exe'] on_server=yes packets=1486 black=False fg='ioquake3'
+  .123: running=['ioquake3.x86.exe'] on_server=yes packets=1486 black=False fg='ioquake3'
+  .124: running=['ioquake3.x86.exe'] on_server=yes packets=505 black=False fg='ioquake3' fbshot
+  .133: running=['ioquake3.x86.exe'] on_server=yes packets=1484 black=False fg='ioquake3'
+  .143: running=['ioquake3.x86.exe'] on_server=yes packets=1342 black=False fg='ioquake3'
+  .171: running=['ioquake3.x86.exe'] on_server=yes packets=1104 black=False fg='ioquake3'
+  .184: running=['ioquake3.x86.exe'] on_server=yes packets=1056 black=False fg='ioquake3'
+  .240: running=['ioquake3.x86.exe'] on_server=yes packets=1486 black=False fg='ioquake3'

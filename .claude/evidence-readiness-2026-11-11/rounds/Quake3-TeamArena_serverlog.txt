@@ -1,0 +1,150 @@
+Rcon from 192.168.1.132: map mpteam1
+Kill: 1 0 18: Morgan killed Sarge by MOD_TELEFRAG
+Item: 2 item_armor_body
+Item: 1 ammo_rockets
+Item: 1 weapon_plasmagun
+Item: 0 ammo_rockets
+Item: 2 ammo_mines
+Client 0 connecting with 50 challenge ping
+ClientConnect: 3
+ClientUserinfoChanged: 3 n\Fleet123\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet123^7 connected\n"
+Item: 2 weapon_rocketlauncher
+Item: 0 weapon_plasmagun
+Client 1 connecting with 0 challenge ping
+ClientConnect: 4
+ClientUserinfoChanged: 4 n\Fleet240\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet240^7 connected\n"
+Client 2 connecting with 0 challenge ping
+ClientConnect: 5
+ClientUserinfoChanged: 5 n\Fleet110\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet110^7 connected\n"
+Client 3 connecting with 0 challenge ping
+ClientConnect: 6
+ClientUserinfoChanged: 6 n\Fleet171\t\0\model\crash/default\hmodel\crash/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet171^7 connected\n"
+Kill: 1 0 8: Morgan killed Sarge by MOD_PLASMA
+Item: 1 weapon_plasmagun
+Client 4 connecting with 0 challenge ping
+ClientConnect: 7
+ClientUserinfoChanged: 7 n\Fleet143\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet143^7 connected\n"
+Client 5 connecting with 0 challenge ping
+ClientConnect: 8
+ClientUserinfoChanged: 8 n\Fleet184\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet184^7 connected\n"
+Kill: 2 1 6: Ranger killed Morgan by MOD_ROCKET
+Client 6 connecting with 0 challenge ping
+ClientConnect: 9
+ClientUserinfoChanged: 9 n\Fleet133\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet133^7 connected\n"
+ClientUserinfoChanged: 3 n\Fleet123\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet123^7 entered the game\n"
+ClientBegin: 3
+Client 7 connecting with 0 challenge ping
+ClientConnect: 10
+ClientUserinfoChanged: 10 n\Fleet124\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet124^7 connected\n"
+Kill: 1 3 18: Morgan killed Fleet123 by MOD_TELEFRAG
+Item: 1 weapon_plasmagun
+ClientUserinfoChanged: 5 n\Fleet110\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet110^7 entered the game\n"
+ClientBegin: 5
+Kill: 0 1 3: Sarge killed Morgan by MOD_MACHINEGUN
+ClientUserinfoChanged: 6 n\Fleet171\t\0\model\crash/default\hmodel\crash/default\g_redteam\Stroggs\g_blueteam\Pagans\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+Kill: 6 5 18: Fleet171 killed Fleet110 by MOD_TELEFRAG
+broadcast: print "Fleet171^7 entered the game\n"
+ClientBegin: 6
+ClientUserinfoChanged: 4 n\Fleet240\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+Kill: 4 6 18: Fleet240 killed Fleet171 by MOD_TELEFRAG
+broadcast: print "Fleet240^7 entered the game\n"
+ClientBegin: 4
+Kill: 1 4 18: Morgan killed Fleet240 by MOD_TELEFRAG
+Item: 1 weapon_plasmagun
+Item: 2 item_health_large
+Kill: 1 2 8: Morgan killed Ranger by MOD_PLASMA
+Item: 0 weapon_rocketlauncher
+broadcast: print "Sarge^7 was kicked\n"
+ClientDisconnect: 0
+say: Sarge: Duty calls.
+Sarge^7: Duty calls.
+Kill: 1 2 9: Morgan killed Ranger by MOD_PLASMA_SPLASH
+Item: 1 weapon_rocketlauncher
+ClientUserinfoChanged: 7 n\Fleet143\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet143^7 entered the game\n"
+ClientBegin: 7
+Kill: 1 7 7: Morgan killed Fleet143 by MOD_ROCKET_SPLASH
+broadcast: print "Morgan^7 was kicked\n"
+ClientDisconnect: 1
+Item: 2 weapon_rocketlauncher
+ClientUserinfoChanged: 10 n\Fleet124\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+Kill: 10 3 18: Fleet124 killed Fleet123 by MOD_TELEFRAG
+broadcast: print "Fleet124^7 entered the game\n"
+ClientBegin: 10
+ClientUserinfoChanged: 8 n\Fleet184\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet184^7 entered the game\n"
+ClientBegin: 8
+Kill: 2 10 7: Ranger killed Fleet124 by MOD_ROCKET_SPLASH
+Kill: 6 5 18: Fleet171 killed Fleet110 by MOD_TELEFRAG
+Kill: 2 6 6: Ranger killed Fleet171 by MOD_ROCKET
+Kill: 2 8 7: Ranger killed Fleet184 by MOD_ROCKET_SPLASH
+Kill: 2 4 7: Ranger killed Fleet240 by MOD_ROCKET_SPLASH
+ClientUserinfoChanged: 9 n\Fleet133\t\0\model\sarge\hmodel\sarge\g_redteam\Stroggs\g_blueteam\Pagans\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+broadcast: print "Fleet133^7 entered the game\n"
+ClientBegin: 9
+broadcast: print "Ranger^7 was kicked\n"
+ClientDisconnect: 2
+say: Ranger: Ranger to base ... evac of mpteam1 commencing!
+Ranger^7: Ranger to base ... evac of mpteam1 commencing!
+Kill: 7 9 18: Fleet143 killed Fleet133 by MOD_TELEFRAG
+Kill: 3 7 18: Fleet123 killed Fleet143 by MOD_TELEFRAG
+Kill: 10 3 18: Fleet124 killed Fleet123 by MOD_TELEFRAG
+Kill: 5 10 18: Fleet110 killed Fleet124 by MOD_TELEFRAG
+Kill: 8 5 18: Fleet184 killed Fleet110 by MOD_TELEFRAG
+Kill: 6 8 18: Fleet171 killed Fleet184 by MOD_TELEFRAG
+Kill: 4 6 18: Fleet240 killed Fleet171 by MOD_TELEFRAG
+Kill: 9 4 18: Fleet133 killed Fleet240 by MOD_TELEFRAG
+Kill: 7 9 18: Fleet143 killed Fleet133 by MOD_TELEFRAG
+Rcon from 192.168.1.132: status
+Kill: 3 7 18: Fleet123 killed Fleet143 by MOD_TELEFRAG
+Kill: 10 3 18: Fleet124 killed Fleet123 by MOD_TELEFRAG
+Kill: 5 10 18: Fleet110 killed Fleet124 by MOD_TELEFRAG
+Kill: 8 5 18: Fleet184 killed Fleet110 by MOD_TELEFRAG
+Kill: 6 8 18: Fleet171 killed Fleet184 by MOD_TELEFRAG
+Kill: 4 6 18: Fleet240 killed Fleet171 by MOD_TELEFRAG
+say: Fleet171: Fleet171 in game
+Fleet171^7: Fleet171 in game
+say: Fleet184: Fleet184 in game
+Fleet184^7: Fleet184 in game
+say: Fleet123: Fleet123 in game
+Fleet123^7: Fleet123 in game
+say: Fleet240: Fleet240 in game
+Fleet240^7: Fleet240 in game
+say: Fleet110: Fleet110 in game
+Fleet110^7: Fleet110 in game
+say: Fleet143: Fleet143 in game
+Fleet143^7: Fleet143 in game
+say: Fleet133: Fleet133 in game
+Fleet133^7: Fleet133 in game
+say: Fleet124: Fleet124 in game
+Fleet124^7: Fleet124 in game
+Kill: 9 4 18: Fleet133 killed Fleet240 by MOD_TELEFRAG
+Kill: 7 9 18: Fleet143 killed Fleet133 by MOD_TELEFRAG
+Kill: 3 7 18: Fleet123 killed Fleet143 by MOD_TELEFRAG
+Kill: 5 3 18: Fleet110 killed Fleet123 by MOD_TELEFRAG
+Kill: 10 5 18: Fleet124 killed Fleet110 by MOD_TELEFRAG
+Kill: 8 10 18: Fleet184 killed Fleet124 by MOD_TELEFRAG
+Kill: 6 8 18: Fleet171 killed Fleet184 by MOD_TELEFRAG
+Kill: 4 6 18: Fleet240 killed Fleet171 by MOD_TELEFRAG
+Kill: 9 4 18: Fleet133 killed Fleet240 by MOD_TELEFRAG
+Kill: 7 9 18: Fleet143 killed Fleet133 by MOD_TELEFRAG
+Kill: 3 7 18: Fleet123 killed Fleet143 by MOD_TELEFRAG
+Kill: 5 3 18: Fleet110 killed Fleet123 by MOD_TELEFRAG
+Kill: 10 5 18: Fleet124 killed Fleet110 by MOD_TELEFRAG
+Kill: 8 10 18: Fleet184 killed Fleet124 by MOD_TELEFRAG
+Kill: 6 8 18: Fleet171 killed Fleet184 by MOD_TELEFRAG
+Kill: 4 6 18: Fleet240 killed Fleet171 by MOD_TELEFRAG
+Kill: 9 4 18: Fleet133 killed Fleet240 by MOD_TELEFRAG
+Kill: 3 9 18: Fleet123 killed Fleet133 by MOD_TELEFRAG
+Kill: 7 3 18: Fleet143 killed Fleet123 by MOD_TELEFRAG
+Kill: 5 7 18: Fleet110 killed Fleet143 by MOD_TELEFRAG

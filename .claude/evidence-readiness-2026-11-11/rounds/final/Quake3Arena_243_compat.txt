@@ -1,0 +1,2 @@
+Quake3-TeamArena           gated      untested  untested           operator override: not wanted on .243: the user kept Quake/Quake II/UT
+Quake3Arena                gated      untested  untested           ships inside the Quake3-TeamArena tree

@@ -1,0 +1,42 @@
+L 11/11/2026 - 15:23:49: "Fleet123<43><STEAM_ID_LAN><>" connected, address "192.168.1.123:27005"
+L 11/11/2026 - 15:23:50: "Fleet186<44><STEAM_ID_LAN><>" connected, address "192.168.1.186:27005"
+L 11/11/2026 - 15:23:52: "Fleet171<45><STEAM_ID_LAN><>" connected, address "192.168.1.171:27005"
+L 11/11/2026 - 15:23:53: "Fleet110<46><STEAM_ID_LAN><>" connected, address "192.168.1.110:27005"
+L 11/11/2026 - 15:23:54: "Fleet240<47><STEAM_ID_LAN><>" connected, address "192.168.1.240:27005"
+L 11/11/2026 - 15:23:55: "Fleet123<43><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:23:56: "Fleet143<48><STEAM_ID_LAN><>" connected, address "192.168.1.143:27005"
+L 11/11/2026 - 15:23:57: "Fleet184<49><STEAM_ID_LAN><>" connected, address "192.168.1.184:27005"
+L 11/11/2026 - 15:23:58: "Fleet186<44><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:03: "Fleet110<46><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:05: "Fleet171<45><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:05: "Fleet143<48><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:06: "Fleet133<50><STEAM_ID_LAN><>" connected, address "192.168.1.133:27005"
+L 11/11/2026 - 15:24:10: "Fleet240<47><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:11: "Fleet124<51><STEAM_ID_LAN><>" connected, address "192.168.1.124:27005"
+L 11/11/2026 - 15:24:17: "Fleet184<49><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:20: "Fleet133<50><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:31: "Fleet124<51><STEAM_ID_LAN><>" entered the game
+L 11/11/2026 - 15:24:34: World triggered "Round_Start"
+L 11/11/2026 - 15:25:04: "Brandon<41><BOT><CT>" killed "Flying Martini<40><BOT><TERRORIST>" with "m4a1"
+L 11/11/2026 - 15:25:05: "Fleet110<46><STEAM_ID_LAN><>" joined team "TERRORIST"
+L 11/11/2026 - 15:25:06: Kick: "Flying Martini<40><STEAM_ID_LAN><>" was kicked by "Console"
+L 11/11/2026 - 15:25:06: "Flying Martini<40><BOT><TERRORIST>" disconnected
+Reason:  Kicked
+L 11/11/2026 - 15:25:06: "Fleet123<43><STEAM_ID_LAN><>" joined team "TERRORIST"
+L 11/11/2026 - 15:25:06: Kick: "bussemann<42><STEAM_ID_LAN><>" was kicked by "Console"
+L 11/11/2026 - 15:25:06: "bussemann<42><BOT><CT>" disconnected
+Reason:  Kicked
+L 11/11/2026 - 15:25:07: "Fleet124<51><STEAM_ID_LAN><>" joined team "TERRORIST"
+L 11/11/2026 - 15:25:08: Kick: "Brandon<41><STEAM_ID_LAN><>" was kicked by "Console"
+L 11/11/2026 - 15:25:08: "Brandon<41><BOT><CT>" disconnected
+Reason:  Kicked
+L 11/11/2026 - 15:25:08: "Fleet133<50><STEAM_ID_LAN><>" joined team "TERRORIST"
+L 11/11/2026 - 15:25:09: "Fleet143<48><STEAM_ID_LAN><>" joined team "TERRORIST"
+L 11/11/2026 - 15:25:10: "Fleet171<45><STEAM_ID_LAN><>" joined team "CT"
+L 11/11/2026 - 15:25:11: "Fleet184<49><STEAM_ID_LAN><>" joined team "CT"
+L 11/11/2026 - 15:25:12: World triggered "Round_Start"
+L 11/11/2026 - 15:25:12: "Fleet186<44><STEAM_ID_LAN><>" joined team "CT"
+L 11/11/2026 - 15:25:13: "Fleet240<47><STEAM_ID_LAN><>" joined team "CT"
+L 11/11/2026 - 15:25:30: World triggered "Game_Commencing"
+L 11/11/2026 - 15:25:30: World triggered "Game_Commencing" (CT "2") (T "0")
+L 11/11/2026 - 15:25:36: World triggered "Round_Start"

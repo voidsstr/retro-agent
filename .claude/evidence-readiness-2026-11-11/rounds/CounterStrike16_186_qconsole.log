@@ -1,0 +1,29 @@
+4684k surface cache
+Using secondary sound buffer
+Server module initialized.
+World module initialized.
+Can't "cmd", not connected
+NET Ports:  server 27015, client 27005
+Server IP address 192.168.1.186:27015
+|--------------[BCShield 2.5]---------------|
+|-------Project by HLDS-Project------------|
+|------------WWW.BCS16.RO------------|
+|----------------------------------------------|
+Connecting to 192.168.1.132:27018...
+Connection accepted by 192.168.1.132:27018
+
+BUILD 10211 SERVER (0 CRC)
+Server # 14
+[SVC_STUFFTEXT] Server tried to send invalid command: upload "!MD578583230916aff438e22cff1d2076195"
+
+Warning:  RAD_ERROR_NOCONTENT for cellid 180
+Warning:  RAD_ERROR_NOCONTENT for cellid 181
+Fleet186 connected
+*** Brandon killed Flying Martini with a headshot from m4a1 ***
+Fleet186 is joining the Counter-Terrorist force
+Fleet240 is joining the Counter-Terrorist force
+Scoring will not start until both teams have players
+Scoring will not start until both teams have players
+Scoring will not start until both teams have players
+Scoring will not start until both teams have players
+Scoring will not start until both teams have players

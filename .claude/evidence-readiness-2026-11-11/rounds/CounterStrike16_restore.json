@@ -1,0 +1,92 @@
+[
+ {
+  "box": 110,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 123,
+  "upload": [
+   0,
+   "b'OK 3828'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 124,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 133,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 143,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 171,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 184,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 186,
+  "upload": [
+   0,
+   "b'OK 3824'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ },
+ {
+  "box": 240,
+  "upload": [
+   0,
+   "b'OK 3815'"
+  ],
+  "restored_md5_ok": true,
+  "userconfig.cfg": "absent: Cannot open file: error 2",
+  "autoexec.cfg": "absent: Cannot open file: error 2"
+ }
+]

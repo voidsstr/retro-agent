@@ -1,0 +1,8 @@
+192.168.1.110 {"desktop": {"persisted": "1600x1200", "persisted_hz": 85, "live": "1600x1200", "bpp": 32}, "desktop.persisted": "1600x1200", "desktop.persisted_hz": 85, "desktop.live": "1600x1200", "target.hz_desktop": 85}
+192.168.1.123 {"desktop": {"persisted": "1280x1024", "persisted_hz": 100, "live": "1280x1024", "bpp": 32}, "desktop.persisted": "1280x1024", "desktop.persisted_hz": 100, "desktop.live": "1280x1024", "target.hz_desktop": 180}
+192.168.1.124 {"desktop": {"persisted": "1280x1024", "persisted_hz": 85, "live": "1280x1024", "bpp": 32}, "desktop.persisted": "1280x1024", "desktop.persisted_hz": 85, "desktop.live": "1280x1024", "target.hz_desktop": 85}
+192.168.1.133 {"desktop": {"persisted": "1280x1024", "persisted_hz": 85, "live": "1280x1024", "bpp": 32}, "desktop.persisted": "1280x1024", "desktop.persisted_hz": 85, "desktop.live": "1280x1024", "target.hz_desktop": 85}
+192.168.1.143 {"desktop": {"persisted": "1280x1024", "persisted_hz": 60, "live": "1280x1024", "bpp": 32}, "desktop.persisted": "1280x1024", "desktop.persisted_hz": 60, "desktop.live": "1280x1024", "target.hz_desktop": 170}
+192.168.1.171 {"desktop": {"persisted": "1280x1024", "persisted_hz": 85, "live": "1280x1024", "bpp": 32}, "desktop.persisted": "1280x1024", "desktop.persisted_hz": 85, "desktop.live": "1280x1024", "target.hz_desktop": 85}
+192.168.1.184 {"desktop": {"persisted": "1024x768", "persisted_hz": 85, "live": "1024x768", "bpp": 32}, "desktop.persisted": "1024x768", "desktop.persisted_hz": 85, "desktop.live": "1024x768", "target.hz_desktop": 85}
+192.168.1.240 {"desktop": {"persisted": "1920x1080", "persisted_hz": 60, "live": "1920x1080", "bpp": 32}, "desktop.persisted": "1920x1080", "desktop.persisted_hz": 60, "desktop.live": "1920x1080", "target.hz_desktop": 60}

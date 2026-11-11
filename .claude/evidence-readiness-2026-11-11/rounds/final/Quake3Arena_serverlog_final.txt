@@ -1,0 +1,50 @@
+broadcast: print "Fleet110^7 entered the game\n"
+ClientBegin: 4
+broadcast: print "Fleet171^7 entered the game\n"
+ClientBegin: 5
+broadcast: print "Fleet143^7 entered the game\n"
+ClientBegin: 7
+broadcast: print "Fleet240^7 entered the game\n"
+ClientBegin: 6
+broadcast: print "Fleet124^7 connected\n"
+broadcast: print "Fleet184^7 entered the game\n"
+ClientBegin: 8
+broadcast: print "Fleet133^7 entered the game\n"
+ClientBegin: 9
+broadcast: print "Fleet124^7 entered the game\n"
+ClientBegin: 10
+Server: q3tourney2
+broadcast: print "Gorre^7 entered the game\n"
+ClientBegin: 0
+broadcast: print "Keel^7 entered the game\n"
+ClientBegin: 1
+broadcast: print "Bitterman^7 entered the game\n"
+ClientBegin: 2
+broadcast: print "Fleet171^7 entered the game\n"
+ClientBegin: 5
+broadcast: print "Fleet123^7 entered the game\n"
+ClientBegin: 3
+broadcast: print "Fleet110^7 entered the game\n"
+ClientBegin: 4
+broadcast: print "Fleet240^7 entered the game\n"
+ClientBegin: 6
+broadcast: print "Fleet124^7 entered the game\n"
+ClientBegin: 10
+broadcast: print "Fleet143^7 entered the game\n"
+ClientBegin: 7
+broadcast: print "Fleet133^7 entered the game\n"
+ClientBegin: 9
+broadcast: print "Fleet184^7 entered the game\n"
+ClientBegin: 8
+Kill: 2 5 7: Bitterman killed Fleet171 by MOD_ROCKET_SPLASH
+Kill: 2 9 7: Bitterman killed Fleet133 by MOD_ROCKET_SPLASH
+Kill: 2 6 6: Bitterman killed Fleet240 by MOD_ROCKET
+say: Fleet110: Fleet110 in game
+say: Fleet124: Fleet124 in game
+say: Fleet133: Fleet133 in game
+say: Fleet240: Fleet240 in game
+say: Fleet123: Fleet123 in game
+say: Fleet184: Fleet184 in game
+say: Fleet143: Fleet143 in game
+say: Fleet171: Fleet171 in game
+Kill: 2 8 11: Bitterman killed Fleet184 by MOD_LIGHTNING

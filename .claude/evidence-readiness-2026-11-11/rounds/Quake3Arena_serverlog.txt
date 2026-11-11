@@ -1,0 +1,79 @@
+15:39:46 Client 0 connecting with 50 challenge ping
+15:39:46 ClientUserinfoChanged: 3 n\Fleet123\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:46 broadcast: print "Fleet123^7 connected\n"
+15:39:47 Client 1 connecting with 50 challenge ping
+15:39:47 ClientUserinfoChanged: 4 n\Fleet110\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:47 broadcast: print "Fleet110^7 connected\n"
+15:39:48 Client 2 connecting with 0 challenge ping
+15:39:48 ClientUserinfoChanged: 5 n\Fleet171\t\0\model\crash/default\hmodel\crash/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:48 broadcast: print "Fleet171^7 connected\n"
+15:39:48 Client 3 connecting with 50 challenge ping
+15:39:48 ClientUserinfoChanged: 6 n\Fleet240\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:48 broadcast: print "Fleet240^7 connected\n"
+15:39:49 Client 4 connecting with 0 challenge ping
+15:39:49 ClientUserinfoChanged: 7 n\Fleet143\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:49 broadcast: print "Fleet143^7 connected\n"
+15:39:49 ClientUserinfoChanged: 3 n\Fleet123\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:49 broadcast: print "Fleet123^7 entered the game\n"
+15:39:50 Client 5 connecting with 0 challenge ping
+15:39:50 ClientUserinfoChanged: 8 n\Fleet184\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:50 broadcast: print "Fleet184^7 connected\n"
+15:39:51 Client 6 connecting with 0 challenge ping
+15:39:51 ClientUserinfoChanged: 9 n\Fleet133\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:51 broadcast: print "Fleet133^7 connected\n"
+15:39:51 ClientUserinfoChanged: 4 n\Fleet110\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:51 broadcast: print "Fleet110^7 entered the game\n"
+15:39:52 ClientUserinfoChanged: 5 n\Fleet171\t\0\model\crash/default\hmodel\crash/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:52 broadcast: print "Fleet171^7 entered the game\n"
+15:39:54 ClientUserinfoChanged: 7 n\Fleet143\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:54 broadcast: print "Fleet143^7 entered the game\n"
+15:39:55 ClientUserinfoChanged: 6 n\Fleet240\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:55 broadcast: print "Fleet240^7 entered the game\n"
+15:39:55 Client 7 connecting with 0 challenge ping
+15:39:55 ClientUserinfoChanged: 10 n\Fleet124\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:55 broadcast: print "Fleet124^7 connected\n"
+15:39:59 ClientUserinfoChanged: 8 n\Fleet184\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:59 broadcast: print "Fleet184^7 entered the game\n"
+15:39:59 ClientUserinfoChanged: 9 n\Fleet133\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:39:59 broadcast: print "Fleet133^7 entered the game\n"
+15:40:01 ClientUserinfoChanged: 10 n\Fleet124\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:40:01 broadcast: print "Fleet124^7 entered the game\n"
+15:42:28 Server: q3tourney2
+15:42:28 ClientUserinfoChanged: 0 n\Gorre\t\0\model\visor/gorre\hmodel\visor/gorre\c1\4\c2\5\hc\100\w\0\l\0\skill\    4.00\tt\0\tl\0
+15:42:28 broadcast: print "Gorre^7 entered the game\n"
+15:42:28 ClientUserinfoChanged: 1 n\Keel\t\0\model\keel\hmodel\keel\c1\4\c2\5\hc\100\w\0\l\0\skill\    4.00\tt\0\tl\0
+15:42:28 broadcast: print "Keel^7 entered the game\n"
+15:42:28 ClientUserinfoChanged: 2 n\Bitterman\t\0\model\bitterman\hmodel\bitterman\c1\4\c2\5\hc\100\w\0\l\0\skill\    4.00\tt\0\tl\0
+15:42:28 broadcast: print "Bitterman^7 entered the game\n"
+15:42:28 ClientUserinfoChanged: 3 n\Fleet123\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 4 n\Fleet110\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 5 n\Fleet171\t\0\model\crash/default\hmodel\crash/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 6 n\Fleet240\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 7 n\Fleet143\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 8 n\Fleet184\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 9 n\Fleet133\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:28 ClientUserinfoChanged: 10 n\Fleet124\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:31 ClientUserinfoChanged: 5 n\Fleet171\t\0\model\crash/default\hmodel\crash/default\g_redteam\\g_blueteam\\c1\5\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:31 broadcast: print "Fleet171^7 entered the game\n"
+15:42:31 ClientUserinfoChanged: 3 n\Fleet123\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:31 broadcast: print "Fleet123^7 entered the game\n"
+15:42:32 ClientUserinfoChanged: 4 n\Fleet110\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:32 broadcast: print "Fleet110^7 entered the game\n"
+15:42:33 ClientUserinfoChanged: 6 n\Fleet240\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:33 broadcast: print "Fleet240^7 entered the game\n"
+15:42:33 ClientUserinfoChanged: 10 n\Fleet124\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:33 broadcast: print "Fleet124^7 entered the game\n"
+15:42:35 ClientUserinfoChanged: 7 n\Fleet143\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:35 broadcast: print "Fleet143^7 entered the game\n"
+15:42:37 ClientUserinfoChanged: 9 n\Fleet133\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:37 broadcast: print "Fleet133^7 entered the game\n"
+15:42:37 ClientUserinfoChanged: 8 n\Fleet184\t\0\model\sarge\hmodel\sarge\g_redteam\\g_blueteam\\c1\4\c2\5\hc\100\w\0\l\0\tt\0\tl\0
+15:42:37 broadcast: print "Fleet184^7 entered the game\n"
+15:42:53 say: Fleet110: Fleet110 in game
+15:42:53 say: Fleet124: Fleet124 in game
+15:42:53 say: Fleet133: Fleet133 in game
+15:42:53 say: Fleet240: Fleet240 in game
+15:42:53 say: Fleet123: Fleet123 in game
+15:42:53 say: Fleet184: Fleet184 in game
+15:42:53 say: Fleet143: Fleet143 in game
+15:42:53 say: Fleet171: Fleet171 in game

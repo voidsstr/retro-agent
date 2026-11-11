@@ -1,0 +1,92 @@
+{
+ "key": "CounterStrike16",
+ "title": "Counter-Strike 1.6",
+ "mode": "host_server",
+ "players_in_one_game": 9,
+ "summary": "9 of 9 applicable boxes PROVEN in one CS 1.6 match on the dev host server cs16-server 192.168.1.132:27018 (HLDS 10211, cs_italy). Re-verified independently: rcon status names Fleet110/123/124/133/143/171/184/186/240 each at its own IP with the same uid it joined with at 15:23-15:24 (43-51); the log has every box connected -> entered -> joined team (T: 110 123 124 133 143; CT: 171 184 186 240), no Fleet disconnects or kicks, round 1 ended Hostages_Not_Rescued 15:30:36 and round 2 started 15:30:44; tcpdump 12 s shows 244-337 packets from every box to :27018; every box has Valve001 foreground and a frame of the live round with HUD (T $4650 / CT $800, timers consistent with round 2). .243 NA (165 MHz under the 233 MHz floor; not deployed by operator override). .145/.197 off and not probed.",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet110\" uid 46 at 192.168.1.110:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"TERRORIST\". tcpdump 12 s: 262 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". frame CounterStrike16_110.jpg (15:31:19): Glock, HUD 100 health, $4650, 20|40, round timer 4:25.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet123\" uid 43 at 192.168.1.123:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"TERRORIST\". tcpdump 12 s: 297 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". frame CounterStrike16_123.jpg (15:31:19): Glock, HUD 100 health, $4650, round timer 4:25, a T teammate in view.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet124\" uid 51 at 192.168.1.124:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"TERRORIST\". tcpdump 12 s: 337 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". vcrctl fbshot CounterStrike16_124.jpg (15:31:21, 1280x960): Glock, radar, buy-zone cart, 100 health, $4650, 20|40, timer 4:23 (OpenGL on retroicd.dll, -gl, not D3D).",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet133\" uid 50 at 192.168.1.133:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"TERRORIST\". tcpdump 12 s: 306 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". first check frame caught the world without the HUD (GDI timing miss); re-shot CounterStrike16_133_final1.jpg (15:33:25): Glock, radar, $4650, 20|40, timer 2:15, T teammates in view.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet143\" uid 48 at 192.168.1.143:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"TERRORIST\". tcpdump 12 s: 244 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". first check frame showed radar but no bottom HUD (GDI timing miss); re-shot CounterStrike16_143_final0.jpg (15:33:25): Glock, radar, $4650, 20|40, timer 2:17, T teammates in view.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet171\" uid 45 at 192.168.1.171:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"CT\". tcpdump 12 s: 273 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". frame CounterStrike16_171.jpg (15:31:19): USP, HUD 100 health, $800, 12|24, timer 4:25 (the box that stuck at SELECT TEAM on 2026-10-13 is spawned this time).",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet184\" uid 49 at 192.168.1.184:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"CT\". tcpdump 12 s: 252 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". first check frame had no HUD (GDI timing miss); re-shot CounterStrike16_184_final1.jpg (15:33:25): USP, radar, $800, 12|24, timer 2:15.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet186\" uid 44 at 192.168.1.186:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"CT\". tcpdump 12 s: 297 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". frame CounterStrike16_186.jpg (15:31:19, 640x480 software renderer, captured by GDI - Standard VGA XDDM, no DWM): radar, USP, HUD at CT spawn.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "CounterStrike16",
+   "evidence": "Checked myself 15:31-15:33: rcon status on cs16-server 192.168.1.132:27018 lists \"Fleet240\" uid 47 at 192.168.1.240:27005, loss 0; same uid since its 15:23-15:24 connect (no reconnect, no disconnect/kick in the log). Server log: connected, entered the game, joined team \"CT\". tcpdump 12 s: 297 packets to :27018. WINLIST foreground Valve001 \"Counter-Strike # Protected by BCShield\". frame CounterStrike16_240.jpg (15:31:19, 1920x1080): USP, HUD 100 health, $800, 12|24, timer 4:25, a CT teammate in view.",
+   "reason": "In the one shared 9-player match on cs_italy: named by Fleet<octet> and its own IP, on a team, spawned, sending."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "client": "CounterStrike16",
+   "evidence": "Not launched or contacted. Library requires.json min_cpu_mhz 233; .243 is a 165 MHz P54C (docs/fleet-inventory.md), 29% under. scripts/gamegate/overrides.txt line 31: \"CounterStrike16 no not wanted on .243\" (operator, 2026-09-29), so the title is not deployed there. Both staged launchers are cmd.exe dialect, which COMMAND.COM cannot run.",
+   "reason": "CPU floor (165 vs 233 MHz) plus the operator override: the title is not on the box."
+  }
+ ],
+ "issues": [
+  "GDI frames of OpenGL GoldSrc on .133, .143 and .184 (and .110 in the round agent's pass) sometimes catch the world before the HUD and viewmodel are drawn. A second SCREENSHOT a second later shows the full HUD. This is not a game fault, but a single HUD-less frame is not evidence of a dead or spectating player.",
+  ".186 (Win7 32-bit, Standard VGA, no 3D driver possible) runs the -soft launcher at 640x480, not its FLEETRES target of 1920x1080, because sw.dll caps the mode. It is playable and was in the match, but below the box's resolution.",
+  "CONFIRMED after the round on all 9 boxes (DOWNLOAD error 2 at 15:36): cstrike\\userconfig.cfg, which the launcher writes just before hl.exe starts, and cstrike\\autoexec.cfg, from the library, are both gone. That includes .110 and .186, where the recipe read autoexec.cfg as present earlier today. The names still came out as Fleet<octet>, so userconfig.cfg was executed before it vanished. The mechanism is unproven; most likely BCShield deletes custom cfgs at startup. Consequences: GAMESYNC will recopy autoexec.cfg after every CS session, so files_written will not settle at 0 on those boxes, and the recipe step 'DELETE userconfig.cfg after the round' is moot.",
+  "The graceful close rewrote cstrike\\config.cfg on all 9 boxes: name Fleet<octet>, m_pitch format, and on .186 the software renderer also dropped the gl_* cvars. Each box's pre-round config.cfg (rounds/CounterStrike16_configbak/) was UPLOADed back and read back md5-identical on all 9 (rounds/CounterStrike16_restore.json). Seven equal the library; .123 and .240 keep their own edits.",
+  ".186 (Windows 7): Windows Firewall is ON, against the fleet convention of firewall off. This round's first CS run under Win7 raised a 'Windows Security Alert' ('Windows Firewall has blocked some features of this program', Half-Life icon, for hl.exe). It sat hidden behind the fullscreen game and is still open on the desktop after the close, with the taskbar Start button focused. It was NOT answered, because Allow access and Cancel each write a firewall rule. It did not stop the client (outbound UDP plus stateful replies were enough), but any title that .186 HOSTS needs inbound allowed. Operator decision: Allow access, or turn the firewall off per the fleet convention. Frame: rounds/CounterStrike16_186_after.jpg.",
+  "Tooling: lanparty.py's docstring and the round instructions say 'kill --game <key>', but argparse takes the game only as a positional argument, so --game exits 2 with 'unrecognized arguments: --game'. The close was run as 'lanparty.py kill CounterStrike16'. It closed hl.exe on all 9 boxes by WM_CLOSE within 9 s; nothing was forced.",
+  "Desktop modes after the close, from the quarter-size frames: .110 1600x1200; .123, .124, .133, .143, .171 1280x1024; .184 1024x768; .186 and .240 1920x1080. .186 is back from its in-game 640x480. No box was left at a game mode, and no crash dialog appeared on any XP box (rounds/CounterStrike16_after.json).",
+  "Map rotation: cs_italy began at 15:22:25 with mp_timelimit 20, so a longer session would reload every client at about 15:42 and may need key 5, then 6, again."
+ ],
+ "closed_cleanly": true,
+ "library_fix_needed": [],
+ "closed_how": "lanparty.py kill CounterStrike16 at 15:35:13-22: hl.exe closed by WM_CLOSE (taskkill without /f) on .110 .123 .124 .133 .143 .171 .184 .186 .240, none forced. PROCLIST at 15:35:53 shows no hl.exe on any of them and no dwwin/drwtsn32/dumprep/WerFault. .243 was never launched."
+}

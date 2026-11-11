@@ -603,6 +603,22 @@ start_server <map>           .. start a different map (set g_gametype first)
 ports bound* to `Precaching level ... done` with UDP 49001 open. The profile is
 a convenience, not a prerequisite.
 
+### Descent 3 capacity, and the query it DOES answer (2026-11-11)
+
+- **`MaxPlayers=12` is now in `~/descent3-server/Dedicated.cfg`** (CRLF line,
+  appended; the original is kept beside it as `Dedicated.cfg.pre-12slots`).
+  Without the key the default is 8, and the dedicated server's own observer
+  slot (`-Server-`) takes one of them, so only **7 fleet boxes** fitted. The
+  file exists only in the server tree, not in this repo: re-apply the line if
+  the tree is ever rebuilt.
+- **`main.exe` 1.4 answers GameSpy on UDP 20142.** `\status\` returns
+  hostname, map, `numplayers`/`maxplayers` and `player_N` callsigns. Drop
+  `-Server-`, which is the server's own slot and counts in `numplayers`. So
+  "D3 answers no text query we know" below is out of date for rosters.
+  `scripts/fleet/lanparty.py` reads it (`query: ["gamespy", 20142]`,
+  `roster_ignore: ["-Server-"]`). The TCP-2092 liveness probe is still right
+  for health.
+
 ### Probing them
 
 `gameservers.py` carries a probe for each, and neither is a fabricated query:

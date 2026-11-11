@@ -1,0 +1,92 @@
+{
+ "key": "Quake3-TeamArena",
+ "title": "Quake III Team Arena",
+ "mode": "host_server",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet110  192.168.1.110' score 12 ping 0, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 1476 UDP packets from .110 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 352, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet110: Fleet110 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_110.jpg: GDI 800x600: TA scoreboard, all 8 Fleet names, \"Fragged by Fleet124\", tied 3rd with 11. Since launch (log line 24741): 'Fleet110^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet123  192.168.1.123' score 12 ping 3, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 1485 UDP packets from .123 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 636, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet123: Fleet123 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_123.jpg: GDI 640x480: TA scoreboard, all 8 names, \"Fragged by Fleet133\", tied 3rd with 11. Since launch (log line 24741): 'Fleet123^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet124  192.168.1.124' score 12 ping 2, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 368 UDP packets from .124 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 1944, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet124: Fleet124 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_124.jpg: vcrctl fbshot 1280x960: live 3D mpteam1, HUD 100 health/119 ammo, Fraglimit 25, score 12, 43 fps, console kill lines naming Fleet boxes. Since launch (log line 24741): 'Fleet124^7 entered the game', no disconnect/timeout, no map change. Path is OpenGL (MesaFX ICD + h5 Glide + vcr-kmd), not D3D, so the D3D exclusion does not apply. Closed by WM_CLOSE (not forced)."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet133  192.168.1.133' score 11 ping 0, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 1018 UDP packets from .133 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 992, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet133: Fleet133 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_133.jpg: GDI 640x480: TA scoreboard, all 8 names, \"Fragged by Fleet143\", 7th with 10. Since launch (log line 24741): 'Fleet133^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet143  192.168.1.143' score 12 ping 0, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 1316 UDP packets from .143 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 400, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet143: Fleet143 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_143.jpg: GDI 640x480: TA scoreboard, all 8 names, \"Fragged by Fleet110\", tied 3rd with 11. Since launch (log line 24741): 'Fleet143^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet171  192.168.1.171' score 13 ping 0, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 672 UDP packets from .171 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 2008, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet171: Fleet171 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_171.jpg: GDI 640x480: TA scoreboard, all 8 names, \"Fragged by Fleet184\", tied 1st with 12. Since launch (log line 24741): 'Fleet171^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet184  192.168.1.184' score 11 ping 0, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 483 UDP packets from .184 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 1464, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet184: Fleet184 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_184.jpg: GDI 512x384: TA scoreboard, all 8 names, \"Fragged by Fleet240\", 7th with 10. Since launch (log line 24741): 'Fleet184^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Quake3-TeamArena (C:\\Games\\Quake3-TeamArena, ioquake3.x86.exe +set fs_game missionpack)",
+   "evidence": "rcon status 15:57:30 on q3ta-server 192.168.1.132:27962 (map mpteam1): 'Fleet240  192.168.1.240' score 12 ping 1, one of 8 Fleet rows and 0 bots. tcpdump 15:57 (12 s): 1451 UDP packets from .240 to :27962. WINLIST fg was SDL_app 'ioquake3' pid 3836, the same pid as at launch, so no relaunch. UIKEY F5 at 15:58:18, then server.log 'say: Fleet240: Fleet240 in game': the box's own input reached the server. Fresh frame 15:57 /home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_240.jpg: GDI 960x540 (16:9): TA scoreboard, all 8 names, \"Fragged by Fleet123\", tied 3rd with 11. Since launch (log line 24741): 'Fleet240^7 entered the game', no disconnect/timeout, no map change."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "client": "Quake3-TeamArena (not launched)",
+   "evidence": "HWPROFILE now (15:58): gpu 'Standard VGA Graphics Adapter' (PCI 10DE:1F82, GTX 1650), 16 MB, driver_version empty; OS Windows 7 6.1.7600, no SP. The recipe also measured OSArchitecture 32-bit.",
+   "reason": "No 3D driver exists here. NVIDIA never shipped a 32-bit Turing driver, and id Tech 3 has no software renderer. Re-including the box needs 64-bit Win7 SP1+ or a card with a 32-bit Win7 driver. The compat DB row 'verified 1920x1080' predates the 2026-10-26 reinstall and is stale."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "client": "Quake3-TeamArena (not installed)",
+   "evidence": "DIRLIST E:\\GAMES now (15:58, agent-internal): 71 entries, no Quake3/TeamArena folder (case-insensitive; the only 'missionpack' substring match is DOS-SpearMissionPacks). The box was not in the title's boxes list.",
+   "reason": "Gated and not installed. The Win98 Pentium 166 is below requires.json min_cpu_mhz 233, and the compat DB has the operator override 'not wanted on .243'."
+  }
+ ],
+ "players_in_one_game": 8,
+ "summary": "PASS: 8 of 8 applicable boxes (.110 .123 .124 .133 .143 .171 .184 .240) were re-verified at 15:57-15:58 in ONE Team Arena FFA game on q3ta-server 192.168.1.132:27962 (mpteam1). Proof for each box: rcon status names it with its own IP (8 Fleet rows, 0 bots); 12 s tcpdump shows 368-1485 packets to :27962 from each; a fresh frame shows the TA scoreboard with all 8 names (.124: fbshot of live 3D at 43 fps); a UIKEY F5 sent after a foreground=ioquake3 check produced 'say: FleetNNN: FleetNNN in game' in server.log. PIDs match launch: no relaunch, no drop, no map change since line 24741. .186 and .243 are NA (no 32-bit Turing driver / gated and not installed), re-checked live. Closed with lanparty kill: all 8 closed by WM_CLOSE, none forced. PROCLIST shows no ioquake3.x86.exe/quake3.exe and no crash dialogs. All 8 are at their desktop modes, and the server holds only its 3 fill bots.",
+ "issues": [
+  "The orchestrator's command 'lanparty.py kill --game Quake3-TeamArena' fails: 'error: unrecognized arguments: --game'. The CLI takes the game as a POSITIONAL argument ('lanparty.py kill Quake3-TeamArena --out ...'). That form was used and works.",
+  "q3ta-server now holds only its 3 fill bots (Gaunt, Biker, Ursula) on mpteam1. With the retail 1.32 qagame.qvm they will reach fraglimit and freeze at intermission until a human is ready, so the next Team Arena round must keep the prelaunch 'rcon map mpteam1' (lanparty does this).",
+  "After an rcon map change, the recipe's intermission test (grep '^(Exit:|Server: )' server.log | tail -1) is misleading. ioq3 sends the rcon command's output to the rcon reply, so no 'Server: mpteam1' line is logged. Use rcon status, or Kill: lines after the last Exit:.",
+  "Cosmetic: the TA client scoreboard footer reads 'Fraglimit: 20' while the server and .124's HUD read 25.",
+  ".171 joins with rate 25000 from a stray 2004 missionpack q3config.cfg in the install tree. It is harmless on the LAN; leftover per-box state, since GAMESYNC never deletes.",
+  "After close, .143 sits at 1280x1024x32@60. That matches its persisted 1280x1024. It has no EDID, so no refresh is claimed, and ioquake3 restores the registry mode on exit. Noted only, not a fault. Every other box is at its usual desktop mode (.110 1600x1200@85, .123 1280x1024@100, .124 1280x1024@85, .133/.171 1280x1024@85, .184 1024x768@85, .240 1920x1080@60)."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true,
+ "evidence_files": [
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_final_check.log",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena.json",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_final_rcon_status.txt",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_final_f5.txt",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_final_grid.jpg",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_final_na_checks.txt",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_kill.log",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_postclose.txt",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/fleet-readiness/.claude/evidence-readiness-2026-11-11/rounds/Quake3-TeamArena_postclose_grid.jpg"
+ ]
+}

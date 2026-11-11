@@ -1,0 +1,205 @@
+[
+ {
+  "box": 110,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "Retro Remote Agent Version 1.98.0"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   400,
+   300
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3807,
+    "2026-11-11 20:35:14"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3807
+ },
+ {
+  "box": 123,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "Retro Remote Agent Version 1.98.0"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   320,
+   256
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3811,
+    "2026-11-11 20:35:13"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3811
+ },
+ {
+  "box": 124,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   320,
+   256
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3785,
+    "2026-11-11 20:35:42"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3785
+ },
+ {
+  "box": 133,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "C:\\RETRO_AGENT\\retro_chat.exe"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   320,
+   256
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3807,
+    "2026-11-11 20:37:49"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3807
+ },
+ {
+  "box": 143,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "C:\\RETRO_AGENT\\retro_chat.exe"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   320,
+   256
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3807,
+    "2026-11-11 20:35:17"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3807
+ },
+ {
+  "box": 171,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "Retro Remote Agent Version 1.98.0"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   320,
+   256
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3807,
+    "2026-11-11 20:35:12"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3807
+ },
+ {
+  "box": 184,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "Retro Remote Agent Version 1.98.0"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   256,
+   192
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3785,
+    "2026-11-11 20:37:00"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3785
+ },
+ {
+  "box": 186,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "Button",
+   "Start"
+  ],
+  "dialogs": [
+   [
+    "#32770",
+    "Windows Security Alert"
+   ]
+  ],
+  "shot_quarter": [
+   480,
+   270
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3662,
+    "2026-11-11 20:35:18"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3662
+ },
+ {
+  "box": 240,
+  "hl_running": [],
+  "suspicious": [],
+  "fg": [
+   "ConsoleWindowClass",
+   "C:\\RETRO_AGENT\\retro_chat.exe"
+  ],
+  "dialogs": [],
+  "shot_quarter": [
+   480,
+   270
+  ],
+  "cfgs": {
+   "config.cfg": [
+    3804,
+    "2026-11-11 20:33:32"
+   ]
+  },
+  "config_same_as_backup": false,
+  "config_after_len": 3804
+ }
+]

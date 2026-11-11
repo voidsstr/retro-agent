@@ -1,0 +1,27 @@
+15:57:30 rcon status
+ÿÿÿÿprint
+map: mpteam1
+cl score ping name            address                                 rate 
+-- ----- ---- --------------- --------------------------------------- -----
+ 3    12    3 Fleet123        192.168.1.123                            3000
+ 4    12    1 Fleet240        192.168.1.240                            3000
+ 5    12    0 Fleet110        192.168.1.110                            3000
+ 6    13    0 Fleet171        192.168.1.171                           25000
+ 7    12    0 Fleet143        192.168.1.143                            3000
+ 8    11    0 Fleet184        192.168.1.184                            3000
+ 9    11    0 Fleet133        192.168.1.133                            3000
+10    12    2 Fleet124        192.168.1.124                            3000
+
+
+15:57:33 getstatus
+ÿÿÿÿstatusResponse
+\g_blueteam\Pagans\g_redteam\Stroggs\capturelimit\8\g_maxGameClients\0\sv_floodProtect\1\sv_maxPing\0\sv_minPing\0\sv_dlRate\100\sv_maxRate\0\sv_minRate\0\sv_maxclients\12\sv_hostname\NSC Retro Fleet Arena (Team Arena)\timelimit\15\fraglimit\25\dmflags\0\version\ioq3 1.36+u20251228.3ef30e75+dfsg-1/Ubuntu linux-x86_64-debug Jan 02 2026\com_gamename\Quake3Arena\com_protocol\71\g_gametype\0\mapname\mpteam1\sv_privateClients\0\sv_allowDownload\1\bot_minplayers\3\gamename\baseq3\g_needpass\0\g_obeliskRespawnDelay\10\g_enableDust\0\g_enableBreath\0
+12 4 "Fleet123"
+12 0 "Fleet240"
+12 0 "Fleet110"
+13 0 "Fleet171"
+12 0 "Fleet143"
+11 3 "Fleet184"
+11 4 "Fleet133"
+12 0 "Fleet124"
+

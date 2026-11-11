@@ -1,0 +1,183 @@
+{
+ "game": "CounterStrike16",
+ "time": "2026-11-11T15:31:21",
+ "roster": [
+  [
+   "Fleet123",
+   8,
+   false,
+   "192.168.1.123"
+  ],
+  [
+   "Fleet186",
+   9,
+   false,
+   "192.168.1.186"
+  ],
+  [
+   "Fleet171",
+   7,
+   false,
+   "192.168.1.171"
+  ],
+  [
+   "Fleet110",
+   17,
+   false,
+   "192.168.1.110"
+  ],
+  [
+   "Fleet240",
+   9,
+   false,
+   "192.168.1.240"
+  ],
+  [
+   "Fleet143",
+   11,
+   false,
+   "192.168.1.143"
+  ],
+  [
+   "Fleet184",
+   10,
+   false,
+   "192.168.1.184"
+  ],
+  [
+   "Fleet133",
+   12,
+   false,
+   "192.168.1.133"
+  ],
+  [
+   "Fleet124",
+   9,
+   false,
+   "192.168.1.124"
+  ]
+ ],
+ "packets": {
+  "192.168.1.240": 297,
+  "192.168.1.186": 297,
+  "192.168.1.171": 273,
+  "192.168.1.184": 252,
+  "192.168.1.123": 297,
+  "192.168.1.110": 262,
+  "192.168.1.143": 244,
+  "192.168.1.124": 337,
+  "192.168.1.133": 306
+ },
+ "port": 27018,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 262,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 297,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 337,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 306,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 244,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 273,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 252,
+   "frame": "gdi",
+   "host": false
+  },
+  "186": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_186.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 297,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "hl.exe"
+   ],
+   "foreground": "Counter-Strike # Protected by BCShield (c) by HLDS-Project",
+   "shot": "CounterStrike16_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 297,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}
