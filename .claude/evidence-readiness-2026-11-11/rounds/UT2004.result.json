@@ -1,0 +1,72 @@
+{
+ "key": "UT2004",
+ "title": "Unreal Tournament 2004",
+ "mode": "host-server 192.168.1.132:7777 DM-Rankin",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "UT2004",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:48 and again at 17:52:29, 8+ min after joining at 17:44. The GameSpy roster on :7787 names Fleet110 (6/12, 0 bots). server.log has 'Open myLevel ... 192.168.1.110:1830' and 'New Player Fleet110', with no 'Close TcpipConnection' line after them. 499 UDP packets reached :7777 in 12 s. The WINLIST foreground was 'Unreal Tournament 2004', and frame UT2004_110.jpg shows the DM-Rankin geometry."
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "UT2004",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:48 and again at 17:52:29, 8+ min after joining at 17:44. The GameSpy roster on :7787 names Fleet123 (6/12, 0 bots). server.log has 'Open myLevel ... 192.168.1.123:1811' and 'New Player Fleet123', with no 'Close TcpipConnection' line after them. 499 UDP packets reached :7777 in 12 s. The WINLIST foreground was 'Unreal Tournament 2004', and frame UT2004_123.jpg shows the DM-Rankin geometry."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "UT2004",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:48 and again at 17:52:29, 8+ min after joining at 17:44. The GameSpy roster on :7787 names Fleet143 (6/12, 0 bots). server.log has 'Open myLevel ... 192.168.1.143:1071' and 'New Player Fleet143', with no 'Close TcpipConnection' line after them. 512 UDP packets reached :7777 in 12 s. The WINLIST foreground was 'Unreal Tournament 2004', and frame UT2004_143.jpg shows the DM-Rankin geometry."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "UT2004",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:48 and again at 17:52:29, 8+ min after joining at 17:44. The GameSpy roster on :7787 names Fleet171 (6/12, 0 bots). server.log has 'Open myLevel ... 192.168.1.171:1828' and 'New Player Fleet171', with no 'Close TcpipConnection' line after them. 384 UDP packets reached :7777 in 12 s. The WINLIST foreground was 'Unreal Tournament 2004', and frame UT2004_171.jpg shows the DM-Rankin geometry."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "UT2004",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:48 and again at 17:52:29, 8+ min after joining at 17:44. The GameSpy roster on :7787 names Fleet184 (6/12, 0 bots). server.log has 'Open myLevel ... 192.168.1.184:1062' and 'New Player Fleet184', with no 'Close TcpipConnection' line after them. 398 UDP packets reached :7777 in 12 s. The WINLIST foreground was 'Unreal Tournament 2004', and frame UT2004_184.jpg shows the DM-Rankin geometry."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "UT2004",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:48 and again at 17:52:29, 8+ min after joining at 17:44. The GameSpy roster on :7787 names Fleet240 (6/12, 0 bots). server.log has 'Open myLevel ... 192.168.1.240:1096' and 'New Player Fleet240', with no 'Close TcpipConnection' line after them. 502 UDP packets reached :7777 in 12 s. The WINLIST foreground was 'Unreal Tournament 2004', and frame UT2004_240.jpg shows the DM-Rankin geometry."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "reason": "D3D on vcr-kmd is supervised-only",
+   "evidence": "UT2004 is Direct3D-only and .124 runs the experimental vcr-kmd driver, so it was not launched. It needs a supervised session."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "NA",
+   "evidence": "Capability gate: 701 MHz against the 1000 MHz floor, and 255 MB RAM against 256. No shortcut is deployed. Lowering the floor is a pending user decision."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Win7 32-bit with a GTX 1650 on the Standard VGA stub has no 3D driver, and UT2004 needs D3DDrv."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "P166 with Voodoo 2 on Win98. The operator override says 'not wanted on .243', the title is not installed, and the box is far below UT2004's floor."
+  }
+ ],
+ "players_in_one_game": 6,
+ "summary": "UT2004: all 6 applicable boxes (.110 .123 .143 .171 .184 .240) were in one DM-Rankin match on the dev host's ut2004-server at the same time. The 8-minute hold was met: at 17:52 every box was still connected, with no Close TcpipConnection line and 384-512 packets per box in 12 s. .143 did not repeat its 2026-10-13 drop. .124 is BLOCKED (D3D on vcr-kmd). .133, .186 and .243 are NA. The game was closed gracefully on all six boxes.",
+ "issues": [
+  "The 17:48 frames of .143, .184 and .240 show the map with no HUD (spectating or dead-cam?), while .110, .123 and .171 show the full HUD. The roster still lists all six as players (not spectators) and every box sends full-rate packets, so they count as in the game. A visible HUD on those three was not re-confirmed.",
+  "server.log has a second 'New Player' line for Fleet171, Fleet240 and Fleet184, from the spectator-to-player spawn clicks. No disconnect lines."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

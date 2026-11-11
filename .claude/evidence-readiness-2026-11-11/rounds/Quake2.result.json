@@ -1,0 +1,76 @@
+{
+ "key": "Quake2",
+ "title": "Quake II",
+ "mode": "host-server 192.168.1.132:27910",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet110; 714 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_110.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet123; 991 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_123.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.124",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet124; 978 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_124.jpg shows fullscreen q2dm1 in-game (fbshot, OpenGL on vcr-kmd)"
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet133; 713 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_133.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet143; 714 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_143.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet171; 713 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_171.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet184; 714 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_184.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "Quake2Complete",
+   "verdict": "PASS_MP",
+   "evidence": "Re-checked 17:26: server roster on 192.168.1.132:27910 (q2dm1) names Fleet240; 991 pkts/12s to :27910; foreground 'Quake 2'; frame Quake2_240.jpg shows fullscreen q2dm1 in-game"
+  },
+  {
+   "ip": "192.168.1.243",
+   "client": "Quake2Win9x",
+   "verdict": "PASS_MP",
+   "evidence": "Roster names Fleet243 (22 ms), 450 pkts/12s to :27910, quake2.exe running, foreground 'Quake 2'. The frame is the 2D desktop because GDI cannot see the Voodoo 2, so the roster and packets are the witness."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched",
+   "reason": "Win7 32-bit with the GTX 1650 on the Standard VGA stub, so no OpenGL 3D driver; the recipe excludes it. A 10th human would also exceed the 9 human slots (12 minus 3 bots)."
+  }
+ ],
+ "players_in_one_game": 9,
+ "summary": "All 9 applicable online boxes were re-verified in one Quake II deathmatch on the dev-host server (q2dm1). Every box is named on the roster as Fleet<octet> and sends sustained packets, with 9 humans plus 3 bots filling 12 of 12 slots. .186 is NA (no 3D driver). The game was closed everywhere, and PROCLIST shows no quake2.exe.",
+ "issues": [
+  "The graceful WM_CLOSE did not close quake2.exe on any XP box within 12 s, so all 8 were force-killed and .243 was PROCKILLed. Force-killing can leave a GL box at the game mode, and desktop modes were not re-read after the kill.",
+  ".243 Voodoo 2 pass-through and display state cannot be seen remotely (GDI is blind to it).",
+  "Server capacity: 9 human slots with 3 bots, so a 10th fleet box could not join without removing a bot."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

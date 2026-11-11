@@ -1,0 +1,77 @@
+{
+ "key": "UT99",
+ "title": "Unreal Tournament (UT99)",
+ "mode": "host server ut99-server OldUnreal 469e 192.168.1.132:7797",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament (469e, D3D9Drv)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet110 among 10 non-bot players; 1011 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_110.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament (469e, D3D9Drv)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet123 among 10 non-bot players; 714 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_123.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament436 (retail 436, GlideDrv on V5 6000/vcr-kmd)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet124 among 10 non-bot players; 1011 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_124.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament436 (retail 436, OpenGLDrv)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet133 among 10 non-bot players; 714 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_133.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament436 (retail 436)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet143 among 10 non-bot players; 714 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_143.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament (469e, D3D9Drv)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet171 among 10 non-bot players; 1011 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_171.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament436 (retail 436)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet184 among 10 non-bot players; 713 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_184.jpg in-game on DM-Deck16; my frame (and a fresh 1024x768 SCREENSHOT, UT99_184_b.jpg) shows a tilted DM-Deck16 view with no weapon/HUD - consistent with a death-cam moment; the round agent earlier saw HUD Rank 7/10"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament (469e, SoftDrv via -nohard)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet186 among 10 non-bot players; 510 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_186.jpg in-game on DM-Deck16; SoftDrv frame renders DM-Deck16 fullscreen 16:9 with HUD"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament (469e, D3D9Drv)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet240 among 10 non-bot players; 713 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_240.jpg in-game on DM-Deck16"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "PASS_MP",
+   "client": "UnrealTournament436 (retail 436, E:\\GAMES, Voodoo.ini Glide on Voodoo 2)",
+   "evidence": "Re-checked 17:36: GameSpy roster of ut99-server 192.168.1.132:7797 lists Fleet243 among 10 non-bot players; 134 packets to :7797 in 12 s; foreground \"Unreal Tournament\"; frame UT99_243.jpg in-game on DM-Deck16; GDI frame is the 2D desktop + UT splash only (GDI cannot see the Voodoo 2); witnesses are roster, server.log Login/Join succeeded Fleet243, packets and foreground"
+  }
+ ],
+ "players_in_one_game": 10,
+ "summary": "All 10 online boxes independently re-verified in ONE UT99 match on the dev host server: roster named Fleet110/123/124/133/143/171/184/186/240/243 (10/16, 0 bots), every box sending sustained packets to :7797 in a 12 s tcpdump, nine in-game frames with HUD ranks out of 10 (.243 is Voodoo 2 / GDI-blind, witnessed by roster+server.log+packets). Game then closed on all boxes; PROCLIST shows no Unreal process anywhere and the server roster is 0/16.",
+ "issues": [
+  ".124: UnrealTournament.exe did not close on WM_CLOSE within 12 s and was force-killed by lanparty (box answered afterwards, desktop 1280x1024@85, agent console in foreground).",
+  ".243: UT killed (console quit/PROCKILL path); agent still answers, foreground Shell_TrayWnd; Voodoo 2 pass-through state cannot be seen via GDI - not verifiable remotely.",
+  ".184: final check frame showed no HUD/weapon (likely death-cam) though roster and packets confirm it in the match.",
+  ".186 desktop reports refresh=1 (driver default on the Standard VGA stub) - pre-existing, not caused by this round."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

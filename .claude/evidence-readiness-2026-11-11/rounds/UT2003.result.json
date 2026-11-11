@@ -1,0 +1,77 @@
+{
+ "key": "UT2003",
+ "title": "Unreal Tournament 2003",
+ "mode": "host-server (ut2003-server on 192.168.1.132:7757)",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet110 (7/12, all 7 fleet boxes at once); 493 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_110.jpg shows DM-Antalus fullscreen - spectating at spawn camera (first UT2003 run, GF 7800 GS)"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet123 (7/12, all 7 fleet boxes at once); 488 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_123.jpg shows DM-Antalus fullscreen - spawned (HUD seen in round frame)"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet133 (7/12, all 7 fleet boxes at once); 485 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_133.jpg shows DM-Antalus fullscreen - 'Press [Fire] to join the match!' (first run, PIII 701 GF4 Ti)"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet143 (7/12, all 7 fleet boxes at once); 500 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_143.jpg shows DM-Antalus fullscreen - 'You were killed. Press Fire to respawn!' - played and died; no nv4_disp fault"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet171 (7/12, all 7 fleet boxes at once); 433 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_171.jpg shows DM-Antalus fullscreen - spectating at spawn camera"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet184 (7/12, all 7 fleet boxes at once); 496 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_184.jpg shows DM-Antalus fullscreen - 'Press [Fire] to join the match!' (first run)"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "UT2003",
+   "evidence": "Re-checked 22:42 UTC: ut2003-server 192.168.1.132:7757 roster names Fleet240 (7/12, all 7 fleet boxes at once); 491 UDP pkts to :7757 in 12 s; foreground 'Unreal Tournament 2003'; fresh frame .claude/evidence-readiness-2026-11-11/rounds/UT2003_240.jpg shows DM-Antalus fullscreen - 16:9 fullscreen 1920x1080 render"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched",
+   "reason": "D3D on vcr-kmd is supervised-only (V5 6000 experimental kernel driver); the recipe lists the box as applicable, so it needs a supervised session"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched",
+   "reason": "Win7 32-bit, GTX 1650 on the Standard VGA stub with no 3D driver; UT2003 has only D3DDrv/OpenGLDrv and no software renderer"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not launched",
+   "reason": "Win98 P166 + Voodoo 2: below the ~733 MHz CPU floor, no DX8-class device, not installed by the gate"
+  }
+ ],
+ "players_in_one_game": 7,
+ "summary": "7 of 7 applicable, launchable boxes (.110 .123 .133 .143 .171 .184 .240) were proven together in one UT2003 DM-Antalus match on the dev-host server. A fresh roster named Fleet110/123/133/143/171/184/240 (7/12), each box sent 433-500 UDP pkts to :7757 in 12 s, and each fresh frame shows the game fullscreen. .124 BLOCKED (D3D on vcr-kmd is supervised-only); .186 and .243 NA. The game was closed gracefully everywhere.",
+ "issues": [
+  "Several boxes (.110 .133 .171 .184) were connected as spectators at the spawn prompt (\"Press [Fire] to join the match!\"). They were on the server in the match but had not spawned; no input was sent.",
+  "All 7 clients share one player id (the library CD key) and the server accepted all of them at once. Note this for UT2003 LAN play.",
+  ".124 (V5 6000, vcr-kmd) still needs a supervised UT2003 test.",
+  "The lanparty.py kill syntax is \"kill UT2003\". The task text said \"kill --game UT2003\", which argparse rejects."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

@@ -1,0 +1,131 @@
+{
+ "game": "UT2004",
+ "time": "2026-11-11T17:52:42",
+ "roster": [
+  [
+   "Fleet184",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet123",
+   null,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "6",
+   "12"
+  ]
+ ],
+ "packets": {
+  "192.168.1.184": 398,
+  "192.168.1.240": 502,
+  "192.168.1.123": 499,
+  "192.168.1.110": 499,
+  "192.168.1.171": 384,
+  "192.168.1.143": 512
+ },
+ "port": 7777,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "ut2004.exe"
+   ],
+   "foreground": "Unreal Tournament 2004",
+   "shot": "UT2004_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 499,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "ut2004.exe"
+   ],
+   "foreground": "Unreal Tournament 2004",
+   "shot": "UT2004_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 499,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "ut2004.exe"
+   ],
+   "foreground": "Unreal Tournament 2004",
+   "shot": "UT2004_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 512,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "ut2004.exe"
+   ],
+   "foreground": "Unreal Tournament 2004",
+   "shot": "UT2004_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 384,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "ut2004.exe"
+   ],
+   "foreground": "Unreal Tournament 2004",
+   "shot": "UT2004_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 398,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "ut2004.exe"
+   ],
+   "foreground": "Unreal Tournament 2004",
+   "shot": "UT2004_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 502,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

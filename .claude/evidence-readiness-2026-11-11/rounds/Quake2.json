@@ -1,0 +1,183 @@
+{
+ "game": "Quake2",
+ "time": "2026-11-11T17:26:26",
+ "roster": [
+  [
+   "Fleet123",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   17,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   16,
+   false,
+   null
+  ],
+  [
+   "Fleet243",
+   22,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   16,
+   false,
+   null
+  ]
+ ],
+ "packets": {
+  "192.168.1.184": 714,
+  "192.168.1.240": 991,
+  "192.168.1.124": 978,
+  "192.168.1.123": 991,
+  "192.168.1.143": 714,
+  "192.168.1.110": 714,
+  "192.168.1.171": 713,
+  "192.168.1.133": 713,
+  "192.168.1.243": 450
+ },
+ "port": 27910,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 714,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 991,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 978,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 714,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 714,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 991,
+   "frame": "gdi",
+   "host": false
+  },
+  "243": {
+   "running": [
+    "quake2.exe"
+   ],
+   "foreground": "Quake 2",
+   "shot": "Quake2_243.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 450,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

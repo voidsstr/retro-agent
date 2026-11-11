@@ -1,0 +1,202 @@
+{
+ "game": "Quake1",
+ "time": "2026-11-11T17:31:05",
+ "roster": [
+  [
+   "Fleet186",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet123",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   27,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   13,
+   false,
+   null
+  ],
+  [
+   "Fleet243",
+   27,
+   false,
+   null
+  ]
+ ],
+ "packets": {
+  "192.168.1.171": 714,
+  "192.168.1.124": 856,
+  "192.168.1.123": 856,
+  "192.168.1.243": 529,
+  "192.168.1.240": 856,
+  "192.168.1.186": 856,
+  "192.168.1.143": 713,
+  "192.168.1.184": 713,
+  "192.168.1.110": 713,
+  "192.168.1.133": 713
+ },
+ "port": 26000,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 856,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 856,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 714,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 713,
+   "frame": "gdi",
+   "host": false
+  },
+  "186": {
+   "running": [
+    "winquake.exe"
+   ],
+   "foreground": "WinQuake",
+   "shot": "Quake1_186.jpg",
+   "black": true,
+   "on_server": true,
+   "packets": 856,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 856,
+   "frame": "gdi",
+   "host": false
+  },
+  "243": {
+   "running": [
+    "glquake.exe"
+   ],
+   "foreground": "GLQuake",
+   "shot": "Quake1_243.jpg",
+   "black": true,
+   "on_server": true,
+   "packets": 529,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

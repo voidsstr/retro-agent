@@ -1,0 +1,76 @@
+{
+ "key": "Quake1",
+ "title": "Quake (NetQuake deathmatch on DarkPlaces server 192.168.1.132:26000)",
+ "mode": "host-server multiplayer",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet110 among 10 non-bot players; 713 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet123 among 10 non-bot players; 856 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet124 among 10 non-bot players; 856 pkts to :26000 in 12 s; foreground GLQuake; fbshot frame: in e1m1, shotgun, HUD 100"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet133 among 10 non-bot players; 713 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet143 among 10 non-bot players; 713 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet171 among 10 non-bot players; 714 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet184 among 10 non-bot players; 713 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet186 among 10 non-bot players; 856 pkts to :26000 in 12 s; foreground WinQuake; WinQuake software (-dibonly); frame black (Standard VGA stub, Win7) - roster+packets are the witness"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet240 among 10 non-bot players; 856 pkts to :26000 in 12 s; foreground GLQuake; frame shows e1m1 in-game (HUD or RANKINGS scoreboard listing Fleet players)"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "PASS_MP",
+   "client": "Quake1",
+   "evidence": "Re-checked 17:31: DarkPlaces quake1-server :26000 roster names Fleet243 among 10 non-bot players; 529 pkts to :26000 in 12 s; foreground GLQuake; Voodoo 2 MiniGL VOODOO\\GLQUAKE.EXE; GDI frame black (cannot see Voodoo 2) - roster+packets are the witness"
+  }
+ ],
+ "players_in_one_game": 10,
+ "summary": "All 10 online boxes independently re-verified in the same Quake 1 deathmatch at once: the server roster named Fleet110/123/124/133/143/171/184/186/240/243 (no bots), each box sent 529-856 packets to :26000 in 12 s, and frames showed e1m1 in-game on the 8 GL boxes (.186 and .243 frames black as expected). The game was then closed on every box; PROCLIST shows no glquake/winquake left.",
+ "issues": [
+  "GLQuake/WinQuake ignore WM_CLOSE: lanparty kill had to force-terminate on all 9 XP/Win7 boxes after 12 s (.243 killed via its path). No crash dialogs were seen afterwards.",
+  ".186 had a Windows Security Alert (Win7 firewall prompt from winquake.exe) left in the foreground after the close; dismissed with ESCAPE, so the foreground is now the agent console. A future WinQuake round there will raise it again unless the firewall exception exists.",
+  "Desktop mode after the forced close was not measured per box (DISPLAYCFG not run); the foreground on every NT box is the agent console or retro_chat, with no game window left."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

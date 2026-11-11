@@ -1,0 +1,150 @@
+{
+ "game": "UT2003",
+ "time": "2026-11-11T17:42:24",
+ "roster": [
+  [
+   "Fleet184",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet143",
+   null,
+   false,
+   null
+  ],
+  [
+   "Fleet123",
+   null,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   7,
+   12
+  ]
+ ],
+ "packets": {
+  "192.168.1.110": 493,
+  "192.168.1.133": 485,
+  "192.168.1.240": 491,
+  "192.168.1.143": 500,
+  "192.168.1.171": 433,
+  "192.168.1.184": 496,
+  "192.168.1.123": 488
+ },
+ "port": 7757,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 493,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 488,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 485,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 500,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 433,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 496,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "ut2003.exe"
+   ],
+   "foreground": "Unreal Tournament 2003",
+   "shot": "UT2003_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": 491,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}
