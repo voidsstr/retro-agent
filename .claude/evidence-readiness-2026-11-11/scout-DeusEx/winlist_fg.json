@@ -1,0 +1,144 @@
+{
+ "110": {
+  "fg": {
+   "hwnd": "000500BA",
+   "pid": 964,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "123": {
+  "fg": {
+   "hwnd": "000100D0",
+   "pid": 1988,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "124": {
+  "fg": {
+   "hwnd": "000100D2",
+   "pid": 1776,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd",
+    -32000
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "133": {
+  "fg": {
+   "hwnd": "000200E2",
+   "pid": 1428,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "C:\\RETRO_AGENT\\retro_chat.exe",
+    176
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "143": {
+  "fg": {
+   "hwnd": "000100D8",
+   "pid": 288,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "C:\\RETRO_AGENT\\retro_chat.exe",
+    89
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "171": {
+  "fg": {
+   "hwnd": "0001012E",
+   "pid": 248,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "184": {
+  "fg": {
+   "hwnd": "000100D0",
+   "pid": 1724,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "186": {
+  "fg": {
+   "hwnd": "0001004C",
+   "pid": 1208,
+   "class": "Button",
+   "title": "Start"
+  },
+  "consoles": [
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ },
+ "240": {
+  "fg": {
+   "hwnd": "00030220",
+   "pid": 3972,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "consoles": [
+   [
+    "C:\\RETRO_AGENT\\retro_chat.exe",
+    220
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    -32000
+   ]
+  ]
+ }
+}

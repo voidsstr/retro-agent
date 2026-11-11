@@ -1,0 +1,88 @@
+Winsock Initialized
+Console initialized.
+------- Loading ref_soft.dll -------
+ref_gl version: GL 0.01
+Initializing OpenGL display
+...setting mode 3: 640 480 FS
+...attempting fullscreen
+...using desktop display depth of 32
+...calling CDS: ok
+GL PFD: color(32-bits) Z(16-bit)
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: GeForce4 Ti 4600/AGP/SSE
+GL_VERSION: 1.5.7
+GL_EXTENSIONS: GL_ARB_depth_texture GL_ARB_imaging GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shadow GL_ARB_shader_objects GL_ARB_shading_language_100 GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_dot3 GL_ARB_texture_mirrored_repeat GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_S3_s3tc GL_EXT_texture_env_add GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_Cg_shader GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_timer_query GL_EXT_vertex_array GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_KTX_buffer_region GL_NV_blend_square GL_NV_copy_depth_to_color GL_NV_depth_clamp GL_NV_fence GL_NV_fog_distance GL_NV_light_max_exponent GL_NV_multisample_filter_hint GL_NV_occlusion_query GL_NV_packed_depth_stencil GL_NV_pixel_data_range GL_NV_point_sprite GL_NV_register_combiners GL_NV_register_combiners2 GL_NV_texgen_reflection GL_NV_texture_compression_vtc GL_NV_texture_env_combine4 GL_NV_texture_rectangle GL_NV_texture_shader GL_NV_texture_shader2 GL_NV_texture_shader3 GL_NV_vertex_array_range GL_NV_vertex_array_range2 GL_NV_vertex_program GL_NV_vertex_program1_1 GL_SGIS_generate_mipmap GL_SGIS_multitexture GL_SGIS_texture_lod GL_SGIX_depth_texture GL_SGIX_shadow GL_SUN_slice_accum GL_WIN_swap_hint WGL_EXT_swap_control 
+...allowing CDS
+...enabling GL_EXT_compiled_vertex_array
+...enabling WGL_EXT_swap_control
+...using GL_EXT_point_parameters
+...using GL_EXT_shared_texture_palette
+...using GL_SGIS_multitexture
+------------------------------------
+
+------- sound initialization -------
+Initializing DirectSound
+Creating DS buffers
+EAX initialization successful
+dsound init succeeded
+sound sampling rate: 22050
+------------------------------------
+CD Audio Initialized
+
+joystick not found -- no valid joysticks (a5)
+
+execing autoexec.cfg
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+Unknown command "I"
+Unknown command "sixty"
+Unknown command "it"
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+Unknown command "a"
+Unknown command "and"
+Line has unmatched quote, discarded.
+Line has unmatched quote, discarded.
+====== Sin Initialized ======
+
+------- Server Initialization -------
+Loading nodes...
+done.
+-------------------------------------
+------- Loading ref_gl.dll -------
+ref_gl version: GL 0.01
+Initializing OpenGL display
+...setting mode 6: 1024 768 FS
+...attempting fullscreen
+...using desktop display depth of 32
+...calling CDS: ok
+Creating DS buffers
+GL PFD: color(32-bits) Z(16-bit)
+
+------- sound initialization -------
+Initializing DirectSound
+Creating DS buffers
+sound sampling rate: 22050
+------------------------------------
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: GeForce4 Ti 4600/AGP/SSE
+GL_VERSION: 1.5.7
+GL_EXTENSIONS: GL_ARB_depth_texture GL_ARB_imaging GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shadow GL_ARB_shader_objects GL_ARB_shading_language_100 GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_dot3 GL_ARB_texture_mirrored_repeat GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_S3_s3tc GL_EXT_texture_env_add GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_Cg_shader GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_timer_query GL_EXT_vertex_array GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_KTX_buffer_region GL_NV_blend_square GL_NV_copy_depth_to_color GL_NV_depth_clamp GL_NV_fence GL_NV_fog_distance GL_NV_light_max_exponent GL_NV_multisample_filter_hint GL_NV_occlusion_query GL_NV_packed_depth_stencil GL_NV_pixel_data_range GL_NV_point_sprite GL_NV_register_combiners GL_NV_register_combiners2 GL_NV_texgen_reflection GL_NV_texture_compression_vtc GL_NV_texture_env_combine4 GL_NV_texture_rectangle GL_NV_texture_shader GL_NV_texture_shader2 GL_NV_texture_shader3 GL_NV_vertex_array_range GL_NV_vertex_array_range2 GL_NV_vertex_program GL_NV_vertex_program1_1 GL_SGIS_generate_mipmap GL_SGIS_multitexture GL_SGIS_texture_lod GL_SGIX_depth_texture GL_SGIX_shadow GL_SUN_slice_accum GL_WIN_swap_hint WGL_EXT_swap_control 
+...allowing CDS
+...enabling GL_EXT_compiled_vertex_array
+...enabling WGL_EXT_swap_control
+...using GL_EXT_point_parameters
+...ignoring GL_EXT_shared_texture_palette
+...using GL_SGIS_multitexture
+------------------------------------
+loopback: client_connect
+
+
+
+
+Freeport City Bank
+Map: bank                                     pics                                     maps/bank.bsp                                     models/evidence.def                                     models/hcofficer1_mag.def                                     sprites/tracer.spr                                     sprites/bullethole.spr                                     models/view_magnum.def                                     models/magnum.def                                     models/10mm.def                                     models/riothelm.def                                     models/flakjack.def                                     models/flakpants.def                                     models/health_large.def                                     models/spline.def                                     models/cine_thug.def                                     models/dollar.def                                     models/hanglite3.def                                     models/bookclosed.def                                     models/camera.def                                     models/thug_mag.def                                     models/thug_ass.def                                     models/view_asrifle.def                                     models/asrifle.def                                     sprites/gunblast.spr                                     models/shell.def                                     models/moneybag.def                                     models/mancini.def                                     models/banktree.def                                     models/civmale.def                                     models/thug_shtg.def                                     models/view_shotgun.def                                     models/shotgun.def                                     models/shotgunclip.def                                     models/keys.def                                     models/civfemale.def                                     models/coffeemug.def                                     models/chair.def                                     models/coin.def                                     models/signbig.def                                     models/chair2.def                                     models/flower.def                                     models/plant1.def                                     models/blockade.def                                     models/mouse.def                                     models/cpu_monitor.def                                     models/cpu_keyboard.def                                     models/cpu_case.def                                     models/camgun2.def                                     models/lamprey_rotors.def                                     models/lamprey.def                                     sprites/explode.spr                                     sprites/smoke.spr                                     sprites/shockwave.spr                                     sprites/exhaust.spr                                     sprites/bloodsplat.spr                                     sprites/hvblast.spr                                     models/sphere2.def                                     models/sgshell.def                                     models/gib1.def                                     models/gibtorso.def                                     models/gibhead.def                                     models/gibleg.def                                     models/muzflash1.def                                     models/muzflash2.def                                     models/pl_blade.def                                     models/view_genbullet.def                                     models/health.def                                     images                                     client 0                                     sky                                     

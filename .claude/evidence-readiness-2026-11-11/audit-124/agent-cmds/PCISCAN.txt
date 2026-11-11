@@ -1,0 +1,1 @@
+{"pci_display_devices":[],"display_drivers":[{"class_index":"0001","driver_desc":"vcr-kmd Voodoo 5 6000 (open driver)","matching_device_id":"pci\\ven_121a&dev_0009&subsys_0001121a","inf_path":"oem6.inf","referenced_by":""}],"summary":{"active":[],"ghost":[],"new_hardware":[],"stale_drivers":["0001"]}}

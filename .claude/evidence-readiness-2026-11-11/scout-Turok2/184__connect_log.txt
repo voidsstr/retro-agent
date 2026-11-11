@@ -1,0 +1,6 @@
+Turok 2 Connection Log
+
+00000: Reading GameSpy config file "gspylite.cfg".
+00000: Connect string: 192.168.1.171:12806.
+00000: Getting Game Configuration from GameManager (192.168.1.171:12806).
+10015: GetGameConfiguration(): configuration request timed out.

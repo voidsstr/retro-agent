@@ -1,0 +1,513 @@
+# RainbowSix.exe md5 c92073e4c74c2c36ef1a644f913814a5 - fact-check disassembly (capstone 5.0.7), 2026-11-11
+
+## 4141e0  (accessors: 4141e0=host [+0x5c], 4141f0=port [+0x68])
+004141e0: lea eax, [ecx + 0x5c]
+004141e3: ret 
+004141f0: lea eax, [ecx + 0x68]
+004141f3: ret 
+
+## 4141f0  (.)
+004141f0: lea eax, [ecx + 0x68]
+004141f3: ret 
+
+## 40e740  (mode-manager ctor: 16-slot string stack, top index [+8]=0x10 (push decrements, pop reads top -> LIFO))
+0040e740: push esi
+0040e741: mov esi, ecx
+0040e743: push 0x425730
+0040e748: push 0x406c30
+0040e74d: push 0x10
+0040e74f: lea eax, [esi + 0xc]
+0040e752: push 0xc
+0040e754: push eax
+0040e755: call 0x633d00
+0040e75a: xor eax, eax
+0040e75c: mov dword ptr [esi], 0x841408
+0040e762: mov dword ptr [esi + 0xd4], eax
+0040e768: mov dword ptr [esi + 0xcc], eax
+0040e76e: mov byte ptr [esi + 5], al
+0040e771: mov dword ptr [esi + 8], 0x10
+0040e778: mov eax, esi
+0040e77a: pop esi
+0040e77b: ret 
+
+## 425760  (String::operator= (this = other))
+00425760: mov eax, dword ptr [esp + 4]
+00425764: push esi
+00425765: mov esi, ecx
+00425767: cmp esi, eax
+00425769: je 0x425774
+0042576b: mov eax, dword ptr [eax + 4]
+0042576e: push eax
+0042576f: call 0x425b50
+00425774: mov eax, esi
+00425776: pop esi
+
+## 633ea0  (_stricmp (case-insensitive token compare))
+00633ea0: push ebp
+00633ea1: mov ebp, esp
+00633ea3: push edi
+00633ea4: push esi
+00633ea5: push ebx
+00633ea6: mov esi, dword ptr [ebp + 0xc]
+00633ea9: mov edi, dword ptr [ebp + 8]
+00633eac: lea eax, [0x8f1c70]
+00633eb2: cmp dword ptr [eax + 8], 0
+00633eb6: jne 0x633ef3
+00633eb8: mov al, 0xff
+00633eba: mov eax, eax
+00633ebc: or al, al
+00633ebe: je 0x633eee
+00633ec0: mov al, byte ptr [esi]
+00633ec2: inc esi
+00633ec3: mov ah, byte ptr [edi]
+00633ec5: inc edi
+00633ec6: cmp ah, al
+00633ec8: je 0x633ebc
+00633eca: sub al, 0x41
+00633ecc: cmp al, 0x1a
+00633ece: sbb cl, cl
+00633ed0: and cl, 0x20
+00633ed3: add al, cl
+00633ed5: add al, 0x41
+00633ed7: xchg al, ah
+00633ed9: sub al, 0x41
+00633edb: cmp al, 0x1a
+00633edd: sbb cl, cl
+
+## 4fdb70  (command-launch mode ctor (ONLY caller: modes 19/20 at 40efc5/40f0ab))
+004fdb70: push -1
+004fdb72: push 0x82e2e8
+004fdb77: mov eax, dword ptr fs:[0]
+004fdb7d: push eax
+004fdb7e: mov dword ptr fs:[0], esp
+004fdb85: sub esp, 0x1c
+004fdb88: mov eax, dword ptr [esp + 0x30]
+004fdb8c: push ebx
+004fdb8d: push esi
+004fdb8e: mov esi, ecx
+004fdb90: mov ecx, dword ptr [esp + 0x34]
+004fdb94: push eax
+004fdb95: push ecx
+004fdb96: mov ecx, esi
+004fdb98: mov dword ptr [esp + 0x10], esi
+004fdb9c: call 0x629ee0
+004fdba1: mov dword ptr [esi], 0x842bb0
+004fdba7: push 0
+004fdba9: lea ecx, [esi + 0x40]
+004fdbac: mov dword ptr [esp + 0x30], 0
+004fdbb4: call 0x4256d0
+004fdbb9: push 0
+004fdbbb: lea ecx, [esi + 0x4c]
+004fdbbe: mov byte ptr [esp + 0x30], 1
+004fdbc3: call 0x4256d0
+004fdbc8: push 0
+004fdbca: lea ecx, [esi + 0x58]
+
+## 4fdc72  (loads MPCommandLaunch.txt via 4fe4a0; on failure calls 4fe460)
+004fdc72: lea ecx, [esp + 0x1c]
+004fdc76: call 0x4256d0
+004fdc7b: lea ecx, [esp + 0x18]
+004fdc7f: mov byte ptr [esp + 0x2c], 7
+004fdc84: push ecx
+004fdc85: mov ecx, esi
+004fdc87: call 0x4fe4a0
+004fdc8c: mov bl, al
+004fdc8e: neg bl
+004fdc90: sbb ebx, ebx
+004fdc92: lea ecx, [esp + 0x18]
+004fdc96: inc ebx
+004fdc97: mov byte ptr [esp + 0x2c], 5
+004fdc9c: call 0x425730
+004fdca1: test bl, bl
+004fdca3: je 0x4fdcac
+004fdca5: mov ecx, esi
+004fdca7: call 0x4fe460
+004fdcac: mov edx, dword ptr [0x8aebdc]
+
+## 4fe460  (fallback strings: Multiplayer Starting / Multiplayer Connecting / password prompt)
+004fe460: mov eax, dword ptr [0x8a3320]
+004fe465: push esi
+004fe466: mov esi, ecx
+004fe468: push eax
+004fe469: lea ecx, [esi + 0x40]
+004fe46c: call 0x425740
+004fe471: mov ecx, dword ptr [0x8a331c]
+004fe477: push ecx
+004fe478: lea ecx, [esi + 0x4c]
+004fe47b: call 0x425740
+004fe480: mov edx, dword ptr [0x8a3324]
+004fe486: lea ecx, [esi + 0x58]
+004fe489: push edx
+004fe48a: call 0x425740
+004fe48f: pop esi
+004fe490: ret 
+
+## 4fe000  (activate: isServer ? 4fe300 (server) : 4fe1f0 (client))
+004fe000: push esi
+004fe001: mov esi, ecx
+004fe003: call 0x62a010
+004fe008: mov al, byte ptr [esi + 0x84]
+004fe00e: test al, al
+004fe010: jne 0x4fe03c
+004fe012: mov al, byte ptr [esi + 0x68]
+004fe015: mov ecx, esi
+004fe017: test al, al
+004fe019: je 0x4fe030
+004fe01b: call 0x4fe300
+004fe020: mov eax, dword ptr [esi]
+004fe022: mov ecx, esi
+004fe024: mov byte ptr [esi + 0x84], 1
+004fe02b: call dword ptr [eax + 0x28]
+004fe02e: pop esi
+004fe02f: ret 
+004fe030: call 0x4fe1f0
+004fe035: mov byte ptr [esi + 0x84], 1
+004fe03c: mov eax, dword ptr [esi]
+004fe03e: mov ecx, esi
+004fe040: call dword ptr [eax + 0x28]
+004fe043: pop esi
+004fe044: ret 
+
+## 4fe3a8  (server started -> [netobj+0x34]=0xD and next mode 0xD (13); failure -> 4fe150(1) MPMenuError dialog)
+004fe3a8: lea edx, [esi + 0x6c]
+004fe3ab: mov ecx, dword ptr [eax + 0x18]
+004fe3ae: push edx
+004fe3af: mov eax, dword ptr [ecx + 0x18]
+004fe3b2: lea ecx, [eax + 0x28]
+004fe3b5: mov byte ptr [eax + 0x25], bl
+004fe3b8: call 0x426ef0
+004fe3bd: mov eax, dword ptr [0x8aebdc]
+004fe3c2: mov ecx, dword ptr [eax + 0x18]
+004fe3c5: mov edx, dword ptr [ecx]
+004fe3c7: call dword ptr [edx + 4]
+004fe3ca: mov edx, dword ptr [0x8aebdc]
+004fe3d0: mov ecx, dword ptr [edx + 0x18]
+004fe3d3: cmp ecx, ebx
+004fe3d5: je 0x4fe422
+004fe3d7: cmp byte ptr [ecx + 4], bl
+004fe3da: je 0x4fe3e1
+004fe3dc: mov al, byte ptr [ecx + 5]
+004fe3df: jmp 0x4fe3e3
+004fe3e1: xor al, al
+004fe3e3: cmp al, bl
+004fe3e5: je 0x4fe419
+004fe3e7: cmp byte ptr [ecx + 4], bl
+004fe3ea: je 0x4fe42b
+004fe3ec: cmp edx, ebx
+004fe3ee: je 0x4fe42b
+004fe3f0: cmp dword ptr [edx + 8], ebx
+004fe3f3: je 0x4fe42b
+004fe3f5: mov eax, 0xd
+004fe3fa: mov dword ptr [ecx + 0x34], eax
+004fe3fd: mov ecx, dword ptr [ecx + 8]
+004fe400: cmp ecx, ebx
+004fe402: je 0x4fe408
+004fe404: mov byte ptr [ecx + 0x1c], 1
+004fe408: mov ecx, dword ptr [0x8aebdc]
+004fe40e: mov edx, dword ptr [ecx + 8]
+004fe411: mov dword ptr [edx + 0xd0], eax
+004fe417: jmp 0x4fe42b
+004fe419: cmp ecx, ebx
+004fe41b: je 0x4fe422
+004fe41d: mov eax, dword ptr [ecx]
+004fe41f: call dword ptr [eax + 0x10]
+004fe422: push 1
+004fe424: mov ecx, esi
+004fe426: call 0x4fe150
+
+## 519eaf  (UI Create Game: same server object 69c800 and the same mode 13)
+00519eaf: push 0x9c
+00519eb4: call 0x6334d0
+00519eb9: add esp, 4
+00519ebc: mov dword ptr [esp + 4], eax
+00519ec0: test eax, eax
+00519ec2: mov dword ptr [esp + 0x10], 0
+00519eca: je 0x519edc
+00519ecc: mov ecx, dword ptr [esi + 0x190]
+00519ed2: push ecx
+00519ed3: mov ecx, eax
+00519ed5: call 0x69c800
+00519eda: jmp 0x519ede
+00519edc: xor eax, eax
+00519ede: mov edx, dword ptr [0x8aebdc]
+00519ee4: mov dword ptr [esp + 0x10], 0xffffffff
+00519eec: mov dword ptr [edx + 0x18], eax
+00519eef: mov eax, dword ptr [0x8aebdc]
+00519ef4: mov ecx, dword ptr [eax + 0x18]
+00519ef7: mov edx, dword ptr [ecx]
+00519ef9: call dword ptr [edx + 4]
+00519efc: mov edx, dword ptr [0x8aebdc]
+00519f02: mov ecx, dword ptr [edx + 0x18]
+00519f05: test ecx, ecx
+00519f07: je 0x519f68
+00519f09: mov al, byte ptr [ecx + 4]
+00519f0c: test al, al
+00519f0e: je 0x519f15
+00519f10: mov al, byte ptr [ecx + 5]
+00519f13: jmp 0x519f17
+00519f15: xor al, al
+00519f17: test al, al
+00519f19: je 0x519f5f
+00519f1b: mov al, byte ptr [ecx + 4]
+00519f1e: test al, al
+00519f20: je 0x519f71
+00519f22: test edx, edx
+00519f24: je 0x519f71
+00519f26: mov eax, dword ptr [edx + 8]
+00519f29: test eax, eax
+00519f2b: je 0x519f71
+00519f2d: mov eax, 0xd
+00519f32: mov dword ptr [ecx + 0x34], eax
+00519f35: mov ecx, dword ptr [ecx + 8]
+00519f38: test ecx, ecx
+00519f3a: je 0x519f40
+00519f3c: mov byte ptr [ecx + 0x1c], 1
+00519f40: mov ecx, dword ptr [0x8aebdc]
+00519f46: mov edx, dword ptr [ecx + 8]
+00519f49: mov dword ptr [edx + 0xd0], eax
+
+## 40ecf1  (mode 13 -> class 50b1c0 (Multiplayer Sessions screen))
+0040ecf1: push 0x480
+0040ecf6: call 0x6334d0
+0040ecfb: add esp, 4
+0040ecfe: mov dword ptr [esp + 0x84], eax
+0040ed05: test eax, eax
+0040ed07: mov byte ptr [esp + 0x7c], 0xd
+0040ed0c: je 0x40f128
+0040ed12: mov edx, dword ptr [0x8aebdc]
+0040ed18: push 1
+0040ed1a: push 0
+0040ed1c: mov ecx, dword ptr [edx + 0x14]
+0040ed1f: push ecx
+0040ed20: mov ecx, eax
+0040ed22: call 0x50b1c0
+0040ed27: mov byte ptr [esp + 0x7c], 1
+0040ed2c: mov dword ptr [esi + 0xd4], eax
+0040ed32: jmp 0x40f141
+
+## 4291d0  (Lighthouse TCP listening port: socket(2,1,6), bind, listen backlog 5)
+004291d0: sub esp, 0x10
+004291d3: push esi
+004291d4: push edi
+004291d5: mov edi, dword ptr [esp + 0x1c]
+004291d9: mov esi, ecx
+004291db: cmp dword ptr [edi + 4], 1
+004291df: je 0x4291eb
+004291e1: xor al, al
+004291e3: pop edi
+004291e4: pop esi
+004291e5: add esp, 0x10
+004291e8: ret 4
+004291eb: push 6
+004291ed: push 1
+004291ef: push 2
+004291f1: call 0x429ef8
+004291f6: cmp eax, -1
+004291f9: mov dword ptr [esi + 0x2c], eax
+004291fc: jne 0x429243
+004291fe: call 0x429ef2
+00429203: push eax
+00429204: push 0x899d80 ; "Lighthouse: TCP/IP listening port socket() call fails with error "
+00429209: mov ecx, 0x8b3db4
+0042920e: call 0x630ac0
+00429213: mov ecx, eax
+00429215: call 0x630920
+0042921a: push 0x4049a0
+0042921f: push 0xa
+00429221: mov ecx, eax
+00429223: call 0x630860
+00429228: mov ecx, eax
+0042922a: call 0x404980
+0042922f: mov ecx, 0x8b3da8
+00429234: call 0x426310
+00429239: xor al, al
+0042923b: pop edi
+0042923c: pop esi
+0042923d: add esp, 0x10
+00429240: ret 4
+00429243: lea ecx, [esp + 0x1c]
+00429247: mov dword ptr [esp + 0x1c], 1
+0042924f: push ecx
+00429250: push 0x8004667e
+00429255: push eax
+00429256: call 0x429eec
+0042925b: cmp eax, -1
+0042925e: jne 0x4292ae
+00429260: call 0x429ef2
+00429265: push eax
+00429266: push 0x899d4c ; "Lighthouse: TCP/IP listening port ioctlsocket() "
+0042926b: mov ecx, 0x8b3db4
+00429270: call 0x630ac0
+00429275: mov ecx, eax
+00429277: call 0x630920
+0042927c: push 0x4049a0
+00429281: push 0xa
+00429283: mov ecx, eax
+00429285: call 0x630860
+0042928a: mov ecx, eax
+0042928c: call 0x404980
+00429291: mov ecx, 0x8b3da8
+00429296: call 0x426310
+0042929b: mov edx, dword ptr [esi + 0x2c]
+0042929e: push edx
+0042929f: call 0x429412
+004292a4: xor al, al
+004292a6: pop edi
+004292a7: pop esi
+004292a8: add esp, 0x10
+004292ab: ret 4
+004292ae: lea eax, [esp + 8]
+004292b2: mov ecx, edi
+004292b4: push eax
+004292b5: call 0x427680
+004292ba: test al, al
+004292bc: jne 0x4292cf
+004292be: push 0x899d10
+004292c3: mov ecx, 0x8b3db4
+004292c8: call 0x630ac0
+004292cd: jmp 0x429315
+004292cf: mov eax, dword ptr [esi + 0x2c]
+004292d2: lea edx, [esp + 8]
+004292d6: push 0x10
+004292d8: push edx
+004292d9: push eax
+004292da: call 0x429ee6
+004292df: cmp eax, -1
+004292e2: jne 0x429332
+004292e4: call 0x429ef2
+004292e9: push eax
+004292ea: push 0x899ce0 ; "Lighthouse: TCP/IP listening port bind() error "
+004292ef: mov ecx, 0x8b3db4
+004292f4: call 0x630ac0
+004292f9: mov ecx, eax
+004292fb: call 0x630920
+00429300: push 0x4049a0
+00429305: push 0xa
+00429307: mov ecx, eax
+00429309: call 0x630860
+0042930e: mov ecx, eax
+00429310: call 0x404980
+00429315: mov ecx, 0x8b3da8
+0042931a: call 0x426310
+0042931f: mov ecx, dword ptr [esi + 0x2c]
+00429322: push ecx
+00429323: call 0x429412
+00429328: xor al, al
+0042932a: pop edi
+0042932b: pop esi
+0042932c: add esp, 0x10
+0042932f: ret 4
+00429332: mov edx, dword ptr [esi + 0x2c]
+00429335: push 5
+00429337: push edx
+00429338: call 0x429ee0
+0042933d: cmp eax, -1
+00429340: jne 0x429390
+00429342: call 0x429ef2
+00429347: push eax
+00429348: push 0x899cac ; "Lighthouse: TCP/IP listening port listen() error "
+0042934d: mov ecx, 0x8b3db4
+00429352: call 0x630ac0
+00429357: mov ecx, eax
+00429359: call 0x630920
+0042935e: push 0x4049a0
+00429363: push 0xa
+00429365: mov ecx, eax
+00429367: call 0x630860
+0042936c: mov ecx, eax
+
+## 4290b0  (accept into a single slot per poll)
+004290b0: push esi
+004290b1: mov esi, ecx
+004290b3: mov al, byte ptr [esi + 4]
+004290b6: test al, al
+004290b8: je 0x4290da
+004290ba: mov al, byte ptr [esi + 0x28]
+004290bd: test al, al
+004290bf: jne 0x4290da
+004290c1: mov eax, dword ptr [esi + 0x2c]
+004290c4: push 0
+004290c6: push 0
+004290c8: push eax
+004290c9: call 0x429418
+004290ce: cmp eax, -1
+004290d1: mov dword ptr [esi + 0x30], eax
+004290d4: je 0x4290da
+004290d6: mov byte ptr [esi + 0x28], 1
+004290da: pop esi
+004290db: ret 
+
+## 413cb8  (Sherman.log opened on log object 8b3da8 (stream 8b3db4 = Lighthouse error sink))
+00413cb8: push ecx
+00413cb9: sub esp, 0x258
+00413cbf: push ebx
+00413cc0: push esi
+00413cc1: push edi
+00413cc2: mov ecx, 0x8b3da8
+00413cc7: mov dword ptr [ebp - 0x10], esp
+00413cca: push 0x89872c ; "Sherman.log"
+00413ccf: call 0x426370
+
+## 4595a0  (registry string read (RegCreateKeyExA HKLM 'Sherman Values'))
+004595a0: sub esp, 0x110
+004595a6: mov edx, dword ptr [0x89df8c]
+004595ac: push ebx
+004595ad: push esi
+004595ae: lea eax, [esp + 0x10]
+004595b2: push edi
+004595b3: lea ecx, [esp + 0xc]
+004595b7: push eax
+004595b8: mov eax, dword ptr [esp + 0x124]
+004595bf: push ecx
+004595c0: push 0
+004595c2: push 1
+004595c4: push 0
+004595c6: push edx
+004595c7: push 0
+004595c9: push eax
+004595ca: push 0x80000002
+004595cf: mov dword ptr [esp + 0x34], 0x100
+004595d7: call dword ptr [0x84100c] ; ADVAPI32.dll!RegCreateKeyExA
+004595dd: test eax, eax
+
+## string pointer globals
+[0x8a3308] -> 0x8a32b8 -> b'mp_bg.BMP'
+[0x8a3318] -> 0x8a3384 -> b'MPCommandLaunch.txt'
+[0x8a331c] -> 0x8a336c -> b'Multiplayer Connecting'
+[0x8a3320] -> 0x8a3354 -> b'Multiplayer Starting'
+[0x8a3324] -> 0x8a3328 -> b'THIS GAME REQUIRES A PASSWORD FOR ENTRY:'
+[0x8a330c] -> 0x8a33c8 -> b'Failure'
+[0x8a3310] -> 0x8a33a8 -> b'A Multiplayer Error Occurred'
+[0x8a3314] -> 0x8a3398 -> b'MPMenuError.txt'
+[0x8a3570] -> 0x8a32b8 -> b'mp_bg.BMP'
+[0x8a3594] -> 0x8a38d4 -> b'mpsa_plyrop.bmp'
+[0x8a3598] -> 0x8a38c4 -> b'mpsa_gameop.bmp'
+[0x8a359c] -> 0x8a38b0 -> b'mpscl_coop_box.bmp'
+[0x8a35a0] -> 0x8a389c -> b'mpsa_connplyrs.bmp'
+[0x8a35a4] -> 0x8a3270 -> b'mp_chatbox.bmp'
+[0x89df8c] -> 0x89dfa8 -> b'Sherman Values'
+[0x89df90] -> 0x89dfa0 -> b'TRUE'
+[0x89df94] -> 0x89df98 -> b'FALSE'
+
+## mode-switch jump table 40f258 (index = mode-1)
+0 0x0 0x40e90a
+1 0x4 0x40e94b
+2 0x8 0x40f137
+3 0xc 0x40f137
+4 0x10 0x40e98f
+5 0x14 0x40ea52
+6 0x18 0x40ea96
+7 0x1c 0x40eb15
+8 0x20 0x40eb80
+9 0x24 0x40ec25
+10 0x28 0x40ec69
+11 0x2c 0x40ecad
+12 0x30 0x40ecf1
+13 0x34 0x40ed37
+14 0x38 0x40ed7d
+15 0x3c 0x40ee26
+16 0x40 0x40ee7c
+17 0x44 0x40eed1
+18 0x48 0x40ef26
+19 0x4c 0x40f003
+20 0x50 0x40f0ee

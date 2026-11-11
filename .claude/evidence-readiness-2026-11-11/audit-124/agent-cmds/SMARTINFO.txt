@@ -1,0 +1,1 @@
+[{"drive_index":0,"path":"\\\\.\\PhysicalDrive0","model":"ST9320325AS","serial":"            5VD0CF4X","firmware":"0003DEM1","smart":{"temperature":{"celsius":28,"current":28,"worst":53},"power_on_hours":{"hours":5576,"current":94,"worst":94},"reallocated_sectors":{"count":7,"current":100,"worst":100}}}]

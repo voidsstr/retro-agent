@@ -1,0 +1,74 @@
+SeriousSam.exe (staged TSE 1.05, 442434 B) - +quickjoin proof, disassembled with capstone
+== parser: +server (0x432498) -> [0x4370c0]=1, +quickjoin (0x4324a0) -> [0x4370c4]=1
+00401628  push   0x432498
+0040162d  lea    ecx, [ebp - 0x10]
+00401630  call   edi
+00401632  test   eax, eax
+00401634  je     0x401645
+00401636  mov    dword ptr [0x4370c0], 1
+00401640  jmp    0x4015ab
+00401645  push   0x4324a0
+0040164a  lea    ecx, [ebp - 0x10]
+0040164d  call   edi
+0040164f  test   eax, eax
+00401651  je     0x401662
+00401653  mov    dword ptr [0x4370c4], 1
+0040165d  jmp    0x4015ab
+
+== Init: after CPrintF 'Command line connection' (0x4369f4): quickjoin -> call 0x409ab0, else StartMenus('join' @0x436a1c)
+00424721  mov    eax, dword ptr [ebp + 8]
+00424724  mov    ecx, dword ptr [0x4370b4]
+0042472a  push   eax
+0042472b  push   ecx
+0042472c  push   4
+0042472e  push   0x4369f4
+00424733  call   ebx
+00424735  add    esp, 8
+00424738  push   eax
+00424739  call   dword ptr [0x42b124]
+0042473f  mov    edx, dword ptr [0x44300c]
+00424745  mov    eax, dword ptr [0x4370b4]
+0042474a  push   eax
+0042474b  lea    ebx, [edx + 0x1c]
+0042474e  call   esi
+00424750  mov    ecx, dword ptr [ebx]
+00424752  mov    esi, eax
+00424754  push   ecx
+00424755  call   edi
+00424757  mov    dword ptr [ebx], esi
+00424759  mov    eax, dword ptr [0x4370c4]
+0042475e  add    esp, 0x14
+00424761  test   eax, eax
+00424763  je     0x42476c
+00424765  call   0x409ab0
+0042476a  jmp    0x424779
+0042476c  push   0x436a1c
+00424771  call   0x4085d0
+00424776  add    esp, 4
+00424779  mov    edx, dword ptr [ebp + 8]
+0042477c  mov    byte ptr [ebp - 4], 0
+00424780  push   edx
+00424781  call   edi
+00424783  add    esp, 4
+
+== 0x409ab0 = JoinNetworkGame: copies menu split-screen cfg/local players to start, provider 'TCP/IP Client' @0x43323c
+00409ab0  push   ebp
+00409ab1  mov    ebp, esp
+00409ab3  push   -1
+00409ab5  push   0x429062
+00409aba  mov    eax, dword ptr fs:[0]
+00409ac0  push   eax
+00409ac1  mov    dword ptr fs:[0], esp
+00409ac8  sub    esp, 0x23c
+00409ace  mov    eax, dword ptr [0x44300c]
+00409ad3  push   ebx
+00409ad4  mov    ebx, dword ptr [0x42b0d0]
+00409ada  push   esi
+00409adb  mov    ecx, dword ptr [eax + 0xf3c]
+00409ae1  push   edi
+00409ae2  mov    dword ptr [eax + 0xf40], ecx
+00409ae8  mov    eax, dword ptr [0x44300c]
+00409aed  push   0x43323c
+
+== order inside Init: first-run InfoMessage ref 0x42433d < '+script' include ref 0x4243e0 < connect block 0x42472f
+== second '+connect'/'+quickjoin' pair (0x436cc8/0x436cd4) sits beside 'SeriousSam.exe'/'+game'/_execl: the exe's own mod-restart line

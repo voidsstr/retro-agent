@@ -1,0 +1,323 @@
+# raw tool output - HDE.exe 1.50 (md5 385e0d401efe702cb396489da6a9cf48) / igraph2.dll (d214b6dc2c94379381d548cce1d02961) / inet2.dll (1c69542069d0c4ffcfdc650fa9751492), copied read-only from Games-Library/HiddenAndDangerous/Bin
+## HDE.exe command-line option table at 0x4ea790 {name, type, target, handler}: 0x10001=bool flag, 0x10003=int, 0x10005=string global
+0x4ea790 ['0x4f2fd4', '0x0', '0x0', '0x453790'] help
+0x4ea7a0 ['0x4f2fc8', '0x4', '0x8', '0x0'] resolution
+0x4ea7b0 ['0x4f2fbc', '0x4', '0x10', '0x0'] position
+0x4ea7c0 ['0x4f2fb0', '0x1', '0x18', '0x0'] releasedll
+0x4ea7d0 ['0x4f2fa0', '0x1', '0x20', '0x0'] direct_trans
+0x4ea7e0 ['0x4f2f94', '0x0', '0x0', '0x0'] launch_app
+0x4ea7f0 ['0x4f2f8c', '0x10005', '0x4fa6a4', '0x0'] mission
+0x4ea800 ['0x4f2f84', '0x0', '0x0', '0x4534b0'] stop
+0x4ea810 ['0x4f2f7c', '0x0', '0x0', '0x453720'] sleep
+0x4ea820 ['0x4f2f70', '0x10001', '0x4fa69c', '0x0'] net_host
+0x4ea830 ['0x4f2f64', '0x10001', '0x4fa69d', '0x0'] net_join
+0x4ea840 ['0x4f2f5c', '0x10001', '0x4fa69e', '0x0'] net_log
+0x4ea850 ['0x4f2f54', '0x10003', '0x4fa6a0', '0x0'] net_num
+0x4ea860 ['0x4f2f48', '0x10005', '0x4fa6a8', '0x0'] net_player
+0x4ea870 ['0x4f2f34', '0x10001', '0x4fa69b', '0x0'] net_cpu_schedule
+0x4ea880 ['0x4f2f28', '0x1', '0x21', '0x0'] graph_caps
+0x4ea890 ['0x4f2f1c', '0x1', '0x22', '0x0'] sound_caps
+0x4ea8a0 ['0x4f2f08', '0x10005', '0x4fa6ac', '0x0'] net_session_name
+0x4ea8b0 ['0x4f2efc', '0x10005', '0x4fa6b0', '0x0'] net_address
+0x4ea8c0 ['0x4f2ef0', '0x10005', '0x4fa6b4', '0x0'] net_port
+0x4ea8d0 ['0x4f2ee4', '0x10003', '0x4fa69a', '0x0'] datadisk
+0x4ea8e0 ['0x4f2edc', '0x5', '0x1c', '0x0'] profile
+0x4ea8f0 ['0x4f2ed0', '0x0', '0x0', '0x4534e0'] language
+0x4ea900 ['0x4f2ec8', '0x10001', '0x4fa662', '0x0'] safe
+## refs to the option globals (0x4fa69c net_host, 0x4fa69d net_join, 0x4fa69e net_log, 0x4fa6a0 net_num, 0x4fa6a4 mission, 0x4fa6b4 net_port) - net_num: 0 refs; mission and net_port: only the exit-time release
+==== 0x4fa6a0: 0 refs
+==== 0x4fa6a4: 1 refs
+--
+   004bd7cb: push eax
+   004bd7cc: call 0x4c4050
+   004bd7d1: add esp, 4
+>> 004bd7d4: mov eax, dword ptr [0x4fa6a4]  ; "r"
+   004bd7d9: test eax, eax
+   004bd7db: je 0x4bd7ed
+   004bd7dd: mov ecx, dword ptr [eax]
+==== 0x4fa6b4: 1 refs
+--
+   004bd76d: nop 
+   004bd76e: nop 
+   004bd76f: nop 
+>> 004bd770: mov eax, dword ptr [0x4fa6b4]
+   004bd775: test eax, eax
+   004bd777: je 0x4bd789
+   004bd779: mov ecx, dword ptr [eax]
+## HDE.exe network init 0x4b1682-0x4b17ba: net_session_name/net_player/net_address override the registry defaults; net_log opens '<player name>.log' (wt) in the CWD
+   004b1682: mov eax, dword ptr [0x4fa6ac]
+   004b1687: mov dword ptr [esp + 0x30], 0x3a98
+   004b168f: test eax, eax
+   004b1691: je 0x4b16a1
+   004b1693: mov edi, dword ptr [eax + 4]
+   004b1696: test edi, edi
+   004b1698: je 0x4b16a1
+   004b169a: lea edx, [eax + 8]
+   004b169d: mov dword ptr [esp + 0x14], edx
+   004b16a1: mov eax, dword ptr [0x4fa6a8]  ; "f"
+   004b16a6: test eax, eax
+   004b16a8: je 0x4b16b8
+   004b16aa: mov edi, dword ptr [eax + 4]
+   004b16ad: test edi, edi
+   004b16af: je 0x4b16b8
+   004b16b1: lea ecx, [eax + 8]
+   004b16b4: mov dword ptr [esp + 0x18], ecx
+   004b16b8: mov eax, dword ptr [0x4fa6b0]
+   004b16bd: test eax, eax
+   004b16bf: je 0x4b16cf
+   004b16c1: mov edi, dword ptr [eax + 4]
+   004b16c4: test edi, edi
+   004b16c6: je 0x4b16cf
+   004b16c8: add eax, 8
+   004b16cb: mov dword ptr [esp + 0x28], eax
+   004b16cf: cmp byte ptr [edx], 0
+   004b16d2: jne 0x4b16d8
+   004b16d4: mov dword ptr [esp + 0x14], ecx
+   004b16d8: mov eax, dword ptr [0x4fa684]  ; "n"
+   004b16dd: cmp eax, 6
+   004b16e0: ja 0x4b1729
+   004b16e2: jmp dword ptr [eax*4 + 0x4b1810]
+   004b16e9: mov dword ptr [esp + 0x3c], 1
+   004b16f1: jmp 0x4b1729
+   004b16f3: mov dword ptr [esp + 0x3c], 2
+   004b16fb: jmp 0x4b1729
+   004b16fd: mov dword ptr [esp + 0x3c], 3
+   004b1705: jmp 0x4b1729
+   004b1707: mov dword ptr [esp + 0x3c], esi
+   004b170b: jmp 0x4b1729
+   004b170d: mov dword ptr [esp + 0x3c], 5
+   004b1715: jmp 0x4b1729
+   004b1717: mov dword ptr [esp + 0x3c], 6
+   004b171f: jmp 0x4b1729
+   004b1721: mov dword ptr [esp + 0x3c], 7
+   004b1729: mov al, byte ptr [0x4fa69e]  ; " "
+   004b172e: test al, al
+   004b1730: je 0x4b17c2
+   004b1736: push ecx
+   004b1737: lea ecx, [esp + 0xc]
+   004b173b: push 0x4f53c8  ; "%s.log"
+   004b1740: push ecx
+   004b1741: call 0x403f90
+   004b1746: mov esi, eax
+   004b1748: add esp, 0xc
+   004b174b: mov eax, dword ptr [esi]
+   004b174d: test eax, eax
+   004b174f: je 0x4b1753
+   004b1751: inc dword ptr [eax]
+   004b1753: mov eax, dword ptr [0x4f89b8]
+   004b1758: test eax, eax
+   004b175a: je 0x4b1770
+   004b175c: mov edx, dword ptr [eax]
+   004b175e: dec edx
+   004b175f: mov dword ptr [eax], edx
+   004b1761: mov ecx, dword ptr [eax]
+   004b1763: test ecx, ecx
+   004b1765: jne 0x4b1770
+   004b1767: push eax
+   004b1768: call 0x4c4050
+   004b176d: add esp, 4
+   004b1770: mov eax, dword ptr [esp + 8]
+   004b1774: mov edx, dword ptr [esi]
+   004b1776: test eax, eax
+   004b1778: mov dword ptr [0x4f89b8], edx
+   004b177e: je 0x4b1794
+   004b1780: mov edx, dword ptr [eax]
+   004b1782: dec edx
+   004b1783: mov dword ptr [eax], edx
+   004b1785: mov ecx, dword ptr [eax]
+   004b1787: test ecx, ecx
+   004b1789: jne 0x4b1794
+   004b178b: push eax
+   004b178c: call 0x4c4050
+   004b1791: add esp, 4
+   004b1794: mov eax, dword ptr [0x4f89b8]
+   004b1799: test eax, eax
+   004b179b: je 0x4b17a2
+   004b179d: add eax, 8
+   004b17a0: jmp 0x4b17a7
+   004b17a2: mov eax, 0x4f89b8
+   004b17a7: push 0x4f53c4  ; "wt"
+   004b17ac: push eax
+   004b17ad: call 0x4c8e59
+   004b17b2: add esp, 8
+   004b17b5: mov dword ptr [0x4f89b4], eax
+   004b17ba: mov dword ptr [esp + 0x34], 0x4b1830
+## HDE.exe log writer 0x4c1830: EnterCriticalSection, fwrite, fclose, fopen 'at' - every line is on disk before the next
+   004c1830: push esi
+   004c1831: mov esi, ecx
+   004c1833: push edi
+   004c1834: mov eax, dword ptr [esi]
+   004c1836: push eax
+   004c1837: call dword ptr [0x4e70f8]
+   004c183d: mov ecx, dword ptr [esi + 4]
+   004c1840: mov edx, dword ptr [esp + 0xc]
+   004c1844: push ecx
+   004c1845: mov edi, edx
+   004c1847: or ecx, 0xffffffff
+   004c184a: xor eax, eax
+   004c184c: repne scasb al, byte ptr es:[edi]
+   004c184e: not ecx
+   004c1850: dec ecx
+   004c1851: push ecx
+   004c1852: push 1
+   004c1854: push edx
+   004c1855: call 0x4c8ec2
+   004c185a: mov edx, dword ptr [esi + 4]
+   004c185d: push edx
+   004c185e: call 0x4c8e6c
+   004c1863: mov ecx, dword ptr [esi + 8]
+   004c1866: lea eax, [esi + 8]
+## HDE.exe startup 0x466fed/0x4672be: net_host -> 0x467890 (InetCreate + Host) at menu start; net_join -> 0x4b15c0 (InetCreate) + join menu
+   00466fed: mov al, byte ptr [0x4fa69c]  ; "s"
+   00466ff2: mov ecx, 0x4f4114  ; "logo"
+   00466ff7: cmp al, bl
+   00466ff9: jne 0x467003
+   00466ffb: cmp byte ptr [0x4fa69d], bl
+   00467001: je 0x467008
+   00467003: mov ecx, 0x4f410c  ; "log_on"
+   004672be: cmp byte ptr [0x4fa69c], bl  ; "s"
+   004672c4: je 0x4672da
+   004672c6: mov ecx, esi
+   004672c8: call 0x467890
+   004672cd: test al, al
+   004672cf: je 0x467308
+   004672d1: push -1
+   004672d3: push 0x4eacd0
+   004672d8: jmp 0x4672fc
+   004672da: cmp byte ptr [0x4fa69d], bl
+   004672e0: je 0x467308
+   004672e2: call 0x4b15c0
+   004672e7: test al, al
+   004672e9: je 0x46731a  ; "Sh#N"
+   004672eb: push -1
+   004672ed: mov dword ptr [esi + 0x4e0], 4
+   004672f7: push 0x4eae20
+   004672fc: push 0x4eb1e0
+   00467301: mov ecx, esi
+   00467303: call 0x45bed0
+## igraph2.dll mouse: CreateDevice(GUID_SysMouse) at 0x100076ef, polled with IDirectInputDevice8::GetDeviceState(0x14 = sizeof DIMOUSESTATE) at 0x10007b2a - IMMEDIATE mode, buttons = rgbButtons & 0x80 at poll time
+   100076e0: push 0
+   100076e2: lea edi, [esi + 0x150]
+   100076e8: push edi
+   100076e9: push 0x1002e06c
+   100076ee: push eax
+   100076ef: call dword ptr [ecx + 0xc]
+   100076f2: test eax, eax
+   100076f4: jl 0x10007781
+   100076fa: mov eax, dword ptr [edi]
+   100076fc: mov edx, dword ptr [eax]
+   100076fe: push 0x1002f17c
+   10007703: push eax
+   10007704: call dword ptr [edx + 0x2c]
+   10007707: test eax, eax
+   10007709: jl 0x10007781
+   1000770b: mov edx, dword ptr [esi + 0x22c]
+   10007b1a: mov eax, dword ptr [esi + 0x150]
+   10007b20: mov ecx, dword ptr [eax]
+   10007b22: lea edx, [esp + 0x1c]
+   10007b26: push edx
+   10007b27: push 0x14
+   10007b29: push eax
+   10007b2a: call dword ptr [ecx + 0x24]
+   10007b2d: cmp eax, 0x8007000c
+   10007b32: je 0x10007b3b
+   10007b34: cmp eax, 0x8007001e
+   10007b39: jne 0x10007b51
+   10007b3b: mov eax, dword ptr [esi + 0x150]
+   10007b41: mov ecx, dword ptr [eax]
+   10007b43: push eax
+   10007b44: call dword ptr [ecx + 0x1c]
+   10007b47: test eax, eax
+   10007b49: jne 0x10007d11
+   10007b4f: jmp 0x10007b1a
+   10007b51: cmp eax, ebx
+   10007b53: jne 0x10007d11
+   10007b59: mov ecx, dword ptr [esp + 0x24]
+   10007b5d: mov edi, dword ptr [esp + 0x1c]
+   10007b61: mov ebp, dword ptr [esp + 0x20]
+   10007b65: mov eax, 0x88888889
+   10007b6a: imul ecx
+   10007b6c: add edx, ecx
+   10007b6e: mov ecx, dword ptr [esi + 0x190]
+   10007b74: sar edx, 6
+   10007b77: mov eax, edx
+   10007b79: shr eax, 0x1f
+   10007b7c: add edx, eax
+   10007b7e: mov al, byte ptr [esi + 0x174]
+   10007b84: add edx, ecx
+   10007b86: cmp al, bl
+   10007b88: mov dword ptr [esi + 0x1a4], edi
+   10007b8e: mov dword ptr [esi + 0x1a8], ebp
+   10007b94: mov dword ptr [esi + 0x1ac], edx
+   10007b9a: mov dword ptr [esi + 0x190], ebx
+   10007ba0: je 0x10007bac
+   10007ba2: mov al, byte ptr [esp + 0x28]
+   10007ba6: mov cl, byte ptr [esp + 0x29]
+   10007baa: jmp 0x10007bb4
+   10007bac: mov al, byte ptr [esp + 0x29]
+   10007bb0: mov cl, byte ptr [esp + 0x28]
+   10007bb4: mov dl, 0x80
+   10007bb6: test dl, cl
+   10007bb8: je 0x10007bc1
+   10007bba: or byte ptr [esi + 0x1b0], 1
+   10007bc1: test dl, al
+   10007bc3: je 0x10007bcc
+   10007bc5: or byte ptr [esi + 0x1b0], 2
+   10007bcc: test byte ptr [esp + 0x2a], dl
+   10007bd0: je 0x10007bd9
+   10007bd2: or byte ptr [esi + 0x1b0], 4
+   10007bd9: test byte ptr [esp + 0x2b], dl
+   10007bdd: je 0x10007be6
+   10007bdf: or byte ptr [esi + 0x1b0], 8
+## inet2.dll log strings (DirectPlay 8 peer): Hosting session... / Hosting successful. / Starting enumeration... / Connecting... / Assigned handle (async op handle of EnumHosts vtbl+0x64 and Connect vtbl+0x18) / !!! time-out !!! / Disconnected.
+Serial cable connection
+IPX connection
+TCP/IP connection
+Modem connection
+> SyncHandler: asked to exit, terminating thread.
+> SyncHandler: host dropped, request close.
+Outgoing queue overflowed, silently dropping message.
+Processing system message.
+Assigned handle: 0x%.8x.
+Starting enumeration...
+Hosting failed.
+Hosting successful.
+Hosting session...
+Connecting...
+Disconnected.
+Closing DP interface...
+ !!! time-out !!!
+Sending pending messages...
+Canceling last non-guar. message...
+Closing voice...
+Killing sync thread...
+Disconnecting...
+Cancelling attempt to connect.
+Cancelling host enumeration.
+*** Fatal error: CRC mismatch on network message from player '%s'.
+Probable cause: your network adapter, or adapter of mentioned player,
+is altering messages, so that they arrive corrupted.
+Solution: try upgrading your network card drivers to reliable version.
+The application will now terminate.
+## HDE.exe -help text (net_connect and net_connection_provider are advertised but NOT in the option table above)
+General:
+  datadisk<n>	set version to run
+  language<name>	set language to run
+  graph_caps	dump videocard caps
+  sound_caps	dump soundcard caps
+  resolution <x> <y>	set window resolution
+  position <x> <y>	set window position
+  profile <name>	set default profile
+Network:
+  net_host	host game
+  net_join	join game
+  net_connect	automatically connect to network game
+  net_player "name"	set net player name
+  net_session_name "name"	set net session name
+  net_connection_provider <type>	set net connection (tcpip|ipx|sim)
+  net_address "string"	set network address to connect to (tcpip)
+  net_port "string"	set network port to connect to (tcpip)
+Others:
+  launch_app "app_name" [params]	run another application
+  stop	stop processing cmdline
+%s - command-line help

@@ -1,0 +1,119 @@
+Log: Log file open, 10/01/26 10:56:36
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows XP 5.1 (Build: 2600)
+Init: Version: 3369 (128.29)
+Init: Compiled: Nov 23 2005 16:23:34
+Init: Command line: 
+Init: Character set: Unicode
+Init: Base directory: D:\Games\UT2004\System\
+Init: Ini:UT2004.ini   UserIni:User.ini
+Init: Build label: UT2004 Build UT2004_Build_[2005-11-23_16.22]
+Init: Object subsystem initialized
+Log: Splash screen filename is '..\Help\UT2004Logo.bmp'
+Log: 	nv4_disp.dll/NVIDIA GeForce 7900 GT/GTO
+Log: Game class is 'GameInfo'
+Log: Bringing Level Entry.myLevel up for play (0) appSeconds: 8.032000...
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Favorites::ImportText: Bad termination in: (ServerID=0,IP="173.199.73.35",Port=7777,QueryPort=7778,ServerName="ÿœ[ýUûžnùŸr÷ e
+Log: Browse: NvidiaLogo.ut2?Name=NSC-684BA8CF5ED?Class=Engine.Pawn?Character=Jakob?team=255
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 27915->27915; refs: 283950
+Log: Game class is 'CinematicGame'
+Log: Bringing Level NvidiaLogo.myLevel up for play (0) appSeconds: 12.178000...
+Log: (Karma): Autodetecting CPU for SSE
+Log: (Karma): Using SSE Optimizations
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: ALAudio: Using DirectSound to record audio.
+ScriptLog: New Player NSC-684BA8CF5ED id=041fbee373f9fc6e5dedc6810ce480f2
+Log: Opened viewport
+Log: Enter SetRes: 1920x1080 Fullscreen 1
+Log: Using back-buffer format 22(32-bit)
+Log: Using depth-buffer format 77(32-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Log: OS doesn't support IME.
+Log: Startup time: 15.270000 seconds
+Log: Precaching: NvidiaLogo.LevelInfo0
+Log: Static mesh batches: 508608 vertex bytes, 110460 index bytes
+Log: Allocating 16384 byte dynamic index buffer.
+Log: Finished precaching geometry in 0.076 seconds
+Log: Finished precaching textures in 0.151 seconds
+Log: URL: Adding default option Name=NSC-684BA8CF5ED
+Log: URL: Adding default option Class=Engine.Pawn
+Log: URL: Adding default option Character=Jakob
+Log: URL: Adding default option team=255
+Log: Browse: Index.ut2?disconnect?Name=NSC-684BA8CF5ED?Class=Engine.Pawn?Character=Jakob?team=255
+Log: Failed; returning to Entry
+Log: GP=FALSE
+Log: Spawning new actor for Viewport WindowsViewport
+ScriptLog: New Player NSC-684BA8CF5ED id=041fbee373f9fc6e5dedc6810ce480f2
+Log: MatchViewportsToActors: GUI2K4.UT2K4MainMenu
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Debug: UT2k4MainMenu.Opened()   Sender:Package.UT2k4MainMenu
+Log: Static mesh batches: 0 vertex bytes, 0 index bytes
+Debug: UT2k4MainMenu.Opened()   Sender:None
+Log: Time=552.614814 ms
+Log: EndFullscreen
+Log: Enter SetRes: 800x600 Fullscreen 0
+Log: Using back-buffer format 22(32-bit)
+Log: Using depth-buffer format 77(32-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Log: Closed viewport
+Log: All Windows Closed
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Window.dll
+Log: Unbound to Core.dll
+Log: Unbound to Engine.dll
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to D3DDrv.dll
+Log: Unbound to XGame.dll
+Log: Unbound to IpDrv.dll
+Log: Unbound to Editor.dll
+Log: Unbound to Fire.dll
+Log: Unbound to XInterface.dll
+Log: Unbound to UWeb.dll
+Log: Unbound to Onslaught.dll
+Log: (Karma): Level Karma Terminated.
+Log: Unbound to ALAudio.dll
+Log: Waiting for file streaming thread to finish...
+Exit: OpenAL Audio subsystem shut down.
+Log: Garbage: objects: 29559->0; refs: 283950
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Log: FileManager: Reading 0 GByte 58 MByte 859 KByte 431 Bytes from HD took 8.160984 seconds (8.108984 reading, 0.052000 seeking).
+Log: FileManager: 1.919002 seconds spent with misc. duties
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.221M /  3.371M
+Uninitialized: Peak Memory  69.226M /  70.973M
+Uninitialized: Allocs         733 Current /  4002984 Total
+Uninitialized: Log file closed, 10/01/26 10:57:44

@@ -1,0 +1,338 @@
+Red Faction 1.20 rf.exe (build.ver 0xB1=177) md5 0ba3b15d64a702333a4d9a0815f782b7 - read-only capstone disassembly, 2026-11-11 (readiness scout)
+
+== A. Port: -port switch (0x7d9458) sets the port global 0x59cd88 (default 0x1e4b=7755). ForcePort (HKCU) is read ONLY when -port is absent, and only a value 1..65535 overrides; install.reg's ForcePort=0 leaves 7755. So client AND dedicated server both bind UDP 7755 by default.
+  004b1185: call   0x52dcf0
+  004b118a: test   al, al
+  004b118c: jne    0x4b11bc
+  004b118e: lea    edx, [esp + 4]
+  004b1192: push   0x1e4b
+  004b1197: push   edx
+  004b1198: push   0x5a1414  "ForcePort"
+  004b119d: push   0
+  004b119f: call   0x52b7d0
+  004b11a4: mov    eax, dword ptr [esp + 0x14]
+  004b11a8: add    esp, 0x10
+  004b11ab: test   eax, eax
+  004b11ad: jbe    0x4b11bc
+  004b11af: cmp    eax, 0xffff
+  004b11b4: ja     0x4b11bc
+  004b11b6: mov    word ptr [0x59cd88], ax
+  004b11bc: mov    ax, word ptr [0x59cd88]
+  004b11c2: push   eax
+  004b11c3: call   0x529a50
+  004b11c8: add    esp, 0xc
+  004b11cb: ret    
+  004b2456: mov    ecx, 0x7d9458
+  004b245b: mov    byte ptr [0x64ec03], al
+  004b2460: call   0x52dcf0
+  004b2465: test   al, al
+  004b2467: je     0x4b2479
+  004b2469: mov    ecx, 0x7d9458
+  004b246e: call   0x52dd00
+  004b2473: mov    word ptr [0x59cd88], ax
+
+== B. net socket open 0x528d50: port arg if 0x3ff<port<0xffff else 0x1068; UDP socket; bind INADDR_ANY:port; failure = 'Couldn't bind TCP socket ... Invalidating TCP' (no networking)
+  00528d50: mov    eax, dword ptr [esp + 4]
+  00528d54: sub    esp, 0x118
+  00528d5a: cmp    ax, 0x3ff
+  00528d5e: push   esi
+  00528d5f: mov    esi, 0x1068
+  00528d64: jbe    0x528d6e
+  00528d66: cmp    ax, 0xffff
+  00528d6a: jae    0x528d6e
+  00528d6c: mov    esi, eax
+  00528d6e: push   0x11
+  00528d70: push   2
+  00528d72: push   2
+  00528d74: mov    dword ptr [0x5a65c4], 0xffffffff
+  00528d7e: mov    word ptr [0x1b58924], si
+  00528d85: call   0x582f94
+  00528d8a: cmp    eax, -1
+  00528d8d: mov    dword ptr [0x5a65c4], eax
+  00528d92: jne    0x528db4
+  00528d94: call   0x582f6a
+  00528d99: push   eax
+  00528d9a: lea    eax, [esp + 0x20]
+  00528d9e: push   0x5a6700  "Cannot create TCP socket (%d)!
+"
+  00528da3: push   eax
+  00528da4: call   0x5736a0
+  00528da9: add    esp, 0xc
+  00528dac: pop    esi
+  00528dad: add    esp, 0x118
+  00528db3: ret    
+  00528db4: xor    ecx, ecx
+  00528db6: push   esi
+  00528db7: mov    dword ptr [esp + 8], ecx
+  00528dbb: mov    word ptr [esp + 8], 2
+  00528dc2: mov    dword ptr [esp + 0xc], ecx
+  00528dc6: mov    dword ptr [esp + 0x10], ecx
+  00528dca: mov    dword ptr [esp + 0x14], ecx
+  00528dce: mov    dword ptr [esp + 0xc], ecx
+  00528dd2: call   0x582f52
+  00528dd7: mov    word ptr [esp + 6], ax
+  00528ddc: mov    eax, dword ptr [0x5a65c4]
+  00528de1: lea    edx, [esp + 4]
+  00528de5: push   0x10
+  00528de7: push   edx
+  00528de8: push   eax
+  00528de9: call   0x582f8e
+  00528dee: cmp    eax, -1
+  00528df1: jne    0x528e13
+  00528df3: call   0x582f6a
+  00528df8: push   eax
+  00528df9: lea    ecx, [esp + 0x20]
+  00528dfd: push   0x5a6720  "Couldn't bind TCP socket (%d)! Invalidating TCP
+"
+  00528e02: push   ecx
+  00528e03: call   0x5736a0
+  00528e08: add    esp, 0xc
+  00528e0b: pop    esi
+  00528e0c: add    esp, 0x118
+  00528e12: ret    
+
+== C. LAN search: game_info_request = 3 bytes 00 00 00 broadcast to port 0x1e4b (7755, hard-coded); 0x47b2e0 sends the same 3 bytes unicast (Add Server / Refresh)
+  0047b2b0: sub    esp, 0x200
+  0047b2b6: xor    eax, eax
+  0047b2b8: push   3
+  0047b2ba: mov    byte ptr [esp + 4], al
+  0047b2be: mov    word ptr [esp + 5], ax
+  0047b2c3: lea    eax, [esp + 4]
+  0047b2c7: push   eax
+  0047b2c8: push   0x1e4b
+  0047b2cd: call   0x529e90
+  0047b2d2: add    esp, 0x20c
+  0047b2d8: ret    
+  0047b2d9: nop    
+  0047b2da: nop    
+  0047b2db: nop    
+  0047b2dc: nop    
+  0047b2dd: nop    
+  0047b2de: nop    
+  0047b2df: nop    
+  0047b2e0: sub    esp, 0x200
+  0047b2e6: mov    ecx, dword ptr [esp + 0x204]
+  0047b2ed: xor    eax, eax
+  0047b2ef: mov    byte ptr [esp], al
+  0047b2f3: mov    word ptr [esp + 1], ax
+  0047b2f8: lea    eax, [esp]
+  0047b2fc: push   3
+  0047b2fe: push   eax
+  0047b2ff: push   ecx
+  0047b300: call   0x529ec0
+  0047b305: add    esp, 0x20c
+  0047b30b: ret    
+
+== D. game_info reply builder 0x47af40 (server only: [0x64ec01] multi && [0x64ec02] server): 01 <u16 size=len-3> 87 <name\0> <gametype> <numplayers> <maxplayers> <level\0> <mod\0> <flags: 1=[0x64ec03] 2=opt&0x400 4=password>
+  0047af40: mov    al, byte ptr [0x64ec01]
+  0047af45: sub    esp, 0x218
+  0047af4b: cmp    al, 1
+  0047af4d: jne    0x47b123
+  0047af53: cmp    byte ptr [0x64ec02], 1
+  0047af5a: jne    0x47b123
+  0047af60: push   ebx
+  0047af61: push   ebp
+  0047af62: push   esi
+  0047af63: push   edi
+  0047af64: mov    ecx, 0x64eb70
+  0047af69: mov    byte ptr [esp + 0x28], 1
+  0047af6e: mov    byte ptr [esp + 0x2b], 0x87
+  0047af73: call   0x4febc0
+  0047afa7: mov    ecx, eax
+  0047afa9: add    ebp, 4
+  0047afac: and    ecx, 3
+  0047afaf: mov    al, byte ptr [0x64eb84]
+  0047afb4: rep movsb byte ptr es:[edi], byte ptr [esi]
+  0047afb6: mov    ecx, ebp
+  0047afb8: and    ecx, 0xffff
+  0047afbe: inc    ebp
+  0047afbf: mov    edx, ebp
+  0047afc1: and    edx, 0xffff
+  0047afc7: mov    byte ptr [esp + ecx + 0x28], 0
+  0047afcc: inc    ebp
+  0047afcd: mov    byte ptr [esp + edx + 0x28], al
+  0047afd1: call   0x4846c0
+  0047afd6: mov    ecx, ebp
+  0047afd8: and    ecx, 0xffff
+  0047afde: inc    ebp
+  0047afdf: mov    edx, ebp
+  0047afe1: mov    byte ptr [esp + ecx + 0x28], al
+  0047afe5: mov    al, byte ptr [0x64eb8c]
+  0047afea: and    edx, 0xffff
+  0047aff0: mov    ecx, 0x645f24
+  0047aff5: inc    ebp
+  0047aff6: mov    byte ptr [esp + edx + 0x28], al
+  0047affa: call   0x4febc0
+  0047b0bb: mov    al, byte ptr [0x64ec03]
+  0047b0c0: xor    bl, bl
+  0047b0c2: cmp    al, 1
+  0047b0c4: jne    0x47b0c8
+  0047b0c6: mov    bl, 1
+  0047b0c8: mov    eax, dword ptr [0x64eb88]
+  0047b0cd: test   ah, 4
+  0047b0d0: je     0x47b0d5  "hp`m"
+  0047b0d2: or     bl, 2
+  0047b0d5: push   0x6d6070
+  0047b0da: push   0x64eb78
+  0047b0df: call   0x4ff9d0
+  0047b0e4: add    esp, 8
+  0047b0e7: test   al, al
+  0047b0e9: je     0x47b0ee
+  0047b0eb: or     bl, 4
+  0047b0ee: mov    ecx, ebp
+  0047b0f0: lea    eax, [esp + 0x28]
+  0047b0f4: and    ecx, 0xffff
+  0047b0fa: inc    ebp
+  0047b0fb: lea    edx, [ebp - 3]
+  0047b0fe: and    ebp, 0xffff
+  0047b104: mov    byte ptr [esp + ecx + 0x28], bl
+  0047b108: mov    ecx, dword ptr [esp + 0x22c]
+  0047b10f: push   ebp
+  0047b110: push   eax
+  0047b111: push   ecx
+  0047b112: mov    word ptr [esp + 0x35], dx
+  0047b117: call   0x529ec0
+
+== E. Server list screen init: HKCU ListLAN (LAN Only checkbox) read; =1 -> 0x44aa60 starts the LAN broadcast search at screen entry; HKCU MultiServerListBinDerDunDat (ptr 0x599cec) =0 -> first-visit help popup, then written 1
+  0044c399: lea    edx, [esp + 8]
+  0044c39d: push   ebp
+  0044c39e: push   edx
+  0044c39f: push   0x599fe8  "ListLAN"
+  0044c3a4: push   ebp
+  0044c3a5: call   0x52b7d0
+  0044c3aa: mov    edx, dword ptr [esp + 0x18]
+  0044c3ae: add    esp, 0x10
+  0044c3b1: cmp    edx, ebp
+  0044c3b3: setne  al
+  0044c3b6: cmp    al, 1
+  0044c3b8: mov    byte ptr [0x63f598], al
+  0044c3bd: jne    0x44c3de
+  0044c3bf: mov    dword ptr [0x63edb4], ebp
+  0044c3c5: mov    dword ptr [0x63f4b8], ebp
+  0044c3cb: mov    dword ptr [0x63f584], ebp
+  0044c3d1: mov    dword ptr [0x63f588], ebp
+  0044c3d7: call   0x44aa60
+  0044c3dc: jmp    0x44c3e8
+  0044c3de: call   0x44b590
+  0044c3e3: call   0x44a9c0
+  0044c3e8: mov    al, byte ptr [0x63f56b]
+  0044c3ed: mov    byte ptr [0x63f56a], 1
+  0044c3f4: test   al, al
+  0044c3f6: jne    0x44cdca
+  0044c3fc: mov    ecx, dword ptr [0x599cec]
+  0044c402: lea    eax, [esp + 0xc]
+  0044c406: push   ebp
+  0044c407: push   eax
+  0044c408: push   ecx
+  0044c409: push   ebp
+  0044c40a: mov    byte ptr [0x63f56b], 1
+  0044c411: call   0x52b7d0
+  0044c416: mov    eax, dword ptr [esp + 0x1c]
+  0044c41a: add    esp, 0x10
+  0044c41d: cmp    eax, ebp
+  0044c41f: jne    0x44c447
+  0044c421: mov    edx, dword ptr [0x7cc95c]
+  0044c427: mov    eax, dword ptr [0x7cc958]
+  0044c42c: push   ebp
+  0044c42d: push   ebp
+  0044c42e: push   edx
+  0044c42f: push   eax
+  0044c430: call   0x456050
+  0044c435: mov    ecx, dword ptr [0x599cec]
+  0044c43b: push   1
+  0044c43d: push   ecx
+  0044c43e: push   ebp
+  0044c43f: call   0x52b800
+  0044c444: add    esp, 0x1c
+
+== F. ListLAN written back on screen exit
+  0044d030: push   ebx
+  0044d031: call   0x44ace0
+  0044d036: fld    dword ptr [0x598fbc]
+  0044d03c: mov    dl, byte ptr [0x63f598]
+  0044d042: xor    ebx, ebx
+  0044d044: fchs   
+  0044d046: fstp   dword ptr [0x63ee5c]
+  0044d04c: fld    dword ptr [0x598fcc]
+  0044d052: xor    eax, eax
+  0044d054: cmp    dl, 1
+  0044d057: sete   al
+  0044d05a: push   eax
+  0044d05b: push   0x59a324  "ListLAN"
+  0044d060: fchs   
+  0044d062: fstp   dword ptr [0x63ee08]
+  0044d068: push   ebx
+  0044d069: mov    byte ptr [0x599c9d], bl
+  0044d06f: call   0x52b800
+  0044d074: mov    al, byte ptr [0x63f598]
+  0044d079: add    esp, 0xc
+  0044d07c: cmp    al, bl
+
+== G. Startup runs console script 'gamestart.txt' (0x50af80 = 'Executing script file %s...', also console command 'script <file>')
+  004b2268: call   0x436aa0
+  004b226d: push   0x5a1648  "gamestart.txt"
+  004b2272: call   0x50af80
+  004b2277: call   0x4356f0
+  0050afe2: push   esi
+  0050afe3: push   edi
+  0050afe4: lea    edi, [esp + 0x218]
+  0050afeb: or     ecx, 0xffffffff
+  0050afee: xor    eax, eax
+  0050aff0: push   0
+  0050aff2: repne scasb al, byte ptr es:[edi]
+  0050aff4: mov    eax, dword ptr [0x5a42d0]  ".txt"
+  0050aff9: mov    cl, byte ptr [0x5a42d4]
+  0050afff: dec    edi
+  0050b000: lea    edx, [esp + 0x21c]
+  0050b007: push   0x98967f
+  0050b00c: push   edx
+  0050b00d: mov    dword ptr [edi], eax
+  0050b00f: mov    byte ptr [edi + 4], cl
+  0050b012: lea    ecx, [esp + 0x14]
+  0050b016: call   0x511900
+  0050b01b: test   eax, eax
+  0050b01d: jne    0x50b0fa
+  0050b023: lea    eax, [esp + 0x218]
+  0050b02a: push   eax
+  0050b02b: push   0x5a42d8  "Executing script file '%s'...
+"
+  0050b030: push   0x1818b18
+  0050b035: call   0x5736a0
+  0050b03a: push   0
+  0050b03c: push   0x1818b18
+  0050b041: call   0x509640
+
+== H. Single-instance check 0x523ca0: CreateMutexA then CloseHandle at once (never held), skipped when arg4 set -> a second rf.exe (client beside the dedicated server) is not blocked
+  00523ca0: push   ebx
+  00523ca1: mov    bl, byte ptr [esp + 0x14]
+  00523ca5: xor    edx, edx
+  00523ca7: push   esi
+  00523ca8: test   bl, bl
+  00523caa: mov    ebx, dword ptr [esp + 0xc]
+  00523cae: push   edi
+  00523caf: setne  dl
+  00523cb2: mov    edi, ebx
+  00523cb4: or     ecx, 0xffffffff
+  00523cb7: xor    eax, eax
+  00523d20: mov    edi, dword ptr [0x589154]  <KERNEL32.dll!CloseHandle>
+  00523d26: test   edx, edx
+  00523d28: jne    0x523d6d
+  00523d2a: push   0x1b0d2d0
+  00523d2f: push   1
+  00523d31: push   0
+  00523d33: call   dword ptr [0x589150]  <KERNEL32.dll!CreateMutexA>
+  00523d39: mov    esi, eax
+  00523d3b: call   dword ptr [0x5891d4]  <KERNEL32.dll!GetLastError>
+  00523d41: cmp    eax, 0xb7
+  00523d46: jne    0x523d6a
+  00523d48: push   0x1b0d3d0
+  00523d4d: push   0x1b0d468
+  00523d52: call   dword ptr [0x589264]  <USER32.dll!FindWindowA>
+  00523d58: test   eax, eax
+  00523d5a: je     0x523d63
+  00523d5c: push   eax
+  00523d5d: call   dword ptr [0x5892e0]  <USER32.dll!SetForegroundWindow>
+  00523d63: push   1
+  00523d65: call   0x575aab
+  00523d6a: push   esi
+  00523d6b: call   edi

@@ -1,0 +1,640 @@
+     1 2026-08-17 09:58:40Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+     2 2026-08-17 09:58:40Z INFO EventLog                      6005 
+     3 2026-08-17 09:58:27Z INFO Serial                           2 \Device\Serial1 | \Device\Serial1
+     4 2026-08-17 09:58:27Z INFO Serial                           2 \Device\Serial0 | \Device\Serial0
+     5 2026-08-17 14:07:58Z INFO EventLog                      6011 MACHINENAME | P3-DUAL
+     6 2026-08-17 14:08:36Z INFO Workstation                   3260 workgroup | WORKGROUP
+     7 2026-08-17 14:12:48Z INFO HTTP                         15007 http://*:2869/
+     8 2026-08-17 14:14:56Z WARN Disk                            51 \Device\Harddisk0\D
+     9 2026-08-17 14:14:56Z WARN Disk                            51 \Device\Harddisk0\D
+    10 2026-08-17 14:20:42Z ERR  Setup                        60055 
+    11 2026-08-17 14:20:42Z INFO Setup                        60054 2600
+    12 2026-08-17 14:26:09Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+    13 2026-08-17 14:26:09Z INFO EventLog                      6005 
+    14 2026-08-17 14:26:18Z INFO SRService                      115 
+    15 2026-08-17 14:26:24Z INFO Service Control Manager       7035 DCOM Server Process Launcher | start
+    16 2026-08-17 14:26:24Z INFO Service Control Manager       7035 Telephony | start
+    17 2026-08-17 14:26:24Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+    18 2026-08-17 14:26:24Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+    19 2026-08-17 14:26:24Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+    20 2026-08-17 14:26:24Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+    21 2026-08-17 14:26:24Z INFO Service Control Manager       7036 Computer Browser | stopped
+    22 2026-08-17 14:27:33Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+    23 2026-08-17 14:27:33Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+    24 2026-08-17 14:27:33Z INFO Service Control Manager       7035 Remote Access Connection Manager | start
+    25 2026-08-17 14:27:34Z INFO Service Control Manager       7036 Remote Access Connection Manager | running
+    26 2026-08-17 14:27:58Z INFO Service Control Manager       7036 Terminal Services | running
+    27 2026-08-17 14:27:58Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+    28 2026-08-17 14:27:58Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+    29 2026-08-17 14:28:16Z INFO Service Control Manager       7035 Windows Installer | start
+    30 2026-08-17 14:28:16Z INFO Service Control Manager       7036 Windows Installer | running
+    31 2026-08-17 14:28:30Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+    32 2026-08-17 14:28:30Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+    33 2026-08-17 14:28:36Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+    34 2026-08-17 14:38:21Z INFO Service Control Manager       7036 Windows Installer | stopped
+    35 2026-08-17 14:42:00Z INFO Service Control Manager       7035 NVIDIA Display Driver Service | start
+    36 2026-08-17 14:42:00Z INFO Service Control Manager       7036 NVIDIA Display Driver Service | stopped
+    37 2026-08-17 14:52:55Z INFO USER32                        1074 winlogon.exe | P3-DUAL | No title for this reason could be found | 0xff | reboot
+    38 2026-08-17 14:52:58Z INFO EventLog                      6006 
+    39 2026-08-17 14:54:02Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+    40 2026-08-17 14:54:02Z INFO EventLog                      6005 
+    41 2026-08-17 14:54:20Z INFO Service Control Manager       7036 Terminal Services | running
+    42 2026-08-17 14:54:20Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+    43 2026-08-17 14:54:20Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+    44 2026-08-17 14:54:20Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+    45 2026-08-17 14:54:20Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+    46 2026-08-17 14:54:21Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+    47 2026-08-17 14:54:21Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+    48 2026-08-17 14:54:23Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+    49 2026-08-17 14:54:23Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+    50 2026-08-17 14:54:23Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+    51 2026-08-17 14:54:23Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+    52 2026-08-17 14:54:24Z INFO Service Control Manager       7036 Computer Browser | stopped
+    53 2026-08-17 14:54:30Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+    54 2026-08-17 16:41:00Z INFO Service Control Manager       7036 Themes | stopped
+    55 2026-08-17 16:41:00Z INFO Service Control Manager       7035 Themes | stop
+    56 2026-08-17 20:34:48Z INFO EventLog                      6006 
+    57 2026-08-18 14:19:32Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+    58 2026-08-18 14:19:32Z INFO EventLog                      6005 
+    59 2026-08-18 14:19:47Z ERR  Service Control Manager       7026 i8042prt
+    60 2026-08-18 14:19:47Z INFO Service Control Manager       7036 Terminal Services | running
+    61 2026-08-18 14:19:48Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+    62 2026-08-18 14:19:48Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+    63 2026-08-18 14:19:48Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+    64 2026-08-18 14:19:48Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+    65 2026-08-18 14:19:49Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+    66 2026-08-18 14:19:49Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+    67 2026-08-18 14:19:49Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+    68 2026-08-18 14:19:49Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+    69 2026-08-18 14:19:50Z INFO Service Control Manager       7036 Computer Browser | stopped
+    70 2026-08-18 14:19:51Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+    71 2026-08-18 14:19:51Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+    72 2026-08-18 14:19:57Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+    73 2026-08-18 16:55:32Z INFO EventLog                      6006 
+    74 2026-08-20 12:35:58Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+    75 2026-08-20 12:35:58Z INFO EventLog                      6005 
+    76 2026-08-20 12:36:14Z ERR  Service Control Manager       7026 i8042prt
+    77 2026-08-20 12:36:14Z INFO Service Control Manager       7036 Terminal Services | running
+    78 2026-08-20 12:36:14Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+    79 2026-08-20 12:36:14Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+    80 2026-08-20 12:36:14Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+    81 2026-08-20 12:36:14Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+    82 2026-08-20 12:36:14Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+    83 2026-08-20 12:36:14Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+    84 2026-08-20 12:36:15Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+    85 2026-08-20 12:36:15Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+    86 2026-08-20 12:36:16Z INFO Service Control Manager       7036 Computer Browser | stopped
+    87 2026-08-20 12:36:18Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+    88 2026-08-20 12:36:18Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+    89 2026-08-20 12:36:25Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+    90 2026-08-20 19:44:29Z INFO Service Control Manager       7035 Windows Installer | start
+    91 2026-08-20 19:44:29Z INFO Service Control Manager       7036 Windows Installer | running
+    92 2026-08-20 19:45:28Z INFO USER32                        1074 msiexec.exe | P3-DUAL | No title for this reason could be found | 0x2 | reboot | The Windows Installer initiated a system restart to complete or continue the configuration of 'DAEMON Tools'.
+    93 2026-08-20 19:45:30Z INFO Service Control Manager       7036 Windows Installer | stopped
+    94 2026-08-20 19:45:32Z INFO EventLog                      6006 
+    95 2026-08-20 19:46:34Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+    96 2026-08-20 19:46:34Z INFO EventLog                      6005 
+    97 2026-08-20 19:46:49Z ERR  Service Control Manager       7026 i8042prt
+    98 2026-08-20 19:46:49Z INFO Service Control Manager       7036 Terminal Services | running
+    99 2026-08-20 19:46:49Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   100 2026-08-20 19:46:49Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   101 2026-08-20 19:46:49Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   102 2026-08-20 19:46:49Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   103 2026-08-20 19:46:52Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   104 2026-08-20 19:46:52Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   105 2026-08-20 19:46:52Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   106 2026-08-20 19:46:52Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   107 2026-08-20 19:46:53Z INFO Service Control Manager       7036 Computer Browser | stopped
+   108 2026-08-20 19:46:54Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   109 2026-08-20 19:46:54Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   110 2026-08-20 19:47:00Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   111 2026-08-20 20:42:53Z INFO Service Control Manager       7035 Windows Installer | start
+   112 2026-08-20 20:42:53Z INFO Service Control Manager       7036 Windows Installer | running
+   113 2026-08-20 20:52:59Z INFO Service Control Manager       7036 Windows Installer | stopped
+   114 2026-08-20 22:38:32Z INFO EventLog                      6006 
+   115 2026-08-20 22:39:35Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   116 2026-08-20 22:39:35Z INFO EventLog                      6005 
+   117 2026-08-20 22:39:51Z ERR  Service Control Manager       7026 i8042prt
+   118 2026-08-20 22:39:51Z INFO Service Control Manager       7036 Terminal Services | running
+   119 2026-08-20 22:39:51Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   120 2026-08-20 22:39:51Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   121 2026-08-20 22:39:51Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   122 2026-08-20 22:39:51Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   123 2026-08-20 22:39:51Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   124 2026-08-20 22:39:51Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   125 2026-08-20 22:39:52Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   126 2026-08-20 22:39:52Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   127 2026-08-20 22:39:52Z INFO Service Control Manager       7036 Computer Browser | stopped
+   128 2026-08-20 22:39:55Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   129 2026-08-20 22:39:55Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   130 2026-08-20 22:40:01Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   131 2026-08-20 22:55:05Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   132 2026-08-20 22:55:05Z INFO EventLog                      6005 
+   133 2026-08-20 22:55:20Z ERR  Service Control Manager       7026 i8042prt
+   134 2026-08-20 22:55:20Z INFO Service Control Manager       7036 Terminal Services | running
+   135 2026-08-20 22:55:20Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   136 2026-08-20 22:55:20Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   137 2026-08-20 22:55:20Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   138 2026-08-20 22:55:20Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   139 2026-08-20 22:55:23Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   140 2026-08-20 22:55:23Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   141 2026-08-20 22:55:23Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   142 2026-08-20 22:55:23Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   143 2026-08-20 22:55:24Z INFO Service Control Manager       7036 Computer Browser | stopped
+   144 2026-08-20 22:55:24Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   145 2026-08-20 22:55:24Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   146 2026-08-20 22:55:31Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   147 2026-08-20 23:00:14Z INFO Service Control Manager       7035 PfModNT | start
+   148 2026-08-20 23:11:22Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   149 2026-08-20 23:11:22Z INFO EventLog                      6005 
+   150 2026-08-20 23:11:37Z ERR  Service Control Manager       7026 i8042prt
+   151 2026-08-20 23:11:37Z INFO Service Control Manager       7036 Terminal Services | running
+   152 2026-08-20 23:11:37Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   153 2026-08-20 23:11:37Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   154 2026-08-20 23:11:37Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   155 2026-08-20 23:11:37Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   156 2026-08-20 23:11:39Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   157 2026-08-20 23:11:39Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   158 2026-08-20 23:11:39Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   159 2026-08-20 23:11:39Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   160 2026-08-20 23:11:40Z INFO Service Control Manager       7036 Computer Browser | stopped
+   161 2026-08-20 23:11:41Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   162 2026-08-20 23:11:41Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   163 2026-08-20 23:11:47Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   164 2026-08-20 23:23:47Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   165 2026-08-20 23:23:47Z INFO EventLog                      6005 
+   166 2026-08-20 23:24:03Z ERR  Service Control Manager       7026 i8042prt
+   167 2026-08-20 23:24:03Z INFO Service Control Manager       7036 Terminal Services | running
+   168 2026-08-20 23:24:03Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   169 2026-08-20 23:24:03Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   170 2026-08-20 23:24:03Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   171 2026-08-20 23:24:03Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   172 2026-08-20 23:24:03Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   173 2026-08-20 23:24:03Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   174 2026-08-20 23:24:04Z INFO Service Control Manager       7036 Computer Browser | stopped
+   175 2026-08-20 23:24:22Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   176 2026-08-20 23:24:22Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   177 2026-08-20 23:24:40Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   178 2026-08-20 23:24:40Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   179 2026-08-20 23:24:50Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   180 2026-08-20 23:25:53Z INFO EventLog                      6006 
+   181 2026-08-20 23:27:00Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   182 2026-08-20 23:27:00Z INFO EventLog                      6005 
+   183 2026-08-20 23:27:15Z ERR  Service Control Manager       7026 i8042prt
+   184 2026-08-20 23:27:15Z INFO Service Control Manager       7036 Terminal Services | running
+   185 2026-08-20 23:27:15Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   186 2026-08-20 23:27:15Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   187 2026-08-20 23:27:15Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   188 2026-08-20 23:27:15Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   189 2026-08-20 23:27:17Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   190 2026-08-20 23:27:17Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   191 2026-08-20 23:27:17Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   192 2026-08-20 23:27:17Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   193 2026-08-20 23:27:18Z INFO Service Control Manager       7036 Computer Browser | stopped
+   194 2026-08-20 23:27:20Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   195 2026-08-20 23:27:20Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   196 2026-08-20 23:27:26Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   197 2026-08-20 23:29:15Z INFO Service Control Manager       7035 PfModNT | start
+   198 2026-08-20 23:30:31Z INFO Windows File Protection      64001 a3d.dll | 80.0.0.3 | 2.9.0.0
+   199 2026-08-20 23:40:11Z INFO EventLog                      6006 
+   200 2026-08-20 23:41:20Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   201 2026-08-20 23:41:20Z INFO EventLog                      6005 
+   202 2026-08-20 23:41:35Z ERR  Service Control Manager       7026 i8042prt
+   203 2026-08-20 23:41:36Z INFO Service Control Manager       7036 Terminal Services | running
+   204 2026-08-20 23:41:36Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   205 2026-08-20 23:41:36Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   206 2026-08-20 23:41:36Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   207 2026-08-20 23:41:36Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   208 2026-08-20 23:41:36Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   209 2026-08-20 23:41:36Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   210 2026-08-20 23:41:37Z INFO Service Control Manager       7036 Computer Browser | stopped
+   211 2026-08-20 23:41:44Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   212 2026-08-20 23:41:45Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   213 2026-08-20 23:41:49Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   214 2026-08-20 23:41:49Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   215 2026-08-20 23:41:55Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   216 2026-08-21 04:10:36Z INFO EventLog                      6006 
+   217 2026-08-21 14:34:29Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   218 2026-08-21 14:34:29Z INFO EventLog                      6005 
+   219 2026-08-21 14:34:44Z ERR  Service Control Manager       7026 i8042prt
+   220 2026-08-21 14:34:45Z INFO Service Control Manager       7036 Terminal Services | running
+   221 2026-08-21 14:34:45Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   222 2026-08-21 14:34:45Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   223 2026-08-21 14:34:45Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   224 2026-08-21 14:34:45Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   225 2026-08-21 14:34:47Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   226 2026-08-21 14:34:47Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   227 2026-08-21 14:34:47Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   228 2026-08-21 14:34:47Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   229 2026-08-21 14:34:48Z INFO Service Control Manager       7036 Computer Browser | stopped
+   230 2026-08-21 14:34:49Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   231 2026-08-21 14:34:49Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   232 2026-08-21 14:34:56Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   233 2026-08-21 19:37:41Z INFO EventLog                      6006 
+   234 2026-08-28 17:14:24Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   235 2026-08-28 17:14:24Z INFO EventLog                      6005 
+   236 2026-08-28 17:14:41Z ERR  Service Control Manager       7026 i8042prt
+   237 2026-08-28 17:14:41Z INFO Service Control Manager       7036 Terminal Services | running
+   238 2026-08-28 17:14:41Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   239 2026-08-28 17:14:41Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   240 2026-08-28 17:14:41Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   241 2026-08-28 17:14:41Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   242 2026-08-28 17:14:41Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   243 2026-08-28 17:14:41Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   244 2026-08-28 17:14:42Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   245 2026-08-28 17:14:42Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   246 2026-08-28 17:14:43Z INFO Service Control Manager       7036 Computer Browser | stopped
+   247 2026-08-28 17:14:45Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   248 2026-08-28 17:14:45Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   249 2026-08-28 17:14:52Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   250 2026-08-28 22:58:33Z INFO Tcpip                         4202 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   251 2026-08-28 22:58:38Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   252 2026-08-29 00:11:40Z INFO EventLog                      6006 
+   253 2026-08-29 01:39:58Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   254 2026-08-29 01:39:58Z INFO EventLog                      6005 
+   255 2026-08-29 01:40:14Z ERR  Service Control Manager       7026 i8042prt
+   256 2026-08-29 01:40:14Z INFO Service Control Manager       7036 Terminal Services | running
+   257 2026-08-29 01:40:14Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   258 2026-08-29 01:40:14Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   259 2026-08-29 01:40:14Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   260 2026-08-29 01:40:14Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   261 2026-08-29 01:40:15Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   262 2026-08-29 01:40:15Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   263 2026-08-29 01:40:15Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   264 2026-08-29 01:40:15Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   265 2026-08-29 01:40:15Z INFO Service Control Manager       7036 Computer Browser | stopped
+   266 2026-08-29 01:40:18Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   267 2026-08-29 01:40:18Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   268 2026-08-29 01:40:25Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   269 2026-08-29 03:42:33Z INFO EventLog                      6006 
+   270 2026-08-29 13:17:40Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   271 2026-08-29 13:17:40Z INFO EventLog                      6005 
+   272 2026-08-29 13:17:56Z ERR  Service Control Manager       7026 i8042prt
+   273 2026-08-29 13:17:56Z INFO Service Control Manager       7036 Terminal Services | running
+   274 2026-08-29 13:17:56Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   275 2026-08-29 13:17:56Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   276 2026-08-29 13:17:56Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   277 2026-08-29 13:17:56Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   278 2026-08-29 13:17:58Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   279 2026-08-29 13:17:58Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   280 2026-08-29 13:17:58Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   281 2026-08-29 13:17:58Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   282 2026-08-29 13:17:59Z INFO Service Control Manager       7036 Computer Browser | stopped
+   283 2026-08-29 13:18:01Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   284 2026-08-29 13:18:01Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   285 2026-08-29 13:18:07Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   286 2026-08-29 18:16:38Z INFO Service Control Manager       7035 Computer Browser | start
+   287 2026-08-29 18:16:38Z INFO Service Control Manager       7036 Computer Browser | running
+   288 2026-08-29 21:18:47Z WARN Disk                            51 \Device\Harddisk0\D
+   289 2026-08-29 21:40:01Z INFO Service Control Manager       7035 Secdrv | start
+   290 2026-08-29 22:34:04Z WARN Disk                            51 \Device\Harddisk0\D
+   291 2026-08-29 22:34:05Z WARN Disk                            51 \Device\Harddisk0\D
+   292 2026-08-29 22:55:32Z WARN Disk                            51 \Device\Harddisk0\D
+   293 2026-08-29 22:55:32Z WARN Disk                            51 \Device\Harddisk0\D
+   294 2026-08-29 23:04:23Z WARN Disk                            51 \Device\Harddisk0\D
+   295 2026-08-30 02:57:06Z WARN W32Time                         36 49152
+   296 2026-08-30 03:31:14Z WARN Disk                            51 \Device\Harddisk0\D
+   297 2026-08-30 11:30:46Z ERR  atapi                            9 \Device\Ide\IdePort1
+   298 2026-08-30 16:05:30Z INFO USER32                        1074 winlogon.exe | P3-DUAL | No title for this reason could be found | 0xff | reboot
+   299 2026-08-30 16:05:37Z INFO EventLog                      6006 
+   300 2026-08-30 16:06:40Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   301 2026-08-30 16:06:40Z INFO EventLog                      6005 
+   302 2026-08-30 16:06:57Z ERR  Service Control Manager       7026 i8042prt
+   303 2026-08-30 16:06:57Z INFO Service Control Manager       7036 Terminal Services | running
+   304 2026-08-30 16:06:57Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   305 2026-08-30 16:06:57Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   306 2026-08-30 16:06:57Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   307 2026-08-30 16:06:57Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   308 2026-08-30 16:06:58Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   309 2026-08-30 16:06:58Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   310 2026-08-30 16:06:58Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   311 2026-08-30 16:06:58Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   312 2026-08-30 16:07:00Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   313 2026-08-30 16:07:00Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   314 2026-08-30 16:07:06Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   315 2026-08-31 04:21:48Z INFO Service Control Manager       7035 Windows Installer | start
+   316 2026-08-31 04:21:48Z INFO Service Control Manager       7036 Windows Installer | running
+   317 2026-08-31 04:53:45Z INFO Application Popup               26 Cannot locate the CD-ROM: BF1942.exe - No Disk | There is no disk in the drive. Please insert a disk into drive E:.
+   318 2026-08-31 05:07:08Z INFO Service Control Manager       7036 Windows Installer | stopped
+   319 2026-08-31 05:38:19Z INFO Service Control Manager       7035 Windows Installer | start
+   320 2026-08-31 05:38:19Z INFO Service Control Manager       7036 Windows Installer | running
+   321 2026-08-31 05:46:05Z WARN W32Time                         36 49152
+   322 2026-08-31 06:02:28Z INFO Service Control Manager       7036 Windows Installer | stopped
+   323 2026-08-31 11:35:04Z ERR  atapi                            9 \Device\Ide\IdePort1
+   324 2026-08-31 14:39:48Z INFO Application Popup               26 Windows - No Disk | There is no disk in the drive. Please insert a disk into drive E:.
+   325 2026-08-31 14:43:24Z INFO Application Popup               26 cmd.exe - No Disk | There is no disk in the drive. Please insert a disk into drive E:.
+   326 2026-08-31 14:46:18Z INFO Application Popup               26 cmd.exe - No Disk | There is no disk in the drive. Please insert a disk into drive E:.
+   327 2026-08-31 14:50:21Z INFO Application Popup               26 cmd.exe - No Disk | There is no disk in the drive. Please insert a disk into drive E:.
+   328 2026-08-31 14:50:54Z INFO Application Popup               26 cmd.exe - No Disk | There is no disk in the drive. Please insert a disk into drive E:.
+   329 2026-08-31 14:53:16Z INFO Application Popup               26 Turok 2 Game Launcher : Turok2English.exe - Unable To Locate Component | This application has failed to start because glide3x.dll was not found. Re-installing the application may fix this problem.
+   330 2026-08-31 14:55:27Z INFO Application Popup               26 UnrealTournament.exe - Application Error | The application failed to initialize properly (0xc000001d). Click on OK to terminate the application.
+   331 2026-08-31 18:32:38Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   332 2026-08-31 18:32:38Z INFO EventLog                      6005 
+   333 2026-08-31 18:33:03Z WARN Dhcp                          1003 000C41E84FCE | %%121 DATA=79000000
+   334 2026-08-31 18:33:14Z WARN Dhcp                          1007 000C41E84FCE | 169.254.114.120
+   335 2026-08-31 18:33:14Z ERR  Service Control Manager       7026 i8042prt
+   336 2026-08-31 18:33:14Z INFO Service Control Manager       7036 Terminal Services | running
+   337 2026-08-31 18:33:15Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   338 2026-08-31 18:33:15Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   339 2026-08-31 18:33:26Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   340 2026-08-31 18:33:26Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   341 2026-08-31 18:33:30Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   342 2026-08-31 18:33:30Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   343 2026-08-31 18:33:36Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   344 2026-08-31 23:18:28Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   345 2026-08-31 23:18:28Z INFO EventLog                      6005 
+   346 2026-08-31 23:18:44Z ERR  Service Control Manager       7026 i8042prt
+   347 2026-08-31 23:18:44Z INFO Service Control Manager       7036 Terminal Services | running
+   348 2026-08-31 23:18:44Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   349 2026-08-31 23:18:44Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   350 2026-08-31 23:18:44Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   351 2026-08-31 23:18:44Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   352 2026-08-31 23:18:44Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   353 2026-08-31 23:18:45Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   354 2026-08-31 23:18:45Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   355 2026-08-31 23:18:45Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   356 2026-08-31 23:18:47Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   357 2026-08-31 23:18:47Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   358 2026-08-31 23:18:54Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   359 2026-09-01 01:13:50Z INFO EventLog                      6006 
+   360 2026-09-01 01:15:22Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   361 2026-09-01 01:15:22Z INFO EventLog                      6005 
+   362 2026-09-01 01:15:37Z ERR  Service Control Manager       7026 i8042prt
+   363 2026-09-01 01:15:37Z INFO Service Control Manager       7036 Terminal Services | running
+   364 2026-09-01 01:15:37Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   365 2026-09-01 01:15:37Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   366 2026-09-01 01:15:37Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   367 2026-09-01 01:15:37Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   368 2026-09-01 01:15:39Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   369 2026-09-01 01:15:39Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   370 2026-09-01 01:15:39Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   371 2026-09-01 01:15:39Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   372 2026-09-01 01:15:41Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   373 2026-09-01 01:15:41Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   374 2026-09-01 01:15:47Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   375 2026-09-01 03:09:17Z INFO EventLog                      6006 
+   376 2026-09-01 04:01:30Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   377 2026-09-01 04:01:30Z INFO EventLog                      6005 
+   378 2026-09-01 04:01:46Z ERR  Service Control Manager       7026 i8042prt
+   379 2026-09-01 04:01:46Z INFO Service Control Manager       7036 Terminal Services | running
+   380 2026-09-01 04:01:46Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   381 2026-09-01 04:01:46Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   382 2026-09-01 04:01:46Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   383 2026-09-01 04:01:46Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   384 2026-09-01 04:01:48Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   385 2026-09-01 04:01:48Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   386 2026-09-01 04:01:48Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   387 2026-09-01 04:01:48Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   388 2026-09-01 04:01:50Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   389 2026-09-01 04:01:50Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   390 2026-09-01 04:01:56Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   391 2026-09-01 10:44:38Z INFO EventLog                      6006 
+   392 2026-09-01 14:04:37Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   393 2026-09-01 14:04:37Z INFO EventLog                      6005 
+   394 2026-09-01 14:04:53Z ERR  Service Control Manager       7026 i8042prt
+   395 2026-09-01 14:04:53Z INFO Service Control Manager       7036 Terminal Services | running
+   396 2026-09-01 14:04:53Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   397 2026-09-01 14:04:53Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   398 2026-09-01 14:04:53Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   399 2026-09-01 14:04:53Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   400 2026-09-01 14:04:53Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   401 2026-09-01 14:04:53Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   402 2026-09-01 14:04:54Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   403 2026-09-01 14:04:54Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   404 2026-09-01 14:04:57Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   405 2026-09-01 14:04:57Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   406 2026-09-01 14:05:03Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   407 2026-09-02 03:43:59Z WARN W32Time                         36 49152
+   408 2026-09-02 04:16:14Z INFO EventLog                      6006 
+   409 2026-09-14 13:23:59Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   410 2026-09-14 13:23:59Z INFO EventLog                      6005 
+   411 2026-09-14 13:24:15Z ERR  Service Control Manager       7026 i8042prt
+   412 2026-09-14 13:24:15Z INFO Service Control Manager       7036 Terminal Services | running
+   413 2026-09-14 13:24:15Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   414 2026-09-14 13:24:15Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   415 2026-09-14 13:24:15Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   416 2026-09-14 13:24:15Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   417 2026-09-14 13:24:16Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   418 2026-09-14 13:24:16Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   419 2026-09-14 13:46:48Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   420 2026-09-14 13:46:49Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   421 2026-09-14 13:46:52Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   422 2026-09-14 13:46:52Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   423 2026-09-14 13:46:58Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   424 2026-09-14 20:04:44Z ERR  atapi                            9 \Device\Ide\IdePort1
+   425 2026-09-14 23:05:27Z ERR  atapi                            9 \Device\Ide\IdePort1
+   426 2026-09-14 23:26:22Z ERR  atapi                            9 \Device\Ide\IdePort1
+   427 2026-09-15 03:03:25Z WARN W32Time                         36 49152
+   428 2026-09-15 17:45:21Z INFO EventLog                      6006 
+   429 2026-09-25 02:28:17Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   430 2026-09-25 02:28:17Z INFO EventLog                      6005 
+   431 2026-09-25 02:28:33Z ERR  Service Control Manager       7026 i8042prt
+   432 2026-09-25 02:28:33Z INFO Service Control Manager       7036 Terminal Services | running
+   433 2026-09-25 02:28:33Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   434 2026-09-25 02:28:33Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   435 2026-09-25 02:28:33Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   436 2026-09-25 02:28:33Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   437 2026-09-25 02:28:33Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   438 2026-09-25 02:28:33Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   439 2026-09-25 02:31:50Z INFO Service Control Manager       7035 Telephony | start
+   440 2026-09-25 02:31:50Z INFO Service Control Manager       7036 Telephony | running
+   441 2026-09-25 02:31:54Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   442 2026-09-25 02:31:54Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   443 2026-09-25 02:31:54Z INFO Service Control Manager       7035 Remote Access Connection Manager | start
+   444 2026-09-25 02:31:54Z INFO Service Control Manager       7036 Remote Access Connection Manager | running
+   445 2026-09-25 02:38:28Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   446 2026-09-26 19:10:37Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   447 2026-09-26 19:10:37Z INFO EventLog                      6005 
+   448 2026-09-26 19:10:53Z ERR  Service Control Manager       7026 i8042prt
+   449 2026-09-26 19:10:53Z INFO Service Control Manager       7036 Terminal Services | running
+   450 2026-09-26 19:10:53Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   451 2026-09-26 19:10:53Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   452 2026-09-26 19:10:53Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   453 2026-09-26 19:10:53Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   454 2026-09-26 19:10:53Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   455 2026-09-26 19:10:53Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   456 2026-09-26 19:05:41Z INFO W32Time                         35 time.windows.com (ntp.m|0x1|192.168.1.133:123->168.61.215.74:123)
+   457 2026-09-26 19:45:00Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   458 2026-09-26 19:45:00Z INFO EventLog                      6005 
+   459 2026-09-26 19:45:29Z WARN Dhcp                          1003 000C41E84FCE | %%121 DATA=79000000
+   460 2026-09-26 19:45:38Z ERR  W32Time                         17 time.windows.com,0x1 | A socket operation was attempted to an unreachable host. (0x80072751) | 15
+   461 2026-09-26 19:45:38Z ERR  W32Time                         29 14
+   462 2026-09-26 19:45:38Z ERR  W32Time                         17 time.windows.com,0x1 | A socket operation was attempted to an unreachable host. (0x80072751) | 15
+   463 2026-09-26 19:45:38Z ERR  W32Time                         29 14
+   464 2026-09-26 19:45:39Z WARN Dhcp                          1007 000C41E84FCE | 169.254.114.120
+   465 2026-09-26 19:45:39Z ERR  W32Time                         17 time.windows.com,0x1 | A socket operation was attempted to an unreachable host. (0x80072751) | 15
+   466 2026-09-26 19:45:39Z ERR  W32Time                         29 14
+   467 2026-09-26 19:45:40Z ERR  Service Control Manager       7026 i8042prt
+   468 2026-09-26 19:45:40Z INFO Service Control Manager       7036 Terminal Services | running
+   469 2026-09-26 19:45:40Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   470 2026-09-26 19:45:40Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   471 2026-09-26 19:45:40Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   472 2026-09-26 19:45:40Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   473 2026-09-26 19:45:41Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   474 2026-09-26 19:45:41Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   475 2026-09-26 20:00:39Z ERR  W32Time                         17 time.windows.com,0x1 | A socket operation was attempted to an unreachable host. (0x80072751) | 30
+   476 2026-09-26 20:00:39Z ERR  W32Time                         29 30
+   477 2026-09-26 20:15:04Z INFO Tcpip                         4202 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   478 2026-09-26 20:15:04Z INFO BROWSER                       8033 \Device\NetBT_Tcpip_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   479 2026-09-26 20:22:39Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   480 2026-09-26 20:22:59Z INFO W32Time                         35 time.windows.com (ntp.m|0x1|192.168.1.133:123->168.61.215.74:123)
+   481 2026-09-28 18:57:09Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   482 2026-09-28 18:57:09Z INFO EventLog                      6005 
+   483 2026-09-28 18:57:25Z ERR  Service Control Manager       7026 i8042prt
+   484 2026-09-28 18:57:25Z INFO Service Control Manager       7036 Terminal Services | running
+   485 2026-09-28 18:57:25Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   486 2026-09-28 18:57:25Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   487 2026-09-28 18:57:25Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   488 2026-09-28 18:57:25Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   489 2026-09-28 18:57:26Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   490 2026-09-28 18:57:26Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   491 2026-09-29 14:24:15Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   492 2026-09-29 14:24:15Z INFO EventLog                      6005 
+   493 2026-09-29 14:24:29Z ERR  Service Control Manager       7026 i8042prt
+   494 2026-09-29 14:24:29Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   495 2026-09-29 14:24:29Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   496 2026-09-29 15:40:14Z INFO Service Control Manager       7035 Telephony | start
+   497 2026-09-29 15:40:14Z INFO Service Control Manager       7036 Telephony | running
+   498 2026-09-29 15:40:17Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   499 2026-09-29 15:40:17Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   500 2026-09-29 15:40:17Z INFO Service Control Manager       7035 Remote Access Connection Manager | start
+   501 2026-09-29 15:40:17Z INFO Service Control Manager       7036 Remote Access Connection Manager | running
+   502 2026-09-29 16:19:16Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   503 2026-09-29 16:19:16Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   504 2026-09-29 16:19:23Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   505 2026-09-29 17:28:41Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   506 2026-09-29 17:28:41Z INFO EventLog                      6005 
+   507 2026-09-29 17:28:55Z ERR  Service Control Manager       7026 i8042prt
+   508 2026-09-29 17:28:55Z INFO Service Control Manager       7036 Terminal Services | running
+   509 2026-09-29 17:28:55Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   510 2026-09-29 17:28:55Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   511 2026-09-29 17:28:55Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   512 2026-09-29 17:28:55Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   513 2026-09-29 17:28:55Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   514 2026-09-29 17:28:55Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   515 2026-09-29 17:28:58Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   516 2026-09-29 17:28:58Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   517 2026-09-29 17:29:02Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   518 2026-09-29 17:29:02Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   519 2026-09-29 17:29:08Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   520 2026-09-29 20:47:12Z ERR  MRxSmb                        8003 \Device\LanmanDatagramReceiver | MEDIASERVER | NetBT_Tcpip_{A3C85E5D-6C61-4C
+   521 2026-09-29 21:50:25Z ERR  MRxSmb                        8003 \Device\LanmanDatagramReceiver | MEDIASERVER | NetBT_Tcpip_{A3C85E5D-6C61-4C
+   522 2026-09-29 22:07:11Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   523 2026-09-29 22:07:24Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   524 2026-09-29 22:08:29Z INFO Tcpip                         4202 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   525 2026-09-29 22:08:30Z INFO BROWSER                       8033 \Device\NetBT_Tcpip_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   526 2026-09-29 22:17:19Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   527 2026-09-29 22:33:10Z ERR  MRxSmb                        8003 \Device\LanmanDatagramReceiver | 1GHZ | NetBT_Tcpip_{A3C85E5D-6C61-4C24-ADD7
+   528 2026-09-29 22:36:20Z INFO Tcpip                         4202 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   529 2026-09-29 22:36:45Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   530 2026-09-29 22:48:20Z INFO Tcpip                         4202 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   531 2026-09-29 23:08:00Z INFO Tcpip                         4201 \DEVICE\TCPIP_{A3C85E5D-6C61-4C24-ADD7-80FCFEF47CA3}
+   532 2026-10-03 12:12:50Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   533 2026-10-03 12:12:50Z INFO EventLog                      6005 
+   534 2026-10-03 12:13:06Z ERR  Service Control Manager       7026 i8042prt
+   535 2026-10-03 12:13:06Z INFO Service Control Manager       7036 Terminal Services | running
+   536 2026-10-03 12:13:06Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   537 2026-10-03 12:13:06Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   538 2026-10-03 12:13:06Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   539 2026-10-03 12:13:06Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   540 2026-10-03 12:13:07Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   541 2026-10-03 12:13:07Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   542 2026-10-03 12:13:08Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   543 2026-10-03 12:13:08Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   544 2026-10-03 12:13:12Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   545 2026-10-03 12:13:12Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   546 2026-10-03 12:13:18Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   547 2026-10-03 12:15:26Z INFO Service Control Manager       7035 NWLink IPX/SPX/NetBIOS Compatible Transport Protocol | start
+   548 2026-10-03 12:15:26Z INFO Service Control Manager       7035 NWLink NetBIOS | start
+   549 2026-10-03 12:15:26Z INFO Service Control Manager       7035 NWLink SPX/SPXII Protocol | start
+   550 2026-10-03 12:15:33Z ERR  Server                        2505 \Device\NwlnkNb
+   551 2026-10-03 12:15:33Z ERR  Server                        2505 \Device\NwlnkIpx
+   552 2026-10-03 12:39:56Z INFO EventLog                      6006 
+   553 2026-10-04 23:37:59Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   554 2026-10-04 23:37:59Z INFO EventLog                      6005 
+   555 2026-10-04 23:38:21Z ERR  Service Control Manager       7026 i8042prt
+   556 2026-10-04 23:38:21Z INFO Service Control Manager       7036 Terminal Services | running
+   557 2026-10-04 23:38:21Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   558 2026-10-04 23:38:21Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   559 2026-10-04 23:38:21Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   560 2026-10-04 23:38:21Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   561 2026-10-04 23:38:22Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   562 2026-10-04 23:38:22Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   563 2026-10-04 23:38:22Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   564 2026-10-04 23:38:22Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   565 2026-10-04 23:38:25Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   566 2026-10-04 23:38:25Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   567 2026-10-04 23:38:31Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   568 2026-10-05 04:15:54Z ERR  atapi                            9 \Device\Ide\IdePort1
+   569 2026-10-05 09:34:23Z ERR  atapi                            9 \Device\Ide\IdePort1
+   570 2026-10-13 12:30:23Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   571 2026-10-13 12:30:23Z INFO EventLog                      6005 
+   572 2026-10-13 12:30:45Z ERR  Service Control Manager       7026 i8042prt
+   573 2026-10-13 12:30:45Z INFO Service Control Manager       7036 Terminal Services | running
+   574 2026-10-13 12:30:45Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   575 2026-10-13 12:30:45Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   576 2026-10-13 12:30:45Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   577 2026-10-13 12:30:45Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   578 2026-10-13 12:30:46Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   579 2026-10-13 12:30:46Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   580 2026-10-13 12:30:46Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   581 2026-10-13 12:30:46Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   582 2026-10-13 12:30:48Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   583 2026-10-13 12:30:48Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   584 2026-10-13 12:30:55Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   585 2026-10-13 12:29:29Z INFO W32Time                         35 time.windows.com (ntp.m|0x1|192.168.1.133:123->168.61.215.74:123)
+   586 2026-10-13 17:00:08Z ERR  atapi                            9 \Device\Ide\IdePort1
+   587 2026-10-13 22:38:22Z ERR  atapi                            9 \Device\Ide\IdePort1
+   588 2026-10-14 02:08:41Z WARN W32Time                         36 49152
+   589 2026-10-14 16:18:50Z ERR  nv                             108 \Device\Video0 | display | nv4_disp
+   590 2026-10-14 16:18:52Z INFO Application Popup               26 Windows - Display Driver Stopped Responding | The nv4_disp display driver has stopped working normally. Save your work and reboot the system to restore full display functionality. The next time you reboot the machine a dialog will be displayed giving you a chance to upload data about this failure to...
+   591 2026-10-14 16:38:47Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   592 2026-10-14 16:38:47Z INFO EventLog                      6005 
+   593 2026-10-14 16:38:48Z INFO Save Dump                     1001 0x000000ea (0xff1e0598, 0xff17bf60, 0x8186ba80, 0x00000001) | C:\WINDOWS\Minidump\Mini101426-01.dmp DATA=
+   594 2026-10-14 16:39:06Z INFO Service Control Manager       7036 Terminal Services | running
+   595 2026-10-14 16:39:06Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   596 2026-10-14 16:39:06Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   597 2026-10-14 16:39:06Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   598 2026-10-14 16:39:06Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   599 2026-10-14 16:39:06Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   600 2026-10-14 16:39:06Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   601 2026-10-14 16:39:15Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   602 2026-10-14 16:39:15Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   603 2026-10-14 16:39:18Z ERR  System Error                  1003 000000ea | ff1e0598 | ff17bf60 | 8186ba80 | 00000001 DATA=53797374656d204572726f7220204572726f7220636f64652030303030303065612020506172616d65746572732066663165303539382c206666313762663630
+   604 2026-10-14 16:39:19Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   605 2026-10-14 16:39:19Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   606 2026-10-14 16:39:26Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   607 2026-10-14 16:54:52Z INFO EventLog                      6006 
+   608 2026-10-15 22:35:04Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   609 2026-10-15 22:35:04Z INFO EventLog                      6005 
+   610 2026-10-15 22:35:26Z ERR  Service Control Manager       7026 i8042prt
+   611 2026-10-15 22:35:26Z INFO Service Control Manager       7036 Terminal Services | running
+   612 2026-10-15 22:35:26Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   613 2026-10-15 22:35:26Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   614 2026-10-15 22:35:26Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   615 2026-10-15 22:35:26Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   616 2026-10-15 22:35:27Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   617 2026-10-15 22:35:27Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   618 2026-10-15 22:35:27Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   619 2026-10-15 22:35:28Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   620 2026-10-15 22:35:30Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   621 2026-10-15 22:35:30Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   622 2026-10-15 22:35:36Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped
+   623 2026-10-16 07:26:18Z ERR  atapi                            9 \Device\Ide\IdePort1
+   624 2026-10-16 12:14:35Z WARN W32Time                         36 49152
+   625 2026-10-16 15:00:58Z INFO EventLog                      6006 
+   626 2026-11-11 15:58:53Z INFO EventLog                      6009 5.01. | 2600 | Service Pack 3 | Multiprocessor Free
+   627 2026-11-11 15:58:53Z INFO EventLog                      6005 
+   628 2026-11-11 15:59:15Z ERR  Service Control Manager       7026 i8042prt
+   629 2026-11-11 15:59:15Z INFO Service Control Manager       7036 Terminal Services | running
+   630 2026-11-11 15:59:15Z INFO Service Control Manager       7035 Fast User Switching Compatibility | start
+   631 2026-11-11 15:59:15Z INFO Service Control Manager       7036 Fast User Switching Compatibility | running
+   632 2026-11-11 15:59:15Z INFO Service Control Manager       7035 Network Location Awareness (NLA) | start
+   633 2026-11-11 15:59:15Z INFO Service Control Manager       7036 Network Location Awareness (NLA) | running
+   634 2026-11-11 15:59:17Z INFO Service Control Manager       7035 Application Layer Gateway Service | start
+   635 2026-11-11 15:59:17Z INFO Service Control Manager       7035 SSDP Discovery Service | start
+   636 2026-11-11 15:59:17Z INFO Service Control Manager       7036 Application Layer Gateway Service | running
+   637 2026-11-11 15:59:17Z INFO Service Control Manager       7036 SSDP Discovery Service | running
+   638 2026-11-11 15:59:19Z INFO Service Control Manager       7035 IMAPI CD-Burning COM Service | start
+   639 2026-11-11 15:59:19Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | running
+   640 2026-11-11 15:59:25Z INFO Service Control Manager       7036 IMAPI CD-Burning COM Service | stopped

@@ -1,0 +1,122 @@
+{
+ "110": {
+  "fleetres_gl_mode": "set gl_mode \"8\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "123": {
+  "fleetres_gl_mode": "set gl_mode \"8\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "124": {
+  "fleetres_gl_mode": "set gl_mode \"8\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "133": {
+  "fleetres_gl_mode": "set gl_mode \"8\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "143": {
+  "fleetres_gl_mode": "set gl_mode \"8\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "171": {
+  "fleetres_gl_mode": "set gl_mode \"8\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "184": {
+  "fleetres_gl_mode": "set gl_mode \"6\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "186": {
+  "fleetres_gl_mode": "set gl_mode \"9\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "240": {
+  "fleetres_gl_mode": "set gl_mode \"9\"",
+  "files": {
+   "3dfxgl.dll": 137728,
+   "DESKFIX9.EXE": 4608,
+   "FLEETRES.EXE": 33280,
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "ref_soft_real.dll": 262144,
+   "sin.exe": 667648
+  }
+ },
+ "243": {
+  "fleetres_gl_mode": null,
+  "files": {
+   "ref_gl.dll": 278528,
+   "ref_soft.dll": 278528,
+   "sin.exe": 667648,
+   "3dfxgl.dll": 137728,
+   "ref_soft_real.dll": 262144,
+   "FLEETRES.EXE": 33280,
+   "DESKFIX9.EXE": 4608
+  }
+ }
+}

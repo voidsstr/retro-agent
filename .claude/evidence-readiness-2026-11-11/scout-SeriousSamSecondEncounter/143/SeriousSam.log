@@ -1,0 +1,246 @@
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.5
+
+Executable: C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe
+Assumed engine directory: C:\Games\SeriousSamSecondEncounter\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 5.1, build 2600
+  Misc: Service Pack 3
+
+Detecting CPU...
+  Vendor: AuthenticAMD
+  Type: 0, Family: 6, Model: 2, Stepping: 2
+  MMX : Yes
+  CMOV: Yes
+  Clock: 1000MHz
+
+Global memory status...
+  Physical memory used:  144/ 511MB
+  Page file used:        102/ 672MB
+  Virtual memory used:    28/2047MB
+  Memory load:  28%
+  Process working set: 0MB-1MB
+
+Cannot load variable from 'DefaultMod.txt':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\DefaultMod.txt' (No such file or directory) ()
+Current mod: <none>
+Loading group files...
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Music.gro: 43 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Levels.gro: 49 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_ExtraTools.gro: 1044 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Extra.gro: 107 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00.gro: 3142 files
+  E:\Install\SE1_00_Music.gro: 43 files
+  E:\Install\SE1_00_Levels.gro: 49 files
+  E:\Install\SE1_00_ExtraTools.gro: 1044 files
+  E:\Install\SE1_00_Extra.gro: 107 files
+  E:\Install\SE1_00.gro: 3142 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1024x768
+  Virtual screen: 1024x768
+  Monitors directly reported: 1
+
+Current display: 'NV4_DISP' version 1025 - 1024x768x32
+
+Initializing sound...
+  vorbisfile.dll loaded, ogg playing enabled
+MPX playing disabled: Cannot load amp11lib.dll.
+  Detected devices: 1
+    device 0: VIA Audio (WAVE)
+      ver: 1290, id: 1.100
+      form: 0x000bffff, ch: 65535, support: 0x0000002c
+
+IFeel mouse not found.
+Command line: '+connect 192.168.1.132:25610'
+
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'C:\Games\SeriousSamSecondEncounter\Bin\GameMP.dll'...
+Scripts\Game_startup.ini(7): Identifier 'gfx_iRefreshRate' is not declared
+Scripts\Game_startup.ini(7): Cannot assign: different types
+Cannot load game settings:
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Data\SeriousSam.gms' (No such file or directory) ()
+  Using defaults
+SeriousSam is starting for the first time.
+If you experience any problems, please consult
+ReadMe file for troubleshooting information.
+  ! EAX error: Cannot query property support.
+Setting sound format ...
+Direct Sound initialization ...
+  ! EAX error: Cannot query property support.
+Direct Sound initialization ...
+  44100Hz, 16bit, default device, mix-ahead: 0.2s
+  mixer buffer size:  34 KB
+  decode buffer size: 34 KB
+  EAX: Disabled
+
+Cannot load variable from 'Data\Var\ModName.var':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Data\Var\ModName.var' (No such file or directory) ()
+Serious Sam version: v1.05
+Active mod: -   T H E   F I R S T   E N C O U N T E R   -
+Reading levels directory...
+  file 'Levels\LevelsMP\1_0_InTheLastEpisode.wld' : 'In the last episode' spawn=0x0001000f
+  file 'Levels\LevelsMP\1_1_Palenque.wld' : 'Sierra de Chiapas' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_2_Palenque.wld' : 'Valley of the Jaguar' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_3_Teotihuacan.wld' : 'The City of the Gods' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_4_Teotihuacan.wld' : 'Serpent Yards' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_5_Teotihuacan.wld' : 'The Pit' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_1_Ziggurrat.wld' : 'Ziggurat' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_2_Persepolis.wld' : 'The Elephant Atrium' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_3_Persepolis.wld' : 'Courtyards of Gilgamesh' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_4_TowerOfBabylon.wld' : 'Tower of Babel' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_1_GothicCastle.wld' : 'The Citadel' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_2_LandOfDamned.wld' : 'Land of the Damned' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_3_CorridorOfDeath.wld' : 'The Grand Cathedral' spawn=0x0005000f
+  file 'Levels\LevelsMP\Deathmatch\DM_LittleTrouble.wld' : 'Little Trouble' spawn=0x0072016f
+  file 'Levels\LevelsMP\Deathmatch\DM_TheLostTomb.wld' : 'The Lost Tomb' spawn=0x019a0090
+  file 'Levels\LevelsMP\Deathmatch\Fortress.wld' : 'Fortress' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\Hole.wld' : 'Hole' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\KuntaKinte.wld' : 'Compound' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\RedStation.wld' : 'Red Station' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\WeGotSkullsNBonesToo.wld' : 'We Got Skulls'n'Bones Too' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\Yodeller.wld' : 'Yodeller' spawn=0x00020000
+  file 'Levels\LevelsMP\Intro.wld' : 'Intro' spawn=0x0001000f
+  file 'Levels\LevelsMP\Technology\TechTest.wld' : 'Technology Test' spawn=0x0001000f
+Reading demos directory...
+  Demos\auto-demo0001.dem
+  Demos\auto-demo0002.dem
+  Demos\auto-demo0003.dem
+  Demos\auto-demoMP0001.dem
+  Demos\auto-demoMP0002.dem
+  Levels\Intro.wld
+
+* START NEW DISPLAY MODE ...
+  Starting display mode: 1280x960xdesktop (fullscreen)
+  CDS: mode set to 1280x960x0
+
+Pixel Format Description:
+  Number:     7 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER SWAP_EXCHANGE 
+  Color bits: 32 (8:8:8:0)
+  Depth bits: 24 (0 for stencil)
+
+
+* OpenGL context created: *----------------------------------
+  (NVIDIA Corporation, GeForce 6800/AGP/3DNOW!, 1.5.3)
+
+All textures reloaded.
+
+Automatic 3D-board preferences adjustment...
+Detected: NVIDIA Corporation - GeForce 6800/AGP/3DNOW! - 1.5.3
+Matching: *GeForce*3* (nVidia GeForce3)
+Different than last, applying new preferences.
+Mode: normal
+GLSET: Initial setup.
+All models reloaded.
+GLSET: Normal video preferences.
+All textures reloaded.
+All shadows uncached.
+Done.
+
+Command line connection: '192.168.1.132:25610'
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: 1ghz (192.168.1.143)
+  port: 25610
+  opened socket: 
+Joining session at: '192.168.1.132'
+  joined
+Adding player: '^oPlayer 0^r'
+  done.
+^oPlayer 0^r joined
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r left
+^oPlayer 0^r cut ^oPlayer 0^r into pieces
+^oPlayer 0^r was squashed
+^oPlayer 0^r blew ^oPlayer 0^r away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r cut ^oPlayer 0^r into pieces
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r joined
+^oPlayer 0^r blew ^oPlayer 0^r away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r blew ^oPlayer 0^r away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r left
+^oPlayer 0^r is now known as ^oToaster^r
+^oToaster^r switched to team ^o1^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r joined
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oToaster^r cut ^oPlayer 0^r into pieces
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oToaster^r was squashed
+^oPlayer 0^r was squashed
+^oXypher Orion^r cut ^oPlayer 0^r into pieces
+^oXypher Orion^r cut ^oPlayer 0^r into pieces
+^oArchoN^r joined
+^oArchoN^r cut ^oPlayer 0^r into pieces
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oToaster^r blew ^oPlayer 0^r away
+^oToaster^r blew ^oXypher Orion^r away
+^oToaster^r blew ^oArchoN^r away
+^oToaster^r blew himself away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r poured lead into ^oToaster^r
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oToaster^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r blew ^oToaster^r away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oPlayer 0^r poured lead into ^oToaster^r
+^oPlayer 0^r blew ^oArchoN^r away
+^oPlayer 0^r blew ^oToaster^r away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oArchoN^r poured lead into ^oToaster^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oToaster^r away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oToaster^r blew ^oPlayer 0^r away

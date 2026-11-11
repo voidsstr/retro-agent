@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Control\\Video\\{93639CB2-140D-48AF-AF2A-3FA2A289B5D7}\\Video","values":[{"name":"Service","type":"REG_SZ","data":"3dfxvs"}],"subkeys":[]}

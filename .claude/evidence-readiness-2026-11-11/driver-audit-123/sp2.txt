@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 2","values":[{"name":"Driver","type":"REG_SZ","data":"d347prt"}],"subkeys":["Scsi Bus 0"]}

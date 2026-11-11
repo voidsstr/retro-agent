@@ -1,0 +1,374 @@
+09/01/26 12:08:58: DXSetup: CommandLine: /silent
+09/01/26 12:08:58: DSETUP: DirectXSetupA(): hWnd: 00000000 dwFlags: 02010098
+
+
+
+09/01/26 12:08:58: dsetup32: === SetupForDirectX() start ===
+09/01/26 12:08:58: dsetup32: Sep 28 2006 14:56:04
+09/01/26 12:08:58: dsetup32: DXSetupCommand = 0.
+09/01/26 12:08:58: dsetup32: DirectXSetupIsJapanese == 0
+09/01/26 12:08:58: dsetup32: DirectXSetupIsJapanNec == 0
+09/01/26 12:08:58: dsetup32: Installing on WinXP SP2
+09/01/26 12:08:59: dsetup32: IsIA64(): not IA64.
+09/01/26 12:08:59: dsetup32: Unable to find mscoree.dll.
+09/01/26 12:08:59: dsetup32: CheckForManagedDX(): .NETFramework is not available, Managed DirectX is not installed.
+09/01/26 12:08:59: dsetup32: DXCheckTrust(): C:\h2temp\dx\dxupdate.cab is trusted.
+09/01/26 12:08:59: dsetup32: GetCDXUpdate(): Extracting dxupdate.dll from C:\h2temp\dx\dxupdate.cab.
+09/01/26 12:08:59: dsetup32: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\dxupdate.inf from cab
+09/01/26 12:08:59: dsetup32: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\dxupdate.cif from cab
+09/01/26 12:08:59: dsetup32: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\dxupdate.dll from cab
+09/01/26 12:08:59: dsetup32: GetCDXUpdate(): Loading dxupdate.dll in C:\WINDOWS\system32\DirectX\DX12.tmp\.
+09/01/26 12:08:59: dsetup32: DirectXSetupIsJapanese == 0
+09/01/26 12:08:59: dsetup32: DirectXSetupIsJapanNec == 0
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Checking for dxdllreg_x86.cab...
+09/01/26 12:08:59: dxupdate: DXCheckTrust(): C:\h2temp\dx\dxdllreg_x86.cab is trusted.
+09/01/26 12:08:59: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\dxdllreg_x86.inf from cab
+09/01/26 12:08:59: dxupdate: DirectXUpdateGetSetupInformation(): DirectX Version: 4.09.00.0904.0
+09/01/26 12:08:59: dxupdate: CheckDependency(): no dependency.
+09/01/26 12:08:59: dxupdate: DirectXUpdateGetSetupInformation(): Section [4.09.00.0904.0-4.09.00.0904.0_WinXP] is being installed.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_1_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_1_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_2_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_2_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2902.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2903.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2904.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2905.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2906.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2907.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2908.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2909.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2910.0_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2005_d3dx9_24_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2005_d3dx9_24_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2005_MDX_x86.MSI does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2005_d3dx9_25_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2005_d3dx9_25_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2005_MDX_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2005_d3dx9_26_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2005_d3dx9_26_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2005_MDX_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2005_d3dx9_27_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2005_d3dx9_27_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2005_MDX_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_d3dx9_27_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_d3dx9_27_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_MDX_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_xinput_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_xinput_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_d3dx9_28_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_d3dx9_28_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_MDX1_x86_Archive.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_MDX1_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_d3dx9_29_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_d3dx9_29_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_MDX1_x86_Archive.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_MDX1_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_XACT_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_XACT_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_d3dx9_30_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_d3dx9_30_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_MDX1_x86_Archive.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_MDX1_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_XACT_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_XACT_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_xinput_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_xinput_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2006_XACT_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2006_XACT_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_xinput_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_xinput_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_XACT_x86.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_XACT_x64.cab does not exist.
+09/01/26 12:08:59: dxupdate: -----
+09/01/26 12:08:59: dxupdate: DirectXUpdateInstallPlugIn(): Checking for Oct2006_d3dx9_31_x86.cab...
+09/01/26 12:08:59: dxupdate: DXCheckTrust(): C:\h2temp\dx\Oct2006_d3dx9_31_x86.cab is trusted.
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\oct2006_d3dx9_31_x86.inf from cab
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): DirectX Version: 4.09.00.0904.0
+09/01/26 12:09:00: dxupdate: CheckDependency(): no dependency.
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): Section [4.09.00.0904.0-4.09.00.0904.0_WinXP] is being installed.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_d3dx9_31_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Checking for Oct2006_xinput_x86.cab...
+09/01/26 12:09:00: dxupdate: DXCheckTrust(): C:\h2temp\dx\Oct2006_xinput_x86.cab is trusted.
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\oct2006_xinput_x86.inf from cab
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): DirectX Version: 4.09.00.0904.0
+09/01/26 12:09:00: dxupdate: CheckDependency(): no dependency.
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): Section [4.09.00.0904.0-4.09.00.0904.0_WinXP] is being installed.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_xinput_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_XACT_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_XACT_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2005_xinput_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2005_xinput_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2005_XACT_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2005_MDX_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_XACT_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_MDX2_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_MDX2_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_MDX2_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_MDX2_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_MDX2_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_MDX2_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Aug2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Aug2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:00: dxupdate: Total Files:	10
+09/01/26 12:09:00: dxupdate: Total Size:	2791424
+09/01/26 12:09:00: dxupdate: Total Progress:	3
+09/01/26 12:09:00: dsetup32: GetCDXUpdate(): Loading dxupdate.dll in C:\WINDOWS\system32\DirectX\DX12.tmp\.
+09/01/26 12:09:00: dsetup32: DirectXSetupIsJapanese == 0
+09/01/26 12:09:00: dsetup32: DirectXSetupIsJapanNec == 0
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Installing dxdllreg_x86.cab...
+09/01/26 12:09:00: dxupdate: DXCheckTrust(): C:\h2temp\dx\dxdllreg_x86.cab is trusted.
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\dxdllreg_x86.inf from cab
+09/01/26 12:09:00: dxupdate: GetDXVersion(): Unable to get RC string from registry, now RC is 0.
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): DirectX Version: 4.09.00.0904.0
+09/01/26 12:09:00: dxupdate: CheckDependency(): no dependency.
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): Section [4.09.00.0904.0-4.09.00.0904.0_WinXP] is being installed.
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\dxdllreg.exe from cab
+09/01/26 12:09:00: dxupdate: Files:	2
+09/01/26 12:09:00: dxupdate: Size:	62464
+09/01/26 12:09:00: dxupdate: InstallEXE(): Command:	dxdllreg.exe -PATCH
+09/01/26 12:09:00: dxdllreg: CommandLine: -PATCH
+09/01/26 12:09:00: dxdllreg: Update is not necessary for this platform.
+09/01/26 12:09:00: dxupdate: InstallEXE(): dxdllreg.exe returned 0.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_1_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_1_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_2_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In RGB9Rast_2_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2902.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2903.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2904.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2905.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2906.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2907.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2908.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2909.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In MDX_1.0.2910.0_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2005_d3dx9_24_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2005_d3dx9_24_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2005_MDX_x86.MSI does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2005_d3dx9_25_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2005_d3dx9_25_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2005_MDX_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2005_d3dx9_26_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2005_d3dx9_26_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2005_MDX_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2005_d3dx9_27_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2005_d3dx9_27_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2005_MDX_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_d3dx9_27_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_d3dx9_27_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_MDX_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_xinput_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2005_xinput_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_d3dx9_28_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_d3dx9_28_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_MDX1_x86_Archive.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Dec2005_MDX1_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_d3dx9_29_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_d3dx9_29_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_MDX1_x86_Archive.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_MDX1_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_XACT_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Feb2006_XACT_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_d3dx9_30_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_d3dx9_30_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_MDX1_x86_Archive.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_MDX1_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_XACT_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_XACT_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_xinput_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Apr2006_xinput_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2006_XACT_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Jun2006_XACT_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_xinput_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_xinput_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_XACT_x86.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Aug2006_XACT_x64.cab does not exist.
+09/01/26 12:09:00: dxupdate: -----
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Installing Oct2006_d3dx9_31_x86.cab...
+09/01/26 12:09:00: dxupdate: DXCheckTrust(): C:\h2temp\dx\Oct2006_d3dx9_31_x86.cab is trusted.
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\oct2006_d3dx9_31_x86.inf from cab
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): DirectX Version: 4.09.00.0904.0
+09/01/26 12:09:00: dxupdate: CheckDependency(): no dependency.
+09/01/26 12:09:00: dxupdate: DirectXUpdateGetSetupInformation(): Section [4.09.00.0904.0-4.09.00.0904.0_WinXP] is being installed.
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\d3dx9_31_x86.cat from cab
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\d3dx9_31.dll from cab
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\d3dx9_31_w9x.inf from cab
+09/01/26 12:09:00: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\d3dx9_31_x86.inf from cab
+09/01/26 12:09:00: dxupdate: Files:	4
+09/01/26 12:09:00: dxupdate: Size:	2230272
+09/01/26 12:09:00: dxupdate: DirectXUpdateInstallPlugIn(): Installing: d3dx9_31_x86.inf - [x86_Install]
+09/01/26 12:09:01: dxupdate: Installed file C:\WINDOWS\system32\d3dx9_31.dll
+09/01/26 12:09:01: dxupdate: -----
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_d3dx9_31_x64.cab does not exist.
+09/01/26 12:09:01: dxupdate: -----
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): Installing Oct2006_xinput_x86.cab...
+09/01/26 12:09:01: dxupdate: DXCheckTrust(): C:\h2temp\dx\Oct2006_xinput_x86.cab is trusted.
+09/01/26 12:09:01: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\oct2006_xinput_x86.inf from cab
+09/01/26 12:09:01: dxupdate: DirectXUpdateGetSetupInformation(): DirectX Version: 4.09.00.0904.0
+09/01/26 12:09:01: dxupdate: CheckDependency(): no dependency.
+09/01/26 12:09:01: dxupdate: DirectXUpdateGetSetupInformation(): Section [4.09.00.0904.0-4.09.00.0904.0_WinXP] is being installed.
+09/01/26 12:09:01: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\xinput1_3_x86.cat from cab
+09/01/26 12:09:01: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\xinput1_3.dll from cab
+09/01/26 12:09:01: dxupdate: Extracted file C:\WINDOWS\system32\DirectX\DX12.tmp\xinput1_3_x86.inf from cab
+09/01/26 12:09:01: dxupdate: Files:	4
+09/01/26 12:09:01: dxupdate: Size:	498688
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): Installing: xinput1_3_x86.inf - [x86_Install]
+09/01/26 12:09:01: dxupdate: Installed file C:\WINDOWS\system32\xinput1_3.dll
+09/01/26 12:09:01: dxupdate: -----
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_xinput_x64.cab does not exist.
+09/01/26 12:09:01: dxupdate: -----
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_XACT_x86.cab does not exist.
+09/01/26 12:09:01: dxupdate: -----
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): Plug-In Oct2006_XACT_x64.cab does not exist.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2005_xinput_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2005_xinput_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2005_XACT_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2005_MDX_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_XACT_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_MDX2_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_MDX2_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Dec2005_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_MDX2_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_MDX2_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Feb2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_MDX2_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_MDX2_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Apr2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Jun2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Aug2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Aug2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2006_d3dx10_x86.cab] is skipped.
+09/01/26 12:09:01: dxupdate: DirectXUpdateInstallPlugIn(): folder does not exist, [Beta_Oct2006_d3dx10_x64.cab] is skipped.
+09/01/26 12:09:01: dsetup32: SetupForDirectX: InstallPlugIn() Succeeded.
+09/01/26 12:09:01: dsetup32: start finalizing: phase: 3 - 3, total: 0 - 4
+09/01/26 12:09:01: dsetup32: Installation ended with value 0 = Installation succeeded

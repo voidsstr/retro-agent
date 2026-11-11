@@ -1,0 +1,114 @@
+{
+ "110": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "123": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "124": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "133": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "143": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "171": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "184": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ },
+ "240": {
+  "fw_std": [
+   0,
+   "0"
+  ],
+  "fw_dom": [
+   0,
+   "0"
+  ],
+  "sharedaccess_start": [
+   0,
+   "2"
+  ]
+ }
+}

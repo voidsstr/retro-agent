@@ -1,0 +1,166 @@
+Log: Log file open, 10/03/26 08:36:50
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 226
+Init: Compiled: Aug 15 2000 14:16:34
+Init: Command line: 
+Init: Base directory: C:\Games\UnrealGold\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: Memory total: Phys=261608K Pagef=634780K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=2004.554154 MHz
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI 3DNow!
+Log: Loading: Package Engine
+Log: Loading: Package Core
+Log: Bound to Galaxy.dll
+Init: Galaxy is using DirectSound
+Init: Galaxy initialized
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 0
+Init: Client initialized
+Log: Bound to Render.dll
+Log: Loading: Package Render
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Loading: Package Entry
+Log: Loading: Package PlayrShp
+Log: Loading: Package Detail
+Log: Bound to Fire.dll
+Log: Loading: Package Fire
+Log: Loading: Package UnrealI
+Log: Loading: Package UnrealShare
+Log: Game class is 'EntryGameInfo'
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is Entry.Mutator0
+DevAudio: Galaxy SetViewport: NULL
+Log: Browse: Unreal.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: LoadMap: Unreal.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: Loading: Package Unreal
+Log: Loading: Package NaliCast
+Log: Loading: Package GenEarth
+Log: Loading: Package GenFluid
+Log: Loading: Package NALIFX
+Log: Loading: Package GenIn
+Log: Loading: Package GenFX
+Log: Loading: Package Ambancient
+Log: Loading: Package Amboutside
+Log: Loading: Package DoorsAnc
+Log: Loading: Package Liquids
+Log: Loading: Package flyby
+Log: Collecting garbage
+Log: Purging garbage
+Log: Unloading: Package Render
+Log: Game class is 'Intro'
+Log: Bringing Level Unreal.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is Unreal.Mutator1
+Init: Initialized moving brush tracker for Level Unreal.MyLevel
+DevAudio: Galaxy SetViewport: NULL
+Log: Bound to UPak.dll
+Log: Loading: Package UPak
+Log: Loading: Package marine
+Log: Loading: Package UDSDemo
+Log: Loading: Package UPakFonts
+Log: Loading: Package UWindow
+Log: Loading: Package UMenu
+Log: Loading: Package UBrowser
+Log: Bound to IpDrv.dll
+Log: Loading: Package IpDrv
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: Loading: Package Female1Skins
+Log: Possessed PlayerPawn: UPakFemaleOne Unreal.UPakFemaleOne0
+ScriptLog: All inventory from Player is accepted
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to GlideDrv.dll
+Init: Initializing Glide...
+Init: Found Glide: 2.70 1.00.01.0106GXP
+Init: Glide info: Type=0, fbRam=60817408 fbiRev=0 nTexelfx=2 Sli=0
+Init: grSstOpen Res=7 Ref=12 Buffers=3
+Init: Glide tmu 0: tmuRev=0 tmuRam=2097152 Space=32192496
+Init: Glide tmu 1: tmuRev=0 tmuRam=2097152 Space=32192496
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Init: Game engine initialized
+Log: Startup time: 3.061509 seconds
+DevMusic: Load music: Music flyby.flyby
+ScriptLog: Creating root window: UMenu.UMenuRootWindow
+Log: Loading: Package UWindowFonts
+Log: appRequestExit(0)
+Exit: appPreExit
+Log: Purging garbage
+Log: Unbound to Engine.dll
+Log: Unbound to Core.dll
+Log: Unbound to Window.dll
+Log: Unloading: Package Engine
+Log: Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to Galaxy.dll
+DevAudio: Galaxy SetViewport: NULL
+DevMusic: Unregister music: Music flyby.flyby
+Exit: Galaxy shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to Render.dll
+Exit: Lighting subsystem shut down
+Exit: Rendering shut down
+Log: Unloading: Package Entry
+Log: Unloading: Package PlayrShp
+Log: Unloading: Package Detail
+Log: Unbound to Fire.dll
+Log: Unloading: Package Fire
+Log: Unloading: Package UnrealI
+Log: Unloading: Package UnrealShare
+Log: Unloading: Package Unreal
+Log: Unloading: Package NaliCast
+Log: Unloading: Package GenEarth
+Log: Unloading: Package GenFluid
+Log: Unloading: Package NALIFX
+Log: Unloading: Package GenIn
+Log: Unloading: Package GenFX
+Log: Unloading: Package Ambancient
+Log: Unloading: Package Amboutside
+Log: Unloading: Package DoorsAnc
+Log: Unloading: Package Liquids
+Log: Unloading: Package flyby
+Init: Shut down moving brush tracker for Level Unreal.MyLevel
+Exit: Shutting down Glide...
+Exit: Glide shut down
+Log: Unbound to UPak.dll
+Log: Unloading: Package UPak
+Log: Unloading: Package marine
+Log: Unloading: Package UDSDemo
+Log: Unloading: Package UPakFonts
+Log: Unloading: Package UWindow
+Log: Unloading: Package UMenu
+Log: Unloading: Package UBrowser
+Log: Unbound to IpDrv.dll
+Log: Unloading: Package IpDrv
+Log: Unloading: Package Female1Skins
+Log: Unbound to GlideDrv.dll
+Log: Unloading: Package UWindowFonts
+Exit: Object subsystem successfully closed.
+Exit: appExit
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.419M /  0.059M
+Uninitialized: Peak Memory  29.387M /  31.230M
+Uninitialized: Allocs           1 Current /  372721 Total
+Uninitialized: Log file closed, 10/03/26 08:37:55

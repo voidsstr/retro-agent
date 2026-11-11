@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Control\\Video\\{8B6D7859-A639-4A15-8790-7161976D057A}\\Video","values":[{"name":"Service","type":"REG_SZ","data":"mnmdd"}],"subkeys":[]}

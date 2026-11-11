@@ -1,0 +1,326 @@
+{
+ "110": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:22:09\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:20:48\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:19:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:04:28\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:33:22\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:27:18\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:25:28\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smax4pnp.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ]
+ },
+ "123": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:21:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:20:36\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:18:58\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:04:17\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:26:24\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:27:06\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:25:16\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "SOUNDMAN.EXE",
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "ati2evxx.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "retro_agent.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "netstat": [
+   0,
+   "\r\nActive Connections\r\n\r\n  Proto  Local Address          Foreign Address        State\r\n  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING\r\n  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING\r\n  TCP    0.0.0.0:9897           0.0.0.0:0              LISTENING\r\n  TCP    0.0.0.0:9898           0.0.0.0:0              LISTENING\r\n  TCP    127.0.0.1:1029         0.0.0.0:0              LISTENING\r\n  TCP    192.168.1.123:139      0.0.0.0:0              LISTENING\r\n  TCP    192.168.1.123:1441     192.168.1.122:445      TIME_WAIT\r\n  TCP    192.168.1.123:1443     192.168.1.122:445      TIME_WAIT\r\n  TCP    192.168.1.123:1445     192.168.1.122:445      TIME_WAIT\r\n  TCP    192.168.1.123:9898     192.168.1.132:42388    ESTABLISHED\r\n  TCP    192.168.1.123:9898     192.168.1.132:42392    ESTABLISHED\r\n  TCP    192.168.1.123:9898     192.168.1.132:60982    ESTABLISHED\r\n"
+  ]
+ },
+ "124": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:23:16\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:21:56\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:20:18\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:12:30\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:32:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:28:25\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:26:35\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "NvMixerTray.exe",
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "cmd.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "ping.exe",
+   "retro_agent.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wmiprvse.exe",
+   "wscntfy.exe"
+  ]
+ },
+ "133": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:22:09\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:20:48\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:19:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:04:28\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:26:54\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:27:18\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:25:28\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "CTHELPER.EXE",
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ]
+ },
+ "143": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:22:25\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:21:04\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:19:26\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:04:44\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:27:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:27:34\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:25:44\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "ctfmon.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe"
+  ]
+ },
+ "171": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:22:08\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:20:48\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:19:09\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:04:28\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-13 13:15:15\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:27:17\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:25:28\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smax4pnp.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe"
+  ]
+ },
+ "184": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:22:50\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:21:29\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:19:51\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:05:09\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:31:49\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:27:58\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:26:09\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ]
+ },
+ "240": {
+  "DIRLIST C:\\WINDOWS\\system32\\reg.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\netstat.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\WINDOWS\\system32\\tasklist.exe": [
+   0,
+   "[]"
+  ],
+  "DIRLIST C:\\fleetmp": [
+   0,
+   "[{\"name\":\"cs.bat\",\"is_dir\":false,\"size\":225,\"modified\":\"2026-10-13 13:21:43\",\"hidden\":false,\"readonly\":false},{\"name\":\"q2.bat\",\"is_dir\":false,\"size\":212,\"modified\":\"2026-10-13 13:20:22\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3.bat\",\"is_dir\":false,\"size\":394,\"modified\":\"2026-10-13 13:18:44\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tfe.bat\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-10-13 13:04:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"ssam-tse.bat\",\"is_dir\":false,\"size\":105,\"modified\":\"2026-10-15 23:26:08\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut2004.bat\",\"is_dir\":false,\"size\":64,\"modified\":\"2026-10-13 13:26:52\",\"hidden\":false,\"readonly\":false},{\"name\":\"ut99.bat\",\"is_dir\":false,\"size\":218,\"modified\":\"2026-10-13 13:25:02\",\"hidden\":false,\"readonly\":false}]"
+  ],
+  "procs": [
+   "ADeck.exe",
+   "BDARemote.exe",
+   "CTHELPER.EXE",
+   "Core.exe",
+   "MsMpEng.exe",
+   "System",
+   "WindowsSearch.exe",
+   "[System Process]",
+   "alg.exe",
+   "ati2evxx.exe",
+   "csrss.exe",
+   "ctfmon.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "msmsgs.exe",
+   "msseces.exe",
+   "raid_tool.exe",
+   "retro_agent.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "searchindexer.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe"
+  ]
+ }
+}

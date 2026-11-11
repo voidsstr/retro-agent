@@ -1,0 +1,31 @@
+{
+ "box": 133,
+ "_disc": [
+  {
+   "name": "SeriousSamTFE.iso",
+   "is_dir": false,
+   "size": 501800960,
+   "modified": "2026-08-31 14:35:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "games_lanhost": [
+  {
+   "name": "lanhost.txt",
+   "is_dir": false,
+   "size": 15,
+   "modified": "2026-08-31 15:23:59",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "lanhost": "192.168.1.123\r\n",
+ "foreground": {
+  "hwnd": "000200E2",
+  "pid": 1428,
+  "class": "WindowsScreenSaverClass",
+  "title": "Screen Saver"
+ },
+ "hwprofile_os": "{\"profile_hash\":\"b65fa1fee4df292c\",\"profile_version\":1,\"hostname\":\"P3-DUAL\",\"agent_version\":\"1.98.0\",\"reported_at\":\"2026-11-11 13:43:31\",\"cpu\":{\"vendor\":\"GenuineIntel\",\"brand\":\"\",\"family\":6,\"model\":8,\"stepping\":1,\"mhz\":701,\"mhz_source\":\"registry\",\"count\":2,\"feature_bits\":15,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"sse\"]},\"ram_mb\":255,\"gpu\":{\"name\":\"NVIDIA GeForce4 Ti 4600\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x0250\",\"hardware_id\":\"PCI\\\\VEN_10DE&DEV_0250&SUBSYS_00371545&REV_A3\",\"vram_mb\":128,\"driver_version\":\"6.14.10.9371\",\"driver_date\":\"10-22-2006\",\"feature_level\":\"sm1.x\",\"feature_level_num\":3,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1280,\"height\":1024,\"bpp\":32,\"panel_w\":1280,\"panel_h\":1024,\"panel_source\":\"registry\",\"edid_w\":1280,\"edid_h\":1024,\"panel_hz\":85,\"panel_digital\":0,\"panel_name\":\"\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":891957,\"total_mb\":953869}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"NVIDIA GeForce4 Ti 4600\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x0250\",\"hardware_id\":\"pci\\\\ven_10de&dev_0250\",\"driver_version\":\"6.14.10.9371\",\"driver_date\":\"10-22-2006\",\"attached_to_desktop\":true}],\"accelerators\":[],\"network\":{\"interfaces\":[{\"description\":\"Linksys LNE100TX Fast Ethern"
+}

@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Services\\viamraid\\Enum","values":[{"name":"0","type":"REG_SZ","data":"Root\\LEGACY_VIAMRAID\\0000"},{"name":"Count","type":"REG_DWORD","data":1},{"name":"NextInstance","type":"REG_DWORD","data":1}],"subkeys":[]}

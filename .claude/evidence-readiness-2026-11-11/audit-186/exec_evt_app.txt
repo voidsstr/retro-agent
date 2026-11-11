@@ -1,0 +1,800 @@
+Event[0]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T11:48:08.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_e91fd7fdd27877d2797d21d2916be09151e83d_0fb7577e
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: aba519c7-ddef-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[1]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T11:48:08.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: aba519c7-ddef-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[2]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T06:47:56.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_e91fd7fdd27877d2797d21d2916be09151e83d_059080e9
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: bbc4a203-ddc5-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[3]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T06:47:56.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: bbc4a203-ddc5-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[4]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T02:17:22.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_83d89db3bee8694b325a46ad46dd6fefb24c93ab_0474ca90
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: ef862573-dd9f-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[5]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T02:17:22.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: ef862573-dd9f-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[6]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T02:17:19.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: MpTelemetry
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 80072efe
+P2: EndSearch
+P3: Search
+P4: 6.1.7600.16385
+P5: MpSigDwn.dll
+P6: 6.1.7600.16385
+P7: Windows Defender
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_80072efe_eed54846deb8b3ece27f3b18d37b7066c8c31be_0318c024
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: ec8c6d1b-dd9f-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[7]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T01:47:44.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_e91fd7fdd27877d2797d21d2916be09151e83d_cab_0139aa34
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: cbe2947a-dd9b-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[8]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-11T01:47:44.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: cbe2947a-dd9b-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[9]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T20:47:11.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_e91fd7fdd27877d2797d21d2916be09151e83d_04da8189
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: cf7eec20-dd71-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[10]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T20:47:11.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: cf7eec20-dd71-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[11]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T15:46:59.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_e91fd7fdd27877d2797d21d2916be09151e83d_0517aab5
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: df935916-dd47-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[12]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T15:46:59.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: D67661EB-2423-451D-BF5D-13199E37DF28
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: df935916-dd47-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[13]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T13:47:12.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_83d89db3bee8694b325a46ad46dd6fefb24c93ab_06e5fe9c
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: 2385e815-dd37-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[14]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T13:47:12.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: 2385e815-dd37-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[15]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T13:47:09.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: MpTelemetry
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 80072efe
+P2: EndSearch
+P3: Search
+P4: 6.1.7600.16385
+P5: MpSigDwn.dll
+P6: 6.1.7600.16385
+P7: Windows Defender
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_80072efe_eed54846deb8b3ece27f3b18d37b7066c8c31be_06c5f421
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: 208c2fbe-dd37-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[16]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T11:17:00.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_83d89db3bee8694b325a46ad46dd6fefb24c93ab_04207ada
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: 27dcbae3-dd22-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[17]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T11:17:00.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: 27dcbae3-dd22-11f1-9e0f-e0cb4e26eca0
+Report Status: 0
+
+Event[18]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T11:16:57.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: MpTelemetry
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 80072efe
+P2: EndSearch
+P3: Search
+P4: 6.1.7600.16385
+P5: MpSigDwn.dll
+P6: 6.1.7600.16385
+P7: Windows Defender
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_80072efe_eed54846deb8b3ece27f3b18d37b7066c8c31be_0410707e
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: 24e3028b-dd22-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+
+Event[19]:
+  Log Name: Application
+  Source: Windows Error Reporting
+  Date: 2026-11-10T10:46:47.000
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Fault bucket , type 0
+Event Name: WindowsUpdateFailure
+Response: Not available
+Cab Id: 0
+
+Problem signature:
+P1: 7.3.7600.16385
+P2: 80072efe
+P3: 00000000-0000-0000-0000-000000000000
+P4: Scan
+P5: 101
+P6: Unmanaged
+P7: 
+P8: 
+P9: 
+P10: 
+
+Attached files:
+
+These files may be available here:
+C:\ProgramData\Microsoft\Windows\WER\ReportQueue\NonCritical_7.3.7600.16385_83d89db3bee8694b325a46ad46dd6fefb24c93ab_0430d2d8
+
+Analysis symbol: 
+Rechecking for solution: 0
+Report Id: ef8b358a-dd1d-11f1-9e0f-e0cb4e26eca0
+Report Status: 4
+

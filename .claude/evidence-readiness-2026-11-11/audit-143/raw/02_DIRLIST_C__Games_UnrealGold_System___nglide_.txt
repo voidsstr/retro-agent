@@ -1,0 +1,1 @@
+[{"name":"glide2x.dll.nglide","is_dir":false,"size":1310720,"modified":"2026-10-01 06:13:08","hidden":false,"readonly":false}]

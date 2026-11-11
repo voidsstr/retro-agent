@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Services\\ASH1205","values":[{"name":"Type","type":"REG_DWORD","data":1},{"name":"Start","type":"REG_DWORD","data":0},{"name":"Group","type":"REG_SZ","data":"SCSI miniport"},{"name":"ErrorControl","type":"REG_DWORD","data":1}],"subkeys":["Enum"]}

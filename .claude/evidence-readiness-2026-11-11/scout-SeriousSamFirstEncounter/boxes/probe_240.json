@@ -1,0 +1,754 @@
+{
+ "box": 240,
+ "dir_root": [
+  {
+   "name": "1_00.gro",
+   "is_dir": false,
+   "size": 201145131,
+   "modified": "2026-08-31 14:37:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "1_00_ExtraTools.gro",
+   "is_dir": false,
+   "size": 1199329,
+   "modified": "2026-08-31 14:37:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "1_00_music.gro",
+   "is_dir": false,
+   "size": 74408722,
+   "modified": "2026-08-31 14:37:48",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Bin",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:43:11",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 15:36:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Data",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-10-15 22:28:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "data1.cab",
+   "is_dir": false,
+   "size": 448454,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "data1.hdr",
+   "is_dir": false,
+   "size": 71205,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "data2.cab",
+   "is_dir": false,
+   "size": 512,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Dedicated_DefaultCoop.log",
+   "is_dir": false,
+   "size": 10892,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Demos",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:05",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "FLEETRES.BAT",
+   "is_dir": false,
+   "size": 4917,
+   "modified": "2026-09-29 17:55:17",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "FLEETRES.EXE",
+   "is_dir": false,
+   "size": 33280,
+   "modified": "2026-09-29 17:55:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Help",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:43:17",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Host Serious Sam TFE - LAN.bat",
+   "is_dir": false,
+   "size": 26703,
+   "modified": "2026-10-03 14:04:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ikernel.ex_",
+   "is_dir": false,
+   "size": 339565,
+   "modified": "2026-08-31 14:38:05",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Join Serious Sam TFE - LAN.bat",
+   "is_dir": false,
+   "size": 26775,
+   "modified": "2026-10-03 14:04:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "launch.txt",
+   "is_dir": false,
+   "size": 849,
+   "modified": "2026-09-28 13:21:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "layout.bin",
+   "is_dir": false,
+   "size": 435,
+   "modified": "2026-08-31 14:38:05",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Levels",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Mods",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "NOTES.txt",
+   "is_dir": false,
+   "size": 5777,
+   "modified": "2026-10-03 13:28:47",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Play Serious Sam - The First Encounter.bat",
+   "is_dir": false,
+   "size": 25313,
+   "modified": "2026-10-03 14:04:13",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Players",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 15:35:59",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "requires.json",
+   "is_dir": false,
+   "size": 1444,
+   "modified": "2026-08-31 14:48:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SaveGame",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Scripts",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSam.ico",
+   "is_dir": false,
+   "size": 16870,
+   "modified": "2026-09-28 13:12:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSam.log",
+   "is_dir": false,
+   "size": 8618,
+   "modified": "2026-10-16 00:19:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSamLogo.ico",
+   "is_dir": false,
+   "size": 14510,
+   "modified": "2026-09-28 13:21:27",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Setup.bmp",
+   "is_dir": false,
+   "size": 537656,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Setup.exe",
+   "is_dir": false,
+   "size": 54272,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Setup.ini",
+   "is_dir": false,
+   "size": 105,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "setup.inx",
+   "is_dir": false,
+   "size": 151302,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Temp",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-10-15 22:28:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "VirtualTrees",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "_disc",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:37:01",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Players": [
+  {
+   "name": "Player0.plr",
+   "is_dir": false,
+   "size": 71,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player1.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player2.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player3.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player4.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player5.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player6.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Player7.plr",
+   "is_dir": false,
+   "size": 68,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Scripts": [
+  {
+   "name": "Addons",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "CustomOptions",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Dedicated",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Game_startup.ini",
+   "is_dir": false,
+   "size": 272,
+   "modified": "2026-10-16 00:12:10",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "GLSettings",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-10-04 23:47:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "NetSettings",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:02",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "PersistentSymbols.ini",
+   "is_dir": false,
+   "size": 15024,
+   "modified": "2026-10-16 00:19:15",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Data": [
+  {
+   "name": "DedicatedServer.gms",
+   "is_dir": false,
+   "size": 717,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Defaults",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SED_TipOfTheDay.txt",
+   "is_dir": false,
+   "size": 3675,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSam.gms",
+   "is_dir": false,
+   "size": 717,
+   "modified": "2026-10-16 00:19:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Var",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:03",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Temp": [
+  {
+   "name": "ConsoleHistory.txt",
+   "is_dir": false,
+   "size": 0,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Controls": [
+  {
+   "name": "00-Default.ctl",
+   "is_dir": false,
+   "size": 4945,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "00-Default.des",
+   "is_dir": false,
+   "size": 63,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "01-Keyboard.ctl",
+   "is_dir": false,
+   "size": 4651,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "01-Keyboard.des",
+   "is_dir": false,
+   "size": 43,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "02-PantherXL.ctl",
+   "is_dir": false,
+   "size": 4748,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "02-PantherXL.des",
+   "is_dir": false,
+   "size": 45,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "03-Wingman Extreme.ctl",
+   "is_dir": false,
+   "size": 4747,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "03-Wingman Extreme.des",
+   "is_dir": false,
+   "size": 56,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "04-Wingman GamePad.ctl",
+   "is_dir": false,
+   "size": 4701,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "04-Wingman GamePad.des",
+   "is_dir": false,
+   "size": 71,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "10-DEN.ctl",
+   "is_dir": false,
+   "size": 4870,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "10-DEN.des",
+   "is_dir": false,
+   "size": 48,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls0.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls1.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls2.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls3.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls4.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls5.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls6.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls7.ctl",
+   "is_dir": false,
+   "size": 4773,
+   "modified": "2026-10-16 00:19:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "System",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 06:13:30",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "root_names": [
+  "1_00.gro",
+  "1_00_ExtraTools.gro",
+  "1_00_music.gro",
+  "Bin",
+  "Controls",
+  "Data",
+  "data1.cab",
+  "data1.hdr",
+  "data2.cab",
+  "Dedicated_DefaultCoop.log",
+  "Demos",
+  "FLEETRES.BAT",
+  "FLEETRES.EXE",
+  "Help",
+  "Host Serious Sam TFE - LAN.bat",
+  "ikernel.ex_",
+  "Join Serious Sam TFE - LAN.bat",
+  "launch.txt",
+  "layout.bin",
+  "Levels",
+  "Mods",
+  "NOTES.txt",
+  "Play Serious Sam - The First Encounter.bat",
+  "Players",
+  "requires.json",
+  "SaveGame",
+  "Scripts",
+  "SeriousSam.ico",
+  "SeriousSam.log",
+  "SeriousSamLogo.ico",
+  "Setup.bmp",
+  "Setup.exe",
+  "Setup.ini",
+  "setup.inx",
+  "Temp",
+  "VirtualTrees",
+  "_disc"
+ ],
+ "dl_Dedicated_DefaultCoop.log": 10892,
+ "dl_SeriousSam.log": 8618,
+ "dl_PersistentSymbols": 15024,
+ "dl_Game_startup": 272,
+ "dl_pl_Player0.plr": 71,
+ "dl_pl_Player1.plr": 68,
+ "dl_pl_Player2.plr": 68,
+ "dl_pl_Player3.plr": 68,
+ "dl_pl_Player4.plr": 68,
+ "dl_pl_Player5.plr": 68,
+ "dl_pl_Player6.plr": 68,
+ "dl_pl_Player7.plr": 68,
+ "dl_data_DedicatedServer.gms": 717,
+ "dl_data_SeriousSam.gms": 717,
+ "fleetmp": [
+  "cs.bat",
+  "q2.bat",
+  "q3.bat",
+  "ssam-tfe.bat",
+  "ssam-tse.bat",
+  "ut2004.bat",
+  "ut99.bat"
+ ],
+ "dl_fleetmp_bat": 104,
+ "mounter C:\\Program Files\\D-Tools": [
+  "daemon.exe",
+  "Help",
+  "Icons",
+  "Lang",
+  "pfctoc.dll",
+  "Plugins"
+ ],
+ "mounter C:\\Program Files\\DAEMON Tools": [],
+ "mounter C:\\Program Files\\DAEMON Tools Lite": [],
+ "mounter C:\\Program Files\\WinCDEmu": [],
+ "procs": [
+  "ADeck.exe",
+  "BDARemote.exe",
+  "CTHELPER.EXE",
+  "Core.exe",
+  "MsMpEng.exe",
+  "System",
+  "WindowsSearch.exe",
+  "[System Process]",
+  "alg.exe",
+  "ati2evxx.exe",
+  "csrss.exe",
+  "ctfmon.exe",
+  "daemon.exe",
+  "explorer.exe",
+  "lsass.exe",
+  "msmsgs.exe",
+  "msseces.exe",
+  "raid_tool.exe",
+  "retro_agent.exe",
+  "retro_chat.exe",
+  "rundll32.exe",
+  "searchindexer.exe",
+  "services.exe",
+  "smss.exe",
+  "spoolsv.exe",
+  "ssstars.scr",
+  "svchost.exe",
+  "winlogon.exe",
+  "wscntfy.exe"
+ ],
+ "regread_d347bus": "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Services\\\\d347bus\",\"values\":[{\"name\":\"Type\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"Start\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"ErrorControl\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"Tag\",\"type\":\"REG_DWORD\",\"data\":7},{\"name\":\"ImagePath\",\"type\":\"REG_EXPAN",
+ "gameres": "{\"panel\":{\"edid\":true,\"name\":\"DELL E2313H\",\"pnpid\":\"DELF044\",\"type\":\"LCD\",\"digital\":false,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"51x29\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":60,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1280x960\",\"aspect\":\"16:9\",\"hz\":60,\"hz_four_three\":75,\"hz_q2\":75,\"hz_q3\":75,\"hz_q2wide\":60,\"hz_src\":\"edid\",\"hz_desktop\":60,\"hz_launcher\":60,\"fov\":106,\"q2mode\":8,\"q2wide\":9,\"q3mode\":7,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"320x200@75\",\"320x240@75\",\"400x300@75\",\"512x384@75\",\"640x400@75\",\"640x480@75\",\"720x480@70\",\"720x576@75\",\"800x480@70\",\"800x600@75\",\"848x480@75\",\"1024x768@75\",\"1152x864@75\",\"1280x720@75\",\"1280x768@75\",\"1280x800@60\",\"1280x960@75\",\"1280x1024@75\",\"1360x768@75\",\"1360x1024@75\",\"1440x900@75\",\"1680x1050@60\",\"1920x1080@60\"],\"rules\":83}"
+}

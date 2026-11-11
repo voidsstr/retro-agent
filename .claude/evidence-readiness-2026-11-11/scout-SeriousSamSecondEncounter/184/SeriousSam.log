@@ -1,0 +1,626 @@
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.5
+
+Executable: C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe
+Assumed engine directory: C:\Games\SeriousSamSecondEncounter\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 5.1, build 2600
+  Misc: Service Pack 3
+
+Detecting CPU...
+  Vendor: GenuineIntel
+  Type: 0, Family: 6, Model: 8, Stepping: 3
+  MMX : Yes
+  CMOV: Yes
+  Clock: 845MHz
+
+Global memory status...
+  Physical memory used:  158/ 511MB
+  Page file used:        111/1247MB
+  Virtual memory used:    28/2047MB
+  Memory load:  30%
+  Process working set: 0MB-1MB
+
+Cannot load variable from 'DefaultMod.txt':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\DefaultMod.txt' (No such file or directory) ()
+Current mod: <none>
+Loading group files...
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Music.gro: 43 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Levels.gro: 49 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_ExtraTools.gro: 1044 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Extra.gro: 107 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00.gro: 3142 files
+  D:\Install\SE1_00_Music.gro: 43 files
+  D:\Install\SE1_00_Levels.gro: 49 files
+  D:\Install\SE1_00_ExtraTools.gro: 1044 files
+  D:\Install\SE1_00_Extra.gro: 107 files
+  D:\Install\SE1_00.gro: 3142 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1024x768
+  Virtual screen: 1024x768
+  Monitors directly reported: 1
+
+Current display: 'NV4_DISP' version 1025 - 1024x768x32
+
+Initializing sound...
+  vorbisfile.dll loaded, ogg playing enabled
+MPX playing disabled: Cannot load amp11lib.dll.
+  Detected devices: 1
+    device 0: Sound Blaster AWE64
+      ver: 1290, id: 1.100
+      form: 0x000bffff, ch: 65535, support: 0x0000002c
+
+IFeel mouse not found.
+Command line: ''
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'C:\Games\SeriousSamSecondEncounter\Bin\GameMP.dll'...
+Scripts\Game_startup.ini(7): Identifier 'gfx_iRefreshRate' is not declared
+Scripts\Game_startup.ini(7): Cannot assign: different types
+Setting sound format ...
+Direct Sound initialization ...
+  ! EAX error: Cannot query property support.
+Direct Sound initialization ...
+  44100Hz, 16bit, default device, mix-ahead: 0.2s
+  mixer buffer size:  34 KB
+  decode buffer size: 34 KB
+  EAX: Disabled
+
+Cannot load variable from 'Data\Var\ModName.var':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Data\Var\ModName.var' (No such file or directory) ()
+Serious Sam version: v1.05
+Active mod: -   T H E   F I R S T   E N C O U N T E R   -
+Reading levels directory...
+  file 'Levels\LevelsMP\1_0_InTheLastEpisode.wld' : 'In the last episode' spawn=0x0001000f
+  file 'Levels\LevelsMP\1_1_Palenque.wld' : 'Sierra de Chiapas' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_2_Palenque.wld' : 'Valley of the Jaguar' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_3_Teotihuacan.wld' : 'The City of the Gods' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_4_Teotihuacan.wld' : 'Serpent Yards' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_5_Teotihuacan.wld' : 'The Pit' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_1_Ziggurrat.wld' : 'Ziggurat' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_2_Persepolis.wld' : 'The Elephant Atrium' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_3_Persepolis.wld' : 'Courtyards of Gilgamesh' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_4_TowerOfBabylon.wld' : 'Tower of Babel' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_1_GothicCastle.wld' : 'The Citadel' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_2_LandOfDamned.wld' : 'Land of the Damned' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_3_CorridorOfDeath.wld' : 'The Grand Cathedral' spawn=0x0005000f
+  file 'Levels\LevelsMP\Deathmatch\DM_LittleTrouble.wld' : 'Little Trouble' spawn=0x0072016f
+  file 'Levels\LevelsMP\Deathmatch\DM_TheLostTomb.wld' : 'The Lost Tomb' spawn=0x019a0090
+  file 'Levels\LevelsMP\Deathmatch\Fortress.wld' : 'Fortress' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\Hole.wld' : 'Hole' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\KuntaKinte.wld' : 'Compound' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\RedStation.wld' : 'Red Station' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\WeGotSkullsNBonesToo.wld' : 'We Got Skulls'n'Bones Too' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\Yodeller.wld' : 'Yodeller' spawn=0x00020000
+  file 'Levels\LevelsMP\Intro.wld' : 'Intro' spawn=0x0001000f
+  file 'Levels\LevelsMP\Technology\TechTest.wld' : 'Technology Test' spawn=0x0001000f
+Reading demos directory...
+  Demos\auto-demo0001.dem
+  Demos\auto-demo0002.dem
+  Demos\auto-demo0003.dem
+  Demos\auto-demoMP0001.dem
+  Demos\auto-demoMP0002.dem
+  Levels\Intro.wld
+
+* START NEW DISPLAY MODE ...
+  Starting display mode: 1024x768xdesktop (fullscreen)
+  CDS: mode set to 1024x768x0
+
+Pixel Format Description:
+  Number:     7 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER SWAP_EXCHANGE 
+  Color bits: 32 (8:8:8:0)
+  Depth bits: 24 (0 for stencil)
+
+
+* OpenGL context created: *----------------------------------
+  (NVIDIA Corporation, GeForce2 GTS/AGP/SSE, 1.5.3)
+
+All textures reloaded.
+
+Automatic 3D-board preferences adjustment...
+Detected: NVIDIA Corporation - GeForce2 GTS/AGP/SSE - 1.5.3
+Matching: *GeForce*2* (nVidia GeForce2)
+Similar to last, keeping same preferences.
+Starting session: 'Levels\Intro.wld'
+  level: 'Levels\Intro.wld'
+  spawnflags: 0008ffff
+  max players: 1
+  waiting: 0
+  network is off
+Cannot start game:
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Levels\Intro.wld' (No such file or directory) ()
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25600
+  opened socket: 
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Joining session at: '192.168.1.132'
+  joined
+Adding player: '^oArchoN^r'
+  done.
+^oArchoN^r cut ^oPlayer 0^r into pieces
+^oToaster^r blew ^oPlayer 0^r away
+^oToaster^r blew ^oXypher Orion^r away
+^oToaster^r blew ^oArchoN^r away
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+
+* START NEW DISPLAY MODE ...
+  Starting display mode: 1024x768xdesktop (fullscreen)
+  CDS: mode reset to original desktop settings
+  CDS: mode set to 1024x768x0
+
+Pixel Format Description:
+  Number:     7 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER SWAP_EXCHANGE 
+  Color bits: 32 (8:8:8:0)
+  Depth bits: 24 (0 for stencil)
+
+
+* OpenGL context created: *----------------------------------
+  (NVIDIA Corporation, GeForce2 GTS/AGP/SSE, 1.5.3)
+
+All textures reloaded.
+
+Automatic 3D-board preferences adjustment...
+Detected: NVIDIA Corporation - GeForce2 GTS/AGP/SSE - 1.5.3
+Matching: *GeForce*2* (nVidia GeForce2)
+Different than last, applying new preferences.
+Mode: quality
+GLSET: Initial setup.
+All models reloaded.
+GLSET: Quality video preferences.
+All textures reloaded.
+All shadows uncached.
+Done.
+
+
+* START NEW DISPLAY MODE ...
+  Starting display mode: 1024x768xdesktop (fullscreen)
+  CDS: mode reset to original desktop settings
+  CDS: mode set to 1024x768x0
+
+Pixel Format Description:
+  Number:     7 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER SWAP_EXCHANGE 
+  Color bits: 32 (8:8:8:0)
+  Depth bits: 24 (0 for stencil)
+
+
+* OpenGL context created: *----------------------------------
+  (NVIDIA Corporation, GeForce2 GTS/AGP/SSE, 1.5.3)
+
+All textures reloaded.
+
+Automatic 3D-board preferences adjustment...
+Detected: NVIDIA Corporation - GeForce2 GTS/AGP/SSE - 1.5.3
+Matching: *GeForce*2* (nVidia GeForce2)
+Different than last, applying new preferences.
+Mode: normal
+GLSET: Initial setup.
+GLSET: Normal video preferences.
+All textures reloaded.
+All shadows uncached.
+Done.
+
+^oToaster^r blew himself away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r poured lead into ^oToaster^r
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oToaster^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r blew ^oToaster^r away
+All textures reloaded.
+All shadows uncached.
+All shadows uncached.
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oToaster^r
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oPlayer 0^r blew ^oArchoN^r away
+^oPlayer 0^r blew ^oToaster^r away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oArchoN^r poured lead into ^oToaster^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oToaster^r away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oToaster^r blew ^oPlayer 0^r away
+^oPlayer 0^r left
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oArchoN^r passed away
+^oToaster^r poured lead into ^oArchoN^r
+^oToaster^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r joined
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r poured lead into ^oToaster^r
+^oPlayer 0^r poured lead into ^oToaster^r
+^oXypher Orion^r cut ^oPlayer 0^r into pieces
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oToaster^r blew ^oXypher Orion^r away
+^oArchoN^r poured lead into ^oToaster^r
+^oToaster^r cut ^oPlayer 0^r into pieces
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r left
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oToaster^r
+^oPlayer 0^r poured lead into ^oToaster^r
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+Server: ^o^cFFFFFFThe level is finished, going to next level in 20 seconds^r
+^oXypher Orion^r left
+stopping game.
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Joining session at: '192.168.1.132'
+Cannot join game:
+Timeout while waiting for data
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Joining session at: '192.168.1.132'
+  joined
+Adding player: '^oArchoN^r'
+  done.
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r blew himself away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r blew himself away
+^oXypher Orion^r blew ^oToaster^r away
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oArchoN^r away
+^oArchoN^r blew himself away
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oXypher Orion^r blew ^oToaster^r away
+^oXypher Orion^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oArchoN^r blew ^oToaster^r away
+^oXypher Orion^r blew himself away
+^oXypher Orion^r blew ^oArchoN^r away
+^oPlayer 0^r blew ^oToaster^r away
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oXypher Orion^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oPlayer 0^r blew himself away
+^oPlayer 0^r poured lead into ^oToaster^r
+^oXypher Orion^r poured lead into ^oPlayer 0^r
+^oArchoN^r blew himself away
+^oXypher Orion^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew himself away
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oToaster^r blew ^oXypher Orion^r away
+^oArchoN^r blew ^oXypher Orion^r away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oToaster^r blew ^oXypher Orion^r away
+^oToaster^r blew himself away
+^oArchoN^r blew himself away
+^oXypher Orion^r cut ^oPlayer 0^r into pieces
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r cut ^oToaster^r into pieces
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oToaster^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r blew ^oArchoN^r away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew himself away
+^oPlayer 0^r blew ^oPlayer 0^r away
+^oArchoN^r blew himself away
+^oXypher Orion^r poured lead into ^oToaster^r
+^oPlayer 0^r blew himself away
+^oToaster^r poured lead into ^oXypher Orion^r
+^oToaster^r blew himself away
+^oArchoN^r blew ^oPlayer 0^r away
+^oArchoN^r blew himself away
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oXypher Orion^r cut ^oPlayer 0^r into pieces
+^oToaster^r blew ^oPlayer 0^r away
+^oPlayer 0^r blew himself away
+^oXypher Orion^r cut ^oArchoN^r into pieces
+^oXypher Orion^r cut ^oToaster^r into pieces
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oArchoN^r poured lead into ^oToaster^r
+^oPlayer 0^r blew himself away
+^oXypher Orion^r blew ^oArchoN^r away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r blew ^oArchoN^r away
+^oXypher Orion^r blew himself away
+^oArchoN^r poured lead into ^oToaster^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oArchoN^r away
+^oXypher Orion^r blew ^oToaster^r away
+^oPlayer 0^r blew ^oArchoN^r away
+^oXypher Orion^r blew ^oToaster^r away
+^oToaster^r blew ^oXypher Orion^r away
+^oArchoN^r blew ^oToaster^r away
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oPlayer 0^r poured lead into ^oToaster^r
+^oPlayer 7^r joined
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r blew himself away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 7^r
+^oToaster^r blew ^oXypher Orion^r away
+^oArchoN^r poured lead into ^oToaster^r
+^oPlayer 0^r blew himself away
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oToaster^r blew himself away
+^oXypher Orion^r blew ^oPlayer 7^r away
+^oPlayer 0^r swashed
+^oPlayer 0^r blew ^oArchoN^r away
+^oToaster^r blew himself away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oPlayer 7^r away
+^oPlayer 0^r joined
+^oPlayer 0^r blew himself away
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oXypher Orion^r blew ^oArchoN^r away
+Server: ^o^cFFFFFFThe level is finished, going to next level in 20 seconds^r
+^oPlayer 0^r left
+stopping game.
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Joining session at: '192.168.1.132'
+  joined
+Adding player: '^oArchoN^r'
+  done.
+^oPlayer 0^r joined
+^oArchoN^r telefragged ^oPlayer 0^r
+^oArchoN^r telefragged ^oPlayer 0^r
+^oPlayer 0^r joined
+^oPlayer 0^r telefragged ^oToaster^r
+^oPlayer 0^r is now known as ^oJabyBesus^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oJabyBesus^r telefragged ^oPlayer 0^r
+^oXypher Orion^r cut ^oPlayer 0^r into pieces
+^oXypher Orion^r poured lead into ^oPlayer 7^r
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r blew ^oPlayer 0^r away
+^oPlayer 0^r left
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r poured lead into ^oToaster^r
+^oXypher Orion^r poured lead into ^oJabyBesus^r
+^oToaster^r blew himself away
+^oXypher Orion^r poured lead into ^oArchoN^r
+^oJabyBesus^r blew ^oArchoN^r away
+^oJabyBesus^r blew ^oXypher Orion^r away
+^oXypher Orion^r blew himself away
+^oJabyBesus^r blew ^oArchoN^r away
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oXypher Orion^r poured lead into ^oJabyBesus^r
+^oToaster^r left
+All textures reloaded.
+All shadows uncached.
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oXypher Orion^r blew ^oArchoN^r away
+^oJabyBesus^r blew ^oXypher Orion^r away
+^oJabyBesus^r blew ^oArchoN^r away
+^oArchoN^r blew ^oJabyBesus^r away
+^oJabyBesus^r blew ^oPlayer 0^r away
+^oPlayer 0^r blew ^oPlayer 7^r away
+^oXypher Orion^r blew ^oArchoN^r away
+^oPlayer 0^r blew ^oPlayer 0^r away
+^oJabyBesus^r blew ^oPlayer 0^r away
+^oXypher Orion^r blew ^oPlayer 7^r away
+^oPlayer 0^r blew ^oPlayer 0^r away
+^oPlayer 0^r blew himself away
+^oJabyBesus^r blew ^oXypher Orion^r away
+^oJabyBesus^r blew ^oPlayer 7^r away
+^oArchoN^r blew himself away
+^oPlayer 0^r blew himself away
+^oPlayer 7^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r blew ^oPlayer 7^r away
+^oJabyBesus^r blew ^oXypher Orion^r away
+^oArchoN^r poured lead into ^oPlayer 7^r
+^oJabyBesus^r blew ^oPlayer 7^r away
+^oPlayer 0^r blew ^oArchoN^r away
+^oPlayer 0^r poured lead into ^oPlayer 7^r
+^oPlayer 0^r blew himself away
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oXypher Orion^r blew ^oPlayer 7^r away
+^oXypher Orion^r blew himself away
+^oJabyBesus^r blew ^oArchoN^r away
+^oPlayer 0^r poured lead into ^oArchoN^r
+^oPlayer 0^r poured lead into ^oPlayer 0^r
+^oPlayer 7^r blew ^oPlayer 0^r away
+^oPlayer 7^r poured lead into ^oArchoN^r
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oXypher Orion^r blew ^oArchoN^r away
+^oArchoN^r poured lead into ^oJabyBesus^r
+^oXypher Orion^r blew himself away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oArchoN^r away
+^oXypher Orion^r blew himself away
+^oArchoN^r blew himself away
+^oJabyBesus^r blew ^oArchoN^r away
+^oXypher Orion^r poured lead into ^oPlayer 0^r
+^oPlayer 0^r blew ^oArchoN^r away
+^oArchoN^r poured lead into ^oJabyBesus^r
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oXypher Orion^r blew ^oArchoN^r away
+^oXypher Orion^r blew himself away
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oPlayer 7^r poured lead into ^oArchoN^r
+^oPlayer 7^r poured lead into ^oXypher Orion^r
+^oPlayer 0^r blew ^oJabyBesus^r away
+^oArchoN^r blew ^oPlayer 0^r away
+^oPlayer 0^r blew ^oPlayer 7^r away
+^oArchoN^r blew ^oPlayer 0^r away
+^oArchoN^r blew ^oJabyBesus^r away
+^oArchoN^r blew ^oPlayer 0^r away
+^oJabyBesus^r poured lead into ^oPlayer 7^r
+^oPlayer 0^r is now known as ^oCarter^r
+^oJabyBesus^r poured lead into ^oArchoN^r
+^oArchoN^r blew ^oPlayer 0^r away
+^oPlayer 7^r poured lead into ^oJabyBesus^r
+^oArchoN^r blew ^oXypher Orion^r away
+^oCarter^r now appears as Santa Sam
+^oJabyBesus^r blew ^oCarter^r away
+^oXypher Orion^r cut ^oPlayer 7^r into pieces
+^oCarter^r blew himself away
+^oXypher Orion^r blew ^oArchoN^r away
+^oXypher Orion^r blew himself away
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oXypher Orion^r cut ^oCarter^r into pieces
+^oArchoN^r poured lead into ^oPlayer 7^r
+^oPlayer 0^r poured lead into ^oXypher Orion^r
+^oJabyBesus^r blew himself away
+^oXypher Orion^r blew ^oArchoN^r away
+^oPlayer 0^r blew ^oXypher Orion^r away
+^oPlayer 7^r poured lead into ^oJabyBesus^r
+^oPlayer 7^r poured lead into ^oArchoN^r
+^oPlayer 0^r blew ^oPlayer 7^r away
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oXypher Orion^r blew ^oArchoN^r away
+^oPlayer 7^r blew himself away
+^oArchoN^r blew himself away
+^oXypher Orion^r blew himself away
+^oPlayer 7^r poured lead into ^oJabyBesus^r
+^oXypher Orion^r blew ^oPlayer 0^r away
+^oCarter^r poured lead into ^oPlayer 0^r
+^oXypher Orion^r blew ^oPlayer 7^r away
+^oPlayer 0^r left
+^oCarter^r poured lead into ^oXypher Orion^r
+^oArchoN^r blew ^oCarter^r away
+^oXypher Orion^r blew ^oCarter^r away
+^oCarter^r left
+^oArchoN^r blew ^oJabyBesus^r away
+^oArchoN^r blew ^oPlayer 7^r away
+^oArchoN^r blew ^oXypher Orion^r away
+^oPlayer 7^r poured lead into ^oXypher Orion^r
+^oXypher Orion^r poured lead into ^oPlayer 7^r
+^oXypher Orion^r poured lead into ^oArchoN^r
+Server: ^o^cFFFFFFThe level is finished, going to next level in 20 seconds^r
+stopping game.
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.184)
+  port: 25610
+  opened socket: 
+Joining session at: '192.168.1.132'
+  joined
+Adding player: '^oArchoN^r'
+  done.
+^oJabyBesus^r cut ^oPlayer 0^r into pieces
+^oArchoN^r poured lead into ^oPlayer 0^r
+^oArchoN^r poured lead into ^oPlayer 7^r
+^oPlayer 7^r left
+^oPlayer 0^r left
+^oArchoN^r blew ^oXypher Orion^r away
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oXypher Orion^r poured lead into ^oArchoN^r
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+^oJabyBesus^r was squashed
+^oJabyBesus^r poured lead into ^oXypher Orion^r
+^oXypher Orion^r poured lead into ^oArchoN^r
+^oXypher Orion^r poured lead into ^oJabyBesus^r
+^oJabyBesus^r cut ^oXypher Orion^r into pieces
+^oJabyBesus^r poured lead into ^oXypher Orion^r
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oJabyBesus^r blew ^oArchoN^r away
+^oArchoN^r poured lead into ^oJabyBesus^r
+^oArchoN^r blew himself away
+^oJabyBesus^r poured lead into ^oArchoN^r
+^oXypher Orion^r poured lead into ^oArchoN^r
+^oXypher Orion^r poured lead into ^oJabyBesus^r
+^oJabyBesus^r poured lead into ^oArchoN^r
+^oXypher Orion^r poured lead into ^oJabyBesus^r
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oJabyBesus^r blew ^oXypher Orion^r away
+^oArchoN^r poured lead into ^oXypher Orion^r
+^oArchoN^r poured lead into ^oJabyBesus^r
+^oArchoN^r blew ^oXypher Orion^r away
+^oXypher Orion^r cut ^oJabyBesus^r into pieces
+^oXypher Orion^r cut ^oArchoN^r into pieces
+^oXypher Orion^r left
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+Cannot load variable from 'Scripts\NetSettings\LAN.des':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Scripts\NetSettings\LAN.des' (No such file or directory) ()
+stopping game.
+Renderer buffers cleared.
+  CDS: mode reset to original desktop settings

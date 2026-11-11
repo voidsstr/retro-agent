@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"System\\CurrentControlSet\\Services\\Class\\MEDIA\\0000\\DirectSound","values":[],"subkeys":["Speaker Configuration"]}

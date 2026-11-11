@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce","values":[],"subkeys":[]}

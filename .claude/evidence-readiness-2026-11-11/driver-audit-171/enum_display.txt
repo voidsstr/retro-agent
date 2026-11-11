@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Enum\\DISPLAY","values":[],"subkeys":["Default_Monitor","DELF044","EPID995","GWY0460"]}

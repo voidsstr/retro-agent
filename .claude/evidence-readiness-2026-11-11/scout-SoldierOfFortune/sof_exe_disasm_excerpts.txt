@@ -1,0 +1,873 @@
+# SoF.exe (md5 b4ed42272887b16a8ecdb92c919a507d, 2,052,096 B, image base 0x20000000) - raw capstone excerpts, produced by tools/q.py
+
+## CL_SendConnectPacket: connect %i %i %i %d %4.2f "%s" - the %4.2f is (int)CDTOKEN() * pi (0x2017f708 = 3.14159)
+>> 2000af67: mov ecx, dword ptr [0x2053da90]
+   2000af6d: call 0x200ff7e0
+   2000af72: test al, al
+   2000af74: jne 0x2000afaf
+   2000af76: mov dword ptr [0x20257204], ebx
+   2000af7c: mov dword ptr [0x20257158], 1
+   2000af86: push 0xfffffa1a
+   2000af8b: call 0x200fde50
+   2000af90: push eax
+   2000af91: push 0x201a9cdc   ; "menu_won_error"
+   2000af96: call 0x20024830
+   2000af9b: push 0x201a9cac   ; "set menu_rejected a_rejected3;menu rejected
+"
+   2000afa0: call 0x200196d0
+   2000afa5: add esp, 0x10
+   2000afa8: pop edi
+   2000afa9: pop esi
+   2000afaa: pop ebx
+   2000afab: add esp, 0x1c
+   2000afae: ret 
+   2000afaf: push 0x201a9ca4   ; "qport"
+   2000afb4: call 0x20023bf0
+   2000afb9: call 0x201501e8
+   2000afbe: mov esi, eax
+   2000afc0: mov dword ptr [0x202e0258], ebx
+   2000afc6: call 0x2006bcb0
+   2000afcb: mov dword ptr [esp + 0x14], eax
+   2000afcf: push 2
+   2000afd1: fild dword ptr [esp + 0x18]
+   2000afd5: fmul qword ptr [0x2017f708]
+   2000afdb: fstp dword ptr [0x20257170]
+   2000afe1: call 0x200254c0
+   2000afe6: fld dword ptr [0x20257170]
+   2000afec: add esp, 8
+   2000afef: mov ecx, dword ptr [0x2025f654]
+   2000aff5: push eax
+   2000aff6: mov eax, dword ptr [0x2025f65c]
+   2000affb: sub esp, 8
+   2000affe: fstp qword ptr [esp]
+   2000b001: push eax
+   2000b002: push ecx
+   2000b003: push esi
+   2000b004: push 0x1f
+   2000b006: push 0x201a9c84   ; "connect %i %i %i %d %4.2f "%s"
+"
+   2000b00b: mov ecx, 5
+   2000b010: sub esp, 0x14
+   2000b013: lea esi, [esp + 0x48]
+   2000b017: mov edi, esp
+   2000b019: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2000b01b: push ebx
+   2000b01c: call 0x20051000
+   2000b021: add esp, 0x38
+------------------------------------------------------------
+
+## CDTOKEN() 0x2006bcb0: open <exe dir>\FFC11.DLL (CreateFileA OPEN_EXISTING) - absent -> return 0
+>> 2006bcb0: sub esp, 0x534
+   2006bcb6: push ebx
+   2006bcb7: push ebp
+   2006bcb8: push esi
+   2006bcb9: push edi
+   2006bcba: push 0x3a
+   2006bcbc: push 0x201c6df8   ; "FFC11.DLL"
+   2006bcc1: call 0x20152a77
+   2006bcc6: add esp, 8
+   2006bcc9: xor ebx, ebx
+   2006bccb: test eax, eax
+   2006bccd: jne 0x2006bd48
+   2006bccf: lea eax, [esp + 0x40]
+   2006bcd3: push 0x104
+   2006bcd8: push eax
+   2006bcd9: push ebx
+   2006bcda: call dword ptr [0x2017f1ac]
+   2006bce0: lea ecx, [esp + 0x40]
+   2006bce4: push 0x5c
+   2006bce6: push ecx
+   2006bce7: call 0x20152a17
+   2006bcec: mov byte ptr [eax], bl
+   2006bcee: mov edi, 0x201aac44   ; "\"
+   2006bcf3: or ecx, 0xffffffff
+   2006bcf6: xor eax, eax
+   2006bcf8: add esp, 8
+   2006bcfb: lea edx, [esp + 0x40]
+   2006bcff: repne scasb al, byte ptr es:[edi]
+   2006bd01: not ecx
+   2006bd03: sub edi, ecx
+   2006bd05: mov esi, edi
+   2006bd07: mov ebp, ecx
+   2006bd09: mov edi, edx
+   2006bd0b: or ecx, 0xffffffff
+   2006bd0e: repne scasb al, byte ptr es:[edi]
+   2006bd10: mov ecx, ebp
+   2006bd12: dec edi
+   2006bd13: shr ecx, 2
+   2006bd16: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2006bd18: mov ecx, ebp
+   2006bd1a: lea edx, [esp + 0x40]
+   2006bd1e: and ecx, 3
+   2006bd21: rep movsb byte ptr es:[edi], byte ptr [esi]
+   2006bd23: mov edi, 0x201c6df8   ; "FFC11.DLL"
+   2006bd28: or ecx, 0xffffffff
+   2006bd2b: repne scasb al, byte ptr es:[edi]
+   2006bd2d: not ecx
+   2006bd2f: sub edi, ecx
+   2006bd31: mov esi, edi
+   2006bd33: mov ebp, ecx
+   2006bd35: mov edi, edx
+   2006bd37: or ecx, 0xffffffff
+   2006bd3a: repne scasb al, byte ptr es:[edi]
+   2006bd3c: mov ecx, ebp
+   2006bd3e: dec edi
+   2006bd3f: shr ecx, 2
+   2006bd42: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2006bd44: mov ecx, ebp
+   2006bd46: jmp 0x2006bd69
+   2006bd48: mov edi, 0x201c6df8   ; "FFC11.DLL"
+   2006bd4d: or ecx, 0xffffffff
+   2006bd50: xor eax, eax
+   2006bd52: lea edx, [esp + 0x40]
+   2006bd56: repne scasb al, byte ptr es:[edi]
+   2006bd58: not ecx
+   2006bd5a: sub edi, ecx
+   2006bd5c: mov eax, ecx
+   2006bd5e: mov esi, edi
+   2006bd60: mov edi, edx
+   2006bd62: shr ecx, 2
+   2006bd65: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2006bd67: mov ecx, eax
+   2006bd69: and ecx, 3
+   2006bd6c: push ebx
+   2006bd6d: push ebx
+   2006bd6e: push 3
+   2006bd70: rep movsb byte ptr es:[edi], byte ptr [esi]
+   2006bd72: push ebx
+   2006bd73: push 1
+   2006bd75: lea ecx, [esp + 0x54]
+   2006bd79: push 0x80000000
+   2006bd7e: push ecx
+   2006bd7f: call dword ptr [0x2017f1a8]
+   2006bd85: mov esi, eax
+   2006bd87: cmp esi, -1
+   2006bd8a: je 0x2006be47
+   2006bd90: mov ebp, dword ptr [0x2017f1a4]
+   2006bd96: lea edx, [esp + 0x10]
+   2006bd9a: push ebx
+   2006bd9b: push edx
+   2006bd9c: lea eax, [esp + 0x30]
+   2006bda0: push 4
+   2006bda2: push eax
+   2006bda3: push esi
+   2006bda4: call ebp
+   2006bda6: mov ecx, dword ptr [esp + 0x28]
+   2006bdaa: push ebx
+   2006bdab: push ebx
+   2006bdac: push ecx
+   2006bdad: push esi
+   2006bdae: call dword ptr [0x2017f1a0]
+   2006bdb4: lea edx, [esp + 0x10]
+   2006bdb8: push ebx
+   2006bdb9: push edx
+   2006bdba: lea eax, [esp + 0x34]
+   2006bdbe: push 4
+   2006bdc0: push eax
+   2006bdc1: push esi
+   2006bdc2: call ebp
+   2006bdc4: mov eax, dword ptr [esp + 0x2c]
+   2006bdc8: cmp eax, 4
+   2006bdcb: mov edi, eax
+   2006bdcd: jb 0x2006be54
+   2006bdd3: test al, 3
+   2006bdd5: jne 0x2006be54
+   2006bdd7: cmp eax, 0x200
+   2006bddc: ja 0x2006be54
+   2006bdde: lea ecx, [esp + 0x10]
+   2006bde2: push ebx
+   2006bde3: push ecx
+   2006bde4: lea edx, [esp + 0x14c]
+   2006bdeb: push eax
+   2006bdec: push edx
+   2006bded: push esi
+   2006bdee: call ebp
+   2006bdf0: push esi
+   2006bdf1: call dword ptr [0x2017f19c]
+   2006bdf7: cmp dword ptr [esp + 0x10], edi
+   2006bdfb: jb 0x2006be47
+   2006bdfd: mov eax, edi
+   2006bdff: shr eax, 2
+   2006be02: mov dword ptr [esp + 0x144], eax
+   2006be09: call 0x20001fe0
+   2006be0e: lea esi, [edi - 4]
+   2006be11: xor ecx, ecx
+   2006be13: cmp esi, ebx
+   2006be15: mov ebp, eax
+   2006be17: jbe 0x2006be3c
+   2006be19: mov eax, ecx
+   2006be1b: xor edx, edx
+   2006be1d: mov edi, 0x190
+   2006be22: div edi
+   2006be24: mov al, byte ptr [esp + ecx + 0x148]
+   2006be2b: mov dl, byte ptr [edx + ebp]
+   2006be2e: xor al, dl
+   2006be30: mov byte ptr [esp + ecx + 0x148], al
+   2006be37: inc ecx
+   2006be38: cmp ecx, esi
+   2006be3a: jb 0x2006be19
+   2006be3c: lea eax, [esp + 0x144]
+   2006be43: test eax, eax
+------------------------------------------------------------
+
+## CDTOKEN() tail: per DRIVE_CDROM (GetDriveTypeA==5) MCI cdaudio TOC vs FFC11 block; success returns 1
+>> 2006be68: mov edi, dword ptr [0x2017f2d4]
+   2006be6e: push ebx
+   2006be6f: push 0x201c6de4   ; "SJE_CdPlayerClass"
+   2006be74: xor esi, esi
+   2006be76: call edi
+   2006be78: cmp eax, ebx
+   2006be7a: je 0x2006be9b
+   2006be7c: mov ebp, dword ptr [0x2017f2d8]
+   2006be82: cmp esi, 0x64
+   2006be85: jge 0x2006be9b
+   2006be87: push ebx
+   2006be88: push ebx
+   2006be89: push 0x10
+   2006be8b: push eax
+   2006be8c: call ebp
+   2006be8e: push ebx
+   2006be8f: push 0x201c6de4   ; "SJE_CdPlayerClass"
+   2006be94: inc esi
+   2006be95: call edi
+   2006be97: cmp eax, ebx
+   2006be99: jne 0x2006be82
+   2006be9b: mov ebp, dword ptr [0x2017f168]
+   2006bea1: mov edi, dword ptr [0x2017f344]
+   2006bea7: mov dword ptr [esp + 0x10], ebx
+   2006beab: mov cl, byte ptr [esp + 0x10]
+   2006beaf: lea edx, [esp + 0x40]
+   2006beb3: add cl, 0x41
+   2006beb6: push edx
+   2006beb7: mov byte ptr [esp + 0x44], cl
+   2006bebb: mov byte ptr [esp + 0x45], 0x3a
+   2006bec0: mov byte ptr [esp + 0x46], 0x5c
+   2006bec5: mov byte ptr [esp + 0x47], bl
+   2006bec9: call ebp
+   2006becb: cmp eax, 5
+   2006bece: jne 0x2006bfa3
+   2006bed4: xor eax, eax
+   2006bed6: mov cl, byte ptr [esp + 0x40]
+   2006beda: mov dword ptr [esp + 0x14], eax
+   2006bede: lea edx, [esp + 0x30]
+   2006bee2: mov dword ptr [esp + 0x18], eax
+   2006bee6: mov byte ptr [esp + 0x30], cl
+   2006beea: mov dword ptr [esp + 0x1c], eax
+   2006beee: mov dword ptr [esp + 0x1c], 0x204
+   2006bef6: mov dword ptr [esp + 0x20], eax
+   2006befa: mov byte ptr [esp + 0x31], 0x3a
+   2006beff: mov dword ptr [esp + 0x24], eax
+   2006bf03: lea eax, [esp + 0x14]
+   2006bf07: push eax
+   2006bf08: push 0x3302
+   2006bf0d: push 0x803
+   2006bf12: push ebx
+   2006bf13: mov dword ptr [esp + 0x34], ebx
+   2006bf17: mov byte ptr [esp + 0x42], bl
+   2006bf1b: mov dword ptr [esp + 0x30], edx
+   2006bf1f: mov dword ptr [esp + 0x24], ebx
+   2006bf23: mov dword ptr [esp + 0x28], ebx
+   2006bf27: call edi
+   2006bf29: test eax, eax
+   2006bf2b: jne 0x2006bfa3
+   2006bf2d: mov ecx, dword ptr [esp + 0x18]
+   2006bf31: push 0x3e8
+   2006bf36: lea edx, [esp + 0x348]
+   2006bf3d: push ecx
+   2006bf3e: push edx
+   2006bf3f: call 0x2006bfe0
+   2006bf44: add esp, 0xc
+   2006bf47: mov esi, eax
+   2006bf49: mov eax, dword ptr [esp + 0x18]
+   2006bf4d: push ebx
+   2006bf4e: push 2
+   2006bf50: push 0x808
+   2006bf55: push eax
+   2006bf56: call edi
+   2006bf58: mov ecx, dword ptr [esp + 0x18]
+   2006bf5c: push ebx
+   2006bf5d: push ebx
+   2006bf5e: push 0x804
+   2006bf63: push ecx
+   2006bf64: call edi
+   2006bf66: cmp esi, ebx
+   2006bf68: jne 0x2006bfa3
+   2006bf6a: mov edx, dword ptr [esp + 0x344]
+   2006bf71: mov eax, dword ptr [esp + 0x144]
+   2006bf78: cmp edx, eax
+   2006bf7a: jne 0x2006bfa3
+   2006bf7c: mov eax, 2
+   2006bf81: cmp edx, eax
+   2006bf83: jle 0x2006bf9f
+   2006bf85: xor ecx, ecx
+   2006bf87: mov esi, dword ptr [esp + ecx + 0x34c]
+   2006bf8e: cmp esi, dword ptr [esp + ecx + 0x14c]
+   2006bf95: jne 0x2006bf9f
+   2006bf97: inc eax
+   2006bf98: add ecx, 4
+   2006bf9b: cmp eax, edx
+   2006bf9d: jl 0x2006bf87
+   2006bf9f: cmp eax, edx
+   2006bfa1: je 0x2006bfc2
+   2006bfa3: mov eax, dword ptr [esp + 0x10]
+   2006bfa7: inc eax
+   2006bfa8: cmp eax, 0x1a
+   2006bfab: mov dword ptr [esp + 0x10], eax
+   2006bfaf: jl 0x2006beab
+   2006bfb5: pop edi
+   2006bfb6: pop esi
+   2006bfb7: pop ebp
+   2006bfb8: xor eax, eax
+   2006bfba: pop ebx
+   2006bfbb: add esp, 0x534
+   2006bfc1: ret 
+   2006bfc2: pop edi
+------------------------------------------------------------
+
+## TOC reader 0x2006bfe0: MCI time format ms, track count, per-track length, total length, MCI_PLAY last second must reach MCI_MODE_PLAY (0x20e), total in [4470000,4830000] ms
+>> 2006bfe0: sub esp, 0x28
+   2006bfe3: push ebx
+   2006bfe4: mov ebx, dword ptr [0x2017f344]
+   2006bfea: push ebp
+   2006bfeb: push esi
+   2006bfec: xor eax, eax
+   2006bfee: lea ecx, [esp + 0xc]
+   2006bff2: push edi
+   2006bff3: mov edi, dword ptr [esp + 0x40]
+   2006bff7: mov dword ptr [esp + 0x10], eax
+   2006bffb: push ecx
+   2006bffc: push 0x400
+   2006c001: mov dword ptr [esp + 0x1c], eax
+   2006c005: push 0x80d
+   2006c00a: push edi
+   2006c00b: mov dword ptr [esp + 0x28], eax
+   2006c00f: mov dword ptr [esp + 0x24], eax
+   2006c013: call ebx
+   2006c015: test eax, eax
+   2006c017: je 0x2006c026
+   2006c019: pop edi
+   2006c01a: pop esi
+   2006c01b: pop ebp
+   2006c01c: mov eax, 0x99
+   2006c021: pop ebx
+   2006c022: add esp, 0x28
+   2006c025: ret 
+   2006c026: xor edx, edx
+   2006c028: lea eax, [esp + 0x28]
+   2006c02c: mov dword ptr [esp + 0x28], edx
+   2006c030: push eax
+   2006c031: mov dword ptr [esp + 0x30], edx
+   2006c035: push 0x100
+   2006c03a: mov dword ptr [esp + 0x38], edx
+   2006c03e: push 0x814
+   2006c043: push edi
+   2006c044: mov dword ptr [esp + 0x44], edx
+   2006c048: mov dword ptr [esp + 0x40], 3
+   2006c050: call ebx
+   2006c052: test eax, eax
+   2006c054: je 0x2006c063
+   2006c056: pop edi
+   2006c057: pop esi
+   2006c058: pop ebp
+   2006c059: mov eax, 0xa3
+   2006c05e: pop ebx
+   2006c05f: add esp, 0x28
+   2006c062: ret 
+   2006c063: mov eax, dword ptr [esp + 0x2c]
+   2006c067: mov ebp, dword ptr [esp + 0x3c]
+   2006c06b: cmp eax, 0x80
+   2006c070: mov dword ptr [ebp], eax
+   2006c073: jbe 0x2006c082
+   2006c075: pop edi
+   2006c076: pop esi
+   2006c077: pop ebp
+   2006c078: mov eax, 0xa9
+   2006c07d: pop ebx
+   2006c07e: add esp, 0x28
+   2006c081: ret 
+   2006c082: mov esi, 1
+   2006c087: cmp eax, esi
+   2006c089: jb 0x2006c0d9
+   2006c08b: add ebp, 4
+   2006c08e: xor ecx, ecx
+   2006c090: lea edx, [esp + 0x28]
+   2006c094: mov dword ptr [esp + 0x28], ecx
+   2006c098: push edx
+   2006c099: mov dword ptr [esp + 0x30], ecx
+   2006c09d: push 0x110
+   2006c0a2: mov dword ptr [esp + 0x38], ecx
+   2006c0a6: push 0x814
+   2006c0ab: mov dword ptr [esp + 0x40], ecx
+   2006c0af: push edi
+   2006c0b0: mov dword ptr [esp + 0x40], 1
+   2006c0b8: mov dword ptr [esp + 0x44], esi
+   2006c0bc: call ebx
+   2006c0be: mov ecx, dword ptr [esp + 0x2c]
+   2006c0c2: neg eax
+   2006c0c4: sbb eax, eax
+   2006c0c6: add ebp, 4
+   2006c0c9: not eax
+   2006c0cb: and eax, ecx
+   2006c0cd: inc esi
+   2006c0ce: mov dword ptr [ebp - 4], eax
+   2006c0d1: mov eax, dword ptr [esp + 0x3c]
+   2006c0d5: cmp esi, dword ptr [eax]
+   2006c0d7: jbe 0x2006c08e
+   2006c0d9: lea ecx, [esp + 0x28]
+   2006c0dd: mov dword ptr [esp + 0x30], 1
+   2006c0e5: push ecx
+   2006c0e6: push 0x100
+   2006c0eb: push 0x814
+   2006c0f0: push edi
+   2006c0f1: call ebx
+   2006c0f3: test eax, eax
+   2006c0f5: je 0x2006c104
+   2006c0f7: pop edi
+   2006c0f8: pop esi
+   2006c0f9: pop ebp
+   2006c0fa: mov eax, 0xc4
+   2006c0ff: pop ebx
+   2006c100: add esp, 0x28
+   2006c103: ret 
+   2006c104: mov eax, dword ptr [esp + 0x2c]
+   2006c108: xor edx, edx
+   2006c10a: mov dword ptr [esp + 0x1c], edx
+   2006c10e: mov dword ptr [esp + 0x3c], eax
+   2006c112: mov dword ptr [esp + 0x20], edx
+   2006c116: mov ebp, 4
+   2006c11b: mov dword ptr [esp + 0x24], edx
+   2006c11f: mov edx, dword ptr [esp + 0x44]
+   2006c123: sub eax, edx
+   2006c125: mov dword ptr [esp + 0x20], eax
+   2006c129: lea eax, [esp + 0x1c]
+   2006c12d: push eax
+   2006c12e: push ebp
+   2006c12f: push 0x806
+   2006c134: push edi
+   2006c135: call ebx
+   2006c137: test eax, eax
+   2006c139: je 0x2006c148
+   2006c13b: pop edi
+   2006c13c: pop esi
+   2006c13d: pop ebp
+   2006c13e: mov eax, 0xd2
+   2006c143: pop ebx
+   2006c144: add esp, 0x28
+   2006c147: ret 
+   2006c148: lea ecx, [esp + 0x28]
+   2006c14c: xor esi, esi
+   2006c14e: push ecx
+   2006c14f: push 0x100
+   2006c154: push 0x814
+   2006c159: push edi
+   2006c15a: mov dword ptr [esp + 0x40], ebp
+   2006c15e: call ebx
+   2006c160: test eax, eax
+   2006c162: jne 0x2006c1a4
+   2006c164: mov eax, dword ptr [esp + 0x2c]
+   2006c168: cmp eax, 0x20e
+   2006c16d: je 0x2006c17b
+   2006c16f: push 0x32
+   2006c171: call dword ptr [0x2017f14c]
+   2006c177: mov eax, dword ptr [esp + 0x2c]
+   2006c17b: mov edx, esi
+   2006c17d: inc esi
+   2006c17e: cmp edx, 3
+   2006c181: jge 0x2006c1b1
+   2006c183: cmp eax, 0x20e
+   2006c188: je 0x2006c1c5
+   2006c18a: lea eax, [esp + 0x28]
+   2006c18e: mov dword ptr [esp + 0x30], ebp
+   2006c192: push eax
+   2006c193: push 0x100
+   2006c198: push 0x814
+   2006c19d: push edi
+   2006c19e: call ebx
+   2006c1a0: test eax, eax
+   2006c1a2: je 0x2006c164
+   2006c1a4: pop edi
+   2006c1a5: pop esi
+   2006c1a6: pop ebp
+   2006c1a7: mov eax, 0xde
+   2006c1ac: pop ebx
+   2006c1ad: add esp, 0x28
+   2006c1b0: ret 
+   2006c1b1: cmp eax, 0x20e
+   2006c1b6: je 0x2006c1c5
+   2006c1b8: pop edi
+   2006c1b9: pop esi
+   2006c1ba: pop ebp
+   2006c1bb: mov eax, 0xec
+   2006c1c0: pop ebx
+   2006c1c1: add esp, 0x28
+   2006c1c4: ret 
+   2006c1c5: mov eax, dword ptr [esp + 0x3c]
+   2006c1c9: cmp eax, 0x4434f0
+   2006c1ce: jge 0x2006c1dd
+   2006c1d0: pop edi
+   2006c1d1: pop esi
+   2006c1d2: pop ebp
+   2006c1d3: mov eax, 0xf4
+   2006c1d8: pop ebx
+   2006c1d9: add esp, 0x28
+   2006c1dc: ret 
+   2006c1dd: xor ecx, ecx
+   2006c1df: cmp eax, 0x49b330
+   2006c1e4: setle cl
+   2006c1e7: dec ecx
+   2006c1e8: pop edi
+------------------------------------------------------------
+
+## SV_DirectConnect 0x20062ff0: arg5 = atof(Cmd_Argv(5)) * 0.7407407 (0x2017ff28); stored client+0x2c0 = that * 4.0 (0x2017f478)
+>> 20062ff0: mov eax, 0xd4cc
+   20062ff5: call 0x20150b20
+   20062ffa: push ebx
+   20062ffb: push ebp
+   20062ffc: push esi
+   20062ffd: push edi
+   20062ffe: mov ecx, 5
+   20063003: mov esi, 0x20400f50
+   20063008: lea edi, [esp + 0x10]
+   2006300c: push 0x201c5f30   ; "SVC_DirectConnect ()
+"
+   20063011: rep movsd dword ptr es:[edi], dword ptr [esi]
+   20063013: call 0x2001e070
+   20063018: push 1
+   2006301a: call 0x2001a300
+   2006301f: push eax
+   20063020: call 0x2015029a
+   20063025: mov ebx, eax
+   20063027: add esp, 0xc
+   2006302a: cmp ebx, 0x1f
+   2006302d: je 0x2006306e
+   2006302f: push 0x3ff07ae1
+   20063034: push 0x47ae147b
+   20063039: push 0x201c5f10
+   2006303e: mov ecx, 5
+   20063043: sub esp, 0x14
+   20063046: lea esi, [esp + 0x30]
+   2006304a: mov edi, esp
+   2006304c: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2006304e: push 1
+   20063050: call 0x20051000
+   20063055: push ebx
+   20063056: push 0x201c5ee8   ; "    rejected connect from version %i
+"
+   2006305b: call 0x2001e070
+   20063060: add esp, 0x2c
+   20063063: pop edi
+   20063064: pop esi
+   20063065: pop ebp
+   20063066: pop ebx
+   20063067: add esp, 0xd4cc
+   2006306d: ret 
+   2006306e: push 2
+   20063070: call 0x2001a300
+   20063075: push eax
+   20063076: call 0x2015029a
+   2006307b: push 3
+   2006307d: mov dword ptr [esp + 0x34], eax
+------------------------------------------------------------
+>> 20063617: push 0x201aa268   ; "client_connect"
+   2006361c: mov ecx, 5
+   20063621: sub esp, 0x14
+   20063624: lea esi, [esp + 0x28]
+   20063628: mov edi, esp
+   2006362a: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2006362c: push 1
+   2006362e: call 0x20051000
+   20063633: mov eax, dword ptr [esp + 0x44]
+   20063637: add esp, 0x1c
+   2006363a: mov ecx, 5
+   2006363f: lea esi, [esp + 0x10]
+   20063643: push eax
+   20063644: sub esp, 0x14
+   20063647: mov edi, esp
+   20063649: rep movsd dword ptr es:[edi], dword ptr [esi]
+   2006364b: lea ecx, [ebx + 0x526c]
+   20063651: push ecx
+   20063652: push 1
+   20063654: call 0x200510a0
+   20063659: mov dword ptr [ebx], 2
+   2006365f: mov edx, dword ptr [0x201c2ddc]
+   20063665: lea eax, [ebx + 0x2d8]
+   2006366b: lea esi, [ebx + 0x2c4]
+   20063671: push edx
+   20063672: push eax
+   20063673: push esi
+   20063674: call 0x2001ff40
+   20063679: fld dword ptr [esp + 0x50]
+   2006367d: fmul qword ptr [0x2017f478]
+   20063683: mov byte ptr [esi], 1
+   20063686: mov ecx, dword ptr [0x204cc0a4]
+   2006368c: mov dword ptr [ebx + 0x5264], ecx
+   20063692: mov edx, dword ptr [0x204cc0a4]
+   20063698: lea eax, [esp + 0x5c]
+   2006369c: push 0x1ff
+   200636a1: fstp dword ptr [ebx + 0x2c0]
+   200636a7: lea ecx, [ebx + 4]
+   200636aa: push eax
+   200636ab: push ecx
+   200636ac: mov dword ptr [ebx + 0x5268], edx
+------------------------------------------------------------
+
+## SV_New_f 0x20067770: if client+0x2c0 * 0.4 (0x2017f440) < 1.98 (0x2017ff38): loopback client -> Com_Error(3, SP(0x411)); remote -> SV_DropClient(cl, 0x411)
+>> 20067770: mov eax, dword ptr [0x20535d7c]
+   20067775: sub esp, 0x84
+   2006777b: add eax, 0x29c
+   20067780: push esi
+   20067781: push edi
+   20067782: push eax
+   20067783: push 0x201c67d4
+   20067788: call 0x2001e070
+   2006778d: mov eax, dword ptr [0x20535d7c]
+   20067792: add esp, 8
+   20067795: mov ecx, dword ptr [eax]
+   20067797: fld dword ptr [eax + 0x2c0]
+   2006779d: cmp ecx, 2
+   200677a0: je 0x200677ba
+   200677a2: push 0x201c67b0   ; "New not valid -- already spawned
+"
+   200677a7: fstp st(0)
+   200677a9: call 0x2001de70
+   200677ae: add esp, 4
+   200677b1: pop edi
+   200677b2: pop esi
+   200677b3: add esp, 0x84
+   200677b9: ret 
+   200677ba: fmul qword ptr [0x2017f440]
+   200677c0: cmp dword ptr [0x204d91f8], 3
+   200677c7: fstp dword ptr [esp + 8]
+   200677cb: jne 0x20067824
+   200677cd: push 0x204d920c
+   200677d2: push 0x201c678c   ; "demos/%s"
+   200677d7: lea ecx, [esp + 0x14]
+   200677db: push 0x80
+   200677e0: push ecx
+   200677e1: call 0x20058ef0
+   200677e6: push 0
+   200677e8: lea edx, [esp + 0x20]
+   200677ec: push 0x20531ca0
+   200677f1: push edx
+   200677f2: call 0x200278d0
+   200677f7: mov eax, dword ptr [0x20531ca0]
+   200677fc: add esp, 0x1c
+   200677ff: test eax, eax
+   20067801: jne 0x200679e0
+   20067807: lea eax, [esp + 0xc]
+   2006780b: push eax
+   2006780c: push 0x201c6778   ; "Couldn't open %s"
+   20067811: push 1
+   20067813: call 0x2001e130
+   20067818: add esp, 0xc
+   2006781b: pop edi
+   2006781c: pop esi
+   2006781d: add esp, 0x84
+   20067823: ret 
+   20067824: push 0x201bd684   ; "gamedir"
+   20067829: call 0x20023ce0
+   2006782e: fld dword ptr [esp + 0xc]
+   20067832: fcomp qword ptr [0x2017ff38]
+   20067838: mov esi, eax
+   2006783a: add esp, 4
+   2006783d: fnstsw ax
+   2006783f: test ah, 1
+   20067842: je 0x20067883
+   20067844: mov eax, dword ptr [0x20535d7c]
+   20067849: push 0x411
+   2006784e: mov ecx, dword ptr [eax + 0x5280]
+   20067854: test ecx, ecx
+   20067856: jne 0x20067871
+   20067858: call 0x2005bc30
+   2006785d: push eax
+   2006785e: push 3
+   20067860: call 0x2001e130
+   20067865: add esp, 0xc
+   20067868: pop edi
+   20067869: pop esi
+   2006786a: add esp, 0x84
+   20067870: ret 
+   20067871: push eax
+   20067872: call 0x20062820
+   20067877: add esp, 8
+   2006787a: pop edi
+   2006787b: pop esi
+   2006787c: add esp, 0x84
+   20067882: ret 
+   20067883: mov ecx, dword ptr [0x20535d7c]
+   20067889: push 0xe
+   2006788b: add ecx, 0x52b4
+   20067891: push ecx
+   20067892: call 0x2001e2b0
+   20067897: mov edx, dword ptr [0x20535d7c]
+   2006789d: push 0x1f
+   2006789f: add edx, 0x52b4
+   200678a5: push edx
+   200678a6: call 0x2001e3a0
+------------------------------------------------------------
+
+## SV_DropClient 0x20062820 (svc_disconnect + reason short)
+>> 20062820: push esi
+   20062821: mov esi, dword ptr [esp + 8]
+   20062825: push edi
+   20062826: push 8
+   20062828: lea edi, [esi + 0x52b4]
+   2006282e: push edi
+   2006282f: call 0x2001e2b0
+   20062834: mov eax, dword ptr [esp + 0x18]
+   20062838: and eax, 0xffff
+   2006283d: push eax
+   2006283e: push edi
+   2006283f: call 0x2001e320
+   20062844: mov eax, dword ptr [esi]
+   20062846: add esp, 0x10
+   20062849: cmp eax, 3
+   2006284c: jne 0x20062861
+   2006284e: mov ecx, dword ptr [esi + 0x298]
+   20062854: mov edx, dword ptr [0x204cc010]
+   2006285a: push ecx
+   2006285b: call dword ptr [edx + 0x2c]
+   2006285e: add esp, 4
+   20062861: mov eax, dword ptr [esi + 0x5258]
+   20062867: test eax, eax
+   20062869: je 0x2006287e
+   2006286b: push eax
+   2006286c: call 0x20027ee0
+   20062871: add esp, 4
+   20062874: mov dword ptr [esi + 0x5258], 0
+   2006287e: mov dword ptr [esi], 1
+   20062884: mov byte ptr [esi + 0x29c], 0
+   2006288b: pop edi
+------------------------------------------------------------
+
+## client side: drop reason 0x411 -> Cvar_Set menu_won_error + 'menu wonerror' (the 'WON Error!' box)
+3 refs to 0x411
+   20021310: dec eax
+   20021311: jne 0x2002139a
+   20021317: push esi
+   20021318: push 0xfffffa1a
+   2002131d: call 0x200fde50
+   20021322: add esp, 4
+   20021325: push eax
+   20021326: call 0x20064a70
+   2002132b: push 1
+   2002132d: call 0x2000ac90
+>> 20021332: push 0x411
+   20021337: call 0x2005bc30
+   2002133c: push eax
+   2002133d: push 0x201a9cdc   ; "menu_won_error"
+   20021342: call 0x20024830
+   20021347: push 0x201adb78
+   2002134c: call 0x200196d0
+   20021351: add esp, 0x1c
+   20021354: mov dword ptr [0x202de6a8], esi
+   2002135a: mov eax, 0x200212a7
+   2002135f: ret 
+------------------------------------------------------------
+   20067824: push 0x201bd684   ; "gamedir"
+   20067829: call 0x20023ce0
+   2006782e: fld dword ptr [esp + 0xc]
+   20067832: fcomp qword ptr [0x2017ff38]
+   20067838: mov esi, eax
+   2006783a: add esp, 4
+   2006783d: fnstsw ax
+
+## RED HERRING: the '%c:\' drive loop 0x20055350 is the parental-lock module (cl_violence), DRIVE_FIXED (3) volume serial, not a CD check
+>> 20055350: push ebp
+   20055351: mov ebp, esp
+   20055353: sub esp, 0x264
+   20055359: mov dword ptr [ebp - 0x264], ecx
+   2005535f: mov eax, dword ptr [ebp - 0x264]
+   20055365: mov byte ptr [eax], 1
+   20055368: mov ecx, dword ptr [ebp - 0x264]
+   2005536e: mov dword ptr [ecx + 0x78], 0
+   20055375: call dword ptr [0x2017f16c]
+   2005537b: mov dword ptr [ebp - 0x230], eax
+   20055381: mov dword ptr [ebp - 0x238], 0
+   2005538b: jmp 0x2005539c
+   2005538d: mov edx, dword ptr [ebp - 0x238]
+   20055393: add edx, 1
+   20055396: mov dword ptr [ebp - 0x238], edx
+   2005539c: cmp dword ptr [ebp - 0x238], 0x1a
+   200553a3: jge 0x20055454
+   200553a9: mov eax, 1
+   200553ae: mov ecx, dword ptr [ebp - 0x238]
+   200553b4: shl eax, cl
+   200553b6: mov ecx, dword ptr [ebp - 0x230]
+   200553bc: and ecx, eax
+   200553be: test ecx, ecx
+   200553c0: je 0x2005544f
+   200553c6: mov edx, dword ptr [ebp - 0x238]
+   200553cc: add edx, 0x41
+   200553cf: push edx
+   200553d0: push 0x201c38a8   ; "%c:\"
+   200553d5: lea eax, [ebp - 0x22c]
+   200553db: push eax
+   200553dc: call 0x20150fac
+   200553e1: add esp, 0xc
+   200553e4: lea ecx, [ebp - 0x22c]
+   200553ea: push ecx
+   200553eb: call dword ptr [0x2017f168]
+   200553f1: mov dword ptr [ebp - 0x210], eax
+   200553f7: cmp dword ptr [ebp - 0x210], 3
+   200553fe: jne 0x2005544f
+   20055400: push 0x104
+   20055405: lea edx, [ebp - 0x20c]
+   2005540b: push edx
+   2005540c: lea eax, [ebp - 0x214]
+   20055412: push eax
+   20055413: lea ecx, [ebp - 0x218]
+   20055419: push ecx
+   2005541a: lea edx, [ebp - 0x260]
+   20055420: push edx
+   20055421: push 0x104
+   20055426: lea eax, [ebp - 0x108]
+   2005542c: push eax
+   2005542d: lea ecx, [ebp - 0x22c]
+------------------------------------------------------------
+1 callers of 0x20055350
+   200546f3: call 0x20024810
+   200546f8: add esp, 0x10
+   200546fb: pop esi
+   200546fc: ret 
+   200546fd: nop 
+   200546fe: nop 
+   200546ff: nop 
+   20054700: mov ecx, 0x204c53c8
+>> 20054705: jmp 0x20055350
+   2005470a: nop 
+   2005470b: nop 
+------------------------------------------------------------
+
+## no_won (CVAR_ARCHIVE) registration - gates WON lobby code only, not the CD token
+string 'no_won' at va 201e5f18, 1 refs
+   200fe05e: push 0x200fe520
+   200fe063: push 0x201e5f20   ; "won_set_key"
+   200fe068: call 0x2001a780
+   200fe06d: push 0
+   200fe06f: push 1
+   200fe071: push 0x201a89fc   ; "0"
+>> 200fe076: push 0x201e5f18   ; "no_won"
+   200fe07b: call 0x200240b0
+   200fe080: add esp, 0x40
+   200fe083: mov dword ptr [0x2053da88], eax
+   200fe088: push 0
+   200fe08a: push 1
+   200fe08c: push 0x201a89fc   ; "0"
+------------------------------------------------------------
+
+## IAT slots used above (pefile, staged SoF.exe)
+  0x2017f344 WINMM.dll mciSendCommandA
+  0x2017f14c KERNEL32.dll Sleep
+  0x2017f164 KERNEL32.dll GetVolumeInformationA
+  0x2017f168 KERNEL32.dll GetDriveTypeA
+  0x2017f16c KERNEL32.dll GetLogicalDrives
+  0x2017f19c KERNEL32.dll CloseHandle
+  0x2017f1a0 KERNEL32.dll SetFilePointer
+  0x2017f1a4 KERNEL32.dll ReadFile
+  0x2017f1a8 KERNEL32.dll CreateFileA
+  0x2017f1ac KERNEL32.dll GetModuleFileNameA
+  0x2017f2d4 USER32.dll FindWindowA
+  0x2017f2d8 USER32.dll SendMessageA
+
+## constants (.rdata doubles): 0x2017f708=3.14159265 (client token scale), 0x2017ff28=0.74074073 (server arg5 scale), 0x2017f478=4.0, 0x2017f440=0.4, 0x2017ff38=1.98 (threshold); 0x2017f3d4=0.0f (no_won compare)

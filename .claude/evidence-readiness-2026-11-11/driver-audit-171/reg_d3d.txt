@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Direct3D","values":[{"name":"(Default)","type":"REG_SZ","data":""}],"subkeys":["Drivers","DX6TextureEnumInclusionList","MostRecentApplication"]}

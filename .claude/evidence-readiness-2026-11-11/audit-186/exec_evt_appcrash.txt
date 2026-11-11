@@ -1,0 +1,45 @@
+Event[0]:
+  Log Name: Application
+  Source: Microsoft-Windows-LoadPerf
+  Date: 2026-11-10T10:28:27.001
+  Event ID: 1000
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Performance counters for the WmiApRpl (WmiApRpl) service were loaded successfully. The Record Data in the data section contains the new index values assigned to this service.
+
+Event[1]:
+  Log Name: Application
+  Source: Microsoft-Windows-LoadPerf
+  Date: 2026-11-08T00:15:29.012
+  Event ID: 1000
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Performance counters for the WmiApRpl (WmiApRpl) service were loaded successfully. The Record Data in the data section contains the new index values assigned to this service.
+
+Event[2]:
+  Log Name: Application
+  Source: Microsoft-Windows-LoadPerf
+  Date: 2026-10-26T10:34:12.279
+  Event ID: 1000
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Performance counters for the WmiApRpl (WmiApRpl) service were loaded successfully. The Record Data in the data section contains the new index values assigned to this service.
+

@@ -1,0 +1,31 @@
+{
+ "box": 184,
+ "_disc": [
+  {
+   "name": "SeriousSamTFE.iso",
+   "is_dir": false,
+   "size": 501800960,
+   "modified": "2026-08-31 14:35:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "games_lanhost": [
+  {
+   "name": "lanhost.txt",
+   "is_dir": false,
+   "size": 15,
+   "modified": "2026-08-31 08:23:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "lanhost": "192.168.1.246\r\n",
+ "foreground": {
+  "hwnd": "000100D0",
+  "pid": 1724,
+  "class": "WindowsScreenSaverClass",
+  "title": "Screen Saver"
+ },
+ "hwprofile_os": "{\"profile_hash\":\"881d549a01caf0cb\",\"profile_version\":1,\"hostname\":\"NSC-CABE14B7486\",\"agent_version\":\"1.98.0\",\"reported_at\":\"2026-11-11 13:42:44\",\"cpu\":{\"vendor\":\"GenuineIntel\",\"brand\":\"\",\"family\":6,\"model\":8,\"stepping\":3,\"mhz\":845,\"mhz_source\":\"registry\",\"count\":1,\"feature_bits\":15,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"sse\"]},\"ram_mb\":511,\"gpu\":{\"name\":\"NVIDIA GeForce2 GTS/GeForce2 Pro\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x0150\",\"hardware_id\":\"PCI\\\\VEN_10DE&DEV_0150&SUBSYS_002E10DE&REV_A4\",\"vram_mb\":32,\"driver_version\":\"7.1.8.9\",\"driver_date\":\"4-1-2005\",\"feature_level\":\"tnl\",\"feature_level_num\":2,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1024,\"height\":768,\"bpp\":32,\"panel_w\":1024,\"panel_h\":768,\"panel_source\":\"registry\",\"edid_w\":1280,\"edid_h\":960,\"panel_hz\":85,\"panel_digital\":0,\"panel_name\":\"A90\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":89210,\"total_mb\":142381}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"NVIDIA GeForce2 GTS/GeForce2 Pro\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x0150\",\"hardware_id\":\"pci\\\\ven_10de&dev_0150\",\"driver_version\":\"7.1.8.9\",\"driver_date\":\"4-1-2005\",\"attached_to_desktop\":true}],\"accelerators\":[],\"network\":{\"interfaces\":[{\"description\":\"Hewlett-Packard Desk"
+}

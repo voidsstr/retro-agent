@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"Software\\RetroAgent\\Parked","values":[{"name":"PowerStrip","type":"REG_SZ","data":"c:\\program files\\powerstrip\\pstrip.exe"}],"subkeys":[]}

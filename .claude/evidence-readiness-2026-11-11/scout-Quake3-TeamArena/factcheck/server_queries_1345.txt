@@ -1,0 +1,12 @@
+2026-11-11 ~13:45 EST, from 192.168.1.132
+getstatus :27962 -> sv_hostname "NSC Retro Fleet Arena (Team Arena)", mapname mpteam1, gamename baseq3, sv_maxclients 12, g_gametype 0, timelimit 15, fraglimit 25, bot_minplayers 3, sv_minRate 0, sv_maxRate 0, sv_floodProtect 1, com_protocol 71, version "ioq3 1.36+u20251228.3ef30e75+dfsg-1/Ubuntu linux-x86_64-debug Jan 02 2026"
+  players: 20 0 "Sarge" / 25 0 "Morgan" / 12 0 "Ranger"   (unchanged since the 11:0x fraglimit - stuck at intermission)
+rcon retroadmin status :27962 ->
+map: mpteam1
+cl score ping name            address                                 rate
+-- ----- ---- --------------- --------------------------------------- -----
+ 0    20    0 Sarge           ^7bot                                     16384
+ 1    25    0 Morgan          ^7bot                                     16384
+ 2    12    0 Ranger          ^7bot                                     16384
+getstatus :27961 -> NSC Retro Fleet Arena (Q3A), q3dm7, sv_maxclients 16, Sorlag 25 / Keel 19 / Bitterman 20 (also at intermission)
+server.log: 24740 lines; last map marker line 24733 "Exit: Fraglimit hit."; game module "vm/qagame.qvm found in .../missionpack/pak3.pk3" (retail 1.32 TA QVM, not /usr/lib/ioquake3/missionpack/qagame.so)

@@ -1,0 +1,50 @@
+{
+ "PING": {
+  "status": 0,
+  "text": "PONG"
+ },
+ "DIRLIST E:\\GAMES\\DIE*": {
+  "status": 0,
+  "text": "[{\"name\":\"DieByTheSword\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-10-01 10:01:46\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST E:\\GAMES\\DIEBYT~1\\WINDIE.*": {
+  "status": 0,
+  "text": "[{\"name\":\"windie.exe\",\"is_dir\":false,\"size\":1750528,\"modified\":\"2026-10-01 09:21:36\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST E:\\GAMES\\DIEBYT~1\\DBTS.*": {
+  "status": 0,
+  "text": "[{\"name\":\"DBTS.BAT\",\"is_dir\":false,\"size\":1432,\"modified\":\"2026-10-01 09:16:08\",\"hidden\":false,\"readonly\":false},{\"name\":\"DBTS.ICO\",\"is_dir\":false,\"size\":1398,\"modified\":\"2026-10-01 09:16:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"DBTS.INI\",\"is_dir\":false,\"size\":408,\"modified\":\"2026-10-01 09:16:12\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\FLEETMP*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\RETRO_AGENT\\GLRESET*": {
+  "status": 0,
+  "text": "[{\"name\":\"GLRESET9.EXE\",\"is_dir\":false,\"size\":4096,\"modified\":\"2026-10-03 12:12:00\",\"hidden\":false,\"readonly\":false},{\"name\":\"GLRESET.TXT\",\"is_dir\":false,\"size\":81,\"modified\":\"2026-10-03 12:40:54\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\RETRO_AGENT\\WINKEY*": {
+  "status": 0,
+  "text": "[{\"name\":\"WINKEY9X.EXE\",\"is_dir\":false,\"size\":5632,\"modified\":\"2026-09-28 19:43:50\",\"hidden\":false,\"readonly\":false},{\"name\":\"WINKEY.TXT\",\"is_dir\":false,\"size\":35,\"modified\":\"2026-10-03 12:55:56\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "REGREAD HKCU Software\\Treyarch\\Die By The Sword\\1.0": {
+  "status": 0,
+  "text": "{\"root\":\"HKCU\",\"path\":\"Software\\\\Treyarch\\\\Die By The Sword\\\\1.0\",\"values\":[{\"name\":\"RL_DLL_NAME\",\"type\":\"REG_SZ\",\"data\":\"RL3DFX.DLL\"},{\"name\":\"Video Mode\",\"type\":\"REG_SZ\",\"data\":\"Normal Resolution\"},{\"name\":\"Detail Level\",\"type\":\"REG_SZ\",\"data\":\"Normal\"}],\"subkeys\":[]}"
+ },
+ "REGREAD HKLM Software\\Treyarch\\Die By The Sword\\1.0": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\Treyarch\\\\Die By The Sword\\\\1.0\",\"values\":[{\"name\":\"SrcPath\",\"type\":\"REG_SZ\",\"data\":\".\"},{\"name\":\"Language\",\"type\":\"REG_SZ\",\"data\":\"English\"}],\"subkeys\":[]}"
+ },
+ "REGREAD HKLM Software\\Microsoft\\DirectPlay\\Applications": {
+  "status": 255,
+  "text": "Cannot open key: error 0"
+ },
+ "REGREAD HKLM Software\\Microsoft\\DirectPlay\\Service Providers": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\Microsoft\\\\DirectPlay\\\\Service Providers\",\"values\":[{\"name\":\"(Default)\",\"type\":\"REG_SZ\",\"data\":\"\"}],\"subkeys\":[\"Serial Connection For DirectPlay\",\"Modem Connection For DirectPlay\",\"Internet TCP/IP Connection For DirectPlay\",\"IPX Connection For DirectPlay\"]}"
+ },
+ "PROCLIST": {
+  "status": 0,
+  "text": "[{\"pid\":4279221105,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\KERNEL32.DLL\",\"threads\":4,\"parent_pid\":2123315545},{\"pid\":4294937793,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\MSGSRV32.EXE\",\"threads\":1,\"parent_pid\":4279221105},{\"pid\":4294965841,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\MPREXE.EXE\",\"threads\":1,\"parent_pid\":4294937793},{\"pid\":4294840817,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\mmtask.tsk\",\"threads\":1,\"parent_pid\":4294937793},{\"pid\":4294841441,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\MSTASK.EXE\",\"threads\":2,\"parent_pid\":4294965841},{\"pid\":4294837877,\"name\":\"C:\\\\WINDOWS\\\\EXPLORER.EXE\",\"threads\":4,\"parent_pid\":4294937793},{\"pid\":4294858945,\"name\":\"C:\\\\WINDOWS\\\\TASKMON.EXE\",\"threads\":1,\"parent_pid\":4294837877},{\"pid\":4294877797,\"name\":\"C:\\\\RETRO_AGENT\\\\RETRO_CHAT.EXE\",\"threads\":4,\"parent_pid\":4294837877},{\"pid\":4294878057,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\WINOA386.MOD\",\"threads\":1,\"parent_pid\":4294877797},{\"pid\":4294892237,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\SYSTRAY.EXE\",\"threads\":1,\"parent_pid\":4294837877},{\"pid\":4294783093,\"name\":\"C:\\\\RETRO_AGENT\\\\RETRO_AGENT.EXE\",\"threads\":9,\"parent_pid\":4294886605},{\"pid\":4294880533,\"name\":\"C:\\\\WINDOWS\\\\SYSTEM\\\\WINOA386.MOD\",\"threads\":1,\"parent_pid\":4294783093}]"
+ }
+}

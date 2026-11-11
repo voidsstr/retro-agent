@@ -1,0 +1,1 @@
+[{"name":"drwtsn32.log","is_dir":false,"size":77634,"modified":"2026-09-01 03:29:18","hidden":false,"readonly":false},{"name":"user.dmp","is_dir":false,"size":26811,"modified":"2026-09-01 03:29:18","hidden":false,"readonly":false}]

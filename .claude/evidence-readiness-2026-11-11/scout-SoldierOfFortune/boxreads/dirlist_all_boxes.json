@@ -1,0 +1,2389 @@
+{
+ "123": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 18:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 17457,
+    "modified": "2026-08-31 14:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 18876,
+    "modified": "2026-08-31 14:38:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 13:04:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:11:35",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 102,
+    "modified": "2026-10-03 01:26:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "save",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 18:06:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 13:04:57",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "171": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-30 01:03:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 17457,
+    "modified": "2026-08-31 14:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 18876,
+    "modified": "2026-08-31 14:38:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:13:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:57:25",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 102,
+    "modified": "2026-09-30 01:03:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "config.cfg",
+    "is_dir": false,
+    "size": 6178,
+    "modified": "2026-09-01 22:52:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:13:27",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "240": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:43:54",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 17457,
+    "modified": "2026-08-31 14:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 18876,
+    "modified": "2026-08-31 14:38:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 18:58:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:41:37",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 102,
+    "modified": "2026-10-15 15:02:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "config.cfg",
+    "is_dir": false,
+    "size": 6178,
+    "modified": "2026-09-01 22:33:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "save",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-01 00:15:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 18:58:18",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "124": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-30 13:19:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "configsheet.cpp",
+    "is_dir": false,
+    "size": 199,
+    "modified": "2026-09-28 10:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "LANCHECK.BAT",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-09-28 10:28:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-02 13:40:39",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 98,
+    "modified": "2026-10-03 04:04:06",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "lancheck.cfg",
+    "is_dir": false,
+    "size": 75,
+    "modified": "2026-09-28 10:28:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "config.cfg",
+    "is_dir": false,
+    "size": 6184,
+    "modified": "2026-10-03 04:05:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "config.cfg.pretune",
+    "is_dir": false,
+    "size": 6185,
+    "modified": "2026-10-02 13:40:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "save",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 10:28:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 10:36:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.log",
+    "is_dir": false,
+    "size": 3519,
+    "modified": "2026-09-28 10:38:09",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof00.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:45:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof01.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:45:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof02.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:47:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof03.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:47:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof04.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:49:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof05.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:51:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof06.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:53:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof07.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 09:55:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof08.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 10:30:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof09.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 10:32:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof10.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 10:34:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof11.tga",
+    "is_dir": false,
+    "size": 3686418,
+    "modified": "2026-09-28 10:36:18",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "186": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 20:21:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 20:21:12",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 102,
+    "modified": "2026-10-01 14:56:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 20:21:12",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "143": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:19:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 17457,
+    "modified": "2026-08-31 14:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 18876,
+    "modified": "2026-08-31 14:38:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:12:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:40:42",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 102,
+    "modified": "2026-09-26 19:07:42",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:12:14",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "133": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:37:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 17457,
+    "modified": "2026-08-31 14:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 18876,
+    "modified": "2026-08-31 14:38:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:21:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:07:00",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 98,
+    "modified": "2026-09-01 22:35:43",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "config.cfg",
+    "is_dir": false,
+    "size": 6187,
+    "modified": "2026-09-01 22:36:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:21:37",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "184": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:31:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 17457,
+    "modified": "2026-08-31 14:38:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Soldier of Fortune - LAN.bat",
+    "is_dir": false,
+    "size": 18876,
+    "modified": "2026-08-31 14:38:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:44:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:47:34",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 98,
+    "modified": "2026-09-01 04:13:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "save",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-01 04:11:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 16:44:45",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ },
+ "110": {
+  "C:\\Games\\SoldierOfFortune": [
+   {
+    "name": "a3dapi.dll",
+    "is_dir": false,
+    "size": 290816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "A3Dsnd.dll",
+    "is_dir": false,
+    "size": 102400,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "base",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2004-02-20 17:40:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defsnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EaxMan.dll",
+    "is_dir": false,
+    "size": 61440,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "EAXSnd.dll",
+    "is_dir": false,
+    "size": 77824,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FFC10.dll",
+    "is_dir": false,
+    "size": 126976,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 556,
+    "modified": "2026-08-30 04:14:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "kver.pub",
+    "is_dir": false,
+    "size": 816,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 854,
+    "modified": "2026-08-31 15:36:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Soldier of Fortune.bat",
+    "is_dir": false,
+    "size": 956,
+    "modified": "2026-09-29 17:01:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 9678,
+    "modified": "2026-09-01 02:32:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ref_gl.dll",
+    "is_dir": false,
+    "size": 225280,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 935,
+    "modified": "2026-09-28 10:39:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SoF.exe",
+    "is_dir": false,
+    "size": 2052096,
+    "modified": "2026-09-29 16:51:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "user",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 17:00:07",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\base": [
+   {
+    "name": "autoexec.cfg",
+    "is_dir": false,
+    "size": 2407,
+    "modified": "2026-10-01 05:44:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fleetres.cfg",
+    "is_dir": false,
+    "size": 102,
+    "modified": "2026-10-15 14:08:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gamex86.dll",
+    "is_dir": false,
+    "size": 1421312,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak0.pak",
+    "is_dir": false,
+    "size": 705825871,
+    "modified": "2026-08-27 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak1.pak",
+    "is_dir": false,
+    "size": 20517183,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pak2.pak",
+    "is_dir": false,
+    "size": 3156,
+    "modified": "2026-09-29 16:51:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "player.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-27 16:08:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user": [
+   {
+    "name": "scrnshot",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 17:00:07",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "C:\\Games\\SoldierOfFortune\\user\\scrnshot": [
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 452,
+    "modified": "2026-09-28 05:53:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "sof_running": []
+ }
+}

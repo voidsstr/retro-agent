@@ -1,0 +1,560 @@
+{
+ "110": {
+  "proclist": [
+   "ok",
+   1433
+  ],
+  "winlist": [
+   "ok",
+   595
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   113
+  ],
+  "dir_ut2004": [
+   "ok",
+   1021
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   974
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=NSC-5C5396FAF9D\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   ""
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "123": {
+  "proclist": [
+   "ok",
+   1442
+  ],
+  "winlist": [
+   "ok",
+   599
+  ],
+  "dir_root": [
+   "ok",
+   2783
+  ],
+  "dir_running": [
+   "ok",
+   2
+  ],
+  "dir_ut2004": [
+   "ok",
+   1024
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   962
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=NSC-B20C188E96D\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   "Log: Log file open, 10/13/26 09:27:07\r\nInit: Name subsystem initialized\r\nInit: Detected: Microsoft Windows XP 5.1 (Build"
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "124": {
+  "proclist": [
+   "ok",
+   1441
+  ],
+  "winlist": [
+   "ok",
+   812
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   2
+  ],
+  "dir_ut2004": [
+   "ok",
+   1024
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   969
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=NSC-C543575F526\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   "Log: Log file open, 11/08/26 02:23:50\r\nInit: Name subsystem initialized\r\nInit: Detected: Microsoft Windows XP 5.1 (Build"
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "133": {
+  "proclist": [
+   "ok",
+   1502
+  ],
+  "winlist": [
+   "ok",
+   770
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   113
+  ],
+  "dir_ut2004": [
+   "ok",
+   1024
+  ],
+  "dir_user": [
+   "ok",
+   113
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   961
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[WindowPositions]\r\nFilerPageWelcome=(X=5,Y=96,XL=516,YL=280)\r\nProductInfo=(X=747,Y=642,XL=314,YL=98)\r\nFilerPageLicense=("
+  ],
+  "UT2004.log": [
+   "status 1",
+   "Log: Log file open, 10/13/26 09:27:20\r\nInit: Name subsystem initialized\r\nInit: Detected: Microsoft Windows XP 5.1 (Build"
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "143": {
+  "proclist": [
+   "ok",
+   1436
+  ],
+  "winlist": [
+   "ok",
+   764
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   113
+  ],
+  "dir_ut2004": [
+   "ok",
+   1021
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   962
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=1GHZ\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Command=\"Button "
+  ],
+  "UT2004.log": [
+   "status 1",
+   ""
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "171": {
+  "proclist": [
+   "ok",
+   1443
+  ],
+  "winlist": [
+   "ok",
+   597
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   113
+  ],
+  "dir_ut2004": [
+   "ok",
+   1021
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   973
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=NSC-5B996B81319\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   ""
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "184": {
+  "proclist": [
+   "ok",
+   1370
+  ],
+  "winlist": [
+   "ok",
+   595
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   2
+  ],
+  "dir_ut2004": [
+   "ok",
+   1024
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   964
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=NSC-CABE14B7486\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   "Log: Log file open, 10/13/26 09:28:00\r\nInit: Name subsystem initialized\r\nInit: Detected: Microsoft Windows XP 5.1 (Build"
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ },
+ "186": {
+  "proclist": [
+   "ok",
+   1937
+  ],
+  "winlist": [
+   "ok",
+   552
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   2
+  ],
+  "dir_ut2004": [
+   "ok",
+   1024
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   2
+  ],
+  "gameres_verify": [
+   "ok",
+   977
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=NSC-684BA8CF5ED\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   "Log: Log file open, 10/01/26 10:56:36\r\nInit: Name subsystem initialized\r\nInit: Detected: Microsoft Windows XP 5.1 (Build"
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 255",
+   "Cannot open file: error 3"
+  ]
+ },
+ "240": {
+  "proclist": [
+   "ok",
+   2218
+  ],
+  "winlist": [
+   "ok",
+   770
+  ],
+  "dir_root": [
+   "ok",
+   2570
+  ],
+  "dir_running": [
+   "ok",
+   2
+  ],
+  "dir_ut2004": [
+   "ok",
+   1024
+  ],
+  "dir_user": [
+   "ok",
+   114
+  ],
+  "dir_cdkey": [
+   "ok",
+   108
+  ],
+  "dir_fleetmp": [
+   "ok",
+   781
+  ],
+  "gameres_verify": [
+   "ok",
+   977
+  ],
+  "UT2004.ini": [
+   "status 1",
+   "[URL]\r\nProtocol=ut2004\r\nProtocolDescription=Unreal Protocol\r\nName=Player\r\nMap=Index.ut2\r\nLocalMap=NvidiaLogo.ut2\r\nNetBro"
+  ],
+  "User.ini": [
+   "status 1",
+   "[DefaultPlayer]\r\nName=USER-41EA3B3330\r\nClass=Engine.Pawn\r\nCharacter=Jakob\r\nteam=255\r\n\r\n[Engine.Input]\r\nAliases[0]=(Comma"
+  ],
+  "UT2004.log": [
+   "status 1",
+   "Log: Log file open, 10/13/26 06:26:54\r\nInit: Name subsystem initialized\r\nInit: Detected: Microsoft Windows XP 5.1 (Build"
+  ],
+  "Join.bat": [
+   "status 1",
+   "@echo off\r\nrem Connect straight to the fleet's own UT2004 server. No master server and no\r\nrem internet needed - this is"
+  ],
+  "FLEETRES.BAT": [
+   "status 1",
+   "@echo off\r\nrem ==========================================================================\r\nrem  FLEET RESOLUTION BLOCK -"
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 1",
+   "@echo off\r\ncall \"C:\\Games\\UT2004\\Join fleet UT2004 server.bat\"\r\n"
+  ]
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "box": 124,
+ "_disc": [
+  {
+   "name": "SeriousSamTFE.iso",
+   "is_dir": false,
+   "size": 501800960,
+   "modified": "2026-08-31 14:35:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "games_lanhost": [],
+ "lanhost": "ERR RetroProtocolError('Cannot open file: error 2')",
+ "foreground": {
+  "hwnd": "000100D2",
+  "pid": 1776,
+  "class": "WindowsScreenSaverClass",
+  "title": "Screen Saver"
+ },
+ "hwprofile_os": "{\"profile_hash\":\"dec95d42ad08a34d\",\"profile_version\":1,\"hostname\":\"NSC-C543575F526\",\"agent_version\":\"1.98.0\",\"reported_at\":\"2026-11-11 13:41:25\",\"cpu\":{\"vendor\":\"AuthenticAMD\",\"brand\":\"AMD Athlon(tm) XP 2400+\",\"family\":6,\"model\":8,\"stepping\":1,\"mhz\":2004,\"mhz_source\":\"registry\",\"count\":1,\"feature_bits\":271,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"3dnow\",\"sse\"]},\"ram_mb\":255,\"gpu\":{\"name\":\"vcr-kmd Voodoo 5 6000 (open driver)\",\"pci_ven\":\"0x121A\",\"pci_dev\":\"0x0009\",\"hardware_id\":\"PCI\\\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\",\"vram_mb\":64,\"driver_version\":\"0.1.0.0\",\"driver_date\":\"9-25-2026\",\"feature_level\":\"fixed\",\"feature_level_num\":1,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":true,\"glide_evidence\":\"PCI\\\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\\\\5&2cfcdcf8&0&0000F0\",\"bits\":3},\"display\":{\"width\":1280,\"height\":1024,\"bpp\":32,\"panel_w\":1280,\"panel_h\":1024,\"panel_source\":\"registry\",\"edid_w\":1024,\"edid_h\":768,\"panel_hz\":85,\"panel_digital\":0,\"panel_name\":\"CPD-G200\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":256214,\"total_mb\":305244}],\"video_cards\":[{\"instance\":\"0001\",\"name\":\"vcr-kmd Voodoo 5 6000 (open driver)\",\"pci_ven\":\"0x121A\",\"pci_dev\":\"0x0009\",\"hardware_id\":\"pci\\\\ven_121a&dev_0009&subsys_0001121a\",\"driver_version\":\"0.1.0.0\",\"d"
+}

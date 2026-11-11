@@ -1,0 +1,5 @@
+Max Payne: MOUNT FAILED - started against an unrelated disc
+image=C:\Games\MaxPayne\_disc\MaxPayne.cue
+fell back to whatever disc was in F:
+daemon=C:\Program Files\D-Tools\daemon.exe
+wincdemu=  fallback=

@@ -1,0 +1,82 @@
+{
+ "110": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n\r\n\r\nError:  The system was unable to find the specified registry key or value"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "123": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n    MultiplayerPlayerName\tREG_SZ\tJOHN DOE"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "124": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n    MultiplayerPlayerName\tREG_SZ\tJOHN DOE"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "133": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n\r\n\r\nError:  The system was unable to find the specified registry key or value"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "143": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n\r\n\r\nError:  The system was unable to find the specified registry key or value"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "171": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n\r\n\r\nError:  The system was unable to find the specified registry key or value"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "184": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n\r\n\r\nError:  The system was unable to find the specified registry key or value"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ },
+ "240": {
+  "EXECW 15 reg query \"HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's": [
+   0,
+   "! REG.EXE VERSION 3.0\r\n\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\r\n\r\n\r\nError:  The system was unable to find the specified registry key or value"
+  ],
+  "EXECW 10 cmd /c ver": [
+   0,
+   "Microsoft Windows XP [Version 5.1.2600]"
+  ]
+ }
+}

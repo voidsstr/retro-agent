@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\NVIDIA Corporation","values":[],"subkeys":["Global","Installer","NVControlPanel"]}

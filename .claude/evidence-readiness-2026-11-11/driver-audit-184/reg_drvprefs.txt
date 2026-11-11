@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"Software\\RetroAgent\\DriverPrefs","values":[{"name":"PCI\\VEN_10DE&DEV_0150","type":"REG_SZ","data":"ok C:\\D\\G005\\nv4_disp.inf"}],"subkeys":[]}

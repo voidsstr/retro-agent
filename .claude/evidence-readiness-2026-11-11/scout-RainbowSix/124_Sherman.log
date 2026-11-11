@@ -1,0 +1,5 @@
+Selecting sound device NVIDIA(R) nForce(TM) Audio
+   driver is nvapu.sys
+VOICECOMPRESSION: Could not find an appropriate Voxware CODEC
+Rainbow Six was not able to initialize the Voxware voice compression
+  engine; make sure Rainbow Six is correctly installed on your machine

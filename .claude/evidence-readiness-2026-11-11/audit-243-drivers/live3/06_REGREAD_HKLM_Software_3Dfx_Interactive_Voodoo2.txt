@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"Software\\3Dfx Interactive\\Voodoo2","values":[{"name":"(Default)","type":"REG_SZ","data":""}],"subkeys":["D3D","Glide","PropPage"]}

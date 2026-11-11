@@ -1,0 +1,237 @@
+Event[0]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-11-10T10:24:17.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[1]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-11-10T10:24:17.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[2]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-11-10T10:20:57.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[3]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-11-10T10:20:56.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-4168346585-3436895208-291858192-1001
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the restart of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: restart
+ Comment: 
+
+Event[4]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-11-10T10:20:53.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-4168346585-3436895208-291858192-1001
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process Explorer.EXE has initiated the restart of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: Other (Unplanned)
+ Reason Code: 0x0
+ Shutdown Type: restart
+ Comment: 
+
+Event[5]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-11-08T00:11:12.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[6]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-11-08T00:11:12.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[7]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-11-08T00:08:15.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[8]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-11-08T00:08:13.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-4168346585-3436895208-291858192-1001
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\shutdown.exe (WIN-5D68G8IFJDC) has initiated the restart of computer admin-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x800000ff
+ Shutdown Type: restart
+ Comment: 
+
+Event[9]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-10-26T13:29:49.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[10]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-10-26T13:29:49.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[11]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-10-15T22:59:30.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: 37L4247D28-05
+  Description: 
+The Event log service was stopped.
+
+Event[12]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-10-15T22:59:28.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: 37L4247D28-05
+  Description: 
+The process C:\Windows\system32\winlogon.exe (37L4247D28-05) has initiated the restart of computer WIN-5D68G8IFJDC on behalf of user NT AUTHORITY\SYSTEM for the following reason: Operating System: Upgrade (Planned)
+ Reason Code: 0x80020003
+ Shutdown Type: restart
+ Comment: 
+
+Event[13]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-10-15T22:56:17.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: 37L4247D28-05
+  Description: 
+The Event log service was started.
+
+Event[14]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-10-15T22:56:17.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: 37L4247D28-05
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+

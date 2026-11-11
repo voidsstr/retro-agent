@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"System\\CurrentControlSet\\Services\\Class\\MEDIA\\0000\\Drivers","values":[{"name":"MIGRATED","type":"REG_SZ","data":"1"},{"name":"SubClasses","type":"REG_SZ","data":"wave,midi,aux,mixer"},{"name":"DevNode","type":"REG_BINARY","data":"70 67 9B C2"}],"subkeys":["midi","wave","mixer","aux"]}

@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"HARDWARE\\DEVICEMAP\\Scsi","values":[],"subkeys":["Scsi Port 0","Scsi Port 1","Scsi Port 2","Scsi Port 3","Scsi Port 4"]}

@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 3","values":[{"name":"Interrupt","type":"REG_DWORD","data":19},{"name":"IOAddress","type":"REG_DWORD","data":40960},{"name":"Driver","type":"REG_SZ","data":"ASH1205"}],"subkeys":["Scsi Bus 0","Scsi Bus 1"]}

@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Control\\IDConfigDB","values":[{"name":"CurrentConfig","type":"REG_DWORD","data":1},{"name":"UserWaitInterval","type":"REG_DWORD","data":30}],"subkeys":["Alias","Hardware Profiles","CurrentDockInfo"]}

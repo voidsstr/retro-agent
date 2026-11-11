@@ -1,0 +1,31 @@
+{
+ "box": 171,
+ "_disc": [
+  {
+   "name": "SeriousSamTFE.iso",
+   "is_dir": false,
+   "size": 501800960,
+   "modified": "2026-08-31 14:35:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "games_lanhost": [
+  {
+   "name": "lanhost.txt",
+   "is_dir": false,
+   "size": 16,
+   "modified": "2026-08-31 04:38:56",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "lanhost": "192.168.1.124 \r\n",
+ "foreground": {
+  "hwnd": "0001012E",
+  "pid": 248,
+  "class": "WindowsScreenSaverClass",
+  "title": "Screen Saver"
+ },
+ "hwprofile_os": "{\"profile_hash\":\"1ae6cfb3e6bad997\",\"profile_version\":1,\"hostname\":\"NSC-5B996B81319\",\"agent_version\":\"1.98.0\",\"reported_at\":\"2026-11-11 13:40:56\",\"cpu\":{\"vendor\":\"GenuineIntel\",\"brand\":\"Intel(R) Pentium(R) 4 CPU 2.80GHz\",\"family\":15,\"model\":4,\"stepping\":1,\"mhz\":2793,\"mhz_source\":\"registry\",\"count\":1,\"feature_bits\":63,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"sse\",\"sse2\",\"sse3\"]},\"ram_mb\":509,\"gpu\":{\"name\":\"NVIDIA GeForce FX 5500\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x0326\",\"hardware_id\":\"PCI\\\\VEN_10DE&DEV_0326&SUBSYS_00000000&REV_A1\",\"vram_mb\":256,\"driver_version\":\"6.14.11.7519\",\"driver_date\":\"5-16-2008\",\"feature_level\":\"sm2.0\",\"feature_level_num\":4,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1280,\"height\":1024,\"bpp\":32,\"panel_w\":1280,\"panel_h\":1024,\"panel_source\":\"registry\",\"edid_w\":1280,\"edid_h\":1024,\"panel_hz\":85,\"panel_digital\":0,\"panel_name\":\"AOC Spectrum\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":25443,\"total_mb\":95388}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"Intel(R) 82865G Graphics Controller\",\"pci_ven\":\"0x8086\",\"pci_dev\":\"0x2572\",\"hardware_id\":\"pci\\\\ven_8086&dev_2572\",\"driver_version\":\"6.14.10.4396\",\"driver_date\":\"9-20-2005\",\"attached_to_desktop\":false},{\"instance\""
+}

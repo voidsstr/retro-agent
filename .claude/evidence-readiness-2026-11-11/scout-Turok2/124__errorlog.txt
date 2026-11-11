@@ -1,0 +1,95 @@
+
+
+
+
+Turok2MPEnglish caused an Access Violation in module Video_3DFx.dll at 001b:049a7bb8.
+Exception handler called in game thread.
+Error occurred at 9/28/2026 02:07:34.
+C:\Games\Turok2\Turok2MPEnglish.exe, run by Administrator.
+1 processor(s), type 586.
+256 MBytes physical memory.
+Read from location 04ee3b70 caused an access violation.
+
+Game Parameters:
+Level Set: data/Rok Match Levels.lsm
+Level: Harbor-9
+Game Type: Rok Match
+Connection: LAN
+Host: Yes
+
+Registers:
+EAX=04ee3b6c CS=001b EIP=049a7bb8 EFLGS=00010202
+EBX=00000000 SS=0023 ESP=095afddc EBP=00000000
+ECX=095afe00 DS=0023 ESI=00000012 FS=003b
+EDX=095afe00 ES=0023 EDI=101ca340 GS=0000
+Bytes at CS:EIP:
+03 40 04 0f bf 48 0c 89 0a 8b 4c 24 0c 0f bf 40 
+Stack dump:
+095afddc: 049a645e 04ee3b6c 095afe00 095afe10 101ca338 004728f9 00000012 095afe00
+095afdfc: 095afe10 095afe28 0044c058 10110c10 095afe28 101ca340 00563c60 0055ea4c
+095afe1c: 00000000 00000000 10110c10 101f8160 00000001 00582c60 0044d98c 101ca338
+095afe3c: ffffffff 00582c60 10252be0 106fcef0 005845f8 0044d47b 00582c60 0046bd40
+095afe5c: 00582c60 106fcef0 00000000 00582c60 00000000 00000010 ffffffff 005845f8
+095afe7c: 00000000 10252be0 0042a80b ffffffff 00000000 106fcef0 005d8b50 106fcef0
+095afe9c: 00000000 00000000 00000068 00000068 0042bebe 106fcef0 00582c60 00000000
+095afebc: 00582c60 005d9f08 004679ec 005d8b50 00582c60 005d9f08 00000000 00582898
+095afedc: 00000041 0046fb3e 00582c60 005d9f08 1a32f2ff 00582898 00471603 00582898
+095afefc: 00000030 00582898 00000001 0000001a 00000001 0000007e 0047247a 00582898
+095aff1c: 00582988 00582898 00000012 00000000 00000186 3fcbc504 00000000 00470cec
+095aff3c: 00582898 00000000 017087a0 095aff80 017087a0 004705f1 00582898 00000000
+095aff5c: 017087a0 017087a0 00000000 095aff58 095afa00 095affa4 004ec210 004fae80
+095aff7c: 00000000 095affb4 004ee3e1 00000000 00000000 00000000 017087a0 00000000
+095aff9c: 095aff8c 804f8c91 095affdc 004ec210 004fe4c8 00000000 095affec 7c80b713
+095affbc: 017087a0 00000000 00000000 017087a0 7ffd9000 8195e600 095affc0 ffa26bf8
+095affdc: ffffffff 7c839ac0 7c80b720 00000000 00000000 00000000 004ee382 017087a0
+095afffc: 00000000
+
+	Module list: names, addresses, sizes, time stamps and file times:
+C:\Games\Turok2\Turok2MPEnglish.exe, loaded at 0x00400000 - 2940928 bytes - 36b73d69 - file date is 8/30/2026 00:02:16
+C:\WINDOWS\system32\xpsp2res.dll, loaded at 0x03fc0000 - 2897920 bytes - 4802454c - file date is 8/27/2026 00:08:44
+C:\Games\Turok2\Video_3DFx.dll, loaded at 0x049a0000 - 278528 bytes - 36b73385 - file date is 8/30/2026 00:02:16
+C:\Games\Turok2\RTserverdll.dll, loaded at 0x10000000 - 179200 bytes - 369e8d42 - file date is 8/30/2026 00:02:14
+C:\WINDOWS\system32\COMCTL32.dll, loaded at 0x5d090000 - 617472 bytes - 4802a0c8 - file date is 8/27/2026 00:04:58
+C:\WINDOWS\system32\hnetcfg.dll, loaded at 0x662b0000 - 344064 bytes - 4802a0ca - file date is 8/27/2026 00:05:40
+C:\WINDOWS\system32\rsaenh.dll, loaded at 0x68000000 - 208384 bytes - 47dfd424 - file date is 8/27/2026 00:07:30
+C:\WINDOWS\system32\HID.DLL, loaded at 0x688f0000 - 20992 bytes - 4802a0c5 - file date is 8/27/2026 00:07:50
+C:\WINDOWS\system32\D3DIM.DLL, loaded at 0x6d910000 - 436224 bytes - 3b7dfe48 - file date is 8/27/2026 00:05:08
+C:\WINDOWS\system32\glide3x.dll, loaded at 0x6fc80000 - 1025320 bytes - 6ab9c4c1 - file date is 9/27/2026 22:09:02
+C:\WINDOWS\System32\mswsock.dll, loaded at 0x71a50000 - 245248 bytes - 4802a18e - file date is 8/27/2026 00:06:46
+C:\WINDOWS\System32\wshtcpip.dll, loaded at 0x71a90000 - 19456 bytes - 4802a16e - file date is 8/27/2026 00:08:40
+C:\WINDOWS\system32\WS2HELP.dll, loaded at 0x71aa0000 - 19968 bytes - 4802a164 - file date is 8/27/2026 00:08:40
+C:\WINDOWS\system32\WS2_32.dll, loaded at 0x71ab0000 - 82432 bytes - 4802a163 - file date is 8/27/2026 00:08:40
+C:\WINDOWS\system32\WSOCK32.dll, loaded at 0x71ad0000 - 22528 bytes - 4802a170 - file date is 8/27/2026 00:08:40
+C:\WINDOWS\system32\DINPUT.dll, loaded at 0x72280000 - 158720 bytes - 4802a0cb - file date is 8/27/2026 00:05:12
+C:\WINDOWS\system32\msacm32.drv, loaded at 0x72d10000 - 20480 bytes - 3b7dfe2a - file date is 8/27/2026 00:06:30
+C:\WINDOWS\system32\wdmaud.drv, loaded at 0x72d20000 - 23552 bytes - 4802a12c - file date is 8/27/2026 00:07:50
+C:\WINDOWS\system32\DDRAW.dll, loaded at 0x73760000 - 279552 bytes - 4802a0b8 - file date is 8/27/2026 00:05:10
+C:\WINDOWS\system32\DCIMAN32.dll, loaded at 0x73bc0000 - 8704 bytes - 4802a0b7 - file date is 8/27/2026 00:05:10
+C:\WINDOWS\system32\KsUser.dll, loaded at 0x73ee0000 - 4096 bytes - 4802a0d6 - file date is 4/14/2008 06:41:58
+C:\WINDOWS\system32\DSOUND.dll, loaded at 0x73f10000 - 367616 bytes - 4802a0f6 - file date is 8/27/2026 00:05:20
+C:\WINDOWS\system32\comdlg32.dll, loaded at 0x763b0000 - 276992 bytes - 4802a0c9 - file date is 8/27/2026 00:04:58
+C:\WINDOWS\system32\WINMM.dll, loaded at 0x76b40000 - 176128 bytes - 4802a13c - file date is 8/27/2026 00:08:30
+C:\WINDOWS\system32\WINTRUST.dll, loaded at 0x76c30000 - 176640 bytes - 4802a12a - file date is 8/27/2026 00:08:30
+C:\WINDOWS\system32\IMAGEHLP.dll, loaded at 0x76c90000 - 144384 bytes - 4802a0d8 - file date is 8/27/2026 00:05:50
+C:\WINDOWS\system32\DNSAPI.dll, loaded at 0x76f20000 - 147968 bytes - 4802a0dc - file date is 8/27/2026 00:05:14
+C:\WINDOWS\system32\WLDAP32.dll, loaded at 0x76f60000 - 172032 bytes - 4802a12e - file date is 8/27/2026 00:08:32
+C:\WINDOWS\System32\winrnr.dll, loaded at 0x76fb0000 - 16896 bytes - 4802a122 - file date is 8/27/2026 00:08:30
+C:\WINDOWS\system32\rasadhlp.dll, loaded at 0x76fc0000 - 7680 bytes - 4802a0fe - file date is 8/27/2026 00:07:24
+C:\WINDOWS\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.5512_x-ww_35d4ce83\comctl32.dll, loaded at 0x773d0000 - 1054208 bytes - 4802a094 - file date is 8/27/2026 00:09:06
+C:\WINDOWS\system32\ole32.dll, loaded at 0x774e0000 - 1287168 bytes - 4802a111 - file date is 8/27/2026 00:07:08
+C:\WINDOWS\system32\SETUPAPI.DLL, loaded at 0x77920000 - 985088 bytes - 4802a10b - file date is 8/27/2026 00:07:38
+C:\WINDOWS\system32\CRYPT32.dll, loaded at 0x77a80000 - 599040 bytes - 4802a0d7 - file date is 8/27/2026 00:05:02
+C:\WINDOWS\system32\MSASN1.dll, loaded at 0x77b20000 - 57344 bytes - 4802a126 - file date is 8/27/2026 00:06:32
+C:\WINDOWS\system32\midimap.dll, loaded at 0x77bd0000 - 18944 bytes - 4802a0ec - file date is 8/27/2026 00:06:18
+C:\WINDOWS\system32\MSACM32.dll, loaded at 0x77be0000 - 71680 bytes - 4802a117 - file date is 8/27/2026 00:06:30
+C:\WINDOWS\system32\VERSION.dll, loaded at 0x77c00000 - 18944 bytes - 4802a11d - file date is 8/27/2026 00:08:18
+C:\WINDOWS\system32\msvcrt.dll, loaded at 0x77c10000 - 343040 bytes - 4802a188 - file date is 8/27/2026 00:06:46
+C:\WINDOWS\system32\ADVAPI32.dll, loaded at 0x77dd0000 - 617472 bytes - 4802a0b2 - file date is 8/27/2026 00:04:36
+C:\WINDOWS\system32\RPCRT4.dll, loaded at 0x77e70000 - 584704 bytes - 4802a106 - file date is 8/27/2026 00:07:30
+C:\WINDOWS\system32\GDI32.dll, loaded at 0x77f10000 - 285184 bytes - 4802a0be - file date is 8/27/2026 00:05:34
+C:\WINDOWS\system32\SHLWAPI.dll, loaded at 0x77f60000 - 474112 bytes - 4802a116 - file date is 8/27/2026 00:07:40
+C:\WINDOWS\system32\Secur32.dll, loaded at 0x77fe0000 - 56320 bytes - 4802a11b - file date is 8/27/2026 00:07:36
+C:\WINDOWS\system32\kernel32.dll, loaded at 0x7c800000 - 989696 bytes - 4802a12c - file date is 8/27/2026 00:06:02
+C:\WINDOWS\system32\ntdll.dll, loaded at 0x7c900000 - 706048 bytes - 4802a12c - file date is 8/27/2026 00:07:02
+C:\WINDOWS\system32\SHELL32.dll, loaded at 0x7c9c0000 - 8461312 bytes - 4802a111 - file date is 8/27/2026 00:07:40
+C:\WINDOWS\system32\USER32.dll, loaded at 0x7e410000 - 578560 bytes - 4802a11b - file date is 8/27/2026 00:08:16

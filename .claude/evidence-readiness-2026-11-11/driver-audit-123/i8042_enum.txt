@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Services\\i8042prt\\Enum","values":[{"name":"Count","type":"REG_DWORD","data":0},{"name":"NextInstance","type":"REG_DWORD","data":0},{"name":"INITSTARTFAILED","type":"REG_DWORD","data":1}],"subkeys":[]}

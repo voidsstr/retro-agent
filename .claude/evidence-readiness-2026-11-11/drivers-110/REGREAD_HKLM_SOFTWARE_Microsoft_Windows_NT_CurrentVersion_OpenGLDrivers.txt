@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers","values":[],"subkeys":["ati2dvag","atidvr10","RIVATNT"]}

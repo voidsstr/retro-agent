@@ -1,0 +1,3730 @@
+{
+ "110": {
+  "greeting": "OK NSC-5C5396FAF9D Win5.1",
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smax4pnp.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 12:12:43"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-03 12:12:43"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-09-26 12:23:26"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-03 12:12:43"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-03 12:12:43"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-15 22:56:19"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-03 12:12:43"
+   ],
+   [
+    "fleetres.cfg",
+    102,
+    "2026-10-15 14:08:21"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-09-26 12:22:47"
+   ],
+   [
+    "save",
+    0,
+    "2026-09-27 03:01:51"
+   ],
+   [
+    "video",
+    0,
+    "2026-09-26 12:22:56"
+   ]
+  ],
+  "fleetres_cfg": "// written by GAMESYNC for this box's monitor - do not edit\r\nset gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": "ERR RetroProtocolError('Cannot open file: error 2')",
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"HP P1120\",\"pnpid\":\"HWP22D3\",\"type\":\"CRT\",\"digital\":false,\"native\":\"1600x1200\",\"native_hz\":85,\"vmax_hz\":160,\"size_cm\":\"40x30\"},\"desktop\":{\"persisted\":\"1600x1200\",\"persisted_hz\":85,\"live\":\"1600x1200\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1600x1200\",\"four_three\":\"1600x1200\",\"aspect\":\"4:3\",\"hz\":85,\"hz_four_three\":85,\"hz_q2\":85,\"hz_q3\":85,\"hz_q2wide\":100,\"hz_src\":\"edid\",\"hz_desktop\":85,\"hz_launcher\":85,\"fov\":90,\"q2mode\":9,\"q2wide\":8,\"q3mode\":9,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@150\",\"320x200@75\",\"320x240@75\",\"400x300@75\",\"480x360@75\",\"512x384@75\",\"640x400@75\",\"720x480@60\",\"720x576@60\",\"800x600@150\",\"848x480@150\",\"960x600@150\",\"1024x768@144\",\"1088x612@150\",\"1152x864@120\",\"1280x720@150\",\"1280x768@144\",\"1280x800@140\",\"1280x960@100\",\"1280x1024@100\",\"1360x768@144\",\"1600x900@120\",\"1600x1024@100\",\"1600x1200@85\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2004-02-20 23:32:47 to 2026-09-30 19:31:55 UTC via http://192.168.1.122/\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59:20 ok\"},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 0 installed, 1 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; PCI Modem: no_candidate\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: active (IPX net 00000000 node 000cf1d7984a, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029633},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1600x1200 (4:3 1600x1200); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\",\"DriverPrefs\"]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:22:09"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:20:48"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:19:10"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:04:28"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:33:22"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:27:18"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:25:28"
+   ]
+  ],
+  "scrnshot": []
+ },
+ "123": {
+  "greeting": "OK NSC-B20C188E96D Win5.1",
+  "procs": [
+   "SOUNDMAN.EXE",
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "ati2evxx.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "retro_agent.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 01:18:42"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-01 07:36:00"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-08-29 03:43:29"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-01 07:36:00"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-01 07:36:00"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 20:40:47"
+   ],
+   [
+    "config.cfg",
+    3405,
+    "2026-10-03 01:18:42"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-01 07:36:00"
+   ],
+   [
+    "fleetres.cfg",
+    98,
+    "2026-10-03 01:17:21"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "lan.cfg",
+    116,
+    "2026-09-01 18:17:36"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-08-29 03:43:00"
+   ],
+   [
+    "video",
+    0,
+    "2026-08-29 03:43:05"
+   ]
+  ],
+  "fleetres_cfg": "// written by the launcher at every start - do not edit\r\nset gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": [
+   "set gl_finish \"1\"",
+   "set gl_driver \"opengl32\"",
+   "set in_mouse \"1\"",
+   "set sw_mode \"0\"",
+   "set vid_ref \"gl\"",
+   "set name \"Player\"",
+   "set vid_fullscreen \"1\"",
+   "set gl_mode \"6\""
+  ],
+  "gameres": "{\"panel\":{\"edid\":false,\"name\":\"\",\"pnpid\":\"\",\"type\":\"CRT\",\"digital\":false,\"native\":\"0x0\",\"native_hz\":0,\"vmax_hz\":0,\"size_cm\":\"0x0\"},\"desktop\":{\"persisted\":\"1280x1024\",\"persisted_hz\":100,\"live\":\"1280x1024\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1280x960\",\"four_three\":\"1280x960\",\"aspect\":\"4:3\",\"hz\":100,\"hz_four_three\":100,\"hz_q2\":100,\"hz_q3\":100,\"hz_q2wide\":100,\"hz_src\":\"persisted\",\"hz_desktop\":180,\"hz_launcher\":100,\"fov\":90,\"q2mode\":8,\"q2wide\":8,\"q3mode\":7,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@160\",\"720x480@60\",\"800x600@160\",\"848x480@85\",\"1024x768@160\",\"1152x864@100\",\"1280x720@85\",\"1280x768@85\",\"1280x800@160\",\"1280x960@160\",\"1280x1024@180\",\"1360x768@85\",\"1440x900@85\",\"1600x1200@120\",\"1680x1050@100\",\"1792x1344@100\",\"1800x1440@100\",\"1856x1392@100\",\"1920x1080@120\",\"1920x1200@100\",\"1920x1440@90\",\"2048x1536@85\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58:04 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:56 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: active (IPX net 00000000 node 0013d4a4a413, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1790840226},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 34 title(s), 1 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:21:57"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:20:36"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:18:58"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:04:17"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:26:24"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:27:06"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:25:16"
+   ]
+  ],
+  "scrnshot": []
+ },
+ "124": {
+  "greeting": "OK NSC-C543575F526 Win5.1",
+  "procs": [
+   "NvMixerTray.exe",
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "cmd.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "ping.exe",
+   "retro_agent.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wmiprvse.exe",
+   "wscntfy.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll.pre",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-02 13:40:39"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-02 13:40:39"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2003-04-02 06:00:35"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "glide3x_38a891e8.bak",
+    1025320,
+    "2026-09-28 02:09:00"
+   ],
+   [
+    "LANCHECK.BAT",
+    105,
+    "2026-09-28 08:31:28"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "retrogl.dll.0176",
+    2773020,
+    "2026-09-28 05:42:47"
+   ],
+   [
+    "retrogl_0178.bak",
+    2773619,
+    "2026-09-28 14:57:42"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-02 13:40:39"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "V56KBENCH.BAT",
+    338,
+    "2026-10-01 23:04:29"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-02 13:40:39"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 20:40:26"
+   ],
+   [
+    "bench.cfg",
+    196,
+    "2026-10-01 23:04:29"
+   ],
+   [
+    "config.cfg",
+    3356,
+    "2026-10-04 23:50:16"
+   ],
+   [
+    "config.cfg.pretune",
+    3357,
+    "2026-10-02 13:40:39"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-01 07:40:09"
+   ],
+   [
+    "fleetres.cfg",
+    98,
+    "2026-10-04 23:49:18"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "lancheck.cfg",
+    80,
+    "2026-09-28 08:31:28"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2003-04-02 05:59:53"
+   ],
+   [
+    "qconsole.log",
+    5646,
+    "2026-10-01 23:04:46"
+   ],
+   [
+    "save",
+    0,
+    "2026-09-26 06:21:34"
+   ],
+   [
+    "scrnshot",
+    0,
+    "2026-09-28 08:57:08"
+   ],
+   [
+    "video",
+    0,
+    "2003-04-02 06:00:03"
+   ]
+  ],
+  "fleetres_cfg": "// written by the launcher at every start - do not edit\r\nset gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": [
+   "set vid_ref \"gl\"",
+   "set gl_driver \"opengl32\"",
+   "set in_mouse \"1\"",
+   "set gl_finish \"0\"",
+   "set name \"Player\"",
+   "set vid_fullscreen \"1\"",
+   "set gl_mode \"8\""
+  ],
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"CPD-G200\",\"pnpid\":\"SNY1270\",\"type\":\"CRT\",\"digital\":false,\"native\":\"1024x768\",\"native_hz\":85,\"vmax_hz\":120,\"size_cm\":\"33x24\"},\"desktop\":{\"persisted\":\"1280x1024\",\"persisted_hz\":85,\"live\":\"1280x1024\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1280x960\",\"four_three\":\"1280x960\",\"aspect\":\"4:3\",\"hz\":85,\"hz_four_three\":85,\"hz_q2\":85,\"hz_q3\":100,\"hz_q2wide\":85,\"hz_src\":\"edid\",\"hz_desktop\":85,\"hz_launcher\":85,\"fov\":90,\"q2mode\":8,\"q2wide\":8,\"q3mode\":7,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"320x240@85\",\"400x300@85\",\"512x384@85\",\"640x480@120\",\"800x600@120\",\"1024x768@100\",\"1152x864@100\",\"1280x960@85\",\"1280x1024@85\",\"1600x1200@70\",\"720x576@100\",\"960x720@75\",\"320x200@85\",\"640x400@85\",\"720x480@85\",\"1600x1024@85\",\"1280x720@60\",\"1280x800@60\",\"1360x768@60\",\"1440x900@60\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00:38 ok\"},{\"name\":\"AIEngine\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2003-04-02 04:06:24 to 2026-11-08 04:54:28 UTC via http://192.168.1.122/\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"},{\"name\":\"GlideRender\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"ok: 0 copied, 2 current, 0 failed (card PCI\\\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\\\\5&2cfcdcf8&0&0000F0)\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: active (IPX net 00000000 node 00d0b74096a9, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1790840482},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: 32 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=78 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\",\"DriverPrefs\"]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:23:16"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:21:56"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:20:18"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:12:30"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:32:38"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:28:25"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:26:35"
+   ]
+  ],
+  "scrnshot": [
+   [
+    "quake00.tga",
+    2359314,
+    "2026-09-26 06:21:39"
+   ],
+   [
+    "quake01.tga",
+    3686418,
+    "2026-09-28 04:51:13"
+   ],
+   [
+    "quake02.tga",
+    3686418,
+    "2026-09-28 04:51:15"
+   ],
+   [
+    "quake03.tga",
+    3686418,
+    "2026-09-28 04:52:01"
+   ],
+   [
+    "quake04.tga",
+    3686418,
+    "2026-09-28 04:52:02"
+   ],
+   [
+    "quake05.tga",
+    3686418,
+    "2026-09-28 04:52:42"
+   ],
+   [
+    "quake06.tga",
+    3686418,
+    "2026-09-28 04:52:43"
+   ],
+   [
+    "quake07.tga",
+    3686418,
+    "2026-09-28 04:53:28"
+   ],
+   [
+    "quake08.tga",
+    3686418,
+    "2026-09-28 04:53:39"
+   ],
+   [
+    "quake09.tga",
+    3686418,
+    "2026-09-28 04:53:50"
+   ],
+   [
+    "quake10.tga",
+    3686418,
+    "2026-09-28 04:56:10"
+   ],
+   [
+    "quake11.tga",
+    3686418,
+    "2026-09-28 04:56:44"
+   ],
+   [
+    "quake12.tga",
+    3686418,
+    "2026-09-28 04:57:18"
+   ],
+   [
+    "quake13.tga",
+    3686418,
+    "2026-09-28 08:36:12"
+   ],
+   [
+    "quake14.tga",
+    3686418,
+    "2026-09-28 08:40:26"
+   ],
+   [
+    "quake15.tga",
+    3686418,
+    "2026-09-28 08:44:33"
+   ],
+   [
+    "quake16.tga",
+    3686418,
+    "2026-09-28 08:48:46"
+   ],
+   [
+    "quake17.tga",
+    3686418,
+    "2026-09-28 08:53:00"
+   ],
+   [
+    "quake18.tga",
+    3686418,
+    "2026-09-28 08:57:08"
+   ]
+  ],
+  "vcr": [
+   [
+    "am31",
+    0,
+    "2026-09-26 04:25:23"
+   ],
+   [
+    "d3dprobe",
+    0,
+    "2026-11-08 07:40:58"
+   ],
+   [
+    "d3dprobe.exe",
+    478848,
+    "2026-09-28 16:47:12"
+   ],
+   [
+    "ddlab",
+    0,
+    "2026-09-28 03:13:43"
+   ],
+   [
+    "desk.bmp",
+    3932214,
+    "2026-09-28 15:36:03"
+   ],
+   [
+    "ev.cmd",
+    271,
+    "2026-09-30 13:22:28"
+   ],
+   [
+    "ev.txt",
+    10,
+    "2026-09-30 13:22:32"
+   ],
+   [
+    "ev2.txt",
+    23486,
+    "2026-09-30 13:22:33"
+   ],
+   [
+    "fbshot.bmp",
+    3686454,
+    "2026-09-28 11:00:31"
+   ],
+   [
+    "fb_carma2.bmp",
+    921654,
+    "2026-09-28 15:37:33"
+   ],
+   [
+    "fb_carma2_menu.bmp",
+    921654,
+    "2026-09-28 15:38:02"
+   ],
+   [
+    "fb_carma2_menu2.bmp",
+    921654,
+    "2026-09-28 15:39:12"
+   ],
+   [
+    "fb_carma2_quit.bmp",
+    921654,
+    "2026-09-28 15:44:31"
+   ],
+   [
+    "fb_carma2_quit2.bmp",
+    921654,
+    "2026-09-28 15:44:41"
+   ],
+   [
+    "fb_carma2_quit3.bmp",
+    921654,
+    "2026-09-28 15:44:50"
+   ],
+   [
+    "fb_carma2_quit4.bmp",
+    921654,
+    "2026-09-28 15:45:01"
+   ],
+   [
+    "fb_carma2_quit5.bmp",
+    921654,
+    "2026-09-28 15:45:14"
+   ],
+   [
+    "fb_carma2_quit6.bmp",
+    921654,
+    "2026-09-28 15:45:23"
+   ],
+   [
+    "fb_carma2_race.bmp",
+    921654,
+    "2026-09-28 15:39:48"
+   ],
+   [
+    "fb_carma2_race2.bmp",
+    921654,
+    "2026-09-28 15:40:31"
+   ],
+   [
+    "fb_carma2_race3.bmp",
+    921654,
+    "2026-09-28 15:41:18"
+   ],
+   [
+    "fb_carma2_race4.bmp",
+    921654,
+    "2026-09-28 15:42:09"
+   ],
+   [
+    "fb_carma2_race5.bmp",
+    921654,
+    "2026-09-28 15:43:05"
+   ],
+   [
+    "fb_carma2_race6.bmp",
+    921654,
+    "2026-09-28 15:44:18"
+   ],
+   [
+    "fb_dmc.bmp",
+    3686454,
+    "2026-09-28 15:48:27"
+   ],
+   [
+    "fb_halo.bmp",
+    3932214,
+    "2026-09-28 16:54:45"
+   ],
+   [
+    "fb_halo2.bmp",
+    3686454,
+    "2026-09-28 19:40:04"
+   ],
+   [
+    "fb_halo3.bmp",
+    3932214,
+    "2026-09-28 17:02:21"
+   ],
+   [
+    "fb_halo4.bmp",
+    3686454,
+    "2026-09-28 17:24:13"
+   ],
+   [
+    "fb_halo5.bmp",
+    3686454,
+    "2026-09-28 17:27:10"
+   ],
+   [
+    "fb_halo_camp.bmp",
+    3686454,
+    "2026-09-28 17:27:50"
+   ],
+   [
+    "fb_halo_libdeploy.bmp",
+    3686454,
+    "2026-09-28 19:29:09"
+   ],
+   [
+    "fb_halo_menu.bmp",
+    3686454,
+    "2026-09-28 17:24:56"
+   ],
+   [
+    "fb_halo_menu2.bmp",
+    3686454,
+    "2026-09-28 17:27:38"
+   ],
+   [
+    "fb_halo_novideo.bmp",
+    3686454,
+    "2026-09-28 19:44:07"
+   ],
+   [
+    "fb_jkdf2.bmp",
+    921654,
+    "2026-09-28 16:06:53"
+   ],
+   [
+    "fb_jkdf2_3d.bmp",
+    921654,
+    "2026-09-28 16:09:41"
+   ],
+   [
+    "fb_jkdf2_after.bmp",
+    921654,
+    "2026-09-28 16:10:09"
+   ],
+   [
+    "fb_jkdf2_after2.bmp",
+    921654,
+    "2026-09-28 16:10:20"
+   ],
+   [
+    "fb_jkdf2_d3d.bmp",
+    3932214,
+    "2026-09-28 16:10:36"
+   ],
+   [
+    "fb_jkdf2_d3d2.bmp",
+    3686454,
+    "2026-09-28 16:19:09"
+   ],
+   [
+    "fb_jkdf2_d3d3.bmp",
+    3686454,
+    "2026-09-28 16:20:28"
+   ],
+   [
+    "fb_jkdf2_display.bmp",
+    921654,
+    "2026-09-28 16:09:32"
+   ],
+   [
+    "fb_jkdf2_esc.bmp",
+    921654,
+    "2026-09-28 16:09:15"
+   ],
+   [
+    "fb_jkdf2_game.bmp",
+    921654,
+    "2026-09-28 16:08:49"
+   ],
+   [
+    "fb_jkdf2_menu.bmp",
+    3932214,
+    "2026-09-28 16:07:11"
+   ],
+   [
+    "fb_jkdf2_menu2.bmp",
+    921654,
+    "2026-09-28 16:07:51"
+   ],
+   [
+    "fb_jkdf2_menu3.bmp",
+    921654,
+    "2026-09-28 16:08:01"
+   ],
+   [
+    "fb_jkdf2_modes.bmp",
+    921654,
+    "2026-09-28 16:09:51"
+   ],
+   [
+    "fb_jkdf2_new.bmp",
+    921654,
+    "2026-09-28 16:08:19"
+   ],
+   [
+    "fb_jkdf2_sel.bmp",
+    921654,
+    "2026-09-28 16:10:00"
+   ],
+   [
+    "fb_jkdf2_setup.bmp",
+    921654,
+    "2026-09-28 16:09:24"
+   ],
+   [
+    "fb_jkdf2_sp.bmp",
+    921654,
+    "2026-09-28 16:08:10"
+   ],
+   [
+    "fb_jk_abort.bmp",
+    921654,
+    "2026-09-28 16:20:50"
+   ],
+   [
+    "fb_jk_esc2.bmp",
+    921654,
+    "2026-09-28 16:20:46"
+   ],
+   [
+    "fb_jk_main.bmp",
+    921654,
+    "2026-09-28 16:21:01"
+   ],
+   [
+    "fb_jk_quit.bmp",
+    921654,
+    "2026-09-28 16:21:23"
+   ],
+   [
+    "fb_mots.bmp",
+    921654,
+    "2026-09-28 16:23:05"
+   ],
+   [
+    "fb_mots_display.bmp",
+    921654,
+    "2026-09-28 16:23:45"
+   ],
+   [
+    "fb_mots_game.bmp",
+    3686454,
+    "2026-09-28 16:25:01"
+   ],
+   [
+    "fb_mots_main.bmp",
+    921654,
+    "2026-09-28 16:23:27"
+   ],
+   [
+    "fb_mots_menu.bmp",
+    921654,
+    "2026-09-28 16:23:17"
+   ],
+   [
+    "fb_mots_modes.bmp",
+    921654,
+    "2026-09-28 16:23:53"
+   ],
+   [
+    "fb_mots_new.bmp",
+    921654,
+    "2026-09-28 16:24:28"
+   ],
+   [
+    "fb_mots_setup.bmp",
+    921654,
+    "2026-09-28 16:23:36"
+   ],
+   [
+    "fb_mots_sp.bmp",
+    921654,
+    "2026-09-28 16:24:16"
+   ],
+   [
+    "fb_r6.bmp",
+    921654,
+    "2026-09-28 17:19:34"
+   ],
+   [
+    "fb_t2d3d9.bmp",
+    3686454,
+    "2026-09-29 03:10:59"
+   ],
+   [
+    "fb_tfc.bmp",
+    3686454,
+    "2026-09-28 15:52:32"
+   ],
+   [
+    "fb_thief2.bmp",
+    921654,
+    "2026-09-28 17:05:34"
+   ],
+   [
+    "fb_thief2_c2.bmp",
+    921654,
+    "2026-09-28 17:06:52"
+   ],
+   [
+    "fb_thief2_d3d9_armed_1.bmp",
+    3686454,
+    "2026-09-29 03:11:32"
+   ],
+   [
+    "fb_thief2_d3d9_armed_2.bmp",
+    3686454,
+    "2026-09-29 03:11:51"
+   ],
+   [
+    "fb_thief2_d3d9_armed_3.bmp",
+    3686454,
+    "2026-09-29 03:12:06"
+   ],
+   [
+    "fb_thief2_d3d9_armed_4.bmp",
+    3686454,
+    "2026-09-29 03:12:56"
+   ],
+   [
+    "fb_thief2_d3d9_armed_5.bmp",
+    3686454,
+    "2026-09-29 03:15:09"
+   ],
+   [
+    "fb_thief2_d3d9_armed_6.bmp",
+    3686454,
+    "2026-09-29 03:15:25"
+   ],
+   [
+    "fb_thief2_d3d9_armed_7.bmp",
+    3932214,
+    "2026-09-29 03:15:40"
+   ],
+   [
+    "fb_thief2_esc.bmp",
+    921654,
+    "2026-09-28 17:07:34"
+   ],
+   [
+    "fb_thief2_launcher_d3d9.bmp",
+    3686454,
+    "2026-09-29 03:19:23"
+   ],
+   [
+    "fb_thief2_launcher_quit.bmp",
+    3932214,
+    "2026-09-29 03:19:39"
+   ],
+   [
+    "fb_thief2_lib.bmp",
+    921654,
+    "2026-09-28 17:34:34"
+   ],
+   [
+    "fb_thief2_ng.bmp",
+    921654,
+    "2026-09-28 17:05:51"
+   ],
+   [
+    "fb_thief2_q.bmp",
+    921654,
+    "2026-09-28 17:07:46"
+   ],
+   [
+    "fb_thief2_q2.bmp",
+    3932214,
+    "2026-09-28 17:08:00"
+   ],
+   [
+    "fb_thief2_start.bmp",
+    921654,
+    "2026-09-28 17:06:09"
+   ],
+   [
+    "fb_ug_exit.bmp",
+    2359350,
+    "2026-09-28 16:27:19"
+   ],
+   [
+    "fb_ug_join.bmp",
+    2359350,
+    "2026-09-28 15:56:50"
+   ],
+   [
+    "fb_ug_join2.bmp",
+    2359350,
+    "2026-09-28 15:57:28"
+   ],
+   [
+    "fb_ug_mp.bmp",
+    2359350,
+    "2026-09-28 16:37:28"
+   ],
+   [
+    "fb_ug_shortcut.bmp",
+    2359350,
+    "2026-09-28 16:27:04"
+   ],
+   [
+    "fb_unrealgold.bmp",
+    2359350,
+    "2026-09-28 15:55:32"
+   ],
+   [
+    "gammaprobe.exe",
+    277918,
+    "2026-09-28 14:38:31"
+   ],
+   [
+    "gdilab",
+    0,
+    "2026-09-28 04:22:02"
+   ],
+   [
+    "glide3x_h5_0925.dll",
+    1005435,
+    "2026-09-25 09:29:43"
+   ],
+   [
+    "glide3x_trace.dll",
+    1031416,
+    "2026-09-28 15:33:27"
+   ],
+   [
+    "glidelab",
+    0,
+    "2026-10-01 15:06:58"
+   ],
+   [
+    "gllog.txt",
+    82397,
+    "2026-09-26 16:42:47"
+   ],
+   [
+    "halo-purge-bak",
+    0,
+    "2026-09-28 19:00:09"
+   ],
+   [
+    "hpurge.bat",
+    692,
+    "2026-09-28 19:00:09"
+   ],
+   [
+    "ja.bmp",
+    3686454,
+    "2026-09-29 14:53:23"
+   ],
+   [
+    "lastswitch.dat",
+    8,
+    "2026-11-08 07:41:01"
+   ],
+   [
+    "log0929.txt",
+    83340,
+    "2026-09-29 20:19:34"
+   ],
+   [
+    "log4.txt",
+    67398,
+    "2026-09-30 13:37:19"
+   ],
+   [
+    "lognow.txt",
+    85029,
+    "2026-10-15 22:58:07"
+   ],
+   [
+    "maxpayne_dt.bmp",
+    3932214,
+    "2026-09-29 17:36:47"
+   ],
+   [
+    "mp2.bmp",
+    3932214,
+    "2026-09-29 17:37:45"
+   ],
+   [
+    "prev0929",
+    0,
+    "2026-09-29 04:50:21"
+   ],
+   [
+    "q2aa.bat",
+    183,
+    "2026-09-30 13:39:15"
+   ],
+   [
+    "q2aa.trace",
+    6966883,
+    "2026-09-30 13:42:48"
+   ],
+   [
+    "q2aa2.bat",
+    210,
+    "2026-09-30 15:58:59"
+   ],
+   [
+    "q2aa2.trace",
+    30385,
+    "2026-09-30 15:59:12"
+   ],
+   [
+    "q2aa3.bat",
+    210,
+    "2026-09-30 16:59:49"
+   ],
+   [
+    "q2aa3.trace",
+    2699373,
+    "2026-09-30 17:01:26"
+   ],
+   [
+    "q2aa4x.bat",
+    212,
+    "2026-09-30 17:22:23"
+   ],
+   [
+    "q2aa4x.trace",
+    535504,
+    "2026-09-30 17:23:44"
+   ],
+   [
+    "q2aa4xb.bat",
+    63,
+    "2026-09-30 18:48:28"
+   ],
+   [
+    "q2aa8x.bat",
+    212,
+    "2026-09-30 18:52:41"
+   ],
+   [
+    "q2aa8x.trace",
+    49211,
+    "2026-09-30 18:52:59"
+   ],
+   [
+    "q2aa8x2.bat",
+    214,
+    "2026-09-30 23:13:15"
+   ],
+   [
+    "q2aa8x2.trace",
+    164385,
+    "2026-09-30 23:14:38"
+   ],
+   [
+    "q2aa8xp1.bat",
+    63,
+    "2026-09-30 23:15:52"
+   ],
+   [
+    "q2aa8xp2.bat",
+    63,
+    "2026-09-30 23:17:23"
+   ],
+   [
+    "q2plain.bat",
+    63,
+    "2026-09-30 17:15:36"
+   ],
+   [
+    "q2ref.bat",
+    210,
+    "2026-09-30 15:26:53"
+   ],
+   [
+    "q2ref.trace",
+    626355,
+    "2026-09-30 15:27:39"
+   ],
+   [
+    "q2sli.bat",
+    185,
+    "2026-09-30 15:16:50"
+   ],
+   [
+    "q2sli.trace",
+    2005002,
+    "2026-09-30 15:18:05"
+   ],
+   [
+    "retroicd_0.1.76.dll",
+    2773020,
+    "2026-09-28 05:42:47"
+   ],
+   [
+    "retroicd_0177.dll",
+    2773619,
+    "2026-09-28 14:31:33"
+   ],
+   [
+    "retroicd_0178.dll",
+    2773619,
+    "2026-09-28 14:57:42"
+   ],
+   [
+    "rf.bmp",
+    921654,
+    "2026-09-29 09:48:34"
+   ],
+   [
+    "ringnow.txt",
+    63,
+    "2026-10-15 22:57:17"
+   ],
+   [
+    "rq_log0.txt",
+    18296,
+    "2026-09-29 07:56:54"
+   ],
+   [
+    "rt4.reg",
+    93,
+    "2026-09-28 19:16:23"
+   ],
+   [
+    "serioussam_tfe_dt.bmp",
+    3932214,
+    "2026-09-29 17:44:59"
+   ],
+   [
+    "serioussam_tse_dt.bmp",
+    3932214,
+    "2026-09-29 17:47:41"
+   ],
+   [
+    "signpolicy.reg",
+    195,
+    "2026-09-30 20:42:52"
+   ],
+   [
+    "sof2.bmp",
+    2986038,
+    "2026-09-29 09:44:09"
+   ],
+   [
+    "sof2close.trace",
+    3050834,
+    "2026-09-28 15:34:38"
+   ],
+   [
+    "sof2hang.txt",
+    0,
+    "2026-09-28 15:26:27"
+   ],
+   [
+    "SOF2TRACE.BAT",
+    199,
+    "2026-09-28 15:33:27"
+   ],
+   [
+    "ss2b.bmp",
+    921654,
+    "2026-09-29 17:35:25"
+   ],
+   [
+    "ssam.bmp",
+    3686454,
+    "2026-09-29 17:46:00"
+   ],
+   [
+    "sse.bmp",
+    3686454,
+    "2026-09-29 17:48:35"
+   ],
+   [
+    "ss_tfe_m2.bmp",
+    3686454,
+    "2026-09-29 17:17:16"
+   ],
+   [
+    "ss_tfe_menu.bmp",
+    3686454,
+    "2026-09-29 17:16:52"
+   ],
+   [
+    "sweeplog.txt",
+    86836,
+    "2026-09-26 12:05:12"
+   ],
+   [
+    "systemshock2_dt.bmp",
+    921654,
+    "2026-09-29 17:34:37"
+   ],
+   [
+    "tse_a.bmp",
+    3686454,
+    "2026-09-29 17:53:12"
+   ],
+   [
+    "tse_b.bmp",
+    3686454,
+    "2026-09-29 17:53:35"
+   ],
+   [
+    "vcrctl.exe",
+    326480,
+    "2026-10-05 00:01:23"
+   ],
+   [
+    "vcrctl_0930.exe",
+    321664,
+    "2026-10-05 00:01:23"
+   ],
+   [
+    "vcrctl_fb.exe",
+    311326,
+    "2026-09-28 10:56:53"
+   ],
+   [
+    "vcrctl_fb2.exe",
+    318306,
+    "2026-09-28 15:36:01"
+   ],
+   [
+    "vcrdd.dll",
+    106351,
+    "2026-09-30 20:42:52"
+   ],
+   [
+    "vcrdd_13256e46.dll",
+    107375,
+    "2026-11-08 07:02:20"
+   ],
+   [
+    "vcrdd_26e0e5be.dll",
+    107375,
+    "2026-11-08 06:56:17"
+   ],
+   [
+    "vcrdd_3255b126.dll",
+    107375,
+    "2026-11-08 06:45:44"
+   ],
+   [
+    "vcrdd_95678704.dll",
+    107375,
+    "2026-11-08 07:30:22"
+   ],
+   [
+    "vcrdd_b478d095.dll",
+    107375,
+    "2026-11-08 06:51:00"
+   ],
+   [
+    "vcrdd_b63ea6a5.dll",
+    106351,
+    "2026-09-30 20:42:52"
+   ],
+   [
+    "vcrdd_ef30672a.dll",
+    106351,
+    "2026-11-08 06:25:50"
+   ],
+   [
+    "vcrkmd.inf",
+    3110,
+    "2026-09-30 20:42:52"
+   ],
+   [
+    "vcrmp.sys",
+    130105,
+    "2026-09-30 20:42:52"
+   ],
+   [
+    "vcrprobe.sys",
+    10440,
+    "2026-09-28 03:11:05"
+   ],
+   [
+    "wintext.exe",
+    254985,
+    "2026-09-28 17:19:56"
+   ]
+  ],
+  "ogl3dfx": "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\OpenGLDrivers\\\\3dfx\",\"values\":[{\"name\":\"DLL\",\"type\":\"REG_SZ\",\"data\":\"retroicd.dll\"},{\"name\":\"Flags\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"Version\",\"type\":\"REG_DWORD\",\"data\":2},{\"name\":\"DriverVersion\",\"type\":\"REG_DWORD\",\"data\":1}],\"subkeys\":[]}"
+ },
+ "133": {
+  "greeting": "OK P3-DUAL Win5.1",
+  "procs": [
+   "CTHELPER.EXE",
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 12:14:22"
+   ],
+   [
+    "config.cfg",
+    2171,
+    "2026-09-01 02:45:02"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-03 12:14:22"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-08-28 17:21:07"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-03 12:14:22"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-03 12:14:22"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 23:46:38"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-03 12:14:22"
+   ],
+   [
+    "fleetres.cfg",
+    98,
+    "2026-08-31 19:44:28"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "lan.cfg",
+    116,
+    "2026-09-01 18:21:47"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-08-28 17:20:11"
+   ],
+   [
+    "video",
+    0,
+    "2026-08-28 17:20:26"
+   ]
+  ],
+  "fleetres_cfg": "// written by the launcher at every start - do not edit\r\nset gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": "ERR RetroProtocolError('Cannot open file: error 2')",
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"\",\"pnpid\":\"VSC384D\",\"type\":\"CRT\",\"digital\":false,\"native\":\"1280x1024\",\"native_hz\":85,\"vmax_hz\":0,\"size_cm\":\"37x28\"},\"desktop\":{\"persisted\":\"1280x1024\",\"persisted_hz\":85,\"live\":\"1280x1024\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1280x960\",\"four_three\":\"1280x960\",\"aspect\":\"4:3\",\"hz\":85,\"hz_four_three\":85,\"hz_q2\":85,\"hz_q3\":85,\"hz_q2wide\":85,\"hz_src\":\"persisted\",\"hz_desktop\":85,\"hz_launcher\":85,\"fov\":90,\"q2mode\":8,\"q2wide\":8,\"q3mode\":7,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@170\",\"320x200@75\",\"320x240@75\",\"400x300@75\",\"480x360@75\",\"512x384@75\",\"640x400@75\",\"720x480@60\",\"720x576@60\",\"800x600@144\",\"848x480@170\",\"960x600@144\",\"1024x768@100\",\"1152x864@100\",\"1280x720@120\",\"1280x768@100\",\"1280x800@100\",\"1280x960@85\",\"1280x1024@85\",\"1360x768@100\",\"1600x900@85\",\"1600x1024@85\",\"1600x1200@72\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01:02 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 0 installed, 3 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; PC/AT PS/2 Keyboard (84-Key): problem_not_driver_fixable; Microsoft PS/2 Mouse: problem_not_driver_fixable; Creative Game Port: failed\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01 ok: active (IPX net 00000000 node 000c41e84fce, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029731},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 33 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=81 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\"]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:22:09"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:20:48"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:19:10"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:04:28"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:26:54"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:27:18"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:25:28"
+   ]
+  ],
+  "scrnshot": []
+ },
+ "143": {
+  "greeting": "OK 1GHZ Win5.1",
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "ctfmon.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 12:16:06"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-03 12:16:06"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-08-28 17:22:57"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-03 12:16:06"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-03 12:16:06"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 23:55:56"
+   ],
+   [
+    "config.cfg",
+    1538,
+    "2026-08-29 17:12:26"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-03 12:16:06"
+   ],
+   [
+    "fleetres.cfg",
+    102,
+    "2026-09-26 19:07:42"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "lan.cfg",
+    116,
+    "2026-09-01 18:18:57"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-08-28 17:22:01"
+   ],
+   [
+    "qconsole.log",
+    10105,
+    "2026-09-26 20:55:32"
+   ],
+   [
+    "scrnshot",
+    0,
+    "2026-08-31 18:18:01"
+   ],
+   [
+    "video",
+    0,
+    "2026-08-28 17:22:13"
+   ]
+  ],
+  "fleetres_cfg": "// written by GAMESYNC for this box's monitor - do not edit\r\nset gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": [
+   "set in_mouse \"1\"",
+   "set sw_mode \"0\"",
+   "set vid_ref \"soft\"",
+   "set name \"Player\"",
+   "set vid_fullscreen \"1\""
+  ],
+  "gameres": "{\"panel\":{\"edid\":false,\"name\":\"\",\"pnpid\":\"\",\"type\":\"CRT\",\"digital\":false,\"native\":\"0x0\",\"native_hz\":0,\"vmax_hz\":0,\"size_cm\":\"0x0\"},\"desktop\":{\"persisted\":\"1280x1024\",\"persisted_hz\":60,\"live\":\"1024x768\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1280x960\",\"four_three\":\"1280x960\",\"aspect\":\"4:3\",\"hz\":60,\"hz_four_three\":60,\"hz_q2\":60,\"hz_q3\":60,\"hz_q2wide\":60,\"hz_src\":\"persisted\",\"hz_desktop\":170,\"hz_launcher\":60,\"fov\":90,\"q2mode\":8,\"q2wide\":8,\"q3mode\":7,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@170\",\"320x200@75\",\"320x240@75\",\"400x300@75\",\"480x360@75\",\"512x384@75\",\"640x400@75\",\"720x480@60\",\"720x576@60\",\"800x600@170\",\"848x480@170\",\"960x600@170\",\"1024x768@170\",\"1088x612@170\",\"1152x864@170\",\"1280x720@170\",\"1280x768@170\",\"1280x800@170\",\"1280x960@170\",\"1280x1024@170\",\"1360x768@170\",\"1600x900@150\",\"1600x1024@120\",\"1600x1200@120\",\"1920x1080@100\",\"1920x1200@100\",\"1920x1440@85\",\"2048x1536@85\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"ProxyHost\",\"type\":\"REG_SZ\",\"data\":\"192.168.1.132\"},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"Onboarded\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59:42 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 0 installed, 1 device(s) looked at; store C:\\\\D; Standard Game Port: problem_not_driver_fixable\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: active (IPX net 00000000 node 0008a10352c4, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[\"Parked\"]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:22:25"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:21:04"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:19:26"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:04:44"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:27:02"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:27:34"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:25:44"
+   ]
+  ],
+  "scrnshot": [
+   [
+    "quake00.tga",
+    2359314,
+    "2026-08-31 18:16:34"
+   ],
+   [
+    "quake01.tga",
+    2359314,
+    "2026-08-31 18:17:20"
+   ],
+   [
+    "quake02.tga",
+    2359314,
+    "2026-08-31 18:17:58"
+   ],
+   [
+    "quake03.tga",
+    2359314,
+    "2026-08-31 18:18:01"
+   ]
+  ]
+ },
+ "171": {
+  "greeting": "OK NSC-5B996B81319 Win5.1",
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smax4pnp.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 12:13:00"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-03 12:13:00"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2004-11-15 21:22:23"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-03 12:13:00"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-03 12:13:00"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 23:45:54"
+   ],
+   [
+    "config.cfg",
+    2178,
+    "2004-11-08 05:29:39"
+   ],
+   [
+    "config.cfg.preretrogl",
+    3319,
+    "2004-11-08 09:08:24"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-03 12:13:00"
+   ],
+   [
+    "fleetres.cfg",
+    102,
+    "2026-09-30 01:03:08"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2004-11-15 21:21:40"
+   ],
+   [
+    "save",
+    0,
+    "2004-11-08 05:11:45"
+   ],
+   [
+    "scrnshot",
+    0,
+    "2026-08-30 01:24:51"
+   ],
+   [
+    "video",
+    0,
+    "2004-11-15 21:21:50"
+   ]
+  ],
+  "fleetres_cfg": "// written by GAMESYNC for this box's monitor - do not edit\r\nset gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": [
+   "set gl_finish \"1\"",
+   "set gl_mode \"4\"",
+   "set gl_driver \"opengl32\"",
+   "set in_mouse \"1\"",
+   "set vid_ref \"gl\"",
+   "set name \"Player\"",
+   "set vid_fullscreen \"1\""
+  ],
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"AOC Spectrum\",\"pnpid\":\"EPID995\",\"type\":\"CRT\",\"digital\":false,\"native\":\"1280x1024\",\"native_hz\":85,\"vmax_hz\":160,\"size_cm\":\"36x27\"},\"desktop\":{\"persisted\":\"1280x1024\",\"persisted_hz\":85,\"live\":\"1280x1024\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1280x960\",\"four_three\":\"1280x960\",\"aspect\":\"4:3\",\"hz\":85,\"hz_four_three\":85,\"hz_q2\":85,\"hz_q3\":85,\"hz_q2wide\":85,\"hz_src\":\"edid\",\"hz_desktop\":85,\"hz_launcher\":85,\"fov\":90,\"q2mode\":8,\"q2wide\":8,\"q3mode\":7,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@85\",\"720x480@60\",\"720x576@60\",\"800x600@85\",\"848x480@85\",\"960x600@85\",\"1024x768@85\",\"1152x864@85\",\"1280x720@85\",\"1280x768@85\",\"1280x800@85\",\"1280x960@85\",\"1280x1024@85\",\"1360x768@85\",\"1440x900@85\",\"1600x900@85\",\"1600x1200@75\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"AIEngine\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59:19 ok\"},{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2004-11-08 04:10:38 to 2026-09-29 17:28:52 UTC via http://192.168.1.122/\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: active (IPX net 00000000 node 0013207b2d45, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029650},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:22:08"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:20:48"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:19:09"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:04:28"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-13 13:15:15"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:27:17"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:25:28"
+   ]
+  ],
+  "scrnshot": [
+   [
+    "quake00.tga",
+    1440018,
+    "2004-11-08 23:40:14"
+   ],
+   [
+    "quake01.tga",
+    1440018,
+    "2004-11-08 23:40:18"
+   ],
+   [
+    "quake02.tga",
+    2359314,
+    "2026-08-30 01:24:51"
+   ]
+  ]
+ },
+ "184": {
+  "greeting": "OK NSC-CABE14B7486 Win5.1",
+  "procs": [
+   "System",
+   "[System Process]",
+   "alg.exe",
+   "csrss.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "nvsvc32.exe",
+   "retro_agent.exe",
+   "rundll32.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 12:13:56"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-03 12:13:56"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-08-29 20:05:06"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-03 12:13:56"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-03 12:13:56"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 23:51:17"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-03 12:13:56"
+   ],
+   [
+    "fleetres.cfg",
+    98,
+    "2026-08-31 16:42:16"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-08-29 20:04:04"
+   ],
+   [
+    "video",
+    0,
+    "2026-08-29 20:04:19"
+   ]
+  ],
+  "fleetres_cfg": "// written by the launcher at every start - do not edit\r\nset gl_mode \"6\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": "ERR RetroProtocolError('Cannot open file: error 2')",
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"A90\",\"pnpid\":\"VSC504E\",\"type\":\"CRT\",\"digital\":false,\"native\":\"1280x960\",\"native_hz\":85,\"vmax_hz\":180,\"size_cm\":\"37x28\"},\"desktop\":{\"persisted\":\"1024x768\",\"persisted_hz\":85,\"live\":\"1024x768\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1024x768\",\"four_three\":\"1024x768\",\"aspect\":\"4:3\",\"hz\":85,\"hz_four_three\":85,\"hz_q2\":85,\"hz_q3\":85,\"hz_q2wide\":85,\"hz_src\":\"edid\",\"hz_desktop\":85,\"hz_launcher\":85,\"fov\":90,\"q2mode\":6,\"q2wide\":6,\"q3mode\":6,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@85\",\"320x200@75\",\"320x240@75\",\"400x300@75\",\"480x360@75\",\"512x384@75\",\"640x400@75\",\"720x480@60\",\"720x576@60\",\"800x600@85\",\"848x480@85\",\"1024x768@85\",\"1152x864@85\",\"1280x720@85\",\"1280x768@85\",\"1280x960@85\",\"1280x1024@75\",\"1360x768@75\",\"1600x900@75\",\"1600x1024@75\",\"1600x1200@60\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01:40 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 0 installed, 2 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; Standard 101/102-Key or Microsoft Natura: problem_not_driver_fixable; PS/2 Compatible Mouse: problem_not_driver_fixable\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01 ok: active (IPX net 00000000 node 080009ebd1a5, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029705},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 33 title(s), 0 value(s) changed, 0 absent, target 1024x768 (4:3 1024x768); verify ok=81 wrong=0 absent=0\"}],\"subkeys\":[\"DriverPrefs\"]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:22:50"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:21:29"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:19:51"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:05:09"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:31:49"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:27:58"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:26:09"
+   ]
+  ],
+  "scrnshot": []
+ },
+ "186": {
+  "greeting": "OK ADMIN-PC Win6.1",
+  "procs": [
+   "SearchIndexer.exe",
+   "System",
+   "[System Process]",
+   "conhost.exe",
+   "csrss.exe",
+   "dwm.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "lsm.exe",
+   "retro_agent.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "sppsvc.exe",
+   "svchost.exe",
+   "taskhost.exe",
+   "wininit.exe",
+   "winlogon.exe",
+   "wmpnetwk.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-01 14:55:14"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-01 14:55:15"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-09-29 20:20:13"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-01 14:55:15"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-01 14:55:15"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-11-08 05:17:43"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-01 14:55:14"
+   ],
+   [
+    "fleetres.cfg",
+    102,
+    "2026-10-01 14:56:02"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-09-29 20:20:00"
+   ],
+   [
+    "video",
+    0,
+    "2026-09-29 20:20:03"
+   ]
+  ],
+  "fleetres_cfg": "// written by GAMESYNC for this box's monitor - do not edit\r\nset gl_mode \"9\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": "ERR RetroProtocolError('Cannot open file: error 2')",
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"DELL P2312H\",\"pnpid\":\"DEL4077\",\"type\":\"LCD\",\"digital\":true,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"51x29\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":1,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1024x768\",\"aspect\":\"16:9\",\"hz\":0,\"hz_four_three\":0,\"hz_q2\":0,\"hz_q3\":0,\"hz_q2wide\":0,\"hz_src\":\"none\",\"hz_desktop\":0,\"hz_launcher\":60,\"fov\":106,\"q2mode\":6,\"q2wide\":9,\"q3mode\":6,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"640x480@0\",\"800x600@0\",\"1024x768@0\",\"1280x1024@0\",\"1360x768@0\",\"1920x1080@0\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:56 not supported: NWLink was removed in Windows Vista - IPX games here need IPXWrapper per title (Files/Game Updates/ipxwrapper-0.7.2.zip)\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: already never - nothing written (new api)\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: not Windows 2000/XP\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1920x1080 (4:3 1024x768); verify ok=83 wrong=0 absent=0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58:27 ok\"}],\"subkeys\":[]}",
+  "fleetmp": [],
+  "scrnshot": []
+ },
+ "240": {
+  "greeting": "OK USER-41EA3B3330 Win5.1",
+  "procs": [
+   "ADeck.exe",
+   "BDARemote.exe",
+   "CTHELPER.EXE",
+   "Core.exe",
+   "MsMpEng.exe",
+   "System",
+   "WindowsSearch.exe",
+   "[System Process]",
+   "alg.exe",
+   "ati2evxx.exe",
+   "csrss.exe",
+   "ctfmon.exe",
+   "daemon.exe",
+   "explorer.exe",
+   "lsass.exe",
+   "msmsgs.exe",
+   "msseces.exe",
+   "raid_tool.exe",
+   "retro_agent.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "searchindexer.exe",
+   "services.exe",
+   "smss.exe",
+   "spoolsv.exe",
+   "ssstars.scr",
+   "svchost.exe",
+   "winlogon.exe",
+   "wscntfy.exe"
+  ],
+  "root": [
+   [
+    "3.20_Changes.txt",
+    4327,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "3dfxgl.dll",
+    142848,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "baseq2",
+    0,
+    "2026-10-03 12:13:38"
+   ],
+   [
+    "ctf",
+    0,
+    "2026-10-03 12:13:38"
+   ],
+   [
+    "ctf.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "CTF_readme.txt",
+    17391,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - CTF.bat",
+    80,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Ground Zero.bat",
+    65,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Dedicated - Reckoning.bat",
+    66,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "DESKFIX9.EXE",
+    4608,
+    "2026-10-01 06:13:45"
+   ],
+   [
+    "docs",
+    0,
+    "2026-08-28 23:53:40"
+   ],
+   [
+    "FLEETRES.BAT",
+    4917,
+    "2026-09-29 17:54:51"
+   ],
+   [
+    "FLEETRES.EXE",
+    33280,
+    "2026-09-29 17:54:49"
+   ],
+   [
+    "launch.txt",
+    407,
+    "2026-10-01 06:13:53"
+   ],
+   [
+    "license.txt",
+    13336,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Play Quake II - Ground Zero - Voodoo.bat",
+    1836,
+    "2026-10-01 06:28:19"
+   ],
+   [
+    "Play Quake II - The Reckoning - Voodoo.bat",
+    1847,
+    "2026-10-01 06:28:22"
+   ],
+   [
+    "pvrgl.dll",
+    227328,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Q2.ico",
+    766,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "Quake II - Ground Zero.bat",
+    803,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - The Reckoning.bat",
+    807,
+    "2026-09-29 16:59:59"
+   ],
+   [
+    "Quake II - ThreeWave CTF.bat",
+    795,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "Quake II.bat",
+    790,
+    "2026-09-29 17:00:00"
+   ],
+   [
+    "quake2.exe",
+    362496,
+    "2026-09-29 16:51:19"
+   ],
+   [
+    "README - ground zero.txt",
+    172,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "README - reckoning.txt",
+    234,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "readme.txt",
+    60435,
+    "2026-08-27 16:07:03"
+   ],
+   [
+    "ref_gl.dll",
+    234496,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "ref_soft.dll",
+    193024,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "requires.json",
+    1970,
+    "2026-10-01 06:13:51"
+   ],
+   [
+    "rogue",
+    0,
+    "2026-10-03 12:13:38"
+   ],
+   [
+    "SERVERS-fleet.txt",
+    305,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "SERVERS-online.txt",
+    2397,
+    "2026-08-28 23:32:21"
+   ],
+   [
+    "xatrix",
+    0,
+    "2026-10-03 12:13:38"
+   ]
+  ],
+  "baseq2": [
+   [
+    "autoexec.cfg",
+    4477,
+    "2026-10-04 23:50:52"
+   ],
+   [
+    "FLEETKEY.CFG",
+    720,
+    "2026-10-03 12:13:38"
+   ],
+   [
+    "fleetres.cfg",
+    102,
+    "2026-10-15 15:02:16"
+   ],
+   [
+    "gamex86.dll",
+    397824,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "lan.cfg",
+    116,
+    "2026-09-01 18:18:30"
+   ],
+   [
+    "maps.lst",
+    1063,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak0.pak",
+    183997730,
+    "2026-08-27 16:06:44"
+   ],
+   [
+    "pak1.pak",
+    12992754,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "pak2.pak",
+    45055,
+    "2026-08-28 23:31:48"
+   ],
+   [
+    "players",
+    0,
+    "2026-08-28 23:53:21"
+   ],
+   [
+    "video",
+    0,
+    "2026-08-28 23:53:26"
+   ]
+  ],
+  "fleetres_cfg": "// written by GAMESYNC for this box's monitor - do not edit\r\nset gl_mode \"9\"\r\nset vid_fullscreen \"1\"\r\n",
+  "autoexec_cfg": "// autoexec.cfg - fleet defaults for Quake II\r\n//\r\n// Quake II shipped in 1997 with arrow-key movement and mouse-look OFF, which is\r\n// unplayable to anyone who learned FPS controls after about 1999. Quake II runs\r\n// this file at startup AFTER config.cfg, so these win over whatever the engine\r\n// last wrote when it quit - which is why the bindings live here rather than in\r\n// config.cfg, where the game would overwrite them on exit.\r\n\r\n// ---- movement: WASD, plus F ------------------------------------------------\r\n// No unbindall here. This file runs AFTER config.cfg, so an unbindall\r\n// threw away every key the player had saved, and the binds below set\r\n// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows\r\n// and F1 to F4 were left unbound at every launch.\r\nbind w \"+forward\"\r\nbind s \"+back\"\r\nbind a \"+moveleft\"\r\nbind d \"+moveright\"\r\nbind f \"invuse\"                 // Quake II has no +use, invuse is its action key\r\nbind SPACE \"+moveup\"            // jump\r\nbind CTRL \"+movedown\"           // crouch\r\nbind SHIFT \"+speed\"\r\n\r\n// ---- free look -------------------------------------------------------------\r\n// +mlook turns mouse look on - putting it here makes it permanent\r\n// rather than a key you have to hold. Quake II also has a freelook\r\n// cvar, the Options menu's free look, which config.cfg saves.\r\n+mlook\r\nset lookstrafe \"0\"              // mouse left/right TURNS, it does not strafe\r\nset lookspring \"0\"              // do not snap the view back when you stop moving\r\nset m_pitch \"0.022\"             // stock sensitivity, not inverted\r\nset sensitivity \"5\"\r\nset cl_run \"1\"                  // always run, nobody wants 1997 walk speed\r\n\r\n// ---- weapons and the rest --------------------------------------------------\r\nbind MOUSE1 \"+attack\"\r\nbind MOUSE2 \"+moveup\"\r\nbind MWHEELUP \"weapnext\"\r\nbind MWHEELDOWN \"weapprev\"\r\nbind q \"weapprev\"\r\nbind e \"weapnext\"\r\nbind TAB \"inven\"\r\nbind r \"cmd help\"\r\nbind ESCAPE \"togglemenu\"\r\nbind ` \"toggleconsole\"\r\nbind t \"messagemode\"\r\nbind y \"messagemode2\"\r\nbind F5 \"save quick\"\r\nbind F9 \"load quick\"\r\n\r\n// ---- fleet 2026-08-29: fullscreen + a screenshot key ------------------------\r\n// Quake II execs autoexec.cfg (FS_ExecAutoexec) BEFORE VID_Init, so setting\r\n// vid_fullscreen here is read by the video system on startup. config.cfg is\r\n// rewritten on exit, which is why this lives in autoexec.cfg.\r\nset vid_fullscreen \"1\"\r\n// F11 writes baseq2\\scrnshot\\quakeXX.tga (or .pcx on the software renderer),\r\n// which the agent can DOWNLOAD. The agent's own SCREENSHOT is a GDI BitBlt and\r\n// returns a black frame for a fullscreen game.\r\nbind F11 \"screenshot\"\r\n\r\n// ---- renderer: OpenGL, not the 320x240 software one -------------------------\r\n// Quake II defaults to vid_ref \"soft\" at 320x240 when nothing says otherwise,\r\n// which is what the fleet was actually getting. ref_gl.dll ships in this tree.\r\n// autoexec.cfg is exec-ed before VID_Init, so these are read at startup.\r\n// If a box's OpenGL is broken the engine falls back to ref_soft on its own.\r\nset vid_ref \"gl\"\r\nset gl_driver \"opengl32\"\r\nset gl_mode \"6\"                 // 1024x768 (4 = 800x600, 3 = 640x480)\r\nset vid_fullscreen \"1\"\r\n\r\n// ---- per-box key binds -----------------------------------------\r\n// fleetkey.cfg carries the fleet's control layout - WASD and mouse\r\n// look - and the retro agent writes it on each box. It is not\r\n// shipped in the library, so GAMESYNC never fights it. Until a box's\r\n// agent writes it the engine prints a harmless 'couldn't exec' and\r\n// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the\r\n// engine splits commands on them even after a double slash.\r\nexec fleetkey.cfg\r\n\r\n// ---- per-box resolution ---------------------------------------\r\n// fleetres.cfg is written by this title's Play ....bat at every\r\n// launch, from the panel FLEETRES.EXE measures on THIS machine.\r\n// It is exec'd LAST so it beats anything set above, and it is not\r\n// shipped in the library - one staged tree serves eight different\r\n// monitors, so a resolution constant here is wrong somewhere by\r\n// construction. If the file is absent the engine prints a harmless\r\n// 'couldn't exec' and keeps its own defaults.\r\nexec fleetres.cfg\r\n\r\n// --- BEGIN retro-fleet favorites (managed, do not edit) ---\r\nset adr0 \"192.168.1.132:27910\"        // NSC Retro Fleet Arena (Q2)\r\nset adr1 \"\"\r\nset adr2 \"\"\r\nset adr3 \"\"\r\nset adr4 \"\"\r\nset adr5 \"\"\r\nset adr6 \"\"\r\nset adr7 \"\"\r\nset adr8 \"\"\r\n// --- END retro-fleet favorites ---\r\n",
+  "config_cfg": "ERR RetroProtocolError('Cannot open file: error 2')",
+  "gameres": "{\"panel\":{\"edid\":true,\"name\":\"DELL E2313H\",\"pnpid\":\"DELF044\",\"type\":\"LCD\",\"digital\":false,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"51x29\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":60,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1280x960\",\"aspect\":\"16:9\",\"hz\":60,\"hz_four_three\":75,\"hz_q2\":75,\"hz_q3\":75,\"hz_q2wide\":60,\"hz_src\":\"edid\",\"hz_desktop\":60,\"hz_launcher\":60,\"fov\":106,\"q2mode\":8,\"q2wide\":9,\"q3mode\":7,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"320x200@75\",\"320x240@75\",\"400x300@75\",\"512x384@75\",\"640x400@75\",\"640x480@75\",\"720x480@70\",\"720x576@75\",\"800x480@70\",\"800x600@75\",\"848x480@75\",\"1024x768@75\",\"1152x864@75\",\"1280x720@75\",\"1280x768@75\",\"1280x800@60\",\"1280x960@75\",\"1280x1024@75\",\"1360x768@75\",\"1360x1024@75\",\"1440x900@75\",\"1680x1050@60\",\"1920x1080@60\"],\"rules\":83}",
+  "reg_agent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"Onboarded\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56:39 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56 0 installed, 1 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; WinXP Promise SATA378 (tm) IDE Controlle: tried_out\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:55 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56 ok: active (IPX net 00000000 node 00112fe477f5, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:55 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1920x1080 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\"]}",
+  "fleetmp": [
+   [
+    "cs.bat",
+    225,
+    "2026-10-13 13:21:43"
+   ],
+   [
+    "q2.bat",
+    212,
+    "2026-10-13 13:20:22"
+   ],
+   [
+    "q3.bat",
+    394,
+    "2026-10-13 13:18:44"
+   ],
+   [
+    "ssam-tfe.bat",
+    104,
+    "2026-10-13 13:04:02"
+   ],
+   [
+    "ssam-tse.bat",
+    105,
+    "2026-10-15 23:26:08"
+   ],
+   [
+    "ut2004.bat",
+    64,
+    "2026-10-13 13:26:52"
+   ],
+   [
+    "ut99.bat",
+    218,
+    "2026-10-13 13:25:02"
+   ]
+  ],
+  "scrnshot": []
+ }
+}

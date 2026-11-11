@@ -1,0 +1,1 @@
+{"pci_display_devices":[],"display_drivers":[{"class_index":"0000","driver_desc":"NVIDIA GeForce2 GTS/GeForce2 Pro","matching_device_id":"pci\\ven_10de&dev_0150","inf_path":"oem1.inf","referenced_by":""}],"summary":{"active":[],"ghost":[],"new_hardware":[],"stale_drivers":["0000"]}}

@@ -1,0 +1,4 @@
+{
+ "fw_std": "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Services\\\\SharedAccess\\\\Parameters\\\\FirewallPolicy\\\\StandardProfile\",\"values\":[{\"name\":\"EnableFirewall\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"DoNotAllowExceptions\",\"type\":\"REG_DWORD\",\"data\":0}],\"subkeys\":[\"AuthorizedApplications\",\"GloballyOpenPorts\"]}",
+ "fw_dom": "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Services\\\\SharedAccess\\\\Parameters\\\\FirewallPolicy\\\\DomainProfile\",\"values\":[{\"name\":\"EnableFirewall\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"DoNotAllowExceptions\",\"type\":\"REG_DWORD\",\"data\":0}],\"subkeys\":[\"AuthorizedApplications\",\"GloballyOpenPorts\"]}"
+}

@@ -1,0 +1,1 @@
+[{"drive_index":0,"path":"\\\\.\\PhysicalDrive0","model":"ST3200820A","serial":"            9QE0MP83","firmware":"3.AAE","smart":{"temperature":{"celsius":38,"current":38,"worst":57},"power_on_hours":{"hours":6413,"current":93,"worst":93},"reallocated_sectors":{"count":0,"current":100,"worst":100}}}]

@@ -1,0 +1,9 @@
+{
+ "DIRLIST C:\\Documents and Settings\\Administrator\\Application Data\\Quake3": "[]",
+ "DIRLIST C:\\Documents and Settings\\Administrator\\Application Data\\Quake3\\missionpack": "[]",
+ "DIRLIST C:\\Documents and Settings\\Administrator\\Application Data\\Quake3\\baseq3": "[]",
+ "DIRLIST C:\\Documents and Settings\\Administrator.1GHZ\\Application Data\\Quake3": "[{\"name\":\"baseq3\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-30 04:20:03\",\"hidden\":false,\"readonly\":false},{\"name\":\"missionpack\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-01 23:13:47\",\"hidden\":false,\"readonly\":false},{\"name\":\"qkey\",\"is_dir\":false,\"size\":2048,\"modified\":\"2026-08-29 17:12:11\",\"hidden\":false,\"readonly\":false},{\"name\":\"servercache.dat\",\"is_dir\":false,\"size\":692748,\"modified\":\"2026-09-29 16:10:13\",\"hidden\":false,\"readonly\":false}]",
+ "DIRLIST C:\\Documents and Settings\\Administrator.1GHZ\\Application Data\\Quake3\\missionpack": "[{\"name\":\"q3config.cfg\",\"is_dir\":false,\"size\":8974,\"modified\":\"2026-09-02 02:59:20\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3key\",\"is_dir\":false,\"size\":167,\"modified\":\"2026-09-02 02:59:20\",\"hidden\":false,\"readonly\":false}]",
+ "DIRLIST C:\\Documents and Settings\\Administrator.1GHZ\\Application Data\\Quake3\\baseq3": "[{\"name\":\"games.log\",\"is_dir\":false,\"size\":0,\"modified\":\"2026-08-30 03:57:20\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3config.cfg\",\"is_dir\":false,\"size\":7499,\"modified\":\"2026-10-13 13:19:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3key\",\"is_dir\":false,\"size\":167,\"modified\":\"2026-10-13 13:19:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"qconsole.log\",\"is_dir\":false,\"size\":13365,\"modified\":\"2026-08-30 03:57:26\",\"hidden\":false,\"readonly\":false}]",
+ "downloaded_Administrator.1GHZ": 8974
+}

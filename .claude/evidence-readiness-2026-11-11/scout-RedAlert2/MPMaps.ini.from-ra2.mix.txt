@@ -1,0 +1,1983 @@
+[MultiMaps]
+1=MP02T2
+2=MP06T2
+3=MP11T2
+4=MP08T2
+5=MP21S2
+6=MP14T2
+7=MP29U2
+8=MP31S2
+
+9=MP18S3
+10=MP09T3
+
+11=MP01T4
+12=MP03T4
+13=MP05T4
+14=MP10S4
+15=MP12S4
+16=MP13S4
+17=MP19T4
+18=MP15S4
+19=MP16S4
+20=MP23T4
+21=MP33U4
+22=MP34U4
+
+23=MP17T6
+24=MP20T6
+25=MP25T6
+26=MP26S6
+27=MP30S6
+
+28=MP22S8
+29=MP27T8
+30=MP32S8
+
+31=MP06MW
+32=MP08MW
+33=MP14MW
+34=MP29MW
+35=MP05MW
+36=MP13MW
+37=MP15MW
+38=MP16MW
+39=MP23MW
+40=MP17MW
+41=MP25MW
+42=MP30MW
+43=MP22MW
+44=MP27MW
+45=MP32MW
+
+46=MP09DU
+47=MP01DU
+48=MP05DU
+49=MP13DU
+50=MP15DU
+51=MP18DU
+52=MP24DU
+53=MP17DU
+54=MP25DU
+55=MP27DU
+56=MP32DU
+
+57=C1M1A
+58=C1M1B
+59=C1M1C
+60=C1M2A
+61=C1M2B
+62=C1M2C
+63=C1M3A
+64=C1M3B
+65=C1M3C
+66=C1M4A
+67=C1M4B
+68=C1M4C
+69=C1M5A
+70=C1M5B
+71=C1M5C
+72=C2M1A
+73=C2M1B
+74=C2M1C
+75=C2M2A
+76=C2M2B
+77=C2M2C
+78=C2M3A
+79=C2M3B
+80=C2M3C
+81=C2M4A
+82=C2M4B
+83=C2M4C
+84=C2M5A
+85=C2M5B
+86=C2M5C
+87=C3M1A
+88=C3M1B
+89=C3M1C
+90=C3M2A
+91=C3M2B
+92=C3M2C
+93=C3M3A
+94=C3M3B
+95=C3M3C
+96=C3M4A
+97=C3M4B
+98=C3M4C
+99=C3M5A
+100=C3M5B
+101=C3M5C
+102=C4M1A
+103=C4M1B
+104=C4M1C
+105=C4M2A
+106=C4M2B
+107=C4M2C
+108=C4M3A
+109=C4M3B
+110=C4M3C
+111=C4M4A
+112=C4M4B
+113=C4M4C
+114=C4M5A
+115=C4M5B
+116=C4M5C
+117=C5M1A
+118=C5M1B
+119=C5M1C
+120=C5M2A
+121=C5M2B
+122=C5M2C
+123=C5M3A
+124=C5M3B
+125=C5M3C
+126=C5M4A
+127=C5M4B
+128=C5M4C
+129=C5M5A
+130=C5M5B
+131=C5M5C
+
+132=TN01T2
+133=TN01MW
+
+134=TN04T2
+135=TN04MW
+
+136=TN02s4
+137=TN02MW
+
+
+;138=TN03T8
+;139=TN03MW
+
+
+; NOTE: Descriptions now take a string file label (ra2.str)
+
+;South Pacific
+[MP01T4]
+Description=DESC:MP01DU
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard
+
+;Isle of War
+[MP02T2]
+Description=DESC:MP02T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard, meatgrind
+
+;Anytown, Amerika
+[MP03T4]
+Description=DESC:MP03T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard
+
+;Heartland
+[MP05T4]
+Description=DESC:MP05T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=meatgrind, standard
+
+;Urban Rush
+[MP06T2]
+Description=DESC:MP06T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard, meatgrind
+
+;Little Big Lake
+[MP08T2]
+Description=DESC:MP08T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=meatgrind, standard
+
+;Canyon Fodder 
+[MP09T3]
+Description=DESC:MP09T3
+CD=0,1
+MinPlayers=2
+MaxPlayers=3
+GameMode=meatgrind, standard
+
+;Depth Charge
+[MP10S4]
+Description=DESC:MP10S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=navalwar, nukewar
+
+;Pinch Point
+[MP11T2]
+Description=DESC:MP11T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=meatgrind, standard
+
+;Lake Blitzen
+[MP12S4]
+Description=DESC:MP12S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard, meatgrind
+
+;Montana DMZ
+[MP13S4]
+Description=DESC:MP13S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard, meatgrind
+
+;El Dorado
+[MP14T2]		
+Description=DESC:MP14T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard
+
+;Snow Valley
+[MP15S4]
+Description=DESC:MP15S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard, meatgrind
+
+;Snowballs Chance
+[MP16S4]
+Description=DESC:MP16S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard, meatgrind
+
+;Malibu Cliffs
+[MP17T6]
+Description=DESC:MP17T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=standard, meatgrind
+
+;Cold War
+[MP18S3]
+Description=DESC:MP18S3
+CD=0,1
+MinPlayers=2
+MaxPlayers=3
+GameMode=standard
+
+;Golden State Freeway
+[MP19T4]
+Description=DESC:MP19T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard, meatgrind
+
+;Wild Animal Park
+[MP20T6]
+Description=DESC:MP20T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=standard, nukewar, navalwar
+
+;Alaskan Oil Spill
+[MP21S2]
+Description=DESC:MP21S2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=nukewar, navalwar
+
+;Arctic Circle
+[MP22S8]
+Description=DESC:MP22S8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=standard, airwar, nukewar, navalwar
+
+;Hammer and Sickle
+[MP23T4]
+Description=DESC:MP07T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard, nukewar, navalwar
+
+;DEFCON 6
+[MP25T6]
+Description=DESC:MP25T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=standard, meatgrind
+
+;Bering Strait
+[MP26S6]
+Description=DESC:MP26S6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=standard, nukewar, navalwar
+
+;A Path Beyond II
+[MP27T8]
+Description=DESC:MP27T8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=standard, meatgrind
+
+;The Alamo
+[MP29U2]
+Description=DESC:MP29U2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard, meatgrind
+
+;Siberian Wastes
+[MP30S6]
+Description=DESC:MP30S6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=nukewar, navalwar, standard
+
+;May Day
+[MP31S2]
+Description=DESC:MP31U2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard, navalwar
+
+;Heck Freezes Over
+[MP32S8]
+Description=DESC:MP32S8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=standard, meatgrind
+
+;Paris Revisited
+[MP33U4]
+Description=DESC:MP33U4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard
+
+;DC Uprising
+[MP34U4]
+Description=DESC:MP34U4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;;MegaWealth Maps
+;;;;;;;;;;;;;;;;;;;;;;
+
+;Urban Rush
+[MP06MW]
+Description=DESC:MP06T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=megawealth
+
+;Little Big Lake
+[MP08MW]
+Description=DESC:MP08T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=megawealth
+
+;El Dorado
+[MP14MW]
+Description=DESC:MP14T2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=megawealth
+
+;The Alamo
+[MP29MW]
+Description=DESC:MP29U2
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=megawealth
+
+;Heartland
+[MP05MW]
+Description=DESC:MP05T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=megawealth
+
+;Montana DMZ
+[MP13MW]
+Description=DESC:MP13S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=megawealth
+
+;Snow Valley
+[MP15MW]
+Description=DESC:MP15S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=megawealth
+
+;Snowballs Chance
+[MP16MW]
+Description=DESC:MP16S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=megawealth
+
+;Islands in the Stream, alias Hammer and Sickle
+[MP23MW]
+Description=DESC:MP07T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=megawealth
+
+;Malibu Cliffs
+[MP17MW]
+Description=DESC:MP17T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=megawealth
+
+;DEFCON 6
+[MP25MW]
+Description=DESC:MP25T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=megawealth
+
+;Siberian Wastes
+[MP30MW]
+Description=DESC:MP30S6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=megawealth
+
+;Arctic Circle
+[MP22MW]
+Description=DESC:MP22S8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=megawealth
+
+;A Path Beyond II
+[MP27MW]
+Description=DESC:MP27T8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=megawealth
+
+;Heck Freezes Over
+[MP32MW]
+Description=DESC:MP32S8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=megawealth
+
+
+;;;;;;;;;;;;;;;;;;
+;;;Duel Maps
+;;;;;;;;;;;;;;;;;;
+
+;Canyon Fodder
+[MP09DU]
+Description=DESC:MP09T3
+CD=0,1
+MinPlayers=2
+MaxPlayers=3
+GameMode=duel
+
+;South Pacific
+[MP01DU]
+Description=DESC:MP01DU
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=duel
+
+;Heartland
+[MP05DU]
+Description=DESC:MP05T4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=duel
+
+;Montana DMZ
+[MP13DU]
+Description=DESC:MP13S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=duel
+
+;Snow Valley
+[MP15DU]
+Description=DESC:MP15S4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=duel
+
+;Cold War
+[MP18DU]
+Description=DESC:MP18DU
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=duel
+
+;Bonanza
+[MP24DU]
+Description=DESC:MP24DU
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=duel
+
+;Malibu Cliffs
+[MP17DU]
+Description=DESC:MP17T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=duel
+
+;DEFCON 6
+[MP25DU]
+Description=DESC:MP25T6
+CD=0,1
+MinPlayers=2
+MaxPlayers=6
+GameMode=duel
+
+;A Path Beyond II
+[MP27DU]
+Description=DESC:MP27T8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=duel
+
+;Heck Freezes Over
+[MP32DU]
+Description=DESC:MP32S8
+CD=0,1
+MinPlayers=2
+MaxPlayers=8
+GameMode=duel
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;;Cooperative Maps;;;
+;;;;;;;;;;;;;;;;;;;;;;
+[C1M1A]
+Description=DESC:C1M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M1B]
+Description=DESC:C1M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M1C]
+Description=DESC:C1M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M2A]
+Description=DESC:C1M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M2B]
+Description=DESC:C1M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M2C]
+Description=DESC:C1M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M3A]
+Description=DESC:C1M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M3B]
+Description=DESC:C1M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M3C]
+Description=DESC:C1M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M4A]
+Description=DESC:C1M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M4B]
+Description=DESC:C1M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M4C]
+Description=DESC:C1M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M5A]
+Description=DESC:C1M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M5B]
+Description=DESC:C1M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C1M5C]
+Description=DESC:C1M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M1A]
+Description=DESC:C2M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M1B]
+Description=DESC:C2M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M1C]
+Description=DESC:C2M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M2A]
+Description=DESC:C2M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M2B]
+Description=DESC:C2M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M2C]
+Description=DESC:C2M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M3A]
+Description=DESC:C2M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M3B]
+Description=DESC:C2M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M3C]
+Description=DESC:C2M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M4A]
+Description=DESC:C2M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M4B]
+Description=DESC:C2M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M4C]
+Description=DESC:C2M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M5A]
+Description=DESC:C2M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M5B]
+Description=DESC:C2M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C2M5C]
+Description=DESC:C2M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M1A]
+Description=DESC:C3M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M1B]
+Description=DESC:C3M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M1C]
+Description=DESC:C3M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M2A]
+Description=DESC:C3M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M2B]
+Description=DESC:C3M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M2C]
+Description=DESC:C3M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M3A]
+Description=DESC:C3M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M3B]
+Description=DESC:C3M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M3C]
+Description=DESC:C3M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M4A]
+Description=DESC:C3M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M4B]
+Description=DESC:C3M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M4C]
+Description=DESC:C3M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M5A]
+Description=DESC:C3M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M5B]
+Description=DESC:C3M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C3M5C]
+Description=DESC:C3M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M1A]
+Description=DESC:C4M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M1B]
+Description=DESC:C4M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M1C]
+Description=DESC:C4M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M2A]
+Description=DESC:C4M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M2B]
+Description=DESC:C4M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M2C]
+Description=DESC:C4M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M3A]
+Description=DESC:C4M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M3B]
+Description=DESC:C4M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M3C]
+Description=DESC:C4M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M4A]
+Description=DESC:C4M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M4B]
+Description=DESC:C4M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M4C]
+Description=DESC:C4M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M5A]
+Description=DESC:C4M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M5B]
+Description=DESC:C4M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C4M5C]
+Description=DESC:C4M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M1A]
+Description=DESC:C5M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M1B]
+Description=DESC:C5M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M1C]
+Description=DESC:C5M1
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M2A]
+Description=DESC:C5M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M2B]
+Description=DESC:C5M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M2C]
+Description=DESC:C5M2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M3A]
+Description=DESC:C5M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M3B]
+Description=DESC:C5M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M3C]
+Description=DESC:C5M3
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M4A]
+Description=DESC:C5M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M4B]
+Description=DESC:C5M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M4C]
+Description=DESC:C5M4
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M5A]
+Description=DESC:C5M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M5B]
+Description=DESC:C5M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+[C5M5C]
+Description=DESC:C5M5
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=cooperative
+
+;Tournament 1
+[TN01T2]
+Description=NAME:TOURNEY4
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard
+
+;Tournament 1 Mega Wealth
+[TN01MW]
+Description=NAME:TOURNEY4
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=megawealth
+
+;Tournament 2
+[TN02s4]
+Description=NAME:TOURNEY2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=standard
+
+;Tournament 2 Mega Wealth
+[TN02MW]
+Description=NAME:TOURNEY2
+CD=0,1
+MinPlayers=2
+MaxPlayers=4
+GameMode=megawealth
+
+;;Tournament 3
+;[TN03T8]
+;Description=NAME:TOURNEY3
+;CD=0,1
+;MinPlayers=2
+;MaxPlayers=8
+;GameMode=standard
+
+;;Tournament 3 Mega Wealth
+;[TN03MW]
+;Description=NAME:TOURNEY3
+;CD=0,1
+;MinPlayers=2
+;MaxPlayers=8
+;GameMode=megawealth
+
+;Tournament 4
+[TN04T2]
+Description=NAME:TOURNEY5
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=standard
+
+;Tournament 4 Mega Wealth
+[TN04MW]
+Description=NAME:TOURNEY5
+CD=0,1
+MinPlayers=2
+MaxPlayers=2
+GameMode=megawealth
+[Mult;Generic Text
+
+;640x400 Max line length is...
+;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+;640x480 Max line length is...
+;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+;800x600 Max line length is...
+;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+[Tutorial]
+
+;Lines 1-30 reserved for generic messages
+;Add generic lines as you need them
+1=Objective 1 completed!
+2=Objective 2 completed!
+3=Objective 3 completed!
+4=Objective 4 completed!
+5=NEW OBJECTIVE RECIEVED
+6=REINFORCEMENTS HAVE ARRIVED
+7=NEW PRODUCTION OPTION
+8=MISSION FAILED
+9=MISSION SUCCESSFUL
+10=Objective 1:  Force a landing on the beach and set up a base.  
+11=Objective 2:  Destroy American Production Facilities.  
+12=Objective 3:  Destroy American Fleet. 
+13=
+14=
+15=
+16=
+17=
+18=
+19=
+20=
+21=
+22=
+23=
+24=
+25=
+26=
+27=
+28=
+29=
+30=
+
+;Lines 31-60 reserved for Allied Mission 5
+31=TANYA: Shoot! The dogs got our spies!  We need help here!
+32=TANYA: Man down! Darn it! We need another couple spies!
+33=TANYA: Argh! Is Puppy Chow cologne standard issue for these guys? Send more Spies!
+34=TANYA: BEEP, BEEP BEEEP!!! Dogs! They BEEPing ate another of our guys!
+35=Nuclear Missile Silo coordinates downloaded successfully. 
+36=OBJECTIVE 1: Infiltrate the Soviet Battle Lab
+37=OBJECTIVE 2: Locate and Neutralize the Soviet Nuclear Missile Silos
+38=SOVIET SOLDIER: Be on the look out for spies, comrades.  It seems a little too quiet tonight.
+39=SOVIET SOLDIER: Ha ha ha. we don't need to worry about stupid American spies.  That's what the dogs are for. 
+40=HINT: Spies can assume the form and color of any infantry unit.  To do this, select the Spy and Left-Click on a valid target.
+41=HINT: Special "detector" units can see throught a Spy's disguise.  Beware of the Dogs - they are excellent detectors!
+42=TANYA: Looks like we're going to need some more backup here.  Send some more Spies.
+43=SPY: If you can get me into one of those Tesla Reactors, I can shut down all of the base's power for thirty seconds.  It's not much time, but maybe you can use it to sneak past the defenses.
+44=BRITISH ENGINEER: Sorry we're late.  What do you need us to do?
+45=SOVIET SOLDIER: Hey, you're not one of us!
+46=POLISH VILLAGER: Please don't hurt me, I am just a poor cow herder.
+47=POLISH VILLAGER: What took you so long, Boris?  I need your help getting these cows back to the village.
+48=POLISH VILLAGER: Where are we going? This doesn't look like the way back to the village.
+49=POLISH VILLAGER2: Mmmmm. Cows... Thanks for bringin' them in.
+50=POLISH VILLAGER: Here's your split o' the money.  And just so you know, I heard that there's some rebels hiding up in the mountains to the east of the Soviet base.
+51=POLISH REBEL: Someone's found our village!  KILL HIM!
+52=POLISH REBEL: Ah, there you are, Boris.  We're ready to move out against the Soviets.  Lead us to victory, comrade!
+53=TANYA: Those rebels look like bad news.  They'll probably fight us just as readily as they fight the Soviets.
+54=POLISH VILLAGER: Psst. Comrade! There's a secret path up to the Soviet base behind my house.
+55=NUCLEAR MISSILE DESTROYED
+56=NUCLEAR MISSILE INFILTRATED
+57=Soviet BattleLab destroyed - Objective Failed
+58=MAP ENLARGED - New Terrain Revealed
+59=
+60=
+
+;Lines 61-70 Reserved for Allied Mission 10
+
+61=Lt Eva:  When the Mirage tank is in position, select any nearby tree.  The Mirage Tank will then cloak itself as the tree you've selected and be ready to stealthily attack any enemy that comes into range.
+62=ALERT!  Soviet Invasion forces have entered your AOR!  ALERT!
+63=Reserved
+64=Reserved
+65=Reserved
+66=Reserved
+67=Reserved
+68=Reserved
+69=Reserved
+70=Reserved
+
+
+
+71=Warning: Mission critical unit under attack.
+72=Warning: Mission critical structure under attack.
+73=Objective 1: Locate and free the mutants.
+74=Objective 2: Evacuate the mutants.
+75=Objective Reached: Mutants freed.
+76=Objective 1: Destroy the supply base.
+77=Objective 1: Plant C4 on all ten Nod power plants.
+78=Objective 1: Destroy Nod missile complex.
+79=Detonate C4 when ready.
+80=Stop! Don't Shoot! I was forced to work for them.
+81=Take out this sentry post and I will show you their nearby base.
+82=CABAL: Hassan's Base has been alerted. Attack is imminent.
+83=Now get an engineer over here to fix this bridge and I will alert Hassan to their presence.
+84= 
+85=CABAL: Establish a foothold on the far side of this bridge and an MCV will be sent in to you.
+86= 
+87=CABAL: MCV has arrived to the southeast.
+88=To build or train left-click on the icons located in the sidebar.
+89=To deploy a vehicle select it, place the cursor over the vehicle and left-click on it.
+90=GDI has detected you.
+91=The Temple is under attack!
+92=Mutant vermin detected.
+93=Tiberium lifeform detected.
+94=Objective 1: Locate the old Temple of Nod.
+95=Objective 2: Remove the GDI trespassers.
+96=Tacitus has been acquired.
+97=GDI dropship detected.
+98=Bullet train departing.
+99=Prevent the train from departing and retreive the Tacitus.
+
+; Lines 100-110 for TRN01T
+100=When you select an enemy unit, you can see its health status.
+101=Just a harmless civilian truck.
+102=We don't have all day, Commander. Move your men out to find Red Team.
+103=Try to keep your soldiers in a group to concentrate their firepower.
+104=Now that you've selected a unit, you can order them to move or fire by left-clicking on an area or target. (Cue cursor SB movie.)
+105=Don't let them escape!
+106=MISSION OBJECTIVE: Hunt down all 10 Red Team members.
+107=You've already lost half your men!
+108=Two Reds still unaccounted for. Check the other side of the bridge on the left.
+109=Kodiak destroyed!
+110=Kodiak in critical condition!
+
+111=Eye of the storm has been entered. 
+112=Maximum efficiency for equipment can now be achieved.
+113=Reentering ion storm, caution is advised.
+114=Objective 1: Protect the Kodiak at all costs.
+115=Objective 2: Destroy all Nod forces.
+116=Philidelphia in range.
+117=ICBM launch detected.
+118=Tiberium Missile launched.
+119=ICBM destroyed!
+120=Objective 1: Stop the launch of the Tiberium Missile.
+121=Objective 2: Destroy the ICBMs targeted at the Philidephia.
+122=ICBMs destroyed! Philidephia out of danger.
+123=Proceed with Tiberium Missile destruction.
+124=Objective 3: Destroy all Nod forces.
+125=Civilian city is under attack!
+126=PEACE THROUGH POWER!
+127=****BROADCASTING****
+128=This map is under redesign.
+129=GDI Soldier: Shit, We're outnumbered! Return to base now and alert them.
+130=CABAL: During the Ion Storm their Radar/Communications will be down. Now is the opportune time to hit them before the storm abates.
+131= 
+132=CABAL: GDI Communications have been reestablished. 
+133=They are sending a transmission to Sarajevo now.
+134=Your venture has been quite unsuccessful, to state the least.
+135=Move quickly, before they see us.
+136=We have to get this to Tratos immediately.
+137=Holy $#!+ its Nod! I have to warn the base.
+138=What's the E.T.A. on that M.C.V.? This UFO gives me the creeps.
+139=Looks like they're going to ship it out via bullet train.
+140=Current weapon range insufficient. Weapon drop in progress.
+141=Thanks for the help!
+142=Power overload in progress...
+143=GDI forces spotted. Blow the bridge!
+144=Objective 1: Destroy all Nod structures.
+145=Objective 2: Capture the train station. DO NOT DESTROY IT!
+146=Objective 1 complete.
+147=Nod base is heavily guarded by lasers. Suggestion: destroying power plants to west may cause overload.
+148=Objective 2 complete.
+149=Umagon: My people are nearby.
+150=We will help.
+151=Alert! GDI presence detected!
+152=Perimeter secure. Deactivating alarm.
+153=Alert! Prison break in progress!
+154=Orca Transport: Negative on extraction until SAM sites are eliminated!
+155=GDI Forces Spotted! Falling back to alert base.
+156=Objective: Rescue captives from the prison to the east.
+157=Objective 1: Spy on GDI comm center to learn the location of the weapons test.
+158=Objective 2: Destroy the Mammoth Mark II prototype.
+159=GDI: The MM2 is quite effective against structures.
+160=GDI: Now watch the effectiveness against ground units.
+161=GDI: The MM2 is equally deadly to air-based assaults.
+162=GDI: This concludes the Mammoth Mark II demonstration.
+163=We have Hassan pinned and ready to be brought in Commander Slavick. Orders are complete.
+164=Sir! I believe there is an old GDI base near. It could be worth looking into.
+165=We should rendezvous with the rescue team to the south.
+166=UFO crash sight located.
+167=Hey... over here! Help... Destroy these trucks to free us.
+168=Captured Commander: All right! Now get me to your drop-off site and into the evac unit.
+169=STOP THAT TRAIN!
+170=Ghost Stalker: If you can get me onto that train, we can do some real damage!
+171=Mutants: The charges are placed. We can get the laser wall down in 30 minutes.
+172=Mutants: The wall is down - you are clear to attack!
+173=Objective 1: Destroy all the chemical tanks.
+174=Objective 2: Destroy the Nod base.
+175=Objective 1: Destroy all chemical missile launch sites.
+176=New secondary objective: Destroy primary AND secondary Nod bases.
+177=Oxanna located.
+178=GDI: Jake, it's a trap! Get to the airbase!
+179=GDI: Jake, the transport will take 30 minutes to arrive. Hold on!
+180=GDI: Patrol to base! Nod troops in area! Abort tour!
+181=New Objective: Get Ghost Stalker onto the train. Ghost must not die!
+182=Nod: Commander, you have been provided with a direct satellite uplink for this mission. 
+183=Nod: Look to your radar now and you will see the three locations of the mobile sensor arrays.
+184=You have been provided with 2 Artillery units. Good hunting, reinforcements will be arriving soon...
+185=Oxanna is being moved to the main GDI base.
+186=Nod: Umagon has escaped. Your mission has failed.
+187=Nod: Umagon has been detected in the northeast quadrant. 
+188=She is boarding a train bound for the GDI base in the south.
+189=Nod: Umagon has reached the GDI base and is moving to board the train leaving this region.
+190=GDI: We've lost the beacon. Extraction time will be delayed 15 minutes.
+191=Objective 1: Capture the GDI base before McNeil arrives.
+192=Objective 2: Use Toxin Soldiers to "convince" McNeil to join us.
+193=Objective 3: Get McNeil into the APC at the extraction point.
+194=Our cover is blown! Capture McNeil by any means possible!
+195=GDI is going after our extraction APC It must not be destroyed!
+196=Thanks! We can use the supplies.  I'll go gather my people.
+197=Nod: All sensor arrays are down. Full area map generation dowloading now.
+198=Special objective complete.
+199=Nod:  We can use these old units to our advantage.  Rerouting their control to you in 3,
+200=2,
+201=1...
+202=Hey! Where'd all those shiners come from?
+203=Nod: Umagon's dropship transport has been located and will arrive in 10 minutes.
+204=Nod: Umagon's dropship transport will arrive in 5 minutes.
+205=Nod: Umagon's dropship transport will arrive in 1 minute.
+206=Nod: Umagon's dropship transport has arrived and she is moving to board the southern train.
+207=Nod: Umagon is moving to board the northern train which leaves the region. Her escape is imminent.
+208=CABAL: Find and capture the train station before Umagon arrives. If she manages to make it onto a train then destroy it before she can escape.
+209=GDI: Hurry Jake! They're right behind you!
+210=GDI: Jake, it's good to see...Hey! What are you doing?
+211=Two launchers remaining.
+212=One launcher remaining.
+213=Mutants: Liars! GDI is trying to help us! You will die for this!
+214=Umagon: My people are waiting somewhere to the north.
+215=SCROOGE!
+216=Objective 1: Capture the remaining GDI structures within this base to build a force to capture Tratos.
+217=Objective 2: Now find the Mutant Headquarters and knock on their door (attack it!). This should convince Tratos to be sympathetic to our cause.
+218=The Philidelphia is passing within ICBM Range.
+219=The Philidelphia has left ICBM range.
+220=Destroy the 7 SAM sites on the ridge to clear the way for our dropships.
+221=CABAL: General Vega, the secondary generators will come online in 20 minutes.
+222=CABAL: General Vega, the generators are online.  SAM sites active.
+223=EVA: We are currently tracking the Nod train carrying the target cargo.  Intel states that the bridge is out 
+224=and we may hit the train before they repair the bridge.
+225=EVA: Alert! The bridge has been fixed and the Nod train is moving to its final destination within the base  
+226=to the South. Penetrate the bases defenses and retrieve that cargo.
+227=Objective 1: Remove all Nod presence from the area.
+228=Objective 2: Capture Vega's Pyramid.
+229=EVA: GDI reinforcements have arrived. Mammoth Mk II enroute.  Estimated ETA in 2 minutes...
+230=EVA: Mammoth Mk II has arrived.
+231=CABAL: Philadelphia orbit tracking commencing!
+232=Mutants: Hold a moment, while their fighters pass by.
+233=Mutants: Okay, Go now.
+234=Mutants: The production facility has been located. Send in the reinforcements and let's finish this.
+235=Mutants: Damn, their base has been cloaked. We must wait for them to uncloak it.
+236=EVA: The cargo car of that train contains the crate of crystals that you are to recover.
+237=EVA: The bridge has been repaired and the train is making it's way to the Nod base in the south.
+238=EVA: Penetrate their base, destroy that cargo car and retrieve the crate holding the crystals.
+239=EVA: Umagon lost, mission failed.
+240=EVA: Ghostalker lost, mission failed.
+241=EVA: Mcneil lost, mission failed.
+242=CABAL: Slavik lost, mission failed.
+243=EVA: The crystals have been retrieved, mission complete.
+244=CABAL: With the train destroyed Umagon will be stranded.  Find her and capture her.
+245=Tratos: Fight them my children, for the fate of our people.
+246=Tratos: You have killed enough of my children, take me and be done with this violence.
+247=Solomon: Change of plans - We have verified Vega's presence in the pyramid. CAPTURE the pyramid with Vega alive.
+
+
+; Lines 300-350 for Soviet Mission 10 (SOV10T.map)
+300=Soviet General: 	Welcome, Comrade. Enjoy these beautiful 
+			tropical islands while you can...we are
+			going to destroy them soon.
+
+			But first we must find our target, da?
+			The Allied dogs are hiding their super
+			weapon with a powerful Gap Generator, 
+			so we must destroy it before we can 
+			begin. Crazy Ivan and Yuri could be 
+			particularly well suited for the task at
+			hand. Go now--build your base and 
+			prepare your forces.
+301=Soviet General: Da?
+			;Gener[Hotkey]
+CenterView=12
+Options=27
+CenterOnRadarEvent=32
+RightSidebarUp=33
+RightSidebarDown=34
+LeftSidebarDown=35
+LeftSidebarUp=36
+Delete=46
+TeamSelect_10=48
+TeamSelect_1=49
+TeamSelect_2=50
+TeamSelect_3=51
+TeamSelect_4=52
+TeamSelect_5=53
+TeamSelect_6=54
+TeamSelect_7=55
+TeamSelect_8=56
+TeamSelect_9=57
+ToggleAlliance=65
+PlaceBeacon=66
+AllToCheer=67
+DeployObject=68
+InfantryTab=69
+Follow=70
+GuardObject=71
+CenterBase=72
+ToggleRepair=75
+ToggleSell=76
+NextObject=78
+CombatantSelect=80
+StructureTab=81
+UnitTab=82
+StopObject=83
+TypeSelect=84
+PageUser=85
+DefenseTab=87
+ScatterObject=88
+PlanningMode=90
+View1=112
+View2=113
+View3=114
+View4=115
+Taunt_1=116
+Taunt_2=117
+Taunt_3=118
+Taunt_4=119
+Taunt_5=120
+Taunt_6=121
+Taunt_7=122
+Taunt_8=123
+TeamAddSelect_10=304
+TeamAddSelect_1=305
+TeamAddSelect_2=306
+TeamAddSelect_3=307
+TeamAddSelect_4=308
+TeamAddSelect_5=309
+TeamAddSelect_6=310
+TeamAddSelect_7=311
+TeamAddSelect_8=312
+TeamAddSelect_9=313
+TeamCreate_10=560
+TeamCreate_1=561
+TeamCreate_2=562
+TeamCreate_3=563
+TeamCreate_4=564
+TeamCreate_5=565
+TeamCreate_6=566
+TeamCreate_7=567
+TeamCreate_8=568
+TeamCreate_9=569
+ScreenCapture=579
+SetView1=624
+SetView2=625
+SetView3=626
+SetView4=627
+TeamCenter_10=1072
+TeamCenter_1=1073
+TeamCenter_2=1074
+TeamCenter_3=1075
+TeamCenter_4=1076
+TeamCenter_5=1077
+TeamCenter_6=1078
+TeamCenter_7=1079
+TeamCenter_8=1080
+TeamCenter_9=1081
+SidebarPageUp=2085
+SidebarUp=2086
+SidebarPageDown=2087
+SidebarDown=2088
+[Hot       {CRD:CREDITS}
+
+       {CRD:INTRODUCTION1}
+       {CRD:INTRODUCTION2}
+
+
+
+       {CRD_TTL:PRODUCTION}
+
+       - {CRD:Executive_Producer} -
+       Mark Skaggs
+
+       - {CRD:Producer} -
+       Harvard Bonin
+
+       - {CRD:Associate_Producer} -
+       Julio Valladares
+
+
+
+       {CRD_TTL:DESIGN}
+
+       - {CRD:Design_Leads} -
+       Dustin Browder
+       John Hight
+       Brett Sperry
+
+       - {CRD:Designers} -
+       Chris Bauer
+       Eric Beaumont
+       Tim Campbell
+       Eydie Laramore
+       Todd Owens
+       Mical Pedriana
+
+       - {CRD:Additional_Design} -
+       Mike Lightner
+
+       - {CRD:Story} -
+       Mark Skaggs
+       Dustin Browder
+       John Hight
+       Harvard Bonin
+
+
+
+       {CRD_TTL:GAME_ARTISTS}
+
+       - {CRD:Lead_Artist} -
+       Chris Ashton
+
+       - {CRD:Artists} -
+       Chris Adams
+       TJ Frame
+       Michael Jones
+       Sean Keegan
+       Ido Magal
+       Khanh Nguyen
+       Josh Taylor
+       Todd Williams
+       Jason Zirpolo
+
+       - {CRD:Concept_Art} -
+       T.J. Frame
+       Dan Lyons
+
+       - {CRD:Additional_Art} -
+       Thomas Baxa
+       Phil Robb
+
+       - {CRD:Consultant} -
+       Rick Glenn
+
+
+
+       {CRD_TTL:PROGRAMMING}
+
+       - {CRD:Technical_Director} -
+       Henry Yu
+
+       - {CRD:AdditionalTechDirection} -
+       Steve Wetherill
+
+       - {CRD:Programmers} -
+       Geoff Finger
+       Peter Green
+       Robb Keir
+       Steve Martin
+       Thomas Rolfs
+       Graham Smallwood
+       Steve Clinard
+       Bret Ambrose
+       Joe Bostic
+       Denzil Long
+       Bill Ferrer
+
+       - {CRD:Installer} -
+       Maria del Mar McCready Legg
+
+
+
+       {CRD_TTL:NETWORK_PROGRAMMING}
+
+       - {CRD:Lead_Network_Programmer} -
+       Jeffrey Brown
+       Steve Tall
+
+       - {CRD:Network_Programmers} -
+       Matt Campbell
+       Bryan Cleveland
+       Kevin Scruggs
+       Gavin Snyder
+
+
+
+       {CRD_TTL:IN-GAME_AUDIO}
+
+       - {CRD:Lead_Sound_Designer} -
+       Mical Pedriana
+
+       - {CRD:Sound_Designer} -
+       David Fries
+
+       - {CRD:Original_Score} -
+       Frank Klepacki
+
+
+
+       {CRD_TTL:CINEMATICS}
+
+       - {CRD:CG_Director} -
+       John Hight
+
+       - {CRD:CG_Art_Director} -
+       Cris Moras
+
+       - {CRD:CG_Lead_Artist} -
+       Eric Gooch
+
+       - {CRD:CG_Artists} -
+       Chuck Carter
+       Michael Fadollone
+       Matthew Hansel
+       David Liu
+       Jim May
+       Kevin Quattro
+       Richard Semple
+
+       - {CRD:Additional_CG} -
+       Shant Jordan
+       Insun Kang
+       Patrick Perez
+
+       - {CRD:CG_Concept_Artists} -
+       T.J. Frame
+       Phil Robb
+       Thomas Baxa
+
+       - {CRD:Video_Compression} -
+       Tim Fritz
+
+       - {CRD:Production_Coordinator} -
+       Julie Brugman
+
+       - {CRD:Audio_Director} -
+       Paul S. Mudra
+
+       - {CRD:Cinematic_Sound} -
+       Dwight K. Okahara
+       Paul S. Mudra
+
+       - {CRD:Additional_Score_by} -
+       Poet Jester
+
+
+
+       {CRD_TTL:VIDEO_PRODUCTION_CREW}
+
+       - {CRD:VideoProducer} -                      
+       Donny Miele
+
+       - {CRD:Director} -                   
+       Joseph D. Kucan
+
+       - {CRD:Screenplay} -                         
+       Jason Henderson
+       Donny Miele
+
+       - {CRD:Editor} -                     
+       Curt Weintraub
+
+       - {CRD:Lead_Visual_Effects_Artist} -
+       Kevin Becquet
+
+       - {CRD:Audio_Director} -
+       Paul S. Mudra
+
+       - {CRD:Production_Sound} -           
+       Dwight K. Okahara
+       Paul S. Mudra
+
+       - {CRD:Casting_Director} -           
+       Marilee Lear, CSA
+
+       - {CRD:Director_of_Photography} -    
+       Kurt Rauf
+
+       - {CRD:1st_Assistant_Director} -     
+       Eddie Ficket
+
+       - {CRD:2nd_Assistant_Director} -     
+       Frank Carillo
+
+       - {CRD:Production_Coordinator} -     
+       Kim Houser
+
+       - {CRD:Production_Assistants} -      
+       Randy Stafford
+       Levi Luke
+       Marlo Lewis
+
+       - {CRD:Art_Director} -
+       Karen Stephens
+
+       - {CRD:Propmaster} -                         
+       Cliff Bernay
+
+       - {CRD:Set_Dresser} -                        
+       Greg Wolfe
+
+       - {CRD:Construction_Coordinator} -
+       Bobby Z
+
+       - {CRD:Carpenter} -
+       Jeffrey Morgan
+
+       - {CRD:Additional_Set_Construction} -
+       The Effects Network
+
+       - {CRD:KeyMakeupEffectsWardrobe} -
+       Ron Wild
+
+       - {CRD:Hair} -
+       Alison Bonanno
+
+       - {CRD:Make_Up_Assistant} -
+       China-Li Nystrom
+
+       - {CRD:Wardrobe} -
+       Tracy Bohl
+
+       - {CRD:Wardrobe_Assistant} -
+       Sandy Wyndom
+
+       - {CRD:Gaffer} -                     
+       Jerremy Settles
+
+       - {CRD:Key_Grip} -                   
+       Gary Sauer
+
+       - {CRD:Grip} -                               
+       Angel Gonzolez
+
+       - {CRD:Boom_Operator} -              
+       Richard Rasmussen
+
+       - {CRD:Visual_Effects_Compositor} -
+       Chuck Carter
+
+       - {CRD:Ultimatte_Operator} -         
+       Bob Kurtez
+
+       - {CRD:Teleprompter_Operator} -      
+       Cheryl Yiatras
+
+       - {CRD:Driver} -                     
+       Patience Becquet
+
+       - {CRD:Concept_Artist} -             
+       Chuck Wojtkiewicz
+
+       - {CRD:Storyboard_Artist} -          
+       Jeff Parker
+
+       - {CRD:Reader} -                     
+       Finley Bolton
+
+       - {CRD:Catering} -                   
+       ADL Services
+
+
+
+       {CRD_TTL:WS_LOCALIZATION}
+
+       - {CRD:Director_of_Localization} -
+       Thilo Huebner
+
+
+
+       {CRD_TTL:WS_QUALITY_ASSURANCE}
+
+       - {CRD:QualityAssuranceDirectedby} -
+       Glenn Sperry
+       Mike Meischeid
+
+       - {CRD:QA_Analysts} -
+       Doug Wilson
+       Dave Shuman
+
+       - {CRD:QA_Supervisor} -
+       Lloyd Bell
+
+       - {CRD:RA2_Lead} -
+       D'Andre Campbell
+
+       - {CRD:RA2_Solo_Lead} -
+       Chris Blevens
+
+       - {CRD:RA2_Skirmish_Lead} -
+       Shane Dietrich
+       Mike Smith
+
+       - {CRD:RA_Multiplayer_Lead} -
+       Steve Shockey
+
+       - {CRD:QA_Testers} -
+       Clint Autrey
+       Greg Baldwin
+       Jason Campbell
+       Michael H. Celmer
+       Michael Chatterton
+       Dan Etter
+       David Fleischmann
+       Chad Fletcher
+       Steve Laity
+       Ray Laubach
+       DeMarlo Lewis
+       Levi Luke
+       Bryan Pihlbald
+       Richard Rasmusen
+       Michael Ruppert
+       Benjamin Galley
+
+       - {CRD:QA_Administrator} -
+       Rhoda Y. Anderson
+
+       - {CRD:QA_Technicians} -
+       Troy Leonard
+       Beau Hopkins
+
+       - {CRD:CS_Reps} -
+       Mary Beal
+       Tim Hempel
+
+
+
+       {CRD_TTL:MARKETING}
+
+       - {CRD:Vice_President_of_Marketing} -
+       Laura Miele
+
+       - {CRD:Marketing_Product_Manager} -
+       Matt Orlich
+
+       - {CRD:Public_Relations_Director} -
+       Aaron Cohen
+
+       - {CRD:PublicRelationsCoordinator} -
+       Chris Rubyor
+
+       - {CRD:DirectorofGraphicServices} -
+       Victoria Hart
+
+       - {CRD:Online_Director} -
+       Ted Morris
+
+       - {CRD:Online_Graphic_Artist} -
+       Jordan Robins
+
+       - {CRD:Graphic_Designer} -
+       David Lamoreaux
+
+       - {CRD:Marketing_Assistant} -
+       Wanda Flathers
+
+
+
+       {CRD_TTL:SUPPORT}
+
+       - {CRD:Operations_Manager} -
+       Shawn Ellis
+
+       - {CRD:MIS_Manager} -
+       Wayne Hall
+
+       - {CRD:MIS_Technicians} -
+       Glenn Burtis
+       Mick Love
+
+       - {CRD:HumanResour

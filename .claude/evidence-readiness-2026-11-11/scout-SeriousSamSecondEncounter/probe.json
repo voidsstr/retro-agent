@@ -1,0 +1,7400 @@
+{
+ "110": {
+  "box": 110,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-13 13:15:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:30:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-13 13:15:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:30:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 19970,
+    "modified": "2026-10-16 15:00:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:30:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:30:09",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 69,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:56:16",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.gms",
+    "is_dir": false,
+    "size": 709,
+    "modified": "2026-10-15 23:39:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:04",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 294,
+    "modified": "2026-10-15 23:41:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 21542,
+    "modified": "2026-10-15 23:39:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:31:23",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:22:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:20:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:19:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:04:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:33:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:27:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:25:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 21542,
+   "Scripts\\Game_startup.ini": 294,
+   "SeriousSam.log": 19970,
+   "Data\\SeriousSam.gms": 709,
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 69
+  },
+  "player0": {
+   "name": "JabyBesus",
+   "team": "",
+   "guid": "1f853b3aa9a02745a975de1d2ca77b96",
+   "len": 69
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 23,
+  "foreground": {
+   "hwnd": "000500BA",
+   "pid": 964,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "123": {
+  "box": 123,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-13 13:15:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-13 13:15:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 17505,
+    "modified": "2026-10-16 00:00:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:13:49",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.gms",
+    "is_dir": false,
+    "size": 717,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:18",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 295,
+    "modified": "2026-10-15 23:26:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 21535,
+    "modified": "2026-10-16 00:00:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:14:33",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 13:22:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 13:22:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 13:22:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 13:22:22",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:21:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:20:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:18:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:04:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:26:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:27:06",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:25:16",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 21535,
+   "Scripts\\Game_startup.ini": 295,
+   "SeriousSam.log": 17505,
+   "Data\\SeriousSam.gms": 717,
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 68
+  },
+  "player0": {
+   "name": "Toaster",
+   "team": "1",
+   "guid": "3057822f6d59ef40a9e539f130a93d94",
+   "len": 68
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 23,
+  "foreground": {
+   "hwnd": "000100D0",
+   "pid": 1988,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "124": {
+  "box": 124,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:28:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:46:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:48:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:46:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-03 14:54:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 29790,
+    "modified": "2026-10-16 00:24:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:48:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:04:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:04:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:02:09",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 72,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.gms",
+    "is_dir": false,
+    "size": 717,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:07",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 312,
+    "modified": "2026-10-15 23:32:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 21539,
+    "modified": "2026-10-16 00:24:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2003-04-02 07:03:26",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 14:29:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 14:29:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 14:29:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 14:29:45",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:23:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:21:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:20:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:12:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:32:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:28:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:26:35",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "vcr": [
+   {
+    "name": "am31",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 04:25:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "d3dprobe",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-11-08 07:40:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "d3dprobe.exe",
+    "is_dir": false,
+    "size": 478848,
+    "modified": "2026-09-28 16:47:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ddlab",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 03:13:43",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "desk.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-28 15:36:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ev.cmd",
+    "is_dir": false,
+    "size": 271,
+    "modified": "2026-09-30 13:22:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ev.txt",
+    "is_dir": false,
+    "size": 10,
+    "modified": "2026-09-30 13:22:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ev2.txt",
+    "is_dir": false,
+    "size": 23486,
+    "modified": "2026-09-30 13:22:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fbshot.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 11:00:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:37:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_menu.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:38:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_menu2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_quit.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:44:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_quit2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:44:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_quit3.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:44:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_quit4.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:45:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_quit5.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:45:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_quit6.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:45:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_race.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:39:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_race2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:40:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_race3.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:41:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_race4.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:42:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_race5.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:43:05",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_carma2_race6.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 15:44:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_dmc.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 15:48:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-28 16:54:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo2.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 19:40:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo3.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-28 17:02:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo4.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 17:24:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo5.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 17:27:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo_camp.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 17:27:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo_libdeploy.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 19:29:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo_menu.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 17:24:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo_menu2.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 17:27:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_halo_novideo.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 19:44:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:06:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_3d.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:09:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_after.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:10:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_after2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:10:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_d3d.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-28 16:10:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_d3d2.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 16:19:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_d3d3.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 16:20:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_display.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:09:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_esc.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:09:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_game.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:08:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_menu.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-28 16:07:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_menu2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:07:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_menu3.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:08:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_modes.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:09:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_new.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:08:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_sel.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:10:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_setup.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:09:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jkdf2_sp.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:08:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jk_abort.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:20:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jk_esc2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:20:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jk_main.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:21:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_jk_quit.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:21:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:23:05",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_display.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:23:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_game.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 16:25:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_main.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:23:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_menu.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:23:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_modes.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:23:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_new.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:24:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_setup.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:23:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_mots_sp.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 16:24:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_r6.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:19:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_t2d3d9.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:10:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_tfc.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-28 15:52:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:05:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_c2.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:06:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_1.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:11:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_2.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:11:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_3.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:12:06",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_4.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_5.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:15:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_6.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:15:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_d3d9_armed_7.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-29 03:15:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_esc.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:07:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_launcher_d3d9.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 03:19:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_launcher_quit.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-29 03:19:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_lib.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:34:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_ng.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:05:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_q.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:07:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_q2.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-28 17:08:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_thief2_start.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-28 17:06:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_ug_exit.bmp",
+    "is_dir": false,
+    "size": 2359350,
+    "modified": "2026-09-28 16:27:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_ug_join.bmp",
+    "is_dir": false,
+    "size": 2359350,
+    "modified": "2026-09-28 15:56:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_ug_join2.bmp",
+    "is_dir": false,
+    "size": 2359350,
+    "modified": "2026-09-28 15:57:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_ug_mp.bmp",
+    "is_dir": false,
+    "size": 2359350,
+    "modified": "2026-09-28 16:37:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_ug_shortcut.bmp",
+    "is_dir": false,
+    "size": 2359350,
+    "modified": "2026-09-28 16:27:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "fb_unrealgold.bmp",
+    "is_dir": false,
+    "size": 2359350,
+    "modified": "2026-09-28 15:55:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gammaprobe.exe",
+    "is_dir": false,
+    "size": 277918,
+    "modified": "2026-09-28 14:38:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gdilab",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 04:22:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "glide3x_h5_0925.dll",
+    "is_dir": false,
+    "size": 1005435,
+    "modified": "2026-09-25 09:29:43",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "glide3x_trace.dll",
+    "is_dir": false,
+    "size": 1031416,
+    "modified": "2026-09-28 15:33:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "glidelab",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-01 15:06:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "gllog.txt",
+    "is_dir": false,
+    "size": 82397,
+    "modified": "2026-09-26 16:42:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "halo-purge-bak",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-28 19:00:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "hpurge.bat",
+    "is_dir": false,
+    "size": 692,
+    "modified": "2026-09-28 19:00:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ja.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 14:53:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "lastswitch.dat",
+    "is_dir": false,
+    "size": 8,
+    "modified": "2026-11-08 07:41:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "log0929.txt",
+    "is_dir": false,
+    "size": 83340,
+    "modified": "2026-09-29 20:19:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "log4.txt",
+    "is_dir": false,
+    "size": 67398,
+    "modified": "2026-09-30 13:37:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "lognow.txt",
+    "is_dir": false,
+    "size": 85029,
+    "modified": "2026-10-15 22:58:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "maxpayne_dt.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-29 17:36:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "mp2.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-29 17:37:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "prev0929",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 04:50:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa.bat",
+    "is_dir": false,
+    "size": 183,
+    "modified": "2026-09-30 13:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa.trace",
+    "is_dir": false,
+    "size": 6966883,
+    "modified": "2026-09-30 13:42:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa2.bat",
+    "is_dir": false,
+    "size": 210,
+    "modified": "2026-09-30 15:58:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa2.trace",
+    "is_dir": false,
+    "size": 30385,
+    "modified": "2026-09-30 15:59:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa3.bat",
+    "is_dir": false,
+    "size": 210,
+    "modified": "2026-09-30 16:59:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa3.trace",
+    "is_dir": false,
+    "size": 2699373,
+    "modified": "2026-09-30 17:01:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa4x.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-09-30 17:22:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa4x.trace",
+    "is_dir": false,
+    "size": 535504,
+    "modified": "2026-09-30 17:23:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa4xb.bat",
+    "is_dir": false,
+    "size": 63,
+    "modified": "2026-09-30 18:48:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa8x.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-09-30 18:52:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa8x.trace",
+    "is_dir": false,
+    "size": 49211,
+    "modified": "2026-09-30 18:52:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa8x2.bat",
+    "is_dir": false,
+    "size": 214,
+    "modified": "2026-09-30 23:13:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa8x2.trace",
+    "is_dir": false,
+    "size": 164385,
+    "modified": "2026-09-30 23:14:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa8xp1.bat",
+    "is_dir": false,
+    "size": 63,
+    "modified": "2026-09-30 23:15:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2aa8xp2.bat",
+    "is_dir": false,
+    "size": 63,
+    "modified": "2026-09-30 23:17:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2plain.bat",
+    "is_dir": false,
+    "size": 63,
+    "modified": "2026-09-30 17:15:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2ref.bat",
+    "is_dir": false,
+    "size": 210,
+    "modified": "2026-09-30 15:26:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2ref.trace",
+    "is_dir": false,
+    "size": 626355,
+    "modified": "2026-09-30 15:27:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2sli.bat",
+    "is_dir": false,
+    "size": 185,
+    "modified": "2026-09-30 15:16:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2sli.trace",
+    "is_dir": false,
+    "size": 2005002,
+    "modified": "2026-09-30 15:18:05",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "retroicd_0.1.76.dll",
+    "is_dir": false,
+    "size": 2773020,
+    "modified": "2026-09-28 05:42:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "retroicd_0177.dll",
+    "is_dir": false,
+    "size": 2773619,
+    "modified": "2026-09-28 14:31:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "retroicd_0178.dll",
+    "is_dir": false,
+    "size": 2773619,
+    "modified": "2026-09-28 14:57:42",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "rf.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-29 09:48:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ringnow.txt",
+    "is_dir": false,
+    "size": 63,
+    "modified": "2026-10-15 22:57:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "rq_log0.txt",
+    "is_dir": false,
+    "size": 18296,
+    "modified": "2026-09-29 07:56:54",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "rt4.reg",
+    "is_dir": false,
+    "size": 93,
+    "modified": "2026-09-28 19:16:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "serioussam_tfe_dt.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-29 17:44:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "serioussam_tse_dt.bmp",
+    "is_dir": false,
+    "size": 3932214,
+    "modified": "2026-09-29 17:47:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "signpolicy.reg",
+    "is_dir": false,
+    "size": 195,
+    "modified": "2026-09-30 20:42:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof2.bmp",
+    "is_dir": false,
+    "size": 2986038,
+    "modified": "2026-09-29 09:44:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof2close.trace",
+    "is_dir": false,
+    "size": 3050834,
+    "modified": "2026-09-28 15:34:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof2hang.txt",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-09-28 15:26:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SOF2TRACE.BAT",
+    "is_dir": false,
+    "size": 199,
+    "modified": "2026-09-28 15:33:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ss2b.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-29 17:35:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 17:46:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sse.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 17:48:35",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ss_tfe_m2.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 17:17:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ss_tfe_menu.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 17:16:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sweeplog.txt",
+    "is_dir": false,
+    "size": 86836,
+    "modified": "2026-09-26 12:05:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "systemshock2_dt.bmp",
+    "is_dir": false,
+    "size": 921654,
+    "modified": "2026-09-29 17:34:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "tse_a.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 17:53:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "tse_b.bmp",
+    "is_dir": false,
+    "size": 3686454,
+    "modified": "2026-09-29 17:53:35",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrctl.exe",
+    "is_dir": false,
+    "size": 326480,
+    "modified": "2026-10-05 00:01:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrctl_0930.exe",
+    "is_dir": false,
+    "size": 321664,
+    "modified": "2026-10-05 00:01:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrctl_fb.exe",
+    "is_dir": false,
+    "size": 311326,
+    "modified": "2026-09-28 10:56:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrctl_fb2.exe",
+    "is_dir": false,
+    "size": 318306,
+    "modified": "2026-09-28 15:36:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd.dll",
+    "is_dir": false,
+    "size": 106351,
+    "modified": "2026-09-30 20:42:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_13256e46.dll",
+    "is_dir": false,
+    "size": 107375,
+    "modified": "2026-11-08 07:02:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_26e0e5be.dll",
+    "is_dir": false,
+    "size": 107375,
+    "modified": "2026-11-08 06:56:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_3255b126.dll",
+    "is_dir": false,
+    "size": 107375,
+    "modified": "2026-11-08 06:45:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_95678704.dll",
+    "is_dir": false,
+    "size": 107375,
+    "modified": "2026-11-08 07:30:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_b478d095.dll",
+    "is_dir": false,
+    "size": 107375,
+    "modified": "2026-11-08 06:51:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_b63ea6a5.dll",
+    "is_dir": false,
+    "size": 106351,
+    "modified": "2026-09-30 20:42:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrdd_ef30672a.dll",
+    "is_dir": false,
+    "size": 106351,
+    "modified": "2026-11-08 06:25:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrkmd.inf",
+    "is_dir": false,
+    "size": 3110,
+    "modified": "2026-09-30 20:42:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrmp.sys",
+    "is_dir": false,
+    "size": 130105,
+    "modified": "2026-09-30 20:42:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "vcrprobe.sys",
+    "is_dir": false,
+    "size": 10440,
+    "modified": "2026-09-28 03:11:05",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "wintext.exe",
+    "is_dir": false,
+    "size": 254985,
+    "modified": "2026-09-28 17:19:56",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 21539,
+   "Scripts\\Game_startup.ini": 312,
+   "SeriousSam.log": 29790,
+   "Data\\SeriousSam.gms": 717,
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 72
+  },
+  "player0": {
+   "name": "Xypher Orion",
+   "team": "",
+   "guid": "7a596d60a44daa47ac5c0cfccbf939bb",
+   "len": 72
+  },
+  "procs_of_interest": [
+   "cmd.exe",
+   "daemon.exe"
+  ],
+  "proc_count": 23,
+  "foreground": {
+   "hwnd": "000100D2",
+   "pid": 1776,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "133": {
+  "box": 133,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:12:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 18:27:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:12:35",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 18:27:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 21364,
+    "modified": "2026-10-16 15:00:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:10:59",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:27:00",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:34",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 293,
+    "modified": "2026-10-15 23:26:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 34,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:29:17",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-20 19:44:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-20 19:44:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-20 19:44:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-20 19:44:37",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:22:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:20:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:19:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:04:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:26:54",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:27:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:25:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 34,
+   "Scripts\\Game_startup.ini": 293,
+   "SeriousSam.log": 21364,
+   "Data\\SeriousSam.gms": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 68
+  },
+  "player0": {
+   "name": "Player 0",
+   "team": "",
+   "guid": "09c5411be2560843bfec48e4b1538d57",
+   "len": 68
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 24,
+  "foreground": {
+   "hwnd": "000200E2",
+   "pid": 1428,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "C:\\RETRO_AGENT\\retro_chat.exe",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "143": {
+  "box": 143,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 19:43:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 19:43:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.loc",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-10-15 23:27:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 9826,
+    "modified": "2026-10-15 23:27:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:48:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:48:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:48:31",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:45:47",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-15 23:39:52",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:16",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 293,
+    "modified": "2026-10-15 23:27:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 34,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:47:40",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "8326-04-16 12:26:06",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "8326-04-16 12:26:06",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "8326-04-16 12:26:06",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "8326-04-05 22:53:06",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:22:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:21:04",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:19:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:04:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:27:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:27:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:25:44",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 34,
+   "Scripts\\Game_startup.ini": 293,
+   "SeriousSam.log": 9826,
+   "Data\\SeriousSam.gms": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 68
+  },
+  "player0": {
+   "name": "Player 0",
+   "team": "",
+   "guid": "5e96cfbb79284543aa1e9c2b2407418b",
+   "len": 68
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 23,
+  "foreground": {
+   "hwnd": "000100D8",
+   "pid": 288,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "C:\\RETRO_AGENT\\retro_chat.exe",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "171": {
+  "box": 171,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-13 13:15:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MOUNTDISC.BAT",
+    "is_dir": false,
+    "size": 10996,
+    "modified": "2026-08-31 14:49:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-13 13:15:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 17982,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:02:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:02:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:00:18",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 66,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.gms",
+    "is_dir": false,
+    "size": 717,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 293,
+    "modified": "2026-10-15 23:54:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 21551,
+    "modified": "2026-10-16 00:12:34",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:01:58",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 00:13:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 00:13:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 00:13:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 00:13:48",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:22:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:20:48",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:19:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:04:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-13 13:15:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:27:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:25:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 21551,
+   "Scripts\\Game_startup.ini": 293,
+   "SeriousSam.log": 17982,
+   "Data\\SeriousSam.gms": 717,
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 66
+  },
+  "player0": {
+   "name": "Carter",
+   "team": "",
+   "guid": "0736f1eb0f71f24b89fd35566f4d3c0a",
+   "len": 66
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 23,
+  "foreground": {
+   "hwnd": "0001012E",
+   "pid": 248,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "184": {
+  "box": 184,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:11",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-01 03:50:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:28:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-01 03:50:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 23656,
+    "modified": "2026-10-16 00:23:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:28:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:54:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:54:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:51:52",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 66,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.gms",
+    "is_dir": false,
+    "size": 717,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:12",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 293,
+    "modified": "2026-10-15 23:37:05",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 21542,
+    "modified": "2026-10-16 00:23:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 16:53:47",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 06:18:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 06:18:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 06:18:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-30 06:18:52",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:22:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:19:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:05:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:31:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:27:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:26:09",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 21542,
+   "Scripts\\Game_startup.ini": 293,
+   "SeriousSam.log": 23656,
+   "Data\\SeriousSam.gms": 717,
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 66
+  },
+  "player0": {
+   "name": "ArchoN",
+   "team": "",
+   "guid": "ca0a7dc7692eda45b915bb41c899d772",
+   "len": 66
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 22,
+  "foreground": {
+   "hwnd": "000100D0",
+   "pid": 1724,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "240": {
+  "box": 240,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:43:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:38:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:40:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:43:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 15:38:41",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.log",
+    "is_dir": false,
+    "size": 15752,
+    "modified": "2026-10-16 00:12:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-10-15 23:40:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 14:37:38",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [
+   {
+    "name": "Player0.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player1.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player2.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player3.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player4.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player5.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player6.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Player7.plr",
+    "is_dir": false,
+    "size": 68,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.gms",
+    "is_dir": false,
+    "size": 717,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:18",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 294,
+    "modified": "2026-10-15 23:41:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:10",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "PersistentSymbols.ini",
+    "is_dir": false,
+    "size": 21537,
+    "modified": "2026-10-16 00:12:01",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-08-31 06:23:08",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-23 00:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-07-18 05:50:54",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-07-18 05:50:53",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-07-18 05:50:54",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 18:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-07-18 05:50:53",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "fleetmp": [
+   {
+    "name": "cs.bat",
+    "is_dir": false,
+    "size": 225,
+    "modified": "2026-10-13 13:21:43",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q2.bat",
+    "is_dir": false,
+    "size": 212,
+    "modified": "2026-10-13 13:20:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "q3.bat",
+    "is_dir": false,
+    "size": 394,
+    "modified": "2026-10-13 13:18:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tfe.bat",
+    "is_dir": false,
+    "size": 104,
+    "modified": "2026-10-13 13:04:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ssam-tse.bat",
+    "is_dir": false,
+    "size": 105,
+    "modified": "2026-10-15 23:26:08",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut2004.bat",
+    "is_dir": false,
+    "size": 64,
+    "modified": "2026-10-13 13:26:52",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ut99.bat",
+    "is_dir": false,
+    "size": 218,
+    "modified": "2026-10-13 13:25:02",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": 21537,
+   "Scripts\\Game_startup.ini": 294,
+   "SeriousSam.log": 15752,
+   "Data\\SeriousSam.gms": 717,
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": 68
+  },
+  "player0": {
+   "name": "Player 0",
+   "team": "",
+   "guid": "0237207a1d5c6b48917215b0221737db",
+   "len": 68
+  },
+  "procs_of_interest": [
+   "daemon.exe"
+  ],
+  "proc_count": 35,
+  "foreground": {
+   "hwnd": "00030220",
+   "pid": 3972,
+   "class": "WindowsScreenSaverClass",
+   "title": "Screen Saver"
+  },
+  "windows": [
+   [
+    "Screen Saver",
+    "WindowsScreenSaverClass"
+   ],
+   [
+    "C:\\RETRO_AGENT\\retro_chat.exe",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ },
+ "186": {
+  "box": 186,
+  "root": [
+   {
+    "name": "Bin",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Controls",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Data",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.cab",
+    "is_dir": false,
+    "size": 475470,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data1.hdr",
+    "is_dir": false,
+    "size": 102320,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "data2.cab",
+    "is_dir": false,
+    "size": 26409134,
+    "modified": "2026-08-31 14:38:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Demos",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:19",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:55:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:55:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Host Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26766,
+    "modified": "2026-10-03 14:04:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ikernel.ex_",
+    "is_dir": false,
+    "size": 344923,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Join Serious Sam TSE - LAN.bat",
+    "is_dir": false,
+    "size": 26838,
+    "modified": "2026-10-03 14:04:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 853,
+    "modified": "2026-09-28 13:21:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "layout.bin",
+    "is_dir": false,
+    "size": 435,
+    "modified": "2026-08-31 14:38:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Levels",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Locales",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:22",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "ModEXT.txt",
+    "is_dir": false,
+    "size": 2,
+    "modified": "2026-08-31 14:38:40",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Mods",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NOTES.txt",
+    "is_dir": false,
+    "size": 6988,
+    "modified": "2026-10-03 13:28:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Serious Sam - The Second Encounter.bat",
+    "is_dir": false,
+    "size": 25376,
+    "modified": "2026-10-03 14:04:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Players",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 1447,
+    "modified": "2026-08-31 14:48:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SaveGame",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Scripts",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00.gro",
+    "is_dir": false,
+    "size": 271463074,
+    "modified": "2026-08-31 14:39:12",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Extra.gro",
+    "is_dir": false,
+    "size": 13411480,
+    "modified": "2026-08-31 14:39:13",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_ExtraTools.gro",
+    "is_dir": false,
+    "size": 1906215,
+    "modified": "2026-08-31 14:39:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Levels.gro",
+    "is_dir": false,
+    "size": 19218322,
+    "modified": "2026-08-31 14:39:15",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SE1_00_Music.gro",
+    "is_dir": false,
+    "size": 55129210,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSam.ico",
+    "is_dir": false,
+    "size": 16870,
+    "modified": "2026-09-28 13:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SeriousSamLogo.ico",
+    "is_dir": false,
+    "size": 14510,
+    "modified": "2026-09-28 13:21:33",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.bmp",
+    "is_dir": false,
+    "size": 537656,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.exe",
+    "is_dir": false,
+    "size": 56320,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.ini",
+    "is_dir": false,
+    "size": 155,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Setup.inx",
+    "is_dir": false,
+    "size": 153324,
+    "modified": "2026-08-31 14:39:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Temp",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "VirtualTrees",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Worlds",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:39",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:28:56",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "players": [],
+  "data": [
+   {
+    "name": "Default.ifr",
+    "is_dir": false,
+    "size": 93802,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Defaults",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:17",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "IFeel.txt",
+    "is_dir": false,
+    "size": 198,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Logitech.ifr",
+    "is_dir": false,
+    "size": 88350,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "SED_TipOfTheDay.txt",
+    "is_dir": false,
+    "size": 3675,
+    "modified": "2026-08-31 14:38:20",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Var",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:17",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "scripts": [
+   {
+    "name": "Addons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Commands",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "CustomOptions",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Dedicated_startup.ini",
+    "is_dir": false,
+    "size": 1497,
+    "modified": "2026-08-31 14:38:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Game_startup.ini",
+    "is_dir": false,
+    "size": 296,
+    "modified": "2026-11-08 05:12:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "GLSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "menu",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "NetSettings",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WorldEditorKeys",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 23:29:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "dtools": [],
+  "fleetmp": [],
+  "games_lanhost": [],
+  "files": {
+   "Scripts\\PersistentSymbols.ini": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Scripts\\Game_startup.ini": 296,
+   "SeriousSam.log": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Data\\SeriousSam.gms": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "mount-error.txt": "ERR RetroProtocolError('Cannot open file: error 2')",
+   "Players\\Player0.plr": "ERR RetroProtocolError('Cannot open file: error 2')"
+  },
+  "procs_of_interest": [],
+  "proc_count": 31,
+  "foreground": {
+   "hwnd": "0001004C",
+   "pid": 1208,
+   "class": "Button",
+   "title": "Start"
+  },
+  "windows": [
+   [
+    "Start",
+    "Button"
+   ],
+   [
+    "Retro Remote Agent Version 1.98.0",
+    "ConsoleWindowClass"
+   ],
+   [
+    "Program Manager",
+    "Progman"
+   ]
+  ]
+ }
+}

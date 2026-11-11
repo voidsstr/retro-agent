@@ -1,0 +1,183 @@
+*******************
+
+Microsoft ScanDisk for Windows
+
+NOTE: If you use an MS-DOS program to view this file, some of the characters
+may appear incorrectly. Use a Windows program such as Notepad instead.
+
+Log file generated at 00:36 on 9/28/2026.
+
+ScanDisk used the following options:
+  Standard test
+
+Drive Retrogames (D:) contained the following errors:
+
+ScanDisk did not find any errors on this drive.
+
+-------------------
+
+
+
+Microsoft ScanDisk
+
+
+Log file generated at 12:00AM on Friday, January 04, 1980.
+
+ScanDisk checked drive C for problems, with the following results:
+
+Directory structure
+
+         ScanDisk did not perform any tests.
+     
+File allocation table
+
+         ScanDisk did not find any problems.
+     
+File system
+
+         ScanDisk did not perform any tests.
+     
+Surface scan
+
+         ScanDisk did not perform any tests.
+     
+
+
+Microsoft ScanDisk
+
+
+Log file generated at 12:00AM on Friday, January 04, 1980.
+
+ScanDisk checked drive C for problems, with the following results:
+
+Directory structure
+
+         ScanDisk did not find any problems.
+     
+File allocation table
+
+         ScanDisk did not find any problems.
+     
+File system
+
+         ScanDisk did not perform any tests.
+     
+Surface scan
+
+         ScanDisk did not perform any tests.
+     
+
+
+Microsoft ScanDisk
+
+
+Log file generated at 12:00AM on Friday, January 04, 1980.
+
+ScanDisk checked drive C for problems, with the following results:
+
+Directory structure
+
+         Directory entry C:\WINDOWS\SYSBCKUP\RBBAD.CAB had an incorrect size.
+         ScanDisk successfully corrected the directory entry.
+     
+         Directory entry SHARE.VER had an incorrect value for its starting
+         cluster.
+         ScanDisk successfully corrected the directory entry.
+     
+File allocation table
+
+         ScanDisk did not find any problems.
+     
+File system
+
+         The following files were crosslinked:
+     
+         C:\WINDOWS\SYSBCKUP\RBBAD.CAB was first crosslinked on cluster 2,541
+         C:\RETRO_~1\SHARE.VER was first crosslinked on cluster 2,541
+     
+         ScanDisk successfully resolved all crosslinks.
+     
+         There were 8 lost clusters in 3 chains.
+         ScanDisk reclaimed the lost clusters as free space.
+     
+Surface scan
+
+         ScanDisk did not perform any tests.
+     
+
+
+Microsoft ScanDisk
+
+
+Log file generated at 12:00AM on Friday, January 04, 1980.
+
+ScanDisk checked drive C for problems, with the following results:
+
+Directory structure
+
+         ScanDisk did not perform any tests.
+     
+File allocation table
+
+         ScanDisk did not find any problems.
+     
+File system
+
+         ScanDisk did not perform any tests.
+     
+Surface scan
+
+         ScanDisk did not perform any tests.
+     
+
+
+Microsoft ScanDisk
+
+
+Log file generated at 07:29AM on Tuesday, October 13, 2026.
+
+ScanDisk checked drive C for problems, with the following results:
+
+Directory structure
+
+         ScanDisk did not find any problems.
+     
+File allocation table
+
+         ScanDisk did not find any problems.
+     
+File system
+
+         The free space was being reported incorrectly.
+         ScanDisk successfully fixed the free space count.
+     
+Surface scan
+
+         ScanDisk did not perform any tests.
+     
+
+
+Microsoft ScanDisk
+
+
+Log file generated at 11:45PM on Saturday, November 07, 2026.
+
+ScanDisk checked drive C for problems, with the following results:
+
+Directory structure
+
+         ScanDisk did not find any problems.
+     
+File allocation table
+
+         ScanDisk did not find any problems.
+     
+File system
+
+         The free space was being reported incorrectly.
+         ScanDisk successfully fixed the free space count.
+     
+Surface scan
+
+         ScanDisk did not perform any tests.
+     

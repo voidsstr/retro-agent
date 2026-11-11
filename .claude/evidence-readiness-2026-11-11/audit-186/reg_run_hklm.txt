@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run","values":[{"name":"RetroAgent","type":"REG_SZ","data":"D:\\RETRO_AGENT\\retro_agent.exe"}],"subkeys":[]}

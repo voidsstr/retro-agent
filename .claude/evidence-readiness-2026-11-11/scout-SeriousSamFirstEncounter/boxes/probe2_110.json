@@ -1,0 +1,22 @@
+{
+ "box": 110,
+ "_disc": [
+  {
+   "name": "SeriousSamTFE.iso",
+   "is_dir": false,
+   "size": 501800960,
+   "modified": "2026-08-31 14:35:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "games_lanhost": [],
+ "lanhost": "ERR RetroProtocolError('Cannot open file: error 2')",
+ "foreground": {
+  "hwnd": "000500BA",
+  "pid": 964,
+  "class": "WindowsScreenSaverClass",
+  "title": "Screen Saver"
+ },
+ "hwprofile_os": "{\"profile_hash\":\"2d1e2e8d090cb5aa\",\"profile_version\":1,\"hostname\":\"NSC-5C5396FAF9D\",\"agent_version\":\"1.98.0\",\"reported_at\":\"2026-11-11 13:40:58\",\"cpu\":{\"vendor\":\"GenuineIntel\",\"brand\":\"Intel(R) Pentium(R) 4 CPU 2.80GHz\",\"family\":15,\"model\":2,\"stepping\":9,\"mhz\":2793,\"mhz_source\":\"registry\",\"count\":1,\"feature_bits\":31,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"sse\",\"sse2\"]},\"ram_mb\":1150,\"gpu\":{\"name\":\"NVIDIA GeForce 7800 GS\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x00F5\",\"hardware_id\":\"PCI\\\\VEN_10DE&DEV_00F5&SUBSYS_A5063842&REV_A2\",\"vram_mb\":256,\"driver_version\":\"6.14.10.9371\",\"driver_date\":\"10-22-2006\",\"feature_level\":\"sm3.0\",\"feature_level_num\":5,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1600,\"height\":1200,\"bpp\":32,\"panel_w\":1600,\"panel_h\":1200,\"panel_source\":\"registry\",\"edid_w\":1600,\"edid_h\":1200,\"panel_hz\":85,\"panel_digital\":0,\"panel_name\":\"HP P1120\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":224520,\"total_mb\":286157}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"NVIDIA GeForce 7800 GS\",\"pci_ven\":\"0x10DE\",\"pci_dev\":\"0x00F5\",\"hardware_id\":\"pci\\\\ven_10de&dev_00f5\",\"driver_version\":\"6.14.10.9371\",\"driver_date\":\"10-22-2006\",\"attached_to_desktop\":true},{\"instance\":\"0002\",\"name\":\"RADE"
+}

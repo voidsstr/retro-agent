@@ -1,0 +1,90 @@
+Turok2 Game Manager Logfile - Mon Sep 28 02:06:31 2026
+Turok2 Game Manager version v1.03.
+
+Starting Game Manager in Integrated mode.
+Game Manager was asked to start on a lan.
+
+Using configuration from "integrated.cfg".
+
+	Location   = 0
+	HostName   = NSC Retro Fleet
+	HostPort   = 12888
+	ServerIP   = (local)
+	ServerPort = 12800
+	GameType   = Rok Match
+	Password   = (none required)
+
+	LevelSet   = Rok Match Levels
+	Levels     = 0 9 16 6 2 11 5 7 17 4 13 10 15 12 1 8 14 3           
+	MaxPlayers = 4
+	NumTeams   = 2
+	FragLimit  = 20
+	TimeLimit  = 0
+	PointLimit = 5000
+	SortStats  = Frags
+	
+	CPU        = (not specified)
+	Connection = (not specified)
+	
+	Health             = 1
+	WeaponsRemain      = 0
+	FriendlyFireHurts  = 0
+	EnemiesDropWeapons = 0
+	AllCharactersSame  = 0
+	NotifyGameSpy      = 0
+	ArenaWeapons       = (use all)
+	ArenaMaxAmmo			= FALSE
+	DamageMultiplier = 1.000000
+	NodeExpansion    = 1.000000
+	SpeedMultiplier = 1.000000
+	TeamName1		= Team Ozone
+	TeamName2		= Team Nitro
+	TeamName3		= Team Fusion
+	TeamName4		= Team Rocket
+	TeamName5		= Team Slash
+	TeamName6		= Team Frag
+	TeamName7		= Team Scarecrow
+	TeamName8		= Team Lag
+	
+	KillWarBlade          = (default)
+	KillTekBow            = (default)
+	KillPistol            = (default)
+	KillMagnumPistol      = (default)
+	KillChargeDart        = (default)
+	KillShotgun           = (default)
+	KillShredder          = (default)
+	KillPlasmaRifle       = (default)
+	KillFirestormCannon   = (default)
+	KillGrenadeLauncher   = (default)
+	KillScorpionRocket    = (default)
+	KillFlameThrower      = (default)
+	KillSpeargun          = (default)
+	KillTorpedo           = (default)
+	KillCerebralBore      = (default)
+	KillRaptorClaw        = (default)
+	KillShredderExplosion = (default)
+	KillGrenadeExplosion  = (default)
+	KillScorpionExplosion = (default)
+	KillNukeExplosion     = (default)
+	KillDefaultExplosion  = (default)
+	KillTeleport          = (default)
+	
+	SuicideExplosion   = (default)
+	SuicideDrown       = (default)
+	SuicideFall        = (default)
+	SuicideLava        = (default)
+	SuicidePoisonWater = (default)
+	SuicideFlyingDebris= (default)
+	SuicideConsole     = (default)
+	SuicideBullet      = (default)
+	LocalSuicideExplosion   = (default)
+	LocalSuicideDrown       = (default)
+	LocalSuicideFall        = (default)
+	LocalSuicideLava        = (default)
+	LocalSuicidePoisonWater = (default)
+	LocalSuicideFlyingDebris= (default)
+	LocalSuicideConsole     = (default)
+	LocalSuicideBullet      = (default)
+	
+Accepting queries @ ---------> 192.168.1.124:12888 (nsc-c543575f526)
+Startup successful.  Game: "NSC Retro Fleet".  Mode: "Rok Match".  

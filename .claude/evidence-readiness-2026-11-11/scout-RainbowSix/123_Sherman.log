@@ -1,0 +1,5 @@
+Selecting sound device Realtek AC97 Audio
+   driver is ALCXWDM.SYS
+VOICECOMPRESSION: Could not find an appropriate Voxware CODEC
+Rainbow Six was not able to initialize the Voxware voice compression
+  engine; make sure Rainbow Six is correctly installed on your machine

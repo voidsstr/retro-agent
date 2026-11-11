@@ -1,0 +1,62 @@
+{
+ "110": {
+  "ForegroundLockTimeout": 200000,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\WINDOWS\\system32\\ssstars.scr"
+ },
+ "123": {
+  "ForegroundLockTimeout": 200000,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\WINDOWS\\system32\\ssstars.scr"
+ },
+ "124": {
+  "ForegroundLockTimeout": 200000,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\WINDOWS\\system32\\ssstars.scr"
+ },
+ "133": {
+  "ForegroundLockTimeout": 0,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\retro-wall\\ssstars.scr"
+ },
+ "143": {
+  "ForegroundLockTimeout": 200000,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\retro-wall\\ssstars.scr"
+ },
+ "171": {
+  "ForegroundLockTimeout": 200000,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\WINDOWS\\system32\\ssstars.scr"
+ },
+ "184": {
+  "ForegroundLockTimeout": 200000,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\WINDOWS\\system32\\ssstars.scr"
+ },
+ "186": {
+  "ScreenSaveActive": "1",
+  "ForegroundLockTimeout": 200000
+ },
+ "240": {
+  "ForegroundLockTimeout": 0,
+  "ScreenSaverIsSecure": "0",
+  "ScreenSaveTimeOut": "600",
+  "ScreenSaveActive": "1",
+  "SCRNSAVE.EXE": "C:\\retro-wall\\ssstars.scr"
+ }
+}

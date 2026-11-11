@@ -1,0 +1,254 @@
+     1 2026-08-17 14:08:03Z INFO LoadPerf                      1000 RSVP | QoS RSVP
+     2 2026-08-17 14:08:04Z INFO LoadPerf                      1000 PSched | PSched
+     3 2026-08-17 14:08:20Z INFO LoadPerf                      1000 RemoteAccess | Routing and Remote Access
+     4 2026-08-17 14:09:54Z INFO LoadPerf                      1000 TermService | Terminal Services
+     5 2026-08-17 14:09:56Z INFO LoadPerf                      1000 MSDTC | MSDTC
+     6 2026-08-17 14:09:58Z INFO MSDTC                         4104 
+     7 2026-08-17 14:09:59Z INFO MSDTC                         2444 0 | 0 | 0 | 0 | 0 | 0
+     8 2026-08-17 14:10:14Z INFO LoadPerf                      1000 WmiApRpl | WmiApRpl
+     9 2026-08-17 14:10:14Z INFO LoadPerf                      1001 WmiApRpl | WmiApRpl DATA=a2080000a308000017070000
+    10 2026-08-17 14:10:14Z INFO LoadPerf                      1000 WmiApRpl | WmiApRpl
+    11 2026-08-17 14:10:40Z WARN WinMgmt                         63 HiPerfCooker_v1 | Root\WMI
+    12 2026-08-17 14:10:46Z WARN WinMgmt                         63 CmdTriggerConsumer | Root\cimv2
+    13 2026-08-17 14:10:46Z WARN WinMgmt                         63 CmdTriggerConsumer | Root\cimv2
+    14 2026-08-17 14:10:47Z WARN WinMgmt                       5603 Rsop Planning Mode Provider | root\RSOP
+    15 2026-08-17 14:10:47Z WARN WinMgmt                       5603 Rsop Planning Mode Provider | root\RSOP
+    16 2026-08-17 14:10:55Z INFO LoadPerf                      1000 ContentIndex | ContentIndex
+    17 2026-08-17 14:10:55Z INFO LoadPerf                      1000 ContentFilter | ContentFilter
+    18 2026-08-17 14:10:55Z INFO LoadPerf                      1000 ISAPISearch | ISAPISearch
+    19 2026-08-17 14:14:34Z WARN WinMgmt                       5603 Rsop Planning Mode Provider | root\RSOP
+    20 2026-08-17 14:14:34Z WARN WinMgmt                       5603 Rsop Planning Mode Provider | root\RSOP
+    21 2026-08-17 14:14:40Z INFO COM+                          4156 First attemp to CoCreateInstance(CLSID_ComSystemAppEventData) failed!
+    22 2026-08-17 14:14:40Z INFO COM+                          4156 Remove old EventClass(CLSID_ComSystemAppEventData) from event system!.
+    23 2026-08-17 14:14:40Z INFO COM+                          4156 Added EventClass(CLSID_ComSystemAppEventData) to event system!.
+    24 2026-08-17 14:14:40Z INFO COM+                          4156 RegisterComSystemAppEventData() succeeded!  Will re-try CoCreateInstance(CLSID_ComSystemAppEventData)
+    25 2026-08-17 14:14:58Z INFO WmdmPmSN                       100 WmdmPmSN
+    26 2026-08-17 14:15:48Z INFO SceCli                        1500 C:\WINDOWS\security\templates\setup security.inf
+    27 2026-08-17 14:26:23Z INFO SecurityCenter                1800 
+    28 2026-08-17 14:27:06Z INFO ESENT                          100 wuauclt | 332 | 5 | 01 | 2600 | 5512
+    29 2026-08-17 14:27:06Z INFO ESENT                          102 wuaueng.dll | 332 | SUS20ClientDataStore: | 0
+    30 2026-08-17 14:28:00Z WARN Windows Product Activation    1005 30
+    31 2026-08-17 14:28:21Z INFO MsiInstaller                 11707 Product: WebFldrs XP -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+    32 2026-08-17 14:28:33Z INFO LoadPerf                      1001 WmiApRpl | WmiApRpl DATA=de080000df08000017070000
+    33 2026-08-17 14:28:33Z INFO LoadPerf                      1000 WmiApRpl | WmiApRpl
+    34 2026-08-17 14:32:09Z INFO ESENT                          103 wuaueng.dll | 332 | SUS20ClientDataStore: | 0
+    35 2026-08-17 14:32:09Z INFO ESENT                          101 wuauclt | 332
+    36 2026-08-17 14:54:18Z INFO SecurityCenter                1800 
+    37 2026-08-17 14:55:01Z INFO ESENT                          100 wuauclt | 1896 | 5 | 01 | 2600 | 5512
+    38 2026-08-17 14:55:01Z INFO ESENT                          102 wuaueng.dll | 1896 | SUS20ClientDataStore: | 0
+    39 2026-08-17 15:00:02Z INFO ESENT                          103 wuaueng.dll | 1896 | SUS20ClientDataStore: | 0
+    40 2026-08-17 15:00:02Z INFO ESENT                          101 wuauclt | 1896
+    41 2026-08-18 14:19:47Z INFO SecurityCenter                1800 
+    42 2026-08-18 14:20:30Z INFO ESENT                          100 wuauclt | 636 | 5 | 01 | 2600 | 5512
+    43 2026-08-18 14:20:30Z INFO ESENT                          102 wuaueng.dll | 636 | SUS20ClientDataStore: | 0
+    44 2026-08-18 14:25:30Z INFO ESENT                          103 wuaueng.dll | 636 | SUS20ClientDataStore: | 0
+    45 2026-08-18 14:25:30Z INFO ESENT                          101 wuauclt | 636
+    46 2026-08-20 12:36:13Z INFO SecurityCenter                1800 
+    47 2026-08-20 12:36:57Z INFO ESENT                          100 wuauclt | 1516 | 5 | 01 | 2600 | 5512
+    48 2026-08-20 12:36:57Z INFO ESENT                          102 wuaueng.dll | 1516 | SUS20ClientDataStore: | 0
+    49 2026-08-20 12:41:58Z INFO ESENT                          103 wuaueng.dll | 1516 | SUS20ClientDataStore: | 0
+    50 2026-08-20 12:41:58Z INFO ESENT                          101 wuauclt | 1516
+    51 2026-08-20 19:45:22Z INFO ESENT                          100 wuauclt | 1892 | 5 | 01 | 2600 | 5512
+    52 2026-08-20 19:45:22Z INFO ESENT                          102 wuaueng.dll | 1892 | SUS20ClientDataStore: | 0
+    53 2026-08-20 19:45:28Z INFO MsiInstaller                 11707 Product: DAEMON Tools -- Installation completed successfully. | (NULL) | (NULL) | (NULL)
+    54 2026-08-20 19:45:28Z INFO MsiInstaller                  1005 DAEMON Tools | (NULL) | (NULL) | (NULL)
+    55 2026-08-20 19:46:36Z WARN Windows Product Activation    1005 27
+    56 2026-08-20 19:46:49Z INFO SecurityCenter                1800 
+    57 2026-08-20 19:47:32Z INFO ESENT                          100 wuauclt | 772 | 5 | 01 | 2600 | 5512
+    58 2026-08-20 19:47:32Z INFO ESENT                          102 wuaueng.dll | 772 | SUS20ClientDataStore: | 0
+    59 2026-08-20 19:52:33Z INFO ESENT                          103 wuaueng.dll | 772 | SUS20ClientDataStore: | 0
+    60 2026-08-20 19:52:33Z INFO ESENT                          101 wuauclt | 772
+    61 2026-08-20 20:42:59Z INFO MsiInstaller                 11729 Product: DAEMON Tools -- Configuration failed. | (NULL) | (NULL) | (NULL)
+    62 2026-08-20 22:39:50Z INFO SecurityCenter                1800 
+    63 2026-08-20 22:40:33Z INFO ESENT                          100 wuauclt | 1868 | 5 | 01 | 2600 | 5512
+    64 2026-08-20 22:40:33Z INFO ESENT                          102 wuaueng.dll | 1868 | SUS20ClientDataStore: | 0
+    65 2026-08-20 22:45:34Z INFO ESENT                          103 wuaueng.dll | 1868 | SUS20ClientDataStore: | 0
+    66 2026-08-20 22:45:34Z INFO ESENT                          101 wuauclt | 1868
+    67 2026-08-20 22:55:20Z INFO SecurityCenter                1800 
+    68 2026-08-20 22:56:03Z INFO ESENT                          100 wuauclt | 820 | 5 | 01 | 2600 | 5512
+    69 2026-08-20 22:56:03Z INFO ESENT                          102 wuaueng.dll | 820 | SUS20ClientDataStore: | 0
+    70 2026-08-20 23:01:04Z INFO ESENT                          103 wuaueng.dll | 820 | SUS20ClientDataStore: | 0
+    71 2026-08-20 23:01:04Z INFO ESENT                          101 wuauclt | 820
+    72 2026-08-20 23:11:37Z INFO SecurityCenter                1800 
+    73 2026-08-20 23:12:21Z INFO ESENT                          100 wuauclt | 808 | 5 | 01 | 2600 | 5512
+    74 2026-08-20 23:12:21Z INFO ESENT                          102 wuaueng.dll | 808 | SUS20ClientDataStore: | 0
+    75 2026-08-20 23:17:21Z INFO ESENT                          103 wuaueng.dll | 808 | SUS20ClientDataStore: | 0
+    76 2026-08-20 23:17:21Z INFO ESENT                          101 wuauclt | 808
+    77 2026-08-20 23:24:02Z INFO SecurityCenter                1800 
+    78 2026-08-20 23:24:50Z INFO ESENT                          100 wuauclt | 2004 | 5 | 01 | 2600 | 5512
+    79 2026-08-20 23:24:50Z INFO ESENT                          102 wuaueng.dll | 2004 | SUS20ClientDataStore: | 0
+    80 2026-08-20 23:27:15Z INFO SecurityCenter                1800 
+    81 2026-08-20 23:27:58Z INFO ESENT                          100 wuauclt | 272 | 5 | 01 | 2600 | 5512
+    82 2026-08-20 23:27:58Z INFO ESENT                          102 wuaueng.dll | 272 | SUS20ClientDataStore: | 0
+    83 2026-08-20 23:32:59Z INFO ESENT                          103 wuaueng.dll | 272 | SUS20ClientDataStore: | 0
+    84 2026-08-20 23:32:59Z INFO ESENT                          101 wuauclt | 272
+    85 2026-08-20 23:41:33Z INFO SecurityCenter                1800 
+    86 2026-08-20 23:42:18Z INFO ESENT                          100 wuauclt | 724 | 5 | 01 | 2600 | 5512
+    87 2026-08-20 23:42:18Z INFO ESENT                          102 wuaueng.dll | 724 | SUS20ClientDataStore: | 0
+    88 2026-08-20 23:47:19Z INFO ESENT                          103 wuaueng.dll | 724 | SUS20ClientDataStore: | 0
+    89 2026-08-20 23:47:19Z INFO ESENT                          101 wuauclt | 724
+    90 2026-08-21 01:40:01Z INFO ESENT                          100 wuauclt | 308 | 5 | 01 | 2600 | 5512
+    91 2026-08-21 01:40:01Z INFO ESENT                          102 wuaueng.dll | 308 | SUS20ClientDataStore: | 0
+    92 2026-08-21 01:45:02Z INFO ESENT                          103 wuaueng.dll | 308 | SUS20ClientDataStore: | 0
+    93 2026-08-21 01:45:02Z INFO ESENT                          101 wuauclt | 308
+    94 2026-08-21 14:34:44Z INFO SecurityCenter                1800 
+    95 2026-08-21 14:35:28Z INFO ESENT                          100 wuauclt | 240 | 5 | 01 | 2600 | 5512
+    96 2026-08-21 14:35:28Z INFO ESENT                          102 wuaueng.dll | 240 | SUS20ClientDataStore: | 0
+    97 2026-08-21 14:40:28Z INFO ESENT                          103 wuaueng.dll | 240 | SUS20ClientDataStore: | 0
+    98 2026-08-21 14:40:28Z INFO ESENT                          101 wuauclt | 240
+    99 2026-08-28 17:14:40Z INFO SecurityCenter                1800 
+   100 2026-08-28 17:15:23Z INFO ESENT                          100 wuauclt | 1296 | 5 | 01 | 2600 | 5512
+   101 2026-08-28 17:15:23Z INFO ESENT                          102 wuaueng.dll | 1296 | SUS20ClientDataStore: | 0
+   102 2026-08-28 17:20:24Z INFO ESENT                          103 wuaueng.dll | 1296 | SUS20ClientDataStore: | 0
+   103 2026-08-28 17:20:24Z INFO ESENT                          101 wuauclt | 1296
+   104 2026-08-29 01:40:13Z INFO SecurityCenter                1800 
+   105 2026-08-29 01:40:57Z INFO ESENT                          100 wuauclt | 908 | 5 | 01 | 2600 | 5512
+   106 2026-08-29 01:40:57Z INFO ESENT                          102 wuaueng.dll | 908 | SUS20ClientDataStore: | 0
+   107 2026-08-29 01:45:57Z INFO ESENT                          103 wuaueng.dll | 908 | SUS20ClientDataStore: | 0
+   108 2026-08-29 01:45:57Z INFO ESENT                          101 wuauclt | 908
+   109 2026-08-29 13:17:56Z INFO SecurityCenter                1800 
+   110 2026-08-29 13:18:39Z INFO ESENT                          100 wuauclt | 928 | 5 | 01 | 2600 | 5512
+   111 2026-08-29 13:18:39Z INFO ESENT                          102 wuaueng.dll | 928 | SUS20ClientDataStore: | 0
+   112 2026-08-29 13:23:39Z INFO ESENT                          103 wuaueng.dll | 928 | SUS20ClientDataStore: | 0
+   113 2026-08-29 13:23:39Z INFO ESENT                          101 wuauclt | 928
+   114 2026-08-29 19:02:59Z ERR  SideBySide                      32 Microsoft.VC90.CRT | The referenced assembly is not installed on your system.
+   115 2026-08-29 19:02:59Z ERR  SideBySide                      59 Resolve Partial Assembly | Microsoft.VC90.CRT | The referenced assembly is not installed on your system.
+   116 2026-08-29 19:02:59Z ERR  SideBySide                      59 Generate Activation Context | C:\Games\Thief2\Thief2.exe | The operation completed successfully.
+   117 2026-08-29 19:04:44Z ERR  SideBySide                      32 Microsoft.VC90.CRT | The referenced assembly is not installed on your system.
+   118 2026-08-29 19:04:44Z ERR  SideBySide                      59 Resolve Partial Assembly | Microsoft.VC90.CRT | The referenced assembly is not installed on your system.
+   119 2026-08-29 19:04:44Z ERR  SideBySide                      59 Generate Activation Context | C:\Games\Thief2\Thief2.exe | The operation completed successfully.
+   120 2026-08-30 13:18:40Z INFO ESENT                          100 wuauclt | 1136 | 5 | 01 | 2600 | 5512
+   121 2026-08-30 13:18:40Z INFO ESENT                          102 wuaueng.dll | 1136 | SUS20ClientDataStore: | 0
+   122 2026-08-30 13:23:40Z INFO ESENT                          103 wuaueng.dll | 1136 | SUS20ClientDataStore: | 0
+   123 2026-08-30 13:23:40Z INFO ESENT                          101 wuauclt | 1136
+   124 2026-08-30 16:06:56Z INFO SecurityCenter                1800 
+   125 2026-08-30 16:07:38Z INFO ESENT                          100 wuauclt | 1716 | 5 | 01 | 2600 | 5512
+   126 2026-08-30 16:07:38Z INFO ESENT                          102 wuaueng.dll | 1716 | SUS20ClientDataStore: | 0
+   127 2026-08-30 16:12:39Z INFO ESENT                          103 wuaueng.dll | 1716 | SUS20ClientDataStore: | 0
+   128 2026-08-30 16:12:39Z INFO ESENT                          101 wuauclt | 1716
+   129 2026-08-31 04:21:52Z INFO MsiInstaller                 11707 Product: ISScript -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   130 2026-08-31 04:29:23Z INFO MsiInstaller                 11707 Product: ISScript -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   131 2026-08-31 04:32:49Z INFO MsiInstaller                 11707 Product: Doom 3 -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   132 2026-08-31 04:43:58Z INFO MsiInstaller                 11707 Product: Doom 3 -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   133 2026-08-31 04:47:29Z INFO MsiInstaller                 11707 Product: ISScript -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   134 2026-08-31 04:50:24Z INFO MsiInstaller                 11707 Product: Doom 3 -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   135 2026-08-31 04:50:33Z INFO MsiInstaller                 11707 Product: Doom 3 -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   136 2026-08-31 04:51:03Z INFO MsiInstaller                 11728 Product: Doom 3 -- Configuration completed successfully. | (NULL) | (NULL) | (NULL)
+   137 2026-08-31 05:38:21Z INFO MsiInstaller                 11707 Product: ISScript -- Installation operation completed successfully. | (NULL) | (NULL) | (NULL)
+   138 2026-08-31 05:52:26Z ERR  Application Error             1000 dosbox.exe | 0.74.0.0 | dosbox.exe | 0.74.0.0 | 00127f32
+   139 2026-08-31 16:07:39Z INFO ESENT                          100 wuauclt | 1496 | 5 | 01 | 2600 | 5512
+   140 2026-08-31 16:07:39Z INFO ESENT                          102 wuaueng.dll | 1496 | SUS20ClientDataStore: | 0
+   141 2026-08-31 16:12:39Z INFO ESENT                          103 wuaueng.dll | 1496 | SUS20ClientDataStore: | 0
+   142 2026-08-31 16:12:39Z INFO ESENT                          101 wuauclt | 1496
+   143 2026-08-31 18:33:14Z INFO SecurityCenter                1800 
+   144 2026-08-31 18:33:58Z INFO ESENT                          100 wuauclt | 656 | 5 | 01 | 2600 | 5512
+   145 2026-08-31 18:33:58Z INFO ESENT                          102 wuaueng.dll | 656 | SUS20ClientDataStore: | 0
+   146 2026-08-31 18:38:58Z INFO ESENT                          103 wuaueng.dll | 656 | SUS20ClientDataStore: | 0
+   147 2026-08-31 18:38:58Z INFO ESENT                          101 wuauclt | 656
+   148 2026-08-31 23:18:44Z INFO SecurityCenter                1800 
+   149 2026-08-31 23:19:26Z INFO ESENT                          100 wuauclt | 888 | 5 | 01 | 2600 | 5512
+   150 2026-08-31 23:19:26Z INFO ESENT                          102 wuaueng.dll | 888 | SUS20ClientDataStore: | 0
+   151 2026-08-31 23:24:27Z INFO ESENT                          103 wuaueng.dll | 888 | SUS20ClientDataStore: | 0
+   152 2026-08-31 23:24:27Z INFO ESENT                          101 wuauclt | 888
+   153 2026-09-01 01:15:36Z INFO SecurityCenter                1800 
+   154 2026-09-01 01:16:20Z INFO ESENT                          100 wuauclt | 944 | 5 | 01 | 2600 | 5512
+   155 2026-09-01 01:16:20Z INFO ESENT                          102 wuaueng.dll | 944 | SUS20ClientDataStore: | 0
+   156 2026-09-01 01:21:21Z INFO ESENT                          103 wuaueng.dll | 944 | SUS20ClientDataStore: | 0
+   157 2026-09-01 01:21:21Z INFO ESENT                          101 wuauclt | 944
+   158 2026-09-01 04:01:46Z INFO SecurityCenter                1800 
+   159 2026-09-01 04:02:34Z INFO ESENT                          100 wuauclt | 288 | 5 | 01 | 2600 | 5512
+   160 2026-09-01 04:02:34Z INFO ESENT                          102 wuaueng.dll | 288 | SUS20ClientDataStore: | 0
+   161 2026-09-01 04:07:34Z INFO ESENT                          103 wuaueng.dll | 288 | SUS20ClientDataStore: | 0
+   162 2026-09-01 04:07:34Z INFO ESENT                          101 wuauclt | 288
+   163 2026-09-01 14:04:53Z INFO SecurityCenter                1800 
+   164 2026-09-01 14:05:32Z INFO ESENT                          100 wuauclt | 1948 | 5 | 01 | 2600 | 5512
+   165 2026-09-01 14:05:32Z INFO ESENT                          102 wuaueng.dll | 1948 | SUS20ClientDataStore: | 0
+   166 2026-09-01 14:10:33Z INFO ESENT                          103 wuaueng.dll | 1948 | SUS20ClientDataStore: | 0
+   167 2026-09-01 14:10:33Z INFO ESENT                          101 wuauclt | 1948
+   168 2026-09-14 13:24:13Z INFO SecurityCenter                1800 
+   169 2026-09-14 13:24:59Z INFO ESENT                          100 wuauclt | 256 | 5 | 01 | 2600 | 5512
+   170 2026-09-14 13:24:59Z INFO ESENT                          102 wuaueng.dll | 256 | SUS20ClientDataStore: | 0
+   171 2026-09-14 13:26:01Z WARN Windows Product Activation    1005 3
+   172 2026-09-14 13:29:59Z INFO ESENT                          103 wuaueng.dll | 256 | SUS20ClientDataStore: | 0
+   173 2026-09-14 13:29:59Z INFO ESENT                          101 wuauclt | 256
+   174 2026-09-15 13:24:59Z INFO ESENT                          100 wuauclt | 1696 | 5 | 01 | 2600 | 5512
+   175 2026-09-15 13:24:59Z INFO ESENT                          102 wuaueng.dll | 1696 | SUS20ClientDataStore: | 0
+   176 2026-09-15 13:26:01Z WARN Windows Product Activation    1005 2
+   177 2026-09-15 13:30:00Z INFO ESENT                          103 wuaueng.dll | 1696 | SUS20ClientDataStore: | 0
+   178 2026-09-15 13:30:00Z INFO ESENT                          101 wuauclt | 1696
+   179 2026-09-25 02:28:32Z INFO SecurityCenter                1800 
+   180 2026-09-25 02:29:16Z INFO ESENT                          100 wuauclt | 248 | 5 | 01 | 2600 | 5512
+   181 2026-09-25 02:29:16Z INFO ESENT                          102 wuaueng.dll | 248 | SUS20ClientDataStore: | 0
+   182 2026-09-25 02:31:52Z WARN Windows Product Activation    1011 
+   183 2026-09-25 02:34:16Z INFO ESENT                          103 wuaueng.dll | 248 | SUS20ClientDataStore: | 0
+   184 2026-09-25 02:34:16Z INFO ESENT                          101 wuauclt | 248
+   185 2026-09-26 19:10:52Z INFO SecurityCenter                1800 
+   186 2026-09-26 19:45:39Z INFO SecurityCenter                1800 
+   187 2026-09-26 19:46:23Z INFO ESENT                          100 wuauclt | 1412 | 5 | 01 | 2600 | 5512
+   188 2026-09-26 19:46:23Z INFO ESENT                          102 wuaueng.dll | 1412 | SUS20ClientDataStore: | 0
+   189 2026-09-26 19:51:23Z INFO ESENT                          103 wuaueng.dll | 1412 | SUS20ClientDataStore: | 0
+   190 2026-09-26 19:51:23Z INFO ESENT                          101 wuauclt | 1412
+   191 2026-09-28 18:57:23Z INFO SecurityCenter                1800 
+   192 2026-09-28 18:58:08Z INFO ESENT                          100 wuauclt | 248 | 5 | 01 | 2600 | 5512
+   193 2026-09-28 18:58:08Z INFO ESENT                          102 wuaueng.dll | 248 | SUS20ClientDataStore: | 0
+   194 2026-09-28 19:03:09Z INFO ESENT                          103 wuaueng.dll | 248 | SUS20ClientDataStore: | 0
+   195 2026-09-28 19:03:09Z INFO ESENT                          101 wuauclt | 248
+   196 2026-09-29 14:24:28Z INFO SecurityCenter                1800 
+   197 2026-09-29 14:25:12Z INFO ESENT                          100 wuauclt | 208 | 5 | 01 | 2600 | 5512
+   198 2026-09-29 14:25:12Z INFO ESENT                          102 wuaueng.dll | 208 | SUS20ClientDataStore: | 0
+   199 2026-09-29 14:30:13Z INFO ESENT                          103 wuaueng.dll | 208 | SUS20ClientDataStore: | 0
+   200 2026-09-29 14:30:13Z INFO ESENT                          101 wuauclt | 208
+   201 2026-09-29 15:40:16Z WARN Windows Product Activation    1011 
+   202 2026-09-29 16:19:01Z INFO Windows Product Activation    1006 
+   203 2026-09-29 17:28:54Z INFO SecurityCenter                1800 
+   204 2026-09-29 17:29:38Z INFO ESENT                          100 wuauclt | 792 | 5 | 01 | 2600 | 5512
+   205 2026-09-29 17:29:38Z INFO ESENT                          102 wuaueng.dll | 792 | SUS20ClientDataStore: | 0
+   206 2026-09-29 17:34:39Z INFO ESENT                          103 wuaueng.dll | 792 | SUS20ClientDataStore: | 0
+   207 2026-09-29 17:34:39Z INFO ESENT                          101 wuauclt | 792
+   208 2026-10-03 12:13:04Z INFO SecurityCenter                1800 
+   209 2026-10-03 12:13:49Z INFO ESENT                          100 wuauclt | 280 | 5 | 01 | 2600 | 5512
+   210 2026-10-03 12:13:49Z INFO ESENT                          102 wuaueng.dll | 280 | SUS20ClientDataStore: | 0
+   211 2026-10-03 12:18:50Z INFO ESENT                          103 wuaueng.dll | 280 | SUS20ClientDataStore: | 0
+   212 2026-10-03 12:18:50Z INFO ESENT                          101 wuauclt | 280
+   213 2026-10-04 23:38:21Z INFO SecurityCenter                1800 
+   214 2026-10-04 23:39:03Z INFO ESENT                          100 wuauclt | 1296 | 5 | 01 | 2600 | 5512
+   215 2026-10-04 23:39:03Z INFO ESENT                          102 wuaueng.dll | 1296 | SUS20ClientDataStore: | 0
+   216 2026-10-04 23:44:04Z INFO ESENT                          103 wuaueng.dll | 1296 | SUS20ClientDataStore: | 0
+   217 2026-10-04 23:44:04Z INFO ESENT                          101 wuauclt | 1296
+   218 2026-10-13 12:30:45Z INFO SecurityCenter                1800 
+   219 2026-10-13 12:31:28Z INFO ESENT                          100 wuauclt | 1792 | 5 | 01 | 2600 | 5512
+   220 2026-10-13 12:31:28Z INFO ESENT                          102 wuaueng.dll | 1792 | SUS20ClientDataStore: | 0
+   221 2026-10-13 12:36:28Z INFO ESENT                          103 wuaueng.dll | 1792 | SUS20ClientDataStore: | 0
+   222 2026-10-13 12:36:28Z INFO ESENT                          101 wuauclt | 1792
+   223 2026-10-14 12:31:29Z INFO ESENT                          100 wuauclt | 1212 | 5 | 01 | 2600 | 5512
+   224 2026-10-14 12:31:29Z INFO ESENT                          102 wuaueng.dll | 1212 | SUS20ClientDataStore: | 0
+   225 2026-10-14 12:36:30Z INFO ESENT                          103 wuaueng.dll | 1212 | SUS20ClientDataStore: | 0
+   226 2026-10-14 12:36:30Z INFO ESENT                          101 wuauclt | 1212
+   227 2026-10-14 16:39:04Z INFO SecurityCenter                1800 
+   228 2026-10-14 16:39:49Z INFO ESENT                          100 wuauclt | 1192 | 5 | 01 | 2600 | 5512
+   229 2026-10-14 16:39:49Z INFO ESENT                          102 wuaueng.dll | 1192 | SUS20ClientDataStore: | 0
+   230 2026-10-14 16:44:50Z INFO ESENT                          103 wuaueng.dll | 1192 | SUS20ClientDataStore: | 0
+   231 2026-10-14 16:44:50Z INFO ESENT                          101 wuauclt | 1192
+   232 2026-10-15 22:35:25Z INFO SecurityCenter                1800 
+   233 2026-10-15 22:36:08Z INFO ESENT                          100 wuauclt | 408 | 5 | 01 | 2600 | 5512
+   234 2026-10-15 22:36:08Z INFO ESENT                          102 wuaueng.dll | 408 | SUS20ClientDataStore: | 0
+   235 2026-10-15 22:41:09Z INFO ESENT                          103 wuaueng.dll | 408 | SUS20ClientDataStore: | 0
+   236 2026-10-15 22:41:09Z INFO ESENT                          101 wuauclt | 408
+   237 2026-11-11 15:59:15Z INFO SecurityCenter                1800 
+   238 2026-11-11 15:59:57Z INFO ESENT                          100 wuauclt | 880 | 5 | 01 | 2600 | 5512
+   239 2026-11-11 15:59:57Z INFO ESENT                          102 wuaueng.dll | 880 | SUS20ClientDataStore: | 0
+   240 2026-11-11 16:00:15Z INFO crypt32                          7 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
+   241 2026-11-11 16:00:15Z INFO crypt32                          2 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab
+   242 2026-11-11 16:00:15Z ERR  crypt32                         11 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab | Invalid algorithm specified.
+   243 2026-11-11 16:00:15Z ERR  crypt32                         11 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab | Invalid algorithm specified.
+   244 2026-11-11 16:00:15Z INFO crypt32                          7 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
+   245 2026-11-11 16:00:15Z INFO crypt32                          2 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab
+   246 2026-11-11 16:00:15Z ERR  crypt32                         11 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab | Invalid algorithm specified.
+   247 2026-11-11 16:00:16Z ERR  crypt32                         11 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab | Invalid algorithm specified.
+   248 2026-11-11 16:00:16Z INFO crypt32                          7 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootseq.txt
+   249 2026-11-11 16:00:16Z INFO crypt32                          2 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab
+   250 2026-11-11 16:00:16Z ERR  crypt32                         11 http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab | Invalid algorithm specified.
+   251 2026-11-11 16:00:27Z INFO LoadPerf                      1001 WmiApRpl | WmiApRpl DATA=de080000df08000017070000
+   252 2026-11-11 16:00:27Z INFO LoadPerf                      1000 WmiApRpl | WmiApRpl
+   253 2026-11-11 16:04:58Z INFO ESENT                          103 wuaueng.dll | 880 | SUS20ClientDataStore: | 0
+   254 2026-11-11 16:04:58Z INFO ESENT                          101 wuauclt | 880

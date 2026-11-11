@@ -1,0 +1,12 @@
+Nov 07 23:46:36 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-07 23:46:36,604 [INFO] new agent online: 192.168.1.243 (announced itself)
+Nov 07 23:46:36 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-07 23:46:36,812 [INFO] [192.168.1.243] wait connection established (single-threaded agent: long timeouts)
+Nov 07 23:46:36 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-07 23:46:36,997 [INFO] [192.168.1.243] send connection established
+Nov 07 23:47:18 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-07 23:47:18,113 [INFO] discovery: claimed 2 agents: ['192.168.1.186', '192.168.1.243']
+Nov 07 23:48:40 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-07 23:48:40,240 [WARNING] [192.168.1.243] wait conn lost: ConnectionResetError(104, 'Connection reset by peer'), reconnecting
+Nov 07 23:50:40 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-07 23:50:40,318 [INFO] [192.168.1.243] no reply for 122s (ConnectionRefusedError(111, "Connect call failed ('192.168.1.243', 9898)")) - releasing it; discovery reclaims it when it is back
+Nov 08 00:04:29 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-08 00:04:29,631 [INFO] new agent online: 192.168.1.243 (announced itself)
+Nov 08 00:04:29 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-08 00:04:29,771 [INFO] [192.168.1.243] wait connection established (single-threaded agent: long timeouts)
+Nov 08 00:04:29 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-08 00:04:29,909 [INFO] [192.168.1.243] send connection established
+Nov 08 00:04:32 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-08 00:04:32,842 [WARNING] [192.168.1.243] wait conn lost: ConnectionResetError(104, 'Connection reset by peer'), reconnecting
+Nov 08 00:05:26 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-08 00:05:26,247 [INFO] discovery: claimed 3 agents: ['192.168.1.124', '192.168.1.186', '192.168.1.243']
+Nov 08 00:06:32 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx python3[2865]: 2026-11-08 00:06:32,857 [INFO] [192.168.1.243] no reply for 123s (ConnectionRefusedError(111, "Connect call failed ('192.168.1.243', 9898)")) - releasing it; discovery reclaims it when it is back

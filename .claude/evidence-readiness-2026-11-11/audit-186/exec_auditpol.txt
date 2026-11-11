@@ -1,0 +1,4 @@
+System audit policy
+Category/Subcategory                      Setting
+Logon/Logoff
+  Logon                                   Success

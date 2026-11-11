@@ -1,0 +1,8 @@
+
+
+CreationDate=20261111105655.706815-300
+ExecutablePath=D:\RETRO_AGENT\retro_agent.exe
+ProcessId=2076
+
+
+

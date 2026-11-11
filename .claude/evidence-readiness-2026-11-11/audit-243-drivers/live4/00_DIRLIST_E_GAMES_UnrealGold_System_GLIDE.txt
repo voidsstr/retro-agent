@@ -1,0 +1,1 @@
+[{"name":"GlideDrv.dll","is_dir":false,"size":86016,"modified":"2026-08-27 16:09:22","hidden":false,"readonly":false},{"name":"GlideDrv.int","is_dir":false,"size":446,"modified":"2026-08-27 16:09:22","hidden":false,"readonly":false},{"name":"glide2x.dll.nglide","is_dir":false,"size":1310720,"modified":"2026-10-01 06:13:08","hidden":false,"readonly":false}]

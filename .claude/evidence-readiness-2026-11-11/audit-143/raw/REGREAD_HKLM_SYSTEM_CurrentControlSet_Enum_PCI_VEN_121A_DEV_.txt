@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Enum\\PCI\\VEN_121A&DEV_0009&SUBSYS_0002121A&REV_01","values":[],"subkeys":["4&9fd38ef&0&0008"]}

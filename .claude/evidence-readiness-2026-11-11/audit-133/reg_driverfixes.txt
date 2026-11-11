@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"Software\\RetroAgent\\DriverFixes","values":[{"name":"PCI\\VEN_1102&DEV_7002&SUBSYS_00201102&REV_07","type":"REG_DWORD","data":1}],"subkeys":[]}

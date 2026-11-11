@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\MMDevices\\Audio\\Render","values":[],"subkeys":["{1adc6588-cf97-49c3-b3f8-1f860cec4d29}","{706983e6-7c87-4ba2-a4a4-db43992087a0}","{7740d2a9-abae-4a82-896b-e13e5cb6fa0a}","{c7cac506-b6ab-4b7c-9198-8b1bfa838358}","{d0fce0a7-3ac9-4748-b634-242587095d80}","{f202d741-5963-4784-97d3-764cffe726f5}"]}

@@ -1,0 +1,1 @@
+{"root":"HKCU","path":"Software\\Microsoft\\Windows\\CurrentVersion\\Run","values":[{"name":"ctfmon.exe","type":"REG_SZ","data":"C:\\WINDOWS\\system32\\ctfmon.exe"}],"subkeys":[]}

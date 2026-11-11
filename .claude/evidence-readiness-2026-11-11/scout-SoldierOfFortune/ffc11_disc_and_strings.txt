@@ -1,0 +1,67 @@
+# FFC11.DLL on the retail disc and what SoF.exe needs from it - raw outputs (2026-11-11)
+
+## ISO9660 listing of sof.bin (streamed from Files/Games/Windows XP/Soldier of Fortune (2000).zip), SETUP dir
+cue: FILE "sof.bin" BINARY
+  TRACK 01 MODE1/2352
+    INDEX 01 00:00:00
+  TRACK 02 AUDIO
+    PREGAP 00:02:00
+    INDEX 01 70:26:27
+PVD id b'CD001' volume label SOF
+[BIN]  lba 28
+  BIGBOX.BMP  412360  lba 67
+  SOF.DAT  8714  lba 1875
+  SOF.DBD  2488368  lba 1880
+  SOFSPLSH.BMP  921656  lba 3097
+  DXSETUP.EXE  6340040  lba 15858
+  BZIIDEMO.EXE  15638989  lba 18954
+  GLSETUP.EXE  66516542  lba 26591
+  WONINSTL.EXE  814164  lba 78585
+[SETUP]  lba 31
+  ANET.INF  309  lba 79042
+  DATA.TAG  127  lba 83100
+    INDEX.HTM  1944  lba 315657
+      INDEX.HTM  5745  lba 315801
+      INDEX.HTM  1557  lba 315666
+  FFC11.DLL  120012  lba 78983
+  LANG.DAT  4679  lba 315443
+  LAYOUT.BIN  609  lba 315446
+  OS.DAT  450  lba 315447
+  SETUP.BMP  269880  lba 315448
+  SETUP.EXE  71680  lba 315580
+  SETUP.INI  108  lba 315615
+  SETUP.INS  79603  lba 315616
+  SETUP.LID  49  lba 315655
+  _ISDEL.EXE  27648  lba 79189
+  _SETUP.DLL  34816  lba 79203
+  ANET.INF  309  lba 316517
+  DXVER.DLL  55808  lba 316518
+  GETINFO.DLL  80896  lba 316546
+  SYSINFO.EXE  84480  lba 316586
+  SYSINV.DLL  84992  lba 316628
+
+## decode (tools/ffc11.py; game XORs block bytes 4.. with key bytes 0.. - the script's second dword is mis-aligned, see corrected line below)
+FFC11.DLL 120012 md5 1b14f9765f52381d84ace85a49304461 head 4479000091f3fc837e8a5a3f0310cb21
+offset 31044 length L 8
+key[:16] b9618896419199378d8ab99cb65f1150
+count (L/4) = 2  decoded dwords after the first: [2, 2703936854]
+   2 ms = 0:00.002
+   2703936854 ms = 45065:36.854
+corrected: block L=8 -> the game sets count = L/4 = 2 (must equal the drive's MCI track count); decoded dword[1] = 933407983 is never compared; for a 2-track disc the per-track loop (index 2..N-1) is empty
+
+## image TOC from sof.cue: track 1 MODE1 00:00:00 (316977 sectors), track 2 AUDIO pregap 2s, index 70:26:27; file 795199440 B = 338095 sectors; with pregap 338245 sectors = 4509933 ms (window 4470000..4830000)
+
+## staged tree (case-insensitive) - FFC* files:
+-rwxr-xr-x 1 voidsstr voidsstr  126976 Aug 27 12:08 FFC10.dll
+
+## general.sp (pak0 strip/general.sp, ID 4) index 10-18 = client drop reasons; 17 = NEED
+   8 PAUSED | Paused
+   10 KICKED | You were kicked!
+   11 TIMEDOUT | You timed out
+   12 OVERFLOWED | You overflowed
+   13 DISCONNECTED | You disconnected
+   14 BADREAD | Bad network read
+   15 UNKNOWN | Unknown command character
+   16 SQUIT | Server Quit!
+   17 NEED | Please insert the SOF CD and try again.
+   18 STO | Server connection timed out

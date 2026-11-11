@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 4","values":[{"name":"Interrupt","type":"REG_DWORD","data":20},{"name":"IOAddress","type":"REG_DWORD","data":49152},{"name":"Driver","type":"REG_SZ","data":"viamraid"}],"subkeys":["Scsi Bus 0"]}

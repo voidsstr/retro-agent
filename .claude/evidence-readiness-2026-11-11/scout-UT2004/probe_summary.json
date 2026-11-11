@@ -1,0 +1,236 @@
+{
+ "110": {
+  "UT2004.ini": [
+   "ok",
+   21841
+  ],
+  "User.ini": [
+   "ok",
+   10088
+  ],
+  "UT2004.log": [
+   "ok",
+   0
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "123": {
+  "UT2004.ini": [
+   "ok",
+   21421
+  ],
+  "User.ini": [
+   "ok",
+   27119
+  ],
+  "UT2004.log": [
+   "ok",
+   4276
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "124": {
+  "UT2004.ini": [
+   "ok",
+   21421
+  ],
+  "User.ini": [
+   "ok",
+   10144
+  ],
+  "UT2004.log": [
+   "ok",
+   3801
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "133": {
+  "UT2004.ini": [
+   "ok",
+   25030
+  ],
+  "User.ini": [
+   "ok",
+   2153
+  ],
+  "UT2004.log": [
+   "ok",
+   4396
+  ],
+  "Join.bat": [
+   "ok",
+   1703
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4117
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "143": {
+  "UT2004.ini": [
+   "ok",
+   21399
+  ],
+  "User.ini": [
+   "ok",
+   10135
+  ],
+  "UT2004.log": [
+   "ok",
+   0
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "171": {
+  "UT2004.ini": [
+   "ok",
+   21399
+  ],
+  "User.ini": [
+   "ok",
+   10146
+  ],
+  "UT2004.log": [
+   "ok",
+   0
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "184": {
+  "UT2004.ini": [
+   "ok",
+   21399
+  ],
+  "User.ini": [
+   "ok",
+   10144
+  ],
+  "UT2004.log": [
+   "ok",
+   4287
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ },
+ "186": {
+  "UT2004.ini": [
+   "ok",
+   21841
+  ],
+  "User.ini": [
+   "ok",
+   37749
+  ],
+  "UT2004.log": [
+   "ok",
+   5322
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "status 255",
+   "Cannot open file: error 3"
+  ]
+ },
+ "240": {
+  "UT2004.ini": [
+   "ok",
+   21400
+  ],
+  "User.ini": [
+   "ok",
+   10144
+  ],
+  "UT2004.log": [
+   "ok",
+   4247
+  ],
+  "Join.bat": [
+   "ok",
+   2019
+  ],
+  "FLEETRES.BAT": [
+   "ok",
+   4917
+  ],
+  "fleetmp_ut2004.bat": [
+   "ok",
+   64
+  ]
+ }
+}

@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers\\ati2dvag","values":[{"name":"Version","type":"REG_DWORD","data":2},{"name":"DriverVersion","type":"REG_DWORD","data":1},{"name":"Flags","type":"REG_DWORD","data":1},{"name":"Dll","type":"REG_SZ","data":"atioglxx.dll"}],"subkeys":[]}

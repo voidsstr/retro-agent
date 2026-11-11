@@ -1,0 +1,51 @@
+{
+ "DIRLIST C:\\Games\\Quake3-TeamArena": {
+  "status": 0,
+  "text": "[{\"name\":\"baseq3\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 16:44:37\",\"hidden\":false,\"readonly\":false},{\"name\":\"COPYING.txt\",\"is_dir\":false,\"size\":15429,\"modified\":\"2026-08-27 13:19:17\",\"hidden\":false,\"readonly\":false},{\"name\":\"defrag\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 20:00:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"FLEETGL.BAT\",\"is_dir\":false,\"size\":4094,\"modified\":\"2026-09-02 01:00:20\",\"hidden\":false,\"readonly\":false},{\"name\":\"FLEETRES.BAT\",\"is_dir\":false,\"size\":4917,\"modified\":\"2026-09-29 17:54:55\",\"hidden\":false,\"readonly\":false},{\"name\":\"FLEETRES.EXE\",\"is_dir\":false,\"size\":33280,\"modified\":\"2026-09-29 17:54:53\",\"hidden\":false,\"readonly\":false},{\"name\":\"id-readme.txt\",\"is_dir\":false,\"size\":6910,\"modified\":\"2026-08-27 13:19:50\",\"hidden\":false,\"readonly\":false},{\"name\":\"id_patch_pk3s_Q3A_EULA.txt\",\"is_dir\":false,\"size\":9930,\"modified\":\"2026-08-27 13:19:50\",\"hidden\":false,\"readonly\":false},{\"name\":\"instaunlagged\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 20:00:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"ioq3ded.x86.exe\",\"is_dir\":false,\"size\":687104,\"modified\":\"2026-08-27 13:19:51\",\"hidden\":false,\"readonly\":false},{\"name\":\"ioquake3.x86.exe\",\"is_dir\":false,\"size\":1363456,\"modified\":\"2026-08-27 13:19:51\",\"hidden\":false,\"readonly\":false},{\"name\":\"launch.txt\",\"is_dir\":false,\"size\":203,\"modified\":\"2026-08-30 01:20:06\",\"hidden\":false,\"readonly\":false},{\"name\":\"libcurl-4.dll\",\"is_dir\":false,\"size\":224256,\"modified\":\"2026-08-27 13:19:51\",\"hidden\":false,\"readonly\":false},{\"name\":\"missionpack\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 16:44:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"openal32.dll\",\"is_dir\":false,\"size\":135168,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Quake III Arena - retail 1.32c.bat\",\"is_dir\":false,\"size\":2162,\"modified\":\"2026-09-04 15:13:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Quake III Arena.bat\",\"is_dir\":false,\"size\":1432,\"modified\":\"2026-09-04 15:13:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Team Arena.bat\",\"is_dir\":false,\"size\":1594,\"modified\":\"2026-09-04 15:13:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3key\",\"is_dir\":false,\"size\":167,\"modified\":\"2026-08-29 17:56:26\",\"hidden\":false,\"readonly\":false},{\"name\":\"Quake III Arena Complete - READ ME.txt\",\"is_dir\":false,\"size\":953,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"quake3.exe\",\"is_dir\":false,\"size\":872448,\"modified\":\"2026-08-28 23:31:41\",\"hidden\":false,\"readonly\":false},{\"name\":\"README.txt\",\"is_dir\":false,\"size\":26823,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"requires.json\",\"is_dir\":false,\"size\":268,\"modified\":\"2026-08-30 04:54:50\",\"hidden\":false,\"readonly\":false},{\"name\":\"SDL.dll\",\"is_dir\":false,\"size\":338432,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"SERVERS-fleet.txt\",\"is_dir\":false,\"size\":948,\"modified\":\"2026-08-31 05:21:18\",\"hidden\":false,\"readonly\":false},{\"name\":\"SERVERS-online.txt\",\"is_dir\":false,\"size\":1377,\"modified\":\"2026-08-28 23:32:21\",\"hidden\":false,\"readonly\":false},{\"name\":\"uninstall-ioquake3-q3a.exe\",\"is_dir\":false,\"size\":100114,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"uninstall.exe\",\"is_dir\":false,\"size\":103463,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"unlagged\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 20:01:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"voip-readme.txt\",\"is_dir\":false,\"size\":9947,\"modified\":\"2026-08-27 13:20:15\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\Quake3-TeamArena\\missionpack": {
+  "status": 0,
+  "text": "[{\"name\":\"autoexec.cfg\",\"is_dir\":false,\"size\":1521,\"modified\":\"2026-10-01 05:44:47\",\"hidden\":false,\"readonly\":false},{\"name\":\"cgamex86.dll\",\"is_dir\":false,\"size\":418304,\"modified\":\"2026-08-27 13:19:52\",\"hidden\":false,\"readonly\":false},{\"name\":\"fleetres.cfg\",\"is_dir\":false,\"size\":257,\"modified\":\"2026-09-29 16:44:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"pak0.pk3\",\"is_dir\":false,\"size\":351623691,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"pak1.pk3\",\"is_dir\":false,\"size\":383888,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"pak2.pk3\",\"is_dir\":false,\"size\":376234,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"pak3.pk3\",\"is_dir\":false,\"size\":384282,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3key\",\"is_dir\":false,\"size\":167,\"modified\":\"2026-08-29 17:56:25\",\"hidden\":false,\"readonly\":false},{\"name\":\"qagamex86.dll\",\"is_dir\":false,\"size\":531968,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"uix86.dll\",\"is_dir\":false,\"size\":255488,\"modified\":\"2026-08-27 13:20:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"zz-fleetres-menus.pk3\",\"is_dir\":false,\"size\":28914,\"modified\":\"2026-09-29 16:30:45\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\WINDOWS\\system32\\3dfx*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "REGREAD HKLM Software\\RetroAgent": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01:40 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 0 installed, 2 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; Standard 101/102-Key or Microsoft Natura: problem_not_driver_fixable; PS/2 Compatible Mouse: problem_not_driver_fixable\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01 ok: active (IPX net 00000000 node 080009ebd1a5, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029705},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 33 title(s), 0 value(s) changed, 0 absent, target 1024x768 (4:3 1024x768); verify ok=81 wrong=0 absent=0\"}],\"subkeys\":[\"DriverPrefs\"]}"
+ },
+ "REGREAD HKLM SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon": {
+  "status": 0,
+  "text_filtered": [
+   {
+    "name": "DefaultDomainName",
+    "type": "REG_SZ",
+    "data": "."
+   },
+   {
+    "name": "DefaultUserName",
+    "type": "REG_SZ",
+    "data": "Administrator"
+   },
+   {
+    "name": "AutoAdminLogon",
+    "type": "REG_SZ",
+    "data": "1"
+   },
+   {
+    "name": "ForceAutoLogon",
+    "type": "REG_SZ",
+    "data": "1"
+   }
+  ]
+ },
+ "DIRLIST C:\\Documents and Settings": {
+  "status": 0,
+  "text": "[{\"name\":\"Administrator\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 19:50:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"All Users\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 19:41:15\",\"hidden\":false,\"readonly\":false},{\"name\":\"Default User\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 19:42:54\",\"hidden\":true,\"readonly\":false},{\"name\":\"LocalService\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 19:49:41\",\"hidden\":true,\"readonly\":false},{\"name\":\"NetworkService\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 19:49:30\",\"hidden\":true,\"readonly\":false}]"
+ },
+ "PROCLIST": {
+  "status": 0,
+  "text": "[{\"pid\":0,\"name\":\"[System Process]\",\"threads\":1,\"parent_pid\":0},{\"pid\":4,\"name\":\"System\",\"threads\":57,\"parent_pid\":0},{\"pid\":440,\"name\":\"smss.exe\",\"threads\":3,\"parent_pid\":4},{\"pid\":496,\"name\":\"csrss.exe\",\"threads\":12,\"parent_pid\":440},{\"pid\":520,\"name\":\"winlogon.exe\",\"threads\":20,\"parent_pid\":440},{\"pid\":564,\"name\":\"services.exe\",\"threads\":14,\"parent_pid\":520},{\"pid\":576,\"name\":\"lsass.exe\",\"threads\":19,\"parent_pid\":520},{\"pid\":752,\"name\":\"svchost.exe\",\"threads\":15,\"parent_pid\":564},{\"pid\":812,\"name\":\"svchost.exe\",\"threads\":9,\"parent_pid\":564},{\"pid\":928,\"name\":\"svchost.exe\",\"threads\":56,\"parent_pid\":564},{\"pid\":1052,\"name\":\"svchost.exe\",\"threads\":4,\"parent_pid\":564},{\"pid\":1100,\"name\":\"svchost.exe\",\"threads\":14,\"parent_pid\":564},{\"pid\":1252,\"name\":\"spoolsv.exe\",\"threads\":10,\"parent_pid\":564},{\"pid\":1888,\"name\":\"nvsvc32.exe\",\"threads\":3,\"parent_pid\":564},{\"pid\":264,\"name\":\"explorer.exe\",\"threads\":10,\"parent_pid\":240},{\"pid\":856,\"name\":\"retro_agent.exe\",\"threads\":14,\"parent_pid\":264},{\"pid\":988,\"name\":\"rundll32.exe\",\"threads\":1,\"parent_pid\":264},{\"pid\":1084,\"name\":\"daemon.exe\",\"threads\":2,\"parent_pid\":264},{\"pid\":1352,\"name\":\"alg.exe\",\"threads\":6,\"parent_pid\":564},{\"pid\":1948,\"name\":\"wuauclt.exe\",\"threads\":3,\"parent_pid\":928},{\"pid\":248,\"name\":\"wscntfy.exe\",\"threads\":1,\"parent_pid\":928},{\"pid\":1724,\"name\":\"ssstars.scr\",\"threads\":1,\"parent_pid\":520}]"
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "110": {
+  "C:\\Games\\SoldierOfFortune\\base\\fleetres.cfg": 102
+ },
+ "123": {
+  "C:\\Games\\SoldierOfFortune\\base\\fleetres.cfg": 102,
+  "C:\\Games\\SoldierOfFortune\\_disc": [
+   {
+    "name": "sof.bin",
+    "is_dir": false,
+    "size": 795199440,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.cue",
+    "is_dir": false,
+    "size": 125,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "124": {
+  "C:\\Games\\SoldierOfFortune\\user\\sof.log": 3519,
+  "C:\\Games\\SoldierOfFortune\\base\\lancheck.cfg": 75,
+  "C:\\Games\\SoldierOfFortune\\LANCHECK.BAT": 104,
+  "C:\\Games\\SoldierOfFortune\\base\\fleetres.cfg": 98,
+  "C:\\Games\\SoldierOfFortune\\user\\config.cfg": 6184
+ },
+ "133": {
+  "C:\\Games\\SoldierOfFortune\\_disc": [
+   {
+    "name": "sof.bin",
+    "is_dir": false,
+    "size": 795199440,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.cue",
+    "is_dir": false,
+    "size": 125,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "143": {
+  "C:\\Games\\SoldierOfFortune\\_disc": [
+   {
+    "name": "sof.bin",
+    "is_dir": false,
+    "size": 795199440,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.cue",
+    "is_dir": false,
+    "size": 125,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "171": {
+  "C:\\Games\\SoldierOfFortune\\_disc": [
+   {
+    "name": "sof.bin",
+    "is_dir": false,
+    "size": 795199440,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.cue",
+    "is_dir": false,
+    "size": 125,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "184": {
+  "C:\\Games\\SoldierOfFortune\\_disc": [
+   {
+    "name": "sof.bin",
+    "is_dir": false,
+    "size": 795199440,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.cue",
+    "is_dir": false,
+    "size": 125,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "240": {
+  "C:\\Games\\SoldierOfFortune\\base\\fleetres.cfg": 102,
+  "C:\\Games\\SoldierOfFortune\\user\\config.cfg": 6178,
+  "C:\\Games\\SoldierOfFortune\\Join Soldier of Fortune - LAN.bat": 18876,
+  "C:\\Games\\SoldierOfFortune\\_disc": [
+   {
+    "name": "sof.bin",
+    "is_dir": false,
+    "size": 795199440,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof.cue",
+    "is_dir": false,
+    "size": 125,
+    "modified": "2026-08-31 14:36:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sof_cd.iso",
+    "is_dir": false,
+    "size": 32720896,
+    "modified": "2026-08-31 04:52:45",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ }
+}

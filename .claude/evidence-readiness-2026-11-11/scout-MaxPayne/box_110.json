@@ -1,0 +1,768 @@
+{
+ "ip": "192.168.1.110",
+ "REGREAD HKLM SYSTEM\\CurrentControlSet\\Services\\d347bus\\Cfg": {
+  "status": 0,
+  "json": {
+   "root": "HKLM",
+   "path": "SYSTEM\\CurrentControlSet\\Services\\d347bus\\Cfg",
+   "values": [
+    {
+     "name": "khjeh",
+     "type": "REG_BINARY",
+     "data": "14 01 00 00 FE 40 6E 5B FE F1 49 46 1B 5F 50 76 51 39 9C A2 54 7D 60 08 6B 3C 8A 00 6E 76 DF 31 18 81 DB B8 4D 02 36 C7 D0 CF 36 21 33 FF 88 AE 2A 0A 62 99 75 FE 1D 18 34 55 A9 82 47 56 FF 4C EE 69 70 4C F9 9A C7 EE A8 9C CC 00 2B A3 3F 0C E2 C0 10 A9 AD 3B 33 DA 0C FA 53 57 FF 23 3D 28 26 CB CC D0 51 EE A8 E7 20 99 50 BD C3 BA 87 4D BA 0D D0 FE 85 6C C4 C9 04 56 37 2E 17 1C 78 55 7E B4 04 70 09 4C D5 DE B8 BC 02 89 FB A4 25 64 72 BA A6 6A FD D0 CE EA 1C 29 52 02 8F 87 BF 7A B6 EB CB CA E1 1D 06 30 30 CF EE 53 93 A9 F7 8B 0A C5 F0 8E D5 E7 85 A3 14 6B F3 BE 27 CE 3F 5D CE 6A 98 48 59 BA 7C 00 88 B0 7C 0C 8B 41 57 19 C2 F7 5B 7D 0D F1 E7 36 6C FC EB E7 5F 48 1B 18 06 08 2D FC 31 91 7C 29 00 51 11 F8 A3 CC BD CF 9A 30 D8 72 65 6E 03 E7 64 AC 3D E2 F7 6C DE AA 5E AD F6 57 E9 FB AB C2 98 88 7B 03 5B 93 38 38 52 61 80 04"
+    }
+   ],
+   "subkeys": [
+    "Device0"
+   ]
+  }
+ },
+ "REGREAD HKLM SYSTEM\\CurrentControlSet\\Services\\d347bus\\Cfg\\Device0": {
+  "status": 0,
+  "json": {
+   "root": "HKLM",
+   "path": "SYSTEM\\CurrentControlSet\\Services\\d347bus\\Cfg\\Device0",
+   "values": [
+    {
+     "name": "Name",
+     "type": "REG_SZ",
+     "data": "d347prt"
+    }
+   ],
+   "subkeys": []
+  }
+ },
+ "REGREAD HKLM SYSTEM\\CurrentControlSet\\Services\\d347prt": {
+  "status": 0,
+  "json": {
+   "root": "HKLM",
+   "path": "SYSTEM\\CurrentControlSet\\Services\\d347prt",
+   "values": [
+    {
+     "name": "Type",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "Start",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "ErrorControl",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "ImagePath",
+     "type": "REG_EXPAND_SZ",
+     "data": "System32\\Drivers\\d347prt.sys"
+    },
+    {
+     "name": "Group",
+     "type": "REG_SZ",
+     "data": "SCSI miniport"
+    },
+    {
+     "name": "Tag",
+     "type": "REG_DWORD",
+     "data": 33
+    }
+   ],
+   "subkeys": [
+    "Cfg",
+    "Parameters",
+    "Security",
+    "Enum"
+   ]
+  }
+ },
+ "REGREAD HKLM SYSTEM\\CurrentControlSet\\Services\\secdrv": {
+  "status": 0,
+  "json": {
+   "root": "HKLM",
+   "path": "SYSTEM\\CurrentControlSet\\Services\\secdrv",
+   "values": [
+    {
+     "name": "Type",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "Start",
+     "type": "REG_DWORD",
+     "data": 2
+    },
+    {
+     "name": "ErrorControl",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "ImagePath",
+     "type": "REG_EXPAND_SZ",
+     "data": "system32\\DRIVERS\\secdrv.sys"
+    },
+    {
+     "name": "DisplayName",
+     "type": "REG_SZ",
+     "data": "Secdrv"
+    },
+    {
+     "name": "Description",
+     "type": "REG_SZ",
+     "data": "SafeDisc driver"
+    }
+   ],
+   "subkeys": [
+    "Security",
+    "Enum"
+   ]
+  }
+ },
+ "DIRLIST C:\\Games\\MaxPayne": {
+  "status": 0,
+  "json": [
+   {
+    "name": "e2driver",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:07:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "e2mfc.dll",
+    "is_dir": false,
+    "size": 442368,
+    "modified": "2026-08-30 04:09:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.BAT",
+    "is_dir": false,
+    "size": 4917,
+    "modified": "2026-09-29 17:54:38",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "FLEETRES.EXE",
+    "is_dir": false,
+    "size": 33280,
+    "modified": "2026-09-29 17:54:35",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "grphmfc.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-30 04:09:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:07:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "install.reg",
+    "is_dir": false,
+    "size": 1159,
+    "modified": "2026-08-30 04:10:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "launch.txt",
+    "is_dir": false,
+    "size": 587,
+    "modified": "2026-08-30 04:10:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MaxPayne.exe",
+    "is_dir": false,
+    "size": 5941010,
+    "modified": "2026-08-30 04:09:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "maxpayne.ico",
+    "is_dir": false,
+    "size": 7078,
+    "modified": "2026-08-30 04:10:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MFC42.DLL",
+    "is_dir": false,
+    "size": 995383,
+    "modified": "2026-08-30 04:09:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "movies",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:07:50",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MSVCIRT.DLL",
+    "is_dir": false,
+    "size": 77878,
+    "modified": "2026-08-30 04:09:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MSVCP60.DLL",
+    "is_dir": false,
+    "size": 401462,
+    "modified": "2026-08-30 04:09:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MSVCRT.DLL",
+    "is_dir": false,
+    "size": 266293,
+    "modified": "2026-08-30 04:09:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Play Max Payne.bat",
+    "is_dir": false,
+    "size": 24880,
+    "modified": "2026-09-01 19:06:54",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "README-FLEET.txt",
+    "is_dir": false,
+    "size": 8912,
+    "modified": "2026-08-31 23:32:56",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "requires.json",
+    "is_dir": false,
+    "size": 918,
+    "modified": "2026-08-30 04:55:29",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "rlmfc.dll",
+    "is_dir": false,
+    "size": 282624,
+    "modified": "2026-08-30 04:09:26",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "savegames",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:07:51",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "sndmfc.dll",
+    "is_dir": false,
+    "size": 98304,
+    "modified": "2026-08-30 04:09:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "x_data.ras",
+    "is_dir": false,
+    "size": 134236027,
+    "modified": "2026-08-30 04:09:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "x_english.ras",
+    "is_dir": false,
+    "size": 230578113,
+    "modified": "2026-08-30 04:09:55",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "x_level1.ras",
+    "is_dir": false,
+    "size": 123196327,
+    "modified": "2026-08-30 04:10:18",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "x_level2.ras",
+    "is_dir": false,
+    "size": 70958070,
+    "modified": "2026-08-30 04:10:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "x_level3.ras",
+    "is_dir": false,
+    "size": 102462128,
+    "modified": "2026-08-30 04:10:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "x_music.ras",
+    "is_dir": false,
+    "size": 144606272,
+    "modified": "2026-08-30 04:10:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "_disc",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-26 13:06:58",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "DIRLIST C:\\Games\\MaxPayne\\_disc": {
+  "status": 0,
+  "json": [
+   {
+    "name": "MaxPayne.bin",
+    "is_dir": false,
+    "size": 841157520,
+    "modified": "2026-08-30 04:09:25",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MaxPayne.cue",
+    "is_dir": false,
+    "size": 74,
+    "modified": "2026-08-30 04:09:25",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "DIRLIST C:\\Program Files\\D-Tools": {
+  "status": 0,
+  "json": [
+   {
+    "name": "daemon.exe",
+    "is_dir": false,
+    "size": 81920,
+    "modified": "2004-08-22 21:05:02",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Help",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Icons",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Lang",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "pfctoc.dll",
+    "is_dir": false,
+    "size": 167936,
+    "modified": "2002-05-23 15:55:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Plugins",
+    "is_dir": true,
+    "size": 0,
+    "modified": "2026-09-29 17:13:47",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "REGREAD HKCU Software\\Remedy Entertainment\\Max Payne": {
+  "status": 0,
+  "json": {
+   "root": "HKCU",
+   "path": "Software\\Remedy Entertainment\\Max Payne",
+   "values": [],
+   "subkeys": [
+    "Video Settings"
+   ]
+  }
+ },
+ "REGREAD HKCU Software\\Remedy Entertainment\\Max Payne\\Video Settings": {
+  "status": 0,
+  "json": {
+   "root": "HKCU",
+   "path": "Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+   "values": [
+    {
+     "name": "Display Width",
+     "type": "REG_DWORD",
+     "data": 1600
+    },
+    {
+     "name": "Display Height",
+     "type": "REG_DWORD",
+     "data": 1200
+    },
+    {
+     "name": "Display Bits Per Pixel",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  }
+ },
+ "REGREAD HKLM SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run": {
+  "status": 0,
+  "json": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+   "values": [
+    {
+     "name": "RetroAgent",
+     "type": "REG_SZ",
+     "data": "C:\\RETRO_AGENT\\retro_agent.exe"
+    },
+    {
+     "name": "SoundMAXPnP",
+     "type": "REG_SZ",
+     "data": "C:\\Program Files\\Analog Devices\\Core\\smax4pnp.exe"
+    },
+    {
+     "name": "DAEMON Tools-1033",
+     "type": "REG_SZ",
+     "data": "\"C:\\Program Files\\D-Tools\\daemon.exe\"  -lang 1033"
+    },
+    {
+     "name": "NvCplDaemon",
+     "type": "REG_SZ",
+     "data": "RUNDLL32.EXE C:\\WINDOWS\\system32\\NvCpl.dll,NvStartup"
+    },
+    {
+     "name": "nwiz",
+     "type": "REG_SZ",
+     "data": "nwiz.exe /install"
+    },
+    {
+     "name": "NvMediaCenter",
+     "type": "REG_SZ",
+     "data": "RUNDLL32.EXE C:\\WINDOWS\\system32\\NvMcTray.dll,NvTaskbarInit"
+    }
+   ],
+   "subkeys": []
+  }
+ },
+ "REGREAD HKCU Software\\Microsoft\\Windows\\CurrentVersion\\Run": {
+  "status": 0,
+  "json": {
+   "root": "HKCU",
+   "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+   "values": [],
+   "subkeys": []
+  }
+ },
+ "PROCLIST": {
+  "status": 0,
+  "json": [
+   {
+    "pid": 0,
+    "name": "[System Process]",
+    "threads": 1,
+    "parent_pid": 0
+   },
+   {
+    "pid": 4,
+    "name": "System",
+    "threads": 61,
+    "parent_pid": 0
+   },
+   {
+    "pid": 572,
+    "name": "smss.exe",
+    "threads": 3,
+    "parent_pid": 4
+   },
+   {
+    "pid": 648,
+    "name": "csrss.exe",
+    "threads": 12,
+    "parent_pid": 572
+   },
+   {
+    "pid": 672,
+    "name": "winlogon.exe",
+    "threads": 25,
+    "parent_pid": 572
+   },
+   {
+    "pid": 716,
+    "name": "services.exe",
+    "threads": 16,
+    "parent_pid": 672
+   },
+   {
+    "pid": 728,
+    "name": "lsass.exe",
+    "threads": 19,
+    "parent_pid": 672
+   },
+   {
+    "pid": 936,
+    "name": "svchost.exe",
+    "threads": 15,
+    "parent_pid": 716
+   },
+   {
+    "pid": 1012,
+    "name": "svchost.exe",
+    "threads": 8,
+    "parent_pid": 716
+   },
+   {
+    "pid": 1120,
+    "name": "svchost.exe",
+    "threads": 56,
+    "parent_pid": 716
+   },
+   {
+    "pid": 1152,
+    "name": "svchost.exe",
+    "threads": 4,
+    "parent_pid": 716
+   },
+   {
+    "pid": 1376,
+    "name": "svchost.exe",
+    "threads": 15,
+    "parent_pid": 716
+   },
+   {
+    "pid": 1564,
+    "name": "spoolsv.exe",
+    "threads": 11,
+    "parent_pid": 716
+   },
+   {
+    "pid": 260,
+    "name": "explorer.exe",
+    "threads": 10,
+    "parent_pid": 236
+   },
+   {
+    "pid": 432,
+    "name": "retro_agent.exe",
+    "threads": 14,
+    "parent_pid": 260
+   },
+   {
+    "pid": 444,
+    "name": "smax4pnp.exe",
+    "threads": 3,
+    "parent_pid": 260
+   },
+   {
+    "pid": 452,
+    "name": "daemon.exe",
+    "threads": 2,
+    "parent_pid": 260
+   },
+   {
+    "pid": 500,
+    "name": "rundll32.exe",
+    "threads": 1,
+    "parent_pid": 260
+   },
+   {
+    "pid": 1216,
+    "name": "nvsvc32.exe",
+    "threads": 3,
+    "parent_pid": 716
+   },
+   {
+    "pid": 216,
+    "name": "wscntfy.exe",
+    "threads": 1,
+    "parent_pid": 1120
+   },
+   {
+    "pid": 508,
+    "name": "alg.exe",
+    "threads": 6,
+    "parent_pid": 716
+   },
+   {
+    "pid": 256,
+    "name": "wuauclt.exe",
+    "threads": 3,
+    "parent_pid": 1120
+   },
+   {
+    "pid": 964,
+    "name": "ssstars.scr",
+    "threads": 1,
+    "parent_pid": 672
+   }
+  ]
+ },
+ "WINLIST": {
+  "status": 0,
+  "json": {
+   "windows": [
+    {
+     "hwnd": "000500BA",
+     "title": "Screen Saver",
+     "class": "WindowsScreenSaverClass",
+     "rect": {
+      "left": 0,
+      "top": 0,
+      "right": 1600,
+      "bottom": 1200
+     },
+     "visible": true,
+     "pid": 964
+    },
+    {
+     "hwnd": "00030032",
+     "title": "Retro Remote Agent Version 1.98.0",
+     "class": "ConsoleWindowClass",
+     "rect": {
+      "left": -32000,
+      "top": -32000,
+      "right": -31840,
+      "bottom": -31969
+     },
+     "visible": true,
+     "pid": 432
+    },
+    {
+     "hwnd": "0001007A",
+     "title": "Program Manager",
+     "class": "Progman",
+     "rect": {
+      "left": 0,
+      "top": 0,
+      "right": 1600,
+      "bottom": 1200
+     },
+     "visible": true,
+     "pid": 260
+    }
+   ],
+   "foreground": {
+    "hwnd": "000500BA",
+    "pid": 964,
+    "class": "WindowsScreenSaverClass",
+    "title": "Screen Saver"
+   }
+  }
+ },
+ "GAMERES VERIFY MaxPayne": {
+  "status": 0,
+  "json": {
+   "verify": true,
+   "filter": "MaxPayne",
+   "box": {
+    "panel": "CRT",
+    "edid": true,
+    "name": "HP P1120",
+    "wide": "1600x1200",
+    "four_three": "1600x1200",
+    "aspect": "4:3",
+    "idtech2_q2wide": "1280x960",
+    "turok2": "1024x768",
+    "dosbox_fullresolution": "original",
+    "cap": "0x0"
+   },
+   "titles": [
+    {
+     "title": "MaxPayne",
+     "mechanism": "config",
+     "kind": "wide",
+     "target": "1600x1200",
+     "engine_cap": false,
+     "launchers_with_fleetres": 1,
+     "launchers_without": [],
+     "targets": [
+      {
+       "op": "reg",
+       "file": "HKCU\\Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+       "key": "Display Width",
+       "expected": "dword:1600",
+       "found": "dword:1600",
+       "ok": true
+      },
+      {
+       "op": "reg",
+       "file": "HKCU\\Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+       "key": "Display Height",
+       "expected": "dword:1200",
+       "found": "dword:1200",
+       "ok": true
+      }
+     ],
+     "ok": 2,
+     "wrong": 0,
+     "absent": 0
+    }
+   ],
+   "summary": {
+    "titles": 1,
+    "ok": 2,
+    "wrong": 0,
+    "absent": 0,
+    "launcher_only": 0,
+    "unmanaged": 0,
+    "config_titles": 1,
+    "titles_wrong": 0,
+    "launcher_gaps": 0
+   }
+  }
+ }
+}

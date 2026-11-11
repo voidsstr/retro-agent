@@ -1,0 +1,1 @@
+[{"drive_index":0,"path":"\\\\.\\PhysicalDrive0","model":"Samsung SSD 860 EVO 1TB","serial":"S599NZFNB22747A","firmware":"RVT04B6Q","smart":{"power_on_hours":{"hours":30297,"current":94,"worst":94},"reallocated_sectors":{"count":0,"current":100,"worst":100}}}]

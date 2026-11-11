@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\DirectX","values":[{"name":"InstalledVersion","type":"REG_BINARY","data":"00 00 00 09 00 00 00 00"},{"name":"Version","type":"REG_SZ","data":"4.09.00.0904"}],"subkeys":[]}

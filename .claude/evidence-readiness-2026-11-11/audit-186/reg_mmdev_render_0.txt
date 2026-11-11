@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\MMDevices\\Audio\\Render\\{1adc6588-cf97-49c3-b3f8-1f860cec4d29}","values":[{"name":"DeviceState","type":"REG_DWORD","data":8}],"subkeys":["FxProperties","Properties"]}

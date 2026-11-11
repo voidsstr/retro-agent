@@ -1,0 +1,1 @@
+[{"drive_index":0,"path":"\\\\.\\PhysicalDrive0","model":"ST3300620A","serial":"            5QF0FSKY","firmware":"3.AAC","smart":{"temperature":{"celsius":42,"current":42,"worst":48},"power_on_hours":{"hours":7507,"current":92,"worst":92},"reallocated_sectors":{"count":0,"current":100,"worst":100}}}]

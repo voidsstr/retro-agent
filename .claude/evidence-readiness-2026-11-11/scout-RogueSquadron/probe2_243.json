@@ -1,0 +1,27 @@
+{
+ "dir_data": {
+  "cmd": "DIRLIST E:\\GAMES\\RogueSquadron\\ROGUE\\DATA",
+  "status": 0,
+  "text": "[{\"name\":\"BUNDLE.000\",\"is_dir\":false,\"size\":76170,\"modified\":\"2026-10-01 11:15:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"BUNDLE.001\",\"is_dir\":false,\"size\":20615983,\"modified\":\"2026-10-01 11:15:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"OUT\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-10-01 14:32:40\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "dir_data_out": {
+  "cmd": "DIRLIST E:\\GAMES\\RogueSquadron\\ROGUE\\DATA\\OUT",
+  "status": 0,
+  "text": "[{\"name\":\"DATA.DAT\",\"is_dir\":false,\"size\":31670192,\"modified\":\"2026-10-01 11:15:18\",\"hidden\":false,\"readonly\":false},{\"name\":\"DATA.HDR\",\"is_dir\":false,\"size\":96,\"modified\":\"2026-10-01 11:15:18\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "dir_start": {
+  "cmd": "DIRLIST C:\\WINDOWS\\COMMAND\\START.*",
+  "status": 0,
+  "text": "[{\"name\":\"START.EXE\",\"is_dir\":false,\"size\":28672,\"modified\":\"1999-04-24 03:22:00\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "glreset_txt": {
+  "cmd": "DOWNLOAD C:\\RETRO_AGENT\\GLRESET.TXT",
+  "status": 1,
+  "text": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card\r\n"
+ },
+ "dir_glide": {
+  "cmd": "DIRLIST C:\\WINDOWS\\SYSTEM\\GLIDE*",
+  "status": 0,
+  "text": "[{\"name\":\"GLIDE2X.DLL\",\"is_dir\":false,\"size\":226304,\"modified\":\"1980-01-04 05:10:48\",\"hidden\":false,\"readonly\":false},{\"name\":\"GLIDE3X.DLL\",\"is_dir\":false,\"size\":256512,\"modified\":\"1980-01-04 05:10:54\",\"hidden\":false,\"readonly\":false}]"
+ }
+}

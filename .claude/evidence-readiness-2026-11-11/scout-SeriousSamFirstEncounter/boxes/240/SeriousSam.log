@@ -1,0 +1,278 @@
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.1
+
+Executable: C:\Games\SeriousSamFirstEncounter\Bin\SeriousSam.exe
+Assumed engine directory: C:\Games\SeriousSamFirstEncounter\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 5.1, build 2600
+  Misc: Service Pack 3
+
+Detecting CPU...
+  Vendor: AuthenticAMD
+  Type: 0, Family: 15, Model: 12, Stepping: 0
+  MMX : Yes
+  CMOV: Yes
+  Clock: 2400MHz
+
+Global memory status...
+  Physical memory used:  419/1022MB
+  Page file used:        285/2969MB
+  Virtual memory used:    34/2047MB
+  Memory load:  41%
+  Process working set: 0MB-1MB
+
+Loading group files...
+  C:\Games\SeriousSamFirstEncounter\1_00_music.gro: 55 files
+  C:\Games\SeriousSamFirstEncounter\1_00_ExtraTools.gro: 58 files
+  C:\Games\SeriousSamFirstEncounter\1_00.gro: 2267 files
+  F:\Install\1_00_music.gro: 55 files
+  F:\Install\1_00_ExtraTools.gro: 58 files
+  F:\Install\1_00.gro: 2267 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1920x1080
+  Virtual screen: 1920x1080
+  Monitors directly reported: 1
+
+Current display: 'ATI2DVAG' version 1025 - 1920x1080x32
+
+Initializing sound...
+Setting sound format ...
+  (no sound)
+  amp11lib.dll loaded, mpx playing enabled
+  Detected devices: 1
+    device 0: SB Live! Audio [A800]
+      ver: 1290, id: 1.100
+      form: 0x000bffff, ch: 65535, support: 0x0000002c
+
+Command line: '+connect 192.168.1.123'
+
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'C:\Games\SeriousSamFirstEncounter\Bin\Game.dll'...
+Setting sound format ...
+Direct Sound initialization ...
+  44100Hz, 16bit, default device, mix-ahead: 0.2s
+  mixer buffer size:  34 KB
+  decode buffer size: 34 KB
+  EAX: Enabled
+
+Cannot load variable from 'Data\Var\ModName.var':
+Cannot open file `C:\Games\SeriousSamFirstEncounter\Data\Var\ModName.var' (No such file or directory) ()
+Serious Sam version: v1.00
+Active mod: -   T H E   F I R S T   E N C O U N T E R   -
+Reading levels directory...
+  file 'Levels\01_Hatshepsut.wld' : 'Hatshepsut' spawn=0x0005000f
+  file 'Levels\02_SandCanyon.wld' : 'Sand Canyon' spawn=0x0005000f
+  file 'Levels\03_TombOfRamses.wld' : 'Tomb Of Ramses' spawn=0x0005000f
+  file 'Levels\04_ValleyOfTheKings.wld' : 'Valley Of The Kings' spawn=0x0005000f
+  file 'Levels\05_MoonMountains.wld' : 'Moon Mountains' spawn=0x0005000f
+  file 'Levels\06_Oasis.wld' : 'Oasis' spawn=0x0005000f
+  file 'Levels\07_Dunes.wld' : 'Dunes' spawn=0x0005000f
+  file 'Levels\08_Suburbs.wld' : 'Suburbs' spawn=0x0005000f
+  file 'Levels\09_Sewers.wld' : 'Sewers' spawn=0x0005000f
+  file 'Levels\10_Metropolis.wld' : 'Metropolis' spawn=0x0005000f
+  file 'Levels\11_AlleyOfSphinxes.wld' : 'Alley Of The Sphinxes' spawn=0x0005000f
+  file 'Levels\12_Karnak.wld' : 'Karnak' spawn=0x0005000f
+  file 'Levels\13_Luxor.wld' : 'Luxor' spawn=0x0005000f
+  file 'Levels\14_SacredYards.wld' : 'Sacred Yards' spawn=0x0005000f
+  file 'Levels\15_TheGreatPyramid.wld' : 'The Great Pyramid' spawn=0x0005000f
+  file 'Levels\Deathmatch\DesertTemple.wld' : 'Desert Temple' spawn=0x000201ff
+  file 'Levels\Intro.wld' : 'Intro and Flyover' spawn=0x00000000
+  file 'Levels\KarnakDemo.wld' : 'Karnak Demo' spawn=0x00050000
+  file 'Levels\TechTest.wld' : 'Technology Test Level' spawn=0x00010000
+Reading demos directory...
+  Demos\auto-demo0001.dem
+  Demos\auto-demo0002.dem
+  Demos\auto-demo0003.dem
+  Demos\auto-demoMP0001.dem
+  Demos\auto-demoMP0002.dem
+  Levels\Intro.wld
+----------------------------------------------
+Starting display mode: 1920x1080xDesktop ICD fullscreen
+  CDS: mode reset to original desktop settings
+  CDS: mode set to 1920x1080x0
+
+Pixel Format Description:
+  Number:     2 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER 
+  Color bits: 32 (8:8:8:8)
+  Depth bits: 24
+
+OpenGL context created: ATI Technologies Inc., Radeon X1950 Pro, 2.1.8545 Release
+All textures reloaded.
+
+Automatic OpenGL preferences adjustment...
+Detected: ATI Technologies Inc. - Radeon X1950 Pro - 2.1.8545 Release
+Matching: ATI* - Radeon* - * (ATI Radeon)
+Similar to last, keeping same preferences.
+Command line connection: '192.168.1.123'
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.123'
+Cannot join game:
+Cannot connect socket. Socket 932, Error 10061 (WSAECONNREFUSED)
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.123'
+Cannot join game:
+User break!
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.123'
+Cannot join game:
+User break!
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.123'
+Cannot join game:
+User break!
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  cannot open UDP socket: Cannot bind socket. Socket 936, Error 10048 (WSAEADDRINUSE)
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.240'
+  joined
+Adding player: '^oUnserious Sam^r'
+Cannot add player:
+Cannot add player because: Connection timeout
+
+stopping game.
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.240'
+  joined
+Adding player: '^oUnserious Sam^r'
+Cannot add player:
+Cannot add player because: Connection timeout
+
+stopping game.
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.240'
+  joined
+Adding player: '^oUnserious Sam^r'
+Cannot add player:
+Cannot add player because: Connection timeout
+
+stopping game.
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.240'
+  joined
+Adding player: '^oUnserious Sam^r'
+Cannot add player:
+Cannot add player because: Connection timeout
+
+stopping game.
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.240'
+  joined
+Adding player: '^oUnserious Sam^r'
+Cannot add player:
+Cannot add player because: Connection timeout
+
+stopping game.
+Initializing TCP/IP...
+  opening as client
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  opened socket: 
+Joining session at: '192.168.1.240'
+  joined
+Adding player: '^oUnserious Sam^r'
+Cannot add player:
+Cannot add player because: Connection timeout
+
+stopping game.
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: user-41ea3b3330 (192.168.1.240)
+  port: 25600
+  cannot open UDP socket: Cannot bind socket. Socket 904, Error 10048 (WSAEADDRINUSE)
+  CDS: mode reset to original desktop settings
+  CDS: mode reset to original desktop settings
+MakeCurrent(NULL, NULL): The handle is invalid.
+
+  CDS: mode reset to original desktop settings
+Renderer buffers cleared.
+  CDS: mode reset to original desktop settings

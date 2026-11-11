@@ -1,0 +1,114 @@
+{
+ "110": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "123": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "124": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "133": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "143": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "171": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "184": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ },
+ "240": {
+  "tools": [
+   0,
+   "taskkill.exe\r\ntasklist.exe\r\nnetstat.exe\r\nfind.exe\r\nreg.exe"
+  ],
+  "edition": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\",\"value\":{\"name\":\"ProductName\",\"type\":\"REG_SZ\",\"data\":\"Microsoft Windows XP\"}}"
+  ],
+  "edition2": [
+   0,
+   "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Control\\\\ProductOptions\",\"value\":{\"name\":\"ProductSuite\",\"type\":\"REG_MULTI_SZ\",\"data\":\"00\"}}"
+  ]
+ }
+}

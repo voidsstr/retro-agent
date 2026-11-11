@@ -1,0 +1,175 @@
+sig b'PAGEDUMP' major 0xf build 2600
+DirBase 0x590b000 PfnDb 0x8104a000 PsLoadedModuleList 0x805634c0 PsActiveProcessHead 0x80569658
+machine 0x14c nproc 2
+BugCheck 0x000000EA  P1=0xFF1E0598 P2=0xFF17BF60 P3=0x8186BA80 P4=0x00000001
+DumpType 0x4
+MiniDumpFields 0xcff
+SecondaryDataState 0x45474150
+ProductType 0x1
+SuiteMask 0x110
+WriterStatus 0x45474150
+RequiredDumpSpace_lo 0x14a47
+RequiredDumpSpace_hi 0x0
+SystemUpTime@0xfb0 499203052497.89703 s  SystemTime@0xfb8 1601-01-02 03:50:21.669921
+alt: 0xfc0 2026-10-14 16:18:50.828750  0xfa8 4992030524978970960
+  ServicePackBuild       0x300
+  SizeOfDump             0x10000
+  ValidOffset            0xFFFC
+  ContextOffset          0x320
+  ExceptionOffset        0x7D0
+  MmOffset               0x0
+  UnloadedDriversOffset  0x0
+  PrcbOffset             0x12F8
+  ProcessOffset          0x1F48
+  ThreadOffset           0x21A8
+  CallStackOffset        0x2400
+  SizeOfCallStack        0x1268
+  DriverListOffset       0x3668
+  DriverCount            0x7A
+  StringPoolOffset       0x5AA0
+  StringPoolSize         0x10D8
+  BrokenDriverOffset     0x0
+  TriageOptions          0x0
+  TopOfStack             0xF76CDD98
+  DataPageAddress        0x0
+  DataPageOffset         0x0
+  DataPageSize           0x0
+  DebuggerDataOffset     0x1068
+  DebuggerDataSize       0x290
+  DataBlocksOffset       0x6B78
+  DataBlocksCount        0x1
+drivers: 122
+  804D7000 00228000 ntoskrnl.exe         48025DE7 2008-04-13
+  806FF000 00025400 hal.dll              48025183 2008-04-13
+  F9F30000 00001B80 kdcom.dll            3B7D8346 2001-08-17
+  F9E40000 00003000 BOOTVID.dll          3B7D8345 2001-08-17
+  F99E9000 00025E00 d347bus.sys          4128A01D 2004-08-22
+  F99D8000 00010A80 pci.sys              480252BB 2008-04-13
+  F9A30000 00009180 isapnp.sys           480252B8 2008-04-13
+  F9F32000 00001580 intelide.sys         4802539D 2008-04-13
+  F9CB0000 00006180 PCIIDEX.SYS          4802539D 2008-04-13
+  F9A40000 0000A580 MountMgr.sys         48025371 2008-04-13
+  F99B9000 0001E880 ftdisk.sys           3B7D8419 2001-08-17
+  F9F34000 00001100 WMILIB.SYS           3B7D878B 2001-08-17
+  F9F36000 00000000 dmload.sys           00000000 1970-01-01
+  F9993000 00025700 dmio.sys             4802549D 2008-04-13
+  F9CB8000 00004D00 PartMgr.sys          480253B0 2008-04-13
+  F9A50000 0000CC80 VolSnap.sys          480253BC 2008-04-13
+  F997B000 00017900 atapi.sys            4802539D 2008-04-13
+  F9F38000 00001480 d347prt.sys          4128A044 2004-08-22
+  F9963000 00017880 SCSIPORT.SYS         4802539D 2008-04-13
+  F992D000 00036000 si3114r5.sys         492663F8 2008-11-21
+  F9A60000 00008E00 disk.sys             480253AE 2008-04-13
+  F9A70000 0000C180 CLASSPNP.SYS         48025C05 2008-04-13
+  F990D000 00000000 fltMgr.sys           00000000 1970-01-01
+  F98FB000 00011F00 sr.sys               480252C2 2008-04-13
+  F98E4000 00016880 KSecDD.sys           4802518C 2008-04-13
+  F9857000 0008C600 Ntfs.sys             48025BE5 2008-04-13
+  F982A000 0002C980 NDIS.sys             48025D03 2008-04-13
+  F9810000 00019B80 Mup.sys              48025C31 2008-04-13
+  F9A80000 0000A580 agp440.sys           480252B5 2008-04-13
+  FA065000 00000C00 audstub.sys          3B7D85BC 2001-08-17
+  F9AE0000 0000C880 rasl2tp.sys          48025CCF 2008-04-13
+  F9EF8000 00002780 ndistapi.sys         48025797 2008-04-13
+  F97B1000 00016580 ndiswan.sys          48025D09 2008-04-13
+  F9AF0000 0000A200 raspppoe.sys         4802579B 2008-04-13
+  F9B00000 0000BD00 raspptp.sys          48025CD3 2008-04-13
+  F9D18000 00004A80 TDI.SYS              48025834 2008-04-13
+  F97A0000 00010E00 psched.sys           48025764 2008-04-13
+  F9B10000 00008900 msgpc.sys            48025760 2008-04-13
+  F9D20000 00004580 ptilink.sys          3B7D8371 2001-08-17
+  F9D28000 00004080 raspti.sys           3B7D84C4 2001-08-17
+  F9337000 003CF400 nv4_mini.sys         453BDDB2 2006-10-22
+  F923B000 00013F00 VIDEOPRT.SYS         48025497 2008-04-13
+  F9BB0000 0000A480 imapi.sys            480253B9 2008-04-13
+  F9BE0000 0000F600 cdrom.sys            480253AD 2008-04-13
+  F9BF0000 0000E100 redbook.sys          4802539B 2008-04-13
+  F91FC000 00022700 ks.sys               48025C12 2008-04-13
+  F9D68000 00005080 usbuhci.sys          480254CE 2008-04-13
+  F91D8000 00023200 USBPORT.SYS          480254CE 2008-04-13
+  F9C10000 00008D80 AN983.sys            3BD7B441 2001-10-25
+  F8F9D000 00077460 ctaud2k.sys          3D377DD7 2002-07-19
+  F8F79000 00023A80 portcls.sys          48025CCC 2008-04-13
+  F9C20000 0000EB00 drmk.sys             480254B8 2008-04-13
+  F8F60000 00018DA0 ctoss2k.sys          3D377DE3 2002-07-19
+  F9F56000 00001600 ctprxy2k.sys         3D377DE6 2002-07-19
+  F9F18000 00002980 gameenum.sys         480254C9 2008-04-13
+  F8F30000 0002FE80 rdpdr.sys            480251D2 2008-04-13
+  F9C30000 00009F00 termdd.sys           4802532C 2008-04-13
+  F9D70000 00006000 kbdclass.sys         48025372 2008-04-13
+  F9D78000 00005A00 mouclass.sys         48025373 2008-04-13
+  F9F58000 00001100 swenum.sys           48025378 2008-04-13
+  F8E21000 0005DF00 update.sys           48025372 2008-04-13
+  F97EC000 00003C80 mssmbios.sys         480252BD 2008-04-13
+  F8DD3000 00013900 parport.sys          48025389 2008-04-13
+  F9C70000 0000FC00 serial.sys           48025BE0 2008-04-13
+  F97E4000 00003D80 serenum.sys          4802538C 2008-04-13
+  F9D90000 00000000 fdc.sys              00000000 1970-01-01
+  F9C90000 00009E80 NDProxy.SYS          48025798 2008-04-13
+  F8EC0000 0000E880 usbhub.sys           480254D0 2008-04-13
+  F9F9A000 00001280 USBD.SYS             3B7D8682 2001-08-17
+  F9E28000 00000000 flpydisk.sys         00000000 1970-01-01
+  F66A2000 000A5020 ha10kx2k.sys         3D3E4099 2002-07-24
+  F637F000 00014EE0 ctac32k.sys          3D377D83 2002-07-19
+  F6366000 000181A0 emupia2k.sys         3D377DFF 2002-07-19
+  F6347000 0001E960 ctsfm2k.sys          3D377DF5 2002-07-19
+  F9FF4000 00000000 Fs_Rec.SYS           00000000 1970-01-01
+  FA021000 00000000 Null.SYS             00000000 1970-01-01
+  F9FF6000 00001080 Beep.SYS             3B7D82E5 2001-08-17
+  F9DA0000 00006180 HIDPARSE.SYS         480254C2 2008-04-13
+  F9DA8000 00005200 vga.sys              48025498 2008-04-13
+  F9F3A000 00001080 mnmdd.SYS            3B7D8538 2001-08-17
+  F9F3C000 00001080 RDPCDD.sys           3B7D82C0 2001-08-17
+  F9DB8000 00000000 Msfs.SYS             00000000 1970-01-01
+  F9DC8000 00007880 Npfs.SYS             480251C6 2008-04-13
+  F9323000 00002280 rasacd.sys           3B7D84CB 2001-08-17
+  F3F5C000 00012600 ipsec.sys            48025CCE 2008-04-13
+  F3F03000 00058380 tcpip.sys            48025CEC 2008-04-13
+  F3E8D000 00027C00 netbt.sys            48025D1B 2008-04-13
+  F3E67000 00025500 ipnat.sys            48025786 2008-04-13
+  F3E45000 00021B80 afd.sys              48025CBA 2008-04-13
+  F926F000 00008700 wanarp.sys           48025790 2008-04-13
+  F8F10000 00008780 netbios.sys          48025741 2008-04-13
+  F3DF2000 0002AE80 rdbss.sys            48025EE6 2008-04-13
+  F3CDD000 0006F780 mrxsmb.sys           48025C2A 2008-04-13
+  F924F000 0000AE00 Fips.SYS             480251F7 2008-04-13
+  F76AF000 0000F900 Cdfs.SYS             48025B8D 2008-04-13
+  F9CF0000 00007D80 usbccgp.sys          480254D2 2008-04-13
+  F8935000 00002880 hidusb.sys           480254C7 2008-04-13
+  F768F000 00009000 HIDCLASS.SYS         480254C5 2008-04-13
+  F892D000 00003900 kbdhid.sys           48025373 2008-04-13
+  F44AF000 00002F80 mouhid.sys           3B7D82FD 2001-08-17
+  F44AB000 00003780 dump_scsiport.sys    480253AC 2008-04-13
+  F36F6000 00036000 dump_si3114r5.sys    492663F8 2008-11-21
+  BF800000 001C2980 win32k.sys           48025F2A 2008-04-13
+  F4493000 00002900 Dxapi.sys            3B7D843F 2001-08-17
+  F6F81000 00004500 watchdog.sys         480254AB 2008-04-13
+  BF000000 00011600 dxg.sys              48025323 2008-04-13
+  F38B6000 00000D00 dxgthk.sys           3B7D8438 2001-08-17
+  BF012000 00451580 nv4_disp.dll         453BDC7A 2006-10-22
+  F2580000 00015900 nwlnkipx.sys         48025745 2008-04-13
+  F3C5D000 0000F700 nwlnknb.sys          3B7D8478 2001-08-17
+  F6C55000 00003900 ndisuio.sys          4802573D 2008-04-13
+  F1CA3000 00014480 wdmaud.sys           48025C3E 2008-04-13
+  F6BDA000 0000ED80 sysaudio.sys         48025BEB 2008-04-13
+  F8E90000 0000DA80 nwlnkspx.sys         3B7D8478 2001-08-17
+  F1C28000 0002C180 mrxdav.sys           480251CA 2008-04-13
+  F9F52000 00000000 ParVdm.SYS           00000000 1970-01-01
+  F1B0E000 00051C00 srv.sys              48025BBC 2008-04-13
+  F8ED0000 0000A000 secdrv.sys           45080528 2006-09-13
+  F17D5000 00040A80 HTTP.sys             480256BC 2008-04-13
+  F15A6000 00023180 Fastfat.SYS          48025B94 2008-04-13
+  F157B000 0002A180 kmixer.sys           480254B3 2008-04-13
+  F9F64000 00001880 splitter.sys         480254B3 2008-04-13
+BrokenDriverOffset 0x0
+Context Eip=0xBF03094F Esp=0xF76CDD98 Ebp=0x00000000
+Eip in nv4_disp.dll +0x1E94F
+stack refs per module:
+   nv4_disp.dll 11 ['+0x34C23', '+0x34BEF', '+0x34E7A', '+0x5761', '+0x34CF0', '+0xA2680', '+0x659D', '+0x34CF0', '+0x12861', '+0x12A7A', '+0x6668']
+   si3114r5.sys 3 ['+0x41F7', '+0x27CD1', '+0x3BDD']
+   ntoskrnl.exe 51 ['+0x276C', '+0x4912', '+0x23909', '+0x23909', '+0x166C2', '+0x1B4AD', '+0x9934', '+0x33E6', '+0x9000', '+0x698F', '+0x276C', '+0x276C']
+   SCSIPORT.SYS 2 ['+0x5C1', '+0x2DF1']
+   hal.dll 3 ['+0x32DF', '+0x391C', '+0x391C']
+   win32k.sys 62 ['+0x1A5EA8', '+0x1A5EA8', '+0x13591', '+0x5A12', '+0x5A35', '+0x5406', '+0x49A2', '+0x5B86', '+0x1A5EA8', '+0x1880DF', '+0x195AB0', '+0xA37E']
+   Ntfs.sys 5 ['+0x575B', '+0x19F38', '+0x33F7', '+0x300A', '+0x3017']
+   rdbss.sys 3 ['+0x54A', '+0xA93D', '+0x9FC0']

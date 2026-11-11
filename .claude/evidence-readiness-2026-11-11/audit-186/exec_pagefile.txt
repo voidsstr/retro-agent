@@ -1,0 +1,8 @@
+
+
+AllocatedBaseSize=3071
+CurrentUsage=0
+Name=C:\pagefile.sys
+
+
+

@@ -1,0 +1,1143 @@
+[
+ {
+  "ip": "192.168.1.110",
+  "host": "NSC-5C5396FAF9D",
+  "reachable": true,
+  "os": "Windows XP Service Pack 3 (5.1.2600, uniprocessor free build)",
+  "activation": "Activated. LICSTATUS reports wpa observed=activated (WMI ActivationRequired=0, grace_days 0), OOBETimer present, the Winlogon activation flag absent and WGA absent. Activation is no obstacle to a reboot, but still reboot only through scripts/fleet/safe-reboot.py. The agent has no saved activation backup on the share for this machine (agent log: 'activation not restored: no saved activation for machine NSC-5C5396FAF9D-1C20C57D'), so a re-image would need offline activation again.",
+  "display": {
+   "device": "NVIDIA GeForce 7800 GS (AGP, G70 with HSI bridge; EVGA board, subsystem 3842:A506), 256 MB",
+   "pci_id": "PCI\\VEN_10DE&DEV_00F5&SUBSYS_A5063842&REV_A2",
+   "driver_provider": "NVIDIA",
+   "driver_version": "6.14.10.9371 (ForceWare 93.71)",
+   "driver_date": "10-22-2006",
+   "status": "OK. The vendor driver is bound and loaded: DRIVERS STATUS shows ok with problem 0, the card is attached to the desktop, Services\\nv\\Device0 InstalledDisplayDrivers=nv4_disp, and the OpenGL ICD RIVATNT points to nvoglnt. The live nv4_disp.dll, nv4_mini.sys and nvoglnt.dll all read 6.14.10.9371 and are md5-identical to the image store's I019 package. setupapi gave it rank 0x2001 (trusted). Windows File Protection has not reverted anything since the 2026-10-15 install.",
+   "desktop_mode": "1600x1200x32 @ 85 Hz on an HP P1120 21-inch CRT (EDID 1600x1200, vertical max 160 Hz). The monitor is bound to monitor3.inf, not the generic PnP monitor.",
+   "is_3dfx": false
+  },
+  "other_display_or_3d": [
+   "RADEON 9500 PRO / 9700 (PCI\\VEN_1002&DEV_4E45&SUBSYS_00021002): the card was removed 2026-10-14. A ghost devnode is still in Enum\\PCI, and Display class key 0002 still holds oem7.inf (Catalyst 10.2 / 8.593.100.0). Not present, not attached, does nothing.",
+   "RADEON 9500 PRO / 9700 - Secondary (PCI\\VEN_1002&DEV_4E65&SUBSYS_00031002): same situation, ghost devnode plus class key 0003.",
+   "ATI leftovers that load nothing now: the ati2mtag service (Start=3, demand) and drivers\\ati2mtag.sys; OpenGLDrivers\\ati2dvag and \\atidvr10 (from the 2026-09-28 WFP-rename fix); system32\\atiadlxx.dll, which raised SideBySide Microsoft.VC80.CRT errors whenever something loaded it, last on 2026-10-13; and the C:\\ati102fix folder.",
+   "OpenGL ICD in use: OpenGLDrivers\\RIVATNT -> nvoglnt.dll 6.14.10.9371. opengl32 picks it from nv4_disp, so the ATI entries are never consulted.",
+   "No Intel 865G integrated graphics (8086:2572) is enumerated; the BIOS disables it while an AGP card is fitted.",
+   "No 3dfx silicon: Enum\\PCI has no VEN_121A key, HWPROFILE reports glide=false and accelerators [].",
+   "Earlier boards in this slot (GeForce3 Ti 200 DEV_0201 and GeForce DDR DEV_0101, both on 71.89, 2026-09-26) left no devnodes. The only trace is a stale agent value HKLM\\Software\\RetroAgent\\DriverPrefs PCI\\VEN_10DE&DEV_0201 = 'ok C:\\D\\G005\\nv4_disp.inf'."
+  ],
+  "audio": [
+   {
+    "device": "SoundMAX Integrated Digital Audio: Intel 82801EB (ICH5) AC'97 controller with an Analog Devices SoundMAX codec, Dell subsystem 1028:0174. waveOut name: 'SoundMAX Digital Audio'.",
+    "pci_id": "PCI\\VEN_8086&DEV_24D5&SUBSYS_01741028&REV_02",
+    "driver_version": "5.12.1.7000 (Analog Devices smwdm.sys, 03-22-2005, oem5.inf = store T069\\smwdmCH5.inf)",
+    "status": "OK. Problem 0 and waveOutGetNumDevs()=1. The kernel audio stack is registered: sysaudio and wdmaud SW devnodes are present, and the kmixer/DLS/GS-wavetable class entries are present. smax4pnp.exe is running. HKLM\\Software\\RetroAgent\\AudioStackFix is absent and was never needed: the stack was registered by hand on 2026-09-26 (wave out 0 -> 1) and has held since."
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "PCI Modem (an Intel FA82537EP-class V.92 data/fax modem by its PCI id, Dell subsystem)",
+    "hwid": "PCI\\VEN_8086&DEV_1080&SUBSYS_10001028&REV_04",
+    "state": "missing: problem 28 (no driver), class Unknown",
+    "note": "Not sound or video. The agent's startup driver pass reports no_candidate at every boot (DriverUpdateBoot 2026-11-11 10:58). No INF naming VEN_8086&DEV_1080 exists in the store's DRVINDEX, and a case-insensitive INF grep under /mnt/retro-share/Files/Drivers and /mnt/retro-share/Files/Utility/Drivers found none either. No Found New Hardware wizard is on screen: WINLIST shows only the screensaver, Program Manager and the minimized agent console. Harmless for games."
+   }
+  ],
+  "crash_evidence": [
+   "No crash dump has ever been written. C:\\WINDOWS\\Minidump does not exist (FindFirstFile on C:\\WINDOWS\\Minidum* finds nothing, and XP creates the folder at the first dump), and there is no C:\\WINDOWS\\MEMORY*. CrashControl has dumps on: CrashDumpEnabled=3 (small dump), MinidumpDir=%SystemRoot%\\Minidump, LogEvent=1, AutoReboot=1, and a pagefile is present.",
+   "System event log: 716 records from the 2004-02-21 setup to 2026-11-11 15:58 UTC, not wrapped. Zero Save Dump 1001 or System Error 1003 bugcheck events, and zero 6008 events.",
+   "4 unclean shutdowns (a boot with no 6006 before it), all during the 2026-09-26..09-29 build and card-swap period: after 09-26 19:45 (cold boot, clock reset to 2004); 09-27 02:58->03:15 (warm); 09-28 02:14->02:56 (warm); 09-29 ~17:14, right after the DAEMON Tools install (cold boot, clock reset). All 8 boots since 2026-09-29 17:37 followed a clean shutdown, and there has been none at all since the GeForce 7800 GS went in.",
+   "Application log: 197 records, not wrapped. No Application Error 1000, Application Hang 1002 or DrWatson 4097 events. The Dr Watson folder and PCHEALTH\\ERRORREP\\UserDumps and \\QSignoff are all empty. Error reporting is on (DoReport=1, ShowUI=1, AeDebug drwtsn32 Auto=1), so an application crash would have left a trace.",
+   "Windows File Protection events, all on 2026-09-28: 64001 x8, when the Catalyst 10.2 ati2dvag/ati2cqag/ati3duag/ativvaxx DLLs were reverted to the in-box copies (the recorded Radeon VGA-fallback incident); and 64002 x2 at 03:30, when nv4_disp.dll and nv4_mini.sys were restored to the in-box 6.14.10.5673 during the old-GeForce cleanup. None since: the 2026-10-15 install of 93.71 held, and the live binaries read 6.14.10.9371.",
+   "ati2mtag error 4 x7 (\\Device\\Video0/1) on 2026-09-28, and SideBySide 32/59 x39 (atiadlxx.dll needs Microsoft.VC80.CRT) up to 2026-10-13. Both are from the Radeon era; nothing since the swap.",
+   "Cdrom 7 'bad block' x237 on \\Device\\CdRom0 (the physical Samsung SW-252S CD-RW), all inside the 2026-09-29/30 CD-imaging session. These are disc read errors, not a driver fault.",
+   "Application Popup 26 x5 on 2026-10-15 23:31-23:41: 'cmd.exe - No Disk: insert a disk into drive E:', raised by a launcher probing the empty DAEMON Tools drive. Not a crash, but a system-modal dialog that can stall an unattended round.",
+   "Agent log mirror (/mnt/retro-share/Utility/Retro Automation/agent logs/NSC-5C5396FAF9D-agent.log and .log.1): before today's 10:57 boot the previous instance logged a console logoff event and 'log closed (clean shutdown)'. No NO SOUND, audio-stack, watchdog or driver-failure lines. Every startup pass reported ok: DriverUpdateBoot 0 installed (modem no_candidate), GameResBoot 0 changed with verify wrong=0, MonitorPowerBoot ok, IpxSetupBoot active.",
+   "Disk ST3300620A, SMART: 0 reallocated sectors, 42 C (worst 48), 7507 power-on hours."
+  ],
+  "recommendations": [
+   {
+    "component": "Video driver: NVIDIA GeForce 7800 GS AGP, ForceWare 93.71",
+    "action": "none",
+    "priority": "low",
+    "rationale": "This is the right vendor driver, installed correctly and loaded. All three binaries read 6.14.10.9371 and are md5-identical to the store's I019 93.71 package; the INF ranked as trusted; the OpenGL ICD is registered; the desktop runs 1600x1200x32@85. 93.71 is the fleet's choice for GeForce 6/7 and the best fit for 1998-2004 titles. 307.83 (also on the share) is the last XP driver for this card but fixes nothing these games need. There has been no crash, dump or WFP revert since it went in, so there is no stability reason to touch it. Caveat: the card has about 2 days of runtime and has not yet been through a LAN round.",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/I019/nv4_disp.inf is the installed package (local copy on the box: C:\\nvdrv). Vendor installer: /mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/93.71_forceware_winxp2k_whql.exe",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound driver: SoundMAX (ICH5 AC'97), smwdm.sys 5.12.1.7000",
+    "action": "none",
+    "priority": "low",
+    "rationale": "This is Dell's own SoundMAX build for this exact subsystem (1028:0174). Problem 0, one waveOut device, the kernel audio stack is registered and smax4pnp is running. Nothing is missing or wrong. The 2026-09-26 fault (0 wave devices) was fixed and has stayed fixed.",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/T069/smwdmCH5.inf (the installed one, if it ever needs reinstalling)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Leftovers of the removed Radeon 9500 PRO/9700: ghost devnodes, class keys 0002/0003, ati2mtag service, ATI OpenGL registrations, atiadlxx.dll",
+    "action": "none",
+    "priority": "low",
+    "rationale": "All inactive: the card is gone, ati2mtag is demand-start and cannot load, opengl32 picks RIVATNT from nv4_disp, and HWPROFILE reports the right active adapter. Optionally tidy up AFTER the LAN party with the gpu-driver-cleanup skill (ATI only). That would also stop the atiadlxx.dll SideBySide errors and stop VIDEODIAG listing three adapters. No cleanup may touch nv4_* files: deleting a WFP-protected display file makes Windows restore the in-box 6.14.10.5673 copy, which is exactly what happened on this box on 2026-09-28.",
+    "needs_reboot": false
+   },
+   {
+    "component": "PCI Modem 8086:1080 (problem 28)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Not sound or video, and no game uses it. No driver exists in the store or on the share (the agent reports no_candidate at every boot), and it raises no dialog. Disable it in Device Manager or pull the card only if it ever causes trouble.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Re-image risk for the 7800 GS: PREFER.TXT has no entry for PCI\\VEN_10DE&DEV_00F5",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "XP has no in-box driver for DEV_00F5 (setupapi 2026-10-14: 'There are no compatible drivers for this device'), and the agent's automatic pass never installs display drivers. So after a re-image this box would come up on VGA with no 3D. DRVINDEX lists three INFs that match the id equally: G003 270.61 nv4_disp.inf, G003 270.61 nv4_go.inf (MOBILE) and I019 93.71. The agent breaks ties by tree order, so an explicit DRIVERS UPDATE would most likely try 270.61 first, not the 93.71 this box runs. Either add a driver-prefs.txt rule for the I019 INF, or reinstall explicitly with DRVUPDATE PCI\\VEN_10DE&DEV_00F5 <local copy of I019>\\nv4_disp.inf. That is how it was done on 2026-10-15, from C:\\nvdrv.",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/I019/nv4_disp.inf",
+    "needs_reboot": false
+   },
+   {
+    "component": "CMOS battery (dead CR2032)",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "Every AC loss resets the clock to 2004-02-20; 6 boots in the System log carry that date. The agent's clockfix restores the time from the NAS and the box is activated, so this is safe today. But a cold boot runs on a 2004 clock until clockfix succeeds, and on 2026-09-30 clockfix gave up during the LAN outage. Replace the coin cell the next time someone is at the box. This is a hardware item, not a driver.",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "BOX STATE. Agent 1.98.0 (current). Uptime was 5903 s at 12:35 local, so the box booted at 10:57 local today (15:57 UTC) after a clean shutdown on 2026-10-16. Desktop 1600x1200x32@85 on an HP P1120 21-inch CRT. GAMERES target is 1600x1200 (4:3); GameResBoot changed 0 values and verify shows ok=83, wrong=0. C: has 224,520 MB free of 286,157 MB. RAM 1150 MB, Pentium 4 2.8 GHz (SSE2). Disk SMART is healthy.\n\nPROCESSES AND SCREEN. No stuck installer, and no dialog on screen (WINLIST: screensaver, Program Manager, minimized agent console). Running: nvsvc32, one NVIDIA rundll32, smax4pnp, DAEMON Tools daemon.exe, the ssstars screensaver, and wuauclt.exe (the Windows Update client; stop it before any benchmark).\n\nGPU HISTORY (setupapi.log, box-local times):\n- 2026-09-26, at imaging: GeForce3 Ti 200 on 71.89.\n- 2026-09-26 23:15: GeForce DDR on 71.89.\n- 2026-09-28: Radeon 9500 PRO/9700 on Catalyst 10.2.\n- 2026-10-14 12:48: GeForce 7800 GS first enumerated, with no driver.\n- 2026-10-15 10:05: the agent (DRVUPDATE) installed 93.71 from C:\\nvdrv, a copy of the store's I019.\n\nDOCS ARE STALE. The 7800 GS swap is NOT in the fleetbook. docs/fleet-inventory.md and docs/staged-library.md still show the Radeon, although the box published its new record today at 10:59 (profile_hash 2d1e2e8d090cb5aa). Regenerate with scripts/fleet/inventory.py. No published _gamegate verdict exists for 2d1e2e8d090cb5aa (or for the old Radeon hash), so GAMESYNC here runs on the agent's local rules.\n\nFIRST ROUNDS ON THIS CARD. The 7800 GS has about 2 days of runtime and has never been through a LAN round; the 2026-10-13 lanparty on this box ran all 7 games on the Radeon. One unverified watch item: the Dimension 4600's stock PSU is small, and the 7800 GS AGP needs its auxiliary power lead; neither can be read remotely. If a round produces a spontaneous reset here (a boot with no 6006 before it and no minidump), suspect power before the driver.\n\nHAZARDS FOR UNATTENDED ROUNDS.\n- E: is the DAEMON Tools virtual DVD. It currently holds a 511 MB game disc image from 2001-2002 (Setup.exe, Install, MenuData, Drivers). A launcher that probes E: while it is empty raises a system-modal 'No Disk' popup; that happened 5 times on 2026-10-15.\n- Error reporting shows its UI (ShowUI=1), so a crashing game will leave a dwwin dialog on screen.\n\nOTHER OBSERVATIONS.\n- system32 has no d3dx9_*.dll: only the base DirectX 9.0c (4.09.00.0904) is installed. This matters only for a title that ships no D3DX DLL of its own. The redistributable is on the share: /mnt/retro-share/Files/Drivers/DirectX/DirectX December 2006.iso.\n- C:\\D is gone (reclaimed). C:\\nvdrv (93.71) is the local reinstall source; keep it.\n- Junk at C:\\: a 0-byte file named 'nul))' (from a mis-parsed parenthesised command on 2026-09-28), TempWmicBatchFile.bat, and the C:\\ati102fix folder.\n- IPX is active (netcfg). Server event 2505 on 10-03 (a NetBIOS-over-NWLink name clash) and the W32Time errors (no internet NTP) are harmless.\n- PCISCAN is unreliable on this box: its pci_display_devices list came back empty and it marks even the live class key 0000 as stale. Use HWPROFILE and DRIVERS STATUS instead.\n\nEVIDENCE. Raw evidence is kept in /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/drivers-110/: command outputs, SysEvent.Evt and AppEvent.Evt, setupapi.log, and the parser. Its files are named after the box query they hold. Everything was read-only: no launches, kills, registry writes or reboots on the box, and every connection was closed gracefully."
+ },
+ {
+  "ip": "192.168.1.123",
+  "host": "NSC-B20C188E96D",
+  "reachable": true,
+  "os": "Windows XP SP3 (5.1.2600), ACPI Uniprocessor HAL; AMD Athlon 64 4000+ (single core, SSE3) on an ASUS VIA K8T800 Pro / VT8237 board; 2047 MB RAM; agent 1.98.0 (current)",
+  "activation": "ACTIVATED. LICSTATUS wpa: activation_required=false (Win32_WindowsProductActivation ActivationRequired=0). OOBETimer present, no WGA. The box was activated remotely on 2026-09-26 (fleetbook), so a driver reboot is safe as far as activation goes; still reboot only with scripts/fleet/safe-reboot.py. Caveat: there is no WPASAVE backup for this machine (today's agent log: 'activation not restored: no saved activation for machine NSC-B20C188E96D-8C33E4AA'). That only matters after a re-image.",
+  "display": {
+   "device": "ATI Radeon HD 3850 AGP (RV670, Sapphire board SUBSYS 0028:174B), 512 MB, PCI bus 1 behind the VIA K8T800 Pro AGP bridge",
+   "pci_id": "PCI\\VEN_1002&DEV_9515&SUBSYS_0028174B&REV_00",
+   "driver_version": "8.970.100.0",
+   "driver_date": "2013-04-24",
+   "driver_provider": "Advanced Micro Devices, Inc.: AMD Catalyst 13.4 Legacy Beta for XP. The display INF is CX156444.inf (installed as oem3.inf, section ati2mtag_RV630, service ati2mtag), installed 2026-08-29 09:34 from a hand-staged C:\\D\\G006",
+   "status": "OK. Vendor 3D driver, problem 0, attached to the desktop. VIDEODIAG/HWPROFILE/DRIVERS STATUS all agree. OpenGL ICD registered (OpenGLDrivers\\ati2dvag -> atioglxx.dll). The compat DB has OpenGL, D3D and DirectDraw titles verified on this driver. No bugcheck, no VPU-recover/ATI event, and no crash inside an ATI DLL anywhere.",
+   "desktop_mode": "1280x1024x32 @ 100 Hz (persisted). The monitor is a CRT reporting no EDID ('Default Monitor'). GAMERES targets games at 1280x960 4:3 @ 100 Hz.",
+   "is_3dfx": false
+  },
+  "audio": [
+   {
+    "device": "Realtek AC'97 Audio for VIA (R) Audio Controller: VIA VT8237 AC'97 controller with a Realtek AC'97 codec (ALCXWDM.SYS + sbemul.sys Sound Blaster emulation)",
+    "pci_id": "PCI\\VEN_1106&DEV_3059&SUBSYS_812A1043&REV_60",
+    "driver_version": "5.10.0.6300 (2008-09-24). oem4.inf is image-store S007\\Alcxau.inf, matched on pci\\ven_1106&dev_3059&cc_0401",
+    "status": "OK. Problem 0, waveOut devices = 1 ('Realtek AC97 Audio'), DS3D present. The kernel audio stack is registered (Microsoft Kernel System Audio / WINMM WDM compat SW devices, kmixer, splitter present). HKLM\\Software\\RetroAgent\\AudioStackFix is absent: never needed. No 'NO SOUND' lines in the agent logs."
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "'Mass Storage Controller' = Silicon Image SiI 3512 SATA (PCI bus 0 dev 14). This is the PARENT OF THE BOOT SSD (TOSHIBA THNSNJ256GCST; the controller's ParentIdPrefix 4&15fa3989&0 = the disk's instance)",
+    "hwid": "PCI\\VEN_1095&DEV_3512&SUBSYS_35121095&REV_01",
+    "state": "missing (DRIVERS STATUS: class Unknown, problem 0)",
+    "note": "FALSE POSITIVE. It is driven by the boot-start LEGACY SCSI miniport ASH1205, loaded by text-mode setup (HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 3: Driver=ASH1205, IOAddress 0xA000, IRQ 19 = this device's AllocConfig; Services\\ASH1205\\Enum = Root\\LEGACY_ASH1205). GUI setup found no INF (setupapi 08-28 #W059), so the devnode never got a PnP driver. The agent's update passes only target devices with a problem code (gamesync.c gs_problem_devices), so nothing automatic will touch it. A MANUAL DRVUPDATE would, though: the share index has an exact match (PCI\\VEN_1095&DEV_3512&SUBSYS_35121095 -> M074\\Si3112.inf 1.3.70.0). Never force it on this box."
+   },
+   {
+    "device": "'RAID Controller' = VIA VT6420 SATA RAID (in the VT8237), PCI bus 0 dev 15",
+    "hwid": "PCI\\VEN_1106&DEV_3149&SUBSYS_80ED1043&REV_80",
+    "state": "missing (DRIVERS STATUS: class Unknown, problem 0)",
+    "note": "FALSE POSITIVE. Driven by the boot-start legacy miniport viamraid (Scsi Port 4: IOAddress 0xC000, IRQ 20 = this device; Root\\LEGACY_VIAMRAID). No disk is attached. The index candidate M096\\VIAMRAID.INF 5.1.7600.601 is not needed."
+   },
+   {
+    "device": "Physical keyboard and mouse",
+    "hwid": "none present. Previously installed (2026-09-29) and now absent: USB\\VID_046D&PID_C34B (Logitech keyboard), USB\\VID_30FA&PID_1440 (wireless receiver)",
+    "state": "not connected",
+    "note": "Kbdclass\\Enum and Mouclass\\Enum hold only Root\\RDP_KBD / Root\\RDP_MOU (virtual). i8042prt shows Count=0 and INITSTARTFAILED=1 (no PS/2 at boot). There are no Keyboard/Mouse/HID devices in DRIVERS STATUS. Agent synthetic input still works, but a human cannot play until one is plugged in. USB hot-plugs with drivers already installed; a PS/2 device would need a reboot."
+   }
+  ],
+  "other_display_or_3d": [
+   "No 3dfx/Glide hardware: HWPROFILE accelerators[] empty, glide=false. Glide titles would need a wrapper on this box.",
+   "OpenGL ICD registry is clean: the only entry is OpenGLDrivers\\ati2dvag -> atioglxx.dll (Version 2, Flags 1). No stale 3dfx or other ICD.",
+   "DirectX 9.0c (4.09.00.0904) plus the DirectX Oct-2006 redist (D3DX9 _24 to _31, DXSETUP 'Installation succeeded' 2026-09-01). Nothing newer than d3dx9_31.",
+   "AGP: VIA K8T800 Pro 'VIA CPU to AGP Controller' (PCI\\VEN_1106&DEV_B188) on service pci with UpperFilter GAGP30KX (Microsoft generic AGP 3.0). VIA Hyperion INF 6.0.0.300 (2007) on the host bridges. VC++ 2005 SP1 (8.0.50727.762) installed 2026-09-01; it ended an atiadlxx.dll SideBySide error flood.",
+   "Monitor: 'Default Monitor', no EDID read. Earlier monitors on this box: Dell P2312H (DEL4076) on 2026-08-29, Gateway VX1120 (GWY0460) on 2026-10-01. With no EDID nothing clamps the refresh rate; the driver lists up to 180 Hz at 1280x1024."
+  ],
+  "crash_evidence": [
+   "No kernel crashes since imaging (2026-08-29). CrashDumpEnabled=3 (small dump) with AutoReboot=1, yet C:\\WINDOWS\\Minidump does not exist and there is no MEMORY.DMP. The System event log (1806 records, 2026-08-29 to 2026-11-11, wrapped) has no Save Dump/System Error bugcheck and no EventLog 6008.",
+   "No ATI events (ati2mtag / VPU Recover), no disk errors, and no Application Hang (1002) in either event log. The agent log mirrors (NSC-B20C188E96D-agent.log + .1, covering Oct 16 and today) have no crash, hang, TDR or NO SOUND lines.",
+   "Dr. Watson (drwtsn32.log, last written 2026-09-29) has 3 user-mode crashes, all title or emulator faults, not driver faults: (1-2) hl.exe 1.1.0.8 c0000005 at 2026-08-31 13:52 and 13:53 local, eip=0, a null call from hw.dll with bshift\\cl_dlls\\client.dll loaded. That is Blue Shift, which the compat DB records as 'failed' on .123; the fault is NOT in atioglxx.dll. (3) DOSBox.exe 0.74 (Shadow Warrior) c0000005 at 2026-09-29 00:48 local, inside DOSBox.exe.",
+   "Two boots had no clean-shutdown record before them (2 of 19 completed sessions): (a) 2026-08-31 14:28 local, 36 min after the hl.exe crashes, cause unknown; (b) 2026-09-29, between the 12:02 and 13:16 local boots. (b) coincides within a minute with the 2026-09-29 ~13:16 mains breaker trip in docs/host-issues-log.md, so likely power, unproven.",
+   "2026-09-28 09:23 local: an orderly agent-initiated reboot (USER32 1074, then a clean 6006) right after the DAEMON Tools 3.47 install did not come back for ~14 h. Fleetbook says no ARP, no PXE, and suspected d347bus/d347prt or a POST hang; cause unproven. Every reboot since completed in 1-3 min: 09-29 20:15->20:18, 09-30 01:41->01:44, 10-01 23:09->23:12, 10-09 01:39->01:40.",
+   "Marvell Yukon link down/up events (yukonwxp 83/123, Tcpip 4202/4201) on 09-25, 09-26 and 09-29/30 match the host's network re-cabling and NIC-wedge week. None since 2026-09-30 14:01.",
+   "2026-10-14 12:36 local: a USB device failed enumeration (USB\\UNKNOWN, Vid_0000&Pid_0000) one minute before a clean shutdown, the same minute the host died (host-issues-log 10-14 12:36:25). Consistent with bench power work; the device is not present now.",
+   "Current session: booted 10:55 local today, SYSINFO uptime 5926 s (~1 h 39 m) at 12:35. The previous session (Oct 16) ended with a clean shutdown (console logoff event 5, EventLog 6006)."
+  ],
+  "recommendations": [
+   {
+    "component": "Video: ATI Radeon HD 3850 AGP, AMD Catalyst 13.4 Legacy Beta XP display driver 8.970.100.0",
+    "action": "none",
+    "priority": "low",
+    "needs_reboot": false,
+    "candidate_package": "Installed; listed as the reinstall/rollback source only: /mnt/retro-share/Files/Drivers/ATI/WinXP/Radeon/Catalyst134-Legacy-XP-Display/CX156444.inf (DriverVer 04/24/2013, 8.970.100.0000, '%AMD9515.1%' = ati2mtag_RV630, PCI\\VEN_1002&DEV_9515) plus its B156345\\ payload (33 files). Full suite: /mnt/retro-share/Files/Drivers/ATI/WinXP/Radeon/AMD_Catalyst_13.4_Legacy_Beta_WinXP.exe",
+    "rationale": "This is AMD's last XP branch for the HD 2000-4000 family, newer than the 12.x legacy; nothing newer for this card exists on the share. It is the right driver: a vendor INF matching DEV_9515 exactly, not a Microsoft in-box, mobile or wrong-family INF. It is stable: problem 0, OpenGL/D3D/DDraw titles verified on it (CS 1.6, Q1/Q2/Q3, Doom 3, RTCW, SoF2, UT99/2003/2004, Jedi Knight, RA2, Rainbow Six), no bugcheck, no VPU-recover/ATI event, no crash inside an ATI DLL. Moving to 10.2 or 12.x would be churn with no stability reason. Expected RV670 family limits for 1998-2001 titles (no paletted P8 textures, no table fog, no W-buffer, undithered 16-bit) are hardware limits that no driver change fixes."
+   },
+   {
+    "component": "Sound: Realtek AC'97 on VIA VT8237 (ALCXWDM.SYS 5.10.0.6300)",
+    "action": "none",
+    "priority": "low",
+    "needs_reboot": false,
+    "candidate_package": "Installed source: /mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/S007/Alcxau.inf (DriverVer 09/24/2008, 5.10.00.6300). The only newer Realtek AC'97 package on the share, /mnt/retro-share/Files/Drivers/Realtek_AC97_A4.06.iso, is not needed.",
+    "rationale": "Sound works: waveOut has 1 device, the WDM kernel audio stack is registered (no audio-stack fault, AudioStackFix never needed), SB emulation is loaded for DOS titles, and there are no NO SOUND lines. 6300 versus Realtek's final A4.06 is not a stability reason to change."
+   },
+   {
+    "component": "Storage: SiI 3512 SATA (carries the BOOT SSD) and VIA VT6420 SATA RAID, both flagged 'missing' by DRIVERS STATUS",
+    "action": "none",
+    "priority": "medium",
+    "needs_reboot": false,
+    "candidate_package": "None. Do NOT apply M074\\Si3112.inf (the share index's exact match for PCI\\VEN_1095&DEV_3512&SUBSYS_35121095) or M096\\VIAMRAID.INF.",
+    "rationale": "Both 'missing' flags are false positives. The controllers run under boot-start legacy miniports from text-mode setup (ASH1205 on Scsi Port 3 at 0xA000/IRQ 19 for the SiI; viamraid on Scsi Port 4 at 0xC000/IRQ 20 for the VIA), so their devnodes have no PnP Service. The automatic driver passes ignore problem-0 devices (gs_problem_devices), so there is no automatic risk. A hand-run DRVUPDATE on PCI\\VEN_1095&DEV_3512 would add a second, PnP driver for the controller the box boots from while ASH1205 still loads. The outcome is untested, and if it fails the box will not boot without a person at it. Leave both alone."
+   },
+   {
+    "component": "Input devices: no physical keyboard or mouse attached",
+    "action": "investigate",
+    "priority": "high",
+    "needs_reboot": false,
+    "candidate_package": "None needed. Drivers for the box's own USB keyboard (046D:C34B) and receiver (30FA:1440) are already installed (2026-09-29).",
+    "rationale": "Kbdclass/Mouclass contain only the RDP virtual devices, and i8042prt failed to start at boot. Agent-driven rounds can proceed (synthetic input), but no human can play on .123 at the LAN party until a keyboard and mouse are connected. USB hot-plugs with no reboot; a PS/2 device would need a reboot."
+   }
+  ],
+  "notes": "Verdict: no sound or video driver needs installing or updating on .123. Both drivers are present, correct for the hardware, and stable. The only readiness gap found is physical: no keyboard or mouse is connected.\n\nOther findings:\n1. PCISCAN's 'stale_drivers': ['0000'] with empty pci_display_devices is a probe artifact on NT. video.c pairs a PCI device only when its Enum 'Driver' value is the Win9x form 'Display\\NNNN', but NT stores '{4D36E968-...}\\0000'. Class key 0000 IS the live Radeon (Enum Driver={4D36E968...}\\0000, Service ati2mtag). Never 'clean' it as a ghost.\n2. Re-image trap: the image-store index (DRVINDEX/PCI_1002.TXT) maps PCI\\VEN_1002&DEV_9515 only to G001\\CX137529.inf (Catalyst 12.4, 8.961), whose payload is missing; it failed here on 08-29 with SPFILENOTIFY_NEEDMEDIA (fleetbook recipe radeon-hd-3850-and-any-ati-on-xp-the-image-s-d-g001-has-infs). After a re-image, install from Files/Drivers/ATI/WinXP/Radeon/Catalyst134-Legacy-XP-Display instead.\n3. Display: 1280x1024x32 @ 100 Hz on a CRT with no EDID, so nothing clamps the refresh rate (the driver lists up to 180 Hz). Never pick 'max refresh' in a game here; GAMERES keeps games at the persisted 100 Hz (target 1280x960 4:3, verify ok=83 wrong=0). GameResBoot today: '1 value(s) changed (CounterStrike16)'. If that recurs on consecutive boots, two writers are fighting.\n4. State and processes: DriverUpdateBoot today = '0 installed, 0 device(s) looked at'. Running: ati2evxx.exe x2, SOUNDMAN.EXE, daemon.exe (DAEMON Tools 3.47), wuauclt.exe (Windows Update client, a CPU thief worth quiescing before rounds), and ssstars.scr. The Starfield screensaver is the FOREGROUND window right now, so the first synthetic key will only dismiss it. WINLIST shows no dialogs and there is no stuck installer or New Hardware wizard.\n5. Power: scheme 0 'Home/Office Desk' (CurrentPowerPolicy=0), so Cool'n'Quiet (amdk8 1.3.2.0) is effectively off on AC and the single-core K8's TSC rate stays fixed under games. Monitor, standby and hibernate are all 'never'.\n6. Disk and drives: C: 179,954 MB free of 244,197 MB (TOSHIBA THNSNJ256GCST SSD on the SiI 3512; SMARTINFO returns [] because the legacy ASH1205 miniport does not pass SMART through). D: is the DAEMON Tools virtual DVD with a 478 MB image mounted. 'cmd.exe - No Disk... drive D:' popups were logged 10-09 and 10-16; a modal like that can block a launcher, but none is open now.\n7. Network: IPX is active (NWLink via netcfg, frame auto). Marvell Yukon driver 11.45.4.3 (2012) is the last XP yukonwxp; no link flaps since 09-30.\n8. Stale compat rows to retest: StarCraft ('blocked: no disc_mount') and JediAcademy ('NO disc mounter') predate the DAEMON Tools install on 09-28; HWPROFILE now reports disc_mount=true (d347bus). HalfLife-BlueShift and OpposingForce are recorded 'failed' on this box, which matches the Dr. Watson hl.exe crashes.\n9. C:\\Games contains a leftover folder 'SoldierOfFortune2.wip' (GAMESYNC never deletes); the round planner should not treat it as a title.\n\nMethod: everything was read-only. Commands used: SYSINFO, HWPROFILE, VIDEODIAG, AUDIOINFO, LICSTATUS, DRIVERS STATUS, PCISCAN, PROCLIST, WINLIST, SMARTINFO, MONPOWER (report only), REGREAD, DIRLIST, and DOWNLOADs of drwtsn32.log, setupapi.log, SysEvent.Evt, AppEvent.Evt and DirectX.log. Every connection was closed gracefully. Raw evidence is copied to /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/driver-audit-123/ (includes evt_parse.py for the .Evt files). Nothing was changed on the box, the library or the servers, and nothing was committed."
+ },
+ {
+  "ip": "192.168.1.124",
+  "reachable": true,
+  "host": "NSC-C543575F526",
+  "os": "Windows XP Professional SP3 (5.1.2600), ACPI Uniprocessor HAL, DirectX 9.0c (4.09.00.0904); agent 1.98.0. AMD Athlon XP 2400+ at 2004 MHz (no SSE2), 255 MB RAM, EPoX nForce2 board (SUBSYS_10001695)",
+  "activation": "Activated. LICSTATUS wpa: observed=activated, ActivationRequired=false, grace_days 0. OOBETimer present, Winlogon activation flag absent, no WGA. Activation does not block a reboot, but still use scripts/fleet/safe-reboot.py because the box boots PXE first. Auto-login is intact: Administrator, AutoAdminLogon=1, ForceAutoLogon=1, DefaultPassword present.",
+  "display": {
+   "device": "3dfx Voodoo5 6000 AGP (4x VSA-100 behind the card's own HiNT 3388:0021 PCI bridge), driven by vcr-kmd Voodoo 5 6000 (open driver)",
+   "pci_id": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+   "driver_version": "0.1.0.0 in the INF (oem6.inf). Live binaries, downloaded and hashed: vcrmp.sys md5 fda1b8c9b905ed874dfdc2e265d165d4 (130,105 B, 2026-09-30) and vcrdd.dll md5 95678704f3e9586381a73c15e5b1bce0 (107,375 B, 2026-11-08 07:30 UTC). This is the newest D3D build (commit be58b7d: half-pixel offset, 16-byte texture placement, Rainbow Six 16/16 fix). The previous build 13256e46 is kept as system32\\vcrdd.old.",
+   "driver_date": "9-25-2026 (INF DriverVer); vcrdd.dll built 2026-11-08, vcrmp.sys built 2026-09-30",
+   "driver_provider": "vcr-kmd (retro-agent voodoo-cleanroom), our own clean-room kernel driver",
+   "status": "OK, problem 0, attached to the desktop. Boot health: GoodBoots 69 of BootCount 70, BootAttempts 0, LastDecline 0, SliAALive 0. This boot's flushed phase log is clean: find, 4-chip SLI map, init, then one mode set at 4.4 s.",
+   "desktop_mode": "1280x1024x32 at 85 Hz, also the persisted mode. Monitor is a Sony CPD-G200 17-inch CRT: EDID 30-96 kHz, 48-120 Hz, 260 MHz max pixel clock, preferred 1024x768. GAMERES game target 1280x960; boot verify ok=78, wrong=0.",
+   "is_3dfx": true
+  },
+  "audio": [
+   {
+    "device": "NVIDIA(R) nForce(TM) Audio Codec Interface (nForce2 APU / SoundStorm-class, onboard)",
+    "pci_id": "PCI\\VEN_10DE&DEV_006A&SUBSYS_10001695&REV_A1",
+    "driver_version": "6.14.462.0 (4-13-2005), oem9.inf section nvaci, NVIDIA. This is the final nForce XP audio driver, installed 2026-11-08 from store T065 with the INF patched for SUBSYS_10001695.",
+    "status": "OK, problem 0"
+   },
+   {
+    "device": "NVIDIA(R) nForce(TM) Audio (nvapu.sys + sbemul.sys), which is waveOut device 0",
+    "pci_id": "NVAX\\NFORCE_VAD (child of 10DE:006A)",
+    "driver_version": "6.14.462.0 (4-13-2005), oem9.inf section nvnforce. The waveOut caps report driver version 5.10, i.e. the nForce unified 5.10 package.",
+    "status": "OK, problem 0. waveOutGetNumDevs=1 (11/22/44 kHz, stereo, 16-bit). Settings: Channel Configuration 3 (stereo), Speaker Geometry 0x14 (wide). VAPU AnalogOutputEnable=1, DigitalOutputEnable=1. NvMixerTray is running."
+   },
+   {
+    "device": "MPU-401 Compatible MIDI Device (board MIDI port)",
+    "pci_id": "ACPI\\PNPB006",
+    "driver_version": "5.1.2535.0 (Microsoft msmpu401.sys)",
+    "status": "OK"
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "SI Pseudo Device SCSI Processor Device (SiI3114 SoftRaid management target, Bus 3 Target 31)",
+    "hwid": "SCSI\\PROCESSOR&VEN_SI&PROD_PSEUDO_DEVICE&REV_0000\\5&393D739C&0&31F0",
+    "state": "driverless by design: problem 0, ConfigFlags 0, no class or service (DRIVERS STATUS counts it ok)",
+    "note": "Not a fault. This is the 'Don't prompt me again' state, set after its Found New Hardware Wizard came up behind a fullscreen Quake III on 2026-09-16 and froze the run. Its parent is the SiI 3114 SoftRaid 5 controller (ParentIdPrefix 5&393d739c&0, service Si3114r5), not DAEMON Tools as docs/v56k-benchmark-plan.md says. If the SiI card ever moves PCI slot, a new instance will bring the wizard back."
+   },
+   {
+    "device": "Display class instance 0001 (the live vcr-kmd adapter)",
+    "hwid": "pci\\ven_121a&dev_0009&subsys_0001121a",
+    "state": "PCISCAN lists it under 'stale_drivers': a FALSE POSITIVE",
+    "note": "PCISCAN's pci_display_devices list is empty because the VSA-100s sit behind the HiNT bridge. Instance 0001 is the active adapter attached to the desktop (HWPROFILE/VIDEODIAG). Never 'clean' it as a ghost; that would remove the live display driver. DRIVERS STATUS overall: 121 ok, 4 excluded_3dfx, 0 missing, 0 problem, 0 generic, 0 disabled."
+   }
+  ],
+  "crash_evidence": [
+   "Minidumps: C:\\WINDOWS\\Minidump holds only two, both from the VINTAGE 3dfx driver and old. Mini040203-01.dmp is 0x000000EA THREAD_STUCK_IN_DEVICE_DRIVER with EIP at 3dfxvs.dll+0x10106. Mini040203-02.dmp is 0x100000EA with SCSIPORT, 3dfxvs.dll and win32k on the stack. Both have 3dfxvs.dll + 3dfxvsm.sys loaded and vcr-kmd NOT loaded (checked with triage32.py and xpminidump.py). Their Save Dump events are System-log records 84 and 218 of 2157, i.e. the first days after the re-image, before vcr-kmd took over on 2026-09-26. The 2003 dates come from the RTC reset. The 2026-09-27 postmortem already recorded these two; nothing has been written since.",
+   "Unclean shutdowns: the System log (2157 records, never wrapped) has 24 boots with no clean 6006 before them, 2 of which are setup boots. All are on or before 2026-09-30 18:56: the install's first week, vcr-kmd bring-up on 09-26, the 09-29 breaker trip, and AA work on 09-29/30. All 13 boots since 2026-10-01 had a clean shutdown before them. That includes six warm reboots on 11-08 (the nForce and vcrdd deploys) and a 55.6 h session from 11-08 07:34 to 11-10 15:11 UTC that ended cleanly. No 6008 event and no Save Dump since.",
+   "Disk: at the 11-08 ~04:53 UTC cold boot (box clock reset to 2003, 23 days after a clean 6006), Disk event 7 fired twice on \\Device\\Harddisk0. Both were READ(10) at LBA 6,160,455, 8 sectors, failing with sense key 3 MEDIUM ERROR at LBA 6,160,459, 3.6 s and 6 s into boot; the first was a paging read. Ntfs 55 (C: corrupt, STATUS_DISK_CORRUPT_ERROR) followed. It has not recurred in 7 boots. 'fsutil dirty query C:' says NOT dirty. SMART Reallocated Sectors raw = 7, normalised 100/100.",
+   "Machine Check popups (event 26, 'Machine Check: Banks / Regs', 67 pairs) appear only on cold power-on boots: with 22 of 24 dirty boots and 9 of 13 boots after a power-off, but only 1 of 118 warm reboots. The bank values look uninitialised: bank-1 statuses with 45-56 of 64 bits set (today 0xDFBB6EFBE1FF6BFD), and a bank-2 error code of 0xFFFF. No 0x9C bugcheck has ever followed. Most likely power-on garbage in the Athlon XP's MCA banks, which is cosmetic; not proven.",
+   "Application log: 10 Dr. Watson crashes and 43 hl.exe (BCShield) application-error popups, all from the install's first week in the vintage-driver era (quake3 in glide3x!grDrawTriangle, GLQUAKE 0xC0000005, WolfMP in openglv5!glReadPixels). None since vcr-kmd. The crypt32 11 errors on 09-28 are XP's failed root-certificate download, which is harmless.",
+   "Agent log mirror on the share: the previous session ended cleanly (console event 5, then 'clean shutdown' at 10:10:56 local on 11-10). The box booted 2026-11-11 10:58 local. No NO SOUND, TDR, watchdog or stall lines, and no AudioStackFix value.",
+   "vcr-kmd flushed phase log, boot #69 (the 11-08 to 11-10 session): normal desktop and 640x480x16 game mode sets, the last a return to 1280x1024x32@85 at 374.6 s. SliAAAutoOff=55, so the last AA auto-disarm was long ago, during AA testing."
+  ],
+  "other_display_or_3d": [
+   "Glide: system32\\glide3x.dll, 1,025,930 B, 2026-09-30 (our h5 Glide). Services\\3dfxvs\\Device0\\glide has SSTH3_SLI_AA_CONFIGURATION=5 (4-chip SLI, no AA), FX_GLIDE_BPP=16, FX_GLIDE_SWAPINTERVAL=0, FX_GLIDE_ANALOG_SLI=1, FX_GLIDE_2PPC=1.",
+   "OpenGL ICD: system32\\retroicd.dll, 2,781,173 B, 2026-10-03. This is voodoo-cleanroom MesaFX 0.1.84 (vcrmp Diag OpenGLName=3dfx). Older ICDs are kept as .bak files.",
+   "vcr-kmd Diag switches: D3D32=1 and D3DBigTex=7 are armed by operator decision for the LAN party (Halo needs them). SliAA=0, SliAALive=0, AllowPoke=0, SliAAVendorRecipe=1, MaxBootAttempts=2, LogLevel=3.",
+   "Vintage 3dfx files are still in system32 but are not bound to the device: 3dfxvs.dll, drivers\\3dfxvsm.sys, 3dfxOGL.dll, 3dfxSpl2/3.dll, glide2x.dll and glide3x_am31.dll, all 2003-dated. The Services\\3dfxvs key (Start=3) is kept because it holds the Glide settings.",
+   "Bridges flagged excluded_3dfx by the agent: the nForce2 AGP bridge 10DE:01E8 and the V5 6000 HiNT bridge 3388:0021, both on Microsoft pci.sys. No NVIDIA GART driver is installed, and none is needed because the VSA-100s do no AGP transfers.",
+   "Virtual CD: DAEMON Tools 3.47 (d347bus/d347prt, provides disc_mount) and the WinCDEmu bus are both installed. D: currently has System Shock 2's disc image mounted (SHOCK\\, 00000001.TMP)."
+  ],
+  "recommendations": [
+   {
+    "component": "Display: 3dfx Voodoo5 6000 on vcr-kmd (vcrmp.sys fda1b8c9 + vcrdd.dll 95678704)",
+    "action": "do_not_touch_3dfx",
+    "priority": "low",
+    "rationale": "3dfx drivers are never changed automatically, and nothing here needs fixing anyway. It is the newest clean-room build (be58b7d), the device is OK with problem 0, GoodBoots is 69/70, BootAttempts 0, LastDecline 0. No bugcheck has ever named vcrmp or vcrdd, and no session has ended uncleanly since 2026-09-30 (13 clean boots, including a 55.6 h session). Keep the operator-armed D3D32=1 / D3DBigTex=7, and keep SliAA=0 with Glide cfg 5, because AA is supervised-only. Per-title D3D caveats from the 11-08 sweep, none of them driver installs: Max Payne only with someone watching (it froze once unattended), AvP fails on a game-data assertion, and BF1942 single player needs SafeDisc 2.80 (its LAN launchers do not). Do not put D3D titles into unattended sweeps.",
+    "needs_reboot": false
+   },
+   {
+    "component": "3dfx-adjacent devices: nForce2 AGP bridge 10DE:01E8, HiNT bridge 3388:0021, SONY CPD-G200 monitor (monitor8.inf)",
+    "action": "do_not_touch_3dfx",
+    "priority": "low",
+    "rationale": "The agent's 3dfx rule excludes these (bridges above the Voodoo, monitor below it). All are on the correct Microsoft drivers with problem 0. The monitor INF names the right model and its EDID ranges are read by vcr-kmd (MonHmax 96 kHz, MonVmax 120 Hz).",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound: onboard NVIDIA nForce2 audio (APU 10DE:006A SUBSYS_10001695 + NFORCE_VAD / nvapu.sys)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Already on the final nForce XP audio driver, 6.14.462.0 (4-13-2005), installed 2026-11-08 (fleetbook recipe #116). Both instances read 6.14.462.0 and nvapu/nvax/nvmcp/nvarm match the store byte sizes. No PendingFileRenameOperations and RunOnce is empty, so the post-install reboot work is done. waveOut has 1 device, so this is not the AudioStackFix fault. Settings are correct for stereo. No audio errors in either event log. Nothing newer exists for nForce2, so do not churn it. One open check: no listen test is recorded after the update, which was made to cure crackling game audio. Confirm in-game sound in the first round. If it still crackles and the box is not listened to over S/PDIF, the recipe's next step is Settings\\VAPU DigitalOutputEnable=0 (currently 1).",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/T065/nvmcp.inf (\\\\192.168.1.122\\files\\Files\\OS\\XPSP3-FLEET\\$OEM$\\$1\\D\\T065). This is the installed 4.62 package, listed for reference or reinstall only; the box uses a copy of nvmcp.inf with a line added for SUBSYS_10001695.",
+    "needs_reboot": false
+   },
+   {
+    "component": "System disk: Seagate ST9320325AS (fw 0003DEM1, 5,576 power-on hours) on the Silicon Image SiI3114 SoftRaid 5 driver (Si3114r5 1.5.20.3)",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "A real medium error, not a driver fault. At the 11-08 cold boot, after 23 days off following a clean shutdown, Harddisk0 returned an uncorrectable read (sense key 3) at LBA 6,160,459 twice, the first during a paging read early in boot, and NTFS logged 55 on C:. It has not recurred in 7 boots and a 55.6 h session, C: is not dirty, and SMART Reallocated Sectors raw is 7 (normalised 100/100; 28 C now, worst 53 C). The agent's SMARTINFO reports only attributes 5, 9 and 194, so Current Pending (197) and Offline Uncorrectable (198) are UNKNOWN, not zero. Before the party: read 197/198 (smartctl, or extend SMARTINFO), keep a backup or image of C:, and re-read the reallocated count after the rounds; replace the disk if it grows. A read-only 'chkdsk C:' (no /f) can run online, but keep it out of game rounds (320 GB, ~60k files). This does not block testing.",
+    "needs_reboot": false
+   },
+   {
+    "component": "nForce2 chipset: SMBus 10DE:0064 (NVIDIA 4.7.9.0), IDE 10DE:0065 (Microsoft pciide), USB OHCI/EHCI 10DE:0067/0068 (Microsoft), host and memory bridges (Microsoft); NIC Intel PRO/100+ (e100b 8.0.47.0)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Every device is OK with problem 0, and the agent's boot driver pass looked at 0 devices. Microsoft's pciide is the stable choice on nForce2; NVIDIA's own IDE/SWIDE driver is the classic cause of nForce2 trouble, so do not add it. No GART driver is needed (see the bridges row). The NIC's FlowControl has been 2 (respond only) since 09-30, so a frozen box cannot flood the LAN with PAUSE frames.",
+    "needs_reboot": false
+   },
+   {
+    "component": "SI Pseudo Device SCSI Processor Device (SiI3114 SoftRaid management target)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Driverless by design: 'Don't prompt again' state, problem 0. Leave it. Its Found New Hardware Wizard froze a fullscreen Quake III on 09-16. If a fullscreen game on this box ever hangs at load, check WINLIST for a #32770 dialog before blaming vcr-kmd, and expect the wizard back if the SiI card is moved to another slot.",
+    "needs_reboot": false
+   },
+   {
+    "component": "CMOS battery / RTC (EPoX nForce2 board)",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "The clock falls back to 2003-04-02 whenever the box loses standby power: before the 11-08 boot (23 days unplugged), the 09-29 breaker trip, and at least two other boots. That is why the minidumps and event log carry 2003 dates, and BIOS settings may revert too. clockfix restores the time (ClockFixed 2026-11-08 04:54 UTC), so this is not a blocker. Replace the CR2032 when someone is at the box.",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "State at audit (2026-11-11 ~12:35 local): uptime 5,844 s. The box booted 10:58 local (15:58 UTC) after a clean shutdown on 11-10 10:11 local and ~24.8 h off. It is idle at the Starfield screensaver (ssstars.scr). Nothing odd is running: explorer, NvMixerTray, daemon.exe, wscntfy, alg, wmiprvse, and the agentwd.cmd watchdog (cmd + ping) with one retro_agent.exe (pid 208) under it. No installer, game, dwwin or dumprep. Memory: 255 MB total, 124 MB free, 51% load. 255 MB is low for UT2004, BF1942 and Halo, so expect paging hitches; that is not a driver issue. C: has 256,215 of 305,244 MB free. GamesDir is C:\\Games with 47 title folders; GAMESYNC is idle and provisioned. Boot passes are all OK: GameResBoot 0 changed with verify wrong=0, QuakeBindsBoot 5 current, IpxSetupBoot active (NWLink, frame auto), MonitorPowerBoot never-sleep, FxPanelBoot 2 current, DriverUpdateBoot 0 devices.\n\nDocs that are stale (not edited, this run is read-only): the scripts/fleet/fleet-roster.txt note for .124, which docs/fleet-inventory.md (dated 10-03) renders, still says 'Rainbow Six fails with them'. The installed vcrdd.dll 95678704 fixed that. The same note says 'a 436 client cannot join the fleet 469e server, so this box has no route to UT99 multiplayer'. CLAUDE.md records that a retail 436 client DOES join (measured two-box 2026-08-30), and this box has a 'UT99 436 - Join Fleet Server' shortcut, so UT99 multiplayer is available here through the 436 client. docs/v56k-benchmark-plan.md also blames the SI Pseudo Device on DAEMON Tools; it belongs to the SiI3114.\n\nNoise worth knowing: on 11-10 the agent log shows 62 'Auth failed' connections from 192.168.1.132, one every 5 minutes. Some host poller is using the wrong agent secret against this box. Two agent instances start at logon (Run\\RetroAgent plus Run\\RetroAgentWD running agentwd.cmd) and only one survives, which is harmless. DriverPrefs still holds an entry for the old GeForce2 (10DE:0150 -> C:\\D\\G005\\nv4_disp.inf). It is harmless, because preferences for absent hardware never block.\n\nD: is the DAEMON Tools virtual drive and currently has System Shock 2's image mounted. The mount launchers re-mount their own image, but a stale disc of another game is the shape CLAUDE.md warns about.\n\nEvidence (raw, untracked, not committed) is in /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/audit-124/: the two minidumps, SysEvent.Evt/AppEvent.Evt with parsed sys.json/app.json and the parser scripts, every agent command output, and the live vcrdd.dll/vcrmp.sys. Every agent connection was closed gracefully. Nothing was launched, killed, written or rebooted on the box. The only EXEC was 'fsutil dirty query C:'."
+ },
+ {
+  "ip": "192.168.1.133",
+  "host": "P3-DUAL",
+  "reachable": true,
+  "os": "Windows XP Professional SP3 (5.1.2600), MPS Multiprocessor HAL; 2x Pentium III 701 MHz (Coppermine, SSE but no SSE2); 255 MB RAM; Intel 440BX/PIIX4E board; agent 1.98.0 (managed)",
+  "activation": "ACTIVATED. LICSTATUS: wpa observed=activated, activation_required=false; OOBETimer present; WGA absent. Activation does not block a reboot. (WPA 1005/1011 reminders in the Application log stop at 2026-09-29.)",
+  "display": {
+   "device": "NVIDIA GeForce4 Ti 4600 (NV25, 128 MB, AGP on a 440BX, subsys 1545:0037)",
+   "pci_id": "PCI\\VEN_10DE&DEV_0250&SUBSYS_00371545&REV_A3",
+   "driver_version": "6.14.10.9371 (ForceWare 93.71)",
+   "driver_date": "10-22-2006",
+   "driver_provider": "NVIDIA. Vendor oem1.inf (InfSection nv4), service nv -> nv4_mini.sys + nv4_disp.dll. The only OpenGL ICD is OpenGLDrivers\\RIVATNT -> nvoglnt. This is not Microsoft's in-box nv4.",
+   "status": "OK. Problem 0. It is the active adapter attached to the desktop (EnumDisplayDevices). Feature level sm1.x, DirectX 9.0c (4.09.00.0904). It has 3D: OpenGL, D3D and DDraw titles are all verified on this box, and it took part in the 10-13 and 10-15 whole-fleet rounds.",
+   "desktop_mode": "1280x1024x32 at 85 Hz, persisted and live, on a ViewSonic G790 CRT (VSC384D, 4:3 tube). GAMERES puts games at 1280x960 4:3 at 85 Hz. GameResBoot today: 33 titles, 0 values changed, verify ok=81 wrong=0.",
+   "is_3dfx": false
+  },
+  "other_display_or_3d": [
+   "No 3dfx silicon. Enum\\PCI has no VEN_121A key, HWPROFILE accelerators[] is empty, glide=false. No 3dfx ICD or Glide leftovers: RIVATNT/nvoglnt is the only OpenGL driver registered.",
+   "Video1 is the standard VgaSave fallback device. It is inactive and normal on XP."
+  ],
+  "audio": [
+   {
+    "device": "Creative SB Live! Value (EMU10K1)",
+    "pci_id": "PCI\\VEN_1102&DEV_0002&SUBSYS_80221102&REV_07",
+    "driver_version": "Creative WDM 5.12.2.252 (7-24-2002, oem3.inf EMU10K1_Device; ctaud2k.sys, ha10kx2k, emupia2k, ctsfm2k, ctoss2k; AudioHQ, Surround Mixer, CTHELPER)",
+    "status": "OK. Problem 0. waveOut has 1 device, 'SB Live! Audio [EF20]' (11/22/44 kHz 16-bit stereo). The kernel audio stack (kmixer, sysaudio, wdmaud) is loaded. No NO SOUND lines in the agent logs. HKLM\\Software\\RetroAgent\\AudioStackFix is absent: it was never needed."
+   },
+   {
+    "device": "Creative Game Port (SB Live! function 1)",
+    "pci_id": "PCI\\VEN_1102&DEV_7002&SUBSYS_00201102&REV_07",
+    "driver_version": "Creative oem4.inf, 3-18-2002 (CtlGamePort_Device, service gameenum), no DriverVersion",
+    "status": "Problem code 10 (device cannot start). This is the joystick port only and has no effect on sound."
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "Creative Game Port",
+    "hwid": "PCI\\VEN_1102&DEV_7002&SUBSYS_00201102&REV_07",
+    "state": "missing (problem 10)",
+    "note": "A driver is bound but the device will not start. Today at 11:00:15 the agent's startup DRIVERS UPDATE pass tried store S004\\ctljystk.inf and it failed with error 2148204816 = 0x800B0110 (CERT_E_WRONG_USAGE). DriverFixes is at 1 of 2, so the pass tries once more at the next boot and then stops. No staged game uses a gameport joystick."
+   },
+   {
+    "device": "SI Pseudo Device SCSI Processor Device",
+    "hwid": "SCSI\\ProcessorSI______Pseudo_Device___0000",
+    "state": "missing (no driver, problem 0, class Unknown)",
+    "note": "Silicon Image RAID management pseudo-device on the SiI3114's SCSI bus (Bus 3, Target 31). It normally has no driver and is harmless."
+   },
+   {
+    "device": "PC/AT PS/2 Keyboard (84-Key)",
+    "hwid": "ROOT\\*PNP0301\\1_0_22_0_32_0",
+    "state": "problem 24 (not present)",
+    "note": "No PS/2 keyboard is plugged in, so i8042prt logs SCM error 7026 at every boot. The USB HID keyboards in use (Dell 413C:2003 and a 30FA:1440 receiver) work. Harmless."
+   },
+   {
+    "device": "Microsoft PS/2 Mouse",
+    "hwid": "ROOT\\*PNP0F03\\1_0_21_0_31_0",
+    "state": "problem 24 (not present)",
+    "note": "A USB HID mouse is in use. Harmless."
+   },
+   {
+    "device": "RAID Controller (Silicon Image SiI 3114, the boot SSD's controller)",
+    "hwid": "PCI\\VEN_1095&DEV_3114&SUBSYS_71141095&REV_02",
+    "state": "ok, served by a LEGACY driver",
+    "note": "si3114r5.sys 1.5.20.3 runs as service Si3114r5 (Start=0), whose Enum points at Root\\LEGACY_SI3114R5. It was installed through the F6/txtsetup.oem route. The PCI devnode has no PnP driver, Service or Class key, which is why DRIVERS STATUS shows a blank provider and version. It works and the box boots from it. Same build as image store M070\\si3114r5.inf."
+   },
+   {
+    "device": "NEC USB OHCI x2 + EHCI (old Belkin USB 2.0 card, bus 0 device 19)",
+    "hwid": "PCI\\VEN_1033&DEV_0035&SUBSYS_00011799&REV_43 ; PCI\\VEN_1033&DEV_00E0&SUBSYS_00021799&REV_04",
+    "state": "ghost (not present)",
+    "note": "Enum keys with no Control subkey, so the card has been removed. Harmless leftovers. The USB in use is the PIIX4 UHCI."
+   }
+  ],
+  "crash_evidence": [
+   "ONE GPU HANG. C:\\WINDOWS\\Minidump\\Mini101426-01.dmp (84,551 B, md5 42f44e53dd70e159f9ef8c4696366e9a) is the only dump on the box. Parsed on the host: bugcheck 0xEA THREAD_STUCK_IN_DEVICE_DRIVER (P1=0xFF1E0598 thread, P2=0xFF17BF60, P3=0x8186BA80, P4=1). The CPU context points at nv4_disp.dll+0x1E94F (ForceWare 93.71, PE date 2006-10-22): the display driver was spinning on a GPU that had stopped responding.",
+   "System log sequence: 2026-10-14 16:18:50Z (12:18 EDT) 'nv' event 108 (\\Device\\Video0, nv4_disp). At 16:18:52Z the popup 'Display Driver Stopped Responding': XP's EaRecovery kept Windows up. The box was restarted at 16:38:47Z, then logged Save Dump 1001 and System Error 1003 0x000000EA. Watchdog\\Display reads EventCount=1, BugcheckTriggered=1, DriverName=nv4_disp: one event since this XP install (2026-08-17).",
+   "The game running at the time cannot be recovered. The agent log mirror (P3-DUAL-agent.log/.1) now starts 10-15/10-16, the host user journal starts 11-07, and no host game-server log from 10-14 names 192.168.1.133.",
+   "No other bugcheck: no MEMORY.DMP, no second minidump, and no other Save Dump or 1003 event in the System log back to 2026-08-17. Dr Watson and PCHEALTH\\ERRORREP folders are empty.",
+   "The GPU's interrupt is SHARED with the sound card. The translated RESOURCEMAP puts the GeForce4 (NTPNP_PCI0009) and the SB Live! (NTPNP_PCI0007, I/O 0xEF20) on the same vector, 0x1A3 / IRQL 9, under the MPS HAL. An EMU10K1 sharing with an AGP card is a known risk factor on 440BX-era boards. Whether it caused the 10-14 hang is unproven.",
+   "Disk event 51 (error during a paging operation on \\Device\\Harddisk0, the Samsung SSD 860 EVO 1TB behind the SiI3114): 2 on 08-17 and 6 on 08-29/30, none since. That is 75 days, including both October LAN rounds. SMART: 30,297 power-on hours, 0 reallocated sectors.",
+   "atapi event 9 on \\Device\\Ide\\IdePort1 (secondary IDE, the TEAC DVD+RW DV-W58E): 12 times between 08-30 and 10-16. The channel is still in UDMA2 (MasterDeviceTimingMode 0x2010, Allowed 0xFFFFFFFF), so it has not dropped to PIO. Staged games run from C:, so this does not touch them.",
+   "Application log: one dosbox.exe 0.74 crash (2026-08-31) and Thief2.exe SideBySide 'Microsoft.VC90.CRT not installed' (2026-08-29). Nothing since. No driver faults.",
+   "Agent logs (share mirror and C:\\RETRO_AGENT): no NO SOUND, no audio-stack messages, no crash or restart loops. Today's boot was clean: agent started 10:59, QuakeBindsBoot ok, GameResBoot 0 changed, IPX active.",
+   "HKLM Run still holds KernelFaultCheck = '%systemroot%\\system32\\dumprep 0 -k', and ErrorReporting has DoReport=1, ShowUI=1, IncludeKernelFaults=1. A 'Windows has recovered from a serious error' dialog can appear at logon, and a dwwin dialog after any game crash. Neither is on screen now: WINLIST shows only the screensaver, retro_chat and the minimized agent console."
+  ],
+  "recommendations": [
+   {
+    "component": "Display driver: NVIDIA GeForce4 Ti 4600 on ForceWare 93.71 (6.14.10.9371)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "This is the right driver. It is the vendor driver, not Microsoft's in-box nv4, and 93.71 is the last branch that supports NV25 on XP. It is the same build as image store I019\\nv4_disp.inf. 3D (OpenGL, D3D, DDraw) is proven on this box, including both October whole-fleet rounds. There is no compatibility reason to replace it.",
+    "candidate_package": "/mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/93.71_forceware_winxp2k_whql.exe (the installed build; keep for rollback)",
+    "needs_reboot": false
+   },
+   {
+    "component": "GPU stability: one nv4_disp hang (0xEA THREAD_STUCK_IN_DEVICE_DRIVER) on 2026-10-14",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "There is one hard GPU hang on record in about 86 days. If it happens during a round, the box stays up on 'Display Driver Stopped Responding' and needs a reboot. Make no driver change before the rounds; check .133 first if a round stalls. If it happens again, in this order: (1) check the Ti 4600's fan, heatsink and seating; (2) move the SB Live! to a PCI slot that does not share the AGP interrupt (today both use vector 0x1A3); (3) only then A/B test ForceWare 71.89, the fleet's PREFER.TXT choice for DEV_0250. That driver swap would need a reboot; activation does not block one.",
+    "candidate_package": "A/B fallback only: /mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/71.89_forceware_winxp2k.exe, or image store /mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/G005/nv4_disp.inf (DriverVer 04/01/2005, 7.1.8.9)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound: Creative SB Live! Value on Creative WDM 5.12.2.252",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Old but fine. waveOut has 1 device and the full Creative WDM stack plus kmixer, sysaudio and wdmaud are loaded. There is no audio-stack fault. The image store has a newer S004\\wdma_old.inf (6.0.01.1304, 2008), but nothing justifies swapping a working audio driver.",
+    "candidate_package": "",
+    "needs_reboot": false
+   },
+   {
+    "component": "Creative Game Port (problem 10)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "No staged title uses a gameport joystick, and the fault does not affect audio. The agent's automatic install of S004\\ctljystk.inf failed with 0x800B0110. It will retry once at the next boot (DriverFixes 1 of 2) and then stop. Disabling the device would silence it; that is the operator's choice.",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/S004/ctljystk.inf (already tried by the agent; fails)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Storage: SiI 3114 SoftRaid5 si3114r5.sys 1.5.20.3 (boot SSD), plus the driverless SI Pseudo Device",
+    "action": "none",
+    "priority": "low",
+    "rationale": "The controller is boot-critical and stable. The last disk warning was on 08-30, and SMART is clean. It runs as a legacy F6 driver, the same build as image store M070 and the share's F6 set. Changing it risks an unbootable box (0x7B), so do not touch it before the rounds. The pseudo device normally has no driver.",
+    "candidate_package": "/mnt/retro-share/Utility/Drivers/SIL3114/FLOPPY/si3114r5.inf (1.5.20.3, the installed build; reference only)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Windows Error Reporting: pending KernelFaultCheck (dumprep 0 -k) in HKLM Run, ShowUI=1",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "This is not a driver problem. A crash-report dialog at logon, or after a game crash, can take focus from a fullscreen game during unattended rounds. If that matters, the operator can acknowledge the report once or turn off ErrorReporting ShowUI. No dialog is open now.",
+    "candidate_package": "",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "VERDICT: no driver needs installing or updating on .133. Video (GeForce4 Ti 4600 on ForceWare 93.71, vendor driver, 3D working) and sound (SB Live! Value on Creative WDM, 1 wave device) are correct and old but fine. The one stability item is a single nv4_disp hang (0xEA) on 2026-10-14 at 12:18 EDT; watch the box during rounds.\n\nDRIVERS STATUS: 109 ok, 2 missing (Creative Game Port code 10; SI Pseudo Device with no driver), 2 problem (PS/2 keyboard and mouse, code 24), 0 generic, 0 disabled, 0 excluded_3dfx.\n\nPCISCAN reports 'stale_drivers:[0000]' and an empty pci_display_devices. That is a false positive on XP: PCISCAN looks for a Win9x-style Driver=Display\\NNNN binding, and XP's binding is {4D36E968-...}\\0000. The Enum\\PCI devnode for the GeForce does point at Class 0000.\n\nUptime: SYSINFO said 5,944 s at about 12:39 EST, so the box booted at 10:58:53 EST (EventLog 6005). It had been off since a clean shutdown on 2026-10-16 at 11:00 EDT. It came back by itself: AutoAdminLogon=1, ForceAutoLogon=1, DefaultUserName=admin, DefaultDomainName=P3-DUAL, DefaultPassword set.\n\nDisplay and disk: 1280x1024x32 at 85 Hz on a ViewSonic G790 CRT. RAM 255 MB total, 150 MB free, 617 MB pagefile. C: is a Samsung SSD 860 EVO 1TB on a SiI3114 add-in card, 871 GB free of 932 GB. D: is a TEAC DVD+RW on secondary IDE in UDMA2. E: is a DAEMON Tools 3.47 virtual drive with a 511 MB image mounted. Z: is the share. NIC is a Linksys LNE100TX v4 (ADMtek AN983, in-box netan983 2.12.507.2001), OK. IPX is active (NWLink, frame auto).\n\nProcesses: nothing stuck and no installer running. The Starfield screensaver is in the foreground. wuauclt.exe (Windows Update) is running and logged crypt32 authroot fetch errors today; kill it before any benchmark. Also running: daemon.exe, CTHELPER.EXE, nvsvc32, and the NvCpl/NvMcTray rundll32 helpers. HKLM Driver Signing Policy is permanently 00 (Ignore), left there by the manual ForceWare install.\n\nHistory (fleetbook): on 2026-08-16 the previous install had a boot hang, and the nv service was disabled to test VGA fallback. XP was reinstalled on 08-17 with ForceWare 93.71, and there have been no boot hangs since. The SB Live! went in on 08-20 with Creative's stack and AudioHQ. docs/fleet-inventory.md's .133 record is from 2026-10-03 (agent 1.97.1) and matches today's HWPROFILE.\n\nEvidence copied into the repo, untracked and not committed: /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/audit-133/. It holds the minidump, the raw SysEvent.Evt and AppEvent.Evt, the parsed sysevt.txt, appevt.txt, minidump-parsed.txt and irq-translated.txt, the agent JSON outputs, and the parser scripts.\n\nRead-only throughout: nothing was launched, killed, written or rebooted on the box. Only HWPROFILE, SYSINFO, VIDEODIAG, AUDIOINFO, DRIVERS STATUS, PCISCAN, LICSTATUS, DISPLAYCFG get, PROCLIST, WINLIST, MONPOWER, SMARTINFO, GAMESYNC STATUS, REGREAD, DIRLIST and DOWNLOAD were used, every connection was closed gracefully, and no EXEC was used."
+ },
+ {
+  "ip": "192.168.1.143",
+  "reachable": true,
+  "host": "1GHZ",
+  "os": "Windows XP SP3 (5.1.2600), DirectX 9.0c (4.09.00.0904), agent 1.98.0",
+  "activation": "Activated. LICSTATUS reports wpa observed=activated (ActivationRequired=false, grace 0), the OOBETimer is present and WGA is absent. A driver reboot will not hit an activation lockout. Still reboot through scripts/fleet/safe-reboot.py so the PXE hold is armed.",
+  "display": {
+   "device": "NVIDIA GeForce 6800 (NV40 AGP, 128 MB, VBIOS 5.40.02.12.65, subsystem 0000:0000). This is the ONLY live GPU; the Voodoo5 is a ghost (see other_display_or_3d).",
+   "pci_id": "PCI\\VEN_10DE&DEV_0041&SUBSYS_00000000&REV_A1 (PCI bus 1 dev 0 = the AGP slot)",
+   "driver_version": "6.14.10.7189 = ForceWare 71.89 (the registry reads DriverVersion 7.1.8.9). nv4_disp.dll, nvoglnt.dll and nv4_mini.sys on the box are all 6.14.10.7189 (PE 2005-04-01), a matched set.",
+   "driver_date": "2005-04-01",
+   "driver_provider": "NVIDIA, oem9.inf section nv4_NV3x. This is the image store's G005\\nv4_disp.inf, the driver PREFER.TXT names for DEV_0041.",
+   "desktop_mode": "Live mode is 1024x768x32 @100 Hz, forced at every logon by the Run value SetRefreshBoot (C:\\setrefresh_boot.vbs -> .bat -> C:\\setmode.exe 1024 768 32 100). The persisted mode is 1280x1024 @60 Hz. There is no EDID (Default Monitor), so GAMERES targets games at 1280x960 @60 Hz.",
+   "is_3dfx": false,
+   "status": "OK (problem 0), attached to the desktop. This is the CORRECT fleet-preferred driver; it is not missing and not wrong."
+  },
+  "audio": [
+   {
+    "device": "VIA AC'97 Audio Controller (WDM), the VT82C686A southbridge audio. The codec is not reported.",
+    "pci_id": "PCI\\VEN_1106&DEV_3058&SUBSYS_00000000&REV_20",
+    "driver_version": "ac97via.sys 5.10.0.3622 ('VIA Audio WDM Driver', 2002), the Windows XP in-box wdma_via.inf (DriverVer 5.0.0.0 12-1-1998, provider Microsoft)",
+    "status": "OK. 1 waveOut device 'VIA Audio (WAVE)' (11/22/44 kHz, 16-bit stereo). The Microsoft Kernel System Audio and WINMM WDM devices are present. There is no AudioStackFix value because the fix was never needed. Old but fine."
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "Standard Game Port (child of the VIA AC'97)",
+    "hwid": "VIAUDIO\\*PNPB02F\\4&59613B&0&0001",
+    "state": "problem 12 (not enough free resources)",
+    "note": "This duplicates the working ACPI game port (ACPI\\PNPB02F, ok); both claim 0x200. The agent's driver pass logs it as problem_not_driver_fixable. It is cosmetic and does not affect LAN play."
+   },
+   {
+    "device": "Voodoo5 5500 AGP (AmigaMerlin 3.1-R11), GHOST",
+    "hwid": "PCI\\VEN_121A&DEV_0009&SUBSYS_0002121A&REV_01\\4&9fd38ef&0&0008",
+    "state": "not present (phantom devnode with a live driver registration)",
+    "note": "Its LocationInformation is 'PCI bus 1, device 0, function 0', the same AGP slot and instance id the GeForce 6800 now occupies, so the card was physically swapped out. DRIVERS STATUS (present devices) counts excluded_3dfx=0, and FxPanelBoot says 'no present Banshee/Voodoo3/4/5'. It is still Display class 0001 (oem13.inf, 5.1.2605.5). The 3dfx rule applies: do not clean it up unless the operator asks."
+   }
+  ],
+  "other_display_or_3d": [
+   "GHOST Voodoo5 5500 AGP (121A:0009 SUBSYS_0002121A): no hardware present. Leftovers: Display class 0001 (AmigaMerlin oem13.inf), Control\\Video {93639CB2-...} (service 3dfxvs), and the Enum\\PCI key. HWPROFILE accelerators[], docs/fleet-inventory.md ('3dfx silicon: 1 card'), compat.py and FLEETRES all still count it.",
+   "OpenGLDrivers: RIVATNT (nvoglnt.dll 6.14.10.7189) is the live ICD. The 3dfx entry (system32\\3dfxogl.dll 708,608 B, a 2026-08-14 vintage SGL build) is stale. It is harmless, because opengl32 loads the ICD that nv4_disp names.",
+   "system32\\glide2x.dll (258,048 B) and glide3x.dll (339,968 B) are 2026-08-14 vintage-lane builds with no Voodoo to open, plus about 40 3dfx*/glide* .bak/.pre* copies left from the July V5 driver work.",
+   "The game-local nGlide wrappers are still ACTIVE: C:\\Games\\UnrealGold\\System\\glide2x.dll and C:\\Games\\Carmageddon2\\glide.dll/glide2x.dll/glide3x.dll (all 2026-08-27). They sit beside the *.nglide copies that the library switched to on 2026-10-01; GAMESYNC never deletes the old files. Because FR_GLIDE=1 comes from the ghost, the Unreal Gold launcher moves the wrapper aside at each launch and falls onto the board-less system32 glide2x.dll.",
+   "Leftovers from the 2026-08-27 ForceWare 93.71 attempt: nvapi.dll, nvcplui.exe, nvdisps.dll, nvgames.dll, nvmobls.dll and the HKLM\\SOFTWARE\\NVIDIA Corporation\\NVControlPanel key. There are also 2008-dated nvcuda.dll and nvudisp.exe. All are inert under 71.89.",
+   "The other display-class services are only VgaSave, NetMeeting mnmdd and RDPCDD (mirror drivers)."
+  ],
+  "crash_evidence": [
+   "C:\\WINDOWS\\Minidump holds 47 small dumps dated 2026-07-18 to 2026-08-31. There are NONE after 2026-08-31 20:00 UTC, and dumps are still enabled (CrashDumpEnabled=3, AutoReboot=1, C:\\pagefile.sys 192-384 MB).",
+   "GeForce 6800 era (card fitted about 08-20): 9 dumps. All are 0xEA or 0x100000EA THREAD_STUCK_IN_DEVICE_DRIVER with nv4_disp.dll + nv4_mini.sys 6.14.10.7189 (ForceWare 71.89) on the stack and viaagp.sys loaded. I read the EPROCESS name in each dump: the current process is Unreal.exe in 8 of them (08-29 19:30, 08-29 22:08, 08-30 02:54, 08-31 04:25, 08-31 04:37 at 208 s uptime, 08-31 04:40 at 149 s uptime, 08-31 14:55, 08-31 20:00). The 9th (08-21 00:53) has retro_agent.exe current, a GDI call stuck in nv4_disp; its cause is unproven. FINDINGS 2026-08-31 independently records the box hard-resetting when Unreal.exe initialises D3DDrv or GlideDrv. The 2026-09-26 fleetbook diagnosis had all 9 as 0xEA in nv4_disp but never tied them to Unreal Gold.",
+   "Voodoo era: 38 dumps from 07-18 to 08-03 (0xEA or 0x1000008E with the EIP in 3dfxv5d.dll, from the vintage V5 display-driver development). That card is gone, so these say nothing about the current hardware.",
+   "Dr Watson (drwtsn32.log, last written 2026-09-02) holds only 9 entries: hl.exe access violations on 08-31 14:53-15:19 (8 of them, in hw.dll) and one on 09-01 22:37. Nothing since. The earlier nvoglnt c000001d history from 93.71 has been cleared from this log; FINDINGS 2026-08-29 documents it.",
+   "The System event log has been FROZEN since 2026-08-04 16:53 (last record #2554). 52 records dated 2033/2036 cannot age out under the 7-day Retention, so the full 512 KB log accepts nothing new. The last Save Dump (1001) event is the 08-03 one; no 6008 or 1001 is recorded for anything later.",
+   "No crash in these sessions since 09-01: the 09-01 staged-title session, the 09-26 Quake II timedemos, the 09-29 UT2003/UT2004 tests, and the 10-13 whole-fleet LAN (CS, Q2, Q3, UT99-436, UT2004, SSam TFE and TSE all ran on .143, per .claude/evidence-lanparty-2026-10-13). Today's boot at 10:58 has about 1 h 40 m of uptime at audit time, and the box is idle. The agent log mirror has no NO SOUND, watchdog or hang lines, and the previous agent log ended with a clean shutdown.",
+   "Evidence is copied to /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/audit-143/ (minidumps/, raw/ with SysEvent.Evt, drwtsn32.log and every command output, minidump-summary.txt, plus the parsers mdump.py and evt.py)."
+  ],
+  "recommendations": [
+   {
+    "component": "Unreal Gold CLIENT (C:\\Games\\UnrealGold\\System\\Unreal.exe) on GeForce 6800 / ForceWare 71.89",
+    "action": "investigate",
+    "priority": "high",
+    "rationale": "This is the box's only reproducible BSOD trigger. Unreal.exe was the current process in 8 of the 9 0xEA nv4_disp hangs since the GeForce went in, and FINDINGS 08-31 saw the box reset on Unreal's D3DDrv/GlideDrv init (D3DDrv otherwise fails with 'No fullscreen display modes found'). The compat DB already marks UnrealGold 'failed' on .143. For the LAN rounds, treat the Unreal Gold client as not supported on .143 and leave it out. The UCC dedicated server ('Host Unreal Gold LAN.bat') never touches a renderer and is documented as safe. No driver change is available as a fix (see the display row). Any renderer experiment (SoftDrv, or OpenGLDrv at a listed mode) needs a supervised session, not a whole-fleet round.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Display driver: NVIDIA GeForce 6800 (10DE:0041) on ForceWare 71.89 (6.14.10.7189)",
+    "action": "none",
+    "priority": "medium",
+    "rationale": "Do NOT update. The CPU is an Athlon K75 with NO SSE. scripts/pxe/driver-prefs.txt and PREFER.TXT deliberately pin DEV_0041 to C:\\D\\G005\\nv4_disp.inf (71.89), the newest ForceWare without unconditional SSE. 93.71 was installed on 08-27 and every OpenGL game then died with c000001d (cvtsi2ss) in nvoglnt until 71.89 went back on 08-29 (FINDINGS 2026-08-29). The usual GeForce 6/7 end-of-line choices (93.71, 307.83) would break OpenGL here, and so would every other package on the share (93.81, 94.24, 175.19, 307.83, image store I019 = 93.71, G003 = 270.61 mobile). The installed files are a matched 71.89 set, and the box has been crash-free in use since 09-01.",
+    "candidate_package": "Repair reinstall only: /mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/71.89_forceware_winxp2k.exe, or the image store copy /mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/G005/nv4_disp.inf",
+    "needs_reboot": false
+   },
+   {
+    "component": "Ghost Voodoo5 5500 AGP + AmigaMerlin 3.1-R11 and vintage Glide/SGL leftovers (oem13.inf, Display class 0001, 3dfxvs Video key, OpenGLDrivers\\3dfx, system32 glide2x/glide3x/3dfxogl)",
+    "action": "do_not_touch_3dfx",
+    "priority": "medium",
+    "rationale": "The card has been physically removed; the GeForce sits in its AGP slot. The leftovers are harmless to the GeForce desktop but mislead tooling: the fleet inventory, compat DB and FLEETRES all believe .143 has Glide silicon. FR_GLIDE=1 makes Glide-aware launchers (Unreal Gold, possibly Carmageddon2) drop their nGlide wrapper for a system32 Glide that has no board to open. Under the 3dfx rule, cleanup needs an explicit operator request (gpu-driver-cleanup skill with ALLOW3DFX) and a reboot. The code-side fix in the next row avoids touching any driver.",
+    "needs_reboot": true
+   },
+   {
+    "component": "Tooling: FLEETRES glide_probe() and HWPROFILE accelerators[] (hwextra_emit_accelerators)",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "Both read HKLM\\...\\Enum\\PCI. XP keeps phantom devnodes there, so a removed card still counts as present. Requiring a PRESENT devnode (SetupDi DIGCF_PRESENT, or CM_Locate_DevNode without the PHANTOM flag) would fix FR_GLIDE and the inventory on .143 without touching a 3dfx driver. The stale prose should also be corrected: fleet-roster.txt says 'The Voodoo5 5500 is the SECOND adapter', and CLAUDE.md lists .143 as Glide silicon.",
+    "needs_reboot": false
+   },
+   {
+    "component": "System event log (C:\\WINDOWS\\system32\\config\\SysEvent.Evt)",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "The log has been wedged full since 2026-08-04 by future-dated records (2033/2036, from an old clock error) under the 7-day retention, so it has recorded nothing for 3 months. Any LAN-day 6008/1001/disk event would be lost. Clearing it, or setting it to overwrite as needed, is an operator change and needs no reboot.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound: VIA VT82C686A AC'97 (1106:3058 SUBSYS_00000000) on the XP in-box VIA WDM driver",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Sound works: 1 waveOut device, KS stack registered, ac97via.sys never on a crash stack. The image store offers only subsystem-specific Realtek/SigmaTel AC'97 INFs, plus a class-code Realtek ALC match (S007\\Alcxau.inf) that would be wrong unless the codec is a Realtek. There is no reason to change it.",
+    "needs_reboot": false
+   },
+   {
+    "component": "AGP path: VIA 1106:8598 bridge with the XP SP3 viaagp.sys 5.1.2600.5512",
+    "action": "none",
+    "priority": "low",
+    "rationale": "The GART filter is loaded in every dump. The August hangs trace to Unreal.exe, not to a general AGP fault, and there have been no dumps in 10 weeks, including a 7-title LAN round. If AGP is ever implicated: 71.89's nv4_mini.sys honours EnableVia4x, EnableAGPFW, EnableAGPSBA and ReqAGPRate (strings confirmed in the binary) for an AGP 2x / no Fast Writes fallback, and VIA packages are on the share.",
+    "candidate_package": "Only if AGP is implicated: /mnt/retro-share/Files/Drivers/VIA/Chipset/4in1435v.zip (older VIA chipsets) or /mnt/retro-share/Files/Drivers/VIA/Chipset/via_hyperionpro_v524a.zip",
+    "needs_reboot": false
+   },
+   {
+    "component": "Standard Game Port VIAUDIO\\*PNPB02F (problem 12)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "A resource-conflict duplicate of the working ACPI game port. Not driver-fixable and irrelevant to LAN play.",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "VERDICT: no driver needs installing or updating on .143. Video is the correct fleet-pinned ForceWare 71.89, and sound works on the XP in-box VIA AC'97 driver (1 wave device). The one real stability risk is a single title: Unreal Gold's client hangs the GeForce (0xEA in nv4_disp), so keep it off .143 in the rounds.\n\nBox state at audit time (2026-11-11 12:35-12:50, read-only):\n- Uptime about 1 h 38 m (booted 10:58).\n- RAM 511 MB with 372 MB free (27% load). C: has 133,139 of 228,926 MB free.\n- Idle: Starfield screensaver running, no installer or game alive. Running extras: nvsvc32, DAEMON Tools 3.47 (E: BZONE.iso and G: STARCRAFT.ISO auto-mounted from Run keys) and retro_chat.\n- PowerStrip is installed but parked (HKLM\\Software\\RetroAgent\\Parked). There are no CoolBits or overclock keys and no RivaTuner.\n\nCPU: AMD Athlon K75, family 6 model 2, 1000 MHz. The only instruction-set extras are fpu, mmx, cmov and 3dnow; there is NO SSE or SSE2. Any driver or game that uses SSE unconditionally faults with c000001d, which is why the NVIDIA driver is pinned.\n\nChipset: the PCI ids read as VIA 1106:0691 rev 02 host bridge + 1106:8598 AGP bridge + VT82C686A southbridge. The NIC is a CNet PRO200WL (DM9102) on the in-box driver, and IPX is active.\n\nDisplay and refresh:\n- The monitor has no EDID ('Default Monitor'), and NVIDIA offers up to 170 Hz at 1280x1024.\n- GAMERES therefore deliberately keeps games at 60 Hz: target 1280x960@60, verify ok=83 wrong=0.\n- Separately, a V5-era logon batch forces the desktop to 1024x768@100 while the persisted mode stays 1280x1024@60.\n- Result: fullscreen titles run at 60 Hz on this CRT. The 09-26 diagnosis saw Quake II at 60 fps, and 100 fps only with refreshkeep 100. This is a quality issue, not a stability one.\n\nAgent quirks seen:\n- PCISCAN is unreliable on this box. It returns pci_display_devices [] and lists both display-class keys, including the live GeForce, as stale_drivers, which contradicts DRIVERS STATUS and HWPROFILE.\n- A host-side poller from 192.168.1.132 fails auth every 5 minutes (11:02:16, 11:07:16, ...). Harmless.\n\nFrom the 10-13 LAN evidence: .143's Counter-Strike window was the 'Bcs16 Romania' BCShield install in Program Files, not the staged CounterStrike16 tree, and it did not appear on the server. UT2004 and SSam also ran without being named on the server. These are round details for the planners.\n\nNot written anywhere, because this was a read-only, no-commit run: the Unreal.exe-to-0xEA attribution, the wedged event log and the ghost-V5 probe defect belong in retro-3dfx/FINDINGS.md and a fleetbook 'diagnosis only' entry for .143, by whoever owns commits.\n\nAll connections were closed gracefully, and nothing on the box, library or servers was changed. Evidence is in /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/audit-143/."
+ },
+ {
+  "ip": "192.168.1.171",
+  "host": "NSC-5B996B81319",
+  "reachable": true,
+  "os": "Windows XP Service Pack 3 (5.1.2600), retro agent 1.98.0",
+  "activation": "Activated. LICSTATUS wpa: observed=activated, ActivationRequired=0 (Windows' own WMI verdict). The Winlogon 'Activation Required' flag is absent, OOBETimer is present and WGA is absent. The box is safe to reboot from an activation standpoint (still use scripts/fleet/safe-reboot.py). Caveat: the agent logs 'activation not restored: no saved activation for machine NSC-5B996B81319-10807D23', so there is no WPASAVE backup and a re-image would need a fresh activation.",
+  "display": {
+   "device": "NVIDIA GeForce FX 5500 (NV34, 256 MB): a PCI card on PCI bus 1 behind the ICH5 PCI bridge (the chipset enumerates no AGP bridge), generic board SUBSYS_00000000 REV_A1",
+   "status": "ok - problem 0, attached to the desktop. Full hardware acceleration: no Acceleration.Level override on the nv4_disp video key and no DirectDraw/Direct3D emulation flags. NVIDIA OpenGL ICD registered (OpenGLDrivers\\RIVATNT -> nvoglnt). DirectX 9.0c (4.09.00.0904).",
+   "driver_version": "6.14.11.7519 (ForceWare 175.19)",
+   "driver_date": "2008-05-16",
+   "driver_provider": "NVIDIA - oem9.inf, desktop nv4_disp INF section nv4_NV3x (not a mobile/nv4_go INF, not Microsoft's in-box nv4)",
+   "pci_id": "PCI\\VEN_10DE&DEV_0326&SUBSYS_00000000&REV_A1",
+   "desktop_mode": "1280x1024x32 @ 85 Hz, persisted = live (Hardware Profile nv\\Device0). AOC Spectrum CRT, EDID EPID995, panel max 160 Hz. GAMERES game target 1280x960 (4:3) @ 85 Hz.",
+   "is_3dfx": false
+  },
+  "other_display_or_3d": [
+   "Intel 82865G integrated graphics (PCI\\VEN_8086&DEV_2572&SUBSYS_019D1028&REV_02): enabled, problem 0, on Intel driver 6.14.10.4396 (2005-09-20, oem5.inf, section i865G), and NOT attached to the desktop (Hardware Profile 0001: ialm\\Device0 Attach.ToDesktop=0, nv\\Device0 Attach.ToDesktop=1; only a Default_Monitor hangs off it). This is the state the 2026-09-23 blank-screen fix left (fleetbook recipe #80) and it still holds. Its Run-key tray apps (igfxtray/hkcmd/igfxpers) are not running.",
+   "OpenGL ICDs registered: RIVATNT -> nvoglnt.dll (NVIDIA, what games use on the attached FX) and Intel -> iglicd32. There is no 3dfx ICD entry.",
+   "No 3dfx silicon: Enum\\PCI has no VEN_121A key (14 PCI devnodes, all present, no ghosts). The Voodoo 2 SLI pair was pulled 2026-09-23 and is now in .243. Its Ntremap/fxptl/fxgpio services and every system32 glide*/3dfx* file are gone; only an orphaned system32\\fxoem2x.dll (47 KB) remains, which is harmless. C:\\Games\\Quake2Complete still has the library's 3dfxgl.dll, used only by the Glide-gated '- Voodoo' launchers, which are not on this desktop and themselves check for GLIDE2X.DLL. HWPROFILE: glide=false, accelerators=[]."
+  ],
+  "missing_or_problem_devices": [],
+  "audio": [
+   {
+    "device": "SoundMAX Integrated Digital Audio - Intel 82801EB (ICH5) AC'97 controller with an Analog Devices ADI 198x codec (Dell subsystem 019D1028)",
+    "pci_id": "PCI\\VEN_8086&DEV_24D5&SUBSYS_019D1028&REV_02",
+    "driver_version": "5.12.1.5246 (Analog Devices, 2005-01-27, smwdm.sys, oem7.inf section WDM_LAPZ)",
+    "status": "ok - problem 0. waveOut has 1 device ('SoundMAX Digital Audio', 11/22/44 kHz 16-bit stereo). The WDM kernel audio stack is registered (Microsoft Kernel System Audio Device and WINMM WDM Audio Compatibility Driver present). There is no HKLM\\Software\\RetroAgent\\AudioStackFix value, so gs_audio_stack_check never needed to act. smax4pnp.exe is running and the System log has no audio events."
+   }
+  ],
+  "wave_out_devices": 1,
+  "crash_evidence": [
+   "C:\\WINDOWS\\Minidump is empty (CrashDumpEnabled=3 small dumps, AutoReboot=1), so there is no BSOD on record. The System log has 0 Save Dump/bugcheck records and 0 event 6008 (unexpected shutdown).",
+   "The System log holds 33 boots and 28 clean shutdowns (6006). 4 sessions ended with no clean-shutdown record, all before 2026-09-30: imaging, the Voodoo 2/865G test period, and the 2026-09-29 power cut. For the last one the RTC reset to the BIOS date, which proves mains power was removed, so it was not a crash. All 7 sessions since then ended in a clean shutdown (last 2026-10-16 11:01; current boot 2026-11-11 10:57).",
+   "System errors/warnings since 2026-09-30: only 2x Server 2505 at 2026-10-03 08:14:13, 3 s after the agent installed IPX/NWLink (IpxInstalledAt 08:14:10; this is the NetBIOS-over-IPX transport bind), and 2x W32Time 36 (no time sync). No display, nv or audio driver events.",
+   "Application log: no 'Application Error' crash records at all. There is one Application Hang of quake2.exe stamped 2004-11-08 04:03, from the bogus-clock era of the Voodoo 2/Glide testing.",
+   "Dr Watson user.dmp (82 KB, stamped 2004-11-08 10:52:52 by the wrong clock, i.e. before 2026-09-29): quake2.exe access violation 0xC0000005 at 0x010F9000 (outside every module), 3 s after start. Game-local retrogl.dll (MesaFX, built 2026-08-29) and system32 glide3x.dll 3.3.0.670 / 3dfxspl3.dll were loaded. This is the pre-0.1.42 glapi-stub bug that the fleetbook already triaged as stale on 2026-08-29 (DrWatson NumberOfCrashes=3, all from then). retrogl.dll and the system32 Glide DLLs are now gone from this box. AeDebug Auto=0, so Dr Watson no longer auto-dumps and the event log is the authoritative record.",
+   "PCHEALTH\\ERRORREP queue is empty. SMART is healthy: ST3200820A 200 GB, 38 C, 6413 power-on hours, 0 reallocated sectors.",
+   "Agent log mirror on the share (covers 2026-10-14 to 11-11): no NO SOUND, watchdog or driver lines; the startup driver pass logs '0 installed, 0 device(s) looked at'. One agent-only oddity: on 2026-10-15 at 19:54 the agent got CTRL_CLOSE_EVENT (its console window was closed). Its 20:13 relaunch died silently during startup (the log stops after 'calling try_service_start()'), so the box ran with no agent until its clean Windows shutdown at 2026-10-16 11:01. Windows itself did not crash."
+  ],
+  "recommendations": [
+   {
+    "component": "Video: NVIDIA GeForce FX 5500 (PCI, 10DE:0326) on ForceWare 175.19",
+    "action": "none",
+    "priority": "low",
+    "rationale": "This is the correct vendor driver and the newest one that exists for this card: 175.19 (6.14.11.7519) is NVIDIA's last XP release for the GeForce FX family and the fleet's FX choice. It uses the desktop INF (nv4_NV3x), reports problem 0, is attached to the desktop with full acceleration, and the NVIDIA ICD is registered. There have been no display errors, minidumps or unexpected shutdowns since it was installed on 2026-09-23. Change nothing; the package below is listed only as the reinstall/rollback source.",
+    "candidate_package": "\\\\192.168.1.122\\files\\Files\\Drivers\\Nvidia\\Win2K-XP\\175.19_forceware_winxp_whql.exe (38,674,984 B; /mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/175.19_forceware_winxp_whql.exe). An extracted copy is also on the box at C:\\NV17519.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Audio: SoundMAX AC'97 (ICH5 8086:24D5, Dell 019D1028) on ADI driver 5.12.1.5246",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Old but fine. It is the vendor driver for this exact Dell subsystem id, the wave device is present, the kernel audio stack is registered and there are no errors. The image store holds a slightly newer build (5.12.01.7000, 2005-03-22) for the same id, but there is no stability reason to replace a working driver; it is listed only in case sound ever breaks.",
+    "candidate_package": "\\\\192.168.1.122\\files\\Files\\OS\\XPSP3-FLEET\\$OEM$\\$1\\D\\T069\\smwdmCH5.inf (names pci\\ven_8086&dev_24D5&subsys_019D1028 -> WDM_LAPZ; DriverBuildID 5.12.01.7000)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Video: Intel 82865G onboard graphics (8086:2572), secondary and detached",
+    "action": "none",
+    "priority": "low",
+    "rationale": "An unused secondary adapter on Intel's own driver, detached from the desktop with no monitor. Leave it as is: re-attaching or uninstalling it risks repeating the 2026-09-23 blank-screen problem (desktop drawn on the onboard port). Consider disabling Integrated Video in the Dell BIOS only if a title is ever seen choosing the detached Intel adapter; nothing points to that today.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Fleet image: PREFER.TXT maps PCI\\VEN_10DE&DEV_0326 to G005 (ForceWare 71.89), not 175.19",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "An image-level inconsistency, not a fault on this install. The share's PREFER.TXT line 'PCI\\VEN_10DE&DEV_0326 -> C:\\D\\G005\\nv4_disp.inf' points at DriverVer 04/01/2005, 7.1.8.9 (driver-prefs.txt's NV1x choice), as do the other NV3x ids listed with it. It cannot fire on this install: C:\\D was reclaimed and HKLM\\Software\\RetroAgent has no DriverPrefs records, so nothing can force 71.89 over 175.19, and DRIVERS UPDATE only touches missing or generic devices. But a re-image of .171 would force-install 71.89 onto the FX 5500 at first logon. The store holds no 175.19 tree: G003 is 270.61 including the mobile nv4_go, and G004 is 266.58, both GeForce 6+. After any re-image, reinstall 175.19 from the share, or give NV3x its own driver-prefs line with a staged 175.19 tree.",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/PREFER.TXT (line 85) -> G005/nv4_disp.inf (7.1.8.9). Intended driver: \\\\192.168.1.122\\files\\Files\\Drivers\\Nvidia\\Win2K-XP\\175.19_forceware_winxp_whql.exe",
+    "needs_reboot": false
+   },
+   {
+    "component": "CMOS battery / RTC (Dell Phoenix ROM BIOS PLUS 1.10 A02, 11/08/04)",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "Not a driver issue, but it affects readiness if the box is moved. The RTC resets to the BIOS build date (SystemBiosDate 11/08/04) whenever mains power is removed. Evidence: ClockFixed reads 'from 2004-11-08 04:10:38 to 2026-09-29 17:28:52 UTC'; the 2026-09-29 power cut was followed by a boot stamped 2004-11-07 23:10 local; and many boots during the Aug-Sep hardware swaps carry 2004 stamps. That points to a dead or weak CR2032. It is harmless while the box stays plugged in, since the clock has held since 2026-09-29. If it is unplugged or moved for the LAN party, expect the clock (and probably the BIOS settings) to reset, and the Dell POST may stop for F1. Windows is activated, so clockfix will correct the time at the next agent start. Raise to medium if the box will be moved; replacing the battery fixes it.",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "No driver install or update is needed on .171; nothing blocks 3D or sound for the LAN rounds. DRIVERS STATUS reports 112/112 devices ok (0 missing, problem, generic, disabled or excluded_3dfx).\n\n- Uptime: SYSINFO read 5842 s (about 1 h 37 min) at audit time; booted 2026-11-11 10:57 EST.\n- Hardware: Pentium 4 2.8 GHz (SSE2/SSE3), 509 MB RAM (359 MB free), Dell 865G-family board. No AGP bridge enumerates, so the FX 5500 is a PCI card. That is fine for 1998-2001 titles and the slowest path for 2003-04 DX9 titles.\n- Disk: C: has 25.4 GB free of 93 GB. The ST3200820A also carries a second ~93 GB partition with no drive letter (seen as a STORAGE\\VOLUME devnode; not inspected).\n- Display and resolution: GameResBoot reads '34 titles, 0 values changed, verify ok=83 wrong=0 absent=0'. There is no ResCapW/H, so the old Voodoo-2-era 800x600 cap is gone. MONPOWER: the monitor never sleeps. IPX is active.\n- Processes look normal and no installer is stuck: nvsvc32, two NVIDIA rundll32 tray processes (NvCpl, NvMcTray), smax4pnp, daemon.exe (DAEMON Tools 3.47; virtual drive E: currently has a 511 MB image mounted), wscntfy, and the starfield screensaver (box idle).\n- PCISCAN caveat: its 'stale_drivers 0000/0001' and empty pci_display_devices are a PCISCAN artifact on NT. It only recognises Win9x-style 'Display\\NNNN' Driver values, while XP stores '{4D36E968-...}\\NNNN' (confirmed on the FX devnode). Not a fault; do not act on it.\n- Side effect of this audit: the read-only 'wmic ntevent' queries run through EXECW left an empty C:\\TempWmicBatchFile.bat. wmic always does this when run non-interactively; I left it in place under the no-change rule.\n- Cosmetic clutter: C:\\ holds about 56 zero-byte files with quote-mangled names ('DEV_0002', 'operable', 'The', ...) from a mis-quoted command loop on 2026-08-30/31.\n- Host-side probe: 192.168.1.132 opens port 9898 every 5 minutes and closes without authenticating; the agent logs it as 'Auth failed'. Harmless to the box.\n- docs/fleet-inventory.md still shows the 2026-10-03 snapshot (agent 1.97.1). The box republished its record today (HwPublished 2026-11-11 10:59).\n- Raw evidence (69 files: DRIVERS STATUS, HWPROFILE, AUDIOINFO, registry reads, event-log CSVs, the agent log copy, parsed Dr Watson dump) is in /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/driver-audit-171/. Nothing was committed, launched, killed or changed on the box."
+ },
+ {
+  "ip": "192.168.1.184",
+  "host": "NSC-CABE14B7486",
+  "reachable": true,
+  "os": "Windows XP Professional SP3 (5.1.2600, uniprocessor), agent 1.98.0",
+  "activation": "Activated. LICSTATUS wpa=activated, ActivationRequired=false (WMI), OOBETimer present, Winlogon flag absent. The fleetbook records a remote activation on 2026-09-26. A driver reboot is therefore safe from the activation side, but still use scripts/fleet/safe-reboot.py. The agent's boot log also says 'activation not restored: no saved activation for machine NSC-CABE14B7486-0C92E9DE'. That means no WPASAVE backup exists, so a re-image would need re-activation.",
+  "display": {
+   "device": "NVIDIA GeForce2 GTS/GeForce2 Pro (NV15, 32 MB, AGP 2x on an Intel 440BX)",
+   "pci_id": "PCI\\VEN_10DE&DEV_0150&SUBSYS_002E10DE&REV_A4",
+   "driver_version": "7.1.8.9 (ForceWare 71.89)",
+   "driver_date": "2005-04-01",
+   "driver_provider": "NVIDIA",
+   "desktop_mode": "1024x768x32 @ 85 Hz. Persisted and live modes match. GAMERES target is 1024x768 4:3 @ 85. Monitor is a ViewSonic A90 CRT, EDID 1280x960@85 preferred.",
+   "is_3dfx": false,
+   "status": "OLD-BUT-FINE: the correct vendor driver and the fleet's end-of-line choice. It is the active adapter (EnumDisplayDevices), problem 0, oem1.inf = C:\\D\\G005\\nv4_disp.inf. That is the PREFER.TXT build for DEV_0150, force-installed by the agent's preference pass (HKLM\\Software\\RetroAgent\\DriverPrefs = 'ok C:\\D\\G005\\nv4_disp.inf'). The OpenGL ICD (RIVATNT -> nvoglnt) is registered and DirectX 9.0c is present. In the 2026-10-13 whole-fleet round on this box, UT2004 (D3D) and CS 1.6, Q2 and Q3 (OpenGL) rendered in-game. No crash or event points at the display driver."
+  },
+  "audio": [
+   {
+    "device": "Creative Sound Blaster AWE64 (ISA PnP CTL00E4), 16-bit Audio (SB16 compatible) (WDM)",
+    "driver_version": "5.1.2535.0, Microsoft in-box wdma_ctl.inf / ctlsb16.sys (96,256 B, 2001-08-17)",
+    "pci_id": "ISAPNP\\CTL00E4_DEV0000\\1362146E (ISA card, no PCI id; matched *CTL0045)",
+    "status": "OLD-BUT-FINE and working. Problem 0. waveOut has 1 device, 'Sound Blaster AWE64' (11/22/44 kHz, stereo, 16-bit). Creative never shipped an XP driver for the AWE64, so the in-box WDM driver is the only one there is."
+   },
+   {
+    "device": "Creative AWE64 Wavetable MIDI (EMU8000, AWE32 compatible) (WDM)",
+    "driver_version": "5.1.2535.0 (wdma_ctl.inf)",
+    "pci_id": "ISAPNP\\CTL00E4_DEV0002\\1362146E",
+    "status": "OK, problem 0"
+   },
+   {
+    "device": "Game Port for Creative",
+    "driver_version": "5.0.0.0 (gameport.inf)",
+    "pci_id": "ISAPNP\\CTL00E4_DEV0001\\1362146E",
+    "status": "OK, problem 0"
+   },
+   {
+    "device": "XP kernel audio stack (Microsoft Kernel System Audio Device, WINMM WDM Audio Compatibility Driver, Kernel Wave Audio Mixer)",
+    "driver_version": "5.1.2535.0 (wdmaudio.inf)",
+    "status": "OK. sysaudio and wdmaud are registered (SW\\{...} devnodes present). HKLM\\Software\\RetroAgent\\AudioStackFix is absent because it was never needed. No 'NO SOUND' line in the agent logs."
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "'RAID Controller' = Silicon Image SiI3114 SATA card (controller for the boot disk)",
+    "hwid": "PCI\\VEN_1095&DEV_3114&SUBSYS_71141095&REV_02",
+    "state": "DRIVERS STATUS says missing (class Unknown, problem 0), but the device is WORKING",
+    "note": "Runs SI3114.sys 1.3.11.0, Silicon Image's SATALink base miniport (md5 a812952a..., identical to the image's I386 and D\\M077 copies). Textmode installed it as a boot-start service (Services\\SI3114 Start=0, Enum -> Root\\LEGACY_SI3114), so no INF is bound to the PCI node. Silicon Image's INFs in the store map the subsystem IDs as follows: 31141095 = base M077, 61141095 = RAID M076, 71141095 = RAID5 M070. So this card has the RAID5 BIOS under the base driver. DRIVERS UPDATE skips it (it only targets devices with a problem code). Do not DRVUPDATE an INF onto it."
+   },
+   {
+    "device": "Standard 101/102-Key or Microsoft Natural PS/2 Keyboard",
+    "hwid": "ACPI\\PNP0303\\4&2658D0A0&0",
+    "state": "problem 24",
+    "note": "Nothing is plugged into the PS/2 port. Input is USB HID: a Cypress 04B4:0101 keyboard and a 30FA:1440 receiver (keyboard and mouse), all OK. i8042prt logs SCM 7026 at every boot. Cosmetic."
+   },
+   {
+    "device": "PS/2 Compatible Mouse",
+    "hwid": "ACPI\\PNP0F13\\4&2658D0A0&0",
+    "state": "problem 24",
+    "note": "Same cause: a USB HID mouse (30FA:1440) is in use. Cosmetic."
+   }
+  ],
+  "other_display_or_3d": [
+   "No 3dfx/Glide silicon: HWPROFILE glide=false, accelerators [] and Enum\\PCI has no VEN_121A. Turok 2's Glide launcher raised 'glide3x.dll was not found' here on 2026-08-31.",
+   "Monitor: ViewSonic A90 19in CRT (DISPLAY\\VSC504E) on the generic Plug and Play Monitor driver (monitor.inf). EDID is read (1280x960@85 preferred, up to 180 Hz). Fine.",
+   "AGP: the Intel 82443BX AGP bridge (8086:7191) runs on the in-box agp440.sys (boot start, device problem 0). The GART is active and no chipset driver is needed.",
+   "OpenGL ICD RIVATNT -> nvoglnt.dll is registered. DirectX 9.0c (4.09.00.0904).",
+   "PCISCAN shows pci_display_devices [] and lists class key 0000 under 'stale_drivers'. That is a PCISCAN artifact on this box, not a ghost driver: VIDEODIAG, HWPROFILE and DRIVERS STATUS all show 10DE:0150 bound to class key 0000 with problem 0."
+  ],
+  "crash_evidence": [
+   "No kernel crash dumps since the 2026-08-29 image. C:\\WINDOWS\\Minidump was never created and C:\\WINDOWS has no *.DMP. With CrashDumpEnabled=3 and AutoReboot=1, any bugcheck would have left one. pchealth\\ERRORREP does not exist.",
+   "System event log, downloaded and parsed (356 records, 2026-08-29 to 2026-11-11): no 6008 unexpected-shutdown, no Save Dump 1001 or System Error 1003, and no nv4/display or ctlsb16/sysaudio events. 18 boots. Three boots have no clean 6006 before them (08-29 19:49 at the end of setup, 09-02 01:43 and 09-29 17:29 UTC), yet no 6008 was logged for any of them.",
+   "STABILITY FINDING: 47 Disk event 51 (paging-operation error on \\Device\\Harddisk0, the only disk, a Hitachi HTS545016B9A300 on the SiI3114 card, SCSI bus 3). 46 came in a burst on 2026-09-01 04:01-04:18 UTC, followed by a clean shutdown; 1 came at today's boot, 2026-11-11 15:59:27 UTC. Decoded, every one is a READ(10) of 32 KB with SrbStatus ERROR + CHECK CONDITION and sense key 0Bh ABORTED COMMAND, ASC/ASCQ 00/00, plus one SRB_STATUS_BUS_RESET. All were flagged as retried, at scattered LBAs (about 77M-90M and 150M-170M). SMART shows reallocated 0, 28 C, 1773 power-on hours. That points to the link, cable, power or controller, not the media.",
+   "Dr. Watson and Application log event 1000: hl.exe access violation x2 on 2026-08-31 at 23:27 and 23:29 local (a call through a NULL pointer from GoldSrc hw.dll; user.dmp dated 2026-09-01). Application Hang 1002: avp.exe on 2026-08-30. No application crash or hang has been logged since 2026-09-01.",
+   "Application Popup 26 (21 total): 12 from UnrealTournament.exe ('FlsAlloc not found' or 0xc000001d) on 2026-08-30/31, which is the UT99 469e client on a CPU without SSE2. 1 from Turok 2 ('glide3x.dll was not found', 08-31). 8 'cmd.exe - No Disk, insert a disk into drive D:' modals (09-01 x3, 10-15 x5) from launchers probing an empty virtual drive.",
+   "SCM 7026 'i8042prt failed to load' at every boot (no PS/2 devices attached). d347bus error 4 x21 on 2026-08-31 (DAEMON Tools, during disc-mount testing).",
+   "Agent log mirror (NSC-CABE14B7486-agent.log and .log.1): no crash, TDR, watchdog or NO SOUND lines. The 2026-10-15 session ended on 'console control event 2', i.e. the agent's console was closed at 19:35:55 local. Windows stayed up with no agent until a clean shutdown on 2026-10-16 11:01 local. Today's boot is clean: the driver update pass installed 0 and looked only at the 2 PS/2 devices (problem_not_driver_fixable)."
+  ],
+  "recommendations": [
+   {
+    "component": "Video: NVIDIA GeForce2 GTS on ForceWare 71.89 (7.1.8.9)",
+    "action": "none",
+    "priority": "low",
+    "candidate_package": "Already installed from /mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/G005/nv4_disp.inf. Standalone copy: /mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/71.89_forceware_winxp2k.exe",
+    "needs_reboot": false,
+    "rationale": "Correct and working. scripts/pxe/driver-prefs.txt names 71.89 as the fleet's end-of-line build for NV1x: 'the last branch with full NV1x support, and the newest that runs without SSE'. It was installed through PREFER.TXT, it renders both D3D and OpenGL titles here (2026-10-13 round), and no crash or event points at it. The only newer GeForce2 driver is /mnt/retro-share/Files/Drivers/Nvidia/Win2K-XP/93.71_forceware_winxp2k_whql.exe, and nothing on this box argues for changing to it."
+   },
+   {
+    "component": "Sound: Creative AWE64 (ISA PnP CTL00E4) on Microsoft's in-box WDM ctlsb16.sys",
+    "action": "none",
+    "priority": "low",
+    "needs_reboot": false,
+    "rationale": "Working: 1 waveOut device, EMU8000 wavetable MIDI and gameport OK, and the kernel audio stack (sysaudio/wdmaud/kmixer) is registered, so AudioStackFix was never needed. Creative shipped no XP driver for the AWE64, so the in-box WDM driver is the end of the line and there is nothing on the share to update to. It is an ISA card with no DirectSound3D/EAX hardware, so games use software 3D sound."
+   },
+   {
+    "component": "Stability: system disk Hitachi HTS545016B9A300 (2.5in SATA) on the SiI3114 card, port/bus 3",
+    "action": "investigate",
+    "priority": "medium",
+    "needs_reboot": false,
+    "rationale": "This is the only real stability signal on the box: 47 Disk event 51 paging-read errors. 46 came in a 17-minute burst on 2026-09-01 and 1 recurred at TODAY's boot. All are ATA aborted commands (sense 0Bh/00/00, one bus reset), retried, at scattered LBAs, and SMART shows 0 reallocated sectors. That is the cable, power or controller class, not bad media. Before the rounds: (1) check the SATA data cable and power feed physically (a laptop drive in a 440BX box usually runs off a Molex-to-SATA adapter). (2) Read SMART attributes 197, 198 and 199 with a full SMART tool, because the agent's SMARTINFO reports only 05, 09 and C2. (3) After each round, re-DOWNLOAD SysEvent.Evt and check for new Disk 51; evtparse.py is saved with the evidence. No crash has been tied to these errors yet, but a burst mid-game would freeze or crash that player."
+   },
+   {
+    "component": "Storage driver: SiI3114 boot controller. The card has the SATARaid5 BIOS (SUBSYS_71141095) but Windows runs the SATALink base SI3114.sys 1.3.11.0, bound the legacy way.",
+    "action": "investigate",
+    "priority": "low",
+    "candidate_package": "/mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D/M070/si3114r5.inf (1.5.20.3, the only INF matching SUBSYS_71141095) for a planned migration. D\\M077\\SI3114.inf (1.3.11.0) applies only if the card is re-flashed to the SATALink BIOS. /mnt/retro-share/Files/Drivers/SI3114_SATALink_WinXP is older (1.2.0.5) and matches only SUBSYS_31141095.",
+    "needs_reboot": true,
+    "rationale": "This mismatch is the main unproven suspect behind the disk errors above. Silicon Image pairs the driver to the BIOS type. XP textmode picked the base driver because TXTSETUP.SIF line 19655 maps every PCI\\VEN_1095&DEV_3114 to SI3114, so GUI setup never bound an INF and DRIVERS STATUS shows the controller as 'missing'. Do NOT fix this before the LAN party, and never with a blind DRVUPDATE: that would put a second driver on the boot controller next to the running legacy SI3114 and risks a 0x7B unbootable box. After the party, with a person at the box, there are two clean options. (a) Re-flash the card to the SATALink BIOS. M077 then binds the same SI3114 service and the same .sys, so the Windows driver does not change. (b) Migrate to Si3114r5 and disable the legacy SI3114 in the same change. The box is activated, so a reboot is safe through safe-reboot.py."
+   },
+   {
+    "component": "PS/2 keyboard and mouse at problem 24",
+    "action": "none",
+    "priority": "low",
+    "needs_reboot": false,
+    "rationale": "This is not a driver fault: nothing is attached to the PS/2 ports, and the USB HID keyboard and mouse are present and OK. Just make sure the USB keyboard and mouse stay plugged in for the rounds."
+   }
+  ],
+  "notes": "Nothing on the box was changed; every agent connection was closed cleanly. Raw evidence (command outputs, SysEvent.Evt, AppEvent.Evt, drwtsn32.log, evtparse.py) is in /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/driver-audit-184/.\n\nUptime and versions: uptime 1h38m at the audit; the box booted 2026-11-11 at 10:59 local (15:59 UTC) on agent 1.98.0.\n\nCPU, memory and disk: Pentium III Coppermine at 845 MHz, with SSE but no SSE2. That is why the UT99 469e client died here with 0xc000001d and needs the 436 tree. RAM is 511 MB (375 MB free). C: has 89.2 of 139 GB free and is the only disk: a SATA drive on a SiI3114 PCI card, in a 440BX/PIIX4 board with nothing on the onboard IDE.\n\nDisplay and agent state: desktop is 1024x768x32 @ 85 Hz. GAMERES covers 33 titles (verify ok=81, wrong=0). QBINDS is ok. IPX is active (frame auto). GAMESYNC is provisioned (gamesync.done 2026-10-04), with 48 title folders.\n\nProcesses are normal and the box is idle (Starfield screensaver running):\n- wuauclt.exe and daemon.exe (DAEMON Tools tray) are running. Both are on the bench-quiesce list.\n- No stuck installer, no game running, no dialog in WINLIST.\n\nD: drive: it is the DAEMON Tools virtual drive (no physical optical drive is enumerated). It still holds the Serious Sam: The Second Encounter disc (Setup.ini -> SOFTWARE\\Croteam\\SeriousSamSE). Launchers that probed an empty D: raised modal 'No Disk' popups 8 times, and such a popup stalls an unattended launcher until someone dismisses it.\n\nNetwork card:\n- HP DeskDirect J2585B 10/100VG (PCI\\VEN_103C&DEV_1031, oem3.inf 4.8.0.0). It replaced an Intel PRO/100+ on 2026-09-01; the Intel card's orphaned Packet Scheduler miniport is still listed.\n- Its 100 Mb mode is 100VG-AnyLAN, so on an Ethernet switch it probably runs 10BASE-T. This is not measured (the agent reports no link speed). That is fine for game traffic and slow for GAMESYNC.\n- Link flaps and a fall back to a 169.254.x address happened only on 2026-09-29 22:07-22:49 UTC, during the fleet-wide LAN incident.\n\nImage finding for FINDINGS.md: I386\\TXTSETUP.SIF maps PCI\\VEN_1095&DEV_3114 to SI3114 for every SiI3114 card. As a result, a card with the RAID BIOS (SUBSYS_61141095) or the RAID5 BIOS (SUBSYS_71141095) boots on the SATALink miniport with no INF bound."
+ },
+ {
+  "ip": "192.168.1.186",
+  "host": "ADMIN-PC",
+  "reachable": true,
+  "os": "Windows 7 Professional, 32-bit (OSArchitecture=32-bit, PROCESSOR_ARCHITECTURE=x86), 6.1.7600 RTM: no SP1 and no hotfixes at all (wmic qfe: 'No Instance(s) Available'). InstallDate 2026-10-26. Dual-boot: the BCD lives on D: and offers 'Earlier Version of Windows' (the old XP install on D:) and Windows 7 (the default, 30 s timeout). Board is an ASUS P5QL/EPU (P43 + ICH10, Realtek RTL8111C, VIA VT1708S) with a Pentium E5300, which is x86-64 capable.",
+  "activation": "NOT ACTIVATED. slmgr /dli says 'Initial grace period, Time remaining: 4740 minute(s) (3 day(s))' at 2026-11-11 12:41, so it expires around 2026-11-14 19:40 local (Windows 7 Professional, RETAIL channel). LICSTATUS is built for XP and reports only 'absent'/'not XP/2003' here. When the grace runs out, Windows 7 goes into Notification mode (black wallpaper and nag dialogs that can steal focus from fullscreen games). It does NOT block logon, so the activation state does not stop the agent returning after a reboot. The thing that does stop it is the broken auto-logon (see crash_evidence and recommendations).",
+  "display": {
+   "device": "NVIDIA GeForce GTX 1650 (TU117; MSI board, subsystem 1462:8D92), bound to Microsoft 'Standard VGA Graphics Adapter'",
+   "status": "BLOCKER. The card runs on the generic VGA stub (service vga, display.inf, matched on pci\\cc_0300): no 2D/3D acceleration and no Direct3D or OpenGL hardware path, so no 3D game can run. Windows shows problem code 0 and ConfigFlags 0, so it looks healthy. No NVIDIA driver for Turing has ever existed for 32-bit Windows, so nothing can be installed for this card on this OS.",
+   "pci_id": "PCI\\VEN_10DE&DEV_1F82&SUBSYS_8D921462&REV_A1",
+   "driver_version": "6.1.7600.16385",
+   "driver_date": "6-21-2006",
+   "driver_provider": "Microsoft",
+   "desktop_mode": "1920x1080x32 on the VGA/VBE driver, refresh not reported (persisted_hz 1 = driver default). The driver offers only 6 VBE modes: 640x480, 800x600, 1024x768, 1280x1024, 1360x768, 1920x1080. Monitor: DELL P2312H, EDID 1920x1080@60, digital, vmax 76 Hz. GAMERES target 1920x1080 (4:3 = 1024x768).",
+   "is_3dfx": false
+  },
+  "audio": [
+   {
+    "device": "VIA VT1708S HD Audio codec (onboard ASUS P5QL/EPU) on the Intel ICH10 HD Audio controller 8086:3A3E",
+    "pci_id": "HDAUDIO\\FUNC_01&VEN_1106&DEV_0397&SUBSYS_10438346&REV_1000 (controller PCI\\VEN_8086&DEV_3A3E&SUBSYS_83461043)",
+    "driver_version": "6.1.7600.16385 (Microsoft in-box hdaudio.inf 'High Definition Audio Device', 7-13-2009)",
+    "status": "Driver works (problem 0) but there is NO ANALOG OUTPUT. The Win7 render endpoints are 2x 'Digital Audio (S/PDIF)' ACTIVE and 'Speakers' (analog line-out) UNPLUGGED (MMDevices DeviceState 8: jack detection sees nothing in the green jack). Both waveOut devices are the S/PDIF outputs, so games play to S/PDIF and are silent unless a digital receiver is connected. No default device was ever chosen (no Role values)."
+   },
+   {
+    "device": "NVIDIA TU117 HD Audio (the GTX 1650's HDMI/DP audio function)",
+    "pci_id": "PCI\\VEN_10DE&DEV_10FA&SUBSYS_8D921462&REV_A1 (codec HDAUDIO\\FUNC_01&VEN_10DE&DEV_0094&SUBSYS_14628D92)",
+    "driver_version": "6.1.7600.16385 (Microsoft hdaudbus/hdaudio generic)",
+    "status": "Driver works (problem 0). Its 3x 'Digital Audio (HDMI)' endpoints are UNPLUGGED because the DELL P2312H has no speakers. Not relevant to game sound."
+   }
+  ],
+  "wave_out_devices": 2,
+  "missing_or_problem_devices": [
+   {
+    "device": "NVIDIA GeForce GTX 1650 (TU117), shown as 'Standard VGA Graphics Adapter'",
+    "hwid": "PCI\\VEN_10DE&DEV_1F82&SUBSYS_8D921462&REV_A1",
+    "state": "generic (DRIVERS STATUS state=generic, problem 0)",
+    "note": "No 32-bit driver exists: NVIDIA's last 32-bit branch, 391.35, has no DEV_1F82, and Turing drivers are x64-only (fleetbook recipe #113, measured from the packages 2026-11-07). Do NOT force a mismatched INF with DRVUPDATE/INSTALLFLAG_FORCE: that risks a black screen or bugcheck on a box that would then need someone at the keyboard."
+   },
+   {
+    "device": "ASUS ATK0110 ACPI Utility (no class, no driver)",
+    "hwid": "ACPI\\ATK0110\\1010110",
+    "state": "missing (problem 28)",
+    "note": "Cosmetic only. It is ASUS's hardware-monitor/EPU ACPI interface and affects neither games nor stability. A Windows 7 x86 driver is on the share."
+   }
+  ],
+  "crash_evidence": [
+   "No bugcheck since Win7 was installed: C:\\Windows\\Minidump does not exist (CrashDumpEnabled=2, MinidumpDir %SystemRoot%\\Minidump), there is no C:\\Windows\\MEMORY.DMP, and the System log back to the 2026-10-15 setup has no BugCheck 1001, Kernel-Power 41 or EventLog 6008.",
+   "No TDR: C:\\Windows\\LiveKernelReports exists but has no WATCHDOG folder, and there are no Display 4101 events. The XDDM VGA stub cannot TDR anyway.",
+   "No disk errors logged (no Disk 7/11/51/153, no NTFS 55). SMART, however: PhysicalDrive0 WDC WD400BD-75LRA0 (D:, 40 GB, 36,308 power-on hours) has 56 reallocated sectors (value 193/193). PhysicalDrive1 ST3250318AS (C:, Win7) has 0. D: holds the Windows Boot Manager/BCD and the running agent exe.",
+   "AGENT OUTAGE OF 24.5 h: on 2026-11-10 at 10:20:53 someone restarted the box from the Start menu (USER32 1074 by Explorer.EXE for admin-PC\\admin, 'Other (Unplanned)'). It booted at 10:24:04, but there was no interactive logon until 2026-11-11 10:56:53 (Security 4624 type 2 via winlogon; Winlogon 7001). So the Run-key agent never started: its process CreationDate is 2026-11-11 10:56:55, and the log mirror is silent from 10:20:26 Nov 10 to 10:56:55 Nov 11. Winlogon has AutoAdminLogon=1, ForceAutoLogon=1, DefaultUserName=admin and DefaultDomainName=admin-PC, but NO DefaultPassword value. Auto-logon worked on 2026-11-08 (logon 23 s after boot), so something changed after that. On each start the agent's SYSFIX logs 'Applied autologon fix (NT): AutoAdminLogon=1' and sets only that flag, not the password.",
+   "RetroAgent is in BOTH HKLM\\Run and HKCU\\Run (both point to D:\\RETRO_AGENT\\retro_agent.exe), so two instances start at every logon. The second exits with 'another retro_agent is already running', so it is harmless.",
+   "Application log has no Application Error 1000 or Hang 1002 (no game or agent crashes). The only entries are WER 'WindowsUpdateFailure' (Scan) events every ~4-5 h, from the RTM Windows Update client, and one MpTelemetry 80072efe.",
+   "The agent log mirror (agent logs/ADMIN-PC-agent.log and .1) has no 'NO SOUND', crash or TDR lines. HKLM\\Software\\RetroAgent has no AudioStackFix value (that path is XP-only, and waveOut has devices anyway)."
+  ],
+  "recommendations": [
+   {
+    "component": "Display: NVIDIA GeForce GTX 1650 (TU117) running on the Standard VGA stub",
+    "action": "investigate",
+    "priority": "blocker",
+    "rationale": "No 3D-capable driver is bound, so every 3D title fails on this box. Nothing can be installed in place, because Turing has no 32-bit Windows driver and this OS is Win7 32-bit RTM. The operator has to choose one of two routes. (A) Keep the card: reinstall as Windows 7 Pro SP1 x64, add the SHA-2 code-signing updates, then install NVIDIA 474.30 x64 (it carries a generic DEV_1F82 line; Win7 x64 needs SP1). This also recovers the RAM above 3 GB. Caveat: x64 cannot run 16-bit Windows programs. (B) Keep Win7 x86 RTM and fit a card that has a 32-bit Win7 driver: the GeForce 7900 GT/GTO this box ran until 2026-10-15 (NVIDIA 307.83 Win7/Vista x86), the GeForce 9400 GT it had before that (NVIDIA 342.01 x86), or any Pascal-or-older card (391.35 x86). These pre-2019 SHA-1-signed packages install on RTM without the SHA-2 updates. Do not force-install any INF.",
+    "candidate_package": "Route A: /mnt/retro-share/Files/OS/Win7PRO-x64-PXE (= /mnt/retro-share/Files/OS/en_windows_7_professional_with_sp1_x64_dvd_u_676939.iso) + KB4474419-v3 x64 + KB4490628 x64 (local only: /home/voidsstr/development/retro-agent/.claude/dl-kb/; the share folder /mnt/retro-share/Utility/Retro Automation/win7-sha2 is EMPTY) + NVIDIA 474.30 Win7 x64, NOT on the share: https://us.download.nvidia.com/Windows/474.30/474.30-desktop-win8-win7-64bit-international-whql.exe. The box's MAC e0:cb:4e:26:ec:a0 is in pxe_config.json never_offer and would have to move to bootfile_by_mac (win7/undionly.kpxe), as was done for .145. Route B: GeForce 9400 GT + /home/voidsstr/development/retro-agent/.claude/dl-nv34288/342.01-win7-x86.exe (local only; verified NTx86.6.1 and DEV_0641). For a 7900 GT, 307.83 Win7 x86 is NOT on the share: /mnt/retro-share/Files/Drivers/Nvidia/307.83-desktop-winxp-32bit-english-whql.exe is the XP build and is the wrong OS.",
+    "needs_reboot": true
+   },
+   {
+    "component": "Auto-logon: required before ANY driver reboot or GPU swap",
+    "action": "update",
+    "priority": "high",
+    "rationale": "Winlogon has no DefaultPassword. After the 2026-11-10 restart the box sat at the logon screen for 24.5 h with no agent. When DefaultPassword is absent, Windows itself resets AutoAdminLogon to 0 at boot, and the agent's SYSFIX only sets the flag back to 1, so the next reboot will very likely strand the box again. Following CLAUDE.md, set the account password and DefaultPassword together, keep the other four Winlogon values, then prove it with one scripts/fleet/safe-reboot.py. Also worth doing at the same time: drop the duplicate HKCU Run entry.",
+    "candidate_package": "No package; this is a registry and account change: net user admin password + HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon DefaultPassword=password (AutoAdminLogon=1, ForceAutoLogon=1, DefaultUserName=admin, DefaultDomainName=ADMIN-PC already present)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound: VIA VT1708S onboard analog output",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "The in-box Microsoft HD Audio driver works, but the analog 'Speakers' endpoint reads UNPLUGGED and waveOut lists only the two S/PDIF outputs, so as it stands the box makes no audible sound. First (physical, no driver): plug speakers or headphones into the rear green line-out, check that 'Speakers' turns ACTIVE, and make it the default playback device. Only if a connected jack still reads unplugged (for example an AC'97-type front-panel header without jack sensing) install the VIA vendor driver, which can override jack detection. Its viahdb1.inf names this exact codec, SUBSYS_10438346. Do not churn the driver otherwise.",
+    "candidate_package": "/mnt/retro-share/Files/Drivers/Asus P5QL EPU/Audio/VIA_Audio_V6017400_XpVistaWin7.zip -> Audio/Driver/VIAHDAud/Present/Drivers/HDVista32/viahdb1.inf (VIA HD Audio 6.0.01.7400, 08/17/2009, Vista/Win7 32-bit; the HDVista64 folder in the same zip is for route A)",
+    "needs_reboot": true
+   },
+   {
+    "component": "Windows 7 activation (3 days of initial grace left)",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "The grace runs out around 2026-11-14 19:40. After that, Notification mode turns the wallpaper black and puts up 'not genuine' nags that can take focus from fullscreen games during the LAN party. It does not block logon. Activating is the operator's decision (product key or phone). If route A (x64 reinstall) is chosen, activate the new install instead.",
+    "candidate_package": "",
+    "needs_reboot": false
+   },
+   {
+    "component": "ASUS ATK0110 ACPI Utility (unknown device, problem 28)",
+    "action": "install",
+    "priority": "low",
+    "rationale": "The only device with a missing driver. It is cosmetic: ASUS hardware-monitoring ACPI interface, no effect on games. Install it in a maintenance window for a clean Device Manager.",
+    "candidate_package": "/mnt/retro-share/Files/Drivers/Asus P5QL EPU/ACPI/MB_ATK0110_Win7.zip -> 'MB WIN7 ATK/32/Win7/AsAcpi.inf' (ACPI\\ATK0110, DriverVer 05/05/2009 1043.4.0.0; the 64/WIN7 folder is for route A)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Boot manager and agent exe on the aging 40 GB WD400BD (D:, old XP disk)",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "bcdedit shows {bootmgr} device partition=D:, and both Run keys start D:\\RETRO_AGENT\\retro_agent.exe; C:\\RETRO_AGENT has logs but no exe. That drive has 56 reallocated sectors and 36k hours. If it dies, the box will not boot and the agent will not start, even though Windows 7 is on the healthy 250 GB C:. Nothing has failed yet (no disk errors logged). Possible fix: copy the agent to C:\\RETRO_AGENT and repoint the Run keys, and move the system partition to C: (bcdboot C:\\Windows /s C:, mark it active, fix the BIOS boot order).",
+    "candidate_package": "",
+    "needs_reboot": true
+   },
+   {
+    "component": "NVIDIA HDMI audio, Realtek RTL8168C NIC (MS 7.2.1127.2008), ICH10 chipset, Generic PnP Monitor",
+    "action": "none",
+    "priority": "low",
+    "rationale": "All run on working Microsoft in-box drivers with problem 0, and 147 of the 149 devices are ok. Nothing here needs touching. The NVIDIA HDMI audio driver would come with the NVIDIA package under route A.",
+    "candidate_package": "",
+    "needs_reboot": false
+   }
+  ],
+  "other_display_or_3d": [
+   "Generic PnP Monitor DISPLAY\\DEL4077 (DELL P2312H, EDID 1920x1080@60, digital, vmax 76 Hz) on Microsoft monitor.inf: OK",
+   "ROOT\\LEGACY_RDPREFMP (RDP reflector display driver, legacy service): OK, not a display adapter",
+   "No 3dfx silicon: Enum\\PCI has no VEN_121A key, accelerators[] is empty, glide=false",
+   "HWPROFILE video_cards[0] (instance 0000, 'Standard VGA Graphics Adapter', pci\\cc_0300, attached_to_desktop=false) is the VGA class key the GTX 1650 is using. No other display adapter is fitted."
+  ],
+  "notes": "Read-only audit, run 2026-11-11 12:36-12:45. Nothing on the box was launched, killed or changed, and every connection was closed gracefully. Raw evidence (DefaultPassword never stored): /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/audit-186/\n\nUptime is 26.2 h: boot 2026-11-10 10:24:04, after the user's Start-menu restart. Agent 1.98.0 has been running since 2026-11-11 10:56:55 from D:\\RETRO_AGENT\\retro_agent.exe; its logs are in C:\\RETRO_AGENT. UAC is off (EnableLUA=0) and the agent is elevated, so the 11-08 fix holds. MONPOWER never-sleep is OK. The GAMERES boot pass reports 34 titles, 0 values changed, verify ok=83 wrong=0. GAMESYNC is idle and provisioned (dest C:\\Games, 52 title dirs). IPX is not supported on Win7.\n\nDisks: C: ST3250318AS, 168/238 GB free. D: WD400BD, 357 MB/38 GB free; it is the old XP install (WINDOWS, Games, a 2 GB pagefile.sys that Win7 does not use; Win7 pages to C:\\pagefile.sys, 3 GB, 0 in use). RAM visible: 3071 MB (32-bit cap). Every boot waits 30 s at the BCD dual-boot menu. Win7 RTM with zero updates has no SHA-2 code-signing support, so any SHA-2-only (post-2019) driver will also fail here. Windows Update (wuauserv) is RUNNING (auto, delayed) and fails its scan every ~4-5 h. Consider disabling it for the party, as was done on the OptiPlex Win7 box in 2026-08 to stop WU/WGA modals stealing fullscreen focus. No odd processes: no installer or dialog running, the foreground window is the Start button, CPU was idle at the snapshot.\n\nFOR THE ROUND PLANNER: HWPROFILE takes feature_level from the PCI id alone (agent/src/hwprofile.c, p->gpu_level = gg_gpu_level_from_pci), so .186 reports sm3.0 (plan_args gpu_feature=sm3.0) and the capability gate approves 3D titles that cannot run on the VGA stub. Treat .186 as NO 3D. The only candidates are DOSBox titles, DirectDraw 2D titles (StarCraft, RA2, Tiberian Sun, Warcraft II BNE, Postal, which would run with no DirectDraw hardware acceleration) and software-renderer shortcuts (Quake and Hexen II software, 'SiN - software mode', GoldSrc -soft, UE1 SoftDrv). None of these has been tested on this box.\n\nHOSTNAME COLLISION: .186 and .197 (OptiPlex 790, Win7, switched off) are both 'ADMIN-PC'. Both publish fleet-inventory\\ADMIN-PC.json and agent logs\\ADMIN-PC-agent.log on the share; the copies there are now .186's (profile 8fe1838e2c779bda). scripts/halo/box-keys.txt maps ADMIN-PC to fleet-gamekey-halo-pc-4 by hostname, so the two boxes would share one Halo key and the second to join would get 'CD Key is invalid'. Also stale: scripts/fleet/fleet-roster.txt line 33 (.186 = NSC-684BA8CF5ED, XP-era drive notes) and docs/fleet-inventory.md (2026-10-03, shows XP + GeForce 7900 GT).\n\nThe retro-gameindex pass still reads and writes the old XP copies under D:\\Games (e.g. UPLOAD D:\\Games\\UT2004\\System\\UT2004.ini, 2026-11-10 10:07) on the aging drive. Win7's shortcuts use C:\\Games, so those writes do nothing.\n\nThe full ASUS P5QL/EPU driver set (README, SHA256SUMS) is at /mnt/retro-share/Files/Drivers/Asus P5QL EPU/. Its Video-GeForce9400GT-340.52 folder is XP-only. The XPSP3-FLEET store/DRVINDEX is XP-only, so it is irrelevant on Win7 (DRIVERS PLAN reports store=none)."
+ },
+ {
+  "ip": "192.168.1.240",
+  "reachable": true,
+  "host": "USER-41EA3B3330",
+  "os": "Windows XP SP3 (5.1.2600), agent 1.98.0. Board is an ASUS K8V-class (VIA K8T800 AGP 8x + VT8237, Promise PDC20378, Marvell 88E8001). CPU Athlon 64 3300+ (single core, SSE2), 1022 MB RAM",
+  "activation": "ACTIVATED. LICSTATUS wpa: ActivationRequired=false, grace_days 0. OOBETimer present, WGA present, no Winlogon 'Activation Required' flag. A driver or BIOS reboot is safe on activation grounds (still use scripts/fleet/safe-reboot.py).",
+  "display": {
+   "device": "ATI Radeon X1950 Pro (RV570, AGP behind the VIA K8T800 CPU-to-AGP bridge 1106:B188; Sapphire subsys 174B:E190; 512 MB) plus its Secondary head 1002:72A0",
+   "pci_id": "PCI\\VEN_1002&DEV_7280&SUBSYS_E190174B&REV_00",
+   "driver_version": "8.593.100.0 = Catalyst 10.2 legacy (HKLM\\SOFTWARE\\ATI Technologies\\CBT ReleaseVersion 8.593.100-100210a-095952E-ATI)",
+   "driver_date": "2010-02-10",
+   "driver_provider": "ATI Technologies Inc. (oem4.inf, section ati2mtag_R580)",
+   "desktop_mode": "1920x1080x32 @ 60 Hz on a DELL E2313H (EDID 1920x1080 native, 60 Hz, analog input). DISPLAYCFG matches the persisted mode.",
+   "is_3dfx": false,
+   "status": "OK. HWPROFILE's active adapter (EnumDisplayDevices) is the X1950 Pro. DRIVERS STATUS shows both heads at problem 0. Full hardware acceleration: no Acceleration.Level value, no DirectDraw EmulationOnly. The only registered OpenGL ICD is ati2dvag -> atioglxx.dll (11,845,632 B, 2010-02-11). The Catalyst 10.2 binaries are on disk: ati2mtag.sys 3,565,056 B, ati2dvag.dll, ati3duag.dll and atioglxx.dll, all dated 2010-02-11. The card was fitted 2026-10-15 and installed by the agent from C:\\ATI\\SUPPORT\\10-02_legacy_xp32-64_dd_ccc. setupapi: 'finished successfully', protected-file exemptions obtained. The 38 E362 lines are only unsigned-catalog warnings."
+  },
+  "other_display_or_3d": [
+   "Radeon X1950 Pro Secondary head (PCI\\VEN_1002&DEV_72A0&SUBSYS_E191174B): same Catalyst 10.2 driver, OK",
+   "Stale display class keys 0000-0005 for removed cards: RADEON 9800 XT, RADEON X800 Series and Radeon X1600 Series (+ their Secondary keys). All point at the same oem4.inf. They do no harm, but VIDEODIAG adapters[0] reports the stale 9800 XT and PCISCAN wrongly lists all 8 keys (the live 0006 included) as stale_drivers. Trust HWPROFILE.",
+   "No 3dfx silicon: glide=false, accelerators[] empty",
+   "The video device map also holds the in-box VGA save, NetMeeting mirror and RDPDD chained drivers. This is normal.",
+   "In-box XP leftover ati3d1ag.dll (2008-04-14) is still in system32. Catalyst 10.2 does not use it (it uses ati3duag.dll).",
+   "The ATI T200 AVStream / DISPLAY\\NTATIVRV01 function belonged to earlier VIVO/AIW cards. The agent installed g002\\atirt2xp.inf for it on 2026-09-28 (DriverFixes=1). The X1950 Pro does not have this function, so it is absent now."
+  ],
+  "audio": [
+   {
+    "device": "Creative SB Live! (EMU10K1 rev 0A, subsys 1102:8065). waveOut device 0 = 'SB Live! Audio [A800]'",
+    "pci_id": "PCI\\VEN_1102&DEV_0002&SUBSYS_80651102&REV_0A",
+    "driver_version": "5.12.2.252: Creative WDM, 2002-07-24, oem16.inf [EMU10K1_Device], ctaud2k.sys + sbemul.sys (SB emulation for DOS boxes). Installed 2026-08-24 from C:\\SBLIVE via Creative drvupd.exe",
+    "status": "OK. Problem 0 and 1 waveOut device. The kernel audio stack is registered: the sysaudio and wdmaud SW devices are present, so the CLAUDE.md WDM 0-device fault does not apply. HKLM\\Software\\RetroAgent\\AudioStackFix is absent, meaning the check never had to act. No ctaud2k errors in the System log and no 'NO SOUND' lines in the agent log mirror."
+   },
+   {
+    "device": "Creative SB Live! Game Port",
+    "pci_id": "PCI\\VEN_1102&DEV_7002&SUBSYS_00201102&REV_0A",
+    "driver_version": "Creative ctljystk.inf (oem17.inf, 2002-03-18)",
+    "status": "OK"
+   },
+   {
+    "device": "Onboard VIA VT8237 AC'97 (1106:3059, Vinyl codec)",
+    "pci_id": "PCI\\VEN_1106&DEV_3059&SUBSYS_80B01043&REV_60 (installed 2026-08-05, not enumerated now)",
+    "status": "Absent: disabled in BIOS or otherwise gone, which is good because the SB Live is the only wave device. Leftovers: a stale Vinyl class key, and the HKLM Run 'AudioDeck' VIA ADeck.exe tray app still starts at every logon. Stale class keys also remain for Turtle Beach Santa Cruz, an older EMU10K1 instance (0032) and 3x ATI T200."
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "WinXP Promise SATA378 (tm) IDE Controller: the onboard Promise PDC20378, set to the RAID class (CC_0104)",
+    "hwid": "PCI\\VEN_105A&DEV_3373&SUBSYS_80F51043&REV_02",
+    "state": "missing (problem 10: device cannot start)",
+    "note": "Not sound or video, and no effect on games. UlSata 1.0.0.26 (oem0.inf, installed by XP setup) has failed to load at every boot since 2026-09-29 15:32 UTC: System log UlSata event 4 + SCM 7026 'UlSata failed to load' at all 10 boots since. That was the day the Maxtor 6L080M0 system disk moved off the Promise. At XP setup the disk was on the Promise; per setupapi it is now under another SCSI-class controller, most likely the VIA SATA RAID 1106:3149 (setupapi 2026-09-29 08:33 shows the disk re-enumerated). The Promise has no disk on it now. The agent's DRIVERS UPDATE tried the store's FastTrak INFs (M049\\PBFSTTX2K.inf, M065\\PBKFSTRK.inf, M066\\PBK3FSTR.inf) on 2 boots. Windows blocked all of them as unsigned ('server install') and DriverUpdateBoot now says tried_out. The HKLM Run 'PtiuPbmd' (rundll32 ptipbm.dll,SetWriteBack) still runs at logon against the dead controller."
+   }
+  ],
+  "crash_evidence": [
+   "No BSODs: C:\\WINDOWS\\Minidump is empty while CrashControl has CrashDumpEnabled=3 (small dumps on) and AutoReboot=1. The System log has no bugcheck event 1001/1003.",
+   "System log (SysEvent.Evt downloaded and parsed; it covers 2026-07-11..07-24 and 2026-08-25..2026-11-11): no 6008 'unexpected shutdown' events. 34 starts and 32 clean stops. One is the current boot. The other unmatched start is one restart with no clean-stop record on 2026-09-29 ~09:17 PDT, the day the storage was rearranged; none since.",
+   "No display-driver events (ati2mtag/ati2dvag) and no audio-driver events (ctaud2k) anywhere in the System log. ATI SmartGART writes only informational 105 events at boot, with no AGP downgrade.",
+   "Dr Watson (AeDebug Auto=1, drwtsn32.log last written 2026-08-31): 7 app crashes, all before the X1950 Pro was fitted. TiberianSun GAME.EXE NULL dereference on 2026-08-29. hl.exe 6 times on 2026-08-31 between 10:29 and 10:48 PDT, each a jump to address 0 with bshift\\cl_dlls\\client.dll (the Blue Shift mod) loaded. Those are game-side, not driver faults. The Application log has no Application Error or Hang events since then.",
+   "The X1950 Pro has run only about 2 sessions so far: 2026-10-15 to 10-16 (about 31 h) and today. No errors in either, so the record is clean but short.",
+   "2026-07-23 14:49 UTC: Windows File Protection 64002 restored the in-box ATI files (ati2mtag.sys / ati2dvag.dll 6.14.10.6462, ati2cqag.dll) at the same moment C:\\gpuclean_bak was created by a GPU cleanup. The later Catalyst 10.2 installs obtained exemptions, and the current files are the 10.2 builds. No WFP events since.",
+   "Agent log mirror (USER-41EA3B3330-agent.log and .1 on the share): no watchdog kills, no NO SOUND lines, no hang or TDR lines. The previous session ended cleanly ('log closed (clean shutdown)'), and the current boot started at 07:54:53 PST.",
+   "Application Popup events: 'No Disk ... insert a disk into drive F:' (cmd.exe) 5 times, the last on 2026-10-16 00:12 UTC. F: is the DAEMON Tools virtual drive, so some launcher touched it while it was empty. Also on 2026-08-31: 'Turok2English.exe - glide3x.dll was not found'.",
+   "Network: the Marvell Yukon link went down and up several times on 2026-09-29 between 21:05 and 21:54 UTC, with DHCP falling back to APIPA 169.254.13.4. That looks like a LAN-wide event that evening; nothing since. Two yukonwxp event-101 errors on 2026-08-30.",
+   "Noise, not crashes: Microsoft Antimalware (MSE) logged 475 'definition update failed' (2001) errors in the System log, and Userenv 1517 appears at every logoff."
+  ],
+  "recommendations": [
+   {
+    "component": "Background load during the LAN rounds: MSE real-time scanning (MsMpEng/msseces), Windows Search (SearchIndexer/WindowsSearch), Automatic Updates (WindowsUpdate.log written today), EA Download Manager (HKCU Run 'EA Core' Core.exe -silent), Windows Messenger, ATI BDARemote, VIA raid_tool, orphaned VIA ADeck.exe",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "This is not a driver, but it is the most likely cause of stutter or slow map loads in a timed whole-fleet round on this single-core 2.4 GHz box. MsMpEng scans every pak/level file the game opens, and its failing update loop has logged 475 errors. The driver-bench quiesce list (wuauclt, daemon, wmiprvse, ...) does not cover MsMpEng, SearchIndexer or Core.exe. Quiesce them before each round. Do not kill daemon.exe on this box: the disc titles need it.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Onboard Promise PDC20378 (PCI\\VEN_105A&DEV_3373&SUBSYS_80F51043), problem 10",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "No disk has been on it since the system disk moved on 2026-09-29, so games are unaffected. It costs a failed boot-start driver (UlSata event 4 + SCM 7026) at every boot and a useless PtiuPbmd rundll32. The agent already tried every store candidate and Windows refused them as unsigned. Do not push more drivers at it. If silencing it is wanted, the operator can disable the controller in the BIOS (needs a reboot) or leave it alone.",
+    "candidate_package": "None needed. The store's M049\\PBFSTTX2K.inf (FastTrak 378 1.00.1.37), M065\\PBKFSTRK.inf and M066\\PBK3FSTR.inf under /mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D were all blocked as unsigned on 2026-09-29.",
+    "needs_reboot": true
+   },
+   {
+    "component": "Video: ATI Radeon X1950 Pro (AGP), Catalyst 10.2 legacy 8.593.100.0",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Catalyst 10.2 is the last AMD driver that supports the R5xx/X1000 family on XP: 13.4 legacy beta covers only HD 2000-4000, and 14.4 only HD 5000 and newer. The install is complete and consistent, with all 10.2 binaries, the ICD registered, full acceleration, no driver errors and no BSODs. Do not churn it. One general limit: the ATI R300+ family has no paletted textures and no table fog, the same as the 9800 XT/X800/X1600 this box ran before. No driver fixes that.",
+    "candidate_package": "Reference or reinstall only (same build as installed): /mnt/retro-share/Files/Drivers/ATI/WinXP/10-2_legacy_xp32-64_dd_ccc.exe. Extracted INF: /mnt/retro-share/Files/Drivers/ATI/WinXP/Radeon/Catalyst102-Legacy-XP-Display/CX_95952.inf. The box keeps a local copy in C:\\ATI\\SUPPORT\\10-02_legacy_xp32-64_dd_ccc. Note that the image store's I005\\CX_76825.inf is OLDER (8.591.0.0) and should not be used.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound: Creative SB Live! (EMU10K1), Creative WDM 5.12.2.252",
+    "action": "none",
+    "priority": "low",
+    "rationale": "It works: waveOut=1, the kernel audio stack is registered, sbemul is present, and the logs show no errors or 'NO SOUND'. The driver is old but fine and there is no stability reason to change it.",
+    "candidate_package": "Only if sound ever breaks: /mnt/retro-share/Files/Drivers/Creative/Win2K-XP/LiveDrvUni-PackENG.exe, or the store's S004\\wdma_old.inf (6.0.01.1304) under /mnt/retro-share/Files/OS/XPSP3-FLEET/$OEM$/$1/D",
+    "needs_reboot": false
+   },
+   {
+    "component": "Ghost display/media class keys (9800 XT, X800, X1600, Santa Cruz, VIA Vinyl, old EMU10K1, ATI T200)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "They do no harm. If anyone ever cleans them up, do NOT let gpu-driver-cleanup remove oem4.inf or the ati2* files: the stale ATI keys share oem4.inf with the live X1950 Pro, so removing it would knock the active card down to VGA.",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "Audited read-only on 2026-11-11, roughly 09:33-09:50 PST. All agent connections were closed gracefully. Nothing was launched, killed or changed. The audit read the System and Application event logs, setupapi.log and drwtsn32.log over DOWNLOAD and parsed them on the host.\n\nSTATE: uptime 5933 s at the first query (boot at 07:54 PST today). The box was idle: Starfield screensaver running, no game running, retro_chat connected. No stuck installer. C: has 8,851 MB free of 76,285 MB (it was 1 GB on 2026-10-03). The monitor never sleeps (MONPOWER ok). Power scheme is Home/Office Desk, so the CPU is not throttled and old games that time themselves with RDTSC are not at risk. IPX/NWLink is active. GameResBoot: 34 titles, 0 values changed, verify ok=83 wrong=0, target 1920x1080 (4:3 is 1280x960). gamesync.done is dated 2026-10-04.\n\nDISC TITLES: the HKLM Run value 'StarCraftCD' runs DAEMON Tools at every logon to mount C:\\ISO\\STARCRAFT.ISO on F:, the only virtual drive (SCSI\\CdRom&Ven_Generic&Prod_DVD-ROM). There is no physical optical drive. So at boot F: holds StarCraft and every other disc title has to remount. There was a 'device 0 LOCKED' episode on 2026-08-31, and 'No Disk F:' popups have appeared when F: was empty. Check F: before the disc-title rounds.\n\nD3DX9: there are no d3dx9_*.dll runtime files in system32. Of the staged library, only Thief2 carries its own (D3DX9_43.dll). Any title that needs one and does not ship it will fail with 'not found'. Halo2 is now deployed on this box and is worth a check.\n\nTUROK 2: a 2026-08-31 popup said Turok2English.exe could not find glide3x.dll on this non-Glide box. Verify that the Turok 2 launcher picks a D3D renderer here.\n\nHARDWARE HISTORY: cards change very often on this box. 9800 XT, then X800, Matrox Parhelia, GeForce 6800 (93.71), 9800 XT, X800 (08-31), X1600 (09-28), and the X1950 Pro since 2026-10-15. Sound went Santa Cruz, then VIA AC'97, then SB Live (08-06 and 08-24). Almost every compat-DB 'verified' cell for .240 was measured on an earlier GPU, so on the X1950 Pro most titles are effectively being tested for the first time.\n\nSTALE DOCS: docs/fleet-inventory.md (2026-10-03) and compat.py status still show a Radeon X1600 for .240. The box's own published HWPROFILE is correct. Regenerate with scripts/fleet/inventory.py; not done here because this run is read-only.\n\nRE-IMAGE RISK: scripts/pxe/driver-prefs.txt has no ATI entry, and the image store's X1950 INF (I005, 8.591.0.0) is older than 10.2. A re-image would not bring 10.2 back by itself; use the share's 10-2_legacy package.\n\nOTHER RUN ENTRIES: MapShare (net use to the NAS) and GammaFix. Also an odd zero-byte file 'C:\\nul)' from 2026-08-06, likely a mistyped redirect; harmless."
+ },
+ {
+  "ip": "192.168.1.243",
+  "reachable": true,
+  "host": "N5R5L9",
+  "os": "Windows 98 SE 4.10.2222 A (agent 1.98.0, multiplex/single-threaded)",
+  "activation": "Not applicable: Windows 98 SE has no product activation. LICSTATUS answers 'LICSTATUS only works on Windows NT/2K/XP (not Win9x)'. A reboot cannot hit an activation lockout. The real reboot caveats: PostSkipBoot today reads 'already set; 2Dh 08, 0Eh 00, checksum valid, 1Bh 00', so the POST skip-F1 and IDE-type fixes hold. The 3C509 cannot PXE boot, so there is no reimage risk. Nothing restarts the agent if Windows comes up without it.",
+  "display": {
+   "device": "Cirrus Logic 5436 PCI (GD5436, 1 MB VRAM): 2D desktop only; 3D comes from the Voodoo 2",
+   "status": "OK: problem 0, VIDEODIAG status OK error_code 0, PCISCAN active with no ghosts or stale drivers",
+   "driver_version": "Windows 98 SE in-box (DXCIRRUS.INF section CirrusMemMap2: cirrusmm.drv 77,568 B + cirrusmm.dll + cirrus.vxd, files dated 1999-04-24); the agent reports no version string",
+   "driver_date": "4-23-1999",
+   "driver_provider": "Microsoft",
+   "pci_id": "PCI\\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00 (BUS_00&DEV_0F)",
+   "desktop_mode": "800x600x16 (user decision: 1 MB fits 1024x768 only at 256 colours). Driver offers 640x480 and 800x600 at 16 bpp. Refresh is the driver default: the class DEFAULT key has RefreshRate=75 but the agent reads 0. No EDID is read (Dell E773c CRT, MONITOR\\DELD005).",
+   "is_3dfx": false
+  },
+  "other_display_or_3d": [
+   "3dfx Voodoo2 3D Accelerator, PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02 (BUS_00&DEV_03), Class MEDIA (MEDIA\\0002), 3DFXV2.INF section Voodoo. This is the 3dfx 3.02.02 reference kit (Glide 2.56, Glide3 3.03, D3D 4.12.01). Every installed file matches /mnt/retro-share/Files/Drivers/3DFX/Win9x/voodoo2-30202-fleet by size: GLIDE2X.DLL 226,304, GLIDE3X.DLL 256,512, FXMEMMAP.VXD 8,104, 3DFX32V2.DLL 462,848, 3DFXV2.DRV 39,996, 3DFXVGL.DLL 1,298,432. Devnode problem 0, ConfigFlags 0, DRIVERS STATUS excluded_3dfx. PciRescueBoot today: 'all 6 installed PCI device(s) present - nothing to do'. The 1-4-1980 driver date is the dead-battery clock at install time, cosmetic.",
+   "Game-local nGlide wrappers are already renamed aside on this box, so the titles reach the real Voodoo 2: E:\\GAMES\\UnrealGold\\System\\glide2x.dll.nglide and E:\\GAMES\\Carmageddon2\\glide*.dll.nglide (Oct 1). The library itself no longer ships them (checked case-insensitively). The IPXWrapper DLLs are likewise renamed aside (*.ipxw), because real NWLink is installed.",
+   "Monitor: Plug and Play Monitor MONITOR\\DELD005 (Dell E773c), MONITOR.INF, problem 0.",
+   "DirectX 4.06.03.0518 = DirectX 6.1a, the Windows 98 SE stock version."
+  ],
+  "audio": [
+   {
+    "device": "Creative Sound Blaster 16 Plug and Play (ISA card CTL0024, audio function *CTL0031): waveOut 'SB16 Wave Out [220]'",
+    "status": "OK: problem 0. One wave-out device, 11/22/44 kHz 16-bit stereo. MediaResources\\wave = sb16snd.drv<0000>; wave/midi/mixer/aux subclasses and a DirectSound key present. DOS side: BLASTER=A220 I5 D1 H5 P330 T6 in AUTOEXEC.BAT, matching port 220.",
+    "driver_version": "Microsoft in-box SB16AWE.INF: mmdevldr.vxd + sb16.vxd (114,237 B) + sb16snd.drv (75,392 B), wave driver 4.37, 4-23-1999",
+    "pci_id": "ISAPNP\\CTL0024_DEV0000\\10112E29 (ISA; no PCI id)"
+   },
+   {
+    "device": "Gameport Joystick on the SB16 (*CTL7001)",
+    "status": "OK: problem 0, vjoyd.vxd",
+    "driver_version": "Microsoft JOYSTICK.INF, 4-23-1999",
+    "pci_id": "ISAPNP\\CTL0024_DEV0003\\10112E29"
+   }
+  ],
+  "wave_out_devices": 1,
+  "missing_or_problem_devices": [
+   {
+    "device": "Creative Labs IDE controller (the SB16 card's own IDE port)",
+    "hwid": "ISAPNP\\CTL0024_DEV0001\\10112E29 (*CTL2011, compatible *PNP0600)",
+    "state": "problem 15 (resource conflict) in the live devnode; disabled by design: Enum ConfigFlags=01",
+    "note": "Intentional. It wants 170h-177h/376h/IRQ15, the PIIX3 secondary channel that carries the 80 GB D:/E: with every game. That channel (MF\\CHILD0001) and its disk (ESDI\\GENERIC_IDE__DISK_TYPE00_) are problem 0. Keep it disabled; never give it a driver. DRIVERS STATUS calls it 'problem', not 'disabled', because drv9x.c keeps a non-zero live code over the ConfigFlags bit. That is a reporting quirk, not a fault."
+   },
+   {
+    "device": "PS/2 Compatible Mouse Port",
+    "hwid": "BIOS\\*PNP0F13\\0B",
+    "state": "problem 24 (device not present)",
+    "note": "No PS/2 mouse fitted. The USB wireless mouse/keyboard (USB\\VID_30FA&PID_1040 on the VIA VT83C572 UHCI) and its HID devices are all problem 0. A PS/2 mouse here would give real-DOS titles a mouse, which they currently lack."
+   },
+   {
+    "device": "IRQ Holder for PCI Steering (3 of 4)",
+    "hwid": "PCI\\IRQHOLDER\\60, \\61, \\63",
+    "state": "disabled (problem 22)",
+    "note": "Normal Win98 PCI IRQ steering placeholders; \\62 is active. Not a fault."
+   },
+   {
+    "device": "Unsupported Device (SB16 reserved function)",
+    "hwid": "ISAPNP\\CTL0024_DEV0002\\10112E29 (*PNPFFFF, MSDET.INF)",
+    "state": "ok (problem 0)",
+    "note": "Windows' deliberate placeholder for the card's unused logical device. Class 'Unknown' but not a missing driver."
+   }
+  ],
+  "crash_evidence": [
+   "Win98 keeps no minidumps or LiveKernelReports. C:\\WINDOWS\\DRWATSON holds only FRAME.HTM (no Dr. Watson logs). There is no C:\\WINDOWS\\IOS.LOG, so no drive has been forced into MS-DOS compatibility mode; both IDE channels and both disks run on protected-mode ESDI at problem 0.",
+   "C:\\SCANDISK.LOG (C: is checked at boot after every unclean shutdown). Last runs: 2026-11-07 23:45 (the boot after the Oct 16 session) and 2026-10-13 07:29. Both found only 'free space was being reported incorrectly - fixed'. Older 1980-dated runs are the 2026-09-28 freeze era (RBBAD.CAB crosslinked with SHARE.VER, 8 lost clusters, all fixed). No ScanDisk ran at the Nov 8 00:04 or Nov 11 10:57 boots, so those sessions ended in clean shutdowns.",
+   "Registry Checker: the only RBBAD.CAB is from 2026-09-28 (the documented rollback). Rolling backups rb000-rb004 are dated 10-13, 10-15, 11-07 23:46, 11-08 00:04 and 11-11 10:58, so there has been no registry damage since.",
+   "Agent log mirror (N5R5L9-agent.log + .1): no crash, exception, NO SOUND or error lines. Agent starts: 2026-11-07 23:46:42, 2026-11-08 00:04:36, 2026-11-11 10:58:35 (current; uptime 6151 s at audit time, still answering).",
+   "Two agent losses with Windows still running. Nov 7 about 23:48:40: the daemon saw 'connection reset', then 'connection refused' at 23:50:40 (refused, not 'no route to host', so the OS was still up). Nov 8 about 00:04:42: reset at 00:04:32 host time, refused at 00:06:32; this came 2 s after 'Auth failed for slot 1 (127.0.0.1:1028)' from the local chat client. Neither left a console-control or crash line. Cause unproven; not an OS crash.",
+   "Nov 8 timeline from file times. C:\\GAMES\\FALCON3 was created at 00:02:26 local: a desktop launch of the real-DOS Falcon 3.0 (copy, rundos hook, forced restart). Falcon wrote THEATER.BIN and SQUAD*.SQU in real DOS at 00:03:28-30. Windows and the agent were back at 00:04:36. WIN386.SWP was truncated at 00:10:06 local, i.e. a clean Windows shutdown. C:\\RUNDOS now holds only WBOOT.COM, SBCHK.COM, HOSTIP.BAT and MENUDEF.TXT: no NEXT.BAT or RAN.BAT, so nothing is armed for the next boot.",
+   "The last C:\\BOOTLOG.TXT (2026-09-28, 378 B) stops at 'C:\\DOSGAME\\CTMOUSE.EXE starting'. That is from the NEC-USB-card freeze era, not current.",
+   "Task Scheduler: SchedLog.Txt shows only service starts. The 'Tune-up Application Start' job in C:\\WINDOWS\\TASKS has never run."
+  ],
+  "recommendations": [
+   {
+    "component": "Display: Cirrus Logic GD5436 PCI (1013:00AC), Microsoft in-box DXCIRRUS.INF",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Correct and end-of-line for this chip. Win98 SE's DirectDraw-capable Cirrus driver is the reference, and no newer Win98 driver adds anything. Problem 0, no ghosts. It only does the 2D desktop (800x600x16, capped by 1 MB VRAM, a user decision); all 3D goes through the Voodoo 2.",
+    "needs_reboot": false
+   },
+   {
+    "component": "3D: 3dfx Voodoo2 (121A:0002, Class MEDIA), 3dfx 3.02.02 reference kit",
+    "action": "do_not_touch_3dfx",
+    "priority": "low",
+    "rationale": "3dfx silicon: never changed automatically. State is good: problem 0, enabled, enumerated at boot. All files are byte-size identical to the fleet kit, which is 3dfx's last Voodoo2 Win9x vendor build (Glide 2.56 / Glide3 3.03 / D3D 4.12.01) and P54C-safe (no CMOV). Game-local nGlide shadows are already renamed aside. If a reinstall is ever explicitly asked for (ALLOW3DFX), the rollback source is the path below.",
+    "candidate_package": "/mnt/retro-share/Files/Drivers/3DFX/Win9x/voodoo2-30202-fleet (reference only - do not install without an explicit 3dfx request)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Sound: Creative Sound Blaster 16 PnP (ISA CTL0024/*CTL0031), Microsoft in-box SB16AWE.INF (sb16.vxd, wave driver 4.37)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Working: one wave-out device, MIDI/mixer/aux present, problem 0, and Windows (port 220) agrees with the DOS BLASTER line. Creative's own Win9x update is on the share, but there is no stability or compatibility reason to churn a working in-box driver on a P166.",
+    "candidate_package": "/mnt/retro-share/Files/Drivers/Creative/Win9x/sbw9xup.exe (not recommended; listed only for completeness)",
+    "needs_reboot": false
+   },
+   {
+    "component": "SB16 on-card IDE port (ISAPNP\\CTL0024_DEV0001, *CTL2011)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "Keep it disabled (ConfigFlags=01, as intended). The live code 15 only reflects its 170h/376h/IRQ15 claim overlapping the PIIX3 secondary channel that holds D:/E:, and that channel is problem 0. Enabling it or giving it a driver could take the games disk. Tooling note: drv9x reports it as 'problem' instead of 'disabled'.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Retro agent stability (no supervisor on Win9x)",
+    "action": "investigate",
+    "priority": "medium",
+    "rationale": "The agent was lost twice on Nov 7-8 (23:48 and 00:04:42) while Windows kept running. No crash line, and the following boots were clean, so this is not an OS or driver crash, but the cause is unproven. Today's session has been stable since 10:58. Nothing restarts the agent on Win98, so a loss during a LAN round removes .243 from remote control until someone restarts it at the keyboard. For the rounds: keep a person near .243, use LAUNCH (never long EXEC), don't launch real-DOS titles (their forced restart drops the agent), and close connections gracefully.",
+    "needs_reboot": false
+   },
+   {
+    "component": "Shutdown hygiene / C: free space (swap-file drive)",
+    "action": "investigate",
+    "priority": "low",
+    "rationale": "ScanDisk ran at the Oct 13 and Nov 7 boots, so the box is sometimes switched off without a Windows shutdown. Damage so far is only free-space counts, but this box has had crosslinks before (Sep 28). Shut it down through Windows at the end of the session. C: has 351 MB free of 1220 MB and holds the dynamic swap file (total_page 351 MB). Real-DOS titles copy themselves into C:\\GAMES (FALCON3 now; legacy Quake1/Quake2Win9x/HexenII/Descent1 copies too). Keep at least about 200 MB free.",
+    "needs_reboot": false
+   },
+   {
+    "component": "DirectX 6.1a (4.06.03.0518, Win98 SE stock)",
+    "action": "none",
+    "priority": "low",
+    "rationale": "This box's titles render through Glide/MiniGL on the Voodoo 2, and DirectPlay 6.1 covers its 1998-99 titles. A DirectX 9.0c redist exists on the share, but it gives a P166/Cirrus/Voodoo 2 nothing and risks a stable stack. Only consider it if a specific title demands it.",
+    "candidate_package": "/mnt/retro-share/Files/Drivers/DirectX/DirectX December 2006.iso (not recommended)",
+    "needs_reboot": false
+   },
+   {
+    "component": "Network / chipset / USB: 3Com EtherLink III 3C509 (in-box NETEL5X9.INF) + TCP/IP + NWLink IPX 802.2; Intel 430HX/PIIX3 (MACHINE2/MSHDC in-box); VIA VT83C572 UHCI + USB HID",
+    "action": "none",
+    "priority": "low",
+    "rationale": "All problem 0. IPX is active (IpxSetupBoot today: 'active ... nothing changed'). Enum\\PCI holds only the 6 present devices (the NEC USB card that froze the box is gone, no ghosts). No stability reason to change anything.",
+    "needs_reboot": false
+   }
+  ],
+  "notes": "Read-only audit, run 2026-11-11 about 12:40-12:51 EST. Nothing on the box was launched, killed or changed. Every command was agent-internal (no EXEC, no child process): PING, SYSINFO, HWPROFILE, VIDEODIAG, AUDIOINFO, DRIVERS STATUS, PCISCAN, LICSTATUS, PROCLIST, DISPLAYCFG get, GAMERES, REGREAD, DIRLIST and DOWNLOAD of small text files. All connections closed with FIN; a final PING at 12:51 answered. PCIRESCAN was deliberately not run because it re-enumerates even without 'force'; its record (PciRescueBoot) was read instead. Raw evidence: /home/voidsstr/development/retro-agent/.claude/evidence-readiness-2026-11-11/audit-243-drivers/ (live1-live5 outputs, both agent-log mirrors, daemon journal lines for Nov 7-8).\n\nBox state:\n- Booted about 10:57:50 EST today (SYSINFO uptime 6151 s at audit time). RAM 127 MB, 85 MB free.\n- Disks: C: 351/1220 MB free, D: 3693/4016 MB, E: 64204/72277 MB (GamesDir E:\\GAMES). SYSINFO's 2047 MB cap is cosmetic.\n- PROCLIST is clean: KERNEL32, MSGSRV32, MPREXE, mmtask, MSTASK, EXPLORER, TASKMON, SYSTRAY, RETRO_CHAT.EXE and RETRO_AGENT.EXE (each with a WINOA386.MOD console). No game, installer or wizard running.\n- DRIVERS STATUS counts: ok 53, missing 0, generic 0, problem 2 (PS/2 mouse port with nothing fitted; SB16 IDE port disabled by design), disabled 3 (PCI IRQ holders), excluded_3dfx 1. No device lacks a driver.\n- Startup records today: GameResBoot 0 values changed, verify wrong=0. QuakeBindsBoot 6 current. MonitorPowerBoot already never. IpxSetupBoot active (802.2, node 00a024b9e9fb). DosStaged 15 files. FxPanelBoot n/a (not 2000/XP). There is no AudioStackFix value; that check is XP-only and not needed here.\n- GAMERES: no EDID, CRT assumed, target 800x600 4:3 for every title, desktop refresh left at the driver default.\n- SYSTEM.INI is stock Win98 SE ([vcache] empty, fine at 127 MB; display.drv=pnpdrvr.drv).\n- CONFIG.SYS has a boot menu (BASE XMS-only default, 5 s; EMS optional). AUTOEXEC.BAT runs CTMOUSE (finds no mouse in real DOS), the cmosmbr ONCE hook and the rundos v2 hook (currently idle).\n\nDriver history (fleetbook):\n- Voodoo2 3.02.02 kit installed 2026-09-24/25 via PCIRESCAN + PnP.\n- NEC uPD720101 USB card froze the box and was replaced by a VIA VT83C572 UHCI on 2026-09-27/28; USB mouse added 09-28.\n- NWLink IPX installed by agent IPXSETUP on 2026-10-01.\n- No driver changes since.\n\nStale doc: docs/fleet-inventory.md's .243 snapshot is from 2026-10-03 (agent 1.97.1), but its values still match. CLAUDE.md's warning that the library ships nGlide in UnrealGold/Carmageddon2 is out of date: the library no longer ships it, and this box has it renamed aside.\n\nBackground noise: the host favourites poller produces 'Auth failed for slot N (192.168.1.132)' every 5 minutes, then succeeds. It is harmless and predates the audit.\n\nBottom line: no sound or video driver needs installing or updating on .243."
+ }
+]

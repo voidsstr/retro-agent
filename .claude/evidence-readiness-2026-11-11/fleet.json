@@ -1,0 +1,1988 @@
+{
+ "192.168.1.110": {
+  "hw": {
+   "profile_hash": "2d1e2e8d090cb5aa",
+   "profile_version": 1,
+   "hostname": "NSC-5C5396FAF9D",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:38",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "Intel(R) Pentium(R) 4 CPU 2.80GHz",
+    "family": 15,
+    "model": 2,
+    "stepping": 9,
+    "mhz": 2793,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 31,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "sse",
+     "sse2"
+    ]
+   },
+   "ram_mb": 1150,
+   "gpu": {
+    "name": "NVIDIA GeForce 7800 GS",
+    "pci_ven": "0x10DE",
+    "pci_dev": "0x00F5",
+    "hardware_id": "PCI\\VEN_10DE&DEV_00F5&SUBSYS_A5063842&REV_A2",
+    "vram_mb": 256,
+    "driver_version": "6.14.10.9371",
+    "driver_date": "10-22-2006",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1600,
+    "height": 1200,
+    "bpp": 32,
+    "panel_w": 1600,
+    "panel_h": 1200,
+    "panel_source": "registry",
+    "edid_w": 1600,
+    "edid_h": 1200,
+    "panel_hz": 85,
+    "panel_digital": 0,
+    "panel_name": "HP P1120"
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 224520,
+     "total_mb": 286157
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "NVIDIA GeForce 7800 GS",
+     "pci_ven": "0x10DE",
+     "pci_dev": "0x00F5",
+     "hardware_id": "pci\\ven_10de&dev_00f5",
+     "driver_version": "6.14.10.9371",
+     "driver_date": "10-22-2006",
+     "attached_to_desktop": true
+    },
+    {
+     "instance": "0002",
+     "name": "RADEON 9500 PRO / 9700",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x4E45",
+     "hardware_id": "pci\\ven_1002&dev_4e45",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0003",
+     "name": "RADEON 9500 PRO / 9700 - Secondary",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x4E65",
+     "hardware_id": "pci\\ven_1002&dev_4e65",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Intel(R) PRO/100 VE Network Connection - Packet Scheduler Miniport",
+      "mac": "00-0C-F1-D7-98-4A",
+      "ipv4": [
+       "192.168.1.110"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "000cf1d7984a",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "NSC-5C5396FAF9D",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5369,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 15,
+    "processor_revision": 521
+   },
+   "memory": {
+    "total_mb": 1150,
+    "avail_mb": 909,
+    "load_percent": 20,
+    "total_page_mb": 2757,
+    "avail_page_mb": 2639
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 224520,
+     "total_mb": 286157
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "E:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 511
+    }
+   ]
+  }
+ },
+ "192.168.1.123": {
+  "hw": {
+   "profile_hash": "d91c7ebb69976b34",
+   "profile_version": 1,
+   "hostname": "NSC-B20C188E96D",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:38",
+   "cpu": {
+    "vendor": "AuthenticAMD",
+    "brand": "AMD Athlon(tm) 64 Processor 4000+",
+    "family": 15,
+    "model": 39,
+    "stepping": 1,
+    "mhz": 2402,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 319,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "3dnow",
+     "sse",
+     "sse2",
+     "sse3"
+    ]
+   },
+   "ram_mb": 2047,
+   "gpu": {
+    "name": "ATI Radeon HD 3850 AGP",
+    "pci_ven": "0x1002",
+    "pci_dev": "0x9515",
+    "hardware_id": "PCI\\VEN_1002&DEV_9515&SUBSYS_0028174B&REV_00",
+    "vram_mb": 512,
+    "driver_version": "8.970.100.0",
+    "driver_date": "4-24-2013",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1280,
+    "height": 1024,
+    "bpp": 32,
+    "panel_w": 1280,
+    "panel_h": 1024,
+    "panel_source": "registry",
+    "edid_w": 0,
+    "edid_h": 0,
+    "panel_hz": 0,
+    "panel_digital": 0,
+    "panel_name": ""
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 179954,
+     "total_mb": 244197
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "ATI Radeon HD 3850 AGP",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x9515",
+     "hardware_id": "pci\\ven_1002&dev_9515",
+     "driver_version": "8.970.100.0",
+     "driver_date": "4-24-2013",
+     "attached_to_desktop": true
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Marvell Yukon 88E8001/8003/8010 PCI Gigabit Ethernet Controller - Packet Scheduler Miniport",
+      "mac": "00-13-D4-A4-A4-13",
+      "ipv4": [
+       "192.168.1.123"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "0013d4a4a413",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "NSC-B20C188E96D",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5437,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 15,
+    "processor_revision": 9985
+   },
+   "memory": {
+    "total_mb": 2047,
+    "avail_mb": 1728,
+    "load_percent": 15,
+    "total_page_mb": 3939,
+    "avail_page_mb": 3779
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 179954,
+     "total_mb": 244197
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 478
+    }
+   ]
+  }
+ },
+ "192.168.1.124": {
+  "hw": {
+   "profile_hash": "dec95d42ad08a34d",
+   "profile_version": 1,
+   "hostname": "NSC-C543575F526",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:27:05",
+   "cpu": {
+    "vendor": "AuthenticAMD",
+    "brand": "AMD Athlon(tm) XP 2400+",
+    "family": 6,
+    "model": 8,
+    "stepping": 1,
+    "mhz": 2004,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 271,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "3dnow",
+     "sse"
+    ]
+   },
+   "ram_mb": 255,
+   "gpu": {
+    "name": "vcr-kmd Voodoo 5 6000 (open driver)",
+    "pci_ven": "0x121A",
+    "pci_dev": "0x0009",
+    "hardware_id": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+    "vram_mb": 64,
+    "driver_version": "0.1.0.0",
+    "driver_date": "9-25-2026",
+    "feature_level": "fixed",
+    "feature_level_num": 1,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\\5&2cfcdcf8&0&0000F0",
+    "bits": 3
+   },
+   "display": {
+    "width": 1280,
+    "height": 1024,
+    "bpp": 32,
+    "panel_w": 1280,
+    "panel_h": 1024,
+    "panel_source": "registry",
+    "edid_w": 1024,
+    "edid_h": 768,
+    "panel_hz": 85,
+    "panel_digital": 0,
+    "panel_name": "CPD-G200"
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 256215,
+     "total_mb": 305244
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0001",
+     "name": "vcr-kmd Voodoo 5 6000 (open driver)",
+     "pci_ven": "0x121A",
+     "pci_dev": "0x0009",
+     "hardware_id": "pci\\ven_121a&dev_0009&subsys_0001121a",
+     "driver_version": "0.1.0.0",
+     "driver_date": "9-25-2026",
+     "attached_to_desktop": true
+    }
+   ],
+   "accelerators": [
+    {
+     "device_key": "VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+     "pci_ven": "0x121A",
+     "pci_dev": "0x0009",
+     "description": "vcr-kmd Voodoo 5 6000 (open driver)",
+     "count": 1
+    }
+   ],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Intel(R) PRO/100+ Management Adapter - Packet Scheduler Miniport",
+      "mac": "00-D0-B7-40-96-A9",
+      "ipv4": [
+       "192.168.1.124"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "00d0b74096a9",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "NSC-C543575F526",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5336,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 2049
+   },
+   "memory": {
+    "total_mb": 255,
+    "avail_mb": 125,
+    "load_percent": 51,
+    "total_page_mb": 619,
+    "avail_page_mb": 522
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 256215,
+     "total_mb": 305244
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 555
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 4194303,
+     "total_mb": 4194303
+    }
+   ]
+  }
+ },
+ "192.168.1.133": {
+  "hw": {
+   "profile_hash": "b65fa1fee4df292c",
+   "profile_version": 1,
+   "hostname": "P3-DUAL",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:29:11",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "",
+    "family": 6,
+    "model": 8,
+    "stepping": 1,
+    "mhz": 701,
+    "mhz_source": "registry",
+    "count": 2,
+    "feature_bits": 15,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "sse"
+    ]
+   },
+   "ram_mb": 255,
+   "gpu": {
+    "name": "NVIDIA GeForce4 Ti 4600",
+    "pci_ven": "0x10DE",
+    "pci_dev": "0x0250",
+    "hardware_id": "PCI\\VEN_10DE&DEV_0250&SUBSYS_00371545&REV_A3",
+    "vram_mb": 128,
+    "driver_version": "6.14.10.9371",
+    "driver_date": "10-22-2006",
+    "feature_level": "sm1.x",
+    "feature_level_num": 3,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1280,
+    "height": 1024,
+    "bpp": 32,
+    "panel_w": 1280,
+    "panel_h": 1024,
+    "panel_source": "registry",
+    "edid_w": 1280,
+    "edid_h": 1024,
+    "panel_hz": 85,
+    "panel_digital": 0,
+    "panel_name": ""
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 891956,
+     "total_mb": 953869
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "NVIDIA GeForce4 Ti 4600",
+     "pci_ven": "0x10DE",
+     "pci_dev": "0x0250",
+     "hardware_id": "pci\\ven_10de&dev_0250",
+     "driver_version": "6.14.10.9371",
+     "driver_date": "10-22-2006",
+     "attached_to_desktop": true
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Linksys LNE100TX Fast Ethernet Adapter(LNE100TX v4) - Packet Scheduler Miniport",
+      "mac": "00-0C-41-E8-4F-CE",
+      "ipv4": [
+       "192.168.1.133"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "000c41e84fce",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "P3-DUAL",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5443,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 2,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 2049
+   },
+   "memory": {
+    "total_mb": 255,
+    "avail_mb": 151,
+    "load_percent": 40,
+    "total_page_mb": 617,
+    "avail_page_mb": 488
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 891956,
+     "total_mb": 953869
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "E:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 511
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 4194303,
+     "total_mb": 4194303
+    }
+   ]
+  }
+ },
+ "192.168.1.139": {
+  "hw": {
+   "profile_hash": "3020f235f941c101",
+   "profile_version": 1,
+   "hostname": "DESKTOP-CH9EU7O",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:38",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "Intel(R) Core(TM) i5-8400 CPU @ 2.80GHz",
+    "family": 6,
+    "model": 158,
+    "stepping": 10,
+    "mhz": 2808,
+    "mhz_source": "registry",
+    "count": 6,
+    "feature_bits": 255,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "sse",
+     "sse2",
+     "sse3",
+     "ssse3",
+     "sse4.1"
+    ]
+   },
+   "ram_mb": 16297,
+   "gpu": {
+    "name": "",
+    "pci_ven": "0x0000",
+    "pci_dev": "0x0000",
+    "hardware_id": "",
+    "vram_mb": 0,
+    "driver_version": "",
+    "driver_date": "",
+    "feature_level": "unknown",
+    "feature_level_num": -1,
+    "source": "registry(class key)"
+   },
+   "os": {
+    "product": "Windows 8",
+    "version": "6.2.9200",
+    "service_pack": "",
+    "level": "win8",
+    "level_num": 6
+   },
+   "host_policy": {
+    "modern": true,
+    "managed": false
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 11
+   },
+   "capabilities": {
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 0
+   },
+   "display": {
+    "width": 1024,
+    "height": 768,
+    "bpp": 32,
+    "panel_w": 1024,
+    "panel_h": 768,
+    "panel_source": "registry",
+    "edid_w": 0,
+    "edid_h": 0,
+    "panel_hz": 0,
+    "panel_digital": 0,
+    "panel_name": ""
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 199443,
+     "total_mb": 475866
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "AMD Radeon(TM) RX 560 Series",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x67EF",
+     "hardware_id": "PCI\\VEN_1002&DEV_67EF&SUBSYS_956D1682&REV_CF",
+     "driver_version": "31.0.21924.61",
+     "driver_date": "12-11-2025",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0001",
+     "name": "NVIDIA GeForce GTX 1070 Ti",
+     "pci_ven": "0x10DE",
+     "pci_dev": "0x1B82",
+     "hardware_id": "pci\\ven_10de&dev_1b82",
+     "driver_version": "32.0.15.8228",
+     "driver_date": "1-20-2026",
+     "attached_to_desktop": false
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Intel(R) Ethernet Connection (7) I219-V",
+      "mac": "70-85-C2-80-14-42",
+      "ipv4": [
+       "192.168.1.139"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "not_supported",
+    "mechanism": "none",
+    "winsock": false,
+    "installed": false,
+    "net": "",
+    "node": "",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "DESKTOP-CH9EU7O",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 93945,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 6,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 40458
+   },
+   "memory": {
+    "total_mb": 2047,
+    "avail_mb": 2047,
+    "load_percent": 41,
+    "total_page_mb": 4095,
+    "avail_page_mb": 4095
+   },
+   "os": {
+    "product": "Unknown",
+    "version": "6.2.9200",
+    "platform_id": 2,
+    "csd_version": ""
+   },
+   "drives": [
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 199443,
+     "total_mb": 475866
+    }
+   ]
+  }
+ },
+ "192.168.1.143": {
+  "hw": {
+   "profile_hash": "65a2b927575eaa82",
+   "profile_version": 1,
+   "hostname": "1GHZ",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:38",
+   "cpu": {
+    "vendor": "AuthenticAMD",
+    "brand": "AMD Athlon(tm) Processor",
+    "family": 6,
+    "model": 2,
+    "stepping": 2,
+    "mhz": 1000,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 263,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "3dnow"
+    ]
+   },
+   "ram_mb": 511,
+   "gpu": {
+    "name": "NVIDIA GeForce 6800",
+    "pci_ven": "0x10DE",
+    "pci_dev": "0x0041",
+    "hardware_id": "PCI\\VEN_10DE&DEV_0041&SUBSYS_00000000&REV_A1",
+    "vram_mb": 128,
+    "driver_version": "7.1.8.9",
+    "driver_date": "4-1-2005",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1024,
+    "height": 768,
+    "bpp": 32,
+    "panel_w": 1280,
+    "panel_h": 1024,
+    "panel_source": "registry",
+    "edid_w": 0,
+    "edid_h": 0,
+    "panel_hz": 0,
+    "panel_digital": 0,
+    "panel_name": ""
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 133139,
+     "total_mb": 228926
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "NVIDIA GeForce 6800",
+     "pci_ven": "0x10DE",
+     "pci_dev": "0x0041",
+     "hardware_id": "pci\\ven_10de&dev_0041",
+     "driver_version": "7.1.8.9",
+     "driver_date": "4-1-2005",
+     "attached_to_desktop": true
+    },
+    {
+     "instance": "0001",
+     "name": "AMIGAMERLIN 3.1-R11 For Voodoo 5 5500 AGP",
+     "pci_ven": "0x121A",
+     "pci_dev": "0x0009",
+     "hardware_id": "pci\\ven_121a&dev_0009&subsys_0002121a",
+     "driver_version": "5.1.2605.5",
+     "driver_date": "6-9-2005",
+     "attached_to_desktop": false
+    }
+   ],
+   "accelerators": [
+    {
+     "device_key": "VEN_121A&DEV_0009&SUBSYS_0002121A&REV_01",
+     "pci_ven": "0x121A",
+     "pci_dev": "0x0009",
+     "description": "AMIGAMERLIN 3.1-R11 For Voodoo 5 5500 AGP",
+     "count": 1
+    }
+   ],
+   "network": {
+    "interfaces": [
+     {
+      "description": "CNet PRO200WL PCI Fast Ethernet Adapter - Packet Scheduler Miniport",
+      "mac": "00-08-A1-03-52-C4",
+      "ipv4": [
+       "192.168.1.143"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "0008a10352c4",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "1GHZ",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5366,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 514
+   },
+   "memory": {
+    "total_mb": 511,
+    "avail_mb": 373,
+    "load_percent": 27,
+    "total_page_mb": 672,
+    "avail_page_mb": 572
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 133139,
+     "total_mb": 228926
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "E:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 285
+    },
+    {
+     "root": "F:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "G:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 637
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 4194303,
+     "total_mb": 4194303
+    }
+   ]
+  }
+ },
+ "192.168.1.171": {
+  "hw": {
+   "profile_hash": "1ae6cfb3e6bad997",
+   "profile_version": 1,
+   "hostname": "NSC-5B996B81319",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:36",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "Intel(R) Pentium(R) 4 CPU 2.80GHz",
+    "family": 15,
+    "model": 4,
+    "stepping": 1,
+    "mhz": 2793,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 63,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "sse",
+     "sse2",
+     "sse3"
+    ]
+   },
+   "ram_mb": 509,
+   "gpu": {
+    "name": "NVIDIA GeForce FX 5500",
+    "pci_ven": "0x10DE",
+    "pci_dev": "0x0326",
+    "hardware_id": "PCI\\VEN_10DE&DEV_0326&SUBSYS_00000000&REV_A1",
+    "vram_mb": 256,
+    "driver_version": "6.14.11.7519",
+    "driver_date": "5-16-2008",
+    "feature_level": "sm2.0",
+    "feature_level_num": 4,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1280,
+    "height": 1024,
+    "bpp": 32,
+    "panel_w": 1280,
+    "panel_h": 1024,
+    "panel_source": "registry",
+    "edid_w": 1280,
+    "edid_h": 1024,
+    "panel_hz": 85,
+    "panel_digital": 0,
+    "panel_name": "AOC Spectrum"
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 25443,
+     "total_mb": 95388
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "Intel(R) 82865G Graphics Controller",
+     "pci_ven": "0x8086",
+     "pci_dev": "0x2572",
+     "hardware_id": "pci\\ven_8086&dev_2572",
+     "driver_version": "6.14.10.4396",
+     "driver_date": "9-20-2005",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0001",
+     "name": "NVIDIA GeForce FX 5500",
+     "pci_ven": "0x10DE",
+     "pci_dev": "0x0326",
+     "hardware_id": "pci\\ven_10de&dev_0326",
+     "driver_version": "6.14.11.7519",
+     "driver_date": "5-16-2008",
+     "attached_to_desktop": true
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Intel(R) PRO/100 VE Network Connection - Packet Scheduler Miniport",
+      "mac": "00-13-20-7B-2D-45",
+      "ipv4": [
+       "192.168.1.171"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "0013207b2d45",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "NSC-5B996B81319",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5364,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 15,
+    "processor_revision": 1025
+   },
+   "memory": {
+    "total_mb": 509,
+    "avail_mb": 359,
+    "load_percent": 29,
+    "total_page_mb": 864,
+    "avail_page_mb": 751
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 25443,
+     "total_mb": 95388
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "E:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 511
+    }
+   ]
+  }
+ },
+ "192.168.1.184": {
+  "hw": {
+   "profile_hash": "881d549a01caf0cb",
+   "profile_version": 1,
+   "hostname": "NSC-CABE14B7486",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:28:25",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "",
+    "family": 6,
+    "model": 8,
+    "stepping": 3,
+    "mhz": 845,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 15,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "sse"
+    ]
+   },
+   "ram_mb": 511,
+   "gpu": {
+    "name": "NVIDIA GeForce2 GTS/GeForce2 Pro",
+    "pci_ven": "0x10DE",
+    "pci_dev": "0x0150",
+    "hardware_id": "PCI\\VEN_10DE&DEV_0150&SUBSYS_002E10DE&REV_A4",
+    "vram_mb": 32,
+    "driver_version": "7.1.8.9",
+    "driver_date": "4-1-2005",
+    "feature_level": "tnl",
+    "feature_level_num": 2,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1024,
+    "height": 768,
+    "bpp": 32,
+    "panel_w": 1024,
+    "panel_h": 768,
+    "panel_source": "registry",
+    "edid_w": 1280,
+    "edid_h": 960,
+    "panel_hz": 85,
+    "panel_digital": 0,
+    "panel_name": "A90"
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 89210,
+     "total_mb": 142381
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "NVIDIA GeForce2 GTS/GeForce2 Pro",
+     "pci_ven": "0x10DE",
+     "pci_dev": "0x0150",
+     "hardware_id": "pci\\ven_10de&dev_0150",
+     "driver_version": "7.1.8.9",
+     "driver_date": "4-1-2005",
+     "attached_to_desktop": true
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Hewlett-Packard DeskDirect (J2585B) 10/100VG PCI LAN  Adapter #2 - Packet Scheduler Miniport",
+      "mac": "08-00-09-EB-D1-A5",
+      "ipv4": [
+       "192.168.1.184"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "080009ebd1a5",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "NSC-CABE14B7486",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5351,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 2051
+   },
+   "memory": {
+    "total_mb": 511,
+    "avail_mb": 375,
+    "load_percent": 26,
+    "total_page_mb": 1247,
+    "avail_page_mb": 1145
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 89210,
+     "total_mb": 142381
+    },
+    {
+     "root": "D:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 511
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 4194303,
+     "total_mb": 4194303
+    }
+   ]
+  }
+ },
+ "192.168.1.186": {
+  "hw": {
+   "profile_hash": "8fe1838e2c779bda",
+   "profile_version": 1,
+   "hostname": "ADMIN-PC",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:42",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "Pentium(R) Dual-Core  CPU      E5300  @ 2.60GHz",
+    "family": 6,
+    "model": 23,
+    "stepping": 10,
+    "mhz": 2621,
+    "mhz_source": "registry",
+    "count": 2,
+    "feature_bits": 127,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "sse",
+     "sse2",
+     "sse3",
+     "ssse3"
+    ]
+   },
+   "ram_mb": 3071,
+   "gpu": {
+    "name": "Standard VGA Graphics Adapter",
+    "pci_ven": "0x10DE",
+    "pci_dev": "0x1F82",
+    "hardware_id": "PCI\\VEN_10DE&DEV_1F82&SUBSYS_8D921462&REV_A1",
+    "vram_mb": 16,
+    "driver_version": "",
+    "driver_date": "",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows 7",
+    "version": "6.1.7600",
+    "service_pack": "",
+    "level": "win7",
+    "level_num": 5
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 11
+   },
+   "capabilities": {
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 0
+   },
+   "display": {
+    "width": 1920,
+    "height": 1080,
+    "bpp": 32,
+    "panel_w": 1920,
+    "panel_h": 1080,
+    "panel_source": "registry",
+    "edid_w": 1920,
+    "edid_h": 1080,
+    "panel_hz": 60,
+    "panel_digital": 1,
+    "panel_name": "DELL P2312H"
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 168334,
+     "total_mb": 238472
+    },
+    {
+     "root": "D:\\",
+     "free_mb": 357,
+     "total_mb": 38138
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "Standard VGA Graphics Adapter",
+     "pci_ven": "0x0000",
+     "pci_dev": "0x0000",
+     "hardware_id": "pci\\cc_0300",
+     "driver_version": "6.1.7600.16385",
+     "driver_date": "6-21-2006",
+     "attached_to_desktop": false
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Realtek RTL8168C(P)/8111C(P) Family PCI-E Gigabit Ethernet NIC (NDIS 6.20)",
+      "mac": "E0-CB-4E-26-EC-A0",
+      "ipv4": [
+       "192.168.1.186"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "not_supported",
+    "mechanism": "none",
+    "winsock": false,
+    "installed": false,
+    "net": "",
+    "node": "",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "ADMIN-PC",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 93759,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 2,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 5898
+   },
+   "memory": {
+    "total_mb": 2047,
+    "avail_mb": 2019,
+    "load_percent": 34,
+    "total_page_mb": 4095,
+    "avail_page_mb": 4095
+   },
+   "os": {
+    "product": "Unknown",
+    "version": "6.1.7600",
+    "platform_id": 2,
+    "csd_version": ""
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 168334,
+     "total_mb": 238472
+    },
+    {
+     "root": "D:\\",
+     "type": "fixed",
+     "free_mb": 357,
+     "total_mb": 38138
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 4194303,
+     "total_mb": 4194303
+    }
+   ]
+  }
+ },
+ "192.168.1.240": {
+  "hw": {
+   "profile_hash": "dd8a8e0805de3eb8",
+   "profile_version": 1,
+   "hostname": "USER-41EA3B3330",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 09:24:57",
+   "cpu": {
+    "vendor": "AuthenticAMD",
+    "brand": "AMD Athlon(tm) 64 Processor 3300+",
+    "family": 15,
+    "model": 12,
+    "stepping": 0,
+    "mhz": 2403,
+    "mhz_source": "registry",
+    "count": 1,
+    "feature_bits": 287,
+    "features": [
+     "fpu",
+     "mmx",
+     "cmov",
+     "3dnow",
+     "sse",
+     "sse2"
+    ]
+   },
+   "ram_mb": 1022,
+   "gpu": {
+    "name": "Radeon X1950 Pro",
+    "pci_ven": "0x1002",
+    "pci_dev": "0x7280",
+    "hardware_id": "PCI\\VEN_1002&DEV_7280&SUBSYS_E190174B&REV_00",
+    "vram_mb": 512,
+    "driver_version": "8.593.100.0",
+    "driver_date": "2-10-2010",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "major": 9
+   },
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "display": {
+    "width": 1920,
+    "height": 1080,
+    "bpp": 32,
+    "panel_w": 1920,
+    "panel_h": 1080,
+    "panel_source": "registry",
+    "edid_w": 1920,
+    "edid_h": 1080,
+    "panel_hz": 60,
+    "panel_digital": 0,
+    "panel_name": "DELL E2313H"
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 8851,
+     "total_mb": 76285
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "RADEON 9800 XT",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x4E4A",
+     "hardware_id": "pci\\ven_1002&dev_4e4a",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0001",
+     "name": "RADEON 9800 XT - Secondary",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x4E6A",
+     "hardware_id": "pci\\ven_1002&dev_4e6a",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0002",
+     "name": "RADEON X800 Series",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x4A4B",
+     "hardware_id": "pci\\ven_1002&dev_4a4b",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0003",
+     "name": "RADEON X800 Series Secondary",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x4A6B",
+     "hardware_id": "pci\\ven_1002&dev_4a6b",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0004",
+     "name": "Radeon X1600 Series",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x71C0",
+     "hardware_id": "pci\\ven_1002&dev_71c0",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0005",
+     "name": "Radeon X1600 Series Secondary",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x71E0",
+     "hardware_id": "pci\\ven_1002&dev_71e0",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    },
+    {
+     "instance": "0006",
+     "name": "Radeon X1950 Pro",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x7280",
+     "hardware_id": "pci\\ven_1002&dev_7280",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": true
+    },
+    {
+     "instance": "0007",
+     "name": "Radeon X1950 Pro Secondary",
+     "pci_ven": "0x1002",
+     "pci_dev": "0x72A0",
+     "hardware_id": "pci\\ven_1002&dev_72a0",
+     "driver_version": "8.593.100.0",
+     "driver_date": "2-10-2010",
+     "attached_to_desktop": false
+    }
+   ],
+   "accelerators": [],
+   "network": {
+    "interfaces": [
+     {
+      "description": "Marvell Yukon Gigabit Ethernet 10/100/1000Base-T Adapter, Copper RJ-45 - Packet Scheduler Miniport",
+      "mac": "00-11-2F-E4-77-F5",
+      "ipv4": [
+       "192.168.1.240"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "netcfg",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "00112fe477f5",
+    "frame": "auto"
+   }
+  },
+  "si": {
+   "hostname": "USER-41EA3B3330",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5448,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 15,
+    "processor_revision": 3072
+   },
+   "memory": {
+    "total_mb": 1022,
+    "avail_mb": 687,
+    "load_percent": 32,
+    "total_page_mb": 2969,
+    "avail_page_mb": 2730
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 8851,
+     "total_mb": 76285
+    },
+    {
+     "root": "F:\\",
+     "type": "cdrom",
+     "free_mb": 0,
+     "total_mb": 637
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 4194303,
+     "total_mb": 4194303
+    }
+   ]
+  }
+ },
+ "192.168.1.243": {
+  "hw": {
+   "profile_hash": "b9a3b8c66827032c",
+   "profile_version": 1,
+   "hostname": "N5R5L9",
+   "agent_version": "1.98.0",
+   "reported_at": "2026-11-11 12:26:50",
+   "cpu": {
+    "vendor": "GenuineIntel",
+    "brand": "",
+    "family": 5,
+    "model": 2,
+    "stepping": 12,
+    "mhz": 165,
+    "mhz_source": "tsc",
+    "count": 1,
+    "feature_bits": 1,
+    "features": [
+     "fpu"
+    ]
+   },
+   "ram_mb": 127,
+   "gpu": {
+    "name": "Cirrus Logic 5436 PCI",
+    "pci_ven": "0x1013",
+    "pci_dev": "0x00AC",
+    "hardware_id": "PCI\\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00\\BUS_00&DEV_0F&FUNC_00",
+    "vram_mb": 0,
+    "driver_version": "",
+    "driver_date": " 4-23-1999",
+    "feature_level": "none",
+    "feature_level_num": 0,
+    "source": "EnumDisplayDevices(active)"
+   },
+   "os": {
+    "product": "Windows 98",
+    "version": "4.10.2222",
+    "service_pack": " A ",
+    "level": "win9x",
+    "level_num": 1
+   },
+   "host_policy": {
+    "modern": false,
+    "managed": true
+   },
+   "directx": {
+    "version": "4.06.03.0518",
+    "major": 6
+   },
+   "capabilities": {
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\\BUS_00&DEV_03&FUNC_00",
+    "bits": 2
+   },
+   "display": {
+    "width": 800,
+    "height": 600,
+    "bpp": 16,
+    "panel_w": 800,
+    "panel_h": 600,
+    "panel_source": "registry",
+    "edid_w": 0,
+    "edid_h": 0,
+    "panel_hz": 0,
+    "panel_digital": 0,
+    "panel_name": ""
+   },
+   "disk": [
+    {
+     "root": "C:\\",
+     "free_mb": 351,
+     "total_mb": 1220
+    },
+    {
+     "root": "D:\\",
+     "free_mb": 3693,
+     "total_mb": 4016
+    },
+    {
+     "root": "E:\\",
+     "free_mb": 64204,
+     "total_mb": 72277
+    }
+   ],
+   "video_cards": [
+    {
+     "instance": "0000",
+     "name": "Cirrus Logic 5436 PCI",
+     "pci_ven": "0x1013",
+     "pci_dev": "0x00AC",
+     "hardware_id": "PCI\\VEN_1013&DEV_00AC",
+     "driver_version": "",
+     "driver_date": " 4-23-1999",
+     "attached_to_desktop": true
+    }
+   ],
+   "accelerators": [
+    {
+     "device_key": "VEN_121A&DEV_0002&SUBSYS_00000000&REV_02",
+     "pci_ven": "0x121A",
+     "pci_dev": "0x0002",
+     "description": "Voodoo2 3D Accelerator",
+     "count": 1
+    }
+   ],
+   "network": {
+    "interfaces": [
+     {
+      "description": "ELNK3 Ethernet Adapter",
+      "mac": "00-A0-24-B9-E9-FB",
+      "ipv4": [
+       "192.168.1.243"
+      ]
+     }
+    ],
+    "source": "GetAdaptersInfo"
+   },
+   "ipx": {
+    "state": "active",
+    "mechanism": "win98se_template",
+    "winsock": true,
+    "installed": true,
+    "net": "00000000",
+    "node": "00a024b9e9fb",
+    "frame": "802.2"
+   }
+  },
+  "si": {
+   "hostname": "N5R5L9",
+   "agent_version": "1.98.0",
+   "uptime_seconds": 5338,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 5,
+    "processor_revision": 524
+   },
+   "memory": {
+    "total_mb": 127,
+    "avail_mb": 85,
+    "load_percent": 21,
+    "total_page_mb": 351,
+    "avail_page_mb": 351
+   },
+   "os": {
+    "product": "Windows 98",
+    "version": "4.10.2222",
+    "platform_id": 1,
+    "csd_version": " A "
+   },
+   "drives": [
+    {
+     "root": "A:\\",
+     "type": "removable"
+    },
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 351,
+     "total_mb": 1220
+    },
+    {
+     "root": "D:\\",
+     "type": "fixed",
+     "free_mb": 2047,
+     "total_mb": 2047
+    },
+    {
+     "root": "E:\\",
+     "type": "fixed",
+     "free_mb": 2047,
+     "total_mb": 2047
+    },
+    {
+     "root": "S:\\",
+     "type": "network",
+     "free_mb": 2047,
+     "total_mb": 2047
+    },
+    {
+     "root": "W:\\",
+     "type": "network",
+     "free_mb": 2047,
+     "total_mb": 2047
+    },
+    {
+     "root": "Y:\\",
+     "type": "network",
+     "free_mb": 2047,
+     "total_mb": 2047
+    }
+   ]
+  }
+ }
+}

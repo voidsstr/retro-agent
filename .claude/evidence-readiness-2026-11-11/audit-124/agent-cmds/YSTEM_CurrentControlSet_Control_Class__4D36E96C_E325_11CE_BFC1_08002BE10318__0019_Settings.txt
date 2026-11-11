@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E96C-E325-11CE-BFC1-08002BE10318}\\0019\\Settings","values":[{"name":"Channel Configuration","type":"REG_BINARY","data":"03 00 00 00"},{"name":"Speaker Geometry","type":"REG_DWORD","data":20}],"subkeys":["APU","MixerControls","VAPU"]}

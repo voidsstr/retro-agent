@@ -1,0 +1,53 @@
+sig b'MDMP' streams 9 timestamp 2004-11-08 10:52:52 UTC flags 0x0
+stream types [0, 3, 4, 5, 6, 7, 10, 15]
+modules: 46
+  00400000   777000 C:\Games\Quake2Complete\quake2.exe                                     0.0.0.0 ts=1998-10-19 21:02:54
+  7c900000    af000 C:\WINDOWS\system32\ntdll.dll                                          5.1.2600.5512 ts=2008-04-14 00:11:24
+  7c800000    f6000 C:\WINDOWS\system32\kernel32.dll                                       5.1.2600.5512 ts=2008-04-14 00:11:24
+  76b40000    2d000 C:\WINDOWS\system32\winmm.dll                                          5.1.2600.5512 ts=2008-04-14 00:11:40
+  77dd0000    9b000 C:\WINDOWS\system32\advapi32.dll                                       5.1.2600.5512 ts=2008-04-14 00:09:22
+  77e70000    92000 C:\WINDOWS\system32\rpcrt4.dll                                         5.1.2600.5512 ts=2008-04-14 00:10:46
+  77fe0000    11000 C:\WINDOWS\system32\secur32.dll                                        5.1.2600.5512 ts=2008-04-14 00:11:07
+  77f10000    49000 C:\WINDOWS\system32\gdi32.dll                                          5.1.2600.5512 ts=2008-04-14 00:09:34
+  7e410000    91000 C:\WINDOWS\system32\user32.dll                                         5.1.2600.5512 ts=2008-04-14 00:11:07
+  71ad0000     9000 C:\WINDOWS\system32\wsock32.dll                                        5.1.2600.5512 ts=2008-04-14 00:12:32
+  71ab0000    17000 C:\WINDOWS\system32\ws2_32.dll                                         5.1.2600.5512 ts=2008-04-14 00:12:19
+  77c10000    58000 C:\WINDOWS\system32\msvcrt.dll                                         7.0.2600.5512 ts=2008-04-14 00:12:56
+  71aa0000     8000 C:\WINDOWS\system32\ws2help.dll                                        5.1.2600.5512 ts=2008-04-14 00:12:20
+  5cb70000    26000 C:\WINDOWS\system32\shimeng.dll                                        5.1.2600.5512 ts=2008-04-14 00:11:00
+  71480000    20000 C:\WINDOWS\AppPatch\AcXtrnal.dll                                       5.1.2600.5512 ts=2008-04-14 00:09:03
+  6d9a0000   128000 C:\WINDOWS\system32\d3d8.dll                                           5.3.2600.5512 ts=2008-04-14 00:09:12
+  6d990000     6000 C:\WINDOWS\system32\d3d8thk.dll                                        5.3.2600.5512 ts=2008-04-14 00:09:12
+  77c00000     8000 C:\WINDOWS\system32\version.dll                                        5.1.2600.5512 ts=2008-04-14 00:11:09
+  6f880000   1ca000 C:\WINDOWS\AppPatch\AcGenral.dll                                       5.1.2600.5512 ts=2008-04-14 00:08:56
+  774e0000   13d000 C:\WINDOWS\system32\ole32.dll                                          5.1.2600.5512 ts=2008-04-14 00:10:57
+  77120000    8b000 C:\WINDOWS\system32\oleaut32.dll                                       5.1.2600.5512 ts=2008-04-14 00:10:58
+  77be0000    15000 C:\WINDOWS\system32\msacm32.dll                                        5.1.2600.5512 ts=2008-04-14 00:11:03
+  7c9c0000   817000 C:\WINDOWS\system32\shell32.dll                                        6.0.2900.5512 ts=2008-04-14 00:10:57
+  77f60000    76000 C:\WINDOWS\system32\shlwapi.dll                                        6.0.2900.5512 ts=2008-04-14 00:11:02
+  769c0000    b4000 C:\WINDOWS\system32\userenv.dll                                        5.1.2600.5512 ts=2008-04-14 00:11:08
+  5ad70000    38000 C:\WINDOWS\system32\uxtheme.dll                                        6.0.2900.5512 ts=2008-04-14 00:11:10
+  773d0000   103000 C:\WINDOWS\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6.0.2600.5512_x-ww_35d4ce83\comctl32.dll 6.0.2900.5512 ts=2008-04-14 00:08:52
+  5d090000    9a000 C:\WINDOWS\system32\comctl32.dll                                       5.82.2900.5512 ts=2008-04-14 00:09:44
+  10000000    ee000 C:\Games\Quake2Complete\ref_gl.dll                                     0.0.0.0 ts=1998-10-16 23:16:41
+  63380000   25f000 C:\Games\Quake2Complete\retrogl.dll                                    6.2.0.2 ts=2026-08-29 04:55:54
+  020b0000    56000 C:\WINDOWS\system32\glide3x.dll                                        3.3.0.670 ts=2000-01-17 14:42:27
+  03520000    10000 C:\WINDOWS\system32\fxoem2x.dll                                        4.1.0.3496 ts=2000-01-28 10:01:45
+  03940000   218000 C:\WINDOWS\system32\3dfxspl3.dll                                       1.0.0.4 ts=1999-10-16 09:21:57
+  76c30000    2e000 C:\WINDOWS\system32\wintrust.dll                                       5.131.2600.5512 ts=2008-04-14 00:11:22
+  77a80000    95000 C:\WINDOWS\system32\crypt32.dll                                        5.131.2600.5512 ts=2008-04-14 00:09:59
+  77b20000    12000 C:\WINDOWS\system32\msasn1.dll                                         5.1.2600.5512 ts=2008-04-14 00:11:18
+  76c90000    28000 C:\WINDOWS\system32\imagehlp.dll                                       5.1.2600.5512 ts=2008-04-14 00:10:00
+  72d20000     9000 C:\WINDOWS\system32\wdmaud.drv                                         5.1.2600.5512 ts=2008-04-14 00:11:24
+  72d10000     8000 C:\WINDOWS\system32\msacm32.drv                                        5.1.2600.0 ts=2001-08-18 05:33:30
+  77bd0000     7000 C:\WINDOWS\system32\midimap.dll                                        5.1.2600.5512 ts=2008-04-14 00:10:20
+  61da0000    10000 C:\WINDOWS\system32\mcicda.dll                                         5.1.2600.0 ts=2001-08-18 05:35:06
+  72280000    2a000 C:\WINDOWS\system32\dinput.dll                                         5.3.2600.5512 ts=2008-04-14 00:09:47
+  688f0000     9000 C:\WINDOWS\system32\hid.dll                                            5.1.2600.5512 ts=2008-04-14 00:09:41
+  77920000    f3000 C:\WINDOWS\system32\setupapi.dll                                       5.1.2600.5512 ts=2008-04-14 00:10:51
+  20000000    71000 C:\Games\Quake2Complete\baseq2\gamex86.dll                             0.0.0.0 ts=1998-10-16 22:51:55
+  77b40000    22000 C:\WINDOWS\system32\apphelp.dll                                        5.1.2600.5512 ts=2008-04-14 00:09:35
+exception: thread 308 code 0xc0000005 address 0x10f9000
+system: arch 0 os 5 1 2600 csd Service Pack 3
+misc: pid 1976 flags 0x3
+  process create time 2004-11-08 10:52:49 UTC

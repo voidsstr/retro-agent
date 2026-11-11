@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"Software\\3Dfx Interactive","values":[],"subkeys":["Voodoo2"]}

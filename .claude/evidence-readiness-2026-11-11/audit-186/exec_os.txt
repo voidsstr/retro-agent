@@ -1,0 +1,12 @@
+
+
+Caption=Microsoft Windows 7 Professional 
+CSDVersion=
+InstallDate=20261026103203.000000-240
+LastBootUpTime=20261110102404.375199-300
+LocalDateTime=20261111124111.229000-300
+OSArchitecture=32-bit
+Version=6.1.7600
+
+
+

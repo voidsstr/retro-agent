@@ -1,0 +1,3075 @@
+[10:13:08][MAIN ] Connection from 192.168.1.132:46562
+[10:13:08][MAIN ] Assigned slot 1 (5/10 active)
+[10:13:08][PROTO] AUTH: success
+[10:13:08][MAIN ] Client 1 (192.168.1.132:46562) authenticated
+[10:13:08][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:13:08][MAIN ] Client 1 (192.168.1.132:46562) disconnected
+[10:13:22][MAIN ] Connection from 192.168.1.132:49864
+[10:13:22][MAIN ] Assigned slot 1 (5/10 active)
+[10:13:22][PROTO] AUTH: success
+[10:13:22][MAIN ] Client 1 (192.168.1.132:49864) authenticated
+[10:13:22][MAIN ] Client 1 (192.168.1.132:49864) disconnected
+[10:13:52][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:14:11][MAIN ] Connection from 192.168.1.132:50510
+[10:14:11][MAIN ] Assigned slot 1 (5/10 active)
+[10:14:11][PROTO] AUTH: success
+[10:14:11][MAIN ] Client 1 (192.168.1.132:50510) authenticated
+[10:14:11][MAIN ] Client 1 (192.168.1.132:50510) disconnected
+[10:14:38][MAIN ] Connection from 192.168.1.132:33948
+[10:14:38][MAIN ] Assigned slot 1 (5/10 active)
+[10:14:38][PROTO] AUTH: success
+[10:14:38][MAIN ] Client 1 (192.168.1.132:33948) authenticated
+[10:14:38][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:14:38][MAIN ] Client 1 (192.168.1.132:33948) disconnected
+[10:14:53][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:15:00][MAIN ] Connection from 192.168.1.132:55114
+[10:15:00][MAIN ] Assigned slot 1 (5/10 active)
+[10:15:00][PROTO] AUTH: success
+[10:15:00][MAIN ] Client 1 (192.168.1.132:55114) authenticated
+[10:15:00][MAIN ] Client 1 (192.168.1.132:55114) disconnected
+[10:15:39][MAIN ] Connection from 192.168.1.132:52444
+[10:15:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:15:39][MAIN ] Auth failed for slot 1 (192.168.1.132:52444)
+[10:15:39][MAIN ] Client 1 (192.168.1.132:52444) disconnected
+[10:15:40][MAIN ] Connection from 192.168.1.132:52460
+[10:15:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:15:40][PROTO] AUTH: success
+[10:15:40][MAIN ] Client 1 (192.168.1.132:52460) authenticated
+[10:15:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:15:40][MAIN ] Client 1 (192.168.1.132:52460) disconnected
+[10:15:49][MAIN ] Connection from 192.168.1.132:52434
+[10:15:49][MAIN ] Assigned slot 1 (5/10 active)
+[10:15:49][PROTO] AUTH: success
+[10:15:49][MAIN ] Client 1 (192.168.1.132:52434) authenticated
+[10:15:49][MAIN ] Client 1 (192.168.1.132:52434) disconnected
+[10:15:53][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:16:08][MAIN ] Connection from 192.168.1.132:33052
+[10:16:08][MAIN ] Assigned slot 1 (5/10 active)
+[10:16:08][PROTO] AUTH: success
+[10:16:08][MAIN ] Client 1 (192.168.1.132:33052) authenticated
+[10:16:08][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:16:08][MAIN ] Client 1 (192.168.1.132:33052) disconnected
+[10:16:29][MAIN ] Connection from 192.168.1.132:40462
+[10:16:29][MAIN ] Assigned slot 1 (5/10 active)
+[10:16:29][PROTO] AUTH: success
+[10:16:29][MAIN ] Client 1 (192.168.1.132:40462) authenticated
+[10:16:29][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:16:29][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:16:29][PROTO] frame_send: 1241 bytes
+[10:16:29][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:16:29][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:16:29][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:16:29][PROTO] frame_send: 3807 bytes
+[10:16:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:16:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:16:29][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:16:29][PROTO] frame_send: 4478 bytes
+[10:16:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:16:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:16:29][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:16:29][PROTO] frame_send: 4601 bytes
+[10:16:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:16:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:16:29][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:16:29][PROTO] frame_send: 8907 bytes
+[10:16:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:16:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:16:29][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:16:29][PROTO] frame_send: 17813 bytes
+[10:16:29][MAIN ] Client 1 (192.168.1.132:40462) disconnected
+[10:16:38][MAIN ] Connection from 192.168.1.132:37010
+[10:16:38][MAIN ] Assigned slot 1 (5/10 active)
+[10:16:38][PROTO] AUTH: success
+[10:16:38][MAIN ] Client 1 (192.168.1.132:37010) authenticated
+[10:16:38][MAIN ] Client 1 (192.168.1.132:37010) disconnected
+[10:16:54][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:17:27][MAIN ] Connection from 192.168.1.132:51364
+[10:17:27][MAIN ] Assigned slot 1 (5/10 active)
+[10:17:27][PROTO] AUTH: success
+[10:17:27][MAIN ] Client 1 (192.168.1.132:51364) authenticated
+[10:17:27][MAIN ] Client 1 (192.168.1.132:51364) disconnected
+[10:17:38][MAIN ] Connection from 192.168.1.132:41188
+[10:17:38][MAIN ] Assigned slot 1 (5/10 active)
+[10:17:38][PROTO] AUTH: success
+[10:17:38][MAIN ] Client 1 (192.168.1.132:41188) authenticated
+[10:17:38][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:17:38][MAIN ] Client 1 (192.168.1.132:41188) disconnected
+[10:17:55][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:18:16][MAIN ] Connection from 192.168.1.132:40584
+[10:18:16][MAIN ] Assigned slot 1 (5/10 active)
+[10:18:16][PROTO] AUTH: success
+[10:18:16][MAIN ] Client 1 (192.168.1.132:40584) authenticated
+[10:18:16][MAIN ] Client 1 (192.168.1.132:40584) disconnected
+[10:18:55][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:19:05][MAIN ] Connection from 192.168.1.132:44906
+[10:19:05][MAIN ] Assigned slot 1 (5/10 active)
+[10:19:05][PROTO] AUTH: success
+[10:19:05][MAIN ] Client 1 (192.168.1.132:44906) authenticated
+[10:19:05][MAIN ] Client 1 (192.168.1.132:44906) disconnected
+[10:19:16][MAIN ] Connection from 192.168.1.132:55434
+[10:19:16][MAIN ] Assigned slot 1 (5/10 active)
+[10:19:16][PROTO] AUTH: success
+[10:19:16][MAIN ] Client 1 (192.168.1.132:55434) authenticated
+[10:19:16][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:19:16][MAIN ] Client 1 (192.168.1.132:55434) disconnected
+[10:19:54][MAIN ] Connection from 192.168.1.132:41352
+[10:19:54][MAIN ] Assigned slot 1 (5/10 active)
+[10:19:54][PROTO] AUTH: success
+[10:19:54][MAIN ] Client 1 (192.168.1.132:41352) authenticated
+[10:19:54][MAIN ] Client 1 (192.168.1.132:41352) disconnected
+[10:19:55][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:20:39][MAIN ] Connection from 192.168.1.132:35996
+[10:20:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:20:39][MAIN ] Auth failed for slot 1 (192.168.1.132:35996)
+[10:20:39][MAIN ] Client 1 (192.168.1.132:35996) disconnected
+[10:20:40][MAIN ] Connection from 192.168.1.132:35998
+[10:20:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:20:40][PROTO] AUTH: success
+[10:20:40][MAIN ] Client 1 (192.168.1.132:35998) authenticated
+[10:20:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:20:40][MAIN ] Client 1 (192.168.1.132:35998) disconnected
+[10:20:43][MAIN ] Connection from 192.168.1.132:36000
+[10:20:43][MAIN ] Assigned slot 1 (5/10 active)
+[10:20:43][PROTO] AUTH: success
+[10:20:43][MAIN ] Client 1 (192.168.1.132:36000) authenticated
+[10:20:43][MAIN ] Client 1 (192.168.1.132:36000) disconnected
+[10:20:47][MAIN ] Connection from 192.168.1.132:42926
+[10:20:47][MAIN ] Assigned slot 1 (5/10 active)
+[10:20:47][PROTO] AUTH: success
+[10:20:47][MAIN ] Client 1 (192.168.1.132:42926) authenticated
+[10:20:47][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:20:47][MAIN ] Client 1 (192.168.1.132:42926) disconnected
+[10:20:56][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:21:31][MAIN ] Connection from 192.168.1.132:47160
+[10:21:31][MAIN ] Assigned slot 1 (5/10 active)
+[10:21:31][PROTO] AUTH: success
+[10:21:31][MAIN ] Client 1 (192.168.1.132:47160) authenticated
+[10:21:31][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:21:31][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:21:31][PROTO] frame_send: 1241 bytes
+[10:21:31][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:21:31][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:21:31][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:21:31][PROTO] frame_send: 3807 bytes
+[10:21:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:21:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:21:31][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:21:31][PROTO] frame_send: 4478 bytes
+[10:21:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:21:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:21:31][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:21:31][PROTO] frame_send: 4601 bytes
+[10:21:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:21:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:21:31][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:21:31][PROTO] frame_send: 8907 bytes
+[10:21:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:21:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:21:31][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:21:31][PROTO] frame_send: 17813 bytes
+[10:21:31][MAIN ] Client 1 (192.168.1.132:47160) disconnected
+[10:21:32][MAIN ] Connection from 192.168.1.132:47164
+[10:21:32][MAIN ] Assigned slot 1 (5/10 active)
+[10:21:32][PROTO] AUTH: success
+[10:21:32][MAIN ] Client 1 (192.168.1.132:47164) authenticated
+[10:21:32][MAIN ] Client 1 (192.168.1.132:47164) disconnected
+[10:21:56][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:22:17][MAIN ] Connection from 192.168.1.132:43364
+[10:22:17][MAIN ] Assigned slot 1 (5/10 active)
+[10:22:17][PROTO] AUTH: success
+[10:22:17][MAIN ] Client 1 (192.168.1.132:43364) authenticated
+[10:22:17][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:22:17][MAIN ] Client 1 (192.168.1.132:43364) disconnected
+[10:22:21][MAIN ] Connection from 192.168.1.132:43370
+[10:22:21][MAIN ] Assigned slot 1 (5/10 active)
+[10:22:21][PROTO] AUTH: success
+[10:22:21][MAIN ] Client 1 (192.168.1.132:43370) authenticated
+[10:22:21][MAIN ] Client 1 (192.168.1.132:43370) disconnected
+[10:22:56][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:23:10][MAIN ] Connection from 192.168.1.132:44922
+[10:23:10][MAIN ] Assigned slot 1 (5/10 active)
+[10:23:10][PROTO] AUTH: success
+[10:23:10][MAIN ] Client 1 (192.168.1.132:44922) authenticated
+[10:23:10][MAIN ] Client 1 (192.168.1.132:44922) disconnected
+[10:23:47][MAIN ] Connection from 192.168.1.132:33458
+[10:23:47][MAIN ] Assigned slot 1 (5/10 active)
+[10:23:47][PROTO] AUTH: success
+[10:23:47][MAIN ] Client 1 (192.168.1.132:33458) authenticated
+[10:23:47][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:23:47][MAIN ] Client 1 (192.168.1.132:33458) disconnected
+[10:23:59][MAIN ] Connection from 192.168.1.132:47434
+[10:23:59][MAIN ] Assigned slot 1 (5/10 active)
+[10:23:59][PROTO] AUTH: success
+[10:23:59][MAIN ] Client 1 (192.168.1.132:47434) authenticated
+[10:23:59][MAIN ] Client 1 (192.168.1.132:47434) disconnected
+[10:24:27][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:24:48][MAIN ] Connection from 192.168.1.132:48182
+[10:24:48][MAIN ] Assigned slot 1 (5/10 active)
+[10:24:48][PROTO] AUTH: success
+[10:24:48][MAIN ] Client 1 (192.168.1.132:48182) authenticated
+[10:24:48][MAIN ] Client 1 (192.168.1.132:48182) disconnected
+[10:25:25][MAIN ] Connection from 192.168.1.132:60024
+[10:25:25][MAIN ] Assigned slot 1 (5/10 active)
+[10:25:25][PROTO] AUTH: success
+[10:25:25][MAIN ] Client 1 (192.168.1.132:60024) authenticated
+[10:25:25][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:25:25][MAIN ] Client 1 (192.168.1.132:60024) disconnected
+[10:25:37][MAIN ] Connection from 192.168.1.132:56016
+[10:25:37][MAIN ] Assigned slot 1 (5/10 active)
+[10:25:37][PROTO] AUTH: success
+[10:25:37][MAIN ] Client 1 (192.168.1.132:56016) authenticated
+[10:25:37][MAIN ] Client 1 (192.168.1.132:56016) disconnected
+[10:25:39][MAIN ] Connection from 192.168.1.132:56030
+[10:25:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:25:39][MAIN ] Auth failed for slot 1 (192.168.1.132:56030)
+[10:25:39][MAIN ] Client 1 (192.168.1.132:56030) disconnected
+[10:25:40][MAIN ] Connection from 192.168.1.132:56044
+[10:25:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:25:40][PROTO] AUTH: success
+[10:25:40][MAIN ] Client 1 (192.168.1.132:56044) authenticated
+[10:25:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:25:40][MAIN ] Client 1 (192.168.1.132:56044) disconnected
+[10:25:57][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:26:26][MAIN ] Connection from 192.168.1.132:37092
+[10:26:26][MAIN ] Assigned slot 1 (5/10 active)
+[10:26:26][PROTO] AUTH: success
+[10:26:26][MAIN ] Client 1 (192.168.1.132:37092) authenticated
+[10:26:26][MAIN ] Client 1 (192.168.1.132:37092) disconnected
+[10:26:31][MAIN ] Connection from 192.168.1.132:37096
+[10:26:31][MAIN ] Assigned slot 1 (5/10 active)
+[10:26:31][PROTO] AUTH: success
+[10:26:31][MAIN ] Client 1 (192.168.1.132:37096) authenticated
+[10:26:31][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:26:31][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:26:31][PROTO] frame_send: 1241 bytes
+[10:26:31][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:26:31][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:26:31][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:26:31][PROTO] frame_send: 3807 bytes
+[10:26:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:26:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:26:31][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:26:31][PROTO] frame_send: 4478 bytes
+[10:26:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:26:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:26:31][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:26:31][PROTO] frame_send: 4601 bytes
+[10:26:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:26:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:26:31][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:26:31][PROTO] frame_send: 8907 bytes
+[10:26:31][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:26:31][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:26:31][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:26:31][PROTO] frame_send: 17813 bytes
+[10:26:31][MAIN ] Client 1 (192.168.1.132:37096) disconnected
+[10:26:55][MAIN ] Connection from 192.168.1.132:41300
+[10:26:55][MAIN ] Assigned slot 1 (5/10 active)
+[10:26:55][PROTO] AUTH: success
+[10:26:55][MAIN ] Client 1 (192.168.1.132:41300) authenticated
+[10:26:55][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:26:55][MAIN ] Client 1 (192.168.1.132:41300) disconnected
+[10:26:58][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:27:15][MAIN ] Connection from 192.168.1.132:49466
+[10:27:15][MAIN ] Assigned slot 1 (5/10 active)
+[10:27:15][PROTO] AUTH: success
+[10:27:15][MAIN ] Client 1 (192.168.1.132:49466) authenticated
+[10:27:15][MAIN ] Client 1 (192.168.1.132:49466) disconnected
+[10:27:58][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:28:04][MAIN ] Connection from 192.168.1.132:42404
+[10:28:04][MAIN ] Assigned slot 1 (5/10 active)
+[10:28:04][PROTO] AUTH: success
+[10:28:04][MAIN ] Client 1 (192.168.1.132:42404) authenticated
+[10:28:04][MAIN ] Client 1 (192.168.1.132:42404) disconnected
+[10:28:25][MAIN ] Connection from 192.168.1.132:42648
+[10:28:25][MAIN ] Assigned slot 1 (5/10 active)
+[10:28:25][PROTO] AUTH: success
+[10:28:25][MAIN ] Client 1 (192.168.1.132:42648) authenticated
+[10:28:25][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:28:25][MAIN ] Client 1 (192.168.1.132:42648) disconnected
+[10:28:53][MAIN ] Connection from 192.168.1.132:58516
+[10:28:53][MAIN ] Assigned slot 1 (5/10 active)
+[10:28:53][PROTO] AUTH: success
+[10:28:53][MAIN ] Client 1 (192.168.1.132:58516) authenticated
+[10:28:53][MAIN ] Client 1 (192.168.1.132:58516) disconnected
+[10:28:59][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:29:42][MAIN ] Connection from 192.168.1.132:45970
+[10:29:42][MAIN ] Assigned slot 1 (5/10 active)
+[10:29:42][PROTO] AUTH: success
+[10:29:42][MAIN ] Client 1 (192.168.1.132:45970) authenticated
+[10:29:42][MAIN ] Client 1 (192.168.1.132:45970) disconnected
+[10:29:55][MAIN ] Connection from 192.168.1.132:54652
+[10:29:55][MAIN ] Assigned slot 1 (5/10 active)
+[10:29:55][PROTO] AUTH: success
+[10:29:55][MAIN ] Client 1 (192.168.1.132:54652) authenticated
+[10:29:55][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:29:55][MAIN ] Client 1 (192.168.1.132:54652) disconnected
+[10:29:59][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:30:31][MAIN ] Connection from 192.168.1.132:53768
+[10:30:31][MAIN ] Assigned slot 1 (5/10 active)
+[10:30:31][PROTO] AUTH: success
+[10:30:31][MAIN ] Client 1 (192.168.1.132:53768) authenticated
+[10:30:31][MAIN ] Client 1 (192.168.1.132:53768) disconnected
+[10:30:39][MAIN ] Connection from 192.168.1.132:50152
+[10:30:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:30:39][MAIN ] Auth failed for slot 1 (192.168.1.132:50152)
+[10:30:39][MAIN ] Client 1 (192.168.1.132:50152) disconnected
+[10:30:40][MAIN ] Connection from 192.168.1.132:50164
+[10:30:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:30:40][PROTO] AUTH: success
+[10:30:40][MAIN ] Client 1 (192.168.1.132:50164) authenticated
+[10:30:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:30:40][MAIN ] Client 1 (192.168.1.132:50164) disconnected
+[10:30:59][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:31:20][MAIN ] Connection from 192.168.1.132:55944
+[10:31:20][MAIN ] Assigned slot 1 (5/10 active)
+[10:31:20][PROTO] AUTH: success
+[10:31:20][MAIN ] Client 1 (192.168.1.132:55944) authenticated
+[10:31:20][MAIN ] Client 1 (192.168.1.132:55944) disconnected
+[10:31:29][MAIN ] Connection from 192.168.1.132:59856
+[10:31:29][MAIN ] Assigned slot 1 (5/10 active)
+[10:31:29][PROTO] AUTH: success
+[10:31:29][MAIN ] Client 1 (192.168.1.132:59856) authenticated
+[10:31:29][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:31:29][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:31:29][PROTO] frame_send: 1241 bytes
+[10:31:29][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:31:29][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:31:29][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:31:29][PROTO] frame_send: 3807 bytes
+[10:31:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:31:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:31:29][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:31:29][PROTO] frame_send: 4478 bytes
+[10:31:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:31:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:31:29][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:31:29][PROTO] frame_send: 4601 bytes
+[10:31:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:31:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:31:29][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:31:29][PROTO] frame_send: 8907 bytes
+[10:31:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:31:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:31:29][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:31:29][PROTO] frame_send: 17813 bytes
+[10:31:29][MAIN ] Client 1 (192.168.1.132:59856) disconnected
+[10:31:33][MAIN ] Connection from 192.168.1.132:59872
+[10:31:33][MAIN ] Assigned slot 1 (5/10 active)
+[10:31:33][PROTO] AUTH: success
+[10:31:33][MAIN ] Client 1 (192.168.1.132:59872) authenticated
+[10:31:33][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:31:33][MAIN ] Client 1 (192.168.1.132:59872) disconnected
+[10:31:59][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:32:09][MAIN ] Connection from 192.168.1.132:58906
+[10:32:09][MAIN ] Assigned slot 1 (5/10 active)
+[10:32:09][PROTO] AUTH: success
+[10:32:09][MAIN ] Client 1 (192.168.1.132:58906) authenticated
+[10:32:09][MAIN ] Client 1 (192.168.1.132:58906) disconnected
+[10:32:58][MAIN ] Connection from 192.168.1.132:53994
+[10:32:58][MAIN ] Assigned slot 1 (5/10 active)
+[10:32:58][PROTO] AUTH: success
+[10:32:58][MAIN ] Client 1 (192.168.1.132:53994) authenticated
+[10:32:58][MAIN ] Client 1 (192.168.1.132:53994) disconnected
+[10:33:00][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:33:04][MAIN ] Connection from 192.168.1.132:54008
+[10:33:04][MAIN ] Assigned slot 1 (5/10 active)
+[10:33:04][PROTO] AUTH: success
+[10:33:04][MAIN ] Client 1 (192.168.1.132:54008) authenticated
+[10:33:04][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:33:04][MAIN ] Client 1 (192.168.1.132:54008) disconnected
+[10:33:47][MAIN ] Connection from 192.168.1.132:44440
+[10:33:47][MAIN ] Assigned slot 1 (5/10 active)
+[10:33:47][PROTO] AUTH: success
+[10:33:47][MAIN ] Client 1 (192.168.1.132:44440) authenticated
+[10:33:47][MAIN ] Client 1 (192.168.1.132:44440) disconnected
+[10:34:00][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:34:18][GAMEINDEX] scan complete (hourly): 26 game(s), hash=fe7b993e, 108186ms
+[10:34:34][MAIN ] Connection from 192.168.1.132:36316
+[10:34:34][MAIN ] Assigned slot 1 (5/10 active)
+[10:34:34][PROTO] AUTH: success
+[10:34:34][MAIN ] Client 1 (192.168.1.132:36316) authenticated
+[10:34:34][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:34:34][MAIN ] Client 1 (192.168.1.132:36316) disconnected
+[10:34:36][MAIN ] Connection from 192.168.1.132:51210
+[10:34:36][MAIN ] Assigned slot 1 (5/10 active)
+[10:34:36][PROTO] AUTH: success
+[10:34:36][MAIN ] Client 1 (192.168.1.132:51210) authenticated
+[10:34:36][MAIN ] Client 1 (192.168.1.132:51210) disconnected
+[10:35:00][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:35:25][MAIN ] Connection from 192.168.1.132:51636
+[10:35:25][MAIN ] Assigned slot 1 (5/10 active)
+[10:35:25][PROTO] AUTH: success
+[10:35:25][MAIN ] Client 1 (192.168.1.132:51636) authenticated
+[10:35:25][MAIN ] Client 1 (192.168.1.132:51636) disconnected
+[10:35:39][MAIN ] Connection from 192.168.1.132:45156
+[10:35:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:35:39][MAIN ] Auth failed for slot 1 (192.168.1.132:45156)
+[10:35:39][MAIN ] Client 1 (192.168.1.132:45156) disconnected
+[10:35:40][MAIN ] Connection from 192.168.1.132:45158
+[10:35:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:35:40][PROTO] AUTH: success
+[10:35:40][MAIN ] Client 1 (192.168.1.132:45158) authenticated
+[10:35:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:35:40][MAIN ] Client 1 (192.168.1.132:45158) disconnected
+[10:36:01][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:36:04][MAIN ] Connection from 192.168.1.132:52494
+[10:36:04][MAIN ] Assigned slot 1 (5/10 active)
+[10:36:04][PROTO] AUTH: success
+[10:36:04][MAIN ] Client 1 (192.168.1.132:52494) authenticated
+[10:36:04][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:36:04][MAIN ] Client 1 (192.168.1.132:52494) disconnected
+[10:36:14][MAIN ] Connection from 192.168.1.132:45486
+[10:36:14][MAIN ] Assigned slot 1 (5/10 active)
+[10:36:14][PROTO] AUTH: success
+[10:36:14][MAIN ] Client 1 (192.168.1.132:45486) authenticated
+[10:36:14][MAIN ] Client 1 (192.168.1.132:45486) disconnected
+[10:36:29][MAIN ] Connection from 192.168.1.132:50478
+[10:36:29][MAIN ] Assigned slot 1 (5/10 active)
+[10:36:29][PROTO] AUTH: success
+[10:36:29][MAIN ] Client 1 (192.168.1.132:50478) authenticated
+[10:36:29][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:36:29][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:36:29][PROTO] frame_send: 1241 bytes
+[10:36:29][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:36:29][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:36:29][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:36:29][PROTO] frame_send: 3807 bytes
+[10:36:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:36:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:36:29][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:36:29][PROTO] frame_send: 4478 bytes
+[10:36:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:36:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:36:29][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:36:29][PROTO] frame_send: 4601 bytes
+[10:36:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:36:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:36:29][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:36:29][PROTO] frame_send: 8907 bytes
+[10:36:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:36:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:36:29][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:36:29][PROTO] frame_send: 17813 bytes
+[10:36:29][MAIN ] Client 1 (192.168.1.132:50478) disconnected
+[10:37:02][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:37:03][MAIN ] Connection from 192.168.1.132:53174
+[10:37:03][MAIN ] Assigned slot 1 (5/10 active)
+[10:37:03][PROTO] AUTH: success
+[10:37:03][MAIN ] Client 1 (192.168.1.132:53174) authenticated
+[10:37:03][MAIN ] Client 1 (192.168.1.132:53174) disconnected
+[10:37:42][MAIN ] Connection from 192.168.1.132:56312
+[10:37:42][MAIN ] Assigned slot 1 (5/10 active)
+[10:37:42][PROTO] AUTH: success
+[10:37:42][MAIN ] Client 1 (192.168.1.132:56312) authenticated
+[10:37:42][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:37:42][MAIN ] Client 1 (192.168.1.132:56312) disconnected
+[10:37:52][MAIN ] Connection from 192.168.1.132:56860
+[10:37:52][MAIN ] Assigned slot 1 (5/10 active)
+[10:37:52][PROTO] AUTH: success
+[10:37:52][MAIN ] Client 1 (192.168.1.132:56860) authenticated
+[10:37:52][MAIN ] Client 1 (192.168.1.132:56860) disconnected
+[10:38:02][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:38:41][MAIN ] Connection from 192.168.1.132:58738
+[10:38:41][MAIN ] Assigned slot 1 (5/10 active)
+[10:38:41][PROTO] AUTH: success
+[10:38:41][MAIN ] Client 1 (192.168.1.132:58738) authenticated
+[10:38:41][MAIN ] Client 1 (192.168.1.132:58738) disconnected
+[10:39:03][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:39:12][MAIN ] Connection from 192.168.1.132:51498
+[10:39:12][MAIN ] Assigned slot 1 (5/10 active)
+[10:39:12][PROTO] AUTH: success
+[10:39:12][MAIN ] Client 1 (192.168.1.132:51498) authenticated
+[10:39:12][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:39:12][MAIN ] Client 1 (192.168.1.132:51498) disconnected
+[10:39:30][MAIN ] Connection from 192.168.1.132:49560
+[10:39:30][MAIN ] Assigned slot 1 (5/10 active)
+[10:39:30][PROTO] AUTH: success
+[10:39:30][MAIN ] Client 1 (192.168.1.132:49560) authenticated
+[10:39:30][MAIN ] Client 1 (192.168.1.132:49560) disconnected
+[10:40:03][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:40:19][MAIN ] Connection from 192.168.1.132:56302
+[10:40:19][MAIN ] Assigned slot 1 (5/10 active)
+[10:40:19][PROTO] AUTH: success
+[10:40:19][MAIN ] Client 1 (192.168.1.132:56302) authenticated
+[10:40:19][MAIN ] Client 1 (192.168.1.132:56302) disconnected
+[10:40:39][MAIN ] Connection from 192.168.1.132:56362
+[10:40:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:40:39][MAIN ] Auth failed for slot 1 (192.168.1.132:56362)
+[10:40:39][MAIN ] Client 1 (192.168.1.132:56362) disconnected
+[10:40:40][MAIN ] Connection from 192.168.1.132:56364
+[10:40:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:40:40][PROTO] AUTH: success
+[10:40:40][MAIN ] Client 1 (192.168.1.132:56364) authenticated
+[10:40:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:40:40][MAIN ] Client 1 (192.168.1.132:56364) disconnected
+[10:40:42][MAIN ] Connection from 192.168.1.132:56376
+[10:40:42][MAIN ] Assigned slot 1 (5/10 active)
+[10:40:42][PROTO] AUTH: success
+[10:40:42][MAIN ] Client 1 (192.168.1.132:56376) authenticated
+[10:40:42][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:40:42][MAIN ] Client 1 (192.168.1.132:56376) disconnected
+[10:41:03][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:41:08][MAIN ] Connection from 192.168.1.132:33678
+[10:41:08][MAIN ] Assigned slot 1 (5/10 active)
+[10:41:08][PROTO] AUTH: success
+[10:41:08][MAIN ] Client 1 (192.168.1.132:33678) authenticated
+[10:41:08][MAIN ] Client 1 (192.168.1.132:33678) disconnected
+[10:41:29][MAIN ] Connection from 192.168.1.132:33756
+[10:41:29][MAIN ] Assigned slot 1 (5/10 active)
+[10:41:29][PROTO] AUTH: success
+[10:41:29][MAIN ] Client 1 (192.168.1.132:33756) authenticated
+[10:41:29][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:41:29][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:41:29][PROTO] frame_send: 1241 bytes
+[10:41:29][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:41:29][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:41:29][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:41:29][PROTO] frame_send: 3807 bytes
+[10:41:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:41:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:41:29][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:41:29][PROTO] frame_send: 4478 bytes
+[10:41:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:41:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:41:29][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:41:29][PROTO] frame_send: 4601 bytes
+[10:41:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:41:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:41:29][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:41:29][PROTO] frame_send: 8907 bytes
+[10:41:29][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:41:29][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:41:29][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:41:29][PROTO] frame_send: 17813 bytes
+[10:41:29][MAIN ] Client 1 (192.168.1.132:33756) disconnected
+[10:41:57][MAIN ] Connection from 192.168.1.132:49304
+[10:41:57][MAIN ] Assigned slot 1 (5/10 active)
+[10:41:57][PROTO] AUTH: success
+[10:41:57][MAIN ] Client 1 (192.168.1.132:49304) authenticated
+[10:41:57][MAIN ] Client 1 (192.168.1.132:49304) disconnected
+[10:42:04][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:42:12][MAIN ] Connection from 192.168.1.132:52644
+[10:42:12][MAIN ] Assigned slot 1 (5/10 active)
+[10:42:12][PROTO] AUTH: success
+[10:42:12][MAIN ] Client 1 (192.168.1.132:52644) authenticated
+[10:42:12][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:42:12][MAIN ] Client 1 (192.168.1.132:52644) disconnected
+[10:42:20][MAIN ] Connection from 192.168.1.132:34010
+[10:42:20][MAIN ] Assigned slot 1 (5/10 active)
+[10:42:20][PROTO] AUTH: success
+[10:42:20][MAIN ] Client 1 (192.168.1.132:34010) authenticated
+[10:42:20][MAIN ] [1] CMD: "HWPROFILE" (9 bytes)
+[10:42:20][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[10:42:20][PROTO] frame_send: 1963 bytes
+[10:42:20][MAIN ] Client 1 (192.168.1.132:34010) disconnected
+[10:42:46][MAIN ] Connection from 192.168.1.132:54414
+[10:42:46][MAIN ] Assigned slot 1 (5/10 active)
+[10:42:46][PROTO] AUTH: success
+[10:42:46][MAIN ] Client 1 (192.168.1.132:54414) authenticated
+[10:42:46][MAIN ] Client 1 (192.168.1.132:54414) disconnected
+[10:43:34][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:43:35][MAIN ] Connection from 192.168.1.132:45020
+[10:43:35][MAIN ] Assigned slot 1 (5/10 active)
+[10:43:35][PROTO] AUTH: success
+[10:43:35][MAIN ] Client 1 (192.168.1.132:45020) authenticated
+[10:43:35][MAIN ] Client 1 (192.168.1.132:45020) disconnected
+[10:43:51][MAIN ] Connection from 192.168.1.132:58238
+[10:43:51][MAIN ] Assigned slot 1 (5/10 active)
+[10:43:51][PROTO] AUTH: success
+[10:43:51][MAIN ] Client 1 (192.168.1.132:58238) authenticated
+[10:43:51][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:43:51][MAIN ] Client 1 (192.168.1.132:58238) disconnected
+[10:44:24][MAIN ] Connection from 192.168.1.132:45926
+[10:44:24][MAIN ] Assigned slot 1 (5/10 active)
+[10:44:24][PROTO] AUTH: success
+[10:44:24][MAIN ] Client 1 (192.168.1.132:45926) authenticated
+[10:44:24][MAIN ] Client 1 (192.168.1.132:45926) disconnected
+[10:45:04][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:45:13][MAIN ] Connection from 192.168.1.132:43746
+[10:45:13][MAIN ] Assigned slot 1 (5/10 active)
+[10:45:13][PROTO] AUTH: success
+[10:45:13][MAIN ] Client 1 (192.168.1.132:43746) authenticated
+[10:45:13][MAIN ] Client 1 (192.168.1.132:43746) disconnected
+[10:45:21][MAIN ] Connection from 192.168.1.132:56808
+[10:45:21][MAIN ] Assigned slot 1 (5/10 active)
+[10:45:21][PROTO] AUTH: success
+[10:45:21][MAIN ] Client 1 (192.168.1.132:56808) authenticated
+[10:45:21][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:45:21][MAIN ] Client 1 (192.168.1.132:56808) disconnected
+[10:45:39][MAIN ] Connection from 192.168.1.132:45094
+[10:45:39][MAIN ] Assigned slot 1 (5/10 active)
+[10:45:39][MAIN ] Auth failed for slot 1 (192.168.1.132:45094)
+[10:45:39][MAIN ] Client 1 (192.168.1.132:45094) disconnected
+[10:45:40][MAIN ] Connection from 192.168.1.132:45106
+[10:45:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:45:40][PROTO] AUTH: success
+[10:45:40][MAIN ] Client 1 (192.168.1.132:45106) authenticated
+[10:45:40][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[10:45:40][MAIN ] Client 1 (192.168.1.132:45106) disconnected
+[10:46:02][MAIN ] Connection from 192.168.1.132:53510
+[10:46:02][MAIN ] Assigned slot 1 (5/10 active)
+[10:46:02][PROTO] AUTH: success
+[10:46:02][MAIN ] Client 1 (192.168.1.132:53510) authenticated
+[10:46:02][MAIN ] Client 1 (192.168.1.132:53510) disconnected
+[10:46:05][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:46:30][MAIN ] Connection from 192.168.1.132:59502
+[10:46:30][MAIN ] Assigned slot 1 (5/10 active)
+[10:46:30][PROTO] AUTH: success
+[10:46:30][MAIN ] Client 1 (192.168.1.132:59502) authenticated
+[10:46:30][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[10:46:30][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[10:46:30][PROTO] frame_send: 1241 bytes
+[10:46:30][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:46:30][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:46:30][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[10:46:30][PROTO] frame_send: 3807 bytes
+[10:46:30][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[10:46:30][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[10:46:30][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[10:46:30][PROTO] frame_send: 4478 bytes
+[10:46:30][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[10:46:30][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[10:46:30][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[10:46:30][PROTO] frame_send: 4601 bytes
+[10:46:30][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[10:46:30][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[10:46:30][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[10:46:30][PROTO] frame_send: 8907 bytes
+[10:46:30][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[10:46:30][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[10:46:30][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[10:46:30][PROTO] frame_send: 17813 bytes
+[10:46:30][MAIN ] Client 1 (192.168.1.132:59502) disconnected
+[10:46:51][MAIN ] Connection from 192.168.1.132:51280
+[10:46:51][MAIN ] Assigned slot 1 (5/10 active)
+[10:46:51][PROTO] AUTH: success
+[10:46:51][MAIN ] Client 1 (192.168.1.132:51280) authenticated
+[10:46:51][MAIN ] Client 1 (192.168.1.132:51280) disconnected
+[10:46:51][MAIN ] Connection from 192.168.1.132:51282
+[10:46:51][MAIN ] Assigned slot 1 (5/10 active)
+[10:46:51][PROTO] AUTH: success
+[10:46:51][MAIN ] Client 1 (192.168.1.132:51282) authenticated
+[10:46:51][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:46:51][MAIN ] Client 1 (192.168.1.132:51282) disconnected
+[10:47:06][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:47:40][MAIN ] Connection from 192.168.1.132:38000
+[10:47:40][MAIN ] Assigned slot 1 (5/10 active)
+[10:47:40][PROTO] AUTH: success
+[10:47:40][MAIN ] Client 1 (192.168.1.132:38000) authenticated
+[10:47:40][MAIN ] Client 1 (192.168.1.132:38000) disconnected
+[10:48:06][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:48:21][MAIN ] Connection from 192.168.1.132:53794
+[10:48:21][MAIN ] Assigned slot 1 (5/10 active)
+[10:48:21][PROTO] AUTH: success
+[10:48:21][MAIN ] Client 1 (192.168.1.132:53794) authenticated
+[10:48:21][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:48:21][MAIN ] Client 1 (192.168.1.132:53794) disconnected
+[10:48:29][MAIN ] Connection from 192.168.1.132:40470
+[10:48:29][MAIN ] Assigned slot 1 (5/10 active)
+[10:48:29][PROTO] AUTH: success
+[10:48:29][MAIN ] Client 1 (192.168.1.132:40470) authenticated
+[10:48:29][MAIN ] Client 1 (192.168.1.132:40470) disconnected
+[10:49:06][MAIN ] [5] CMD: "PING" (4 bytes)
+[10:49:18][MAIN ] Connection from 192.168.1.132:57782
+[10:49:18][MAIN ] Assigned slot 1 (5/10 active)
+[10:49:18][PROTO] AUTH: success
+[10:49:18][MAIN ] Client 1 (192.168.1.132:57782) authenticated
+[10:49:18][MAIN ] Client 1 (192.168.1.132:57782) disconnected
+[10:49:59][MAIN ] Connection from 192.168.1.132:59062
+[10:49:59][MAIN ] Assigned slot 1 (5/10 active)
+[10:49:59][PROTO] AUTH: success
+[10:49:59][MAIN ] Client 1 (192.168.1.132:59062) authenticated
+[10:49:59][MAIN ] [1] CMD: "PING" (4 bytes)
+[10:49:59][MAIN ] Client 1 (192.168.1.132:59062) disconnected
+[10:50:07][MAIN ] Connection from 192.168.1.132:41028
+[10:50:07][MAIN ] Assigned slot 1 (5/10 active)
+[10:50:07][PROTO] AUTH: success
+[10:50:07][MAIN ] Client 1 (192.168.1.132:41028) authenticated
+[10:50:07][MAIN ] Client 1 (192.168.1.132:41028) disconnected
+[10:50:07][MAIN ] [5] CMD: "PING" (4 bytes)
+boot:   AGENTRUN.BAT starting 
+boot:   share via W: 
+boot:   share version: 
+1.98.0 
+boot:   already on the share's version 
+boot:   starting the agent - minimized 
+--- log opened (raw win32) ---
+[23:46:42][MAIN ] log: console echo on its own thread (8192-byte ring, idle priority) - a console that stops accepting output drops echo lines and cannot stall the agent
+[23:46:42][MAIN ] ==================================================
+[23:46:42][MAIN ] retro_agent v1.98.0: main() entered
+[23:46:42][MAIN ] console: Win9x - no QuickEdit to clear
+[23:46:42][MAIN ] log file: C:\RETRO_AGENT\agent.log (rotating, ~512KB x2)
+[23:46:42][MAIN ] platform: 4.10 build 67766446, platformId=1 (9x)
+[23:46:42][MAIN ] Win9x: client mode forced to multiplex (threaded TLS unsafe on 9x)
+[23:46:42][MAIN ] META agent=1.98.0 host=N5R5L9
+[23:46:42][MAIN ] META os=4.10.67766446 platformId=1 (9x) csd=" A "
+[23:46:42][MAIN ] META cpu arch=0 family=5 model=2 stepping=12 ncpu=1 type=586 (pre-i686: NO CMOV)
+[23:46:42][MAIN ] META ram_total=127MB ram_avail=75MB
+[23:46:42][MAIN ] META gpu="Cirrus Logic 5436 PCI" id="PCI\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00\BUS_00&DEV_0F&FUNC_00"
+[23:46:42][MAIN ] startup: calling try_service_start()
+[23:46:43][MAIN ] startup: console mode, entering agent_run()
+[23:46:43][MAIN ] Retro Remote Agent Version 1.98.0 starting (mode=console)
+[23:46:43][MAIN ] Process priority raised to HIGH
+[23:46:43][CONSOLE] console window: this Windows has no GetConsoleWindow (9x) - the launcher starts the agent minimized (START /m in AGENTRUN.BAT and RESTART)
+[23:46:43][MAIN ] startup: cache_system_info()
+[23:46:44][MAIN ] Hostname=N5R5L9 IP=192.168.1.243 OS=Win4.10.67766446 RAM=127MB
+[23:46:44][MAIN ] Listening on TCP :9898+:9897, discovery on UDP :9899, client_mode=multiplex
+[23:46:44][NET  ] discovery thread started
+[23:46:44][MAIN ] discovery: subnet broadcast = 192.168.1.255
+[23:46:44][MAIN ] multiplex mode: long-polls are parked, not blocking (a blocking fallback is capped at 1000ms)
+[23:46:44][MAIN ] startup: sysfix_apply_startup()
+[23:46:44][SYSFIX] Startup auto-apply running
+[23:46:44][SYSFIX] Startup auto-apply done
+[23:46:44][MAIN ] startup: spawning clockfix thread
+[23:46:44][MAIN ] startup: spawning pcirescue thread
+[23:46:44][MAIN ] startup: spawning postskip thread
+[23:46:44][MAIN ] startup: spawning firewall thread
+[23:46:44][POSTSKIP] already set; 2Dh 08 -> 08; 0Eh 00 -> 00; checksum valid; 1Bh 00 -> 00 (want 00)
+[23:46:44][MAIN ] startup: spawning automap thread
+[23:46:44][MAIN ] startup: spawning autoupdate thread
+[23:46:44][MAIN ] firewall: this Windows has no Windows Firewall - nothing to do
+[23:46:44][PCIRESCUE] all 6 installed PCI device(s) present - nothing to do
+[23:46:44][MAIN ] startup: spawning retrowall thread
+[23:46:44][MAIN ] startup: spawning hwpublish thread
+[23:46:44][NET  ] mpr.dll loaded OK
+[23:46:45][NET  ] AUTOMAP: checking stored drive mappings
+[23:46:45][MAIN ] startup: spawning dosstage thread
+[23:46:45][MAIN ] startup: spawning gameindex thread
+[23:46:45][MAIN ] startup: spawning gamesync thread
+[23:46:45][GAMEINDEX] serving the last index from C:\RETRO_AGENT\gameindex.cache (hash=fe7b993e) until the first check
+[23:46:45][MAIN ] startup: spawning ipxsetup thread
+[23:46:45][NET  ] AUTOMAP: Y: -> \\192.168.1.122\files = 0 (OK)
+[23:46:45][MAIN ] startup: watchdog not started - multiplex mode never marks a command in flight, so it could never fire
+[23:46:45][NET  ] AUTOMAP: done, 1 mapped, 0 failed
+[23:46:45][MAIN ] startup: spawning ai_status thread
+[23:46:45][MAIN ] startup: spawning sharelog thread
+[23:46:45][MAIN ] startup: helper threads spawned; entering accept loop
+[23:46:46][MAIN ] Connection from 192.168.1.132:37102
+[23:46:46][MAIN ] Assigned slot 0 (1/10 active)
+[23:46:46][MAIN ] Connection from 127.0.0.1:1028
+[23:46:46][MAIN ] Assigned slot 1 (2/10 active)
+[23:46:46][PROTO] AUTH: success
+[23:46:46][MAIN ] Client 0 (192.168.1.132:37102) authenticated
+[23:46:46][MAIN ] Connection from 192.168.1.132:54472
+[23:46:46][MAIN ] Assigned slot 2 (3/10 active)
+[23:46:46][MAIN ] [0] CMD: "LOG_WAIT 0 100" (14 bytes) - further long-polls on this connection not logged
+[23:46:46][PROTO] AUTH: success
+[23:46:46][MAIN ] Client 1 (127.0.0.1:1028) authenticated
+[23:46:46][MAIN ] [1] CMD: "LOG_CLEAR" (9 bytes)
+[23:46:46][CHATPROXY] Log cleared
+[23:46:46][PROTO] AUTH: success
+[23:46:46][MAIN ] Client 2 (192.168.1.132:54472) authenticated
+[23:46:46][MAIN ] Connection from 127.0.0.1:1029
+[23:46:46][MAIN ] Assigned slot 3 (4/10 active)
+[23:46:46][MAIN ] [0] CMD: "PROXY_GET" (9 bytes)
+[23:46:46][MAIN ] Client 2 (192.168.1.132:54472) disconnected
+[23:46:46][MAIN ] Connection from 192.168.1.132:54488
+[23:46:46][MAIN ] Assigned slot 2 (4/10 active)
+[23:46:46][MAIN ] Client 0 (192.168.1.132:37102) disconnected
+[23:46:46][PROTO] AUTH: success
+[23:46:46][MAIN ] Client 3 (127.0.0.1:1029) authenticated
+[23:46:46][MAIN ] Connection from 127.0.0.1:1030
+[23:46:46][MAIN ] Assigned slot 0 (4/10 active)
+[23:46:46][PROTO] AUTH: success
+[23:46:46][MAIN ] Client 2 (192.168.1.132:54488) authenticated
+[23:46:46][MAIN ] Connection from 192.168.1.132:54496
+[23:46:46][MAIN ] Assigned slot 4 (5/10 active)
+[23:46:46][PROTO] AUTH: success
+[23:46:46][MAIN ] Client 0 (127.0.0.1:1030) authenticated
+[23:46:47][MAIN ] [0] CMD: "STATUS_WAIT 0 30000" (19 bytes) - further long-polls on this connection not logged
+[23:46:47][MAIN ] [3] CMD: "LOG_WAIT 0 30000" (16 bytes) - further long-polls on this connection not logged
+[23:46:47][PROTO] AUTH: success
+[23:46:47][MAIN ] Client 4 (192.168.1.132:54496) authenticated
+[23:46:47][MAIN ] [4] CMD: "LOG_APPEND 
+[daemon connected from 192.168.1.132]
+" (50 bytes)
+[23:46:47][MAIN ] [2] CMD: "PROMPT_WAIT 30000" (17 bytes) - further long-polls on this connection not logged
+[23:46:49][MAIN ] AI: engine disabled by default (AIEngine reg flag 0)
+[23:46:55][MAIN ] Connection from 192.168.1.132:54510
+[23:46:55][MAIN ] Assigned slot 5 (6/10 active)
+[23:46:55][MAIN ] Auth failed for slot 5 (192.168.1.132:54510)
+[23:46:55][MAIN ] Client 5 (192.168.1.132:54510) disconnected
+[23:46:56][MAIN ] Connection from 192.168.1.132:44466
+[23:46:56][MAIN ] Assigned slot 5 (6/10 active)
+[23:46:56][PROTO] AUTH: success
+[23:46:56][MAIN ] Client 5 (192.168.1.132:44466) authenticated
+[23:46:56][MAIN ] [5] CMD: "GAMEINDEX HASH" (14 bytes)
+[23:46:56][MAIN ] Client 5 (192.168.1.132:44466) disconnected
+[23:46:57][MAIN ] sharelog: mirroring to \\192.168.1.122\files\Utility\Retro Automation\agent logs\N5R5L9-agent.log (copied again only when the log changes)
+[23:46:59][UPDATE] Checking chat update: \\192.168.1.122\files\Utility\Retro Automation\retro_chat.exe
+[23:46:59][UPDATE] Chat: current (60928 bytes), no update
+[23:46:59][UPDATE] Checking for update: \\192.168.1.122\files\Utility\Retro Automation\retro_agent.exe
+[23:47:00][UPDATE] Binary is current (version 1.98.0), no update needed
+[23:47:06][MAIN ] retrowall: applied green-on-black hacker theme (Luna off + green colors)
+[23:47:06][MONPOWER] ok: already never - nothing written (old api)
+[23:47:06][GAMESYNC] auto-arrange already on - left alone (posting the shell toggle here would turn it OFF)
+[23:47:06][GAMESYNC] auto-arrange already persisted (Software\Microsoft\Windows\Shell\Bags\1\Desktop\FFlags 0x221)
+[23:47:06][MAIN ] retrowall: fleet desktop applied (1 change(s)); older rotation stopped so it cannot replace it
+[23:47:25][QBINDS] qbinds: ok: 6 wasd bind file(s) current, 0 written, 6 with the layout in force
+[23:47:25][GAMERES] panel (NO EDID - assuming a 4:3 tube) CRT  native 0x0@0  persisted 800x600  modes 2  ->  target 800x600 (4:3), 4:3 800x600, q2mode 4, q2wide 4, q3mode 4, fov 90
+[23:47:25][GAMERES] refresh: 0 Hz at 800x600, 0 Hz at 800x600, 0/0 Hz at the id Tech 2/3 index modes (none), 0 Hz at the desktop 800x600 (panel max 0 Hz - NOT MEASURED); desktop is persisted at 60 Hz
+[23:47:25][GAMERES] Serious Engine refresh (TFE gfx_iRefreshRate, TSE gap_iRefreshRate): 60 (Windows NT major 4)
+[23:47:25][GAMERES] gameres: monitor CRT (no EDID - inferred), persisted desktop 800x600@0 -> target 800x600 (4:3 800x600) @0Hz
+[23:47:25][GAMERES] desktop refresh: no EDID, so no measured ceiling - leaving 60 Hz alone rather than guessing at a tube
+[23:47:28][GAMERES] gameres: ok: 7 title(s), 0 value(s) changed, 0 absent, target 800x600 (4:3 800x600); verify ok=18 wrong=0 absent=0
+[23:47:28][GAMESYNC] already provisioned (C:\RETRO_AGENT\gamesync.done present) - idle
+[23:47:30][DOSSTAGE] staging DOS programs from \\192.168.1.122\files\Utility\Retro Automation
+[23:47:30][DOSSTAGE] source not readable: \\192.168.1.122\files\Utility\Retro Automation\doschat
+[23:47:31][DOSSTAGE] source not readable: \\192.168.1.122\files\Utility\Retro Automation\dosgame\NET
+[23:47:31][DOSSTAGE] preview tiles skipped (set DosStageTiles=1 to stage them)
+[23:47:31][DOSSTAGE] staged 15 file(s) to C:\DOSCHAT and C:\DOSGAME
+[23:47:35][MAIN ] Connection from 192.168.1.132:60154
+[23:47:35][MAIN ] Assigned slot 5 (6/10 active)
+[23:47:35][PROTO] AUTH: success
+[23:47:35][MAIN ] Client 5 (192.168.1.132:60154) authenticated
+[23:47:35][MAIN ] Client 5 (192.168.1.132:60154) disconnected
+[23:47:40][MAIN ] Connection from 192.168.1.132:39746
+[23:47:40][MAIN ] Assigned slot 5 (6/10 active)
+[23:47:40][PROTO] AUTH: success
+[23:47:40][MAIN ] Client 5 (192.168.1.132:39746) authenticated
+[23:47:40][MAIN ] [5] CMD: "GAMESYNC STATUS" (15 bytes)
+[23:47:40][MAIN ] [5] CMD: "PROCLIST" (8 bytes)
+[23:47:40][PROTO] frame_send: 1152 bytes
+[23:47:40][MAIN ] [5] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[23:47:41][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[23:47:41][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[23:47:41][PROTO] frame_send: 3807 bytes
+[23:47:41][MAIN ] [5] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[23:47:41][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[23:47:41][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[23:47:41][PROTO] frame_send: 4478 bytes
+[23:47:41][MAIN ] [5] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[23:47:41][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[23:47:41][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[23:47:41][PROTO] frame_send: 4601 bytes
+[23:47:41][MAIN ] [5] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[23:47:41][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[23:47:41][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[23:47:41][PROTO] frame_send: 8907 bytes
+[23:47:41][MAIN ] [5] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[23:47:41][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[23:47:41][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[23:47:41][PROTO] frame_send: 17813 bytes
+[23:47:41][MAIN ] Client 5 (192.168.1.132:39746) disconnected
+[23:47:44][MAIN ] Connection from 192.168.1.132:39748
+[23:47:44][MAIN ] Assigned slot 5 (6/10 active)
+[23:47:44][PROTO] AUTH: success
+[23:47:44][MAIN ] Client 5 (192.168.1.132:39748) authenticated
+[23:47:44][MAIN ] [5] CMD: "PING" (4 bytes)
+[23:47:44][MAIN ] Client 5 (192.168.1.132:39748) disconnected
+[23:47:47][MAIN ] [4] CMD: "PING" (4 bytes)
+[23:47:52][MAIN ] Connection from 192.168.1.132:39160
+[23:47:52][MAIN ] Assigned slot 5 (6/10 active)
+[23:47:52][PROTO] AUTH: success
+[23:47:52][MAIN ] Client 5 (192.168.1.132:39160) authenticated
+[23:47:52][MAIN ] [5] CMD: "HWPROFILE" (9 bytes)
+[23:47:52][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[23:47:52][PROTO] frame_send: 1963 bytes
+[23:47:52][MAIN ] Client 5 (192.168.1.132:39160) disconnected
+[23:48:15][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[23:48:15][HWPUBLISH] published to \\192.168.1.122\files\Utility\Retro Automation\fleet-inventory\N5R5L9.json
+[23:48:24][MAIN ] Connection from 192.168.1.132:44804
+[23:48:24][MAIN ] Assigned slot 5 (6/10 active)
+[23:48:24][PROTO] AUTH: success
+[23:48:24][MAIN ] Client 5 (192.168.1.132:44804) authenticated
+[23:48:24][MAIN ] Client 5 (192.168.1.132:44804) disconnected
+[23:48:26][IPXSETUP] ipxsetup: ok: active (IPX net 00000000 node 00a024b9e9fb, frame 802.2) - nothing changed
+boot:   AGENTRUN.BAT starting 
+boot:   share via W: 
+boot:   share version: 
+1.98.0 
+boot:   already on the share's version 
+boot:   starting the agent - minimized 
+--- log opened (raw win32) ---
+[00:04:36][MAIN ] log: console echo on its own thread (8192-byte ring, idle priority) - a console that stops accepting output drops echo lines and cannot stall the agent
+[00:04:36][MAIN ] console: Win9x - no QuickEdit to clear
+[00:04:36][MAIN ] ==================================================
+[00:04:36][MAIN ] retro_agent v1.98.0: main() entered
+[00:04:36][MAIN ] log file: C:\RETRO_AGENT\agent.log (rotating, ~512KB x2)
+[00:04:36][MAIN ] platform: 4.10 build 67766446, platformId=1 (9x)
+[00:04:36][MAIN ] Win9x: client mode forced to multiplex (threaded TLS unsafe on 9x)
+[00:04:36][MAIN ] META agent=1.98.0 host=N5R5L9
+[00:04:36][MAIN ] META os=4.10.67766446 platformId=1 (9x) csd=" A "
+[00:04:36][MAIN ] META cpu arch=0 family=5 model=2 stepping=12 ncpu=1 type=586 (pre-i686: NO CMOV)
+[00:04:36][MAIN ] META ram_total=127MB ram_avail=86MB
+[00:04:36][MAIN ] META gpu="Cirrus Logic 5436 PCI" id="PCI\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00\BUS_00&DEV_0F&FUNC_00"
+[00:04:36][MAIN ] startup: calling try_service_start()
+[00:04:36][MAIN ] startup: console mode, entering agent_run()
+[00:04:36][MAIN ] Retro Remote Agent Version 1.98.0 starting (mode=console)
+[00:04:36][MAIN ] Process priority raised to HIGH
+[00:04:36][CONSOLE] console window: this Windows has no GetConsoleWindow (9x) - the launcher starts the agent minimized (START /m in AGENTRUN.BAT and RESTART)
+[00:04:36][MAIN ] startup: cache_system_info()
+[00:04:37][MAIN ] Hostname=N5R5L9 IP=192.168.1.243 OS=Win4.10.67766446 RAM=127MB
+[00:04:37][MAIN ] Listening on TCP :9898+:9897, discovery on UDP :9899, client_mode=multiplex
+[00:04:37][NET  ] discovery thread started
+[00:04:37][MAIN ] discovery: subnet broadcast = 192.168.1.255
+[00:04:37][MAIN ] multiplex mode: long-polls are parked, not blocking (a blocking fallback is capped at 1000ms)
+[00:04:37][MAIN ] startup: sysfix_apply_startup()
+[00:04:37][SYSFIX] Startup auto-apply running
+[00:04:38][SYSFIX] Startup auto-apply done
+[00:04:38][MAIN ] startup: spawning clockfix thread
+[00:04:38][MAIN ] startup: spawning pcirescue thread
+[00:04:38][MAIN ] startup: spawning postskip thread
+[00:04:38][MAIN ] startup: spawning firewall thread
+[00:04:38][MAIN ] startup: spawning automap thread
+[00:04:38][MAIN ] firewall: this Windows has no Windows Firewall - nothing to do
+[00:04:38][PCIRESCUE] all 6 installed PCI device(s) present - nothing to do
+[00:04:38][MAIN ] startup: spawning autoupdate thread
+[00:04:38][MAIN ] startup: spawning retrowall thread
+[00:04:38][POSTSKIP] already set; 2Dh 08 -> 08; 0Eh 00 -> 00; checksum valid; 1Bh 00 -> 00 (want 00)
+[00:04:38][NET  ] mpr.dll loaded OK
+[00:04:38][MAIN ] startup: spawning hwpublish thread
+[00:04:38][MAIN ] startup: spawning dosstage thread
+[00:04:38][NET  ] AUTOMAP: checking stored drive mappings
+[00:04:38][MAIN ] startup: spawning gameindex thread
+[00:04:38][MAIN ] startup: spawning gamesync thread
+[00:04:39][GAMEINDEX] serving the last index from C:\RETRO_AGENT\gameindex.cache (hash=fe7b993e) until the first check
+[00:04:39][MAIN ] startup: spawning ipxsetup thread
+[00:04:39][MAIN ] startup: watchdog not started - multiplex mode never marks a command in flight, so it could never fire
+[00:04:39][MAIN ] startup: spawning ai_status thread
+[00:04:39][NET  ] AUTOMAP: Y: -> \\192.168.1.122\files = 0 (OK)
+[00:04:39][NET  ] AUTOMAP: done, 1 mapped, 0 failed
+[00:04:39][MAIN ] startup: spawning sharelog thread
+[00:04:39][MAIN ] startup: helper threads spawned; entering accept loop
+[00:04:39][MAIN ] Connection from 192.168.1.132:37192
+[00:04:39][MAIN ] Assigned slot 0 (1/10 active)
+[00:04:39][MAIN ] Connection from 127.0.0.1:1028
+[00:04:39][MAIN ] Assigned slot 1 (2/10 active)
+[00:04:39][PROTO] AUTH: success
+[00:04:39][MAIN ] Client 0 (192.168.1.132:37192) authenticated
+[00:04:40][MAIN ] [0] CMD: "LOG_WAIT 0 100" (14 bytes) - further long-polls on this connection not logged
+[00:04:40][MAIN ] Auth failed for slot 1 (127.0.0.1:1028)
+[00:04:40][MAIN ] Client 1 (127.0.0.1:1028) disconnected
+[00:04:40][MAIN ] [0] CMD: "PROXY_GET" (9 bytes)
+[00:04:40][MAIN ] Connection from 192.168.1.132:37208
+[00:04:40][MAIN ] Assigned slot 1 (2/10 active)
+[00:04:40][MAIN ] Client 0 (192.168.1.132:37192) disconnected
+[00:04:40][PROTO] AUTH: success
+[00:04:40][MAIN ] Client 1 (192.168.1.132:37208) authenticated
+[00:04:40][MAIN ] Connection from 192.168.1.132:37210
+[00:04:40][MAIN ] Assigned slot 0 (2/10 active)
+[00:04:40][PROTO] AUTH: success
+[00:04:40][MAIN ] Client 0 (192.168.1.132:37210) authenticated
+[00:04:40][MAIN ] [0] CMD: "LOG_APPEND 
+[daemon connected from 192.168.1.132]
+" (50 bytes)
+[00:04:40][MAIN ] [1] CMD: "PROMPT_WAIT 30000" (17 bytes) - further long-polls on this connection not logged
+[00:04:42][MAIN ] AI: engine disabled by default (AIEngine reg flag 0)
+boot:   AGENTRUN.BAT starting 
+boot:   share via W: 
+boot:   share version: 
+1.98.0 
+boot:   already on the share's version 
+boot:   starting the agent - minimized 
+--- log opened (raw win32) ---
+[10:58:34][MAIN ] log: console echo on its own thread (8192-byte ring, idle priority) - a console that stops accepting output drops echo lines and cannot stall the agent
+[10:58:35][MAIN ] console: Win9x - no QuickEdit to clear
+[10:58:35][MAIN ] ==================================================
+[10:58:35][MAIN ] retro_agent v1.98.0: main() entered
+[10:58:35][MAIN ] log file: C:\RETRO_AGENT\agent.log (rotating, ~512KB x2)
+[10:58:35][MAIN ] platform: 4.10 build 67766446, platformId=1 (9x)
+[10:58:35][MAIN ] Win9x: client mode forced to multiplex (threaded TLS unsafe on 9x)
+[10:58:35][MAIN ] META agent=1.98.0 host=N5R5L9
+[10:58:35][MAIN ] META os=4.10.67766446 platformId=1 (9x) csd=" A "
+[10:58:35][MAIN ] META cpu arch=0 family=5 model=2 stepping=12 ncpu=1 type=586 (pre-i686: NO CMOV)
+[10:58:35][MAIN ] META ram_total=127MB ram_avail=86MB
+[10:58:35][MAIN ] META gpu="Cirrus Logic 5436 PCI" id="PCI\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00\BUS_00&DEV_0F&FUNC_00"
+[10:58:35][MAIN ] startup: calling try_service_start()
+[10:58:36][MAIN ] startup: console mode, entering agent_run()
+[10:58:36][MAIN ] Retro Remote Agent Version 1.98.0 starting (mode=console)
+[10:58:36][MAIN ] Process priority raised to HIGH
+[10:58:36][CONSOLE] console window: this Windows has no GetConsoleWindow (9x) - the launcher starts the agent minimized (START /m in AGENTRUN.BAT and RESTART)
+[10:58:36][MAIN ] startup: cache_system_info()
+[10:58:37][MAIN ] Hostname=N5R5L9 IP=192.168.1.243 OS=Win4.10.67766446 RAM=127MB
+[10:58:37][MAIN ] Listening on TCP :9898+:9897, discovery on UDP :9899, client_mode=multiplex
+[10:58:37][NET  ] discovery thread started
+[10:58:37][MAIN ] discovery: subnet broadcast = 192.168.1.255
+[10:58:37][MAIN ] multiplex mode: long-polls are parked, not blocking (a blocking fallback is capped at 1000ms)
+[10:58:37][MAIN ] startup: sysfix_apply_startup()
+[10:58:37][SYSFIX] Startup auto-apply running
+[10:58:37][SYSFIX] Startup auto-apply done
+[10:58:37][MAIN ] startup: spawning clockfix thread
+[10:58:37][MAIN ] startup: spawning pcirescue thread
+[10:58:37][MAIN ] startup: spawning postskip thread
+[10:58:37][MAIN ] startup: spawning firewall thread
+[10:58:37][MAIN ] startup: spawning automap thread
+[10:58:37][MAIN ] firewall: this Windows has no Windows Firewall - nothing to do
+[10:58:37][PCIRESCUE] all 6 installed PCI device(s) present - nothing to do
+[10:58:37][POSTSKIP] already set; 2Dh 08 -> 08; 0Eh 00 -> 00; checksum valid; 1Bh 00 -> 00 (want 00)
+[10:58:37][MAIN ] startup: spawning autoupdate thread
+[10:58:38][MAIN ] startup: spawning retrowall thread
+[10:58:38][NET  ] mpr.dll loaded OK
+[10:58:38][NET  ] AUTOMAP: checking stored drive mappings
+[10:58:38][MAIN ] startup: spawning hwpublish thread
+[10:58:38][MAIN ] startup: spawning dosstage thread
+[10:58:38][MAIN ] startup: spawning gameindex thread
+[10:58:38][MAIN ] startup: spawning gamesync thread
+[10:58:38][GAMEINDEX] serving the last index from C:\RETRO_AGENT\gameindex.cache (hash=fe7b993e) until the first check
+[10:58:38][MAIN ] startup: spawning ipxsetup thread
+[10:58:38][NET  ] AUTOMAP: Y: -> \\192.168.1.122\files = 0 (OK)
+[10:58:38][MAIN ] startup: watchdog not started - multiplex mode never marks a command in flight, so it could never fire
+[10:58:38][NET  ] AUTOMAP: done, 1 mapped, 0 failed
+[10:58:38][MAIN ] startup: spawning ai_status thread
+[10:58:39][MAIN ] startup: spawning sharelog thread
+[10:58:39][MAIN ] startup: helper threads spawned; entering accept loop
+[10:58:39][MAIN ] Connection from 192.168.1.132:43370
+[10:58:39][MAIN ] Assigned slot 0 (1/10 active)
+[10:58:39][MAIN ] Connection from 127.0.0.1:1027
+[10:58:39][MAIN ] Assigned slot 1 (2/10 active)
+[10:58:39][PROTO] AUTH: success
+[10:58:39][MAIN ] Client 0 (192.168.1.132:43370) authenticated
+[10:58:39][MAIN ] [0] CMD: "LOG_WAIT 0 100" (14 bytes) - further long-polls on this connection not logged
+[10:58:39][PROTO] AUTH: success
+[10:58:39][MAIN ] Client 1 (127.0.0.1:1027) authenticated
+[10:58:39][MAIN ] [1] CMD: "LOG_CLEAR" (9 bytes)
+[10:58:39][CHATPROXY] Log cleared
+[10:58:39][MAIN ] [0] CMD: "PROXY_GET" (9 bytes)
+[10:58:39][MAIN ] Connection from 127.0.0.1:1028
+[10:58:39][MAIN ] Assigned slot 2 (3/10 active)
+[10:58:39][MAIN ] Connection from 192.168.1.132:42132
+[10:58:39][MAIN ] Assigned slot 3 (4/10 active)
+[10:58:39][MAIN ] Client 0 (192.168.1.132:43370) disconnected
+[10:58:39][PROTO] AUTH: success
+[10:58:39][MAIN ] Client 2 (127.0.0.1:1028) authenticated
+[10:58:39][MAIN ] Connection from 127.0.0.1:1029
+[10:58:39][MAIN ] Assigned slot 0 (4/10 active)
+[10:58:39][PROTO] AUTH: success
+[10:58:39][MAIN ] Client 3 (192.168.1.132:42132) authenticated
+[10:58:40][MAIN ] Connection from 192.168.1.132:42148
+[10:58:40][MAIN ] Assigned slot 4 (5/10 active)
+[10:58:40][PROTO] AUTH: success
+[10:58:40][MAIN ] Client 0 (127.0.0.1:1029) authenticated
+[10:58:40][MAIN ] [0] CMD: "STATUS_WAIT 0 30000" (19 bytes) - further long-polls on this connection not logged
+[10:58:40][MAIN ] [2] CMD: "LOG_WAIT 0 30000" (16 bytes) - further long-polls on this connection not logged
+[10:58:40][PROTO] AUTH: success
+[10:58:40][MAIN ] Client 4 (192.168.1.132:42148) authenticated
+[10:58:40][MAIN ] [4] CMD: "LOG_APPEND 
+[daemon connected from 192.168.1.132]
+" (50 bytes)
+[10:58:40][MAIN ] [3] CMD: "PROMPT_WAIT 30000" (17 bytes) - further long-polls on this connection not logged
+[10:58:42][MAIN ] AI: engine disabled by default (AIEngine reg flag 0)
+[10:58:50][MAIN ] sharelog: mirroring to \\192.168.1.122\files\Utility\Retro Automation\agent logs\N5R5L9-agent.log (copied again only when the log changes)
+[10:58:53][UPDATE] Checking chat update: \\192.168.1.122\files\Utility\Retro Automation\retro_chat.exe
+[10:58:53][UPDATE] Chat: current (60928 bytes), no update
+[10:58:53][UPDATE] Checking for update: \\192.168.1.122\files\Utility\Retro Automation\retro_agent.exe
+[10:58:53][UPDATE] Binary is current (version 1.98.0), no update needed
+[10:58:59][MAIN ] retrowall: applied green-on-black hacker theme (Luna off + green colors)
+[10:58:59][MONPOWER] ok: already never - nothing written (old api)
+[10:58:59][GAMESYNC] auto-arrange already on - left alone (posting the shell toggle here would turn it OFF)
+[10:58:59][GAMESYNC] auto-arrange already persisted (Software\Microsoft\Windows\Shell\Bags\1\Desktop\FFlags 0x221)
+[10:58:59][MAIN ] retrowall: fleet desktop applied (1 change(s)); older rotation stopped so it cannot replace it
+[10:59:08][MAIN ] Connection from 192.168.1.132:43180
+[10:59:08][MAIN ] Assigned slot 5 (6/10 active)
+[10:59:09][PROTO] AUTH: success
+[10:59:09][MAIN ] Client 5 (192.168.1.132:43180) authenticated
+[10:59:09][MAIN ] Client 5 (192.168.1.132:43180) disconnected
+[10:59:18][QBINDS] qbinds: ok: 6 wasd bind file(s) current, 0 written, 6 with the layout in force
+[10:59:19][GAMERES] panel (NO EDID - assuming a 4:3 tube) CRT  native 0x0@0  persisted 800x600  modes 2  ->  target 800x600 (4:3), 4:3 800x600, q2mode 4, q2wide 4, q3mode 4, fov 90
+[10:59:19][GAMERES] refresh: 0 Hz at 800x600, 0 Hz at 800x600, 0/0 Hz at the id Tech 2/3 index modes (none), 0 Hz at the desktop 800x600 (panel max 0 Hz - NOT MEASURED); desktop is persisted at 60 Hz
+[10:59:19][GAMERES] Serious Engine refresh (TFE gfx_iRefreshRate, TSE gap_iRefreshRate): 60 (Windows NT major 4)
+[10:59:19][GAMERES] gameres: monitor CRT (no EDID - inferred), persisted desktop 800x600@0 -> target 800x600 (4:3 800x600) @0Hz
+[10:59:19][GAMERES] desktop refresh: no EDID, so no measured ceiling - leaving 60 Hz alone rather than guessing at a tube
+[10:59:21][GAMERES] gameres: ok: 7 title(s), 0 value(s) changed, 0 absent, target 800x600 (4:3 800x600); verify ok=18 wrong=0 absent=0
+[10:59:21][GAMESYNC] already provisioned (C:\RETRO_AGENT\gamesync.done present) - idle
+[10:59:23][DOSSTAGE] staging DOS programs from \\192.168.1.122\files\Utility\Retro Automation
+[10:59:23][DOSSTAGE] source not readable: \\192.168.1.122\files\Utility\Retro Automation\doschat
+[10:59:24][DOSSTAGE] source not readable: \\192.168.1.122\files\Utility\Retro Automation\dosgame\NET
+[10:59:24][DOSSTAGE] preview tiles skipped (set DosStageTiles=1 to stage them)
+[10:59:24][DOSSTAGE] staged 15 file(s) to C:\DOSCHAT and C:\DOSGAME
+[10:59:40][MAIN ] [4] CMD: "PING" (4 bytes)
+[10:59:57][MAIN ] Connection from 192.168.1.132:53286
+[10:59:57][MAIN ] Assigned slot 5 (6/10 active)
+[10:59:58][PROTO] AUTH: success
+[10:59:58][MAIN ] Client 5 (192.168.1.132:53286) authenticated
+[10:59:58][MAIN ] Client 5 (192.168.1.132:53286) disconnected
+[11:00:09][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[11:00:09][HWPUBLISH] published to \\192.168.1.122\files\Utility\Retro Automation\fleet-inventory\N5R5L9.json
+[11:00:19][IPXSETUP] ipxsetup: ok: active (IPX net 00000000 node 00a024b9e9fb, frame 802.2) - nothing changed
+[11:00:39][MAIN ] log: batched writes on (flush when full or every 15s) - startup window is past
+[11:00:41][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:00:45][GAMEINDEX] scan complete (changed): 26 game(s), hash=fe7b993e, 7016ms
+[11:00:46][MAIN ] Connection from 192.168.1.132:57814
+[11:00:46][MAIN ] Assigned slot 5 (6/10 active)
+[11:00:46][PROTO] AUTH: success
+[11:00:46][MAIN ] Client 5 (192.168.1.132:57814) authenticated
+[11:00:46][MAIN ] Client 5 (192.168.1.132:57814) disconnected
+[11:01:35][MAIN ] Connection from 192.168.1.132:48180
+[11:01:35][MAIN ] Assigned slot 5 (6/10 active)
+[11:01:35][PROTO] AUTH: success
+[11:01:36][MAIN ] Client 5 (192.168.1.132:48180) authenticated
+[11:01:36][MAIN ] Client 5 (192.168.1.132:48180) disconnected
+[11:01:41][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:02:25][MAIN ] Connection from 192.168.1.132:45798
+[11:02:25][MAIN ] Assigned slot 5 (6/10 active)
+[11:02:25][PROTO] AUTH: success
+[11:02:25][MAIN ] Client 5 (192.168.1.132:45798) authenticated
+[11:02:25][MAIN ] Client 5 (192.168.1.132:45798) disconnected
+[11:02:27][MAIN ] Connection from 192.168.1.132:45814
+[11:02:27][MAIN ] Assigned slot 5 (6/10 active)
+[11:02:27][MAIN ] Auth failed for slot 5 (192.168.1.132:45814)
+[11:02:27][MAIN ] Client 5 (192.168.1.132:45814) disconnected
+[11:02:29][MAIN ] Connection from 192.168.1.132:54680
+[11:02:29][MAIN ] Assigned slot 5 (6/10 active)
+[11:02:29][PROTO] AUTH: success
+[11:02:29][MAIN ] Client 5 (192.168.1.132:54680) authenticated
+[11:02:29][MAIN ] [5] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:02:29][MAIN ] Client 5 (192.168.1.132:54680) disconnected
+[11:02:42][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:03:14][MAIN ] Connection from 192.168.1.132:48838
+[11:03:14][MAIN ] Assigned slot 5 (6/10 active)
+[11:03:14][PROTO] AUTH: success
+[11:03:14][MAIN ] Client 5 (192.168.1.132:48838) authenticated
+[11:03:14][MAIN ] Client 5 (192.168.1.132:48838) disconnected
+[11:03:32][MAIN ] Connection from 192.168.1.132:43344
+[11:03:32][MAIN ] Assigned slot 5 (6/10 active)
+[11:03:32][PROTO] AUTH: success
+[11:03:32][MAIN ] Client 5 (192.168.1.132:43344) authenticated
+[11:03:32][MAIN ] [5] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:03:32][MAIN ] [5] CMD: "PROCLIST" (8 bytes)
+[11:03:32][PROTO] frame_send: 1151 bytes
+[11:03:32][MAIN ] [5] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:03:32][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:03:32][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:03:32][PROTO] frame_send: 3807 bytes
+[11:03:32][MAIN ] [5] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:03:32][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:03:32][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:03:32][PROTO] frame_send: 4478 bytes
+[11:03:32][MAIN ] [5] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:03:32][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:03:32][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:03:32][PROTO] frame_send: 4601 bytes
+[11:03:32][MAIN ] [5] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:03:32][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:03:32][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:03:32][PROTO] frame_send: 8907 bytes
+[11:03:32][MAIN ] [5] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:03:32][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:03:32][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:03:32][PROTO] frame_send: 17813 bytes
+[11:03:32][MAIN ] Client 5 (192.168.1.132:43344) disconnected
+[11:03:43][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:03:43][MAIN ] slot 1 (127.0.0.1:1027) idle 300 s - dropping it
+[11:03:43][MAIN ] Client 1 (127.0.0.1:1027) disconnected
+[11:03:44][MAIN ] Connection from 192.168.1.132:56098
+[11:03:44][MAIN ] Assigned slot 1 (5/10 active)
+[11:03:44][PROTO] AUTH: success
+[11:03:44][MAIN ] Client 1 (192.168.1.132:56098) authenticated
+[11:03:44][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:03:44][MAIN ] Client 1 (192.168.1.132:56098) disconnected
+[11:03:56][MAIN ] Connection from 192.168.1.132:33028
+[11:03:56][MAIN ] Assigned slot 1 (5/10 active)
+[11:03:56][PROTO] AUTH: success
+[11:03:56][MAIN ] Client 1 (192.168.1.132:33028) authenticated
+[11:03:56][MAIN ] [1] CMD: "HWPROFILE" (9 bytes)
+[11:03:56][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[11:03:56][PROTO] frame_send: 1963 bytes
+[11:03:56][MAIN ] Client 1 (192.168.1.132:33028) disconnected
+[11:04:03][MAIN ] Connection from 192.168.1.132:58172
+[11:04:03][MAIN ] Assigned slot 1 (5/10 active)
+[11:04:03][PROTO] AUTH: success
+[11:04:03][MAIN ] Client 1 (192.168.1.132:58172) authenticated
+[11:04:03][MAIN ] Client 1 (192.168.1.132:58172) disconnected
+[11:04:43][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:04:52][MAIN ] Connection from 192.168.1.132:55346
+[11:04:52][MAIN ] Assigned slot 1 (5/10 active)
+[11:04:52][PROTO] AUTH: success
+[11:04:52][MAIN ] Client 1 (192.168.1.132:55346) authenticated
+[11:04:52][MAIN ] Client 1 (192.168.1.132:55346) disconnected
+[11:05:26][MAIN ] Connection from 192.168.1.132:32920
+[11:05:26][MAIN ] Assigned slot 1 (5/10 active)
+[11:05:26][PROTO] AUTH: success
+[11:05:26][MAIN ] Client 1 (192.168.1.132:32920) authenticated
+[11:05:26][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:05:26][MAIN ] Client 1 (192.168.1.132:32920) disconnected
+[11:05:40][MAIN ] Connection from 192.168.1.132:60574
+[11:05:40][MAIN ] Assigned slot 1 (5/10 active)
+[11:05:40][PROTO] AUTH: success
+[11:05:40][MAIN ] Client 1 (192.168.1.132:60574) authenticated
+[11:05:40][MAIN ] Client 1 (192.168.1.132:60574) disconnected
+[11:05:44][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:06:29][MAIN ] Connection from 192.168.1.132:60912
+[11:06:29][MAIN ] Assigned slot 1 (5/10 active)
+[11:06:29][PROTO] AUTH: success
+[11:06:29][MAIN ] Client 1 (192.168.1.132:60912) authenticated
+[11:06:29][MAIN ] Client 1 (192.168.1.132:60912) disconnected
+[11:06:44][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:06:57][MAIN ] Connection from 192.168.1.132:53940
+[11:06:57][MAIN ] Assigned slot 1 (5/10 active)
+[11:06:57][PROTO] AUTH: success
+[11:06:57][MAIN ] Client 1 (192.168.1.132:53940) authenticated
+[11:06:57][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:06:57][MAIN ] Client 1 (192.168.1.132:53940) disconnected
+[11:07:19][MAIN ] Connection from 192.168.1.132:37964
+[11:07:19][MAIN ] Assigned slot 1 (5/10 active)
+[11:07:19][PROTO] AUTH: success
+[11:07:19][MAIN ] Client 1 (192.168.1.132:37964) authenticated
+[11:07:19][MAIN ] Client 1 (192.168.1.132:37964) disconnected
+[11:07:27][MAIN ] Connection from 192.168.1.132:37970
+[11:07:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:07:27][MAIN ] Auth failed for slot 1 (192.168.1.132:37970)
+[11:07:27][MAIN ] Client 1 (192.168.1.132:37970) disconnected
+[11:07:28][MAIN ] Connection from 192.168.1.132:37976
+[11:07:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:07:28][PROTO] AUTH: success
+[11:07:28][MAIN ] Client 1 (192.168.1.132:37976) authenticated
+[11:07:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:07:28][MAIN ] Client 1 (192.168.1.132:37976) disconnected
+[11:07:45][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:08:08][MAIN ] Connection from 192.168.1.132:42650
+[11:08:08][MAIN ] Assigned slot 1 (5/10 active)
+[11:08:08][PROTO] AUTH: success
+[11:08:08][MAIN ] Client 1 (192.168.1.132:42650) authenticated
+[11:08:08][MAIN ] Client 1 (192.168.1.132:42650) disconnected
+[11:08:22][MAIN ] Connection from 192.168.1.132:59364
+[11:08:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:08:22][PROTO] AUTH: success
+[11:08:22][MAIN ] Client 1 (192.168.1.132:59364) authenticated
+[11:08:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:08:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:08:22][PROTO] frame_send: 1151 bytes
+[11:08:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:08:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:08:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:08:22][PROTO] frame_send: 3807 bytes
+[11:08:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:08:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:08:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:08:22][PROTO] frame_send: 4478 bytes
+[11:08:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:08:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:08:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:08:22][PROTO] frame_send: 4601 bytes
+[11:08:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:08:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:08:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:08:22][PROTO] frame_send: 8907 bytes
+[11:08:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:08:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:08:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:08:22][PROTO] frame_send: 17813 bytes
+[11:08:22][MAIN ] Client 1 (192.168.1.132:59364) disconnected
+[11:08:27][MAIN ] Connection from 192.168.1.132:59380
+[11:08:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:08:27][PROTO] AUTH: success
+[11:08:27][MAIN ] Client 1 (192.168.1.132:59380) authenticated
+[11:08:27][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:08:27][MAIN ] Client 1 (192.168.1.132:59380) disconnected
+[11:08:45][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:08:57][MAIN ] Connection from 192.168.1.132:49368
+[11:08:57][MAIN ] Assigned slot 1 (5/10 active)
+[11:08:57][PROTO] AUTH: success
+[11:08:57][MAIN ] Client 1 (192.168.1.132:49368) authenticated
+[11:08:57][MAIN ] Client 1 (192.168.1.132:49368) disconnected
+[11:09:45][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:09:46][MAIN ] Connection from 192.168.1.132:58954
+[11:09:46][MAIN ] Assigned slot 1 (5/10 active)
+[11:09:46][PROTO] AUTH: success
+[11:09:46][MAIN ] Client 1 (192.168.1.132:58954) authenticated
+[11:09:46][MAIN ] Client 1 (192.168.1.132:58954) disconnected
+[11:09:57][MAIN ] Connection from 192.168.1.132:45630
+[11:09:57][MAIN ] Assigned slot 1 (5/10 active)
+[11:09:57][PROTO] AUTH: success
+[11:09:57][MAIN ] Client 1 (192.168.1.132:45630) authenticated
+[11:09:57][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:09:57][MAIN ] Client 1 (192.168.1.132:45630) disconnected
+[11:10:35][MAIN ] Connection from 192.168.1.132:47412
+[11:10:35][MAIN ] Assigned slot 1 (5/10 active)
+[11:10:35][PROTO] AUTH: success
+[11:10:35][MAIN ] Client 1 (192.168.1.132:47412) authenticated
+[11:10:35][MAIN ] Client 1 (192.168.1.132:47412) disconnected
+[11:11:15][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:11:24][MAIN ] Connection from 192.168.1.132:56828
+[11:11:24][MAIN ] Assigned slot 1 (5/10 active)
+[11:11:24][PROTO] AUTH: success
+[11:11:24][MAIN ] Client 1 (192.168.1.132:56828) authenticated
+[11:11:24][MAIN ] Client 1 (192.168.1.132:56828) disconnected
+[11:11:39][MAIN ] Connection from 192.168.1.132:54856
+[11:11:39][MAIN ] Assigned slot 1 (5/10 active)
+[11:11:39][PROTO] AUTH: success
+[11:11:39][MAIN ] Client 1 (192.168.1.132:54856) authenticated
+[11:11:39][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:11:39][MAIN ] Client 1 (192.168.1.132:54856) disconnected
+[11:12:12][MAIN ] Connection from 192.168.1.132:52610
+[11:12:12][MAIN ] Assigned slot 1 (5/10 active)
+[11:12:13][PROTO] AUTH: success
+[11:12:13][MAIN ] Client 1 (192.168.1.132:52610) authenticated
+[11:12:13][MAIN ] Client 1 (192.168.1.132:52610) disconnected
+[11:12:16][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:12:27][MAIN ] Connection from 192.168.1.132:60014
+[11:12:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:12:27][MAIN ] Auth failed for slot 1 (192.168.1.132:60014)
+[11:12:27][MAIN ] Client 1 (192.168.1.132:60014) disconnected
+[11:12:28][MAIN ] Connection from 192.168.1.132:60016
+[11:12:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:12:28][PROTO] AUTH: success
+[11:12:28][MAIN ] Client 1 (192.168.1.132:60016) authenticated
+[11:12:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:12:28][MAIN ] Client 1 (192.168.1.132:60016) disconnected
+[11:13:02][MAIN ] Connection from 192.168.1.132:54324
+[11:13:02][MAIN ] Assigned slot 1 (5/10 active)
+[11:13:02][PROTO] AUTH: success
+[11:13:02][MAIN ] Client 1 (192.168.1.132:54324) authenticated
+[11:13:02][MAIN ] Client 1 (192.168.1.132:54324) disconnected
+[11:13:09][MAIN ] Connection from 192.168.1.132:52370
+[11:13:09][MAIN ] Assigned slot 1 (5/10 active)
+[11:13:09][PROTO] AUTH: success
+[11:13:09][MAIN ] Client 1 (192.168.1.132:52370) authenticated
+[11:13:09][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:13:09][MAIN ] Client 1 (192.168.1.132:52370) disconnected
+[11:13:17][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:13:22][MAIN ] Connection from 192.168.1.132:56856
+[11:13:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:13:22][PROTO] AUTH: success
+[11:13:22][MAIN ] Client 1 (192.168.1.132:56856) authenticated
+[11:13:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:13:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:13:22][PROTO] frame_send: 1151 bytes
+[11:13:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:13:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:13:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:13:22][PROTO] frame_send: 3807 bytes
+[11:13:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:13:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:13:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:13:22][PROTO] frame_send: 4478 bytes
+[11:13:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:13:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:13:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:13:22][PROTO] frame_send: 4601 bytes
+[11:13:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:13:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:13:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:13:22][PROTO] frame_send: 8907 bytes
+[11:13:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:13:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:13:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:13:22][PROTO] frame_send: 17813 bytes
+[11:13:22][MAIN ] Client 1 (192.168.1.132:56856) disconnected
+[11:13:51][MAIN ] Connection from 192.168.1.132:58092
+[11:13:51][MAIN ] Assigned slot 1 (5/10 active)
+[11:13:51][PROTO] AUTH: success
+[11:13:51][MAIN ] Client 1 (192.168.1.132:58092) authenticated
+[11:13:51][MAIN ] Client 1 (192.168.1.132:58092) disconnected
+[11:14:18][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:14:39][MAIN ] Connection from 192.168.1.132:35778
+[11:14:39][MAIN ] Assigned slot 1 (5/10 active)
+[11:14:39][PROTO] AUTH: success
+[11:14:39][MAIN ] Client 1 (192.168.1.132:35778) authenticated
+[11:14:39][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:14:39][MAIN ] Client 1 (192.168.1.132:35778) disconnected
+[11:14:40][MAIN ] Connection from 192.168.1.132:35794
+[11:14:40][MAIN ] Assigned slot 1 (5/10 active)
+[11:14:40][PROTO] AUTH: success
+[11:14:40][MAIN ] Client 1 (192.168.1.132:35794) authenticated
+[11:14:40][MAIN ] Client 1 (192.168.1.132:35794) disconnected
+[11:15:18][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:15:29][MAIN ] Connection from 192.168.1.132:43140
+[11:15:29][MAIN ] Assigned slot 1 (5/10 active)
+[11:15:29][PROTO] AUTH: success
+[11:15:29][MAIN ] Client 1 (192.168.1.132:43140) authenticated
+[11:15:29][MAIN ] Client 1 (192.168.1.132:43140) disconnected
+[11:16:10][MAIN ] Connection from 192.168.1.132:38224
+[11:16:10][MAIN ] Assigned slot 1 (5/10 active)
+[11:16:10][PROTO] AUTH: success
+[11:16:10][MAIN ] Client 1 (192.168.1.132:38224) authenticated
+[11:16:10][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:16:10][MAIN ] Client 1 (192.168.1.132:38224) disconnected
+[11:16:18][MAIN ] Connection from 192.168.1.132:38230
+[11:16:18][MAIN ] Assigned slot 1 (5/10 active)
+[11:16:18][PROTO] AUTH: success
+[11:16:18][MAIN ] Client 1 (192.168.1.132:38230) authenticated
+[11:16:18][MAIN ] Client 1 (192.168.1.132:38230) disconnected
+[11:16:19][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:17:07][MAIN ] Connection from 192.168.1.132:52330
+[11:17:07][MAIN ] Assigned slot 1 (5/10 active)
+[11:17:07][PROTO] AUTH: success
+[11:17:07][MAIN ] Client 1 (192.168.1.132:52330) authenticated
+[11:17:07][MAIN ] Client 1 (192.168.1.132:52330) disconnected
+[11:17:19][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:17:27][MAIN ] Connection from 192.168.1.132:34680
+[11:17:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:17:27][MAIN ] Auth failed for slot 1 (192.168.1.132:34680)
+[11:17:27][MAIN ] Client 1 (192.168.1.132:34680) disconnected
+[11:17:29][MAIN ] Connection from 192.168.1.132:49990
+[11:17:29][MAIN ] Assigned slot 1 (5/10 active)
+[11:17:29][PROTO] AUTH: success
+[11:17:29][MAIN ] Client 1 (192.168.1.132:49990) authenticated
+[11:17:29][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:17:29][MAIN ] Client 1 (192.168.1.132:49990) disconnected
+[11:17:52][MAIN ] Connection from 192.168.1.132:59708
+[11:17:52][MAIN ] Assigned slot 1 (5/10 active)
+[11:17:52][PROTO] AUTH: success
+[11:17:52][MAIN ] Client 1 (192.168.1.132:59708) authenticated
+[11:17:52][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:17:52][MAIN ] Client 1 (192.168.1.132:59708) disconnected
+[11:17:56][MAIN ] Connection from 192.168.1.132:59716
+[11:17:56][MAIN ] Assigned slot 1 (5/10 active)
+[11:17:56][PROTO] AUTH: success
+[11:17:56][MAIN ] Client 1 (192.168.1.132:59716) authenticated
+[11:17:56][MAIN ] Client 1 (192.168.1.132:59716) disconnected
+[11:18:20][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:18:22][MAIN ] Connection from 192.168.1.132:33996
+[11:18:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:18:22][PROTO] AUTH: success
+[11:18:22][MAIN ] Client 1 (192.168.1.132:33996) authenticated
+[11:18:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:18:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:18:22][PROTO] frame_send: 1151 bytes
+[11:18:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:18:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:18:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:18:22][PROTO] frame_send: 3807 bytes
+[11:18:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:18:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:18:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:18:22][PROTO] frame_send: 4478 bytes
+[11:18:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:18:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:18:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:18:22][PROTO] frame_send: 4601 bytes
+[11:18:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:18:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:18:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:18:22][PROTO] frame_send: 8907 bytes
+[11:18:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:18:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:18:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:18:22][PROTO] frame_send: 17813 bytes
+[11:18:22][MAIN ] Client 1 (192.168.1.132:33996) disconnected
+[11:18:45][MAIN ] Connection from 192.168.1.132:58246
+[11:18:45][MAIN ] Assigned slot 1 (5/10 active)
+[11:18:45][PROTO] AUTH: success
+[11:18:45][MAIN ] Client 1 (192.168.1.132:58246) authenticated
+[11:18:45][MAIN ] Client 1 (192.168.1.132:58246) disconnected
+[11:19:20][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:19:22][MAIN ] Connection from 192.168.1.132:33412
+[11:19:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:19:22][PROTO] AUTH: success
+[11:19:22][MAIN ] Client 1 (192.168.1.132:33412) authenticated
+[11:19:22][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:19:22][MAIN ] Client 1 (192.168.1.132:33412) disconnected
+[11:19:34][MAIN ] Connection from 192.168.1.132:49404
+[11:19:34][MAIN ] Assigned slot 1 (5/10 active)
+[11:19:34][PROTO] AUTH: success
+[11:19:34][MAIN ] Client 1 (192.168.1.132:49404) authenticated
+[11:19:34][MAIN ] Client 1 (192.168.1.132:49404) disconnected
+[11:20:20][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:20:23][MAIN ] Connection from 192.168.1.132:33110
+[11:20:23][MAIN ] Assigned slot 1 (5/10 active)
+[11:20:23][PROTO] AUTH: success
+[11:20:23][MAIN ] Client 1 (192.168.1.132:33110) authenticated
+[11:20:23][MAIN ] Client 1 (192.168.1.132:33110) disconnected
+[11:20:52][MAIN ] Connection from 192.168.1.132:35020
+[11:20:52][MAIN ] Assigned slot 1 (5/10 active)
+[11:20:52][PROTO] AUTH: success
+[11:20:52][MAIN ] Client 1 (192.168.1.132:35020) authenticated
+[11:20:52][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:20:52][MAIN ] Client 1 (192.168.1.132:35020) disconnected
+[11:21:12][MAIN ] Connection from 192.168.1.132:48088
+[11:21:12][MAIN ] Assigned slot 1 (5/10 active)
+[11:21:12][PROTO] AUTH: success
+[11:21:12][MAIN ] Client 1 (192.168.1.132:48088) authenticated
+[11:21:12][MAIN ] Client 1 (192.168.1.132:48088) disconnected
+[11:21:21][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:22:01][MAIN ] Connection from 192.168.1.132:47990
+[11:22:01][MAIN ] Assigned slot 1 (5/10 active)
+[11:22:01][PROTO] AUTH: success
+[11:22:01][MAIN ] Client 1 (192.168.1.132:47990) authenticated
+[11:22:01][MAIN ] Client 1 (192.168.1.132:47990) disconnected
+[11:22:21][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:22:22][MAIN ] Connection from 192.168.1.132:60886
+[11:22:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:22:22][PROTO] AUTH: success
+[11:22:22][MAIN ] Client 1 (192.168.1.132:60886) authenticated
+[11:22:22][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:22:22][MAIN ] Client 1 (192.168.1.132:60886) disconnected
+[11:22:27][MAIN ] Connection from 192.168.1.132:60900
+[11:22:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:22:27][MAIN ] Auth failed for slot 1 (192.168.1.132:60900)
+[11:22:27][MAIN ] Client 1 (192.168.1.132:60900) disconnected
+[11:22:28][MAIN ] Connection from 192.168.1.132:60914
+[11:22:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:22:28][PROTO] AUTH: success
+[11:22:28][MAIN ] Client 1 (192.168.1.132:60914) authenticated
+[11:22:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:22:28][MAIN ] Client 1 (192.168.1.132:60914) disconnected
+[11:22:50][MAIN ] Connection from 192.168.1.132:48044
+[11:22:50][MAIN ] Assigned slot 1 (5/10 active)
+[11:22:50][PROTO] AUTH: success
+[11:22:50][MAIN ] Client 1 (192.168.1.132:48044) authenticated
+[11:22:50][MAIN ] Client 1 (192.168.1.132:48044) disconnected
+[11:23:21][MAIN ] Connection from 192.168.1.132:47210
+[11:23:21][MAIN ] Assigned slot 1 (5/10 active)
+[11:23:21][PROTO] AUTH: success
+[11:23:21][MAIN ] Client 1 (192.168.1.132:47210) authenticated
+[11:23:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:23:21][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:23:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:23:21][PROTO] frame_send: 1151 bytes
+[11:23:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:23:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:23:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:23:21][PROTO] frame_send: 3807 bytes
+[11:23:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:23:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:23:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:23:21][PROTO] frame_send: 4478 bytes
+[11:23:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:23:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:23:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:23:21][PROTO] frame_send: 4601 bytes
+[11:23:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:23:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:23:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:23:22][PROTO] frame_send: 8907 bytes
+[11:23:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:23:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:23:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:23:22][PROTO] frame_send: 17813 bytes
+[11:23:22][MAIN ] Client 1 (192.168.1.132:47210) disconnected
+[11:23:39][MAIN ] Connection from 192.168.1.132:45612
+[11:23:39][MAIN ] Assigned slot 1 (5/10 active)
+[11:23:39][PROTO] AUTH: success
+[11:23:39][MAIN ] Client 1 (192.168.1.132:45612) authenticated
+[11:23:39][MAIN ] Client 1 (192.168.1.132:45612) disconnected
+[11:24:04][MAIN ] Connection from 192.168.1.132:57540
+[11:24:04][MAIN ] Assigned slot 1 (5/10 active)
+[11:24:04][PROTO] AUTH: success
+[11:24:04][MAIN ] Client 1 (192.168.1.132:57540) authenticated
+[11:24:04][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:24:04][MAIN ] Client 1 (192.168.1.132:57540) disconnected
+[11:24:22][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:24:28][MAIN ] Connection from 192.168.1.132:33748
+[11:24:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:24:28][PROTO] AUTH: success
+[11:24:28][MAIN ] Client 1 (192.168.1.132:33748) authenticated
+[11:24:28][MAIN ] Client 1 (192.168.1.132:33748) disconnected
+[11:25:17][MAIN ] Connection from 192.168.1.132:60458
+[11:25:17][MAIN ] Assigned slot 1 (5/10 active)
+[11:25:17][PROTO] AUTH: success
+[11:25:17][MAIN ] Client 1 (192.168.1.132:60458) authenticated
+[11:25:17][MAIN ] Client 1 (192.168.1.132:60458) disconnected
+[11:25:23][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:25:35][MAIN ] Connection from 192.168.1.132:47520
+[11:25:35][MAIN ] Assigned slot 1 (5/10 active)
+[11:25:35][PROTO] AUTH: success
+[11:25:35][MAIN ] Client 1 (192.168.1.132:47520) authenticated
+[11:25:35][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:25:35][MAIN ] Client 1 (192.168.1.132:47520) disconnected
+[11:26:06][MAIN ] Connection from 192.168.1.132:59396
+[11:26:06][MAIN ] Assigned slot 1 (5/10 active)
+[11:26:06][PROTO] AUTH: success
+[11:26:06][MAIN ] Client 1 (192.168.1.132:59396) authenticated
+[11:26:06][MAIN ] Client 1 (192.168.1.132:59396) disconnected
+[11:26:23][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:26:55][MAIN ] Connection from 192.168.1.132:57496
+[11:26:55][MAIN ] Assigned slot 1 (5/10 active)
+[11:26:55][PROTO] AUTH: success
+[11:26:55][MAIN ] Client 1 (192.168.1.132:57496) authenticated
+[11:26:55][MAIN ] Client 1 (192.168.1.132:57496) disconnected
+[11:27:05][MAIN ] Connection from 192.168.1.132:52540
+[11:27:05][MAIN ] Assigned slot 1 (5/10 active)
+[11:27:05][PROTO] AUTH: success
+[11:27:05][MAIN ] Client 1 (192.168.1.132:52540) authenticated
+[11:27:05][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:27:05][MAIN ] Client 1 (192.168.1.132:52540) disconnected
+[11:27:24][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:27:27][MAIN ] Connection from 192.168.1.132:34196
+[11:27:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:27:27][MAIN ] Auth failed for slot 1 (192.168.1.132:34196)
+[11:27:27][MAIN ] Client 1 (192.168.1.132:34196) disconnected
+[11:27:28][MAIN ] Connection from 192.168.1.132:34210
+[11:27:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:27:28][PROTO] AUTH: success
+[11:27:28][MAIN ] Client 1 (192.168.1.132:34210) authenticated
+[11:27:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:27:28][MAIN ] Client 1 (192.168.1.132:34210) disconnected
+[11:27:44][MAIN ] Connection from 192.168.1.132:47112
+[11:27:44][MAIN ] Assigned slot 1 (5/10 active)
+[11:27:44][PROTO] AUTH: success
+[11:27:44][MAIN ] Client 1 (192.168.1.132:47112) authenticated
+[11:27:44][MAIN ] Client 1 (192.168.1.132:47112) disconnected
+[11:28:22][MAIN ] Connection from 192.168.1.132:43216
+[11:28:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:28:22][PROTO] AUTH: success
+[11:28:22][MAIN ] Client 1 (192.168.1.132:43216) authenticated
+[11:28:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:28:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:28:22][PROTO] frame_send: 1151 bytes
+[11:28:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:28:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:28:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:28:22][PROTO] frame_send: 3807 bytes
+[11:28:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:28:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:28:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:28:22][PROTO] frame_send: 4478 bytes
+[11:28:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:28:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:28:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:28:22][PROTO] frame_send: 4601 bytes
+[11:28:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:28:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:28:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:28:22][PROTO] frame_send: 8907 bytes
+[11:28:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:28:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:28:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:28:22][PROTO] frame_send: 17813 bytes
+[11:28:22][MAIN ] Client 1 (192.168.1.132:43216) disconnected
+[11:28:24][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:28:33][MAIN ] Connection from 192.168.1.132:54404
+[11:28:33][MAIN ] Assigned slot 1 (5/10 active)
+[11:28:33][PROTO] AUTH: success
+[11:28:33][MAIN ] Client 1 (192.168.1.132:54404) authenticated
+[11:28:33][MAIN ] Client 1 (192.168.1.132:54404) disconnected
+[11:28:35][MAIN ] Connection from 192.168.1.132:54416
+[11:28:35][MAIN ] Assigned slot 1 (5/10 active)
+[11:28:35][PROTO] AUTH: success
+[11:28:35][MAIN ] Client 1 (192.168.1.132:54416) authenticated
+[11:28:35][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:28:35][MAIN ] Client 1 (192.168.1.132:54416) disconnected
+[11:29:22][MAIN ] Connection from 192.168.1.132:35600
+[11:29:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:29:22][PROTO] AUTH: success
+[11:29:22][MAIN ] Client 1 (192.168.1.132:35600) authenticated
+[11:29:22][MAIN ] Client 1 (192.168.1.132:35600) disconnected
+[11:29:25][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:30:11][MAIN ] Connection from 192.168.1.132:35544
+[11:30:11][MAIN ] Assigned slot 1 (5/10 active)
+[11:30:11][PROTO] AUTH: success
+[11:30:11][MAIN ] Client 1 (192.168.1.132:35544) authenticated
+[11:30:11][MAIN ] Client 1 (192.168.1.132:35544) disconnected
+[11:30:17][MAIN ] Connection from 192.168.1.132:35552
+[11:30:17][MAIN ] Assigned slot 1 (5/10 active)
+[11:30:17][PROTO] AUTH: success
+[11:30:17][MAIN ] Client 1 (192.168.1.132:35552) authenticated
+[11:30:17][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:30:17][MAIN ] Client 1 (192.168.1.132:35552) disconnected
+[11:30:25][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:31:00][MAIN ] Connection from 192.168.1.132:38072
+[11:31:00][MAIN ] Assigned slot 1 (5/10 active)
+[11:31:00][PROTO] AUTH: success
+[11:31:00][MAIN ] Client 1 (192.168.1.132:38072) authenticated
+[11:31:00][MAIN ] Client 1 (192.168.1.132:38072) disconnected
+[11:31:25][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:31:47][MAIN ] Connection from 192.168.1.132:46876
+[11:31:47][MAIN ] Assigned slot 1 (5/10 active)
+[11:31:47][PROTO] AUTH: success
+[11:31:47][MAIN ] Client 1 (192.168.1.132:46876) authenticated
+[11:31:47][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:31:47][MAIN ] Client 1 (192.168.1.132:46876) disconnected
+[11:31:49][MAIN ] Connection from 192.168.1.132:39728
+[11:31:49][MAIN ] Assigned slot 1 (5/10 active)
+[11:31:49][PROTO] AUTH: success
+[11:31:49][MAIN ] Client 1 (192.168.1.132:39728) authenticated
+[11:31:49][MAIN ] Client 1 (192.168.1.132:39728) disconnected
+[11:32:26][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:32:27][MAIN ] Connection from 192.168.1.132:51078
+[11:32:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:32:27][MAIN ] Auth failed for slot 1 (192.168.1.132:51078)
+[11:32:27][MAIN ] Client 1 (192.168.1.132:51078) disconnected
+[11:32:28][MAIN ] Connection from 192.168.1.132:51086
+[11:32:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:32:28][PROTO] AUTH: success
+[11:32:28][MAIN ] Client 1 (192.168.1.132:51086) authenticated
+[11:32:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:32:28][MAIN ] Client 1 (192.168.1.132:51086) disconnected
+[11:32:38][MAIN ] Connection from 192.168.1.132:34572
+[11:32:38][MAIN ] Assigned slot 1 (5/10 active)
+[11:32:38][PROTO] AUTH: success
+[11:32:38][MAIN ] Client 1 (192.168.1.132:34572) authenticated
+[11:32:38][MAIN ] Client 1 (192.168.1.132:34572) disconnected
+[11:33:17][MAIN ] Connection from 192.168.1.132:48538
+[11:33:17][MAIN ] Assigned slot 1 (5/10 active)
+[11:33:17][PROTO] AUTH: success
+[11:33:17][MAIN ] Client 1 (192.168.1.132:48538) authenticated
+[11:33:17][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:33:17][MAIN ] Client 1 (192.168.1.132:48538) disconnected
+[11:33:22][MAIN ] Connection from 192.168.1.132:52614
+[11:33:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:33:22][PROTO] AUTH: success
+[11:33:22][MAIN ] Client 1 (192.168.1.132:52614) authenticated
+[11:33:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:33:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:33:22][PROTO] frame_send: 1151 bytes
+[11:33:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:33:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:33:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:33:22][PROTO] frame_send: 3807 bytes
+[11:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:33:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:33:22][PROTO] frame_send: 4478 bytes
+[11:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:33:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:33:22][PROTO] frame_send: 4601 bytes
+[11:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:33:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:33:22][PROTO] frame_send: 8907 bytes
+[11:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:33:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:33:22][PROTO] frame_send: 17813 bytes
+[11:33:22][MAIN ] Client 1 (192.168.1.132:52614) disconnected
+[11:33:26][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:33:27][MAIN ] Connection from 192.168.1.132:52630
+[11:33:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:33:27][PROTO] AUTH: success
+[11:33:27][MAIN ] Client 1 (192.168.1.132:52630) authenticated
+[11:33:27][MAIN ] Client 1 (192.168.1.132:52630) disconnected
+[11:34:16][MAIN ] Connection from 192.168.1.132:54792
+[11:34:16][MAIN ] Assigned slot 1 (5/10 active)
+[11:34:16][PROTO] AUTH: success
+[11:34:16][MAIN ] Client 1 (192.168.1.132:54792) authenticated
+[11:34:16][MAIN ] Client 1 (192.168.1.132:54792) disconnected
+[11:34:27][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:34:47][MAIN ] Connection from 192.168.1.132:43404
+[11:34:47][MAIN ] Assigned slot 1 (5/10 active)
+[11:34:47][PROTO] AUTH: success
+[11:34:47][MAIN ] Client 1 (192.168.1.132:43404) authenticated
+[11:34:47][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:34:47][MAIN ] Client 1 (192.168.1.132:43404) disconnected
+[11:35:05][MAIN ] Connection from 192.168.1.132:35612
+[11:35:05][MAIN ] Assigned slot 1 (5/10 active)
+[11:35:05][PROTO] AUTH: success
+[11:35:05][MAIN ] Client 1 (192.168.1.132:35612) authenticated
+[11:35:05][MAIN ] Client 1 (192.168.1.132:35612) disconnected
+[11:35:28][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:35:54][MAIN ] Connection from 192.168.1.132:52668
+[11:35:54][MAIN ] Assigned slot 1 (5/10 active)
+[11:35:54][PROTO] AUTH: success
+[11:35:54][MAIN ] Client 1 (192.168.1.132:52668) authenticated
+[11:35:54][MAIN ] Client 1 (192.168.1.132:52668) disconnected
+[11:36:28][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:36:30][MAIN ] Connection from 192.168.1.132:53172
+[11:36:30][MAIN ] Assigned slot 1 (5/10 active)
+[11:36:30][PROTO] AUTH: success
+[11:36:30][MAIN ] Client 1 (192.168.1.132:53172) authenticated
+[11:36:30][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:36:30][MAIN ] Client 1 (192.168.1.132:53172) disconnected
+[11:36:43][MAIN ] Connection from 192.168.1.132:54864
+[11:36:43][MAIN ] Assigned slot 1 (5/10 active)
+[11:36:43][PROTO] AUTH: success
+[11:36:43][MAIN ] Client 1 (192.168.1.132:54864) authenticated
+[11:36:43][MAIN ] Client 1 (192.168.1.132:54864) disconnected
+[11:37:27][MAIN ] Connection from 192.168.1.132:57448
+[11:37:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:37:27][MAIN ] Auth failed for slot 1 (192.168.1.132:57448)
+[11:37:27][MAIN ] Client 1 (192.168.1.132:57448) disconnected
+[11:37:28][MAIN ] Connection from 192.168.1.132:57456
+[11:37:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:37:28][PROTO] AUTH: success
+[11:37:28][MAIN ] Client 1 (192.168.1.132:57456) authenticated
+[11:37:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:37:28][MAIN ] Client 1 (192.168.1.132:57456) disconnected
+[11:37:29][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:37:32][MAIN ] Connection from 192.168.1.132:47672
+[11:37:32][MAIN ] Assigned slot 1 (5/10 active)
+[11:37:32][PROTO] AUTH: success
+[11:37:32][MAIN ] Client 1 (192.168.1.132:47672) authenticated
+[11:37:32][MAIN ] Client 1 (192.168.1.132:47672) disconnected
+[11:38:00][MAIN ] Connection from 192.168.1.132:60822
+[11:38:00][MAIN ] Assigned slot 1 (5/10 active)
+[11:38:00][PROTO] AUTH: success
+[11:38:00][MAIN ] Client 1 (192.168.1.132:60822) authenticated
+[11:38:00][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:38:00][MAIN ] Client 1 (192.168.1.132:60822) disconnected
+[11:38:21][MAIN ] Connection from 192.168.1.132:39320
+[11:38:21][MAIN ] Assigned slot 1 (5/10 active)
+[11:38:21][PROTO] AUTH: success
+[11:38:21][MAIN ] Client 1 (192.168.1.132:39320) authenticated
+[11:38:21][MAIN ] Client 1 (192.168.1.132:39320) disconnected
+[11:38:21][MAIN ] Connection from 192.168.1.132:39326
+[11:38:21][MAIN ] Assigned slot 1 (5/10 active)
+[11:38:21][PROTO] AUTH: success
+[11:38:21][MAIN ] Client 1 (192.168.1.132:39326) authenticated
+[11:38:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:38:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:38:21][PROTO] frame_send: 1151 bytes
+[11:38:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:38:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:38:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:38:21][PROTO] frame_send: 3807 bytes
+[11:38:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:38:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:38:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:38:21][PROTO] frame_send: 4478 bytes
+[11:38:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:38:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:38:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:38:21][PROTO] frame_send: 4601 bytes
+[11:38:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:38:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:38:21][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:38:21][PROTO] frame_send: 8907 bytes
+[11:38:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:38:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:38:21][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:38:21][PROTO] frame_send: 17813 bytes
+[11:38:21][MAIN ] Client 1 (192.168.1.132:39326) disconnected
+[11:38:29][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:39:10][MAIN ] Connection from 192.168.1.132:48006
+[11:39:10][MAIN ] Assigned slot 1 (5/10 active)
+[11:39:10][PROTO] AUTH: success
+[11:39:10][MAIN ] Client 1 (192.168.1.132:48006) authenticated
+[11:39:10][MAIN ] Client 1 (192.168.1.132:48006) disconnected
+[11:39:29][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:39:30][MAIN ] Connection from 192.168.1.132:37796
+[11:39:30][MAIN ] Assigned slot 1 (5/10 active)
+[11:39:30][PROTO] AUTH: success
+[11:39:30][MAIN ] Client 1 (192.168.1.132:37796) authenticated
+[11:39:30][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:39:30][MAIN ] Client 1 (192.168.1.132:37796) disconnected
+[11:39:59][MAIN ] Connection from 192.168.1.132:60528
+[11:39:59][MAIN ] Assigned slot 1 (5/10 active)
+[11:39:59][PROTO] AUTH: success
+[11:39:59][MAIN ] Client 1 (192.168.1.132:60528) authenticated
+[11:39:59][MAIN ] Client 1 (192.168.1.132:60528) disconnected
+[11:40:30][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:40:48][MAIN ] Connection from 192.168.1.132:44708
+[11:40:48][MAIN ] Assigned slot 1 (5/10 active)
+[11:40:48][PROTO] AUTH: success
+[11:40:48][MAIN ] Client 1 (192.168.1.132:44708) authenticated
+[11:40:48][MAIN ] Client 1 (192.168.1.132:44708) disconnected
+[11:41:00][MAIN ] Connection from 192.168.1.132:45662
+[11:41:00][MAIN ] Assigned slot 1 (5/10 active)
+[11:41:00][PROTO] AUTH: success
+[11:41:00][MAIN ] Client 1 (192.168.1.132:45662) authenticated
+[11:41:00][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:41:00][MAIN ] Client 1 (192.168.1.132:45662) disconnected
+[11:41:30][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:41:37][MAIN ] Connection from 192.168.1.132:43116
+[11:41:37][MAIN ] Assigned slot 1 (5/10 active)
+[11:41:37][PROTO] AUTH: success
+[11:41:37][MAIN ] Client 1 (192.168.1.132:43116) authenticated
+[11:41:37][MAIN ] Client 1 (192.168.1.132:43116) disconnected
+[11:42:26][MAIN ] Connection from 192.168.1.132:37118
+[11:42:26][MAIN ] Assigned slot 1 (5/10 active)
+[11:42:26][PROTO] AUTH: success
+[11:42:26][MAIN ] Client 1 (192.168.1.132:37118) authenticated
+[11:42:26][MAIN ] Client 1 (192.168.1.132:37118) disconnected
+[11:42:27][MAIN ] Connection from 192.168.1.132:37128
+[11:42:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:42:27][MAIN ] Auth failed for slot 1 (192.168.1.132:37128)
+[11:42:27][MAIN ] Client 1 (192.168.1.132:37128) disconnected
+[11:42:28][MAIN ] Connection from 192.168.1.132:37136
+[11:42:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:42:28][PROTO] AUTH: success
+[11:42:28][MAIN ] Client 1 (192.168.1.132:37136) authenticated
+[11:42:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:42:28][MAIN ] Client 1 (192.168.1.132:37136) disconnected
+[11:42:31][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:42:42][MAIN ] Connection from 192.168.1.132:42174
+[11:42:42][MAIN ] Assigned slot 1 (5/10 active)
+[11:42:42][PROTO] AUTH: success
+[11:42:42][MAIN ] Client 1 (192.168.1.132:42174) authenticated
+[11:42:42][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:42:42][MAIN ] Client 1 (192.168.1.132:42174) disconnected
+[11:43:15][MAIN ] Connection from 192.168.1.132:38700
+[11:43:15][MAIN ] Assigned slot 1 (5/10 active)
+[11:43:15][PROTO] AUTH: success
+[11:43:15][MAIN ] Client 1 (192.168.1.132:38700) authenticated
+[11:43:15][MAIN ] Client 1 (192.168.1.132:38700) disconnected
+[11:43:22][MAIN ] Connection from 192.168.1.132:35674
+[11:43:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:43:22][PROTO] AUTH: success
+[11:43:22][MAIN ] Client 1 (192.168.1.132:35674) authenticated
+[11:43:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:43:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:43:22][PROTO] frame_send: 1151 bytes
+[11:43:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:43:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:43:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:43:22][PROTO] frame_send: 3807 bytes
+[11:43:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:43:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:43:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:43:22][PROTO] frame_send: 4478 bytes
+[11:43:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:43:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:43:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:43:22][PROTO] frame_send: 4601 bytes
+[11:43:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:43:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:43:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:43:22][PROTO] frame_send: 8907 bytes
+[11:43:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:43:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:43:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:43:22][PROTO] frame_send: 17813 bytes
+[11:43:22][MAIN ] Client 1 (192.168.1.132:35674) disconnected
+[11:43:32][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:44:04][MAIN ] Connection from 192.168.1.132:55074
+[11:44:04][MAIN ] Assigned slot 1 (5/10 active)
+[11:44:04][PROTO] AUTH: success
+[11:44:04][MAIN ] Client 1 (192.168.1.132:55074) authenticated
+[11:44:04][MAIN ] Client 1 (192.168.1.132:55074) disconnected
+[11:44:12][MAIN ] Connection from 192.168.1.132:58770
+[11:44:12][MAIN ] Assigned slot 1 (5/10 active)
+[11:44:12][PROTO] AUTH: success
+[11:44:12][MAIN ] Client 1 (192.168.1.132:58770) authenticated
+[11:44:12][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:44:12][MAIN ] Client 1 (192.168.1.132:58770) disconnected
+[11:44:32][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:44:53][MAIN ] Connection from 192.168.1.132:47320
+[11:44:53][MAIN ] Assigned slot 1 (5/10 active)
+[11:44:53][PROTO] AUTH: success
+[11:44:53][MAIN ] Client 1 (192.168.1.132:47320) authenticated
+[11:44:53][MAIN ] Client 1 (192.168.1.132:47320) disconnected
+[11:45:32][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:45:42][MAIN ] Connection from 192.168.1.132:47442
+[11:45:42][MAIN ] Assigned slot 1 (5/10 active)
+[11:45:42][PROTO] AUTH: success
+[11:45:42][MAIN ] Client 1 (192.168.1.132:47442) authenticated
+[11:45:42][MAIN ] Client 1 (192.168.1.132:47442) disconnected
+[11:45:42][MAIN ] Connection from 192.168.1.132:47450
+[11:45:42][MAIN ] Assigned slot 1 (5/10 active)
+[11:45:42][PROTO] AUTH: success
+[11:45:42][MAIN ] Client 1 (192.168.1.132:47450) authenticated
+[11:45:42][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:45:42][MAIN ] Client 1 (192.168.1.132:47450) disconnected
+[11:46:31][MAIN ] Connection from 192.168.1.132:45696
+[11:46:31][MAIN ] Assigned slot 1 (5/10 active)
+[11:46:31][PROTO] AUTH: success
+[11:46:31][MAIN ] Client 1 (192.168.1.132:45696) authenticated
+[11:46:31][MAIN ] Client 1 (192.168.1.132:45696) disconnected
+[11:47:02][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:47:12][MAIN ] Connection from 192.168.1.132:47342
+[11:47:12][MAIN ] Assigned slot 1 (5/10 active)
+[11:47:12][PROTO] AUTH: success
+[11:47:12][MAIN ] Client 1 (192.168.1.132:47342) authenticated
+[11:47:12][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:47:12][MAIN ] Client 1 (192.168.1.132:47342) disconnected
+[11:47:20][MAIN ] Connection from 192.168.1.132:38502
+[11:47:20][MAIN ] Assigned slot 1 (5/10 active)
+[11:47:20][PROTO] AUTH: success
+[11:47:20][MAIN ] Client 1 (192.168.1.132:38502) authenticated
+[11:47:20][MAIN ] Client 1 (192.168.1.132:38502) disconnected
+[11:47:27][MAIN ] Connection from 192.168.1.132:38506
+[11:47:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:47:27][MAIN ] Auth failed for slot 1 (192.168.1.132:38506)
+[11:47:27][MAIN ] Client 1 (192.168.1.132:38506) disconnected
+[11:47:28][MAIN ] Connection from 192.168.1.132:38514
+[11:47:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:47:28][PROTO] AUTH: success
+[11:47:28][MAIN ] Client 1 (192.168.1.132:38514) authenticated
+[11:47:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:47:28][MAIN ] Client 1 (192.168.1.132:38514) disconnected
+[11:48:03][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:48:09][MAIN ] Connection from 192.168.1.132:60090
+[11:48:09][MAIN ] Assigned slot 1 (5/10 active)
+[11:48:09][PROTO] AUTH: success
+[11:48:09][MAIN ] Client 1 (192.168.1.132:60090) authenticated
+[11:48:09][MAIN ] Client 1 (192.168.1.132:60090) disconnected
+[11:48:19][MAIN ] Connection from 192.168.1.132:60548
+[11:48:19][MAIN ] Assigned slot 1 (5/10 active)
+[11:48:19][PROTO] AUTH: success
+[11:48:19][MAIN ] Client 1 (192.168.1.132:60548) authenticated
+[11:48:19][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:48:19][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:48:19][PROTO] frame_send: 1151 bytes
+[11:48:19][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:48:19][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:48:19][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:48:19][PROTO] frame_send: 3807 bytes
+[11:48:19][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:48:19][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:48:19][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:48:19][PROTO] frame_send: 4478 bytes
+[11:48:19][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:48:19][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:48:19][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:48:19][PROTO] frame_send: 4601 bytes
+[11:48:19][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:48:19][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:48:19][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:48:19][PROTO] frame_send: 8907 bytes
+[11:48:19][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:48:19][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:48:19][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:48:19][PROTO] frame_send: 17813 bytes
+[11:48:20][MAIN ] Client 1 (192.168.1.132:60548) disconnected
+[11:48:54][MAIN ] Connection from 192.168.1.132:40636
+[11:48:54][MAIN ] Assigned slot 1 (5/10 active)
+[11:48:54][PROTO] AUTH: success
+[11:48:54][MAIN ] Client 1 (192.168.1.132:40636) authenticated
+[11:48:54][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:48:54][MAIN ] Client 1 (192.168.1.132:40636) disconnected
+[11:48:58][MAIN ] Connection from 192.168.1.132:40638
+[11:48:58][MAIN ] Assigned slot 1 (5/10 active)
+[11:48:58][PROTO] AUTH: success
+[11:48:58][MAIN ] Client 1 (192.168.1.132:40638) authenticated
+[11:48:58][MAIN ] Client 1 (192.168.1.132:40638) disconnected
+[11:49:04][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:49:47][MAIN ] Connection from 192.168.1.132:39634
+[11:49:47][MAIN ] Assigned slot 1 (5/10 active)
+[11:49:47][PROTO] AUTH: success
+[11:49:47][MAIN ] Client 1 (192.168.1.132:39634) authenticated
+[11:49:47][MAIN ] Client 1 (192.168.1.132:39634) disconnected
+[11:50:04][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:50:25][MAIN ] Connection from 192.168.1.132:54542
+[11:50:25][MAIN ] Assigned slot 1 (5/10 active)
+[11:50:25][PROTO] AUTH: success
+[11:50:25][MAIN ] Client 1 (192.168.1.132:54542) authenticated
+[11:50:25][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:50:25][MAIN ] Client 1 (192.168.1.132:54542) disconnected
+[11:50:36][MAIN ] Connection from 192.168.1.132:34880
+[11:50:36][MAIN ] Assigned slot 1 (5/10 active)
+[11:50:36][PROTO] AUTH: success
+[11:50:36][MAIN ] Client 1 (192.168.1.132:34880) authenticated
+[11:50:36][MAIN ] Client 1 (192.168.1.132:34880) disconnected
+[11:51:04][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:51:25][MAIN ] Connection from 192.168.1.132:42578
+[11:51:25][MAIN ] Assigned slot 1 (5/10 active)
+[11:51:25][PROTO] AUTH: success
+[11:51:25][MAIN ] Client 1 (192.168.1.132:42578) authenticated
+[11:51:25][MAIN ] Client 1 (192.168.1.132:42578) disconnected
+[11:51:55][MAIN ] Connection from 192.168.1.132:48694
+[11:51:55][MAIN ] Assigned slot 1 (5/10 active)
+[11:51:55][PROTO] AUTH: success
+[11:51:55][MAIN ] Client 1 (192.168.1.132:48694) authenticated
+[11:51:55][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:51:55][MAIN ] Client 1 (192.168.1.132:48694) disconnected
+[11:52:14][MAIN ] Connection from 192.168.1.132:35726
+[11:52:14][MAIN ] Assigned slot 1 (5/10 active)
+[11:52:14][PROTO] AUTH: success
+[11:52:14][MAIN ] Client 1 (192.168.1.132:35726) authenticated
+[11:52:14][MAIN ] Client 1 (192.168.1.132:35726) disconnected
+[11:52:27][MAIN ] Connection from 192.168.1.132:38078
+[11:52:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:52:27][MAIN ] Auth failed for slot 1 (192.168.1.132:38078)
+[11:52:27][MAIN ] Client 1 (192.168.1.132:38078) disconnected
+[11:52:28][MAIN ] Connection from 192.168.1.132:38080
+[11:52:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:52:28][PROTO] AUTH: success
+[11:52:28][MAIN ] Client 1 (192.168.1.132:38080) authenticated
+[11:52:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:52:28][MAIN ] Client 1 (192.168.1.132:38080) disconnected
+[11:52:34][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:53:03][MAIN ] Connection from 192.168.1.132:37828
+[11:53:03][MAIN ] Assigned slot 1 (5/10 active)
+[11:53:03][PROTO] AUTH: success
+[11:53:03][MAIN ] Client 1 (192.168.1.132:37828) authenticated
+[11:53:03][MAIN ] Client 1 (192.168.1.132:37828) disconnected
+[11:53:21][MAIN ] Connection from 192.168.1.132:53402
+[11:53:21][MAIN ] Assigned slot 1 (5/10 active)
+[11:53:21][PROTO] AUTH: success
+[11:53:21][MAIN ] Client 1 (192.168.1.132:53402) authenticated
+[11:53:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:53:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:53:21][PROTO] frame_send: 1151 bytes
+[11:53:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:53:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:53:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:53:21][PROTO] frame_send: 3807 bytes
+[11:53:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:53:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:53:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:53:21][PROTO] frame_send: 4478 bytes
+[11:53:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:53:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:53:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:53:21][PROTO] frame_send: 4601 bytes
+[11:53:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:53:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:53:21][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:53:21][PROTO] frame_send: 8907 bytes
+[11:53:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:53:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:53:21][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:53:21][PROTO] frame_send: 17813 bytes
+[11:53:21][MAIN ] Client 1 (192.168.1.132:53402) disconnected
+[11:53:25][MAIN ] Connection from 192.168.1.132:53416
+[11:53:25][MAIN ] Assigned slot 1 (5/10 active)
+[11:53:25][PROTO] AUTH: success
+[11:53:25][MAIN ] Client 1 (192.168.1.132:53416) authenticated
+[11:53:25][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:53:25][MAIN ] Client 1 (192.168.1.132:53416) disconnected
+[11:53:35][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:53:52][MAIN ] Connection from 192.168.1.132:52716
+[11:53:52][MAIN ] Assigned slot 1 (5/10 active)
+[11:53:52][PROTO] AUTH: success
+[11:53:52][MAIN ] Client 1 (192.168.1.132:52716) authenticated
+[11:53:52][MAIN ] Client 1 (192.168.1.132:52716) disconnected
+[11:54:35][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:54:41][MAIN ] Connection from 192.168.1.132:42246
+[11:54:41][MAIN ] Assigned slot 1 (5/10 active)
+[11:54:41][PROTO] AUTH: success
+[11:54:41][MAIN ] Client 1 (192.168.1.132:42246) authenticated
+[11:54:41][MAIN ] Client 1 (192.168.1.132:42246) disconnected
+[11:55:07][MAIN ] Connection from 192.168.1.132:35216
+[11:55:07][MAIN ] Assigned slot 1 (5/10 active)
+[11:55:07][PROTO] AUTH: success
+[11:55:07][MAIN ] Client 1 (192.168.1.132:35216) authenticated
+[11:55:07][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:55:07][MAIN ] Client 1 (192.168.1.132:35216) disconnected
+[11:55:30][MAIN ] Connection from 192.168.1.132:56028
+[11:55:30][MAIN ] Assigned slot 1 (5/10 active)
+[11:55:30][PROTO] AUTH: success
+[11:55:30][MAIN ] Client 1 (192.168.1.132:56028) authenticated
+[11:55:30][MAIN ] Client 1 (192.168.1.132:56028) disconnected
+[11:55:36][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:56:19][MAIN ] Connection from 192.168.1.132:49042
+[11:56:19][MAIN ] Assigned slot 1 (5/10 active)
+[11:56:19][PROTO] AUTH: success
+[11:56:19][MAIN ] Client 1 (192.168.1.132:49042) authenticated
+[11:56:19][MAIN ] Client 1 (192.168.1.132:49042) disconnected
+[11:56:36][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:56:37][MAIN ] Connection from 192.168.1.132:51508
+[11:56:37][MAIN ] Assigned slot 1 (5/10 active)
+[11:56:37][PROTO] AUTH: success
+[11:56:37][MAIN ] Client 1 (192.168.1.132:51508) authenticated
+[11:56:37][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:56:37][MAIN ] Client 1 (192.168.1.132:51508) disconnected
+[11:57:08][MAIN ] Connection from 192.168.1.132:50620
+[11:57:08][MAIN ] Assigned slot 1 (5/10 active)
+[11:57:08][PROTO] AUTH: success
+[11:57:08][MAIN ] Client 1 (192.168.1.132:50620) authenticated
+[11:57:08][MAIN ] Client 1 (192.168.1.132:50620) disconnected
+[11:57:27][MAIN ] Connection from 192.168.1.132:43446
+[11:57:27][MAIN ] Assigned slot 1 (5/10 active)
+[11:57:27][MAIN ] Auth failed for slot 1 (192.168.1.132:43446)
+[11:57:27][MAIN ] Client 1 (192.168.1.132:43446) disconnected
+[11:57:28][MAIN ] Connection from 192.168.1.132:43454
+[11:57:28][MAIN ] Assigned slot 1 (5/10 active)
+[11:57:28][PROTO] AUTH: success
+[11:57:28][MAIN ] Client 1 (192.168.1.132:43454) authenticated
+[11:57:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[11:57:28][MAIN ] Client 1 (192.168.1.132:43454) disconnected
+[11:57:37][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:57:57][MAIN ] Connection from 192.168.1.132:38220
+[11:57:57][MAIN ] Assigned slot 1 (5/10 active)
+[11:57:57][PROTO] AUTH: success
+[11:57:57][MAIN ] Client 1 (192.168.1.132:38220) authenticated
+[11:57:57][MAIN ] Client 1 (192.168.1.132:38220) disconnected
+[11:58:07][MAIN ] Connection from 192.168.1.132:35640
+[11:58:07][MAIN ] Assigned slot 1 (5/10 active)
+[11:58:07][PROTO] AUTH: success
+[11:58:07][MAIN ] Client 1 (192.168.1.132:35640) authenticated
+[11:58:07][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:58:07][MAIN ] Client 1 (192.168.1.132:35640) disconnected
+[11:58:22][MAIN ] Connection from 192.168.1.132:60976
+[11:58:22][MAIN ] Assigned slot 1 (5/10 active)
+[11:58:22][PROTO] AUTH: success
+[11:58:22][MAIN ] Client 1 (192.168.1.132:60976) authenticated
+[11:58:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[11:58:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[11:58:22][PROTO] frame_send: 1151 bytes
+[11:58:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:58:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:58:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[11:58:22][PROTO] frame_send: 3807 bytes
+[11:58:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[11:58:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[11:58:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[11:58:22][PROTO] frame_send: 4478 bytes
+[11:58:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[11:58:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[11:58:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[11:58:22][PROTO] frame_send: 4601 bytes
+[11:58:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[11:58:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[11:58:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[11:58:22][PROTO] frame_send: 8907 bytes
+[11:58:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[11:58:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[11:58:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[11:58:22][PROTO] frame_send: 17813 bytes
+[11:58:22][MAIN ] Client 1 (192.168.1.132:60976) disconnected
+[11:58:38][MAIN ] [4] CMD: "PING" (4 bytes)
+[11:58:46][MAIN ] Connection from 192.168.1.132:40066
+[11:58:46][MAIN ] Assigned slot 1 (5/10 active)
+[11:58:46][PROTO] AUTH: success
+[11:58:46][MAIN ] Client 1 (192.168.1.132:40066) authenticated
+[11:58:46][MAIN ] Client 1 (192.168.1.132:40066) disconnected
+[11:59:35][MAIN ] Connection from 192.168.1.132:50424
+[11:59:35][MAIN ] Assigned slot 1 (5/10 active)
+[11:59:35][PROTO] AUTH: success
+[11:59:35][MAIN ] Client 1 (192.168.1.132:50424) authenticated
+[11:59:35][MAIN ] Client 1 (192.168.1.132:50424) disconnected
+[11:59:37][MAIN ] Connection from 192.168.1.132:50432
+[11:59:37][MAIN ] Assigned slot 1 (5/10 active)
+[11:59:37][PROTO] AUTH: success
+[11:59:37][MAIN ] Client 1 (192.168.1.132:50432) authenticated
+[11:59:37][MAIN ] [1] CMD: "PING" (4 bytes)
+[11:59:37][MAIN ] Client 1 (192.168.1.132:50432) disconnected
+[11:59:39][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:00:24][MAIN ] Connection from 192.168.1.132:60650
+[12:00:24][MAIN ] Assigned slot 1 (5/10 active)
+[12:00:24][PROTO] AUTH: success
+[12:00:24][MAIN ] Client 1 (192.168.1.132:60650) authenticated
+[12:00:24][MAIN ] Client 1 (192.168.1.132:60650) disconnected
+[12:00:39][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:00:48][GAMEINDEX] scan complete (hourly): 26 game(s), hash=fe7b993e, 2971ms
+[12:01:13][MAIN ] Connection from 192.168.1.132:37922
+[12:01:13][MAIN ] Assigned slot 1 (5/10 active)
+[12:01:13][PROTO] AUTH: success
+[12:01:13][MAIN ] Client 1 (192.168.1.132:37922) authenticated
+[12:01:13][MAIN ] Client 1 (192.168.1.132:37922) disconnected
+[12:01:20][MAIN ] Connection from 192.168.1.132:41376
+[12:01:20][MAIN ] Assigned slot 1 (5/10 active)
+[12:01:20][PROTO] AUTH: success
+[12:01:20][MAIN ] Client 1 (192.168.1.132:41376) authenticated
+[12:01:20][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:01:20][MAIN ] Client 1 (192.168.1.132:41376) disconnected
+[12:01:39][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:02:02][MAIN ] Connection from 192.168.1.132:33160
+[12:02:02][MAIN ] Assigned slot 1 (5/10 active)
+[12:02:02][PROTO] AUTH: success
+[12:02:02][MAIN ] Client 1 (192.168.1.132:33160) authenticated
+[12:02:02][MAIN ] Client 1 (192.168.1.132:33160) disconnected
+[12:02:27][MAIN ] Connection from 192.168.1.132:40492
+[12:02:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:02:27][MAIN ] Auth failed for slot 1 (192.168.1.132:40492)
+[12:02:27][MAIN ] Client 1 (192.168.1.132:40492) disconnected
+[12:02:28][MAIN ] Connection from 192.168.1.132:40496
+[12:02:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:02:28][PROTO] AUTH: success
+[12:02:28][MAIN ] Client 1 (192.168.1.132:40496) authenticated
+[12:02:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:02:28][MAIN ] Client 1 (192.168.1.132:40496) disconnected
+[12:02:39][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:02:50][MAIN ] Connection from 192.168.1.132:54650
+[12:02:50][MAIN ] Assigned slot 1 (5/10 active)
+[12:02:50][PROTO] AUTH: success
+[12:02:50][MAIN ] Client 1 (192.168.1.132:54650) authenticated
+[12:02:50][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:02:50][MAIN ] Client 1 (192.168.1.132:54650) disconnected
+[12:02:51][MAIN ] Connection from 192.168.1.132:54664
+[12:02:51][MAIN ] Assigned slot 1 (5/10 active)
+[12:02:51][PROTO] AUTH: success
+[12:02:51][MAIN ] Client 1 (192.168.1.132:54664) authenticated
+[12:02:51][MAIN ] Client 1 (192.168.1.132:54664) disconnected
+[12:03:22][MAIN ] Connection from 192.168.1.132:56702
+[12:03:22][MAIN ] Assigned slot 1 (5/10 active)
+[12:03:22][PROTO] AUTH: success
+[12:03:22][MAIN ] Client 1 (192.168.1.132:56702) authenticated
+[12:03:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:03:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:03:22][PROTO] frame_send: 1151 bytes
+[12:03:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:03:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:03:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:03:22][PROTO] frame_send: 3807 bytes
+[12:03:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:03:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:03:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:03:22][PROTO] frame_send: 4478 bytes
+[12:03:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:03:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:03:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:03:22][PROTO] frame_send: 4601 bytes
+[12:03:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:03:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:03:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:03:22][PROTO] frame_send: 8907 bytes
+[12:03:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:03:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:03:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:03:22][PROTO] frame_send: 17813 bytes
+[12:03:22][MAIN ] Client 1 (192.168.1.132:56702) disconnected
+[12:03:40][MAIN ] Connection from 192.168.1.132:33590
+[12:03:40][MAIN ] Assigned slot 1 (5/10 active)
+[12:03:40][PROTO] AUTH: success
+[12:03:40][MAIN ] Client 1 (192.168.1.132:33590) authenticated
+[12:03:40][MAIN ] Client 1 (192.168.1.132:33590) disconnected
+[12:03:40][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:04:20][MAIN ] Connection from 192.168.1.132:45794
+[12:04:20][MAIN ] Assigned slot 1 (5/10 active)
+[12:04:20][PROTO] AUTH: success
+[12:04:20][MAIN ] Client 1 (192.168.1.132:45794) authenticated
+[12:04:20][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:04:20][MAIN ] Client 1 (192.168.1.132:45794) disconnected
+[12:04:20][MAIN ] Connection from 192.168.1.132:45804
+[12:04:20][MAIN ] Assigned slot 1 (5/10 active)
+[12:04:20][PROTO] AUTH: success
+[12:04:20][MAIN ] Client 1 (192.168.1.132:45804) authenticated
+[12:04:20][MAIN ] [1] CMD: "HWPROFILE" (9 bytes)
+[12:04:20][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[12:04:20][PROTO] frame_send: 1963 bytes
+[12:04:20][MAIN ] Client 1 (192.168.1.132:45804) disconnected
+[12:04:29][MAIN ] Connection from 192.168.1.132:60264
+[12:04:29][MAIN ] Assigned slot 1 (5/10 active)
+[12:04:29][PROTO] AUTH: success
+[12:04:29][MAIN ] Client 1 (192.168.1.132:60264) authenticated
+[12:04:29][MAIN ] Client 1 (192.168.1.132:60264) disconnected
+[12:04:40][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:05:18][MAIN ] Connection from 192.168.1.132:46528
+[12:05:18][MAIN ] Assigned slot 1 (5/10 active)
+[12:05:18][PROTO] AUTH: success
+[12:05:18][MAIN ] Client 1 (192.168.1.132:46528) authenticated
+[12:05:18][MAIN ] Client 1 (192.168.1.132:46528) disconnected
+[12:05:40][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:05:50][MAIN ] Connection from 192.168.1.132:44452
+[12:05:50][MAIN ] Assigned slot 1 (5/10 active)
+[12:05:50][PROTO] AUTH: success
+[12:05:50][MAIN ] Client 1 (192.168.1.132:44452) authenticated
+[12:05:50][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:05:50][MAIN ] Client 1 (192.168.1.132:44452) disconnected
+[12:06:07][MAIN ] Connection from 192.168.1.132:39626
+[12:06:07][MAIN ] Assigned slot 1 (5/10 active)
+[12:06:07][PROTO] AUTH: success
+[12:06:07][MAIN ] Client 1 (192.168.1.132:39626) authenticated
+[12:06:07][MAIN ] Client 1 (192.168.1.132:39626) disconnected
+[12:06:41][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:06:56][MAIN ] Connection from 192.168.1.132:46136
+[12:06:56][MAIN ] Assigned slot 1 (5/10 active)
+[12:06:56][PROTO] AUTH: success
+[12:06:56][MAIN ] Client 1 (192.168.1.132:46136) authenticated
+[12:06:56][MAIN ] Client 1 (192.168.1.132:46136) disconnected
+[12:07:27][MAIN ] Connection from 192.168.1.132:54904
+[12:07:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:07:27][MAIN ] Auth failed for slot 1 (192.168.1.132:54904)
+[12:07:27][MAIN ] Client 1 (192.168.1.132:54904) disconnected
+[12:07:28][MAIN ] Connection from 192.168.1.132:54920
+[12:07:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:07:28][PROTO] AUTH: success
+[12:07:28][MAIN ] Client 1 (192.168.1.132:54920) authenticated
+[12:07:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:07:28][MAIN ] Client 1 (192.168.1.132:54920) disconnected
+[12:07:33][MAIN ] Connection from 192.168.1.132:50168
+[12:07:33][MAIN ] Assigned slot 1 (5/10 active)
+[12:07:33][PROTO] AUTH: success
+[12:07:33][MAIN ] Client 1 (192.168.1.132:50168) authenticated
+[12:07:33][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:07:33][MAIN ] Client 1 (192.168.1.132:50168) disconnected
+[12:07:41][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:07:45][MAIN ] Connection from 192.168.1.132:40744
+[12:07:45][MAIN ] Assigned slot 1 (5/10 active)
+[12:07:45][PROTO] AUTH: success
+[12:07:45][MAIN ] Client 1 (192.168.1.132:40744) authenticated
+[12:07:45][MAIN ] Client 1 (192.168.1.132:40744) disconnected
+[12:08:21][MAIN ] Connection from 192.168.1.132:55202
+[12:08:21][MAIN ] Assigned slot 1 (5/10 active)
+[12:08:21][PROTO] AUTH: success
+[12:08:21][MAIN ] Client 1 (192.168.1.132:55202) authenticated
+[12:08:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:08:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:08:21][PROTO] frame_send: 1151 bytes
+[12:08:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:08:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:08:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:08:21][PROTO] frame_send: 3807 bytes
+[12:08:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:08:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:08:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:08:21][PROTO] frame_send: 4478 bytes
+[12:08:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:08:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:08:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:08:21][PROTO] frame_send: 4601 bytes
+[12:08:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:08:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:08:21][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:08:21][PROTO] frame_send: 8907 bytes
+[12:08:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:08:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:08:21][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:08:21][PROTO] frame_send: 17813 bytes
+[12:08:21][MAIN ] Client 1 (192.168.1.132:55202) disconnected
+[12:08:34][MAIN ] Connection from 192.168.1.132:48610
+[12:08:34][MAIN ] Assigned slot 1 (5/10 active)
+[12:08:34][PROTO] AUTH: success
+[12:08:34][MAIN ] Client 1 (192.168.1.132:48610) authenticated
+[12:08:34][MAIN ] Client 1 (192.168.1.132:48610) disconnected
+[12:08:42][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:09:03][MAIN ] Connection from 192.168.1.132:53410
+[12:09:03][MAIN ] Assigned slot 1 (5/10 active)
+[12:09:03][PROTO] AUTH: success
+[12:09:03][MAIN ] Client 1 (192.168.1.132:53410) authenticated
+[12:09:03][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:09:03][MAIN ] Client 1 (192.168.1.132:53410) disconnected
+[12:09:23][MAIN ] Connection from 192.168.1.132:39862
+[12:09:23][MAIN ] Assigned slot 1 (5/10 active)
+[12:09:23][PROTO] AUTH: success
+[12:09:23][MAIN ] Client 1 (192.168.1.132:39862) authenticated
+[12:09:23][MAIN ] Client 1 (192.168.1.132:39862) disconnected
+[12:09:43][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:10:12][MAIN ] Connection from 192.168.1.132:42268
+[12:10:12][MAIN ] Assigned slot 1 (5/10 active)
+[12:10:12][PROTO] AUTH: success
+[12:10:12][MAIN ] Client 1 (192.168.1.132:42268) authenticated
+[12:10:12][MAIN ] Client 1 (192.168.1.132:42268) disconnected
+[12:10:33][MAIN ] Connection from 192.168.1.132:35492
+[12:10:33][MAIN ] Assigned slot 1 (5/10 active)
+[12:10:33][PROTO] AUTH: success
+[12:10:33][MAIN ] Client 1 (192.168.1.132:35492) authenticated
+[12:10:33][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:10:33][MAIN ] Client 1 (192.168.1.132:35492) disconnected
+[12:10:43][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:11:01][MAIN ] Connection from 192.168.1.132:33384
+[12:11:01][MAIN ] Assigned slot 1 (5/10 active)
+[12:11:01][PROTO] AUTH: success
+[12:11:01][MAIN ] Client 1 (192.168.1.132:33384) authenticated
+[12:11:01][MAIN ] Client 1 (192.168.1.132:33384) disconnected
+[12:11:44][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:11:50][MAIN ] Connection from 192.168.1.132:45844
+[12:11:50][MAIN ] Assigned slot 1 (5/10 active)
+[12:11:50][PROTO] AUTH: success
+[12:11:50][MAIN ] Client 1 (192.168.1.132:45844) authenticated
+[12:11:50][MAIN ] Client 1 (192.168.1.132:45844) disconnected
+[12:12:03][MAIN ] Connection from 192.168.1.132:50184
+[12:12:03][MAIN ] Assigned slot 1 (5/10 active)
+[12:12:03][PROTO] AUTH: success
+[12:12:03][MAIN ] Client 1 (192.168.1.132:50184) authenticated
+[12:12:03][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:12:03][MAIN ] Client 1 (192.168.1.132:50184) disconnected
+[12:12:27][MAIN ] Connection from 192.168.1.132:57136
+[12:12:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:12:27][MAIN ] Auth failed for slot 1 (192.168.1.132:57136)
+[12:12:27][MAIN ] Client 1 (192.168.1.132:57136) disconnected
+[12:12:28][MAIN ] Connection from 192.168.1.132:57144
+[12:12:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:12:28][PROTO] AUTH: success
+[12:12:28][MAIN ] Client 1 (192.168.1.132:57144) authenticated
+[12:12:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:12:28][MAIN ] Client 1 (192.168.1.132:57144) disconnected
+[12:12:39][MAIN ] Connection from 192.168.1.132:43252
+[12:12:39][MAIN ] Assigned slot 1 (5/10 active)
+[12:12:39][PROTO] AUTH: success
+[12:12:39][MAIN ] Client 1 (192.168.1.132:43252) authenticated
+[12:12:39][MAIN ] Client 1 (192.168.1.132:43252) disconnected
+[12:12:44][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:13:21][MAIN ] Connection from 192.168.1.132:38360
+[12:13:21][MAIN ] Assigned slot 1 (5/10 active)
+[12:13:21][PROTO] AUTH: success
+[12:13:21][MAIN ] Client 1 (192.168.1.132:38360) authenticated
+[12:13:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:13:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:13:21][PROTO] frame_send: 1151 bytes
+[12:13:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:13:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:13:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:13:21][PROTO] frame_send: 3807 bytes
+[12:13:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:13:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:13:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:13:21][PROTO] frame_send: 4478 bytes
+[12:13:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:13:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:13:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:13:21][PROTO] frame_send: 4601 bytes
+[12:13:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:13:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:13:21][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:13:21][PROTO] frame_send: 8907 bytes
+[12:13:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:13:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:13:21][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:13:21][PROTO] frame_send: 17813 bytes
+[12:13:21][MAIN ] Client 1 (192.168.1.132:38360) disconnected
+[12:13:28][MAIN ] Connection from 192.168.1.132:38374
+[12:13:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:13:28][PROTO] AUTH: success
+[12:13:28][MAIN ] Client 1 (192.168.1.132:38374) authenticated
+[12:13:28][MAIN ] Client 1 (192.168.1.132:38374) disconnected
+[12:13:45][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:13:45][MAIN ] Connection from 192.168.1.132:48704
+[12:13:45][MAIN ] Assigned slot 1 (5/10 active)
+[12:13:45][PROTO] AUTH: success
+[12:13:45][MAIN ] Client 1 (192.168.1.132:48704) authenticated
+[12:13:45][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:13:45][MAIN ] Client 1 (192.168.1.132:48704) disconnected
+[12:14:17][MAIN ] Connection from 192.168.1.132:33772
+[12:14:17][MAIN ] Assigned slot 1 (5/10 active)
+[12:14:17][PROTO] AUTH: success
+[12:14:17][MAIN ] Client 1 (192.168.1.132:33772) authenticated
+[12:14:17][MAIN ] Client 1 (192.168.1.132:33772) disconnected
+[12:14:45][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:15:06][MAIN ] Connection from 192.168.1.132:60548
+[12:15:06][MAIN ] Assigned slot 1 (5/10 active)
+[12:15:06][PROTO] AUTH: success
+[12:15:06][MAIN ] Client 1 (192.168.1.132:60548) authenticated
+[12:15:06][MAIN ] Client 1 (192.168.1.132:60548) disconnected
+[12:15:15][MAIN ] Connection from 192.168.1.132:35362
+[12:15:15][MAIN ] Assigned slot 1 (5/10 active)
+[12:15:15][PROTO] AUTH: success
+[12:15:15][MAIN ] Client 1 (192.168.1.132:35362) authenticated
+[12:15:15][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:15:15][MAIN ] Client 1 (192.168.1.132:35362) disconnected
+[12:15:45][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:15:55][MAIN ] Connection from 192.168.1.132:49980
+[12:15:55][MAIN ] Assigned slot 1 (5/10 active)
+[12:15:55][PROTO] AUTH: success
+[12:15:55][MAIN ] Client 1 (192.168.1.132:49980) authenticated
+[12:15:55][MAIN ] Client 1 (192.168.1.132:49980) disconnected
+[12:16:44][MAIN ] Connection from 192.168.1.132:44796
+[12:16:44][MAIN ] Assigned slot 1 (5/10 active)
+[12:16:44][PROTO] AUTH: success
+[12:16:44][MAIN ] Client 1 (192.168.1.132:44796) authenticated
+[12:16:44][MAIN ] Client 1 (192.168.1.132:44796) disconnected
+[12:16:45][MAIN ] Connection from 192.168.1.132:44810
+[12:16:45][MAIN ] Assigned slot 1 (5/10 active)
+[12:16:45][PROTO] AUTH: success
+[12:16:45][MAIN ] Client 1 (192.168.1.132:44810) authenticated
+[12:16:45][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:16:45][MAIN ] Client 1 (192.168.1.132:44810) disconnected
+[12:16:46][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:17:27][MAIN ] Connection from 192.168.1.132:36894
+[12:17:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:17:27][MAIN ] Auth failed for slot 1 (192.168.1.132:36894)
+[12:17:27][MAIN ] Client 1 (192.168.1.132:36894) disconnected
+[12:17:28][MAIN ] Connection from 192.168.1.132:36902
+[12:17:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:17:28][PROTO] AUTH: success
+[12:17:28][MAIN ] Client 1 (192.168.1.132:36902) authenticated
+[12:17:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:17:28][MAIN ] Client 1 (192.168.1.132:36902) disconnected
+[12:17:33][MAIN ] Connection from 192.168.1.132:42428
+[12:17:33][MAIN ] Assigned slot 1 (5/10 active)
+[12:17:33][PROTO] AUTH: success
+[12:17:33][MAIN ] Client 1 (192.168.1.132:42428) authenticated
+[12:17:33][MAIN ] Client 1 (192.168.1.132:42428) disconnected
+[12:17:46][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:18:15][MAIN ] Connection from 192.168.1.132:57662
+[12:18:15][MAIN ] Assigned slot 1 (5/10 active)
+[12:18:15][PROTO] AUTH: success
+[12:18:15][MAIN ] Client 1 (192.168.1.132:57662) authenticated
+[12:18:15][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:18:15][MAIN ] Client 1 (192.168.1.132:57662) disconnected
+[12:18:21][MAIN ] Connection from 192.168.1.132:41124
+[12:18:21][MAIN ] Assigned slot 1 (5/10 active)
+[12:18:21][PROTO] AUTH: success
+[12:18:21][MAIN ] Client 1 (192.168.1.132:41124) authenticated
+[12:18:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:18:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:18:21][PROTO] frame_send: 1151 bytes
+[12:18:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:18:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:18:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:18:21][PROTO] frame_send: 3807 bytes
+[12:18:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:18:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:18:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:18:21][PROTO] frame_send: 4478 bytes
+[12:18:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:18:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:18:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:18:21][PROTO] frame_send: 4601 bytes
+[12:18:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:18:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:18:21][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:18:21][PROTO] frame_send: 8907 bytes
+[12:18:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:18:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:18:21][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:18:21][PROTO] frame_send: 17813 bytes
+[12:18:21][MAIN ] Client 1 (192.168.1.132:41124) disconnected
+[12:18:22][MAIN ] Connection from 192.168.1.132:41140
+[12:18:22][MAIN ] Assigned slot 1 (5/10 active)
+[12:18:22][PROTO] AUTH: success
+[12:18:22][MAIN ] Client 1 (192.168.1.132:41140) authenticated
+[12:18:22][MAIN ] Client 1 (192.168.1.132:41140) disconnected
+[12:18:47][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:19:11][MAIN ] Connection from 192.168.1.132:56414
+[12:19:11][MAIN ] Assigned slot 1 (5/10 active)
+[12:19:11][PROTO] AUTH: success
+[12:19:11][MAIN ] Client 1 (192.168.1.132:56414) authenticated
+[12:19:11][MAIN ] Client 1 (192.168.1.132:56414) disconnected
+[12:19:48][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:19:58][MAIN ] Connection from 192.168.1.132:42796
+[12:19:58][MAIN ] Assigned slot 1 (5/10 active)
+[12:19:58][PROTO] AUTH: success
+[12:19:58][MAIN ] Client 1 (192.168.1.132:42796) authenticated
+[12:19:58][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:19:58][MAIN ] Client 1 (192.168.1.132:42796) disconnected
+[12:20:00][MAIN ] Connection from 192.168.1.132:59654
+[12:20:00][MAIN ] Assigned slot 1 (5/10 active)
+[12:20:00][PROTO] AUTH: success
+[12:20:00][MAIN ] Client 1 (192.168.1.132:59654) authenticated
+[12:20:00][MAIN ] Client 1 (192.168.1.132:59654) disconnected
+[12:20:48][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:20:49][MAIN ] Connection from 192.168.1.132:40232
+[12:20:49][MAIN ] Assigned slot 1 (5/10 active)
+[12:20:49][PROTO] AUTH: success
+[12:20:49][MAIN ] Client 1 (192.168.1.132:40232) authenticated
+[12:20:49][MAIN ] Client 1 (192.168.1.132:40232) disconnected
+[12:21:28][MAIN ] Connection from 192.168.1.132:34978
+[12:21:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:21:28][PROTO] AUTH: success
+[12:21:28][MAIN ] Client 1 (192.168.1.132:34978) authenticated
+[12:21:28][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:21:28][MAIN ] Client 1 (192.168.1.132:34978) disconnected
+[12:21:38][MAIN ] Connection from 192.168.1.132:33082
+[12:21:38][MAIN ] Assigned slot 1 (5/10 active)
+[12:21:38][PROTO] AUTH: success
+[12:21:38][MAIN ] Client 1 (192.168.1.132:33082) authenticated
+[12:21:38][MAIN ] Client 1 (192.168.1.132:33082) disconnected
+[12:21:48][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:22:27][MAIN ] Connection from 192.168.1.132:58620
+[12:22:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:22:27][PROTO] AUTH: success
+[12:22:27][MAIN ] Client 1 (192.168.1.132:58620) authenticated
+[12:22:27][MAIN ] Client 1 (192.168.1.132:58620) disconnected
+[12:22:27][MAIN ] Connection from 192.168.1.132:58628
+[12:22:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:22:27][MAIN ] Auth failed for slot 1 (192.168.1.132:58628)
+[12:22:27][MAIN ] Client 1 (192.168.1.132:58628) disconnected
+[12:22:28][MAIN ] Connection from 192.168.1.132:58632
+[12:22:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:22:28][PROTO] AUTH: success
+[12:22:28][MAIN ] Client 1 (192.168.1.132:58632) authenticated
+[12:22:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:22:28][MAIN ] Client 1 (192.168.1.132:58632) disconnected
+[12:22:49][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:22:58][MAIN ] Connection from 192.168.1.132:49322
+[12:22:58][MAIN ] Assigned slot 1 (5/10 active)
+[12:22:58][PROTO] AUTH: success
+[12:22:58][MAIN ] Client 1 (192.168.1.132:49322) authenticated
+[12:22:58][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:22:58][MAIN ] Client 1 (192.168.1.132:49322) disconnected
+[12:23:16][MAIN ] Connection from 192.168.1.132:50328
+[12:23:16][MAIN ] Assigned slot 1 (5/10 active)
+[12:23:16][PROTO] AUTH: success
+[12:23:16][MAIN ] Client 1 (192.168.1.132:50328) authenticated
+[12:23:16][MAIN ] Client 1 (192.168.1.132:50328) disconnected
+[12:23:22][MAIN ] Connection from 192.168.1.132:45028
+[12:23:22][MAIN ] Assigned slot 1 (5/10 active)
+[12:23:22][PROTO] AUTH: success
+[12:23:22][MAIN ] Client 1 (192.168.1.132:45028) authenticated
+[12:23:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:23:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:23:22][PROTO] frame_send: 1151 bytes
+[12:23:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:23:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:23:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:23:22][PROTO] frame_send: 3807 bytes
+[12:23:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:23:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:23:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:23:22][PROTO] frame_send: 4478 bytes
+[12:23:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:23:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:23:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:23:22][PROTO] frame_send: 4601 bytes
+[12:23:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:23:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:23:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:23:22][PROTO] frame_send: 8907 bytes
+[12:23:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:23:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:23:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:23:22][PROTO] frame_send: 17813 bytes
+[12:23:22][MAIN ] Client 1 (192.168.1.132:45028) disconnected
+[12:24:05][MAIN ] Connection from 192.168.1.132:52918
+[12:24:05][MAIN ] Assigned slot 1 (5/10 active)
+[12:24:05][PROTO] AUTH: success
+[12:24:05][MAIN ] Client 1 (192.168.1.132:52918) authenticated
+[12:24:05][MAIN ] Client 1 (192.168.1.132:52918) disconnected
+[12:24:20][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:24:28][MAIN ] Connection from 192.168.1.132:54198
+[12:24:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:24:28][PROTO] AUTH: success
+[12:24:28][MAIN ] Client 1 (192.168.1.132:54198) authenticated
+[12:24:28][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:24:28][MAIN ] Client 1 (192.168.1.132:54198) disconnected
+[12:24:54][MAIN ] Connection from 192.168.1.132:32776
+[12:24:54][MAIN ] Assigned slot 1 (5/10 active)
+[12:24:54][PROTO] AUTH: success
+[12:24:54][MAIN ] Client 1 (192.168.1.132:32776) authenticated
+[12:24:54][MAIN ] Client 1 (192.168.1.132:32776) disconnected
+[12:25:43][MAIN ] Connection from 192.168.1.132:41148
+[12:25:43][MAIN ] Assigned slot 1 (5/10 active)
+[12:25:43][PROTO] AUTH: success
+[12:25:43][MAIN ] Client 1 (192.168.1.132:41148) authenticated
+[12:25:43][MAIN ] Client 1 (192.168.1.132:41148) disconnected
+[12:25:50][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:26:10][MAIN ] Connection from 192.168.1.132:59108
+[12:26:10][MAIN ] Assigned slot 1 (5/10 active)
+[12:26:10][PROTO] AUTH: success
+[12:26:10][MAIN ] Client 1 (192.168.1.132:59108) authenticated
+[12:26:10][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:26:10][MAIN ] Client 1 (192.168.1.132:59108) disconnected
+[12:26:32][MAIN ] Connection from 192.168.1.132:57826
+[12:26:32][MAIN ] Assigned slot 1 (5/10 active)
+[12:26:32][PROTO] AUTH: success
+[12:26:32][MAIN ] Client 1 (192.168.1.132:57826) authenticated
+[12:26:32][MAIN ] Client 1 (192.168.1.132:57826) disconnected
+[12:26:49][MAIN ] Connection from 192.168.1.132:34134
+[12:26:49][MAIN ] Assigned slot 1 (5/10 active)
+[12:26:49][PROTO] AUTH: success
+[12:26:49][MAIN ] Client 1 (192.168.1.132:34134) authenticated
+[12:26:49][MAIN ] [1] CMD: "HWPROFILE" (9 bytes)
+[12:26:50][HWPROFILE] hash=b9a3b8c66827032c cpu="GenuineIntel" 165MHz(tsc) x1 ram=127MB gpu=1013:00AC "Cirrus Logic 5436 PCI" vram=0MB level=none os=win9x caps=2
+[12:26:50][PROTO] frame_send: 1963 bytes
+[12:26:50][MAIN ] [1] CMD: "SYSINFO" (7 bytes)
+[12:26:52][MAIN ] Client 1 (192.168.1.132:34134) disconnected
+[12:26:52][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:27:18][MAIN ] Connection from 192.168.1.132:38392
+[12:27:18][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:18][PROTO] AUTH: success
+[12:27:18][MAIN ] Client 1 (192.168.1.132:38392) authenticated
+[12:27:18][MAIN ] [1] CMD: "DOWNLOAD C:\RETRO_AGENT\agent.log" (33 bytes)
+[12:27:18][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\agent.log") = OK
+[12:27:18][FILE ] DOWNLOAD: GetFileSize = 156485 bytes
+[12:27:18][PROTO] frame_send: 156486 bytes
+[12:27:18][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:27:18][PROTO] frame_send: 1151 bytes
+[12:27:18][MAIN ] [1] CMD: "WINLIST" (7 bytes)
+[12:27:18][INPUT] WINLIST: found 3 visible windows
+[12:27:18][MAIN ] Client 1 (192.168.1.132:38392) disconnected
+[12:27:21][MAIN ] Connection from 192.168.1.132:49538
+[12:27:21][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:21][PROTO] AUTH: success
+[12:27:21][MAIN ] Client 1 (192.168.1.132:49538) authenticated
+[12:27:21][MAIN ] Client 1 (192.168.1.132:49538) disconnected
+[12:27:27][MAIN ] Connection from 192.168.1.132:49546
+[12:27:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:27][MAIN ] Auth failed for slot 1 (192.168.1.132:49546)
+[12:27:27][MAIN ] Client 1 (192.168.1.132:49546) disconnected
+[12:27:28][MAIN ] Connection from 192.168.1.132:49558
+[12:27:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:28][PROTO] AUTH: success
+[12:27:28][MAIN ] Client 1 (192.168.1.132:49558) authenticated
+[12:27:28][MAIN ] [1] CMD: "DOWNLOAD C:\RETRO_AGENT\agent.log" (33 bytes)
+[12:27:28][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\agent.log") = OK
+[12:27:28][FILE ] DOWNLOAD: GetFileSize = 157684 bytes
+[12:27:28][PROTO] frame_send: 157685 bytes
+[12:27:28][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:27:28][PROTO] frame_send: 1151 bytes
+[12:27:28][MAIN ] [1] CMD: "WINLIST" (7 bytes)
+[12:27:28][INPUT] WINLIST: found 3 visible windows
+[12:27:28][MAIN ] Client 1 (192.168.1.132:49558) disconnected
+[12:27:28][MAIN ] Connection from 192.168.1.132:49566
+[12:27:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:28][PROTO] AUTH: success
+[12:27:28][MAIN ] Client 1 (192.168.1.132:49566) authenticated
+[12:27:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:27:28][MAIN ] Client 1 (192.168.1.132:49566) disconnected
+[12:27:40][MAIN ] Connection from 192.168.1.132:36586
+[12:27:40][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:40][PROTO] AUTH: success
+[12:27:40][MAIN ] Client 1 (192.168.1.132:36586) authenticated
+[12:27:40][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:27:40][MAIN ] Client 1 (192.168.1.132:36586) disconnected
+[12:27:50][MAIN ] Connection from 192.168.1.132:41256
+[12:27:50][MAIN ] Assigned slot 1 (5/10 active)
+[12:27:50][PROTO] AUTH: success
+[12:27:50][MAIN ] Client 1 (192.168.1.132:41256) authenticated
+[12:27:50][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:27:50][MAIN ] [1] CMD: "DIRLIST E:\GAMES" (16 bytes)
+[12:27:50][FILE ] DIRLIST: FindFirstFileA("E:\GAMES\*")
+[12:27:50][FILE ] DIRLIST: entry: Quake1 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-GTA (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Descent1 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: UnrealTournament436 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: HexenII (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Quake2Win9x (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-F14 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: ShadowWarrior (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-USNF (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-FlightCD (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-A320Airbus (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-PacificStrike (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-StuntIsland (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-RedBaron (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-BlueMax (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Overlord (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Battlehawks1942 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-TheirFinestHour (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-SWOTL (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-AcesPacific (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-AcesOverEurope (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-PacificAirWar1942 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-B17 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Falcon3 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-F15SE3 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-F19 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-F117A (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Werewolf (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-A10TankKiller (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Tornado (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Su27Flanker (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Gunship2000 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-WingCommander2 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Longbow (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-LHX (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-WingCommander1 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Comanche2 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-ChuckYeager (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-EF2000 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-FighterDuel (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-XWing (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-TieFighter (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-FrontierElite2 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Epic (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-TerminalVelocity (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-RighteousFire (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-AloneInTheDark (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-BlakeStoneAOG (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-BlakeStonePS (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-DestructionDerby2 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-Doom (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-Duke3D (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-Heretic (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-Hexen (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-Powerslave (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-ROTT (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-MSFS50 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-SpearMissionPacks (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-SpearOfDestiny (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DOS-Wolf3D (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-JanesATF (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Flight-Privateer (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: HalfLife1 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: SiNGold (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Quake2Complete (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: UnrealGold (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Carmageddon2 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: Descent2 (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: WCProphecy (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: DieByTheSword (0 bytes, dir)
+[12:27:50][FILE ] DIRLIST: entry: RogueSquadron (0 bytes, dir)
+[12:27:50][PROTO] frame_send: 8127 bytes
+[12:27:50][MAIN ] Client 1 (192.168.1.132:41256) disconnected
+[12:27:53][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:28:10][MAIN ] Connection from 192.168.1.132:42932
+[12:28:10][MAIN ] Assigned slot 1 (5/10 active)
+[12:28:10][PROTO] AUTH: success
+[12:28:10][MAIN ] Client 1 (192.168.1.132:42932) authenticated
+[12:28:10][MAIN ] Client 1 (192.168.1.132:42932) disconnected
+[12:28:21][MAIN ] Connection from 192.168.1.132:43240
+[12:28:21][MAIN ] Assigned slot 1 (5/10 active)
+[12:28:21][PROTO] AUTH: success
+[12:28:21][MAIN ] Client 1 (192.168.1.132:43240) authenticated
+[12:28:21][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:28:21][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:28:21][PROTO] frame_send: 1151 bytes
+[12:28:21][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:28:21][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:28:21][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:28:21][PROTO] frame_send: 3807 bytes
+[12:28:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:28:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:28:21][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:28:21][PROTO] frame_send: 4478 bytes
+[12:28:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:28:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:28:21][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:28:21][PROTO] frame_send: 4601 bytes
+[12:28:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:28:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:28:21][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:28:21][PROTO] frame_send: 8907 bytes
+[12:28:21][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:28:21][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:28:21][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:28:21][PROTO] frame_send: 17813 bytes
+[12:28:21][MAIN ] Client 1 (192.168.1.132:43240) disconnected
+[12:28:32][MAIN ] Connection from 192.168.1.132:52022
+[12:28:32][MAIN ] Assigned slot 1 (5/10 active)
+[12:28:32][PROTO] AUTH: success
+[12:28:32][MAIN ] Client 1 (192.168.1.132:52022) authenticated
+[12:28:32][MAIN ] [1] CMD: "DIRLIST C:\Documents and Settings\All Users\Desktop" (51 bytes)
+[12:28:32][FILE ] DIRLIST: FindFirstFileA("C:\Documents and Settings\All Users\Desktop\*")
+[12:28:32][MAIN ] [1] CMD: "DIRLIST C:\Users\Public\Desktop" (31 bytes)
+[12:28:32][FILE ] DIRLIST: FindFirstFileA("C:\Users\Public\Desktop\*")
+[12:28:32][MAIN ] [1] CMD: "DIRLIST C:\WINDOWS\Desktop" (26 bytes)
+[12:28:32][FILE ] DIRLIST: FindFirstFileA("C:\WINDOWS\Desktop\*")
+[12:28:32][FILE ] DIRLIST: entry: Online Services (0 bytes, dir)
+[12:28:32][FILE ] DIRLIST: entry: Retro Agent.lnk (380 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Retro Chat.lnk (375 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Hexen II - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake II.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake II - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Unreal Tournament - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Descent - DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: F-14 Fleet Defender.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Shadow Warrior - DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: US Navy Fighters.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: SubLogic Flight.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: A320 Airbus.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Pacific Strike.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Stunt Island.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Red Baron.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Blue Max.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Overlord.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Battlehawks 1942.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Their Finest Hour.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Secret Weapons of the Luftwaffe.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Aces of the Pacific.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Aces Over Europe.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: 1942 - The Pacific Air War.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: B-17 Flying Fortress.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Falcon 3.0.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: F-15 Strike Eagle III.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: F-19 Stealth Fighter.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: F-117A Nighthawk.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Werewolf vs Comanche.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: A-10 Tank Killer.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Tornado.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Su-27 Flanker.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Gunship 2000.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Wing Commander II.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Jane's AH-64D Longbow.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: LHX Attack Chopper.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Wing Commander.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Comanche 2.0.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Chuck Yeager's Air Combat.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: EF2000.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Fighter Duel.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: X-Wing.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: TIE Fighter.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Frontier - Elite II.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Epic.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Terminal Velocity.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Jane's ATF.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Alone in the Dark.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Blake Stone - Aliens of Gold.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Blake Stone - Planet Strike.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Destruction Derby 2.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Doom.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Duke Nukem 3D.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Grand Theft Auto.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Heretic.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Hexen.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Powerslave.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Rise of the Triad.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Privateer.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Spear of Destiny - Mission Packs.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Spear of Destiny.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Wolfenstein 3D.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Privateer - Righteous Fire.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Microsoft Flight Simulator 5.0.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Half-Life - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Team Fortress Classic - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Deathmatch Classic - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: SiN - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: SiN - Wages of SiN - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake II - The Reckoning - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake II - Ground Zero - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Unreal Gold - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Carmageddon 2 - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - 3dfx Voodoo 800x600.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - DOS 360x480.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - Scourge of Armagon - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - Scourge of Armagon - DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - Dissolution of Eternity - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Quake - Dissolution of Eternity - DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Descent - LAN Game - real DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Descent II - DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Descent II - LAN Game - real DOS.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Wing Commander Prophecy - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Wing Commander Secret Ops - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Die by the Sword - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][FILE ] DIRLIST: entry: Star Wars Rogue Squadron 3D - 3dfx Voodoo.pif (967 bytes)
+[12:28:32][PROTO] frame_send: 11263 bytes
+[12:28:32][MAIN ] [1] CMD: "DIRLIST C:\WINDOWS\All Users\Desktop" (36 bytes)
+[12:28:32][FILE ] DIRLIST: FindFirstFileA("C:\WINDOWS\All Users\Desktop\*")
+[12:28:32][FILE ] DIRLIST: entry: Connect to the Internet.LNK (493 bytes)
+[12:28:32][MAIN ] Client 1 (192.168.1.132:52022) disconnected
+[12:28:53][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:28:59][MAIN ] Connection from 192.168.1.132:60030
+[12:28:59][MAIN ] Assigned slot 1 (5/10 active)
+[12:28:59][PROTO] AUTH: success
+[12:28:59][MAIN ] Client 1 (192.168.1.132:60030) authenticated
+[12:28:59][MAIN ] Client 1 (192.168.1.132:60030) disconnected
+[12:29:11][MAIN ] Connection from 192.168.1.132:34382
+[12:29:11][MAIN ] Assigned slot 1 (5/10 active)
+[12:29:11][PROTO] AUTH: success
+[12:29:11][MAIN ] Client 1 (192.168.1.132:34382) authenticated
+[12:29:11][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:29:11][MAIN ] Client 1 (192.168.1.132:34382) disconnected
+[12:29:48][MAIN ] Connection from 192.168.1.132:55562
+[12:29:48][MAIN ] Assigned slot 1 (5/10 active)
+[12:29:48][PROTO] AUTH: success
+[12:29:48][MAIN ] Client 1 (192.168.1.132:55562) authenticated
+[12:29:48][MAIN ] Client 1 (192.168.1.132:55562) disconnected
+[12:29:54][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:30:37][MAIN ] Connection from 192.168.1.132:40184
+[12:30:37][MAIN ] Assigned slot 1 (5/10 active)
+[12:30:37][PROTO] AUTH: success
+[12:30:37][MAIN ] Client 1 (192.168.1.132:40184) authenticated
+[12:30:37][MAIN ] Client 1 (192.168.1.132:40184) disconnected
+[12:30:41][MAIN ] Connection from 192.168.1.132:36254
+[12:30:41][MAIN ] Assigned slot 1 (5/10 active)
+[12:30:41][PROTO] AUTH: success
+[12:30:41][MAIN ] Client 1 (192.168.1.132:36254) authenticated
+[12:30:41][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:30:41][MAIN ] Client 1 (192.168.1.132:36254) disconnected
+[12:30:54][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:31:26][MAIN ] Connection from 192.168.1.132:35338
+[12:31:26][MAIN ] Assigned slot 1 (5/10 active)
+[12:31:26][PROTO] AUTH: success
+[12:31:26][MAIN ] Client 1 (192.168.1.132:35338) authenticated
+[12:31:26][MAIN ] Client 1 (192.168.1.132:35338) disconnected
+[12:31:54][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:32:15][MAIN ] Connection from 192.168.1.132:36228
+[12:32:15][MAIN ] Assigned slot 1 (5/10 active)
+[12:32:15][PROTO] AUTH: success
+[12:32:15][MAIN ] Client 1 (192.168.1.132:36228) authenticated
+[12:32:15][MAIN ] Client 1 (192.168.1.132:36228) disconnected
+[12:32:23][MAIN ] Connection from 192.168.1.132:37084
+[12:32:23][MAIN ] Assigned slot 1 (5/10 active)
+[12:32:23][PROTO] AUTH: success
+[12:32:23][MAIN ] Client 1 (192.168.1.132:37084) authenticated
+[12:32:23][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:32:23][MAIN ] Client 1 (192.168.1.132:37084) disconnected
+[12:32:27][MAIN ] Connection from 192.168.1.132:37096
+[12:32:27][MAIN ] Assigned slot 1 (5/10 active)
+[12:32:27][MAIN ] Auth failed for slot 1 (192.168.1.132:37096)
+[12:32:27][MAIN ] Client 1 (192.168.1.132:37096) disconnected
+[12:32:28][MAIN ] Connection from 192.168.1.132:37108
+[12:32:28][MAIN ] Assigned slot 1 (5/10 active)
+[12:32:28][PROTO] AUTH: success
+[12:32:28][MAIN ] Client 1 (192.168.1.132:37108) authenticated
+[12:32:28][MAIN ] [1] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:32:28][MAIN ] Client 1 (192.168.1.132:37108) disconnected
+[12:32:55][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:33:04][MAIN ] Connection from 192.168.1.132:38842
+[12:33:04][MAIN ] Assigned slot 1 (5/10 active)
+[12:33:04][PROTO] AUTH: success
+[12:33:04][MAIN ] Client 1 (192.168.1.132:38842) authenticated
+[12:33:04][MAIN ] Client 1 (192.168.1.132:38842) disconnected
+[12:33:21][MAIN ] Connection from 192.168.1.132:34392
+[12:33:21][MAIN ] Assigned slot 1 (5/10 active)
+[12:33:21][PROTO] AUTH: success
+[12:33:22][MAIN ] Client 1 (192.168.1.132:34392) authenticated
+[12:33:22][MAIN ] [1] CMD: "GAMESYNC STATUS" (15 bytes)
+[12:33:22][MAIN ] [1] CMD: "PROCLIST" (8 bytes)
+[12:33:22][PROTO] frame_send: 1151 bytes
+[12:33:22][MAIN ] [1] CMD: "DOWNLOAD c:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:33:22][FILE ] DOWNLOAD: CreateFileA("c:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:33:22][FILE ] DOWNLOAD: GetFileSize = 3806 bytes
+[12:33:22][PROTO] frame_send: 3807 bytes
+[12:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:33:22][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[12:33:22][PROTO] frame_send: 4478 bytes
+[12:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\Quake2Win9x\baseq2\autoexec.cfg" (49 bytes)
+[12:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\Quake2Win9x\baseq2\autoexec.cfg") = OK
+[12:33:22][FILE ] DOWNLOAD: GetFileSize = 4600 bytes
+[12:33:22][PROTO] frame_send: 4601 bytes
+[12:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:33:22][FILE ] DOWNLOAD: GetFileSize = 8906 bytes
+[12:33:22][PROTO] frame_send: 8907 bytes
+[12:33:22][MAIN ] [1] CMD: "DOWNLOAD e:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:33:22][FILE ] DOWNLOAD: CreateFileA("e:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:33:22][FILE ] DOWNLOAD: GetFileSize = 17812 bytes
+[12:33:22][PROTO] frame_send: 17813 bytes
+[12:33:22][MAIN ] Client 1 (192.168.1.132:34392) disconnected
+[12:33:53][MAIN ] Connection from 192.168.1.132:49166
+[12:33:53][MAIN ] Assigned slot 1 (5/10 active)
+[12:33:53][PROTO] AUTH: success
+[12:33:53][MAIN ] Client 1 (192.168.1.132:49166) authenticated
+[12:33:53][MAIN ] Client 1 (192.168.1.132:49166) disconnected
+[12:33:53][MAIN ] Connection from 192.168.1.132:49168
+[12:33:53][MAIN ] Assigned slot 1 (5/10 active)
+[12:33:53][PROTO] AUTH: success
+[12:33:53][MAIN ] Client 1 (192.168.1.132:49168) authenticated
+[12:33:53][MAIN ] [1] CMD: "PING" (4 bytes)
+[12:33:53][MAIN ] Client 1 (192.168.1.132:49168) disconnected
+[12:34:25][MAIN ] [4] CMD: "PING" (4 bytes)
+[12:34:42][MAIN ] Connection from 192.168.1.132:44716
+[12:34:42][MAIN ] Assigned slot 1 (5/10 active)
+[12:34:42][PROTO] AUTH: success
+[12:34:42][MAIN ] Client 1 (192.168.1.132:44716) authenticated
+[12:34:42][MAIN ] Client 1 (192.168.1.132:44716) disconnected

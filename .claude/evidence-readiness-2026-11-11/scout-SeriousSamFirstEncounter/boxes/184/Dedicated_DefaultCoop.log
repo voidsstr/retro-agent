@@ -1,0 +1,99 @@
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.1
+
+Executable: C:\Games\SeriousSamFirstEncounter\Bin\DedicatedServer.exe
+Assumed engine directory: C:\Games\SeriousSamFirstEncounter\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 5.1, build 2600
+  Misc: Service Pack 3
+
+Detecting CPU...
+  Vendor: GenuineIntel
+  Type: 0, Family: 6, Model: 8, Stepping: 3
+  MMX : Yes
+  CMOV: Yes
+  Clock: 845MHz
+
+Global memory status...
+  Physical memory used:  131/ 511MB
+  Page file used:        141/1247MB
+  Virtual memory used:    17/2047MB
+  Memory load:  25%
+  Process working set: 0MB-1MB
+
+Loading group files...
+  C:\Games\SeriousSamFirstEncounter\1_00_music.gro: 55 files
+  C:\Games\SeriousSamFirstEncounter\1_00_ExtraTools.gro: 58 files
+  C:\Games\SeriousSamFirstEncounter\1_00.gro: 2267 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1024x768
+  Virtual screen: 1024x768
+  Monitors directly reported: 1
+
+Initializing sound...
+Setting sound format ...
+  (no sound)
+  amp11lib.dll loaded, mpx playing enabled
+  Detected devices: 1
+    device 0: Sound Blaster AWE64
+      ver: 1290, id: 1.100
+      form: 0x000bffff, ch: 65535, support: 0x0000002c
+
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'C:\Games\SeriousSamFirstEncounter\Bin\Game.dll'...
+Scripts\Game_startup.ini(4): Identifier 'sam_bFullScreen' is not declared
+Scripts\Game_startup.ini(4): Cannot assign: different types
+Scripts\Game_startup.ini(5): Identifier 'sam_iScreenSizeI' is not declared
+Scripts\Game_startup.ini(5): parse error
+Cannot load game settings:
+Cannot open file `C:\Games\SeriousSamFirstEncounter\Data\DedicatedServer.gms' (No such file or directory) ()
+  Using defaults
+Serious Sam version: v1.00
+Executing: 'Scripts\Dedicated_startup.ini'
+Executing: 'Scripts\Dedicated\DefaultCoop\init.ini'
+Executing: 'Scripts\Dedicated\DefaultCoop\1_begin.ini'
+Initializing TCP/IP...
+  opening as server
+  winsock opened ok
+  getting local addresses
+  local addresses: nsc-cabe14b7486 (192.168.1.124)
+  port: 25600
+  opened socket: 
+Starting session: 'Dedicated Coop Game'
+  level: 'Levels\01_Hatshepsut.wld'
+  spawnflags: 00040002
+  max players: 8
+  waiting: 0
+  network is on
+  started.
+
+ALL OK: Dedicated server is now running!
+Use Ctrl+C to shutdown the server.
+DO NOT use the 'Close' button, it might leave the port hanging!
+

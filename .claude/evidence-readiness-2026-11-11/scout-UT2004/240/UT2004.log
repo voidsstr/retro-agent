@@ -1,0 +1,95 @@
+Log: Log file open, 10/13/26 06:26:54
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows XP 5.1 (Build: 2600)
+Init: Version: 3369 (128.29)
+Init: Compiled: Nov 23 2005 16:23:34
+Init: Command line:  "192.168.1.132:7777"
+Init: Character set: Unicode
+Init: Base directory: C:\Games\UT2004\System\
+Init: Ini:UT2004.ini   UserIni:User.ini
+Init: Build label: UT2004 Build UT2004_Build_[2005-11-23_16.22]
+Init: Object subsystem initialized
+Log: Splash screen filename is '..\Help\UT2004Logo.bmp'
+Log: 	ati2dvag.dll/Radeon X1600 Series
+Log: Game class is 'GameInfo'
+Log: Bringing Level Entry.myLevel up for play (0) appSeconds: 3.640000...
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: Browse: 192.168.1.132/Index.ut2?Name=USER-41EA3B3330?Class=Engine.Pawn?Character=Jakob?team=255
+Log: Browse: Entry.ut2?Name=USER-41EA3B3330?Class=Engine.Pawn?Character=Jakob?team=255
+Log: ALAudio: Using DirectSound to record audio.
+ScriptLog: New Player USER-41EA3B3330 id=041fbee373f9fc6e5dedc6810ce480f2
+Log: Opened viewport
+Log: Enter SetRes: 1920x1080 Fullscreen 1
+Log: Using back-buffer format 22(32-bit)
+Log: Using depth-buffer format 77(32-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Log: Startup time: 13.050000 seconds
+Log: Precaching: Entry.LevelInfo0
+Log: Static mesh batches: 0 vertex bytes, 0 index bytes
+Log: Allocating 16384 byte dynamic index buffer.
+Log: Finished precaching geometry in 0.063 seconds
+Log: Finished precaching textures in 0.000 seconds
+Log: NetMode now NM_Client
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 34433->34421; refs: 454542
+Log: Bringing Level DM-Rankin.myLevel up for play (90) appSeconds: 23.689000...
+Log: (Karma): Autodetecting CPU for SSE
+Log: (Karma): Using SSE Optimizations
+Log: Spawning new actor for Viewport WindowsViewport
+ScriptLog: New Player USER-41EA3B3330 id=041fbee373f9fc6e5dedc6810ce480f2
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 34984->34984; refs: 459500
+Log: xPlayer setplayer WindowsViewport
+Log: Precaching: DM-Rankin.LevelInfo0
+Log: Static mesh batches: 11352456 vertex bytes, 914784 index bytes
+Log: Allocating 16384 byte dynamic index buffer.
+Log: Finished precaching geometry in 2.188 seconds
+Log: Finished precaching textures in 4.202 seconds
+Log: URL: Adding default option Name=USER-41EA3B3330
+Log: URL: Adding default option Class=Engine.Pawn
+Log: URL: Adding default option Character=Jakob
+Log: URL: Adding default option team=255
+Log: Browse: Index.ut2?closed?Name=USER-41EA3B3330?Class=Engine.Pawn?Character=Jakob?team=255
+Log: Failed; returning to Entry
+Log: GP=FALSE
+Log: Spawning new actor for Viewport WindowsViewport
+ScriptLog: New Player USER-41EA3B3330 id=041fbee373f9fc6e5dedc6810ce480f2
+Log: MatchViewportsToActors: GUI2K4.UT2K4MainMenu
+Debug: UT2k4MainMenu.Opened()   Sender:Package.UT2k4MainMenu
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Window.dll
+Log: Unbound to Core.dll
+Log: Unbound to Engine.dll
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to D3DDrv.dll
+Log: Unbound to XGame.dll
+Log: Unbound to IpDrv.dll
+Log: Unbound to Editor.dll
+Log: Unbound to Fire.dll
+Log: Unbound to XInterface.dll
+Log: Unbound to UWeb.dll
+Log: Unbound to Onslaught.dll
+NetComeGo: Close TcpipConnection 192.168.1.132:7777 10/14/26 09:37:34
+Exit: Socket shut down
+Log: Unbound to ALAudio.dll
+Log: Waiting for file streaming thread to finish...
+Exit: OpenAL Audio subsystem shut down.
+Log: (Karma): Level Karma Terminated.
+Log: Garbage: objects: 37185->0; refs: 459500
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Log: FileManager: Reading 0 GByte 108 MByte 126 KByte 373 Bytes from HD took 22.938987 seconds (22.874987 reading, 0.064000 seeking).
+Log: FileManager: 1.499003 seconds spent with misc. duties
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.362M /  3.621M
+Uninitialized: Peak Memory  187.412M /  189.453M
+Uninitialized: Allocs         737 Current /  1682030485 Total
+Uninitialized: Log file closed, 10/14/26 09:37:35

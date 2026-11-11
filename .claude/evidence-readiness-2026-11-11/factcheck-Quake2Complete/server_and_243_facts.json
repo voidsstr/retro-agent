@@ -1,0 +1,31 @@
+{
+ "taken": "2026-11-11 read-only fact-check of the Quake2Complete MP recipe",
+ "server_status_reply": "\u00ff\u00ff\u00ff\u00ffprint\n\\autospawn\\1\\botlist\\fleet\\capturelimit\\0\\cheats\\0\\coop\\0\\ctf\\0\\deathmatch\\1\\dmflags\\272\\fraglimit\\25\\gamedate\\Oct  1 2026\\gamename\\baseq2\\hostname\\NSC Retro Fleet Arena (Q2)\\maplist\\q2dmx\\mapname\\q2dm1\\maxclients\\12\\maxspectators\\4\\protocol\\34\\singleplayer\\0\\timelimit\\15\\version\\8.60 x86_64 Sep 17 2025 Linux\\zigmode\\0\n",
+ "server_log_facts": {
+  "restart_today": "server.log line 41267 'Yamagi Quake II v8.60' (unit active since 10:57:14), 41305 server initialization, 41316-41320 bots enter, 41372 'Timelimit hit.' then 3 bot disconnects - parked in intermission",
+  "bot_frags_last_level_41305_41372": {
+   "Evil Zeep": "22 kills, 2 suicides",
+   "Claw Finger": "14 kills, 2 suicides",
+   "Korn": "11 kills, 3 suicides"
+  },
+  "2026-10-13_round": "31790 'Timelimit hit.', 31791-31793 bots disconnect, 32373-32395 ten Fleet joins with no map load between, 32396-32415 all timed out"
+ },
+ "box_243_read_only": {
+  "agent": "1.98.0 (greeting 'OK N5R5L9 Win4.10')",
+  "PciRescueBoot": "agent 1.98.0, uptime 45s: all 6 installed PCI device(s) present - nothing to do",
+  "GameResBoot": "2026-11-11 10:59 ok: 7 title(s), 0 value(s) changed, 0 absent, target 800x600 (4:3 800x600); verify ok=18 wrong=0 absent=0",
+  "GamesDir": "E:\\GAMES",
+  "Quake2Complete_root": "quake2.exe 362496, 3dfxgl.dll 142848, DESKFIX9.EXE 4608, FLEETRES.BAT/EXE, ref_gl.dll 234496, ref_soft.dll 193024; no config.cfg in baseq2",
+  "Quake2Complete_baseq2": "pak0 183997730, pak1 12992754, pak2 45055, gamex86.dll 397824, autoexec.cfg 4477 (exec fleetkey.cfg, exec fleetres.cfg, then favourites adr0..8 block), FLEETKEY.CFG 720, fleetres.cfg 102",
+  "Quake2Complete_baseq2_fleetres_cfg": "// written by GAMESYNC for this box's monitor - do not edit / set gl_mode \"4\" / set vid_fullscreen \"1\"",
+  "Quake2Win9x_baseq2": "config.cfg 2026-11-08 05:02, fleetres.cfg (Voodoo body) 2026-11-08 04:55",
+  "C_RETRO_AGENT_helpers": "GLRESET9.EXE 4096, DESKFIX9.EXE 4608, WINKEY9X.EXE 5632 present",
+  "START_EXE": "C:\\WINDOWS\\COMMAND\\START.EXE 28672 present",
+  "C_fleetmp": "absent (not in C:\\ listing)",
+  "PROCLIST_name_format": "full paths, e.g. C:\\RETRO_AGENT\\RETRO_AGENT.EXE (audit-243-drivers/live1/08_PROCLIST.txt)"
+ },
+ "prior_243_proofs": {
+  "F11_TGA_via_3dfxgl": "/home/voidsstr/lan-proof/box243/quake2win9x_243_voodoo2_base1_640x480.png (compat_evidence id 879, 2026-09-25, 'base1 in-game F11 TGA')",
+  "metal_pass_launch": "docs/evidence/2026-10-03-243-metal-pass/metal243.py: LAUNCH C:\\WINDOWS\\COMMAND\\START.EXE C:\\RETRO_AGENT\\RUNT.BAT (E: / cd \\GAMES\\QUAKE2~2 / call PLAYQU~2.BAT), console quit worked"
+ }
+}

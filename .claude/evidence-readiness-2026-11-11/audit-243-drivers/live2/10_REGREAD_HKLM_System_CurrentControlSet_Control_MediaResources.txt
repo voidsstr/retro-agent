@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"System\\CurrentControlSet\\Control\\MediaResources\\wave","values":[{"name":"(Default)","type":"REG_SZ","data":"Audio"},{"name":"Installer","type":"REG_SZ","data":"C:\\WINDOWS\\SYSTEM\\mmsys.cpl"}],"subkeys":["sb16snd.drv<0000>"]}

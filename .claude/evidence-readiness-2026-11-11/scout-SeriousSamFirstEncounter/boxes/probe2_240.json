@@ -1,0 +1,31 @@
+{
+ "box": 240,
+ "_disc": [
+  {
+   "name": "SeriousSamTFE.iso",
+   "is_dir": false,
+   "size": 501800960,
+   "modified": "2026-08-31 14:35:37",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "games_lanhost": [
+  {
+   "name": "lanhost.txt",
+   "is_dir": false,
+   "size": 15,
+   "modified": "2026-08-31 15:35:16",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "lanhost": "192.168.1.123\r\n",
+ "foreground": {
+  "hwnd": "00030220",
+  "pid": 3972,
+  "class": "WindowsScreenSaverClass",
+  "title": "Screen Saver"
+ },
+ "hwprofile_os": "{\"profile_hash\":\"dd8a8e0805de3eb8\",\"profile_version\":1,\"hostname\":\"USER-41EA3B3330\",\"agent_version\":\"1.98.0\",\"reported_at\":\"2026-11-11 10:39:16\",\"cpu\":{\"vendor\":\"AuthenticAMD\",\"brand\":\"AMD Athlon(tm) 64 Processor 3300+\",\"family\":15,\"model\":12,\"stepping\":0,\"mhz\":2403,\"mhz_source\":\"registry\",\"count\":1,\"feature_bits\":287,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"3dnow\",\"sse\",\"sse2\"]},\"ram_mb\":1022,\"gpu\":{\"name\":\"Radeon X1950 Pro\",\"pci_ven\":\"0x1002\",\"pci_dev\":\"0x7280\",\"hardware_id\":\"PCI\\\\VEN_1002&DEV_7280&SUBSYS_E190174B&REV_00\",\"vram_mb\":512,\"driver_version\":\"8.593.100.0\",\"driver_date\":\"2-10-2010\",\"feature_level\":\"sm3.0\",\"feature_level_num\":5,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1920,\"height\":1080,\"bpp\":32,\"panel_w\":1920,\"panel_h\":1080,\"panel_source\":\"registry\",\"edid_w\":1920,\"edid_h\":1080,\"panel_hz\":60,\"panel_digital\":0,\"panel_name\":\"DELL E2313H\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":8851,\"total_mb\":76285}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"RADEON 9800 XT\",\"pci_ven\":\"0x1002\",\"pci_dev\":\"0x4E4A\",\"hardware_id\":\"pci\\\\ven_1002&dev_4e4a\",\"driver_version\":\"8.593.100.0\",\"driver_date\":\"2-10-2010\",\"attached_to_desktop\":false},{\"instance\":\"0001\",\"name\":\"RADEON 9800"
+}

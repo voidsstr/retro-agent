@@ -1,0 +1,3245 @@
+{
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "host": "NSC-5C5396FAF9D",
+   "os": "Windows XP Service Pack 3",
+   "cpu": "Intel(R) Pentium(R) 4 CPU 2.80GHz 2793MHz",
+   "sse2": null,
+   "ram_mb": 1150,
+   "gpu": "NVIDIA GeForce 7800 GS",
+   "gpu_feature": "sm3.0",
+   "gpu_driver": "6.14.10.9371",
+   "vram_mb": 256,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.123",
+   "host": "NSC-B20C188E96D",
+   "os": "Windows XP Service Pack 3",
+   "cpu": "AMD Athlon(tm) 64 Processor 4000+ 2402MHz",
+   "sse2": null,
+   "ram_mb": 2047,
+   "gpu": "ATI Radeon HD 3850 AGP",
+   "gpu_feature": "sm3.0",
+   "gpu_driver": "8.970.100.0",
+   "vram_mb": 512,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.124",
+   "host": "NSC-C543575F526",
+   "os": "Windows XP Service Pack 3",
+   "cpu": "AMD Athlon(tm) XP 2400+ 2004MHz",
+   "sse2": null,
+   "ram_mb": 255,
+   "gpu": "vcr-kmd Voodoo 5 6000 (open driver)",
+   "gpu_feature": "fixed",
+   "gpu_driver": "0.1.0.0",
+   "vram_mb": 64,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\\5&2cfcdcf8&0&0000F0",
+    "bits": 3
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.133",
+   "host": "P3-DUAL",
+   "os": "Windows XP Service Pack 3",
+   "cpu": " 701MHz",
+   "sse2": null,
+   "ram_mb": 255,
+   "gpu": "NVIDIA GeForce4 Ti 4600",
+   "gpu_feature": "sm1.x",
+   "gpu_driver": "6.14.10.9371",
+   "vram_mb": 128,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.143",
+   "host": "1GHZ",
+   "os": "Windows XP Service Pack 3",
+   "cpu": "AMD Athlon(tm) Processor 1000MHz",
+   "sse2": null,
+   "ram_mb": 511,
+   "gpu": "NVIDIA GeForce 6800",
+   "gpu_feature": "sm3.0",
+   "gpu_driver": "7.1.8.9",
+   "vram_mb": 128,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.171",
+   "host": "NSC-5B996B81319",
+   "os": "Windows XP Service Pack 3",
+   "cpu": "Intel(R) Pentium(R) 4 CPU 2.80GHz 2793MHz",
+   "sse2": null,
+   "ram_mb": 509,
+   "gpu": "NVIDIA GeForce FX 5500",
+   "gpu_feature": "sm2.0",
+   "gpu_driver": "6.14.11.7519",
+   "vram_mb": 256,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.184",
+   "host": "NSC-CABE14B7486",
+   "os": "Windows XP Service Pack 3",
+   "cpu": " 845MHz",
+   "sse2": null,
+   "ram_mb": 511,
+   "gpu": "NVIDIA GeForce2 GTS/GeForce2 Pro",
+   "gpu_feature": "tnl",
+   "gpu_driver": "7.1.8.9",
+   "vram_mb": 32,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.186",
+   "host": "ADMIN-PC",
+   "os": "Windows 7 ",
+   "cpu": "Pentium(R) Dual-Core  CPU      E5300  @ 2.60GHz 2621MHz",
+   "sse2": null,
+   "ram_mb": 3071,
+   "gpu": "Standard VGA Graphics Adapter",
+   "gpu_feature": "sm3.0",
+   "gpu_driver": "",
+   "vram_mb": 16,
+   "capabilities": {
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 0
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.240",
+   "host": "USER-41EA3B3330",
+   "os": "Windows XP Service Pack 3",
+   "cpu": "AMD Athlon(tm) 64 Processor 3300+ 2403MHz",
+   "sse2": null,
+   "ram_mb": 1022,
+   "gpu": "Radeon X1950 Pro",
+   "gpu_feature": "sm3.0",
+   "gpu_driver": "8.593.100.0",
+   "vram_mb": 512,
+   "capabilities": {
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": "",
+    "bits": 1
+   },
+   "games_dir": "C:\\Games"
+  },
+  {
+   "ip": "192.168.1.243",
+   "host": "N5R5L9",
+   "os": "Windows 98  A ",
+   "cpu": " 165MHz",
+   "sse2": null,
+   "ram_mb": 127,
+   "gpu": "Cirrus Logic 5436 PCI",
+   "gpu_feature": "none",
+   "gpu_driver": "",
+   "vram_mb": 0,
+   "capabilities": {
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\\BUS_00&DEV_03&FUNC_00",
+    "bits": 2
+   },
+   "games_dir": "E:\\GAMES"
+  }
+ ],
+ "titles": [
+  {
+   "key": "CounterStrike16",
+   "year": 2003,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 233,
+   "notes": "GoldSrc. Software, OpenGL and Direct3D renderers. Multiplayer against the fleet's own server on 192.168.1.132:27015. GPU FLOOR REMOVED 2026-08-30, and min_vram_mb with it. Both fields described the 3D path, but this tree ships a SOFTWARE renderer (sw.dll, confirmed present in the staged tree) and the launcher does not force a 3D device, so the title runs on a machine with no 3D hardware at all - it just runs slower and uglier. gpu_feature_level means 'cannot start below this', and stating it here made a software-capable title a hard NO on the Pentium-1 Compaq Deskpro, whose 2D-only adapter is ",
+   "launch_entries": [
+    {
+     "target": "Play Counter-Strike.bat",
+     "name": "Counter-Strike 1.6"
+    },
+    {
+     "target": "Play Half-Life Deathmatch.bat",
+     "name": "Half-Life Deathmatch - Fleet Server"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Counter-Strike 1.6",
+      "Half-Life Deathmatch - Fleet Server"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Quake3-TeamArena",
+   "year": 2000,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 233,
+   "notes": "id Tech 3. OpenGL only - no software renderer - but no hardware T&L requirement.",
+   "launch_entries": [
+    {
+     "target": "Play Quake III Arena.bat",
+     "name": "Quake III Arena"
+    },
+    {
+     "target": "Play Team Arena.bat",
+     "name": "Quake III - Team Arena"
+    },
+    {
+     "target": "Play Quake III Arena - retail 1.32c.bat",
+     "name": "Quake III Arena (retail 1.32c)"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Quake III Arena",
+      "Quake III - Team Arena",
+      "Quake III Arena (retail 1.32c)"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Descent3",
+   "year": 1999,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 200,
+   "notes": "Direct3D/OpenGL/Glide. The launcher mounts a disc image. Its menu is driven by relative mouse deltas and is not automatable (CLAUDE.md).",
+   "launch_entries": [
+    {
+     "target": "Play Descent 3.bat",
+     "name": "Descent 3"
+    },
+    {
+     "target": "Host Descent 3 - LAN.bat",
+     "name": "Descent 3 - Dedicated Server - no play"
+    },
+    {
+     "target": "Join Descent 3 - LAN.bat",
+     "name": "Descent 3 - Join LAN Game"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Dedicated Server - no play",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Descent 3",
+      "Descent 3 - Join LAN Game"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "RedAlert2",
+   "year": 2000,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 266,
+   "notes": "2D sprite engine, no 3D acceleration at any point. The network serial is generated per box by the launcher, not shipped in install.reg.",
+   "launch_entries": [
+    {
+     "target": "Launch Red Alert 2.bat",
+     "name": "Command and Conquer - Red Alert 2"
+    },
+    {
+     "target": "Launch Yuri's Revenge.bat",
+     "name": "Red Alert 2 - Yuri's Revenge"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Command and Conquer - Red Alert 2",
+      "Red Alert 2 - Yuri's Revenge"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Halo",
+   "year": 2003,
+   "gpu_feature_level": "sm1.x",
+   "min_cpu_mhz": 733,
+   "notes": "Gearbox's published minimum is 733 MHz / 128 MB / a 32 MB hardware-T&L card under DirectX 9; recommended 1.4 GHz / 256 MB / 64 MB. Two floors here are MEASURED rather than copied off the box.\n\nSSE2: halo.exe 1.10 - the 2014 rebuild the official patch installs - carries 3,637 SSE and 298 SSE2 instructions with xmm operands in .text, the SSE2 ones including scalar-double mulsd/addsd/movlpd, which is the signature of an /arch:SSE2 build rather than a dispatched fast path. There are 19 cpuid sites so some of it may be guarded; the conservative reading is taken deliberately, because UT99 declared o",
+   "launch_entries": [
+    {
+     "target": "Play Halo.bat",
+     "name": "Halo Combat Evolved"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Halo Combat Evolved"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Halo Combat Evolved"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Halo Combat Evolved"
+     ]
+    },
+    "133": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "143": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Halo Combat Evolved"
+     ]
+    },
+    "184": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Halo Combat Evolved"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "ReturnToCastleWolfenstein",
+   "year": 2001,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 400,
+   "notes": "id Tech 3 (Quake III engine) with a Gray Matter/Nerve front end. Activision's published minimum is a Pentium II 400 with 128 MB and a 16 MB OpenGL card; there is NO software renderer, so a machine with no 3D pipeline at all cannot run it - hence gpu_feature_level 'fixed' rather than 'none'. NO SSE requirement: the engine detects and dispatches at runtime, so the two boxes with no SSE2 (.124, .133) run it, unlike UT99 469e. This is the DRM-free GOG build (setup_return_to_castle_wolfenstein_2.0.0.2), retail engine 1.41 - no disc, no CD key, no online activation. disk_mb 900 against a measured 76",
+   "launch_entries": [
+    {
+     "target": "Play Return to Castle Wolfenstein.bat",
+     "name": "Return to Castle Wolfenstein"
+    },
+    {
+     "target": "Play RTCW Multiplayer.bat",
+     "name": "RTCW Multiplayer"
+    },
+    {
+     "target": "Host RTCW - LAN.bat",
+     "name": "RTCW - Host LAN Game"
+    },
+    {
+     "target": "Join RTCW - LAN.bat",
+     "name": "RTCW - Join LAN Game"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Return to Castle Wolfenstein",
+      "RTCW Multiplayer",
+      "RTCW - Host LAN Game",
+      "RTCW - Join LAN Game"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Tribes2",
+   "year": 2001,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 500,
+   "notes": "Tribes 2 v25034.005 - the 2004 FilePlanet free FULL release (not a demo) - with the TribesNext RC2a client patch applied. Sierra's box minimum is a 300 MHz Pentium II / 64 MB; 500 MHz / 128 MB is used here instead because Tribes 2's own readme calls 128 MB the practical floor and the engine is famously heavy for its era. 16 MB VRAM is the box figure.\n\ngpu_feature_level fixed: this is a 2001 OpenGL fixed-function engine, and the tree ships per-card profiles for exactly that generation - GameData\\Voodoo3.cs, Voodoo5.cs, TNT.cs, Rage128.cs, Kyro.cs, Permedia3.cs, Matrox.cs. Nothing here needs har",
+   "launch_entries": [
+    {
+     "target": "Play Tribes 2 Online.bat",
+     "name": "Tribes 2 Online"
+    },
+    {
+     "target": "Play Tribes 2 Solo and LAN.bat",
+     "name": "Tribes 2 Solo and LAN"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Tribes 2 Online",
+      "Tribes 2 Solo and LAN"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Quake2Complete",
+   "year": 1997,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 133,
+   "notes": "id Tech 2. Software renderer shipped, so the 3D card is optional. disk_mb 840 added 2026-08-30: the staged tree measures 761 MB (du -sm --apparent-size), rounded up to leave room for the savegames and config the title writes into its own directory. The library was almost entirely silent on disk, which is harmless on a fleet whose smallest volume is 15 GB and is not once a machine of this era joins it - a Pentium-1 desktop has a 1-2 GB disk, and the whole point of this field is to refuse the copy BEFORE an hour of SMB1 bandwidth is spent on a tree that was never going to fit. GAMESYNC's own roo",
+   "launch_entries": [
+    {
+     "target": "Quake II.bat",
+     "name": "Quake II"
+    },
+    {
+     "target": "Quake II - The Reckoning.bat",
+     "name": "Quake II - The Reckoning"
+    },
+    {
+     "target": "Quake II - Ground Zero.bat",
+     "name": "Quake II - Ground Zero"
+    },
+    {
+     "target": "Quake II - ThreeWave CTF.bat",
+     "name": "Quake II - ThreeWave CTF"
+    },
+    {
+     "target": "Play Quake II - The Reckoning - Voodoo.bat",
+     "name": "Quake II - The Reckoning - 3dfx Voodoo"
+    },
+    {
+     "target": "Play Quake II - Ground Zero - Voodoo.bat",
+     "name": "Quake II - Ground Zero - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning",
+      "Quake II - Ground Zero",
+      "Quake II - ThreeWave CTF"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - The Reckoning - 3dfx Voodoo",
+      "Quake II - Ground Zero - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "Quake2Win9x",
+   "year": 1997,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 90,
+   "notes": "Quake II BASE GAME for Windows 9x boxes (2026-09-25). Quake2Complete's launchers are cmd.exe dialect (%~dp0, cd /d, start \"title\") and do not run under COMMAND.COM, and its 761 MB tree (mission packs, CTF, 157 MB of cinematics) does not fit a Pentium-1-era disk; .243 had 379 MB free. This tree is Quake2Complete's baseq2 paks, players, gamex86.dll and 3.20 binaries only (200 MB measured) with COMMAND.COM launchers, so max_os win9x keeps it off every NT box, which gets Quake2Complete. All five binaries were scanned for P6 instructions (cmov/fcomi): none, so it runs on a Pentium without CMOV. min",
+   "launch_entries": [
+    {
+     "target": "Play Quake II.bat",
+     "name": "Quake II"
+    },
+    {
+     "target": "Play Quake II - Voodoo.bat",
+     "name": "Quake II - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "123": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "124": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "133": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "143": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "171": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "184": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "186": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "240": {
+     "installed": false,
+     "shortcuts": [
+      "Quake II"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Quake II",
+      "Quake II - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "Quake1",
+   "year": 1996,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 90,
+   "notes": "Runs on anything here - it is the one title the gate approves for the Pentium-1 Compaq Deskpro. THE GPU FLOOR IS PER SHORTCUT, and that is the whole point: until 2026-08-30 this tree had exactly ONE shortcut and it ran GLQUAKE.EXE at 32 bpp, so on a box with no 3D hardware the single title the gate said yes to was the one it could not start - a gate answering correctly and a tree that could not honour the answer. WINQUAKE.EXE (the disc's own Win32 software build) now has its own launcher and no GPU floor; GLQUAKE.EXE keeps one. QUAKE.EXE and CWSDPMI.EXE are the DOS build and its DPMI host, sta",
+   "launch_entries": [
+    {
+     "target": "Play Quake.bat",
+     "name": "Quake"
+    },
+    {
+     "target": "Play Quake - Software.bat",
+     "name": "Quake - Software Renderer"
+    },
+    {
+     "target": "Q1V640.BAT",
+     "name": "Quake - 3dfx Voodoo"
+    },
+    {
+     "target": "Q1V800.BAT",
+     "name": "Quake - 3dfx Voodoo 800x600"
+    },
+    {
+     "target": "Q1DOS.BAT",
+     "name": "Quake - DOS"
+    },
+    {
+     "target": "Q1DOSM10.BAT",
+     "name": "Quake - DOS 360x480"
+    },
+    {
+     "target": "Play Quake - Scourge of Armagon.bat",
+     "name": "Quake - Scourge of Armagon"
+    },
+    {
+     "target": "Q1HIPV.BAT",
+     "name": "Quake - Scourge of Armagon - 3dfx Voodoo"
+    },
+    {
+     "target": "Q1HIPD.BAT",
+     "name": "Quake - Scourge of Armagon - DOS"
+    },
+    {
+     "target": "Play Quake - Dissolution of Eternity.bat",
+     "name": "Quake - Dissolution of Eternity"
+    },
+    {
+     "target": "Q1ROGV.BAT",
+     "name": "Quake - Dissolution of Eternity - 3dfx Voodoo"
+    },
+    {
+     "target": "Q1ROGD.BAT",
+     "name": "Quake - Dissolution of Eternity - DOS"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - 3dfx Voodoo",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Quake",
+      "Quake - Software Renderer",
+      "Quake - Scourge of Armagon",
+      "Quake - Dissolution of Eternity"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Quake - 3dfx Voodoo",
+      "Quake - 3dfx Voodoo 800x600",
+      "Quake - DOS",
+      "Quake - DOS 360x480",
+      "Quake - Scourge of Armagon - 3dfx Voodoo",
+      "Quake - Scourge of Armagon - DOS",
+      "Quake - Dissolution of Eternity - 3dfx Voodoo",
+      "Quake - Dissolution of Eternity - DOS"
+     ]
+    }
+   }
+  },
+  {
+   "key": "UnrealTournament436",
+   "year": 1999,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 233,
+   "notes": "Unreal Engine 1, retail 436. THIS TREE IS THE FLEET'S UT99 MULTIPLAYER CLIENT FOR EVERY NON-SSE2 BOX, not a reference copy. VERIFIED ON HARDWARE 2026-08-30: it JOINS the fleet's OldUnreal 469e server at 192.168.1.132:7797. Two boxes were in one match at once - .143 (Athlon K7, no SSE at all) and .133 (dual Pentium III, SSE1 only) - with the server log recording 'HELLO REVISION=0 MINVER=400 VER=436' then 'Join succeeded' for each, and the 436 client's own LAN Servers browser showing the server's rules as 'Game Version 469 / Min. Compatible Version 432'. UT99's join is a VERSION handshake with a",
+   "launch_entries": [
+    {
+     "target": "Play Unreal Tournament 436.bat",
+     "name": "Unreal Tournament 436"
+    },
+    {
+     "target": "Join fleet UT99 server - 436.bat",
+     "name": "UT99 436 - Join Fleet Server"
+    },
+    {
+     "target": "Play Unreal Tournament 436 - Voodoo.bat",
+     "name": "Unreal Tournament - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server",
+      "Unreal Tournament - 3dfx Voodoo"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 436",
+      "UT99 436 - Join Fleet Server"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "UnrealTournament",
+   "year": 1999,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 233,
+   "notes": "Unreal Engine 1, OldUnreal 469e - the version the fleet's ut99-server runs. REQUIRES SSE2 (measured 2026-08-30, and this is a HARD start failure, not a slow one): the 469e build is compiled with SSE/SSE2 throughout - Core.dll carries 1083 SSE2-class and 2482 SSE1-class instructions, UnrealTournament.exe 292 and 46, in ordinary compiler-generated prologue code (cvttsd2si, movdqa), not behind a CPUID-dispatched fast path. The retail 436 Core.dll is the control and contains ZERO of either. So on a CPU without SSE2 the process dies on the first vectorised instruction with #UD before writing a line",
+   "launch_entries": [
+    {
+     "target": "Play Unreal Tournament.bat",
+     "name": "Unreal Tournament"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament"
+     ]
+    },
+    "124": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "UT2003",
+   "year": 2002,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 733,
+   "notes": "Unreal Engine 2 (build 2225). Epic/Atari minimum: PIII 733 / 128 MB / 16 MB 3D card - hardware T&L recommended, not required (it shipped supporting TNT2/Voodoo3-class cards). Direct3D renderer. No disc check after the 2225 patch (verified in the build VM 2026-09-29).",
+   "launch_entries": [
+    {
+     "target": "Play UT2003.bat",
+     "name": "Unreal Tournament 2003"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2003"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "UT2004",
+   "year": 2004,
+   "gpu_feature_level": "tnl",
+   "min_cpu_mhz": 1000,
+   "notes": "Unreal Engine 2. Epic's minimum is 1.0 GHz, 128 MB on Win98 / 256 MB on XP, and a 32 MB hardware-T&L card (GeForce2 or Radeon 7200 class). The XP figure is used here because the whole fleet is XP or later.",
+   "launch_entries": [
+    {
+     "target": "Play UT2004.bat",
+     "name": "Unreal Tournament 2004"
+    },
+    {
+     "target": "Join fleet UT2004 server.bat",
+     "name": "UT2004 - Join the fleet server"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Tournament 2004",
+      "UT2004 - Join the fleet server"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Carmageddon2",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 166,
+   "notes": "Win32. Ships software, Direct3D and Glide renderers, so it degrades rather than refusing on a weak card. disk_mb 350 added 2026-08-30: the staged tree measures 304 MB (du -sm --apparent-size), rounded up to leave room for the savegames and config the title writes into its own directory. The library was almost entirely silent on disk, which is harmless on a fleet whose smallest volume is 15 GB and is not once a machine of this era joins it - a Pentium-1 desktop has a 1-2 GB disk, and the whole point of this field is to refuse the copy BEFORE an hour of SMB1 bandwidth is spent on a tree that was",
+   "launch_entries": [
+    {
+     "target": "Play Carmageddon 2.bat",
+     "name": "Carmageddon 2"
+    },
+    {
+     "target": "Play Carmageddon 2 - Voodoo.bat",
+     "name": "Carmageddon 2 - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Carmageddon 2 - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "HalfLife1",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 166,
+   "notes": "GoldSrc. Software renderer shipped, so the 3D card is optional. GPU FLOOR REMOVED 2026-08-30, and min_vram_mb with it. Both fields described the 3D path, but this tree ships a SOFTWARE renderer (sw.dll, confirmed present in the staged tree) and the launcher does not force a 3D device, so the title runs on a machine with no 3D hardware at all - it just runs slower and uglier. gpu_feature_level means 'cannot start below this', and stating it here made a software-capable title a hard NO on the Pentium-1 Compaq Deskpro, whose 2D-only adapter is GG_GPU_NONE. The remaining cpu/ram floors describe th",
+   "launch_entries": [
+    {
+     "target": "Half-Life.bat",
+     "name": "Half-Life"
+    },
+    {
+     "target": "Opposing Force.bat",
+     "name": "Half-Life - Opposing Force"
+    },
+    {
+     "target": "Blue Shift.bat",
+     "name": "Half-Life - Blue Shift"
+    },
+    {
+     "target": "Team Fortress Classic.bat",
+     "name": "Team Fortress Classic"
+    },
+    {
+     "target": "Deathmatch Classic.bat",
+     "name": "Deathmatch Classic"
+    },
+    {
+     "target": "Play Half-Life - Voodoo.bat",
+     "name": "Half-Life - 3dfx Voodoo"
+    },
+    {
+     "target": "Play Team Fortress Classic - Voodoo.bat",
+     "name": "Team Fortress Classic - 3dfx Voodoo"
+    },
+    {
+     "target": "Play Deathmatch Classic - Voodoo.bat",
+     "name": "Deathmatch Classic - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life",
+      "Half-Life - Opposing Force",
+      "Half-Life - Blue Shift",
+      "Team Fortress Classic",
+      "Deathmatch Classic"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Half-Life - 3dfx Voodoo",
+      "Team Fortress Classic - 3dfx Voodoo",
+      "Deathmatch Classic - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "JediKnightMotS",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 200,
+   "notes": "Sith engine, same software-renderer fallback as Dark Forces II. disk_mb 500 added 2026-08-30: the staged tree measures 437 MB (du -sm --apparent-size), rounded up to leave room for the savegames and config the title writes into its own directory. The library was almost entirely silent on disk, which is harmless on a fleet whose smallest volume is 15 GB and is not once a machine of this era joins it - a Pentium-1 desktop has a 1-2 GB disk, and the whole point of this field is to refuse the copy BEFORE an hour of SMB1 bandwidth is spent on a tree that was never going to fit. GAMESYNC's own room ",
+   "launch_entries": [
+    {
+     "target": "JKM.EXE",
+     "name": "Jedi Knight - Mysteries of the Sith"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Jedi Knight - Mysteries of the Sith"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "RainbowSix",
+   "year": 1998,
+   "gpu_feature_level": "none",
+   "min_cpu_mhz": 90,
+   "notes": "Measured from the binary, not from the box. RainbowSix.exe is MSVC 5.10, built Nov 1998 - which PREDATES SSE (Feb 1999), so an SSE floor is impossible: 0 movaps, 0 SSE2, 0 CMOV under a real disassembly of .text. Heavy x87 (26,548 D9-prefixed bytes). MMX is DETECTED, not required - the one CPUID site at VA 0x47405C reads CPUID.1:EDX bit 23 and uses it as an optional fast path - so cpu_features is fpu alone. gpu_feature_level is 'none' because the engine ships a SOFTWARE renderer and DevicePicker.exe can select it; the 3D path is Direct3D through DirectDraw and there is NO Glide path at all (zer",
+   "launch_entries": [
+    {
+     "target": "Play Rainbow Six.bat",
+     "name": "Tom Clancy's Rainbow Six"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Tom Clancy's Rainbow Six"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Shogo",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 200,
+   "notes": "LithTech 1. Direct3D or software. Loads its archive chain highest-patch-first (ShogoL, ShogoT, ShogoP9..P), so CShell.dll comes from SHOGOP3.REZ. The launcher mounts a disc image. GPU FLOOR REMOVED 2026-08-30, and min_vram_mb with it. Both fields described the 3D path, but this tree ships a SOFTWARE renderer (soft.ren, confirmed present in the staged tree) and the launcher does not force a 3D device, so the title runs on a machine with no 3D hardware at all - it just runs slower and uglier. gpu_feature_level means 'cannot start below this', and stating it here made a software-capable title a h",
+   "launch_entries": [
+    {
+     "target": "Play Shogo - direct engine.bat",
+     "name": "Shogo - Mobile Armor Division"
+    },
+    {
+     "target": "Play Shogo.bat",
+     "name": "Shogo - via launcher (fallback)"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Shogo - Mobile Armor Division",
+      "Shogo - via launcher (fallback)"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "SiNGold",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 200,
+   "notes": "id Tech 2. Software renderer shipped. NB the GOG repack shipped a Vista-only PE subsystem once and was unloadable on every XP box - check pescan output after any re-stage. DISK FLOOR ADDED 2026-08-30: the tree measures 964 MB and this field was absent, so the gate approved the title onto a machine with 617 MB free (the Pentium 1 .243) and GAMESYNC found out one SMB1 file at a time. Without it that box was offered 4,594 MB of titles against a 617 MB disk. disk_mb exists to refuse the copy BEFORE the bandwidth is spent; it fails open when free space cannot be measured, and every other fleet box ",
+   "launch_entries": [
+    {
+     "target": "Play SiN Gold.bat",
+     "name": "SiN"
+    },
+    {
+     "target": "Play Wages of SiN.bat",
+     "name": "SiN - Wages of SiN"
+    },
+    {
+     "target": "Play SiN - software renderer.bat",
+     "name": "SiN - software mode for newer cards"
+    },
+    {
+     "target": "Play SiN - Voodoo.bat",
+     "name": "SiN - 3dfx Voodoo"
+    },
+    {
+     "target": "Play Wages of SiN - Voodoo.bat",
+     "name": "SiN - Wages of SiN - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "SiN",
+      "SiN - Wages of SiN",
+      "SiN - software mode for newer cards"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "SiN - 3dfx Voodoo",
+      "SiN - Wages of SiN - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "ThiefGold",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 200,
+   "notes": "Dark Engine, software renderer shipped. DISK FLOOR ADDED 2026-08-30: the tree measures 797 MB and this field was absent, so the gate approved the title onto a machine with 617 MB free (the Pentium 1 .243) and GAMESYNC found out one SMB1 file at a time. Without it that box was offered 4,594 MB of titles against a 617 MB disk. disk_mb exists to refuse the copy BEFORE the bandwidth is spent; it fails open when free space cannot be measured, and every other fleet box has at least 9 GB free, so nothing else changes.",
+   "launch_entries": [
+    {
+     "target": "Play Thief Gold.bat",
+     "name": "Thief Gold"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Thief Gold"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Turok2",
+   "year": 1998,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 166,
+   "notes": "THE FLOORS COME FROM THE GAME'S OWN ReadMeEnglish.txt, not from a guess: 'Minimum CPU speeds - With a 3Dfx Voodoo or equivalent, P200. 3Dfx Voodoo 2 or equivalent, P166.' 166 is therefore the lowest speed Acclaim documented, and it is documented only WITH an accelerator. A 3D card is MANDATORY - there is no software renderer, the tree ships Video_D3D.dll and Video_3DFx.dll and nothing else, and the readme's own error list is entirely Direct3D surface allocation ('Could not allocate frame buffer from 3D hardware RAM', 'Z-buffer creation failed'). Requires DirectX 6.1. Single player and multipla",
+   "launch_entries": [
+    {
+     "target": "Play Turok 2.bat",
+     "name": "Turok 2 - Seeds of Evil"
+    },
+    {
+     "target": "Play Turok 2 - Multiplayer.bat",
+     "name": "Turok 2 - Multiplayer"
+    },
+    {
+     "target": "Join Turok 2 - LAN.bat",
+     "name": "Turok 2 - Join LAN Game"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Turok 2 - Seeds of Evil",
+      "Turok 2 - Multiplayer",
+      "Turok 2 - Join LAN Game"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "UnrealGold",
+   "year": 1998,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 200,
+   "notes": "Unreal Engine 1. Software, Direct3D, OpenGL and Glide renderers. GPU FLOOR REMOVED 2026-08-30, and min_vram_mb with it. Both fields described the 3D path, but this tree ships a SOFTWARE renderer (System\\SoftDrv.dll, confirmed present in the staged tree) and the launcher does not force a 3D device, so the title runs on a machine with no 3D hardware at all - it just runs slower and uglier. gpu_feature_level means 'cannot start below this', and stating it here made a software-capable title a hard NO on the Pentium-1 Compaq Deskpro, whose 2D-only adapter is GG_GPU_NONE. The remaining cpu/ram floor",
+   "launch_entries": [
+    {
+     "target": "Play Unreal Gold.bat",
+     "name": "Unreal Gold"
+    },
+    {
+     "target": "Host Unreal Gold LAN.bat",
+     "name": "Unreal Gold - Host LAN Server"
+    },
+    {
+     "target": "Play Unreal Gold - Voodoo.bat",
+     "name": "Unreal Gold - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold",
+      "Unreal Gold - Host LAN Server"
+     ]
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Unreal Gold - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "DieByTheSword",
+   "year": null,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 100,
+   "notes": "Die by the Sword, 1998: P166 + a 3Dfx card is the recommended spec; the disc's die\\ folder IS the game (no installer) and it runs disc-free with SrcPath '.' and -nocd - verified in the W98BUILD VM 2026-10-01 (scripts/fleet/stage-win9x.py).",
+   "launch_entries": [
+    {
+     "target": "DBTS.BAT",
+     "name": "Die by the Sword - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "123": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "124": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "133": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "143": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "171": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "184": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "186": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Die by the Sword - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "AliensVsPredator",
+   "year": 1999,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 200,
+   "notes": "Rebellion engine, Direct3D only - there is no software renderer, so a 3D accelerator is mandatory rather than optional. REQUIRES MMX (measured 2026-08-30): avp.exe carries 1126 MMX-register references in emms-bounded blocks - its own rasteriser - and exactly ONE cpuid instruction in the whole binary, i.e. a single startup capability check rather than the per-function dispatch a title with a fallback path shows. That matches Rebellion's published minimum, which was a Pentium 200 MMX, not a plain Pentium 200. A CPU without MMX therefore faults on the first packed instruction; it does not merely ",
+   "launch_entries": [
+    {
+     "target": "avp.exe",
+     "name": "Aliens vs Predator"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Aliens vs Predator"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "SystemShock2",
+   "year": 1999,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 233,
+   "notes": "Dark Engine. Direct3D or software. The launcher mounts a disc image; its shortcut auto-resolves to clokspl.exe (a CD-Cops loader) unless launch.txt names the icon.",
+   "launch_entries": [
+    {
+     "target": "Play System Shock 2.bat",
+     "name": "System Shock 2"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "System Shock 2"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "RogueSquadron",
+   "year": null,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 133,
+   "notes": "Star Wars Rogue Squadron 3D, 1999 (GOG build): P166 + a 3Dfx card is the box's spec; flew a mission on the Voodoo in the P166-shaped W98BUILD VM 2026-10-01 with relative install.reg paths, no disc (scripts/fleet/stage-win9x.py).",
+   "launch_entries": [
+    {
+     "target": "ROGUESQ.BAT",
+     "name": "Star Wars Rogue Squadron 3D - 3dfx Voodoo"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "123": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "124": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "133": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "143": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "171": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "184": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "186": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": false,
+     "shortcuts": []
+    },
+    "243": {
+     "installed": true,
+     "shortcuts": [
+      "Star Wars Rogue Squadron 3D - 3dfx Voodoo"
+     ]
+    }
+   }
+  },
+  {
+   "key": "HiddenAndDangerous",
+   "year": 2003,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 200,
+   "notes": "2003 freeware re-release of a 1999 engine - the version number is newer than the technology. DIRECT3D ONLY, established from the binaries rather than assumed: Bin\\ contains i3d2.dll and igraph2.dll and NO software rasteriser, and HDE.exe's own strings are Direct3D error text ('Direct3D does not have enough display memory to perform the operation'). min_vram_mb 8 follows from the mode the tree actually stages - install.reg writes 800x600x32, which is 1.83 MB of front buffer, the same again for the back buffer and a z-buffer on top before a single texture is loaded. The staged tree is 272 MB in ",
+   "launch_entries": [
+    {
+     "target": "Play Hidden and Dangerous Deluxe.bat",
+     "name": "Hidden and Dangerous Deluxe"
+    },
+    {
+     "target": "Host Hidden and Dangerous - LAN.bat",
+     "name": "Hidden and Dangerous - Host LAN Game"
+    },
+    {
+     "target": "Join Hidden and Dangerous - LAN.bat",
+     "name": "Hidden and Dangerous - Join LAN Game"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Hidden and Dangerous Deluxe",
+      "Hidden and Dangerous - Host LAN Game",
+      "Hidden and Dangerous - Join LAN Game"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "DeusEx",
+   "year": 2000,
+   "gpu_feature_level": null,
+   "min_cpu_mhz": 300,
+   "notes": "Unreal Engine 1. Software, Direct3D and OpenGL renderers, so a fixed-function card is enough. Menu is relative-mouse and not automatable. GPU FLOOR REMOVED 2026-08-30, and min_vram_mb with it. Both fields described the 3D path, but this tree ships a SOFTWARE renderer (System\\SoftDrv.dll, confirmed present in the staged tree) and the launcher does not force a 3D device, so the title runs on a machine with no 3D hardware at all - it just runs slower and uglier. gpu_feature_level means 'cannot start below this', and stating it here made a software-capable title a hard NO on the Pentium-1 Compaq D",
+   "launch_entries": [
+    {
+     "target": "Play Deus Ex.bat",
+     "name": "Deus Ex"
+    },
+    {
+     "target": "Host Deus Ex Multiplayer.bat",
+     "name": "Deus Ex - Host Multiplayer Server"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Deus Ex",
+      "Deus Ex - Host Multiplayer Server"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "SoldierOfFortune",
+   "year": 2000,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 266,
+   "notes": "id Tech 2, OpenGL. THE ENGINE AND MENUS RUN; NO LEVEL LOADS - SINGLE PLAYER INCLUDED - without the retail disc's check being satisfied: every map (console 'map', '+map', '+newgame', single player and deathmatch alike) raises 'WON Error! Please insert the SOF CD and try again.' Re-measured 2026-09-28 on .124 (V5 6000, our clean-room stack: menus render at 1280x960, 'map nyc1' and 'map dm/nycdm1' both stop at that box). A mounted SOF-labelled retail image did not satisfy it on .143 or .246 (2026-08-31), so this title declares no disc_mount capability - that would only suppress the icon on .123. ",
+   "launch_entries": [
+    {
+     "target": "Play Soldier of Fortune.bat",
+     "name": "Soldier of Fortune"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Soldier of Fortune"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "Thief2",
+   "year": 2000,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 266,
+   "notes": "Dark Engine. Direct3D or software renderer. XP-ONLY, MEASURED FROM THE PE HEADERS 2026-08-30: Thief2.exe carries MajorSubsystemVersion 5.0 and the tree ships D3DX9_43.dll and msvcr90.dll, i.e. this is the NewDark build. Windows 98's loader refuses a 5.0 subsystem outright. NewDark also REMOVED the software renderer - the engine's own strings are all Direct3D - so the gpu_feature_level here is correct and stays, unlike the software-capable titles it was wrongly copied onto.",
+   "launch_entries": [
+    {
+     "target": "Play Thief 2.bat",
+     "name": "Thief II - The Metal Age"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Thief II - The Metal Age"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "MaxPayne",
+   "year": 2001,
+   "gpu_feature_level": "tnl",
+   "min_cpu_mhz": 450,
+   "notes": "DirectX 8.1. Its own startup dialog offers a D3D Hardware T&L acceleration mode and that is what it selected on a GeForce2 GTS; verified in-game there at 800x600x32, so the tnl floor is measured, not quoted. SafeDisc 2.51.020 - the tree ships the disc image and the launcher mounts it, BUT A MOUNT ALONE IS NOT ENOUGH: Daemon Tools SafeDisc emulation must also be enabled on the box (a tray setting; DT 3.47 stores its config as an encrypted blob so it cannot be set from the registry). With emulation off the game fails with \"There is a problem with your game installation\", which looks like a broke",
+   "launch_entries": [
+    {
+     "target": "Play Max Payne.bat",
+     "name": "Max Payne"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Max Payne"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "RedFaction",
+   "year": 2001,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 300,
+   "notes": "Geo-Mod engine, Direct3D or OpenGL. The launcher mounts a disc image.",
+   "launch_entries": [
+    {
+     "target": "Play Red Faction.bat",
+     "name": "Red Faction"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": []
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Red Faction"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "SeriousSamFirstEncounter",
+   "year": 2001,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 233,
+   "notes": "Croteam Serious Engine 1. Published minimum is a Pentium 233 MMX with 64 MB and an 8 MB 3D card; the engine has an OpenGL and a Direct3D renderer and NO software rasteriser, so a machine with no 3D pipeline cannot run it - gpu_feature_level 'fixed', not 'none'. THE DISC REQUIREMENT IS PER SHORTCUT, NOT PER TITLE. SeriousSam.exe checks for Install\\Bin\\SeriousSam.exe on a DRIVE_CDROM volume (plain GetDriveTypeA + fopen - no SafeDisc, no secdrv, so DAEMON Tools 3.47 satisfies it), but DedicatedServer.exe has no such check at all. Declaring disc_mount at the TITLE level would suppress all three sh",
+   "launch_entries": [
+    {
+     "target": "Play Serious Sam - The First Encounter.bat",
+     "name": "Serious Sam - The First Encounter"
+    },
+    {
+     "target": "Host Serious Sam TFE - LAN.bat",
+     "name": "Serious Sam - The First Encounter - Host LAN Game"
+    },
+    {
+     "target": "Join Serious Sam TFE - LAN.bat",
+     "name": "Serious Sam - The First Encounter - Join LAN Game"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter - Host LAN Game"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The First Encounter",
+      "Serious Sam - The First Encounter - Host LAN Game",
+      "Serious Sam - The First Encounter - Join LAN Game"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  },
+  {
+   "key": "SeriousSamSecondEncounter",
+   "year": 2001,
+   "gpu_feature_level": "fixed",
+   "min_cpu_mhz": 233,
+   "notes": "Croteam Serious Engine 1. Published minimum is a Pentium 233 MMX with 64 MB and an 8 MB 3D card; the engine has an OpenGL and a Direct3D renderer and NO software rasteriser, so a machine with no 3D pipeline cannot run it - gpu_feature_level 'fixed', not 'none'. THE DISC REQUIREMENT IS PER SHORTCUT, NOT PER TITLE. SeriousSam.exe checks for Install\\Bin\\SeriousSam.exe on a DRIVE_CDROM volume (plain GetDriveTypeA + fopen - no SafeDisc, no secdrv, so DAEMON Tools 3.47 satisfies it), but DedicatedServer.exe has no such check at all. Declaring disc_mount at the TITLE level would suppress all three sh",
+   "launch_entries": [
+    {
+     "target": "Play Serious Sam - The Second Encounter.bat",
+     "name": "Serious Sam - The Second Encounter"
+    },
+    {
+     "target": "Host Serious Sam TSE - LAN.bat",
+     "name": "Serious Sam - The Second Encounter - Host LAN Game"
+    },
+    {
+     "target": "Join Serious Sam TSE - LAN.bat",
+     "name": "Serious Sam - The Second Encounter - Join LAN Game"
+    }
+   ],
+   "boxes": {
+    "110": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "123": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "124": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "133": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "143": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "171": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "184": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "186": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter - Host LAN Game"
+     ]
+    },
+    "240": {
+     "installed": true,
+     "shortcuts": [
+      "Serious Sam - The Second Encounter",
+      "Serious Sam - The Second Encounter - Host LAN Game",
+      "Serious Sam - The Second Encounter - Join LAN Game"
+     ]
+    },
+    "243": {
+     "installed": false,
+     "shortcuts": []
+    }
+   }
+  }
+ ]
+}

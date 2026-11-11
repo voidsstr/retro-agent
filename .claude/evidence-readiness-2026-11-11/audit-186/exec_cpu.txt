@@ -1,0 +1,13 @@
+
+
+Name=Idle
+PercentProcessorTime=100
+WorkingSet=24576
+
+
+Name=_Total
+PercentProcessorTime=100
+WorkingSet=960335872
+
+
+

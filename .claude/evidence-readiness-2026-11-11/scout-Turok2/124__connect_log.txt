@@ -1,0 +1,28 @@
+Turok 2 Connection Log
+
+00000: 	GameType = Rok Match
+00000: 	HealthAvail = TRUE
+00000: 	WeaponsRemain = FALSE
+00000: 	FriendlyFireHurts = FALSE
+00000: 	EnemiesDropWeapons = TRUE
+00000: 	AllCharactersSame = FALSE
+00000: 	ArenaMaxAmmo = FALSE
+00000: 	TimeLimit = 0
+00000: 	FragLimit = 20
+00000: 	PointLimit = 5000
+00000: 	MaxPlayers = 4
+00000: 	MaxTeams = 2
+00000: 	LevelSet = data/Rok Match Levels.lsm
+00000: 	Password = (none)
+00000: 	HostName = NSC Retro Fleet
+00000: 	Levels = 0 9 16 6 2 11 5 7 17 4 13 10 15 12 1 8 14 3
+00000: 	ArenaWeapons = (all)
+53235: Opening net.
+53344: Launched Integrated Server.
+53422: Launched Game Manager.
+53422: Connecting to RTime server...
+53657: Connected to RTime server.
+53657: Host name is NSC Retro Fleet.
+53719: Initial ping is 2.
+54032: Net is open.
+54079: Loading level 0.

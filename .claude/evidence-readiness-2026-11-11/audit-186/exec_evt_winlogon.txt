@@ -1,0 +1,75 @@
+Event[0]:
+  Log Name: System
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-11-11T10:56:54.614
+  Event ID: 7001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+User Logon Notification for Customer Experience Improvement Program
+
+Event[1]:
+  Log Name: System
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-11-10T10:20:56.413
+  Event ID: 7002
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+User Logoff Notification for Customer Experience Improvement Program
+
+Event[2]:
+  Log Name: System
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-11-08T00:11:36.028
+  Event ID: 7001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+User Logon Notification for Customer Experience Improvement Program
+
+Event[3]:
+  Log Name: System
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-10-26T10:32:11.748
+  Event ID: 7001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+User Logon Notification for Customer Experience Improvement Program
+
+Event[4]:
+  Log Name: System
+  Source: Microsoft-Windows-Winlogon
+  Date: 2009-07-14T00:56:45.901
+  Event ID: 7002
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: 37L4247D28-05
+  Description: 
+User Logoff Notification for Customer Experience Improvement Program
+

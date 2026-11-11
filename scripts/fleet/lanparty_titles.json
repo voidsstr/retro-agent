@@ -1,0 +1,1557 @@
+{
+ "_note": "Generated 2026-11-11 from .claude/evidence-readiness-2026-11-11/recipes_raw.json by tools/build_titles.py. Each title names its researched recipe(s) in \"recipes\"; read them for first-run keys, proofs and risks. .124 is left out of every Direct3D title (vcr-kmd README: no D3D title in an unattended sweep).",
+ "CounterStrike16": {
+  "recipes": [
+   "CounterStrike16"
+  ],
+  "title": "Counter-Strike 1.6",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\CounterStrike16\"\ncall \"C:\\Games\\CounterStrike16\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\CounterStrike16\"\n> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo name \"{name}\"\n>> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo alias fleetsb1 \"+showscores; bind F6 fleetsb0\"\n>> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo alias fleetsb0 \"-showscores; bind F6 fleetsb1\"\n>> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo bind F6 fleetsb1\nset MESA_FORCE_SSE=1\nstart \"\" hl.exe -game cstrike -full -gl -w %FR_W% -h %FR_H% -condebug +name {name} +connect {host}:27018\nexit\n"
+   },
+   {
+    "boxes": [
+     "186"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\CounterStrike16\"\ncall \"C:\\Games\\CounterStrike16\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\CounterStrike16\"\n> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo name \"{name}\"\n>> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo alias fleetsb1 \"+showscores; bind F6 fleetsb0\"\n>> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo alias fleetsb0 \"-showscores; bind F6 fleetsb1\"\n>> \"C:\\Games\\CounterStrike16\\cstrike\\userconfig.cfg\" echo bind F6 fleetsb1\nstart \"\" hl.exe -game cstrike -full -soft -w %FR_W% -h %FR_H% -condebug +name {name} +connect {host}:27018\nexit\n"
+   }
+  ],
+  "query": [
+   "goldsrc",
+   27018
+  ],
+  "port": 27018,
+  "exe": [
+   "hl.exe"
+  ],
+  "wait": 90,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN"
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "186",
+   "240"
+  ]
+ },
+ "Quake3-TeamArena": {
+  "recipes": [
+   "Quake3-TeamArena"
+  ],
+  "title": "Quake III Team Arena",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nset \"Q3DIR=C:\\Games\\Quake3-TeamArena\"\nset \"Q3HOME=C:\\fleetmp\\q3ta\"\nset \"FR_ENGINE=\"\ncd /d \"%Q3DIR%\"\ncall \"%Q3DIR%\\FLEETRES.BAT\"\n> \"%Q3DIR%\\missionpack\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_mode \"-1\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_customaspect \"1\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_fullscreen \"1\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\n>>\"%Q3DIR%\\missionpack\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"\ncall \"%Q3DIR%\\FLEETGL.BAT\" \"%Q3DIR%\\missionpack\\fleetres.cfg\"\nif not defined FR_ENGINE set \"FR_ENGINE=ioquake3.x86.exe\"\nif not exist \"%Q3HOME%\\missionpack\" mkdir \"%Q3HOME%\\missionpack\"\n> \"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo // LAN round only - written by C:\\fleetmp\\Quake3-TeamArena.bat\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind ENTER \"+button2\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind CTRL \"+attack\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind MOUSE1 \"+attack\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind TAB \"+scores\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo set fleetsb_on \"+scores\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo set fleetsb_off \"-scores\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind F5 \"say {name} in game\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind F6 \"vstr fleetsb_on\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind F7 \"vstr fleetsb_off\"\n>>\"%Q3HOME%\\missionpack\\fleetmp.cfg\" echo bind F11 \"screenshotJPEG\"\ncd /d \"%Q3DIR%\"\nstart \"\" %FR_ENGINE% +set fs_homepath %Q3HOME% +set fs_game missionpack +set com_hunkMegs 64 +set logfile 2 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV% +set name {name} +exec fleetmp.cfg +connect {host}:27962\nexit\n"
+   }
+  ],
+  "query": [
+   "q3",
+   27962
+  ],
+  "port": 27962,
+  "exe": [
+   "ioquake3.x86.exe",
+   "quake3.exe"
+  ],
+  "wait": 120,
+  "prelaunch": [
+   {
+    "rcon": "map mpteam1",
+    "port": 27962
+   },
+   {
+    "sleep": 8
+   }
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Quake3Arena": {
+  "recipes": [
+   "Quake3-TeamArena"
+  ],
+  "title": "Quake III Arena (baseq3, q3-server)",
+  "mode": "host_server",
+  "note": "Derived from the Team Arena recipe launcher: baseq3, profile C:\\fleetmp\\q3a, q3-server :27961.",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nset \"Q3DIR=C:\\Games\\Quake3-TeamArena\"\nset \"Q3HOME=C:\\fleetmp\\q3a\"\nset \"FR_ENGINE=\"\ncd /d \"%Q3DIR%\"\ncall \"%Q3DIR%\\FLEETRES.BAT\"\n> \"%Q3DIR%\\baseq3\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_mode \"-1\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_customaspect \"1\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_fullscreen \"1\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\n>>\"%Q3DIR%\\baseq3\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"\ncall \"%Q3DIR%\\FLEETGL.BAT\" \"%Q3DIR%\\baseq3\\fleetres.cfg\"\nif not defined FR_ENGINE set \"FR_ENGINE=ioquake3.x86.exe\"\nif not exist \"%Q3HOME%\\baseq3\" mkdir \"%Q3HOME%\\baseq3\"\n> \"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo // LAN round only - written by C:\\fleetmp\\Quake3Arena.bat\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind ENTER \"+button2\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind CTRL \"+attack\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind MOUSE1 \"+attack\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind TAB \"+scores\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo set fleetsb_on \"+scores\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo set fleetsb_off \"-scores\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind F5 \"say {name} in game\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind F6 \"vstr fleetsb_on\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind F7 \"vstr fleetsb_off\"\n>>\"%Q3HOME%\\baseq3\\fleetmp.cfg\" echo bind F11 \"screenshotJPEG\"\ncd /d \"%Q3DIR%\"\nstart \"\" %FR_ENGINE% +set fs_homepath %Q3HOME% +set com_hunkMegs 64 +set logfile 2 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV% +set name {name} +exec fleetmp.cfg +connect {host}:27961\nexit\n"
+   }
+  ],
+  "query": [
+   "q3",
+   27961
+  ],
+  "port": 27961,
+  "exe": [
+   "ioquake3.x86.exe",
+   "quake3.exe"
+  ],
+  "wait": 120,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Descent3": {
+  "recipes": [
+   "Descent3"
+  ],
+  "title": "Descent 3",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Descent3\"\nif not exist \"C:\\Games\\Descent3\\main.exe\" exit\nset D3PILOT=SDF\nif exist \"C:\\fleetmp\\{name}.plt\" copy /y \"C:\\fleetmp\\{name}.plt\" \"C:\\Games\\Descent3\\{name}.plt\" >nul\nif exist \"C:\\Games\\Descent3\\{name}.plt\" set D3PILOT={name}\ncall \"C:\\Games\\Descent3\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\Descent3\"\nif /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" reg add \"HKLM\\Software\\Outrage\\Descent3\" /v PreferredRenderer /t REG_DWORD /d 2 /f >nul\nset D3CAP=\nset D3HZ=0\nset /a D3HZ=FR_HZ+0 >nul 2>nul\nif %D3HZ% GTR 60 set D3CAP=-framecap %D3HZ%\nstart \"\" \"C:\\Games\\Descent3\\main.exe\" -launched -nointro -pilot %D3PILOT% -directip +connect {host} -Width %FR_W% -Height %FR_H% %D3CAP%\nexit\n"
+   },
+   {
+    "boxes": [
+     "124"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Descent3\"\nif not exist \"C:\\Games\\Descent3\\main.exe\" exit\nset D3PILOT=SDF\nif exist \"C:\\fleetmp\\{name}.plt\" copy /y \"C:\\fleetmp\\{name}.plt\" \"C:\\Games\\Descent3\\{name}.plt\" >nul\nif exist \"C:\\Games\\Descent3\\{name}.plt\" set D3PILOT={name}\ncall \"C:\\Games\\Descent3\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\Descent3\"\nreg add \"HKLM\\Software\\Outrage\\Descent3\" /v PreferredRenderer /t REG_DWORD /d 2 /f >nul\nreg query \"HKLM\\Software\\Outrage\\Descent3\" /v PreferredRenderer | find \"0x2\" >nul\nif errorlevel 1 exit\nset FX_GLIDE_SWAPINTERVAL=1\nset D3CAP=\nset D3HZ=0\nset /a D3HZ=FR_HZ+0 >nul 2>nul\nif %D3HZ% GTR 60 set D3CAP=-framecap %D3HZ%\nstart \"\" \"C:\\Games\\Descent3\\main.exe\" -launched -nointro -pilot %D3PILOT% -directip +connect {host} -Width %FR_W% -Height %FR_H% %D3CAP%\nexit\n"
+   }
+  ],
+  "files": [
+   {
+    "boxes": [
+     "*"
+    ],
+    "path": "C:\\fleetmp\\{name}.plt",
+    "gen": "d3pilot"
+   }
+  ],
+  "query": [
+   "gamespy",
+   20142
+  ],
+  "roster_ignore": [
+   "-Server-"
+  ],
+  "port": 2092,
+  "exe": [
+   "main.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "RedAlert2": {
+  "recipes": [
+   "RedAlert2"
+  ],
+  "title": "Red Alert 2",
+  "mode": "peer_box_host",
+  "peer_host": "240",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\RedAlert2\"\n\"C:\\Games\\RedAlert2\\FLEETRES.EXE\" -ini \"C:\\Games\\RedAlert2\\RA2.INI\" MultiPlayer Handle {name}\n\"C:\\Games\\RedAlert2\\FLEETRES.EXE\" -ini \"C:\\Games\\RedAlert2\\RA2.INI\" LAN ScenIndex 27\ncall \"C:\\Games\\RedAlert2\\Launch Red Alert 2.bat\"\n"
+   }
+  ],
+  "exe": [
+   "Ra2.exe",
+   "game.exe"
+  ],
+  "wait": 45,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Halo": {
+  "recipes": [
+   "Halo"
+  ],
+  "title": "Halo PC",
+  "mode": "peer_box_host",
+  "d3d124": true,
+  "host": {
+   "box": "123",
+   "bat": "@echo off\ncd /d \"C:\\Games\\Halo\"\nif not exist \"C:\\Games\\Halo\\haloded.exe\" goto missing\nfor %%F in (\"C:\\Games\\Halo\\haloded.exe\") do if not \"%%~zF\"==\"2342912\" goto missing\nif not exist \"C:\\Games\\Halo\\Strings.dll\" goto missing\nif not exist \"C:\\Games\\Halo\\MAPS\\bloodgulch.map\" goto missing\n> \"C:\\Games\\Halo\\dedinit.txt\" echo sv_public 0\n>> \"C:\\Games\\Halo\\dedinit.txt\" echo sv_name \"Retro Fleet LAN\"\n>> \"C:\\Games\\Halo\\dedinit.txt\" echo sv_maxplayers 16\n>> \"C:\\Games\\Halo\\dedinit.txt\" echo sv_timelimit 0\n>> \"C:\\Games\\Halo\\dedinit.txt\" echo sv_map bloodgulch slayer\nif not exist \"C:\\Games\\Halo\\ded\" mkdir \"C:\\Games\\Halo\\ded\"\nreg add \"HKCU\\Software\\Microsoft\\Microsoft Games\\Halo\" /v ExitFlag /t REG_SZ /d clean /f >nul 2>&1\nstart \"Halo Dedicated Server\" haloded.exe -path C:\\Games\\Halo\\ded -port 2302 -exec dedinit.txt\ngoto :eof\n:missing\necho HALO DEDICATED SERVER NOT STAGED - haloded.exe of 2342912 bytes, Strings.dll or MAPS\\bloodgulch.map is missing from C:\\Games\\Halo\npause\n",
+   "exe": [
+    "haloded.exe"
+   ],
+   "wait": 30
+  },
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "171",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Halo\"\ncall \"C:\\Games\\Halo\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\Halo\"\nif exist \"%ALLUSERSPROFILE%\\RetroFleet\\halo-key.reg\" reg import \"%ALLUSERSPROFILE%\\RetroFleet\\halo-key.reg\" >nul 2>&1\nif not exist \"%ALLUSERSPROFILE%\\RetroFleet\\halo-key.reg\" echo NO PER-BOX HALO KEY - this box plays on the library key\nreg add \"HKCU\\Software\\Microsoft\\Microsoft Games\\Halo\" /v ExitFlag /t REG_SZ /d clean /f >nul 2>&1\nstart \"\" halo.exe -novideo -vidmode %FR_W%,%FR_H%,%FR_HZ% -name {name} -connect {host}:2302\n"
+   },
+   {
+    "boxes": [
+     "123"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Halo\"\ncall \"C:\\Games\\Halo\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\Halo\"\nif exist \"%ALLUSERSPROFILE%\\RetroFleet\\halo-key.reg\" reg import \"%ALLUSERSPROFILE%\\RetroFleet\\halo-key.reg\" >nul 2>&1\nif not exist \"%ALLUSERSPROFILE%\\RetroFleet\\halo-key.reg\" echo NO PER-BOX HALO KEY - this box plays on the library key\nreg add \"HKCU\\Software\\Microsoft\\Microsoft Games\\Halo\" /v ExitFlag /t REG_SZ /d clean /f >nul 2>&1\nstart \"\" halo.exe -novideo -vidmode %FR_W%,%FR_H%,%FR_HZ% -port 2304 -cport 2305 -name {name} -connect {host}:2302\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   2302
+  ],
+  "port": 2302,
+  "exe": [
+   "halo.exe"
+  ],
+  "wait": 120,
+  "boxes": [
+   "110",
+   "123",
+   "171",
+   "240"
+  ]
+ },
+ "ReturnToCastleWolfenstein": {
+  "recipes": [
+   "ReturnToCastleWolfenstein"
+  ],
+  "title": "Return to Castle Wolfenstein",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "124",
+     "143",
+     "184"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\ReturnToCastleWolfenstein\"\ncall \"C:\\Games\\ReturnToCastleWolfenstein\\FLEETRES.BAT\"\n> \"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_mode \"-1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customaspect \"1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_fullscreen \"1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_glDriver \"opengl32\"\n> \"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo wait 1500\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo team r 1 8 3\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo wait 300\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo say {name} reporting in\ncd /d \"C:\\Games\\ReturnToCastleWolfenstein\"\nstart \"\" WolfMP.exe +set sv_punkbuster 0 +set cl_punkbuster 0 +set com_recommendedSet 1 +set com_maxfps 85 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set name {name} +set logfile 2 +connect {host}:27963 +exec fleetmp.cfg\nexit\n"
+   },
+   {
+    "boxes": [
+     "123",
+     "133",
+     "171",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\ReturnToCastleWolfenstein\"\ncall \"C:\\Games\\ReturnToCastleWolfenstein\\FLEETRES.BAT\"\n> \"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_mode \"-1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customaspect \"1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_fullscreen \"1\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg\" echo seta r_glDriver \"opengl32\"\n> \"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo wait 1500\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo team b 1 8 3\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo wait 300\n>>\"C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetmp.cfg\" echo say {name} reporting in\ncd /d \"C:\\Games\\ReturnToCastleWolfenstein\"\nstart \"\" WolfMP.exe +set sv_punkbuster 0 +set cl_punkbuster 0 +set com_recommendedSet 1 +set com_maxfps 85 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set name {name} +set logfile 2 +connect {host}:27963 +exec fleetmp.cfg\nexit\n"
+   }
+  ],
+  "query": [
+   "q3",
+   27963
+  ],
+  "port": 27963,
+  "exe": [
+   "WolfMP.exe",
+   "WolfSP.exe"
+  ],
+  "wait": 120,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Tribes2": {
+  "recipes": [
+   "Tribes2"
+  ],
+  "title": "Tribes 2",
+  "mode": "host_server",
+  "note": "Joins tribes2-lan, a temporary -nologin instance on :28001 (recipe option B); the main tribes2-server runs -online (TribesNext auth) which no fleet box can join unattended.",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nsetlocal enableextensions\nif not exist \"C:\\Games\\Tribes2\\GameData\\Tribes2.exe\" goto missing\ncd /d \"C:\\Games\\Tribes2\\GameData\"\ndel .\\base\\scripts\\*.dso 1> nul 2>&1\ndel .\\base\\scripts\\autoexec\\*.dso 1> nul 2>&1\ndel .\\base\\scripts\\packs\\*.dso 1> nul 2>&1\ndel .\\base\\scripts\\turrets\\*.dso 1> nul 2>&1\ndel .\\base\\scripts\\vehicles\\*.dso 1> nul 2>&1\ndel .\\base\\scripts\\weapons\\*.dso 1> nul 2>&1\ndel .\\Classic\\scripts\\*.dso 1> nul 2>&1\ndel .\\Classic\\scripts\\autoexec\\*.dso 1> nul 2>&1\ndel .\\Classic\\scripts\\packs\\*.dso 1> nul 2>&1\ndel .\\Classic\\scripts\\turrets\\*.dso 1> nul 2>&1\ndel .\\Classic\\scripts\\vehicles\\*.dso 1> nul 2>&1\ndel .\\Classic\\scripts\\weapons\\*.dso 1> nul 2>&1\nmd \"C:\\Games\\Tribes2\\GameData\\Classic\\prefs\" 1> nul 2>&1\nset T2P=C:\\Games\\Tribes2\\GameData\\Classic\\prefs\\ClientPrefs.cs\n>> \"%T2P%\" echo.\n>> \"%T2P%\" echo $pref::AcceptedEULA = 1;\n>> \"%T2P%\" echo $pref::SkipIntro = 1;\n>> \"%T2P%\" echo $pref::SawVoodooWarning = 1;\n>> \"%T2P%\" echo $pref::Video::fullScreen = 1;\n>> \"%T2P%\" echo $pref::Player::Count = 1;\n>> \"%T2P%\" echo $pref::Player::Current = 0;\n>> \"%T2P%\" echo $pref::Player[0] = \"{name}\\tHuman Male\\tbeagle\\tMale1\";\nstart \"\" /D \"C:\\Games\\Tribes2\\GameData\" \"C:\\Games\\Tribes2\\GameData\\Tribes2.exe\" -nologin -connect IP:{host}:28001 -mod Classic\nexit\n:missing\necho Tribes 2 is not installed here - GAMESYNC the Tribes2 title.\nping -n 11 127.0.0.1 > nul\nexit\n"
+   }
+  ],
+  "query": [
+   "t2",
+   28001
+  ],
+  "port": 28001,
+  "exe": [
+   "Tribes2.exe"
+  ],
+  "wait": 300,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Quake2": {
+  "recipes": [
+   "Quake2Complete",
+   "Quake2Win9x"
+  ],
+  "title": "Quake II (Quake2Complete on XP, Quake2Win9x on .243)",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Quake2Complete\"\ncall FLEETRES.BAT\ncd /d \"C:\\Games\\Quake2Complete\"\n> baseq2\\fleetres.cfg echo // written by the launcher at every start - do not edit\n>>baseq2\\fleetres.cfg echo set gl_mode \"%FR_Q2WIDE%\"\n>>baseq2\\fleetres.cfg echo set vid_fullscreen \"1\"\nstart \"\" quake2.exe +set vid_ref gl +set gl_mode %FR_Q2WIDE% +set vid_fullscreen 1 +set logfile 2 +set name {name} +connect {host}:27910\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nif not exist E:\\GAMES\\Quake2Win9x\\quake2.exe goto notree\nE:\ncd \\GAMES\\Quake2Win9x\nif not exist quake2.exe goto notree\nif exist %windir%\\SYSTEM32\\GLIDE2X.DLL goto glide\nif exist %windir%\\SYSTEM\\GLIDE2X.DLL goto glide\necho.\necho  No 3dfx Glide driver is installed - this round needs the Voodoo 2.\necho.\npause\ngoto end\n:glide\necho // written by C:\\FLEETMP\\Q2W9X.BAT for a fleet LAN round > baseq2\\fleetres.cfg\necho set vid_ref \"gl\" >> baseq2\\fleetres.cfg\necho set gl_driver \"3dfxgl\" >> baseq2\\fleetres.cfg\necho set gl_mode \"3\" >> baseq2\\fleetres.cfg\necho set vid_fullscreen \"1\" >> baseq2\\fleetres.cfg\nstart /w quake2.exe +set name {name} +connect {host}:27910\nif exist DESKFIX9.EXE DESKFIX9.EXE\ngoto end\n:notree\necho E:\\GAMES\\Quake2Win9x\\quake2.exe is missing - the managed Quake II tree is not there.\npause\n:end\ncls\n"
+   }
+  ],
+  "query": [
+   "q2",
+   27910
+  ],
+  "port": 27910,
+  "exe": [
+   "quake2.exe"
+  ],
+  "wait": 150,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN"
+  ],
+  "prelaunch": [
+   {
+    "rcon": "gamemap q2dm1",
+    "port": 27910
+   },
+   {
+    "sleep": 5
+   }
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240",
+   "243"
+  ]
+ },
+ "Quake1": {
+  "recipes": [
+   "Quake1"
+  ],
+  "title": "Quake (GLQuake)",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "133",
+     "143",
+     "171",
+     "184"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Quake1\"\ncall \"C:\\Games\\Quake1\\FLEETRES.BAT\" -cap 1280 960\ncd /d \"C:\\Games\\Quake1\"\nstart \"\" GLQUAKE.EXE -width %FR_W43% -height %FR_H43% -nocdaudio +name {name} +connect {host}:26000\nexit\n"
+   },
+   {
+    "boxes": [
+     "123",
+     "240",
+     "124"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Quake1\"\ncall \"C:\\Games\\Quake1\\FLEETRES.BAT\" -cap 1280 960\ncd /d \"C:\\Games\\Quake1\"\nstart \"\" GLQUAKE.EXE -width %FR_W43% -height %FR_H43% -bpp 32 -nocdaudio +name {name} +connect {host}:26000\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\Quake1\nif not exist VOODOO\\GLQUAKE.EXE goto end\nif not exist %windir%\\SYSTEM\\GLIDE2X.DLL goto end\nstart /w VOODOO\\GLQUAKE.EXE -width 640 -height 480 -bpp 16 +name {name} +connect {host}:26000\nif exist VOODOO\\DESKFIX9.EXE VOODOO\\DESKFIX9.EXE\n:end\ncls\n"
+   },
+   {
+    "boxes": [
+     "186"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Quake1\"\nstart \"\" WINQUAKE.EXE -dibonly -nocdaudio +name {name} +connect {host}:26000\nexit\n"
+   }
+  ],
+  "query": [
+   "q3",
+   26000
+  ],
+  "port": 26000,
+  "exe": [
+   "GLQUAKE.EXE",
+   "WINQUAKE.EXE"
+  ],
+  "wait": 90,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN",
+   "Y"
+  ],
+  "prelaunch": [
+   {
+    "rcon": "map e1m1",
+    "port": 26000
+   },
+   {
+    "sleep": 5
+   }
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "186",
+   "240",
+   "243"
+  ]
+ },
+ "UT99": {
+  "recipes": [
+   "UnrealTournament",
+   "UnrealTournament436"
+  ],
+  "title": "Unreal Tournament (469e client on SSE2 boxes, retail 436 elsewhere)",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "171",
+     "240"
+    ],
+    "bat": "@echo off\ncall \"C:\\Games\\UnrealTournament\\FLEETRES.BAT\"\nif exist \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" (\n  \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" -ini \"C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini\" WinDrv.WindowsClient FullscreenViewportX %FR_W%\n  \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" -ini \"C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini\" WinDrv.WindowsClient FullscreenViewportY %FR_H%\n  \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" -ini \"C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini\" WinDrv.WindowsClient StartupFullscreen True\n)\ncd /d \"C:\\Games\\UnrealTournament\\System\"\nif exist \"Running.ini\" del /q \"Running.ini\"\nstart \"\" \"UnrealTournament.exe\" unreal://{host}:7797?Name={name}\nexit\n"
+   },
+   {
+    "boxes": [
+     "186"
+    ],
+    "bat": "@echo off\ncall \"C:\\Games\\UnrealTournament\\FLEETRES.BAT\"\nif exist \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" (\n  \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" -ini \"C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini\" WinDrv.WindowsClient FullscreenViewportX %FR_W%\n  \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" -ini \"C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini\" WinDrv.WindowsClient FullscreenViewportY %FR_H%\n  \"C:\\Games\\UnrealTournament\\FLEETRES.EXE\" -ini \"C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini\" WinDrv.WindowsClient StartupFullscreen True\n)\ncd /d \"C:\\Games\\UnrealTournament\\System\"\nif exist \"Running.ini\" del /q \"Running.ini\"\nstart \"\" \"UnrealTournament.exe\" unreal://{host}:7797?Name={name} -nohard\nexit\n"
+   },
+   {
+    "boxes": [
+     "124",
+     "133",
+     "143",
+     "184"
+    ],
+    "bat": "@echo off\nset UTD=C:\\Games\\UnrealTournament436\nset UTI=C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini\nset FRX=C:\\Games\\UnrealTournament436\\FLEETRES.EXE\ncall \"%UTD%\\FLEETRES.BAT\"\nif exist \"%FRX%\" (\n  \"%FRX%\" -ini \"%UTI%\" WinDrv.WindowsClient FullscreenViewportX %FR_W%\n  \"%FRX%\" -ini \"%UTI%\" WinDrv.WindowsClient FullscreenViewportY %FR_H%\n  \"%FRX%\" -ini \"%UTI%\" WinDrv.WindowsClient StartupFullscreen True\n)\nif /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" if exist \"%FRX%\" \"%FRX%\" -ini \"%UTI%\" Engine.Engine GameRenderDevice GlideDrv.GlideRenderDevice\nif /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" if exist \"%FRX%\" \"%FRX%\" -ini \"%UTI%\" Engine.Engine WindowedRenderDevice GlideDrv.GlideRenderDevice\nif /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" if exist \"%FRX%\" \"%FRX%\" -ini \"%UTI%\" Engine.Engine RenderDevice GlideDrv.GlideRenderDevice\nset UE1G2W=640\nset UE1G2H=480\nif %FR_W43% GEQ 800 if %FR_H43% GEQ 600 set UE1G2W=800\nif %FR_W43% GEQ 800 if %FR_H43% GEQ 600 set UE1G2H=600\nif %FR_W43% GEQ 1024 if %FR_H43% GEQ 768 set UE1G2W=1024\nif %FR_W43% GEQ 1024 if %FR_H43% GEQ 768 set UE1G2H=768\nif %FR_W43% GEQ 1600 if %FR_H43% GEQ 1200 set UE1G2W=1600\nif %FR_W43% GEQ 1600 if %FR_H43% GEQ 1200 set UE1G2H=1200\nif /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" if exist \"%FRX%\" \"%FRX%\" -ini \"%UTI%\" WinDrv.WindowsClient FullscreenViewportX %UE1G2W%\nif /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" if exist \"%FRX%\" \"%FRX%\" -ini \"%UTI%\" WinDrv.WindowsClient FullscreenViewportY %UE1G2H%\nset UE1HZ=\nset UE1HZN=0\nset /a UE1HZN=FR_HZ+0 >nul 2>nul\nif %UE1HZN% GEQ 60 set UE1HZ=60\nif %UE1HZN% GEQ 70 set UE1HZ=70\nif %UE1HZN% GEQ 72 set UE1HZ=72\nif %UE1HZN% GEQ 75 set UE1HZ=75\nif %UE1HZN% GEQ 80 set UE1HZ=80\nif %UE1HZN% GEQ 85 set UE1HZ=85\nif %UE1HZN% GEQ 90 set UE1HZ=90\nif %UE1HZN% GEQ 100 set UE1HZ=100\nif %UE1HZN% GEQ 120 set UE1HZ=120\nif defined UE1HZ if /i \"%FR_UE1DEV%\"==\"GlideDrv.GlideRenderDevice\" if exist \"%FRX%\" \"%FRX%\" -ini \"%UTI%\" GlideDrv.GlideRenderDevice RefreshRate %UE1HZ%Hz\ncd /d \"%UTD%\\System\"\nif exist Running.ini del /q Running.ini\nstart \"\" UnrealTournament.exe {host}:7797?Name={name}\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\UnrealTournament436\\System\nif not exist UnrealTournament.exe goto end\nif exist %windir%\\SYSTEM32\\GLIDE2X.DLL goto glide\nif exist %windir%\\SYSTEM\\GLIDE2X.DLL goto glide\ngoto end\n:glide\nif exist Running.ini del Running.ini\nstart /w UnrealTournament.exe {host}:7797?Name={name} -INI=Voodoo.ini\nif exist C:\\RETRO_AGENT\\GLRESET9.EXE start /w C:\\RETRO_AGENT\\GLRESET9.EXE\ncd ..\nif exist DESKFIX9.EXE DESKFIX9.EXE\n:end\ncls\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   7798
+  ],
+  "port": 7797,
+  "exe": [
+   "UnrealTournament.exe"
+  ],
+  "wait": 180,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN"
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "186",
+   "240",
+   "243"
+  ]
+ },
+ "UT2003": {
+  "recipes": [
+   "UT2003"
+  ],
+  "title": "Unreal Tournament 2003",
+  "mode": "host_server",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\UT2003\"\nfind /c \"[Engine.Input]\" \"C:\\Games\\UT2003\\System\\User.ini\" >nul 2>&1\nif errorlevel 1 copy /Y \"C:\\Games\\UT2003\\System\\DefUser.ini\" \"C:\\Games\\UT2003\\System\\User.ini\" >nul\ncall \"C:\\Games\\UT2003\\FLEETRES.BAT\"\n\"C:\\Games\\UT2003\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2003\\System\\UT2003.ini\" WinDrv.WindowsClient FullscreenViewportX %FR_W%\n\"C:\\Games\\UT2003\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2003\\System\\UT2003.ini\" WinDrv.WindowsClient FullscreenViewportY %FR_H%\n\"C:\\Games\\UT2003\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2003\\System\\UT2003.ini\" WinDrv.WindowsClient StartupFullscreen True\n\"C:\\Games\\UT2003\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2003\\System\\User.ini\" DefaultPlayer Name {name}\ncd /d \"C:\\Games\\UT2003\\System\"\nif exist Running.ini del /q Running.ini\nstart \"\" UT2003.exe {host}:7757?Name={name}\nexit\n"
+   }
+  ],
+  "query": [
+   "ut2003",
+   7758
+  ],
+  "port": 7757,
+  "exe": [
+   "UT2003.exe"
+  ],
+  "wait": 120,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "UT2004": {
+  "recipes": [
+   "UT2004"
+  ],
+  "title": "Unreal Tournament 2004",
+  "mode": "host_server",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nif exist \"C:\\Games\\UT2004\\System\\Running.ini\" del /f /q \"C:\\Games\\UT2004\\System\\Running.ini\"\nfind /c \"[Engine.Input]\" \"C:\\Games\\UT2004\\System\\User.ini\" >nul 2>&1\nif errorlevel 1 copy /Y \"C:\\Games\\UT2004\\System\\DefUser.ini\" \"C:\\Games\\UT2004\\System\\User.ini\" >nul\ncall \"C:\\Games\\UT2004\\FLEETRES.BAT\"\n\"C:\\Games\\UT2004\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2004\\System\\UT2004.ini\" WinDrv.WindowsClient FullscreenViewportX %FR_W%\n\"C:\\Games\\UT2004\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2004\\System\\UT2004.ini\" WinDrv.WindowsClient FullscreenViewportY %FR_H%\n\"C:\\Games\\UT2004\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2004\\System\\UT2004.ini\" WinDrv.WindowsClient StartupFullscreen True\n\"C:\\Games\\UT2004\\FLEETRES.EXE\" -ini \"C:\\Games\\UT2004\\System\\User.ini\" DefaultPlayer Name {name}\ncd /d \"C:\\Games\\UT2004\\System\"\nstart \"\" \"UT2004.exe\" \"{host}:7777?Name={name}\"\nexit\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   7787
+  ],
+  "port": 7777,
+  "exe": [
+   "UT2004.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "HalfLife1": {
+  "recipes": [
+   "HalfLife1"
+  ],
+  "title": "Half-Life (WON 1.1.0.8, listen server on .240)",
+  "mode": "peer_box_host",
+  "note": "At most 5 players per CD key, host included: run the joiners in waves of 4 with --boxes and --no-host.",
+  "host": {
+   "box": "240",
+   "bat": "@echo off\ncd /d \"C:\\Games\\HalfLife1\"\ncall \"C:\\Games\\HalfLife1\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\HalfLife1\"\nset MESA_FORCE_SSE=1\nstart \"\" hl.exe -nosierra -full -gl -w %FR_W43% -h %FR_H43% -toconsole -condebug -maxplayers 16 +sv_lan 1 +maxplayers 16 +sv_timeout 180 +hostname FleetHL1 +rcon_password retroadmin +name {name} +log on\nexit\n",
+   "exe": [
+    "hl.exe"
+   ],
+   "wait": 60
+  },
+  "bats": [
+   {
+    "boxes": [
+     "123",
+     "171",
+     "133",
+     "110",
+     "143",
+     "184",
+     "124"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\HalfLife1\"\ncall \"C:\\Games\\HalfLife1\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\HalfLife1\"\nset MESA_FORCE_SSE=1\nstart \"\" hl.exe -nosierra -full -gl -w %FR_W43% -h %FR_H43% -toconsole -condebug +name {name} +connect {host}:27015\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\HalfLife1\nif exist HLV9X.REG start /w regedit /s HLV9X.REG\nstart /w hl.exe -full -gl -gldrv 3dfxgl.dll -w 640 -h 480 -toconsole -condebug +name {name} +connect {host}\nif exist DESKFIX9.EXE DESKFIX9.EXE\ncls\n"
+   }
+  ],
+  "query": [
+   "goldsrc",
+   27015
+  ],
+  "exe": [
+   "hl.exe"
+  ],
+  "wait": 120,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN"
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240",
+   "243"
+  ]
+ },
+ "Carmageddon2": {
+  "recipes": [
+   "Carmageddon2"
+  ],
+  "title": "Carmageddon 2",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nsetlocal EnableExtensions DisableDelayedExpansion\nset \"N={name}\"\nset \"N=%N:l=L%\"\nset \"N=%N:e=E%\"\nset \"N=%N:t=T%\"\ncd /d \"C:\\Games\\Carmageddon2\\data\"\nif not exist OPTIONS.TXT goto play\nif exist OPTIONS.NEW del /q OPTIONS.NEW\nset \"NX=\"\n(\nfor /f \"tokens=1* delims=:\" %%A in ('findstr /n \"^\" OPTIONS.TXT') do (\nif defined NX (\necho %N%\nset \"NX=\"\n) else (\necho(%%B\nif \"%%B\"==\"PlayerName 0\" set NX=1\nif \"%%B\"==\"NetName 0\" set NX=1\n)\n)\n) > OPTIONS.NEW\nfindstr /x /c:\"%N%\" OPTIONS.NEW >nul && move /y OPTIONS.NEW OPTIONS.TXT >nul\nif exist OPTIONS.NEW del /q OPTIONS.NEW\n:play\nendlocal\ncall \"C:\\Games\\Carmageddon2\\Play Carmageddon 2.bat\"\n"
+   },
+   {
+    "boxes": [
+     "143"
+    ],
+    "bat": "@echo off\nsetlocal EnableExtensions DisableDelayedExpansion\nset \"N={name}\"\nset \"N=%N:l=L%\"\nset \"N=%N:e=E%\"\nset \"N=%N:t=T%\"\ncd /d \"C:\\Games\\Carmageddon2\\data\"\nif not exist OPTIONS.TXT goto play\nif exist OPTIONS.NEW del /q OPTIONS.NEW\nset \"NX=\"\n(\nfor /f \"tokens=1* delims=:\" %%A in ('findstr /n \"^\" OPTIONS.TXT') do (\nif defined NX (\necho %N%\nset \"NX=\"\n) else (\necho(%%B\nif \"%%B\"==\"PlayerName 0\" set NX=1\nif \"%%B\"==\"NetName 0\" set NX=1\n)\n)\n) > OPTIONS.NEW\nfindstr /x /c:\"%N%\" OPTIONS.NEW >nul && move /y OPTIONS.NEW OPTIONS.TXT >nul\nif exist OPTIONS.NEW del /q OPTIONS.NEW\n:play\ncd /d \"C:\\Games\\Carmageddon2\"\ncall \"C:\\Games\\Carmageddon2\\FLEETRES.BAT\"\ncd /d \"C:\\Games\\Carmageddon2\"\nif not exist wsock32.dll if exist wsock32.dll.ipxw copy /y wsock32.dll.ipxw wsock32.dll >nul\nif not exist mswsock.dll if exist mswsock.dll.ipxw copy /y mswsock.dll.ipxw mswsock.dll >nul\nif not exist dpwsockx.dll if exist dpwsockx.dll.ipxw copy /y dpwsockx.dll.ipxw dpwsockx.dll >nul\nif not exist ipxwrapper.dll if exist ipxwrapper.dll.ipxw copy /y ipxwrapper.dll.ipxw ipxwrapper.dll >nul\nif not exist glide2x.dll if exist glide2x.dll.nglide copy /y glide2x.dll.nglide glide2x.dll >nul\nif not exist glide3x.dll if exist glide3x.dll.nglide copy /y glide3x.dll.nglide glide3x.dll >nul\nif not exist glide.dll if exist glide.dll.nglide copy /y glide.dll.nglide glide.dll >nul\nstart \"\" CARMA2_HW.EXE\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\CARMAG~1\ncall PLAYCA~2.BAT\n"
+   }
+  ],
+  "exe": [
+   "CARMA2_HW.EXE",
+   "Carma2_SW.exe",
+   "carma2.exe"
+  ],
+  "wait": 60,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240",
+   "243"
+  ]
+ },
+ "JediKnightMotS": {
+  "recipes": [
+   "JediKnightMotS"
+  ],
+  "title": "Jedi Knight: Mysteries of the Sith",
+  "mode": "peer_box_host",
+  "d3d124": true,
+  "host": {
+   "box": "123",
+   "bat": "@echo off\ntaskkill /f /im ssstars.scr >nul 2>&1\ncd /d \"C:\\Games\\JediKnightMotS\"\nif exist FLEETRES.BAT call FLEETRES.BAT\ncd /d \"C:\\Games\\JediKnightMotS\"\nif exist JKMODE.EXE if defined FR_W JKMODE.EXE mots %FR_W% %FR_H% > JKMODE.LOG 2>&1\nif not exist \"player\\fleet\\fleet.mpc\" echo MISSING player\\fleet\\fleet.mpc - the game will answer No Valid Characters\nif not exist \"player\\{name}\" mkdir \"player\\{name}\"\nif not exist \"player\\{name}\\{name}.plr\" copy /y \"player\\fleet\\fleet.plr\" \"player\\{name}\\{name}.plr\" >nul\nif not exist \"player\\{name}\\fleet.mpc\" copy /y \"player\\fleet\\fleet.mpc\" \"player\\{name}\\fleet.mpc\" >nul\nreg add \"HKLM\\SOFTWARE\\LucasArts Entertainment Company LLC\\Mysteries of the Sith\\v1.0\" /v playerShortName /t REG_SZ /d {name} /f >nul\nreg add \"HKLM\\SOFTWARE\\LucasArts Entertainment Company LLC\\Mysteries of the Sith\\v1.0\" /v maxPlayers /t REG_BINARY /d 0a000000 /f >nul\nstart \"\" JKM.EXE\n",
+   "exe": [
+    "JKM.EXE"
+   ],
+   "wait": 45
+  },
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ntaskkill /f /im ssstars.scr >nul 2>&1\ncd /d \"C:\\Games\\JediKnightMotS\"\nif exist FLEETRES.BAT call FLEETRES.BAT\ncd /d \"C:\\Games\\JediKnightMotS\"\nif exist JKMODE.EXE if defined FR_W JKMODE.EXE mots %FR_W% %FR_H% > JKMODE.LOG 2>&1\nif not exist \"player\\fleet\\fleet.mpc\" echo MISSING player\\fleet\\fleet.mpc - the game will answer No Valid Characters\nif not exist \"player\\{name}\" mkdir \"player\\{name}\"\nif not exist \"player\\{name}\\{name}.plr\" copy /y \"player\\fleet\\fleet.plr\" \"player\\{name}\\{name}.plr\" >nul\nif not exist \"player\\{name}\\fleet.mpc\" copy /y \"player\\fleet\\fleet.mpc\" \"player\\{name}\\fleet.mpc\" >nul\nreg add \"HKLM\\SOFTWARE\\LucasArts Entertainment Company LLC\\Mysteries of the Sith\\v1.0\" /v playerShortName /t REG_SZ /d {name} /f >nul\nstart \"\" JKM.EXE\n"
+   }
+  ],
+  "exe": [
+   "JKM.EXE"
+  ],
+  "wait": 45,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "RainbowSix": {
+  "recipes": [
+   "RainbowSix"
+  ],
+  "title": "Rainbow Six",
+  "mode": "peer_box_host",
+  "d3d124": true,
+  "host": {
+   "box": "123",
+   "bat": "@echo off\ntasklist /fi \"imagename eq RainbowSix.exe\" | find /i \"RainbowSix.exe\" > nul\nif not errorlevel 1 exit\ncd /d \"C:\\Games\\RainbowSix\"\nset R6KEY=HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\nreg add \"%R6KEY%\" /v MultiplayerPlayerName /t REG_SZ /d {name} /f > C:\\fleetmp\\RainbowSix.log 2>&1\nreg add \"%R6KEY%\" /v MultiplayerOnLan /t REG_SZ /d TRUE /f >> C:\\fleetmp\\RainbowSix.log 2>&1\nreg add \"%R6KEY%\" /v MultiplayerRandomTeams /t REG_SZ /d TRUE /f >> C:\\fleetmp\\RainbowSix.log 2>&1\nreg add \"%R6KEY%\" /v MultiplayerCharacter /t REG_SZ /d Chavez.act /f >> C:\\fleetmp\\RainbowSix.log 2>&1\nstart \"\" RainbowSix.exe -server 2346\nexit\n",
+   "exe": [
+    "RainbowSix.exe"
+   ],
+   "wait": 60
+  },
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ntasklist /fi \"imagename eq RainbowSix.exe\" | find /i \"RainbowSix.exe\" > nul\nif not errorlevel 1 exit\ncd /d \"C:\\Games\\RainbowSix\"\nset R6KEY=HKLM\\SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six\nset R6CHAR=Hanley.act\nif \"{name}\"==\"Fleet110\" set R6CHAR=Burke.act\nif \"{name}\"==\"Fleet123\" set R6CHAR=Lofquist.act\nif \"{name}\"==\"Fleet124\" set R6CHAR=Bogart.act\nif \"{name}\"==\"Fleet133\" set R6CHAR=Beckenba.act\nif \"{name}\"==\"Fleet143\" set R6CHAR=Arnavisc.act\nif \"{name}\"==\"Fleet171\" set R6CHAR=DuBarry.act\nif \"{name}\"==\"Fleet184\" set R6CHAR=Filatov.act\nif \"{name}\"==\"Fleet240\" set R6CHAR=Haider.act\nreg add \"%R6KEY%\" /v MultiplayerPlayerName /t REG_SZ /d {name} /f > C:\\fleetmp\\RainbowSix.log 2>&1\nreg add \"%R6KEY%\" /v MultiplayerOnLan /t REG_SZ /d TRUE /f >> C:\\fleetmp\\RainbowSix.log 2>&1\nreg add \"%R6KEY%\" /v MultiplayerCharacter /t REG_SZ /d %R6CHAR% /f >> C:\\fleetmp\\RainbowSix.log 2>&1\nstart \"\" RainbowSix.exe -client {host} 2346\nexit\n"
+   }
+  ],
+  "exe": [
+   "RainbowSix.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Shogo": {
+  "recipes": [
+   "Shogo"
+  ],
+  "title": "Shogo",
+  "mode": "host_server",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Shogo\"\ncall \"C:\\Games\\Shogo\\FLEETRES.BAT\"\nif exist \"C:\\Games\\Shogo\\FLEETRES.EXE\" \"C:\\Games\\Shogo\\FLEETRES.EXE\" -setline \"C:\\Games\\Shogo\\autoexec.cfg\" screenwidth `screenwidth` `%FR_W%`\nif exist \"C:\\Games\\Shogo\\FLEETRES.EXE\" \"C:\\Games\\Shogo\\FLEETRES.EXE\" -setline \"C:\\Games\\Shogo\\autoexec.cfg\" screenheight `screenheight` `%FR_H%`\ncd /d \"C:\\Games\\Shogo\"\nstart \"\" \"C:\\Games\\Shogo\\Client.exe\" -rez shogo.rez -rez sound.rez -rez ShogoP.rez -rez ShogoP2.rez -rez ShogoP3.rez -rez ShogoP4.rez +windowed 0 +NetHost 0 +NetPlayerName {name} +UpdateRateInitted 1 +UpdateRate 20 +HaveSettingInfo 1 +DontDisplaySettingsDialog 1 +NetJoinRetry 10 +Connect {host}\nexit\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   27888
+  ],
+  "port": 27888,
+  "exe": [
+   "Client.exe",
+   "Shogo.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "SiNGold": {
+  "recipes": [
+   "SiNGold"
+  ],
+  "title": "SiN Gold (listen server on .123)",
+  "mode": "peer_box_host",
+  "host": {
+   "box": "123",
+   "bat": "@echo off\ncd /d \"C:\\Games\\SiNGold\"\ncall FLEETRES.BAT\ncd /d \"C:\\Games\\SiNGold\"\n> \"C:\\Games\\SiNGold\\base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"C:\\Games\\SiNGold\\base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\n>>\"C:\\Games\\SiNGold\\base\\fleetres.cfg\" echo set vid_fullscreen \"1\"\nstart \"\" sin.exe +set gl_mode %FR_Q2WIDE% +set vid_fullscreen 1 +set logfile 2 +set name {name} +set deathmatch 1 +set maxclients 16 +set timelimit 0 +set fraglimit 0 +set timeout 300 +set hostname NSC_Retro_Fleet_SiN +set rcon_password retroadmin +name {name} +map spry\nexit\n",
+   "exe": [
+    "sin.exe"
+   ],
+   "wait": 90
+  },
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\SiNGold\"\ncall FLEETRES.BAT\ncd /d \"C:\\Games\\SiNGold\"\n> \"C:\\Games\\SiNGold\\base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"C:\\Games\\SiNGold\\base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\n>>\"C:\\Games\\SiNGold\\base\\fleetres.cfg\" echo set vid_fullscreen \"1\"\nstart \"\" sin.exe +set gl_mode %FR_Q2WIDE% +set vid_fullscreen 1 +set logfile 2 +set name {name} +name {name} +connect {host}\nexit\n"
+   },
+   {
+    "boxes": [
+     "186"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\SiNGold\"\ncall FLEETRES.BAT\ncd /d \"C:\\Games\\SiNGold\"\nstart \"\" sin.exe +set vid_ref soft_real +set sw_mode %FR_Q2MODE% +set logfile 2 +set name {name} +vid_ref soft_real +name {name} +connect {host}\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nif exist C:\\fleetmp\\SINLAN.ERR del C:\\fleetmp\\SINLAN.ERR\nE:\ncd \\GAMES\\SiNGold\nif not exist sin.exe goto notree\nif exist %windir%\\SYSTEM32\\GLIDE2X.DLL goto glide\nif exist %windir%\\SYSTEM\\GLIDE2X.DLL goto glide\necho SiN LAN not started - no GLIDE2X.DLL in the Windows system folder>C:\\fleetmp\\SINLAN.ERR\ngoto end\n:notree\necho SiN LAN not started - E:\\GAMES\\SiNGold\\sin.exe missing or E: not mounted>C:\\fleetmp\\SINLAN.ERR\ngoto end\n:glide\necho // written by the fleet LAN launcher at every start>base\\fleetres.cfg\necho set vid_ref \"gl\">>base\\fleetres.cfg\necho set gl_driver \"3dfxgl\">>base\\fleetres.cfg\necho set gl_mode \"3\">>base\\fleetres.cfg\necho set con_vidmode \"3\">>base\\fleetres.cfg\necho set sw_mode \"3\">>base\\fleetres.cfg\necho set con_texmode \"1\">>base\\fleetres.cfg\necho set gl_picmip \"1\">>base\\fleetres.cfg\necho set gl_shadows \"0\">>base\\fleetres.cfg\necho set cl_glows \"0\">>base\\fleetres.cfg\necho set cl_lights \"0\">>base\\fleetres.cfg\necho set cl_particles \"0\">>base\\fleetres.cfg\necho set cl_tessellation \"0\">>base\\fleetres.cfg\necho set cl_detailmodel \"0\">>base\\fleetres.cfg\necho set gl_polyblend \"0\">>base\\fleetres.cfg\necho set gl_flashblend \"0\">>base\\fleetres.cfg\necho set vid_fullscreen \"1\">>base\\fleetres.cfg\necho set logfile \"2\">>base\\fleetres.cfg\necho set name \"{name}\">>base\\fleetres.cfg\nstart /w sin.exe +set vid_ref gl +set gl_driver 3dfxgl +set gl_mode 3 +set s_khz 11 +connect {host}\nif exist DESKFIX9.EXE DESKFIX9.EXE\ncls\n:end\n"
+   }
+  ],
+  "query": [
+   "q2",
+   22450
+  ],
+  "exe": [
+   "sin.exe"
+  ],
+  "wait": 240,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN"
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "186",
+   "240",
+   "243"
+  ]
+ },
+ "ThiefGold": {
+  "recipes": [
+   "ThiefGold"
+  ],
+  "title": "Thief Gold (single player)",
+  "mode": "sp_only",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncall \"C:\\Games\\ThiefGold\\Play Thief Gold.bat\"\n"
+   }
+  ],
+  "exe": [
+   "THIEF.EXE"
+  ],
+  "wait": 45,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Turok2": {
+  "recipes": [
+   "Turok2"
+  ],
+  "title": "Turok 2 (integrated server on .110)",
+  "mode": "peer_box_host",
+  "host": {
+   "box": "110",
+   "bat": "@echo off\nsetlocal\nset \"T2=C:\\Games\\Turok2\"\ncd /d \"%T2%\"\ncall \"%T2%\\FLEETRES.BAT\"\ncd /d \"%T2%\"\nset T2SEL=640\nif %FR_W43% GEQ 800 set T2SEL=800\nif %FR_W43% GEQ 1024 set T2SEL=1024\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\320^x^240\" \"Acclaim\\Turok\\VideoD3D\\320^x^240\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\512^x^384\" \"Acclaim\\Turok\\VideoD3D\\512^x^384\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\1280^x^1024\" \"Acclaim\\Turok\\VideoD3D\\1280^x^1024\" 0\nif \"%T2SEL%\"==\"640\" \"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" 1\nif \"%T2SEL%\"==\"800\" \"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" 1\nif \"%T2SEL%\"==\"1024\" \"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" 1\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\Windowed\" \"Acclaim\\Turok\\VideoD3D\\Windowed\" 0\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Player Names {name}\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Player Names_0 {name}\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Config MaxPlayers 16\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\integrated.cfg\" Config MaxPlayers 16\nif exist \"%T2%\\RT_Logsrv.txt\" del /f /q \"%T2%\\RT_Logsrv.txt\"\nstart \"\" \"%T2%\\Turok2MPEnglish.exe\" +name {name}\nexit\n",
+   "exe": [
+    "Turok2MPEnglish.exe",
+    "gspylite.exe",
+    "Turok2English.exe"
+   ],
+   "wait": 60
+  },
+  "bats": [
+   {
+    "boxes": [
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nsetlocal\nset \"T2=C:\\Games\\Turok2\"\ncd /d \"%T2%\"\ncall \"%T2%\\FLEETRES.BAT\"\ncd /d \"%T2%\"\nset T2SEL=640\nif %FR_W43% GEQ 800 set T2SEL=800\nif %FR_W43% GEQ 1024 set T2SEL=1024\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\320^x^240\" \"Acclaim\\Turok\\VideoD3D\\320^x^240\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\512^x^384\" \"Acclaim\\Turok\\VideoD3D\\512^x^384\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" 0\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\1280^x^1024\" \"Acclaim\\Turok\\VideoD3D\\1280^x^1024\" 0\nif \"%T2SEL%\"==\"640\" \"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" \"Acclaim\\Turok\\VideoD3D\\640^x^480\" 1\nif \"%T2SEL%\"==\"800\" \"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" \"Acclaim\\Turok\\VideoD3D\\800^x^600\" 1\nif \"%T2SEL%\"==\"1024\" \"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" \"Acclaim\\Turok\\VideoD3D\\1024^x^768\" 1\n\"%T2%\\FLEETRES.EXE\" -setline \"%T2%\\Data\\config.ned\" \"Acclaim\\Turok\\VideoD3D\\Windowed\" \"Acclaim\\Turok\\VideoD3D\\Windowed\" 0\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Player Names {name}\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Player Names_0 {name}\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Player IPAddress {host}\n\"%T2%\\FLEETRES.EXE\" -ini \"%T2%\\turok2.ini\" Player Port 12888\nstart \"\" \"%T2%\\Turok2MPEnglish.exe\" +connect {host}:12888 +name {name}\nexit\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   12888
+  ],
+  "exe": [
+   "Turok2MPEnglish.exe",
+   "gspylite.exe",
+   "Turok2English.exe"
+  ],
+  "wait": 60,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "UnrealGold": {
+  "recipes": [
+   "UnrealGold"
+  ],
+  "title": "Unreal Gold",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nset UGR=C:\\Games\\UnrealGold\nif not exist \"%UGR%\\System\\Unreal.exe\" exit\nif not exist \"%UGR%\\FLEETRES.EXE\" exit\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\User.ini\" DefaultPlayer Name {name}\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\User.ini\" Engine.PlayerPawn NetSpeed 20000\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\User.ini\" Engine.Input F9 \"open {host}:7807?Name={name}\"\ncd /d \"%UGR%\"\ncall \"%UGR%\\Play Unreal Gold.bat\"\nexit\n"
+   },
+   {
+    "boxes": [
+     "186"
+    ],
+    "bat": "@echo off\nset UGR=C:\\Games\\UnrealGold\nif not exist \"%UGR%\\System\\Unreal.exe\" exit\nif not exist \"%UGR%\\FLEETRES.EXE\" exit\ncall \"%UGR%\\FLEETRES.BAT\" -cap 1024 768\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\User.ini\" DefaultPlayer Name {name}\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\User.ini\" Engine.PlayerPawn NetSpeed 20000\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\User.ini\" Engine.Input F9 \"open {host}:7807?Name={name}\"\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\Unreal.ini\" Engine.Engine GameRenderDevice SoftDrv.SoftwareRenderDevice\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\Unreal.ini\" Engine.Engine WindowedRenderDevice SoftDrv.SoftwareRenderDevice\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\Unreal.ini\" Engine.Engine RenderDevice SoftDrv.SoftwareRenderDevice\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\Unreal.ini\" WinDrv.WindowsClient FullscreenViewportX %FR_W43%\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\Unreal.ini\" WinDrv.WindowsClient FullscreenViewportY %FR_H43%\n\"%UGR%\\FLEETRES.EXE\" -ini \"%UGR%\\System\\Unreal.ini\" WinDrv.WindowsClient StartupFullscreen True\ncd /d \"%UGR%\\System\"\nif exist Running.ini del /q Running.ini\nstart \"\" Unreal.exe\nexit\n"
+   },
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\UNREALGOLD\nif not exist SYSTEM\\UNREAL.EXE goto end\nif exist SYSTEM\\GLIDE2X.DLL del SYSTEM\\GLIDE2X.DLL\ncd SYSTEM\nif exist RUNNING.INI del RUNNING.INI\ncopy /y VOODOO.TPL VOODOO.INI > nul\nstart /w UNREAL.EXE -INI=Voodoo.ini\ncd ..\nif exist DESKFIX9.EXE DESKFIX9.EXE\ncls\n:end\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   7808
+  ],
+  "port": 7807,
+  "exe": [
+   "Unreal.exe"
+  ],
+  "wait": 120,
+  "quit9x": [
+   "TILDE",
+   "TEXT:quit",
+   "RETURN"
+  ],
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "171",
+   "184",
+   "186",
+   "240",
+   "243"
+  ]
+ },
+ "DieByTheSword": {
+  "recipes": [
+   "DieByTheSword"
+  ],
+  "title": "Die by the Sword (single player, .243 only)",
+  "mode": "sp_only",
+  "bats": [
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\DIEBYT~1\ncall DBTS.BAT\n"
+   }
+  ],
+  "exe": [
+   "windie.exe"
+  ],
+  "wait": 60,
+  "boxes": [
+   "243"
+  ]
+ },
+ "AliensVsPredator": {
+  "recipes": [
+   "AliensVsPredator"
+  ],
+  "title": "Aliens vs Predator Gold (launch check - library tree known broken)",
+  "mode": "broken_known",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\AliensVsPredator\"\nstart \"\" avp.exe\n"
+   }
+  ],
+  "exe": [
+   "avp.exe"
+  ],
+  "wait": 45,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "SystemShock2": {
+  "recipes": [
+   "SystemShock2"
+  ],
+  "title": "System Shock 2 (single player)",
+  "mode": "sp_only",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\SystemShock2\"\nif exist \"C:\\Games\\SystemShock2\\FLEETRES.BAT\" call \"C:\\Games\\SystemShock2\\FLEETRES.BAT\"\nif exist \"C:\\fleetmp\\fb.bmp\" del /f /q \"C:\\fleetmp\\fb.bmp\" >nul 2>&1\ntaskkill /f /im ssstars.scr >nul 2>&1\nsc start secdrv >nul 2>&1\ncall \"C:\\Games\\SystemShock2\\Play System Shock 2.bat\"\n"
+   }
+  ],
+  "exe": [
+   "SHOCK2.ICD",
+   "shock2.exe",
+   "clokspl.exe"
+  ],
+  "wait": 75,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "RogueSquadron": {
+  "recipes": [
+   "RogueSquadron"
+  ],
+  "title": "Rogue Squadron 3D (single player, .243 only)",
+  "mode": "sp_only",
+  "bats": [
+   {
+    "boxes": [
+     "243"
+    ],
+    "bat": "@echo off\nE:\ncd \\GAMES\\RogueSquadron\nif not exist ROGUESQ.BAT cd \\GAMES\\ROGUES~1\nif not exist ROGUESQ.BAT goto missing\ncall ROGUESQ.BAT\ncls\ngoto end\n:missing\necho E:\\GAMES\\RogueSquadron\\ROGUESQ.BAT is missing - run GAMESYNC for this title.\npause\n:end\n"
+   }
+  ],
+  "exe": [
+   "Rogue Squadron.EXE",
+   "ROGUE.EXE"
+  ],
+  "wait": 75,
+  "boxes": [
+   "243"
+  ]
+ },
+ "HiddenAndDangerous": {
+  "recipes": [
+   "HiddenAndDangerous"
+  ],
+  "title": "Hidden and Dangerous Deluxe (launch check - MP is attended-only)",
+  "mode": "mp_not_automatable",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncall \"C:\\Games\\HiddenAndDangerous\\Play Hidden and Dangerous Deluxe.bat\"\n"
+   }
+  ],
+  "exe": [
+   "HDE.exe"
+  ],
+  "wait": 60,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "DeusEx": {
+  "recipes": [
+   "DeusEx"
+  ],
+  "title": "Deus Ex",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\DeusEx\"\nif not exist \"C:\\Games\\DeusEx\\System\\User.ini\" copy /y \"C:\\Games\\DeusEx\\System\\DefUser.ini\" \"C:\\Games\\DeusEx\\System\\User.ini\" >nul\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" DefaultPlayer Name {name}\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" Engine.Input PageUp \"open {host}:7790?Name={name}\"\ncall \"C:\\Games\\DeusEx\\Play Deus Ex.bat\"\n"
+   },
+   {
+    "boxes": [
+     "143"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\DeusEx\"\nif not exist \"C:\\Games\\DeusEx\\System\\User.ini\" copy /y \"C:\\Games\\DeusEx\\System\\DefUser.ini\" \"C:\\Games\\DeusEx\\System\\User.ini\" >nul\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" DefaultPlayer Name {name}\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" Engine.Input PageUp \"open {host}:7790?Name={name}\"\ncall \"C:\\Games\\DeusEx\\Play Deus Ex.bat\"\n"
+   },
+   {
+    "boxes": [
+     "124"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\DeusEx\"\nif not exist \"C:\\Games\\DeusEx\\System\\User.ini\" copy /y \"C:\\Games\\DeusEx\\System\\DefUser.ini\" \"C:\\Games\\DeusEx\\System\\User.ini\" >nul\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" DefaultPlayer Name {name}\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" Engine.Input PageUp \"open {host}:7790?Name={name}\"\ncall \"C:\\Games\\DeusEx\\Play Deus Ex.bat\"\n"
+   },
+   {
+    "boxes": [
+     "186"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\DeusEx\"\nif not exist \"C:\\Games\\DeusEx\\System\\User.ini\" copy /y \"C:\\Games\\DeusEx\\System\\DefUser.ini\" \"C:\\Games\\DeusEx\\System\\User.ini\" >nul\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" DefaultPlayer Name {name}\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\User.ini\" Engine.Input PageUp \"open {host}:7790?Name={name}\"\ncall \"C:\\Games\\DeusEx\\FLEETRES.BAT\"\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\DeusEx.ini\" Engine.Engine GameRenderDevice SoftDrv.SoftwareRenderDevice\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\DeusEx.ini\" Engine.Engine RenderDevice SoftDrv.SoftwareRenderDevice\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\DeusEx.ini\" WinDrv.WindowsClient FullscreenViewportX %FR_W43%\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\DeusEx.ini\" WinDrv.WindowsClient FullscreenViewportY %FR_H43%\n\"C:\\Games\\DeusEx\\FLEETRES.EXE\" -ini \"C:\\Games\\DeusEx\\System\\DeusEx.ini\" WinDrv.WindowsClient StartupFullscreen True\ncd /d \"C:\\Games\\DeusEx\\System\"\nif exist Running.ini del /q Running.ini\nstart \"\" DeusEx.exe\nexit\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   7791
+  ],
+  "port": 7790,
+  "exe": [
+   "DeusEx.exe"
+  ],
+  "wait": 180,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "186",
+   "240"
+  ]
+ },
+ "SoldierOfFortune": {
+  "recipes": [
+   "SoldierOfFortune"
+  ],
+  "title": "Soldier of Fortune (launch check - known broken)",
+  "mode": "broken_known",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\SoldierOfFortune\"\nif exist \"user\\sof.log\" del /q \"user\\sof.log\"\ncall FLEETRES.BAT\ncd /d \"C:\\Games\\SoldierOfFortune\"\n> \"base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\n>>\"base\\fleetres.cfg\" echo set vid_fullscreen \"1\"\nstart \"\" SoF.exe +set gl_mode %FR_Q2WIDE% +set vid_fullscreen 1 +set logfile 2 +set developer 1 +set name {name} +set deathmatch 1 +set maxclients 16 +map dm/nycdm1\n"
+   }
+  ],
+  "exe": [
+   "SoF.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "Thief2": {
+  "recipes": [
+   "Thief2"
+  ],
+  "title": "Thief II (single player)",
+  "mode": "sp_only",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\Thief2\"\nif exist \"C:\\Games\\Thief2\\Thief2.log\" del /q \"C:\\Games\\Thief2\\Thief2.log\"\ncall \"C:\\Games\\Thief2\\Play Thief 2.bat\"\n"
+   }
+  ],
+  "exe": [
+   "Thief2.exe"
+  ],
+  "wait": 45,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "MaxPayne": {
+  "recipes": [
+   "MaxPayne"
+  ],
+  "title": "Max Payne (single player)",
+  "mode": "sp_only",
+  "d3d124": true,
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ncd /d \"C:\\Games\\MaxPayne\"\ncall \"C:\\Games\\MaxPayne\\Play Max Payne.bat\"\n"
+   }
+  ],
+  "exe": [
+   "MaxPayne.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "RedFaction": {
+  "recipes": [
+   "RedFaction"
+  ],
+  "title": "Red Faction (dedicated server on .123)",
+  "mode": "peer_box_host",
+  "d3d124": true,
+  "host": {
+   "box": "123",
+   "bat": "@echo off\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v UpdateRate /t REG_DWORD /d 200000 /f >nul 2>&1\ncd /d \"C:\\Games\\RedFaction\"\nstart \"\" /D \"C:\\Games\\RedFaction\" \"C:\\Games\\RedFaction\\rf.exe\" -dedicated teamdm -lanonly -port 7755\n",
+   "exe": [
+    "rf.exe"
+   ],
+   "wait": 30
+  },
+  "bats": [
+   {
+    "boxes": [
+     "123"
+    ],
+    "bat": "@echo off\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v UpdateRate /t REG_DWORD /d 200000 /f >nul 2>&1\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v ForcePort /t REG_DWORD /d 7756 /f >nul 2>&1\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v ListLAN /t REG_DWORD /d 1 /f >nul 2>&1\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v MultiServerListBinDerDunDat /t REG_DWORD /d 1 /f >nul 2>&1\ncd /d \"C:\\Games\\RedFaction\"\n> \"C:\\Games\\RedFaction\\gamestart.txt\" echo name {name}\ncall \"C:\\Games\\RedFaction\\Play Red Faction.bat\"\n"
+   },
+   {
+    "boxes": [
+     "110",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v UpdateRate /t REG_DWORD /d 200000 /f >nul 2>&1\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v ForcePort /t REG_DWORD /d 0 /f >nul 2>&1\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v ListLAN /t REG_DWORD /d 1 /f >nul 2>&1\nreg add \"HKCU\\Software\\Volition\\Red Faction\" /v MultiServerListBinDerDunDat /t REG_DWORD /d 1 /f >nul 2>&1\ncd /d \"C:\\Games\\RedFaction\"\n> \"C:\\Games\\RedFaction\\gamestart.txt\" echo name {name}\ncall \"C:\\Games\\RedFaction\\Play Red Faction.bat\"\n"
+   }
+  ],
+  "exe": [
+   "rf.exe",
+   "RedFaction.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "SeriousSamFirstEncounter": {
+  "recipes": [
+   "SeriousSamFirstEncounter"
+  ],
+  "title": "Serious Sam: The First Encounter",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\ntaskkill /f /im ssstars.scr >nul 2>&1\nset \"SSD=C:\\Games\\SeriousSamFirstEncounter\"\nset \"SSP=C:\\Games\\SeriousSamFirstEncounter\\Scripts\\PersistentSymbols.ini\"\nfindstr /i /l /c:\"sam_bFirstStarted=(INDEX)0\" \"%SSP%\" >nul 2>&1 || findstr /i /l /c:\"sam_bFirstStarted=0\" \"%SSP%\" >nul 2>&1 || >>\"%SSP%\" echo sam_bFirstStarted=0;\nfindstr /i /l /c:\"LAN.ini\" \"%SSP%\" >nul 2>&1 || >>\"%SSP%\" echo sam_strNetworkSettings=\"Scripts\\\\NetSettings\\\\LAN.ini\";\ncall \"%SSD%\\Join Serious Sam TFE - LAN.bat\" {host}:25600\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   25601
+  ],
+  "port": 25600,
+  "exe": [
+   "SeriousSam.exe"
+  ],
+  "wait": 90,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ },
+ "SeriousSamSecondEncounter": {
+  "recipes": [
+   "SeriousSamSecondEncounter"
+  ],
+  "title": "Serious Sam: The Second Encounter",
+  "mode": "host_server",
+  "bats": [
+   {
+    "boxes": [
+     "110",
+     "123",
+     "124",
+     "133",
+     "143",
+     "171",
+     "184",
+     "240"
+    ],
+    "bat": "@echo off\nset \"T=C:\\Games\\SeriousSamSecondEncounter\"\ntaskkill /f /im SeriousSam.exe >nul 2>&1\nping -n 3 127.0.0.1 >nul\ncd /d \"%T%\"\nfind /i \"sam_bFirstStarted\" \"%T%\\Scripts\\PersistentSymbols.ini\" >nul 2>&1 || >>\"%T%\\Scripts\\PersistentSymbols.ini\" echo sam_bFirstStarted=0;\ncall \"%T%\\Join Serious Sam TSE - LAN.bat\" \"{host}:25610 +quickjoin\"\n"
+   }
+  ],
+  "query": [
+   "gamespy",
+   25611
+  ],
+  "port": 25610,
+  "exe": [
+   "SeriousSam.exe"
+  ],
+  "wait": 120,
+  "boxes": [
+   "110",
+   "123",
+   "124",
+   "133",
+   "143",
+   "171",
+   "184",
+   "240"
+  ]
+ }
+}

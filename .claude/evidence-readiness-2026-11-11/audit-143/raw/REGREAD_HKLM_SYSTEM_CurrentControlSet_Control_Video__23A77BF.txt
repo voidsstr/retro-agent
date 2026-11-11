@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Control\\Video\\{23A77BF7-ED96-40EC-AF06-9B1F4867732A}\\Video","values":[{"name":"Service","type":"REG_SZ","data":"VgaSave"}],"subkeys":[]}

@@ -1,0 +1,36 @@
+
+Windows Boot Manager
+--------------------
+identifier              {bootmgr}
+device                  partition=D:
+description             Windows Boot Manager
+locale                  en-US
+inherit                 {globalsettings}
+default                 {current}
+resumeobject            {33700fa4-c8e8-11f1-b595-e0cb4e26eca0}
+displayorder            {ntldr}
+                        {current}
+toolsdisplayorder       {memdiag}
+timeout                 30
+
+Windows Legacy OS Loader
+------------------------
+identifier              {ntldr}
+device                  partition=D:
+path                    \ntldr
+description             Earlier Version of Windows
+
+Windows Boot Loader
+-------------------
+identifier              {current}
+device                  partition=C:
+path                    \Windows\system32\winload.exe
+description             Windows 7
+locale                  en-US
+inherit                 {bootloadersettings}
+recoverysequence        {33700fa6-c8e8-11f1-b595-e0cb4e26eca0}
+recoveryenabled         Yes
+osdevice                partition=C:
+systemroot              \Windows
+resumeobject            {33700fa4-c8e8-11f1-b595-e0cb4e26eca0}
+nx                      OptIn

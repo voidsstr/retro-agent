@@ -1,0 +1,779 @@
+[
+ {
+  "box": 110,
+  "deusex_running": [],
+  "games_like": [
+   "daemon.exe",
+   "nvsvc32.exe",
+   "rundll32.exe",
+   "smax4pnp.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6753,
+    "modified": "2026-10-15 14:08:21",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6753,
+  "err_DeusEx.log": "RetroProtocolError('Cannot open file: error 2')",
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2004-02-20 23:32:47 to 2026-09-30 19:31:55 UTC via http://192.168.1.122/\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59:20 ok\"},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 0 installed, 1 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; PCI Modem: no_candidate\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: active (IPX net 00000000 node 000cf1d7984a, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029633},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1600x1200 (4:3 1600x1200); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\",\"DriverPrefs\"]}"
+ },
+ {
+  "box": 123,
+  "deusex_running": [],
+  "games_like": [
+   "SOUNDMAN.EXE",
+   "ati2evxx.exe",
+   "daemon.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-10-03 01:26:09",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-08-31 14:35:03",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Running.ini",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-08-31 14:34:58",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6752,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58:04 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:56 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: active (IPX net 00000000 node 0013d4a4a413, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1790840226},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 34 title(s), 1 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[]}"
+ },
+ {
+  "box": 124,
+  "deusex_running": [],
+  "games_like": [
+   "NvMixerTray.exe",
+   "cmd.exe",
+   "daemon.exe",
+   "ping.exe",
+   "wscntfy.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-10-03 12:50:45",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-10-03 03:43:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Running.ini",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-10-03 03:41:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6752,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00:38 ok\"},{\"name\":\"AIEngine\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2003-04-02 04:06:24 to 2026-11-08 04:54:28 UTC via http://192.168.1.122/\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"},{\"name\":\"GlideRender\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"ok: 0 copied, 2 current, 0 failed (card PCI\\\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\\\\5&2cfcdcf8&0&0000F0)\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: active (IPX net 00000000 node 00d0b74096a9, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1790840482},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: 32 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=78 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\",\"DriverPrefs\"]}"
+ },
+ {
+  "box": 133,
+  "deusex_running": [],
+  "games_like": [
+   "CTHELPER.EXE",
+   "daemon.exe",
+   "nvsvc32.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-09-29 16:21:37",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-08-31 23:55:23",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6752,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01:02 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 0 installed, 3 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; PC/AT PS/2 Keyboard (84-Key): problem_not_driver_fixable; Microsoft PS/2 Mouse: problem_not_driver_fixable; Creative Game Port: failed\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01 ok: active (IPX net 00000000 node 000c41e84fce, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029731},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 33 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=81 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\"]}"
+ },
+ {
+  "box": 143,
+  "deusex_running": [],
+  "games_like": [
+   "daemon.exe",
+   "nvsvc32.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "wscntfy.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-09-29 16:12:14",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-08-31 14:36:42",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Running.ini",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-08-31 14:36:36",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6752,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"ProxyHost\",\"type\":\"REG_SZ\",\"data\":\"192.168.1.132\"},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"Onboarded\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59:42 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 0 installed, 1 device(s) looked at; store C:\\\\D; Standard Game Port: problem_not_driver_fixable\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: active (IPX net 00000000 node 0008a10352c4, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[\"Parked\"]}"
+ },
+ {
+  "box": 171,
+  "deusex_running": [],
+  "games_like": [
+   "daemon.exe",
+   "nvsvc32.exe",
+   "rundll32.exe",
+   "smax4pnp.exe",
+   "wscntfy.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-09-30 01:47:59",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-08-31 14:36:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Running.ini",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-08-31 14:36:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6752,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"AIEngine\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59:19 ok\"},{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2004-11-08 04:10:38 to 2026-09-29 17:28:52 UTC via http://192.168.1.122/\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:59 ok: active (IPX net 00000000 node 0013207b2d45, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029650},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[]}"
+ },
+ {
+  "box": 184,
+  "deusex_running": [],
+  "games_like": [
+   "daemon.exe",
+   "nvsvc32.exe",
+   "rundll32.exe",
+   "wscntfy.exe",
+   "wuauclt.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:47",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-08-31 16:37:27",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Running.ini",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-08-31 16:36:57",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6752,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01:40 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 0 installed, 2 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; Standard 101/102-Key or Microsoft Natura: problem_not_driver_fixable; PS/2 Compatible Mouse: problem_not_driver_fixable\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:01 ok: active (IPX net 00000000 node 080009ebd1a5, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"IpxSetupAttempts\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"IpxInstalledAt\",\"type\":\"REG_DWORD\",\"data\":1791029705},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 11:00 ok: 33 title(s), 0 value(s) changed, 0 absent, target 1024x768 (4:3 1024x768); verify ok=81 wrong=0 absent=0\"}],\"subkeys\":[\"DriverPrefs\"]}"
+ },
+ {
+  "box": 186,
+  "deusex_running": [],
+  "games_like": [
+   "SearchIndexer.exe",
+   "conhost.exe",
+   "dwm.exe",
+   "lsm.exe",
+   "sppsvc.exe",
+   "taskhost.exe",
+   "wininit.exe",
+   "wmpnetwk.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6753,
+    "modified": "2026-11-08 05:12:32",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6753,
+  "err_DeusEx.log": "RetroProtocolError('Cannot open file: error 2')",
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:56 not supported: NWLink was removed in Windows Vista - IPX games here need IPXWrapper per title (Files/Game Updates/ipxwrapper-0.7.2.zip)\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: already never - nothing written (new api)\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: not Windows 2000/XP\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:57 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1920x1080 (4:3 1024x768); verify ok=83 wrong=0 absent=0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 10:58:27 ok\"}],\"subkeys\":[]}"
+ },
+ {
+  "box": 240,
+  "deusex_running": [],
+  "games_like": [
+   "ADeck.exe",
+   "BDARemote.exe",
+   "CTHELPER.EXE",
+   "Core.exe",
+   "MsMpEng.exe",
+   "WindowsSearch.exe",
+   "ati2evxx.exe",
+   "daemon.exe",
+   "msmsgs.exe",
+   "msseces.exe",
+   "raid_tool.exe",
+   "retro_chat.exe",
+   "rundll32.exe",
+   "searchindexer.exe",
+   "wscntfy.exe"
+  ],
+  "sys_files": [
+   {
+    "name": "DEFAULT.INI",
+    "is_dir": false,
+    "size": 6752,
+    "modified": "2026-08-29 18:38:49",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEFUSER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.EXE",
+    "is_dir": false,
+    "size": 253952,
+    "modified": "2001-03-15 22:48:46",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.INI",
+    "is_dir": false,
+    "size": 6753,
+    "modified": "2026-10-15 15:02:16",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "DEUSEX.log",
+    "is_dir": false,
+    "size": 4096,
+    "modified": "2026-08-31 14:36:24",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "MANIFEST.INI",
+    "is_dir": false,
+    "size": 9324,
+    "modified": "2001-03-19 16:36:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "OpenGlDrv.ini",
+    "is_dir": false,
+    "size": 1160,
+    "modified": "2026-08-27 16:08:30",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Running.ini",
+    "is_dir": false,
+    "size": 0,
+    "modified": "2026-08-31 14:36:07",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "USER.INI",
+    "is_dir": false,
+    "size": 5941,
+    "modified": "2026-08-29 17:51:28",
+    "hidden": false,
+    "readonly": false
+   }
+  ],
+  "got_User.ini": 5941,
+  "got_DeusEx.ini": 6753,
+  "got_DeusEx.log": 4096,
+  "reg_retroagent": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"Onboarded\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.98.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56:39 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56 0 installed, 1 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D; WinXP Promise SATA378 (tm) IDE Controlle: tried_out\"},{\"name\":\"FxPanelBoot\",\"type\":\"REG_SZ\",\"data\":\"not applicable: no present Banshee/Voodoo3/4/5 with a driver\"},{\"name\":\"MonitorPowerBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:55 ok: already never - nothing written (old api)\"},{\"name\":\"IpxSetupBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56 ok: active (IPX net 00000000 node 00112fe477f5, frame auto) - nothing changed\"},{\"name\":\"QuakeBindsBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:55 ok: 5 wasd bind file(s) current, 0 written, 5 with the layout in force\"},{\"name\":\"GameResBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-11-11 07:56 ok: 34 title(s), 0 value(s) changed, 0 absent, target 1920x1080 (4:3 1280x960); verify ok=83 wrong=0 absent=0\"}],\"subkeys\":[\"DriverFixes\"]}"
+ }
+]

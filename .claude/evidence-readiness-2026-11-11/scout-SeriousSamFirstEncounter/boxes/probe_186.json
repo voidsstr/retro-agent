@@ -1,0 +1,536 @@
+{
+ "box": 186,
+ "dir_root": [
+  {
+   "name": "1_00.gro",
+   "is_dir": false,
+   "size": 201145131,
+   "modified": "2026-08-31 14:37:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "1_00_ExtraTools.gro",
+   "is_dir": false,
+   "size": 1199329,
+   "modified": "2026-08-31 14:37:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "1_00_music.gro",
+   "is_dir": false,
+   "size": 74408722,
+   "modified": "2026-08-31 14:37:48",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Bin",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:45",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Controls",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Data",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "data1.cab",
+   "is_dir": false,
+   "size": 448454,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "data1.hdr",
+   "is_dir": false,
+   "size": 71205,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "data2.cab",
+   "is_dir": false,
+   "size": 512,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Demos",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "FLEETRES.BAT",
+   "is_dir": false,
+   "size": 4917,
+   "modified": "2026-09-29 17:55:17",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "FLEETRES.EXE",
+   "is_dir": false,
+   "size": 33280,
+   "modified": "2026-09-29 17:55:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Help",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:50",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Host Serious Sam TFE - LAN.bat",
+   "is_dir": false,
+   "size": 26703,
+   "modified": "2026-10-03 14:04:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ikernel.ex_",
+   "is_dir": false,
+   "size": 339565,
+   "modified": "2026-08-31 14:38:05",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Join Serious Sam TFE - LAN.bat",
+   "is_dir": false,
+   "size": 26775,
+   "modified": "2026-10-03 14:04:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "launch.txt",
+   "is_dir": false,
+   "size": 849,
+   "modified": "2026-09-28 13:21:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "layout.bin",
+   "is_dir": false,
+   "size": 435,
+   "modified": "2026-08-31 14:38:05",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Levels",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Mods",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "NOTES.txt",
+   "is_dir": false,
+   "size": 5777,
+   "modified": "2026-10-03 13:28:47",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Play Serious Sam - The First Encounter.bat",
+   "is_dir": false,
+   "size": 25313,
+   "modified": "2026-10-03 14:04:13",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Players",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "requires.json",
+   "is_dir": false,
+   "size": 1444,
+   "modified": "2026-08-31 14:48:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SaveGame",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Scripts",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSam.ico",
+   "is_dir": false,
+   "size": 16870,
+   "modified": "2026-09-28 13:12:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSamLogo.ico",
+   "is_dir": false,
+   "size": 14510,
+   "modified": "2026-09-28 13:21:27",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Setup.bmp",
+   "is_dir": false,
+   "size": 537656,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Setup.exe",
+   "is_dir": false,
+   "size": 54272,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Setup.ini",
+   "is_dir": false,
+   "size": 105,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "setup.inx",
+   "is_dir": false,
+   "size": 151302,
+   "modified": "2026-08-31 14:38:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Temp",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "VirtualTrees",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "_disc",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:15",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Players": [],
+ "dir_Scripts": [
+  {
+   "name": "Addons",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "CustomOptions",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Dedicated",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Game_startup.ini",
+   "is_dir": false,
+   "size": 275,
+   "modified": "2026-11-08 05:12:55",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "GLSettings",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-11-07 13:09:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "NetSettings",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:55",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Data": [
+  {
+   "name": "Defaults",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SED_TipOfTheDay.txt",
+   "is_dir": false,
+   "size": 3675,
+   "modified": "2026-08-31 14:37:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Var",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:46",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "dir_Temp": [],
+ "dir_Controls": [
+  {
+   "name": "00-Default.ctl",
+   "is_dir": false,
+   "size": 4945,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "00-Default.des",
+   "is_dir": false,
+   "size": 63,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "01-Keyboard.ctl",
+   "is_dir": false,
+   "size": 4651,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "01-Keyboard.des",
+   "is_dir": false,
+   "size": 43,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "02-PantherXL.ctl",
+   "is_dir": false,
+   "size": 4748,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "02-PantherXL.des",
+   "is_dir": false,
+   "size": 45,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "03-Wingman Extreme.ctl",
+   "is_dir": false,
+   "size": 4747,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "03-Wingman Extreme.des",
+   "is_dir": false,
+   "size": 56,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "04-Wingman GamePad.ctl",
+   "is_dir": false,
+   "size": 4701,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "04-Wingman GamePad.des",
+   "is_dir": false,
+   "size": 71,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "10-DEN.ctl",
+   "is_dir": false,
+   "size": 4870,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "10-DEN.des",
+   "is_dir": false,
+   "size": 48,
+   "modified": "2026-08-31 14:37:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "System",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 23:28:46",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "root_names": [
+  "1_00.gro",
+  "1_00_ExtraTools.gro",
+  "1_00_music.gro",
+  "Bin",
+  "Controls",
+  "Data",
+  "data1.cab",
+  "data1.hdr",
+  "data2.cab",
+  "Demos",
+  "FLEETRES.BAT",
+  "FLEETRES.EXE",
+  "Help",
+  "Host Serious Sam TFE - LAN.bat",
+  "ikernel.ex_",
+  "Join Serious Sam TFE - LAN.bat",
+  "launch.txt",
+  "layout.bin",
+  "Levels",
+  "Mods",
+  "NOTES.txt",
+  "Play Serious Sam - The First Encounter.bat",
+  "Players",
+  "requires.json",
+  "SaveGame",
+  "Scripts",
+  "SeriousSam.ico",
+  "SeriousSamLogo.ico",
+  "Setup.bmp",
+  "Setup.exe",
+  "Setup.ini",
+  "setup.inx",
+  "Temp",
+  "VirtualTrees",
+  "_disc"
+ ],
+ "dl_PersistentSymbols": "ERR RetroProtocolError('Cannot open file: error 2')",
+ "dl_Game_startup": 275,
+ "fleetmp": [],
+ "mounter C:\\Program Files\\D-Tools": [],
+ "mounter C:\\Program Files\\DAEMON Tools": [],
+ "mounter C:\\Program Files\\DAEMON Tools Lite": [],
+ "mounter C:\\Program Files\\WinCDEmu": [],
+ "procs": [
+  "SearchIndexer.exe",
+  "System",
+  "[System Process]",
+  "conhost.exe",
+  "csrss.exe",
+  "dwm.exe",
+  "explorer.exe",
+  "lsass.exe",
+  "lsm.exe",
+  "retro_agent.exe",
+  "services.exe",
+  "smss.exe",
+  "spoolsv.exe",
+  "sppsvc.exe",
+  "svchost.exe",
+  "taskhost.exe",
+  "wininit.exe",
+  "winlogon.exe",
+  "wmpnetwk.exe"
+ ],
+ "regread_d347bus": "ERR RetroProtocolError('Cannot open key: error 0')",
+ "gameres": "{\"panel\":{\"edid\":true,\"name\":\"DELL P2312H\",\"pnpid\":\"DEL4077\",\"type\":\"LCD\",\"digital\":true,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"51x29\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":1,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1024x768\",\"aspect\":\"16:9\",\"hz\":0,\"hz_four_three\":0,\"hz_q2\":0,\"hz_q3\":0,\"hz_q2wide\":0,\"hz_src\":\"none\",\"hz_desktop\":0,\"hz_launcher\":60,\"fov\":106,\"q2mode\":6,\"q2wide\":9,\"q3mode\":6,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"640x480@0\",\"800x600@0\",\"1024x768@0\",\"1280x1024@0\",\"1360x768@0\",\"1920x1080@0\"],\"rules\":83}"
+}

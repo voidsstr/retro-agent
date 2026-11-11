@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1","values":[{"name":"DMAEnabled","type":"REG_DWORD","data":0},{"name":"Driver","type":"REG_SZ","data":"atapi"}],"subkeys":[]}

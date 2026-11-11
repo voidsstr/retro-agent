@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug","values":[{"name":"Auto","type":"REG_SZ","data":"0"},{"name":"Debugger","type":"REG_SZ","data":"drwtsn32 -p %ld -e %ld -g"},{"name":"UserDebuggerHotKey","type":"REG_DWORD","data":0}],"subkeys":[]}

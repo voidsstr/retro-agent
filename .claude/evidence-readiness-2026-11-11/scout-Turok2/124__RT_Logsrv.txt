@@ -1,0 +1,55 @@
+                                
+--------------------------------
+|                               
+| RTIME Engine Log File         
+|                               
+--------------------------------
+
+RTIME VERSION NUMBER -> 03.42.04
+Startup Time: Mon, Sep 28 26, 02:06:30 AM
+
+Creating RT Sockets Module...
+System will support a maximum of 30 sockets.
+Allocating space for 30 sockets.
+
+Creating RT Spy Module...
+Server listening for SPIES on port 12805.
+
+Creating RT ID Factory...
+Allocating 4347 id buffers!
+
+Creating Client View Module...
+Server listening for CLIENTS on port 12801.
+Server listening for CONTROL on port 12803.
+Server listening for Beacon requests on port 12806.
+
+Creating Peer View Module...
+Server listening for PEERS on port 12804.
+
+Creating RT Ping Manager Module...
+Server listening for PINGS on port 12800.
+
+Creating RT Object Module...
+Allocated space for 0 client-owned and 1400 server-owned objects.
+Allocated space for 0 client-owned strings.
+Allocated space for 1400 client view objects.
+System will instantiate a maximum of 4200 objects.
+
+Create the RT Message Module
+Allocated space for 1350 message metric structures.
+Allocated space for 31 message recovery structures.
+Allocated space for 31 message history structures.
+
+Creating RT Filter Module...
+Allocated space for 1 filter templates.
+
+New client (ip 0.0.0.0) assigned id 1, connected on socket id 0!
+Connect Time: Mon, Sep 28 26, 02:06:31 AM
+
+clv_ParseMachineTypeMsg: cid 1, udp port 2010
+cid 1, server udp port is 1258
+-- DEBUG --	connection key: alison.
+Client 1 is machine type 2 and joined world 0.
+Refreshing client 1 world...
+refresh client 1 complete.
+

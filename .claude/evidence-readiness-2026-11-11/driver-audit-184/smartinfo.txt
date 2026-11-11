@@ -1,0 +1,1 @@
+[{"drive_index":0,"path":"\\\\.\\PhysicalDrive0","model":"Hitachi HTS545016B9A300","serial":"091221PBPB06QCE9KDKM","firmware":"PBBOC60F","smart":{"temperature":{"celsius":28,"current":196,"worst":196},"power_on_hours":{"hours":1773,"current":96,"worst":96},"reallocated_sectors":{"count":0,"current":100,"worst":100}}}]
