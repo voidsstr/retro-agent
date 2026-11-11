@@ -111,6 +111,49 @@ int host_is_modern_windows(void)
     return g_modern;
 }
 
+/* HKLM\Software\RetroAgent\<name> is a REG_DWORD equal to 1 */
+static int policy_dword_is_one(const char *name)
+{
+    HKEY  k;
+    DWORD val = 0, sz = sizeof(val), type = 0;
+    int   on = 0;
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, HOSTPOLICY_OVERRIDE_KEY, 0,
+                      KEY_QUERY_VALUE, &k) != ERROR_SUCCESS)
+        return 0;
+    if (RegQueryValueExA(k, name, NULL, &type, (LPBYTE)&val, &sz) == ERROR_SUCCESS &&
+        type == REG_DWORD && val == 1)
+        on = 1;
+    RegCloseKey(k);
+    return on;
+}
+
+static int g_games_only = -1;
+
+int host_games_only(void)
+{
+    if (g_games_only >= 0)
+        return g_games_only;
+    if (host_manages_this_box()) {
+        g_games_only = 0;            /* a managed box gets everything anyway */
+    } else if (policy_dword_is_one(HOSTPOLICY_GAMESONLY_VALUE)) {
+        log_msg(LOG_POLICY, "HKLM\\%s\\%s=1 - GAMES ONLY: GAMESYNC may copy titles "
+                            "and put their shortcuts in Public Desktop\\%s; nothing "
+                            "else about this host is changed",
+                HOSTPOLICY_OVERRIDE_KEY, HOSTPOLICY_GAMESONLY_VALUE,
+                HOSTPOLICY_GAMES_FOLDER);
+        g_games_only = 1;
+    } else {
+        g_games_only = 0;
+    }
+    return g_games_only;
+}
+
+int host_allows_games(void)
+{
+    return host_manages_this_box() || host_games_only();
+}
+
 /* HKLM\Software\RetroAgent\ManageModernWindows == 1 */
 static int override_set(void)
 {
@@ -196,6 +239,8 @@ void host_policy_describe(char *buf, int bufsize)
     host_os_version(&major, &minor, &build);
     _snprintf(buf, bufsize - 1, "Windows %lu.%lu build %lu - host management %s",
               (unsigned long)major, (unsigned long)minor, (unsigned long)build,
-              host_manages_this_box() ? "enabled" : "DISABLED (modern OS)");
+              host_manages_this_box() ? "enabled" :
+              host_games_only() ? "GAMES ONLY (modern OS, ModernGamesOnly=1)" :
+                                  "DISABLED (modern OS)");
     buf[bufsize - 1] = 0;
 }

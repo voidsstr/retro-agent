@@ -189,7 +189,12 @@ void handle_command(SOCKET sock, const char *cmd, DWORD cmd_len)
              * each has a genuinely read-only mode worth keeping, so they carry
              * the same guard on their modifying branch instead.)
              */
-            if (entry->reconfigures_host && !host_manages_this_box()) {
+            /* ...with ONE exception: a games-only modern box (ModernGamesOnly=1,
+             * agent 1.100.0) takes GAMESYNC - and only GAMESYNC - because the
+             * games-only run changes nothing but its own folders (see
+             * host_games_only() and gs_run()). */
+            if (entry->reconfigures_host && !host_manages_this_box() &&
+                !(host_games_only() && _stricmp(entry->name, "GAMESYNC") == 0)) {
                 char why[256];
                 _snprintf(why, sizeof(why) - 1,
                           "%s refused: this is modern Windows and the retro agent "

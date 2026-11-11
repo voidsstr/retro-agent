@@ -2239,6 +2239,19 @@ writes to fleet boxes must skip `host_policy.managed == false`** (older agents g
 `HKLM\Software\RetroAgent\ManageModernWindows` (DWORD) to `1`. Default absent
 = hands off.
 
+**Games only, for a SHARED modern PC (agent 1.100.0):**
+`HKLM\Software\RetroAgent\ModernGamesOnly` (DWORD) = `1` lets `GAMESYNC` - and
+only GAMESYNC - run on an unmanaged Windows 10/11 box. Titles go to `GamesDir`
+(default `C:\Games`), their `install.reg`, GAMERES configs and Quake binds are
+applied, and **every shortcut goes into one folder, `Public Desktop\Retro Games`**,
+so all accounts see the games and nobody's own desktop changes. Skipped on such a
+run: tool icons, wallpapers, the desktop-mode refresh raise, the desktop sweep
+and the icon arrange; the user's own desktop is never scanned or written. The
+startup thread still never provisions a modern box - start it with `GAMESYNC
+START` (and `GAMESYNC RESET` to redo). `HWPROFILE` reports
+`host_policy.games_only`. Made for `.139`. Tests: `test_hostpolicy.py` (games-only
+block).
+
 **NEVER detect the OS with `GetVersionEx` here.** It reports **6.2 (Windows 8)**
 on every 8.1/10/11 machine unless the EXE carries a manifest naming the newer
 `<supportedOS>` GUIDs, and `retro_agent.exe` has no manifest at all — its only

@@ -190,7 +190,10 @@ def test_the_startup_pass_asks_the_policy_first():
     s = code_only(body(QB, "qbinds_startup"))
     assert s.index("host_policy_skip") < s.index("qb_switch(")
     t = code_only(body(QB, "qbinds_apply_title"))
-    assert "host_manages_this_box()" in t
+    # 1.100.0: a games-only modern box (ModernGamesOnly=1) takes the layout
+    # too - it is game config, not host config. host_allows_games() still
+    # refuses a plain unmanaged Windows 10/11 box.
+    assert "host_allows_games()" in t
 
 
 # --------------------------------------------------------------------------

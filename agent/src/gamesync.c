@@ -2936,6 +2936,10 @@ static int gs_ole_load(void)
 static int gs_user_desktop_dir(char *out, DWORD cch)
 {
     out[0] = 0;
+    /* GAMES ONLY (a shared modern PC): the logged-on user's own desktop is
+     * theirs - never scanned, never swept, never written. */
+    if (host_games_only())
+        return 0;
     if (g_gs_SHGetFolderPathA &&
         SUCCEEDED(g_gs_SHGetFolderPathA(NULL, GS_CSIDL_DESKTOPDIRECTORY,
                                         NULL, 0, out)) && out[0])
@@ -2956,6 +2960,31 @@ static int gs_user_desktop_dir(char *out, DWORD cch)
 
 static int gs_desktop_dir(char *out, DWORD cch)
 {
+    /* GAMES ONLY: every game shortcut goes into ONE folder on the All Users
+     * (Public) desktop, so every account on a shared PC sees the games and
+     * nobody's own desktop changes. No per-user fallback: a folder that only
+     * the agent's account can see is not what was asked for. */
+    if (host_games_only()) {
+        char base[MAX_PATH];
+        base[0] = 0;
+        if (!g_gs_SHGetFolderPathA ||
+            FAILED(g_gs_SHGetFolderPathA(NULL, GS_CSIDL_COMMON_DESKTOPDIRECTORY,
+                                         NULL, 0, base)) || !base[0]) {
+            log_msg(LOG_GS, "games only: cannot locate the Public desktop - no shortcuts");
+            out[0] = 0;
+            return 0;
+        }
+        _snprintf(out, cch - 1, "%s\\%s", base, HOSTPOLICY_GAMES_FOLDER);
+        out[cch - 1] = 0;
+        if (!gs_file_exists(out) && !CreateDirectoryA(out, NULL) &&
+            GetLastError() != ERROR_ALREADY_EXISTS) {
+            log_msg(LOG_GS, "games only: cannot create %s (error %lu) - no shortcuts",
+                    out, (unsigned long)GetLastError());
+            out[0] = 0;
+            return 0;
+        }
+        return 1;
+    }
     if (g_gs_SHGetFolderPathA) {
         if (SUCCEEDED(g_gs_SHGetFolderPathA(NULL, GS_CSIDL_COMMON_DESKTOPDIRECTORY,
                                             NULL, 0, out)) && out[0])
@@ -5677,9 +5706,17 @@ static void gs_run(const char *library)
      * considered every title. tests/python/test_gamesync_sweep_order.py. */
     gs_desk_snapshot();
     /* The operator's own tools: rewritten in place if they moved, otherwise
-     * claimed as they are - either way the end-of-run sweep keeps them. */
-    gs_place_tool_shortcuts();
-    gs_stage_wallpapers(library);
+     * claimed as they are - either way the end-of-run sweep keeps them.
+     * GAMES ONLY (a shared modern PC, host_games_only()): no tool icons, no
+     * wallpapers - the run touches its game trees and its own folder only. */
+    if (!host_games_only()) {
+        gs_place_tool_shortcuts();
+        gs_stage_wallpapers(library);
+    } else {
+        log_msg(LOG_GS, "games only: shortcuts go to %s; no wallpaper, theme, "
+                        "tool icons, display change, sweep or icon arrange",
+                g_gs_desk_common[0] ? g_gs_desk_common : "(Public desktop unavailable)");
+    }
 
     EnterCriticalSection(&g_gs_lock);
     memset(&g_gs, 0, sizeof(g_gs));
@@ -5731,8 +5768,10 @@ static void gs_run(const char *library)
      * with what each title's own launcher writes, so the desktop has to be on
      * its best rate first for that number to be the best one. It also reaches
      * every engine that has no refresh setting of its own, which on this
-     * library is most of them. */
-    gameres_apply_display();
+     * library is most of them. NOT on a games-only box: its desktop mode is
+     * the household's, not ours. */
+    if (!host_games_only())
+        gameres_apply_display();
 
     {
         char why[200];
@@ -6132,7 +6171,9 @@ static void gs_run(const char *library)
      * considered EVERY title may do it (ds_run_may_sweep): an aborted run, or
      * one whose library listing was cut short or capped, never looked at some
      * titles, and sweeping would take their icons with it. */
-    if (ds_run_may_sweep(g_gs_abort != 0, listing_complete, titles_failed))
+    if (host_games_only())
+        log_msg(LOG_GS, "games only: no desktop sweep");
+    else if (ds_run_may_sweep(g_gs_abort != 0, listing_complete, titles_failed))
         gs_sweep_unclaimed();
     else if (!g_gs_abort && listing_complete)
         log_msg(LOG_GS, "desktop NOT swept: %d title(s) finished with errors and "
@@ -6158,7 +6199,11 @@ static void gs_run(const char *library)
      * the counter: icons added, plus icons that were there and really went. */
     gs_desk_settle_lnks();
 
-    if (gs_desk_changed()) {
+    if (host_games_only()) {
+        log_msg(LOG_GS, "games only: icon layout left to Windows (%ld file(s) "
+                        "written, %ld new/removed shortcut(s))",
+                gs_desk_files(), gs_desk_lnks());
+    } else if (gs_desk_changed()) {
         log_msg(LOG_GS, "desktop changed (%ld file(s) written, %ld new/removed "
                         "shortcut(s)) - arranging icons",
                 gs_desk_files(), gs_desk_lnks());
@@ -6270,9 +6315,10 @@ static int gs_start(const char *library)
     /* Never copy the retro library onto a modern Windows host (see
      * gamesync_thread). The GAMESYNC command is already refused there by the
      * command table; this covers every other caller. */
-    if (!host_manages_this_box()) {
+    if (!host_allows_games()) {
         log_msg(LOG_GS, "not starting: modern Windows host is not managed "
-                "(HKLM\\Software\\RetroAgent\\ManageModernWindows=1 overrides)");
+                "(HKLM\\Software\\RetroAgent\\ManageModernWindows=1 overrides, "
+                "or ModernGamesOnly=1 for games only)");
         return 0;
     }
 

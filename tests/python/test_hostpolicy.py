@@ -130,7 +130,11 @@ def test_startup_appliers_are_guarded(path, func, what):
     s = read(SRC / path)
     body = _function_body(s, func)
     assert body is not None, f"{func} not found in {path}"
-    assert "host_policy_skip" in body or "host_manages_this_box" in body, (
+    # host_allows_games() = managed OR games-only (ModernGamesOnly=1): only the
+    # library sync and its per-title game configs may take that wider gate.
+    assert ("host_policy_skip" in body or "host_manages_this_box" in body
+            or (func in ("gs_start", "qbinds_apply_title")
+                and "host_allows_games" in body)), (
         f"{func} ({what}) runs without consulting hostpolicy - it would apply "
         f"on a Windows 11 box"
     )
@@ -277,7 +281,7 @@ def test_gamesync_thread_asks_the_policy_before_doing_anything():
 def test_gs_start_asks_the_policy_before_starting_a_worker():
     body = _function_body(read(SRC / "gamesync.c"), "gs_start")
     assert body is not None
-    assert body.index("host_manages_this_box") < body.index("CreateThread(")
+    assert body.index("host_allows_games") < body.index("CreateThread(")
 
 
 def test_hwprofile_reports_the_host_policy():
@@ -288,3 +292,52 @@ def test_hwprofile_reports_the_host_policy():
     block = s[i:i + 400]
     assert 'json_kv_bool(&j, "modern", host_is_modern_windows())' in block
     assert 'json_kv_bool(&j, "managed", host_manages_this_box())' in block
+
+
+# --- GAMES ONLY (ModernGamesOnly=1, agent 1.100.0) --------------------------
+# A shared modern PC (.139) gets the staged games in ONE Public-desktop folder
+# and nothing else. Each test pins one thing that run must NOT do.
+
+def test_games_only_requires_an_unmanaged_box_and_the_value():
+    s = read(SRC / "hostpolicy.c")
+    body = _function_body(s, "host_games_only")
+    assert body is not None
+    assert body.index("host_manages_this_box()") < body.index("HOSTPOLICY_GAMESONLY_VALUE")
+    assert "host_manages_this_box() || host_games_only()" in _function_body(s, "host_allows_games")
+
+
+def test_games_only_unlocks_gamesync_and_nothing_else_at_dispatch():
+    s = read(SRC / "handlers.c")
+    i = s.index("entry->reconfigures_host && !host_manages_this_box()")
+    guard = s[i:i + 200]
+    assert 'host_games_only() && _stricmp(entry->name, "GAMESYNC") == 0' in guard
+
+
+def test_startup_thread_still_never_provisions_a_modern_box():
+    """Games only is operator-driven (GAMESYNC); the startup thread stays out."""
+    body = _function_body(read(SRC / "gamesync.c"), "gamesync_thread")
+    assert "host_manages_this_box()" in body
+    assert "host_allows_games" not in body and "host_games_only" not in body
+
+
+def test_games_only_shortcuts_go_to_one_public_desktop_folder():
+    s = read(SRC / "gamesync.c")
+    d = _function_body(s, "gs_desktop_dir")
+    assert d.index("host_games_only()") < d.index("GS_CSIDL_DESKTOPDIRECTORY")
+    assert "HOSTPOLICY_GAMES_FOLDER" in d
+    u = _function_body(s, "gs_user_desktop_dir")
+    assert u.index("host_games_only()") < u.index("SHGetFolderPathA")
+
+
+def test_games_only_run_skips_every_host_change():
+    body = _function_body(read(SRC / "gamesync.c"), "gs_run")
+    for call in ("gs_place_tool_shortcuts();", "gs_stage_wallpapers(library);",
+                 "gameres_apply_display();", "gs_sweep_unclaimed();",
+                 "gs_desktop_icons_apply();"):
+        at = body.index(call)
+        guard = body.rfind("host_games_only()", 0, at)
+        assert guard != -1 and at - guard < 700, f"{call} is not behind host_games_only()"
+
+
+def test_hwprofile_reports_games_only():
+    assert 'json_kv_bool(&j, "games_only", host_games_only())' in read(SRC / "hwprofile.c")

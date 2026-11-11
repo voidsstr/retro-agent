@@ -51,6 +51,18 @@
 #define HOSTPOLICY_OVERRIDE_KEY   "Software\\RetroAgent"
 #define HOSTPOLICY_OVERRIDE_VALUE "ManageModernWindows"
 
+/* HKLM\Software\RetroAgent\ModernGamesOnly (DWORD) - agent 1.100.0.
+ *
+ * 1 on a modern box that is NOT managed = "GAMES ONLY": GAMESYNC may copy the
+ * staged library and make shortcuts, and NOTHING ELSE about the host changes -
+ * no theme, wallpaper, screensaver, icon layout, autologon, display mode or
+ * desktop sweep. Every game shortcut goes into ONE folder on the All Users
+ * (Public) desktop, HOSTPOLICY_GAMES_FOLDER, so a shared family PC keeps its
+ * own desktop exactly as it was. Made for .139 (Windows 10, a shared PC).
+ * Ignored on a managed box (Win9x/XP/7, or ManageModernWindows=1). */
+#define HOSTPOLICY_GAMESONLY_VALUE "ModernGamesOnly"
+#define HOSTPOLICY_GAMES_FOLDER    "Retro Games"
+
 /* The first Windows major version treated as "modern". 10 covers Windows 10
  * and 11 (Windows 11 still reports major 10; it is identified by build >=
  * 22000, which does not matter here - both are modern). Windows 7 is 6.1 and
@@ -74,6 +86,12 @@ int host_is_modern_windows(void);
  * Result is computed once and cached, so callers in hot paths are free.
  */
 int host_manages_this_box(void);
+
+/* 1 = modern, unmanaged, and ModernGamesOnly=1 (see above). Cached. */
+int host_games_only(void);
+
+/* 1 = GAMESYNC may run here: a managed box, or a games-only one. */
+int host_allows_games(void);
 
 /*
  * Guard for a named piece of host-changing work.

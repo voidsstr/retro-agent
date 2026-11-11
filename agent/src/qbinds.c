@@ -452,7 +452,7 @@ int qbinds_apply_title(const char *dst_dir, const char *title, int *not_executed
 
     if (not_executed)
         *not_executed = 0;
-    if (!t || !host_manages_this_box())
+    if (!t || !host_allows_games())   /* games-only boxes get the layout too */
         return 0;
     qbinds_init();
     mode = qb_switch(&present, &raw);

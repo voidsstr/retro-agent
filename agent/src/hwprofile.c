@@ -1139,6 +1139,7 @@ char *hwprofile_json(void)
     json_object_start(&j);
     json_kv_bool(&j, "modern", host_is_modern_windows());
     json_kv_bool(&j, "managed", host_manages_this_box());
+    json_kv_bool(&j, "games_only", host_games_only());
     json_object_end(&j);
 
     json_key(&j, "directx");
