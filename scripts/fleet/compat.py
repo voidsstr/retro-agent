@@ -1091,6 +1091,29 @@ def cmd_record(con, a):
         # comes to mean "somebody thought so".
         print("WARNING: recorded `verified` with NO evidence. A verified row "
               "with no evidence is an opinion; pass --evidence.", file=sys.stderr)
+    if a.runs and a.shortcut and not con.execute(
+            "SELECT 1 FROM compat_render WHERE ip=? AND title=? AND shortcut=''",
+            (ip, a.title)).fetchone():
+        # THE CELL IS STILL `untested` AND `record` HAS JUST SAID "recorded".
+        #
+        # `v_compat_matrix` joins the render table with `AND r.shortcut=''`,
+        # because a title's several shortcuts need different machines (BF1942's
+        # host launcher checks no disc while its Play launcher does), so the
+        # per-shortcut rows are DETAIL hanging off the title-level cell. That
+        # model is right - but it means `record --shortcut ...` writes a row
+        # nothing displays: `matrix`, `status` and `gaps` all still read
+        # `untested`, and the only thing claiming otherwise is this command's
+        # own success line. Three verifications were lost exactly that way on
+        # 2026-08-31 and had to be measured a second time.
+        #
+        # So say it, at the moment it happens, and name the command that fixes
+        # it. Tolerating the shape is fine; concealing it is not.
+        print("WARNING: --shortcut %r records a PER-SHORTCUT row ONLY. The "
+              "title-level cell for %s on %s is STILL `untested` in "
+              "matrix/status/gaps, which show the shortcut='' row.\n"
+              "         To close the cell, record it again WITHOUT --shortcut "
+              "(name the shortcut in --detail instead)."
+              % (a.shortcut, a.title, ip), file=sys.stderr)
     print("recorded %s %s: %s (measured, %s)" % (ip, a.title,
                                                  ", ".join(wrote), when))
     return 0

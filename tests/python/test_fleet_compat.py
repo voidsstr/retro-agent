@@ -392,3 +392,70 @@ class TestSchemaCoexistsWithFleetbook(Base):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestShortcutScopedRecordIsNotSilent(Base):
+    r"""A `record --shortcut ...` writes a row the matrix does not show.
+
+    `v_compat_matrix` joins the render table with `AND r.shortcut=''`, so a
+    per-shortcut row leaves the title's cell reading `untested` - while
+    `record` prints "recorded ... runs=verified". On 2026-08-31 three real
+    verifications (.133/.143 Quake3Arena, HalfLife-Deathmatch,
+    HalfLife-BlueShift) were lost that way and had to be measured again.
+
+    The model is deliberate and stays: a title's shortcuts need different
+    machines, so they are detail hanging off the cell. What must not stay is
+    the SILENCE. These tests pin both halves.
+    """
+
+    def test_shortcut_row_does_not_close_the_cell(self):
+        self.seed()
+        rc = compat.main(["--db", self.path, "record", "--box", ".143",
+                          "--title", "Quake1", "--runs", "verified",
+                          "--shortcut", "Play Quake.bat"])
+        self.assertEqual(rc, 0)
+        row = compat._matrix_rows(self.con, box=".143", title="Quake1")[0]
+        self.assertEqual(row["runs"], "untested",
+                         "the matrix shows the title-level row; if this ever "
+                         "changes, drop the warning too")
+
+    def test_it_warns_when_the_cell_is_left_untested(self):
+        self.seed()
+        import io
+        import contextlib
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            compat.main(["--db", self.path, "record", "--box", ".143",
+                         "--title", "Quake1", "--runs", "verified",
+                         "--shortcut", "Play Quake.bat",
+                         "--evidence", "/tmp/a.png"])
+        msg = err.getvalue()
+        self.assertIn("--shortcut", msg)
+        self.assertIn("untested", msg)
+        self.assertIn("WITHOUT --shortcut", msg)
+
+    def test_no_warning_once_the_title_level_row_exists(self):
+        self.seed()
+        import io
+        import contextlib
+        compat.main(["--db", self.path, "record", "--box", ".143",
+                     "--title", "Quake1", "--runs", "verified",
+                     "--evidence", "/tmp/a.png"])
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            compat.main(["--db", self.path, "record", "--box", ".143",
+                         "--title", "Quake1", "--runs", "verified",
+                         "--shortcut", "Play Quake.bat",
+                         "--evidence", "/tmp/a.png"])
+        self.assertNotIn("PER-SHORTCUT", err.getvalue())
+
+    def test_no_warning_for_a_plain_title_level_record(self):
+        self.seed()
+        import io
+        import contextlib
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            compat.main(["--db", self.path, "record", "--box", ".143",
+                         "--title", "Quake1", "--runs", "verified",
+                         "--evidence", "/tmp/a.png"])
+        self.assertNotIn("PER-SHORTCUT", err.getvalue())
