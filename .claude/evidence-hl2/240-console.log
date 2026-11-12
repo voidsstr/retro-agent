@@ -1,0 +1,5 @@
+Steam config directory: C:\Games\HalfLife2\platform\config
+DS:stereo speaker configuration detected
+Both ConVars must be marked FCVAR_REPLICATED for linkage to work (sv_noclipduringpause)
+Can't use cheat cvars in multiplayer, unless the server has sv_cheats set to 1.
+Can't use cheat cvars in multiplayer, unless the server has sv_cheats set to 1.
