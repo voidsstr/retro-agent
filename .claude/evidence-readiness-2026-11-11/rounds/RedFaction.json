@@ -1,0 +1,94 @@
+{
+ "game": "RedFaction",
+ "time": "2026-11-11T19:35:29",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.123",
+ "boxes": {
+  "110": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "133": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "rf.exe"
+   ],
+   "foreground": "Red Faction",
+   "shot": "RedFaction_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

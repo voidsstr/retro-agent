@@ -1,0 +1,77 @@
+{
+ "key": "SystemShock2",
+ "title": "System Shock 2 (single player)",
+ "mode": "sp_only",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@85, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_110.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@100, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_123.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@85, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_133.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@60, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_143.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@85, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_171.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@85, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_184.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "SystemShock2",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked by the verifier: lanparty check showed shock2.exe and SHOCK2.ICD running (SHOCK2.ICD means the SafeDisc v1 check passed and the engine is up). WINLIST foreground was LookingGlassTechnologies_WindowsGameShell_v2 'System Shock 2 Final 1.15'. DISPLAYCFG read 640x480x16@60, i.e. an exclusive fullscreen mode switch. Frame .claude/evidence-readiness-2026-11-11/rounds/SystemShock2_240.jpg shows the TRI.OPTIMUM main menu (New Game / Load Game / Options / Credits / Intro / Quit). The menu is 2D, so the in-game 3D view was not exercised."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "reason": "D3D on vcr-kmd is supervised-only",
+   "evidence": "SS2 is a Direct3D title (d3d124 in lanparty_titles.json). .124 runs the experimental vcr-kmd driver on its V5 6000, so it was not launched. SS2 has rendered its menu there before (2026-09-29, 2026-11-08), but only in supervised sessions."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "reason": "Windows 7 with the GTX 1650 on the Standard VGA stub, so there is no 3D driver. It also has no disc mounter for the SafeDisc v1 check.",
+   "evidence": "Not in the title's boxes list, and the gate suppresses the shortcut."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "reason": "Win98 P166 is below the title's CPU floor; its Voodoo 2 does Glide only, not D3D; and it has no disc mounter.",
+   "evidence": "The title is not installed there (operator override 'not wanted on .243'). Not touched."
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "System Shock 2 is single-player only as staged (retail Final 1.15, no multiplayer patch on the share, no server). I re-verified it now on all 7 applicable XP boxes (.110 .123 .133 .143 .171 .184 .240). On each one the SafeDisc v1 disc-mount launch passed: SHOCK2.ICD was running, the LookingGlass game shell window had the foreground, the display was in a 640x480x16 fullscreen mode, and the TRI.OPTIMUM main menu was rendered, so all 7 are PASS_SP. This is the first time it has been seen rendering on .110, .123, .184 and .240. .124 is BLOCKED (D3D on vcr-kmd is supervised-only). .186 and .243 are NA. Games closed and every box is back at its desktop mode.",
+ "issues": [
+  "lanparty kill had to force-close shock2.exe/SHOCK2.ICD on all 7 boxes, because WM_CLOSE was ignored for 12 s. The recipe warns that an unclean exit can leave the DAEMON Tools unit 'locked', which only a reboot clears. This cannot be read remotely, so on the next SS2 launch watch for a 'Unit is locked' dialog or 'Cannot locate the CD-ROM'.",
+  "The menu is a 2D panel, so this proves the launch, the copy protection and the fullscreen mode but not the 3D renderer (New Game was not started). .133 has rendered 3D in-game in an earlier session.",
+  "lanparty kill takes the game as a positional argument (kill SystemShock2), not --game, so the task's command line is wrong.",
+  "lanparty's frames are SCREENSHOT 1 at 320x240, and some boxes produced byte-identical images (.110 = .240, .123 = .184) because the menu is static. Each box's own WINLIST and DISPLAYCFG from the same minute tie the frame to that box."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

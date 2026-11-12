@@ -1,0 +1,160 @@
+{
+ "game": "Turok2",
+ "time": "2026-11-11T19:12:10",
+ "roster": [
+  [
+   "Fleet143",
+   15,
+   false,
+   null
+  ],
+  [
+   "Fleet124",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet133",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet184",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet240",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet171",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet123",
+   1,
+   false,
+   null
+  ],
+  [
+   "Fleet110",
+   2,
+   false,
+   null
+  ],
+  [
+   "__info__",
+   "8",
+   "16"
+  ]
+ ],
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.110",
+ "boxes": {
+  "110": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_110.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "123": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_123.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "Turok 2 Game Launcher  v1.04  (T2-Glide3 v1.0)",
+   "shot": "Turok2_124.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_133.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_143.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_171.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_184.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "turok2mpenglish.exe"
+   ],
+   "foreground": "TurokD3D -  HAL",
+   "shot": "Turok2_240.jpg",
+   "black": false,
+   "on_server": true,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -451,6 +451,13 @@ async def kill_games(c, octet, names, quit9x=None, grace=GRACE_S):
 
     def live(lst):
         return [p for p in lst if base(p.get("name")) in names]
+
+    async def relist(prev):
+        # a box busy with a hung taskkill can answer PROCLIST with junk: keep the last list
+        try:
+            return live(await proclist(c))
+        except Exception:
+            return prev
     try:
         run = live(await proclist(c))
     except Exception:
@@ -475,7 +482,7 @@ async def kill_games(c, octet, names, quit9x=None, grace=GRACE_S):
                     await asyncio.sleep(0.7)
                 for _ in range(max(1, grace // 2)):
                     await asyncio.sleep(2)
-                    run = live(await proclist(c))
+                    run = await relist(run)
                     if not run:
                         return ["console quit"]
         killed = []
@@ -498,7 +505,7 @@ async def kill_games(c, octet, names, quit9x=None, grace=GRACE_S):
             pass
     for _ in range(max(1, grace // 2)):
         await asyncio.sleep(2)
-        run = live(await proclist(c))
+        run = await relist(run)
         if not run:
             return [n + " (closed)" for n in closed]
     forced = []

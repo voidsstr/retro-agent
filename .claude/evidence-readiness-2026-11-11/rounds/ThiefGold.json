@@ -1,0 +1,94 @@
+{
+ "game": "ThiefGold",
+ "time": "2026-11-11T19:38:42",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "thief.exe"
+   ],
+   "foreground": "Thief  1.37 ",
+   "shot": "ThiefGold_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

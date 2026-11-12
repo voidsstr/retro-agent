@@ -1,0 +1,94 @@
+{
+ "game": "MaxPayne",
+ "time": "2026-11-11T19:49:43",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "maxpayne.exe"
+   ],
+   "foreground": "Max Payne v1.05",
+   "shot": "MaxPayne_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

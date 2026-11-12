@@ -1,0 +1,82 @@
+{
+ "key": "RedFaction",
+ "title": "Red Faction",
+ "mode": "box-hosted dedicated TeamDM server on .123:7755, LAN join",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh check frame RedFaction_110.jpg (19:35:28) shows the TEAM DEATHMATCH scoreboard on 192.168.1.123:7755 with Fleet110 highlighted, among all 7 names (Red: Fleet143/133/171/240, Blue: Fleet184/110/123); foreground Red Faction"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh check frame RedFaction_123.jpg (19:35:28) shows the TEAM DEATHMATCH scoreboard on 192.168.1.123:7755 with Fleet123 highlighted, among all 7 names (Red: Fleet143/133/171/240, Blue: Fleet184/110/123); foreground Red Faction; this box also hosts the dedicated server (rf.exe -dedicated teamdm -lanonly -port 7755)"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh check frame RedFaction_133.jpg (19:35:28) shows the TEAM DEATHMATCH scoreboard on 192.168.1.123:7755 with Fleet133 highlighted, among all 7 names (Red: Fleet143/133/171/240, Blue: Fleet184/110/123); foreground Red Faction"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh check frame RedFaction_143.jpg (19:35:28) shows the TEAM DEATHMATCH scoreboard on 192.168.1.123:7755 with Fleet143 highlighted, among all 7 names (Red: Fleet143/133/171/240, Blue: Fleet184/110/123); foreground Red Faction"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh check frame RedFaction_171.jpg (19:35:28) shows the TEAM DEATHMATCH scoreboard on 192.168.1.123:7755 with Fleet171 highlighted, among all 7 names (Red: Fleet143/133/171/240, Blue: Fleet184/110/123); foreground Red Faction"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh check frame RedFaction_184.jpg (19:35:28) shows the TEAM DEATHMATCH scoreboard on 192.168.1.123:7755 with Fleet184 highlighted, among all 7 names (Red: Fleet143/133/171/240, Blue: Fleet184/110/123); foreground Red Faction"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_MP",
+   "client": "RedFaction",
+   "evidence": "server query 192.168.1.123:7755 at 19:35:34 = \"Administrator's Dedicated TeamDM\" TeamDM 7/16 The Lobby; fresh frame RedFaction_240.jpg shows the in-level view of The Lobby (rendering, joined), foreground Red Faction; Fleet240 is named on all 6 other boxes' fresh scoreboards"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched",
+   "reason": "D3D on vcr-kmd is supervised-only. Red Faction is Direct3D 8 only."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Capability gate suppressed the shortcut",
+   "reason": "Windows 7 on the Standard VGA stub: no 3D driver for rf.exe's D3D8, and no disc mounter."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not installed",
+   "reason": "Operator override 'not wanted on .243' in gamegate overrides.txt; also below RF's floors (P166 against 300 MHz, 127 MB against 128 MB)."
+  }
+ ],
+ "players_in_one_game": 7,
+ "summary": "7 boxes (.110 .123 .133 .143 .171 .184 .240) were proven in ONE TeamDM game on .123's dedicated server. My own UDP query read 7/16, and the fresh scoreboard frames name all 7 Fleet<octet> players. .124 is BLOCKED (D3D on vcr-kmd is supervised-only). .186 and .243 are NA. The game was closed everywhere and no rf.exe remains. ForcePort on .123 was reset to 0 and read back.",
+ "issues": [
+  "lanparty.py has no 'rf' roster kind, so its roster reads null and on_server '?'. The witness was a manual UDP query (00 00 00) to .123:7755 plus the in-game scoreboards.",
+  "In the RF query reply the 0x87 marker sits at byte 4, not byte 3 as recipes.json says.",
+  "No packet counts: the host is a fleet box, so tcpdump on .132 cannot see the client traffic.",
+  "kill had to force rf.exe on 6 of 7 boxes. WM_CLOSE did not end RF within 12 s; only .133 closed gracefully. No crash dialogs: every foreground afterwards is the agent or chat console.",
+  "The kill CLI takes the title as a positional argument; the documented 'kill --game RedFaction' fails with 'unrecognized arguments'.",
+  "Desktop modes after the round look normal: .110 1600x1200@85, .123 1280x1024@100, .133 1280x1024@85, .143 1280x1024@60, .171 1280x1024@85, .184 1024x768@85, .240 1920x1080@60.",
+  "gamestart.txt was left on the boxes; it is harmless."
+ ],
+ "library_fix_needed": [
+  "The compat DB still says Red Faction LAN is needs_human. It is now proven automatable: ListLAN=1, then MULTI > JOIN GAME > the server row > Join at 640x480."
+ ],
+ "closed_cleanly": true
+}

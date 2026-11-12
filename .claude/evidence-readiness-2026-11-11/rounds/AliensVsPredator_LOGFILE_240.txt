@@ -1,0 +1,704 @@
+AwSetDDObject(008f6964) called.
+	Compiled with DirectDraw Version 6.0
+ATOnAppReactivate() called
+ATOnAppReactivate() returning
+Number of HW buffers 32
+Number of HW 3D buffers 30
+Number of HW buffers 32
+Number of HW 3D buffers 29
+Voice Management active.
+EAX suppport.
+Set the Enviroment to 26
+Using EAX,
+Number of HW buffers 32
+Number of HW 3D buffers 1
+Number of HW buffers 32
+Number of HW 3D buffers 1
+Sound launcher.wav loaded into hardware slot 0 by ExtractWavFile.
+Sound wil_pred_disk_throw.wav loaded into hardware slot 1 by ExtractWavFile.
+Sound Pred_pistol_fire.wav loaded into hardware slot 2 by ExtractWavFile.
+Sound wil_pred_speargun_fire.wav loaded into hardware slot 5 by ExtractWavFile.
+Sound pulsesrt.wav loaded into hardware slot 6 by ExtractWavFile.
+Sound pulsemid.wav loaded into hardware slot 7 by ExtractWavFile.
+Sound pulseend.wav loaded into hardware slot 8 by ExtractWavFile.
+Sound visionon.wav loaded into hardware slot 18 by ExtractWavFile.
+Sound alienkil.wav loaded into hardware slot 26 by ExtractWavFile.
+Sound fire1.wav loaded into hardware slot 29 by ExtractWavFile.
+Sound Ed_MarinePickUp_Health.wav loaded into hardware slot 38 by ExtractWavFile.
+Sound wil_bullet_ricochet_01.wav loaded into hardware slot 39 by ExtractWavFile.
+Sound wil_bullet_ricochet_02.wav loaded into hardware slot 40 by ExtractWavFile.
+Sound wil_bullet_ricochet_03.wav loaded into hardware slot 41 by ExtractWavFile.
+Sound wil_bullet_ricochet_04.wav loaded into hardware slot 42 by ExtractWavFile.
+Sound ArmStart.wav loaded into hardware slot 43 by ExtractWavFile.
+Sound ArmMid.wav loaded into hardware slot 44 by ExtractWavFile.
+Sound ArmEnd.wav loaded into hardware slot 45 by ExtractWavFile.
+Sound predroar01.wav loaded into hardware slot 49 by ExtractWavFile.
+Sound splash1.wav loaded into hardware slot 50 by ExtractWavFile.
+Sound splash2.wav loaded into hardware slot 51 by ExtractWavFile.
+Sound splash3.wav loaded into hardware slot 52 by ExtractWavFile.
+Sound splash4.wav loaded into hardware slot 53 by ExtractWavFile.
+Sound PowerUp.wav loaded into hardware slot 54 by ExtractWavFile.
+Sound PowerDn.wav loaded into hardware slot 55 by ExtractWavFile.
+Sound teletext.wav loaded into hardware slot 56 by ExtractWavFile.
+Sound martracker.wav loaded into hardware slot 57 by ExtractWavFile.
+Sound trackwep.wav loaded into hardware slot 58 by ExtractWavFile.
+Sound acdspray.wav loaded into hardware slot 59 by ExtractWavFile.
+Sound doorstat.wav loaded into hardware slot 60 by ExtractWavFile.
+Sound doormid.wav loaded into hardware slot 61 by ExtractWavFile.
+Sound doorend.wav loaded into hardware slot 62 by ExtractWavFile.
+Sound BorgOn.wav loaded into hardware slot 63 by ExtractWavFile.
+Sound Ed_Common_Sparks.wav loaded into hardware slot 64 by ExtractWavFile.
+Sound Stomp.wav loaded into hardware slot 65 by ExtractWavFile.
+Sound loadmove.wav loaded into hardware slot 66 by ExtractWavFile.
+Sound faceattk.wav loaded into hardware slot 67 by ExtractWavFile.
+Sound facemve.wav loaded into hardware slot 68 by ExtractWavFile.
+Sound noammo.wav loaded into hardware slot 69 by ExtractWavFile.
+Sound Ed_PulseGrenade_Launch.wav loaded into hardware slot 72 by ExtractWavFile.
+Sound Ed_PulseGrenade_Explode.wav loaded into hardware slot 73 by ExtractWavFile.
+Sound incinsrt.wav loaded into hardware slot 75 by ExtractWavFile.
+Sound incinmid.wav loaded into hardware slot 76 by ExtractWavFile.
+Sound incinend.wav loaded into hardware slot 77 by ExtractWavFile.
+Sound Ed_Grenade_Launch.wav loaded into hardware slot 78 by ExtractWavFile.
+Sound shotgun2.wav loaded into hardware slot 79 by ExtractWavFile.
+Sound Ed_smart_fire_1.wav loaded into hardware slot 80 by ExtractWavFile.
+Sound Ed_smart_fire_2.wav loaded into hardware slot 81 by ExtractWavFile.
+Sound Ed_smart_fire_3.wav loaded into hardware slot 82 by ExtractWavFile.
+Sound Ed_SentyGun_Fire_Mid_Lp.wav loaded into hardware slot 83 by ExtractWavFile.
+Sound Ed_SentyGun_Fire_End.wav loaded into hardware slot 84 by ExtractWavFile.
+Sound Ed_sadar_explosion01.wav loaded into hardware slot 85 by ExtractWavFile.
+Sound explo1.wav loaded into hardware slot 86 by ExtractWavFile.
+Sound Ed_minigun_end.wav loaded into hardware slot 87 by ExtractWavFile.
+Sound Ed_minigun_fire.wav loaded into hardware slot 88 by ExtractWavFile.
+Sound wil_pred_speargun_hit_wall.wav loaded into hardware slot 89 by ExtractWavFile.
+Sound edfrag.wav loaded into hardware slot 90 by ExtractWavFile.
+Sound Predcandisapate.wav loaded into hardware slot 91 by ExtractWavFile.
+Sound predsholdhit22.wav loaded into hardware slot 92 by ExtractWavFile.
+Sound AlienJawAttack.wav loaded into hardware slot 94 by ExtractWavFile.
+Sound trackwephigh.wav loaded into hardware slot 95 by ExtractWavFile.
+Sound trackweplow.wav loaded into hardware slot 96 by ExtractWavFile.
+Sound pulse_rifle_empty.wav loaded into hardware slot 97 by ExtractWavFile.
+Sound flarethrowF.wav loaded into hardware slot 98 by ExtractWavFile.
+Sound hack.wav loaded into hardware slot 99 by ExtractWavFile.
+Sound hack01.wav loaded into hardware slot 100 by ExtractWavFile.
+Sound hack02.wav loaded into hardware slot 101 by ExtractWavFile.
+Sound hack03.wav loaded into hardware slot 102 by ExtractWavFile.
+Sound hack04.wav loaded into hardware slot 103 by ExtractWavFile.
+Sound wil_console_activates.wav loaded into hardware slot 104 by ExtractWavFile.
+Sound wil_console_deactivates.wav loaded into hardware slot 105 by ExtractWavFile.
+Sound wil_console_message_marine03.wav loaded into hardware slot 106 by ExtractWavFile.
+Sound wil_console_message_alien.wav loaded into hardware slot 107 by ExtractWavFile.
+Sound wil_console_message_predator.wav loaded into hardware slot 108 by ExtractWavFile.
+Sound Ed_minigun_empty.wav loaded into hardware slot 110 by ExtractWavFile.
+Sound wil_smart_modeswitch.wav loaded into hardware slot 111 by ExtractWavFile.
+Sound Ed_Grenade_Bounce.wav loaded into hardware slot 112 by ExtractWavFile.
+Sound wil_flare_burn_lp.wav loaded into hardware slot 113 by ExtractWavFile.
+Sound Ed_MarinePickUp_Weapon.wav loaded into hardware slot 117 by ExtractWavFile.
+Sound Ed_MarinePickUp_Armour.wav loaded into hardware slot 118 by ExtractWavFile.
+Sound Ed_MarinePickUp_Armour.wav loaded into hardware slot 119 by ExtractWavFile.
+Sound wil_pickup_predator_fieldcharge.wav loaded into hardware slot 120 by ExtractWavFile.
+Sound Pred_vision_active_lp.wav loaded into hardware slot 122 by ExtractWavFile.
+Sound Ed_Pred_Plasma_Targetlock_Start.wav loaded into hardware slot 125 by ExtractWavFile.
+Sound Ed_Pred_Plasma_Targetlock_Mid_Loop.wav loaded into hardware slot 126 by ExtractWavFile.
+Sound Ed_Pred_Plasma_Targetlock_End.wav loaded into hardware slot 127 by ExtractWavFile.
+Sound Pred_plasma_charging_lp.wav loaded into hardware slot 128 by ExtractWavFile.
+Sound wil_pred_plasma_empty.wav loaded into hardware slot 129 by ExtractWavFile.
+Sound wil_pred_disk_lockedon.wav loaded into hardware slot 130 by ExtractWavFile.
+Sound wil_pred_disk_inflight_lp.wav loaded into hardware slot 131 by ExtractWavFile.
+Sound wil_pred_disk_hit_target.wav loaded into hardware slot 132 by ExtractWavFile.
+Sound wil_pred_disk_hit_wall.wav loaded into hardware slot 133 by ExtractWavFile.
+Sound wil_pred_disk_caught.wav loaded into hardware slot 134 by ExtractWavFile.
+Sound wil_pred_disk_wallrecover.wav loaded into hardware slot 135 by ExtractWavFile.
+Sound wil_sentry_shutdown.wav loaded into hardware slot 142 by ExtractWavFile.
+Sound wil_minigun_ready.wav loaded into hardware slot 143 by ExtractWavFile.
+Sound Sadar_temp.wav loaded into hardware slot 144 by ExtractWavFile.
+Sound wil_pred_disk_sticksinwall.wav loaded into hardware slot 145 by ExtractWavFile.
+Sound Ed_Pred_Plasma_RedTriangles.wav loaded into hardware slot 146 by ExtractWavFile.
+Sound Pred_pistol_explosion.wav loaded into hardware slot 147 by ExtractWavFile.
+Sound proxmine_readytoblow.wav loaded into hardware slot 148 by ExtractWavFile.
+Sound proxmine_active.wav loaded into hardware slot 149 by ExtractWavFile.
+Sound Ed_Grenade_Explosion.wav loaded into hardware slot 153 by ExtractWavFile.
+Sound Ed_Grenade_ProxExplosion.wav loaded into hardware slot 154 by ExtractWavFile.
+Sound Ed_Molotov_explosion.wav loaded into hardware slot 155 by ExtractWavFile.
+Sound Ed_LargeWeaponDrop.wav loaded into hardware slot 156 by ExtractWavFile.
+Sound menu_item_select.wav loaded into hardware slot 157 by ExtractWavFile.
+Sound menu_item_change.wav loaded into hardware slot 158 by ExtractWavFile.
+Sound Pred_CloakingOn.wav loaded into hardware slot 162 by ExtractWavFile.
+Sound Pred_CloakingOff.wav loaded into hardware slot 163 by ExtractWavFile.
+Sound pred_zoom_in.wav loaded into hardware slot 164 by ExtractWavFile.
+Sound pred_zoom_out.wav loaded into hardware slot 165 by ExtractWavFile.
+Sound Marine_SmallLanding.wav loaded into hardware slot 166 by ExtractWavFile.
+Sound Pred_SmallLanding.wav loaded into hardware slot 167 by ExtractWavFile.
+Sound Ed_FacehuggerSlap.wav loaded into hardware slot 168 by ExtractWavFile.
+Sound Light_Flicker_On.wav loaded into hardware slot 169 by ExtractWavFile.
+Sound Ed_SentryTurn01.wav loaded into hardware slot 170 by ExtractWavFile.
+Sound Pulse_Swipe01.wav loaded into hardware slot 171 by ExtractWavFile.
+Sound Pulse_Swipe02.wav loaded into hardware slot 172 by ExtractWavFile.
+Sound Pulse_Swipe03.wav loaded into hardware slot 173 by ExtractWavFile.
+Sound Pulse_Swipe04.wav loaded into hardware slot 174 by ExtractWavFile.
+Sound Ed_JetPack_Start.wav loaded into hardware slot 175 by ExtractWavFile.
+Sound Ed_JetPack_Mid_Lp.wav loaded into hardware slot 176 by ExtractWavFile.
+Sound Ed_JetPack_End.wav loaded into hardware slot 177 by ExtractWavFile.
+Sound Grapple_Hit_Wall.wav loaded into hardware slot 178 by ExtractWavFile.
+Sound Grapple_Throw.wav loaded into hardware slot 179 by ExtractWavFile.
+Sound SentryGunDest.wav loaded into hardware slot 180 by ExtractWavFile.
+Sound Ed_Elec_Death.wav loaded into hardware slot 181 by ExtractWavFile.
+Sound Image.wav loaded into hardware slot 182 by ExtractWavFile.
+Sound Image_off.wav loaded into hardware slot 183 by ExtractWavFile.
+Sound Ed_SkeeterLaunch.wav loaded into hardware slot 185 by ExtractWavFile.
+Sound Ed_Skeeter_PlasmaFire.wav loaded into hardware slot 186 by ExtractWavFile.
+Sound Ed_Skeeter_DiskSpin.wav loaded into hardware slot 187 by ExtractWavFile.
+Sound Ed_Skeeter_Disk_HitWall.wav loaded into hardware slot 188 by ExtractWavFile.
+Sound Ed_Skeeter_Charge.wav loaded into hardware slot 189 by ExtractWavFile.
+Sound IntroWoosh.wav loaded into hardware slot 190 by ExtractWavFile.
+AwSetDDObject(008f6964) called.
+	Compiled with DirectDraw Version 6.0
+AwSetSurfaceFormat(0007fd7c) called
+AwSetPixelFormat() OK
+Pixel Format is 16-bit RGB
+	5-6-5
+	Red->[15..11]
+	Green->[10..5]
+	Blue->[4..0]
+CL_LoadImageOnce(): Getting the full pathname for Menus\fractal.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc084
+	Ptr to image height = 005cc088
+	Ptr to backup handle = 005cc080
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Common\aa_font.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc098
+	Ptr to image height = 005cc09c
+	Ptr to backup handle = 005cc094
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\copyright.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc0ac
+	Ptr to image height = 005cc0b0
+	Ptr to backup handle = 005cc0a8
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\FIandRD.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc0c0
+	Ptr to image height = 005cc0c4
+	Ptr to backup handle = 005cc0bc
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\presents.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc0d4
+	Ptr to image height = 005cc0d8
+	Ptr to backup handle = 005cc0d0
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\AliensVPredator.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc0e8
+	Ptr to image height = 005cc0ec
+	Ptr to backup handle = 005cc0e4
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\sliderbar.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc0fc
+	Ptr to image height = 005cc100
+	Ptr to backup handle = 005cc0f8
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\slider.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc110
+	Ptr to image height = 005cc114
+	Ptr to backup handle = 005cc10c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\starfield.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc124
+	Ptr to image height = 005cc128
+	Ptr to backup handle = 005cc120
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\aliens.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc138
+	Ptr to image height = 005cc13c
+	Ptr to backup handle = 005cc134
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\Alien.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc14c
+	Ptr to image height = 005cc150
+	Ptr to backup handle = 005cc148
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\Marine.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc160
+	Ptr to image height = 005cc164
+	Ptr to backup handle = 005cc15c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\Predator.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc174
+	Ptr to image height = 005cc178
+	Ptr to backup handle = 005cc170
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\glowy_left.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc188
+	Ptr to image height = 005cc18c
+	Ptr to backup handle = 005cc184
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\glowy_middle.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc19c
+	Ptr to image height = 005cc1a0
+	Ptr to backup handle = 005cc198
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\glowy_right.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc1b0
+	Ptr to image height = 005cc1b4
+	Ptr to backup handle = 005cc1ac
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\MarineEpisode1.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc1c4
+	Ptr to image height = 005cc1c8
+	Ptr to backup handle = 005cc1c0
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\MarineEpisode2.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc1d8
+	Ptr to image height = 005cc1dc
+	Ptr to backup handle = 005cc1d4
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\MarineEpisode3.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc1ec
+	Ptr to image height = 005cc1f0
+	Ptr to backup handle = 005cc1e8
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\MarineEpisode4.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc200
+	Ptr to image height = 005cc204
+	Ptr to backup handle = 005cc1fc
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\MarineEpisode5.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc214
+	Ptr to image height = 005cc218
+	Ptr to backup handle = 005cc210
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\MarineEpisode6.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc228
+	Ptr to image height = 005cc22c
+	Ptr to backup handle = 005cc224
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc23c
+	Ptr to image height = 005cc240
+	Ptr to backup handle = 005cc238
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc250
+	Ptr to image height = 005cc254
+	Ptr to backup handle = 005cc24c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc264
+	Ptr to image height = 005cc268
+	Ptr to backup handle = 005cc260
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc278
+	Ptr to image height = 005cc27c
+	Ptr to backup handle = 005cc274
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc28c
+	Ptr to image height = 005cc290
+	Ptr to backup handle = 005cc288
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\PredatorEpisode1.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc2a0
+	Ptr to image height = 005cc2a4
+	Ptr to backup handle = 005cc29c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\PredatorEpisode2.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc2b4
+	Ptr to image height = 005cc2b8
+	Ptr to backup handle = 005cc2b0
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\PredatorEpisode3.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc2c8
+	Ptr to image height = 005cc2cc
+	Ptr to backup handle = 005cc2c4
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\PredatorEpisode4.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc2dc
+	Ptr to image height = 005cc2e0
+	Ptr to backup handle = 005cc2d8
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\PredatorEpisode5.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc2f0
+	Ptr to image height = 005cc2f4
+	Ptr to backup handle = 005cc2ec
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\PredatorEpisode5.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc304
+	Ptr to image height = 005cc308
+	Ptr to backup handle = 005cc300
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc318
+	Ptr to image height = 005cc31c
+	Ptr to backup handle = 005cc314
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc32c
+	Ptr to image height = 005cc330
+	Ptr to backup handle = 005cc328
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc340
+	Ptr to image height = 005cc344
+	Ptr to backup handle = 005cc33c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc354
+	Ptr to image height = 005cc358
+	Ptr to backup handle = 005cc350
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc368
+	Ptr to image height = 005cc36c
+	Ptr to backup handle = 005cc364
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\AlienEpisode2.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc37c
+	Ptr to image height = 005cc380
+	Ptr to backup handle = 005cc378
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\AlienEpisode4.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc390
+	Ptr to image height = 005cc394
+	Ptr to backup handle = 005cc38c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\AlienEpisode1.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc3a4
+	Ptr to image height = 005cc3a8
+	Ptr to backup handle = 005cc3a0
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\AlienEpisode3.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc3b8
+	Ptr to image height = 005cc3bc
+	Ptr to backup handle = 005cc3b4
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\AlienEpisode5.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc3cc
+	Ptr to image height = 005cc3d0
+	Ptr to backup handle = 005cc3c8
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc3e0
+	Ptr to image height = 005cc3e4
+	Ptr to backup handle = 005cc3dc
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc3f4
+	Ptr to image height = 005cc3f8
+	Ptr to backup handle = 005cc3f0
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc408
+	Ptr to image height = 005cc40c
+	Ptr to backup handle = 005cc404
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc41c
+	Ptr to image height = 005cc420
+	Ptr to backup handle = 005cc418
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\bonus.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000009
+	Ptr to image width = 005cc430
+	Ptr to image height = 005cc434
+	Ptr to backup handle = 005cc42c
+AwCreateGraphic(): ERROR opening file ""
+The system cannot find the path specified.  
+CL_LoadImageOnce(): Getting the full pathname for Menus\IntroFont.rim
+	(which is a path relative to Graphics or C:\Games\AliensVsPredator\Graphics)
+CL_LoadImageOnce(): ERROR: file not found in relative path
+AwCreateSurface("sfXYB") called
+	Filename = ""
+	Flags = 0x00000000
+	Ptr to image width = 0007fc44
+	Ptr to image height = 0007fc48
+	Ptr to backup handle = 026c0440
+AwCreateGraphic(): ERROR: No data medium is specified
+DB: FAILED ASSERTION BEGINS
+ASSERTION FAILED!
+Expression: pSurface
+File: ..\3dc\win95\alt_tab.cpp Line: 198
+DB: FAILED ASSERTION ENDS

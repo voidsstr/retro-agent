@@ -1,0 +1,89 @@
+{
+ "key": "SoldierOfFortune",
+ "title": "Soldier of Fortune",
+ "mode": "broken_known (no SoF1 server on .132; each box ran a listen deathmatch as a launch check)",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_110_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_110*.txt: 'setting mode 8: 1280 960 FS' -> 'New() from Fleet110' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_123_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_123*.txt: 'setting mode 8: 1280 960 FS' -> 'New() from Fleet123' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.124",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "Same CD-token refusal as every box (FFC11.DLL and the retail disc are missing from the library). SoF is OpenGL, so the vcr-kmd D3D rule does not apply. Not relaunched in the final pass, to stay within .124's one-relaunch limit.",
+   "evidence": "Round frame SoldierOfFortune_124.jpg (fbshot, 1280x960) shows the WON Error modal. SoldierOfFortune_sof_log_124.txt: 'setting mode 8: 1280 960 FS' -> 'New() from Fleet124' -> 'ERROR: Please insert the SOF CD and try again.' Closed gracefully; PROCLIST now has no sof.exe."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_133_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_133*.txt: 'setting mode 8: 1280 960 FS' -> 'New() from Fleet133' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_143_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_143*.txt: 'setting mode 8: 1280 960 FS' -> 'New() from Fleet143' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_171_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_171*.txt: 'setting mode 8: 1280 960 FS' -> 'New() from Fleet171' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_184_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_184*.txt: 'setting mode 6: 1024 768 FS' -> 'New() from Fleet184' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "SoldierOfFortune",
+   "verdict": "FAIL",
+   "reason": "SoF's own CD check (CDTOKEN returns 0) refuses the box's own loopback client: 'ERROR: Please insert the SOF CD and try again.' The staged tree lacks FFC11.DLL and no retail disc image with audio tracks is mounted. This is a library defect, so no level loads.",
+   "evidence": "Final adversarial relaunch 2026-11-11: sof.exe running, foreground 'SoF', frame SoldierOfFortune_240_final.jpg shows the fullscreen 'WON Error! Please insert the SOF CD and try again.' modal; round log SoldierOfFortune_sof_log_240*.txt: 'setting mode 9: 1920 1080 FS' -> 'New() from Fleet240' -> ERROR line. Renders fullscreen; no roster, since there is no SoF1 server."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "reason": "Win7 on a GTX 1650 with the Standard VGA stub: no 3D driver, and SoF has only ref_gl (it would fall back to GDI generic software GL).",
+   "evidence": "Recipe exclusion; not launched."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "reason": "Not installed there: operator override 'not wanted on .243', and the P166 is below the 266 MHz floor.",
+   "evidence": "Recipe exclusion; not launched."
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "0 of 10 boxes ready. 8 applicable boxes (.110 .123 .124 .133 .143 .171 .184 .240) render SoF fullscreen (1280x960, 1024x768 on .184, 1920x1080 on .240). The final re-check relaunched 7 of them and photographed each one. On every box SoF's CD-token check refused its own loopback client ('WON Error! Please insert the SOF CD and try again.'), so no level loads and no shared game is possible. .186 and .243 are NA. All SoF processes are closed.",
+ "issues": [
+  "CDTOKEN needs <exe dir>\\FFC11.DLL (from the retail disc's SETUP folder), which the staged tree lacks (only FFC10.dll is there), plus an MCI cdaudio drive with the retail 2-track layout",
+  "No SoF1 dedicated server exists on .132",
+  "lanparty.py kill takes the game as a positional argument; '--game' is rejected",
+  "The final pass relaunched 7 boxes; .124 was not relaunched (its evidence is from this round's single launch)"
+ ],
+ "library_fix_needed": [
+  "Stage FFC11.DLL from the retail image (Files/Games/Windows XP/Soldier of Fortune (2000).zip -> sof.bin/sof.cue, SETUP folder) beside SoF.exe in Games-Library/SoldierOfFortune",
+  "Stage the bin+cue (keeping audio track 2) under _disc with a make-mount-launcher spec, gated on disc_mount, or use an official CD-check-free SoF.exe",
+  "Then a SoF1 dedicated server on .132 (or a fleet box hosting) for a shared round"
+ ],
+ "closed_cleanly": true
+}

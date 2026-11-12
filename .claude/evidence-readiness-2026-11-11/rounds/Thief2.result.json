@@ -1,0 +1,76 @@
+{
+ "key": "Thief2",
+ "title": "Thief II: The Metal Age (NewDark 1.26)",
+ "mode": "single-player render check",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_110.jpg shows the Thief II main menu fullscreen at 1600x1200, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_123.jpg shows the Thief II main menu fullscreen at 1280x960, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_133.jpg shows the Thief II main menu fullscreen at 1280x960, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_143.jpg shows the Thief II main menu fullscreen at 1280x960, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_171.jpg shows the Thief II main menu fullscreen at 1280x960, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_184.jpg shows the Thief II main menu fullscreen at 1024x768, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "PASS_SP",
+   "client": "Thief2",
+   "evidence": "Re-checked 19:41: thief2.exe running, foreground 'Thief 2 Final 1.26', frame .claude/evidence-readiness-2026-11-11/rounds/Thief2_240.jpg shows the Thief II main menu fullscreen at 1920x1080, with the 4:3 menu pillarboxed, no dialog or black frame. Closed afterwards, PROCLIST clean, desktop restored."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "client": "Thief2",
+   "evidence": "Not launched. NewDark Thief II is Direct3D, and D3D on vcr-kmd is supervised-only.",
+   "reason": "It needs a supervised session with the user at the V5 6000 box."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Win7 32-bit with a GTX 1650 on the Standard VGA stub has no 3D driver. NewDark 1.26 needs a D3D9 HAL and has no software renderer.",
+   "reason": "No D3D9 driver exists for this OS and GPU."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not deployed. The gamegate override says 'not wanted on .243', and Thief2.exe has PE subsystem 5.0, which the Win98 loader refuses.",
+   "reason": "The OS loader and the gate both rule it out."
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "Thief II is single-player only, with no server. I re-checked it myself: all 7 applicable XP boxes (.110 .123 .133 .143 .171 .184 .240) render the main menu fullscreen at their per-box modes. .124 is BLOCKED because D3D on vcr-kmd is supervised-only. .186 and .243 are NA. The game was closed everywhere and PROCLIST is clean.",
+ "issues": [
+  "thief2.exe ignores WM_CLOSE: lanparty kill had to force-terminate it on all 7 boxes after the 12 s grace. No crash dialog followed, and every desktop came back at its normal mode (DISPLAYCFG checked).",
+  "Only the main menu was proven; no mission was loaded."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

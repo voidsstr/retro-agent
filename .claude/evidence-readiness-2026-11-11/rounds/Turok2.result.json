@@ -1,0 +1,30 @@
+{
+ "key": "Turok2",
+ "title": "Turok 2: Seeds of Evil (multiplayer, integrated server on .110:12888)",
+ "mode": "peer-hosted MP (fleet box .110 hosts)",
+ "players_in_one_game": 8,
+ "closed_cleanly": true,
+ "summary": "8 of the 8 applicable boxes were proven in one Turok 2 Rok Match at the same moment. The witness is the host's GameManager roster on 192.168.1.110:12888, which reads 8/16 and names Fleet110/123/124/133/143/171/184/240. The pings changed between two reads, so these are live players. Fresh check frames at 19:12 show all 8 rendering in game with the HUD (90 health / 50 ammo). .124 rendered through T2-Glide3, not Direct3D, on the fbshot frame. .143 is in the game only because of a box-local rename of Video_3DFx.dll, which the next GAMESYNC will undo. .186 and .243 are NA. The game was closed gracefully everywhere, and PROCLIST confirms no turok2mpenglish.exe is left.",
+ "boxes": [
+  {"ip":"192.168.1.110","verdict":"PASS_MP","client":"Turok2","evidence":"Host and player. Fleet110 is on its own GameManager roster (8/16). Foreground 'TurokD3D -  HAL'; Turok2_110.jpg (19:12) shows it in game with the HUD."},
+  {"ip":"192.168.1.123","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet123 is on the host roster. Foreground 'TurokD3D -  HAL'; Turok2_123.jpg shows it in game."},
+  {"ip":"192.168.1.124","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet124 is on the host roster. The fbshot frame Turok2_124.jpg shows the Glide render in game. It ran the T2-Glide3 renderer, not D3D, so the vcr-kmd D3D exclusion does not apply. The WINLIST title still reads the launcher's."},
+  {"ip":"192.168.1.133","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet133 is on the host roster. Foreground 'TurokD3D -  HAL'; Turok2_133.jpg shows it in game at the fountain."},
+  {"ip":"192.168.1.143","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet143 is on the host roster. Foreground 'TurokD3D -  HAL'; Turok2_143.jpg shows it in game. Caveat: this works only because Video_3DFx.dll was renamed to Video_3DFx.off on this box.","reason":"Without the rename, the stale vintage glide3x.dll/glide2x.dll in system32 make Video_3DFx.dll load. It shows '3Dfx hardware not detected!' and the launcher then exits. GAMESYNC will restore the dll."},
+  {"ip":"192.168.1.171","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet171 is on the host roster. Foreground 'TurokD3D -  HAL'; Turok2_171.jpg shows it in game."},
+  {"ip":"192.168.1.184","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet184 is on the host roster. Foreground 'TurokD3D -  HAL'; Turok2_184.jpg shows it in game."},
+  {"ip":"192.168.1.240","verdict":"PASS_MP","client":"Turok2","evidence":"Fleet240 is on the host roster. Foreground 'TurokD3D -  HAL'; Turok2_240.jpg shows it in game at the fountain."},
+  {"ip":"192.168.1.186","verdict":"NA","evidence":"Not launched.","reason":"Windows 7 with a GTX 1650 on the Standard VGA stub has no D3D HAL. Turok 2 has no software renderer."},
+  {"ip":"192.168.1.243","verdict":"NA","evidence":"Not installed.","reason":"Operator gate override 'not wanted on .243' (Win98 P166 with a Voodoo 2)."}
+ ],
+ "issues": [
+  ".143: the Turok2 tree has Video_3DFx.dll renamed to Video_3DFx.off (a box-local repair). The next GAMESYNC restores it, and the launcher will then exit after the '3Dfx hardware not detected!' dialog. The cause is the leftover vintage glide3x.dll (339,968 B) and glide2x.dll in .143's system32, with no live 3dfx board behind them.",
+  "recipes.json's Turok2 first_run note for .143 ('D3D is used afterwards') is wrong: the launcher exits instead of falling back.",
+  "Two roster entries are cosmetic: the integrated-server roster has no IPs, so boxes are matched by Fleet<octet> name only, and the first fresh read showed ping 1 for most clients. A second read showed different pings (0-3), so the entries are live.",
+  "Closed gracefully on all 8 boxes. Afterwards no Turok process remains and no error or Turok window is left; every foreground is the agent or retro_chat console. The display mode was not read back."
+ ],
+ "library_fix_needed": [
+  "Turok2 launcher (generated): on a box that has glide3x.dll but no 3dfx board (agent glide capability false), move Video_3DFx.dll aside before the launch. Do not delete it from the library, because .124 needs it.",
+  "Alternatively remove the stale glide3x.dll/glide2x.dll from .143's system32. That is a 3dfx driver-area change, so it needs the operator's explicit ask."
+ ]
+}

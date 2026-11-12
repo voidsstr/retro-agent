@@ -1,0 +1,86 @@
+{
+ "key": "HiddenAndDangerous",
+ "title": "Hidden and Dangerous Deluxe (launch check - MP is attended-only)",
+ "mode": "mp_not_automatable",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "HiddenAndDangerous",
+   "verdict": "PASS_SP",
+   "evidence": "Re-check 20:10: HDE.exe in the foreground (IGraph_Window). Frame HiddenAndDangerous_110.jpg (800x600) shows the 3D manor scene fullscreen with the complete 'Select game profile' panel and '< create new >'.",
+   "reason": "Launch/render check passed. Multiplayer not tested: the profile screen and DirectPlay host lobby need a person (attended only, 4-player sessions)."
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "HiddenAndDangerous",
+   "verdict": "PASS_SP",
+   "evidence": "HDE.exe in the foreground. HiddenAndDangerous_123.jpg plus _123_verify0/1.jpg (640x480, 20:10-20:11) show the complete profile panel with '< create new >' over the 3D scene.",
+   "reason": "Launch/render check passed. Multiplayer not tested: the profile screen and DirectPlay host lobby need a person (attended only, 4-player sessions)."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "HiddenAndDangerous",
+   "verdict": "FAIL",
+   "evidence": "HDE.exe in the foreground and the 3D scene renders. In HiddenAndDangerous_133.jpg and _133_verify0/1.jpg (3 frames over ~1 min, minutes after load) the profile panel has no top or left border, and the '< create new >' / '(Hit Del to delete profile)' text never renders. The 2026-08-31 perbox frame (worktrees/perbox/evidence/133_HiddenAndDangerous_*.png) shows the same half panel.",
+   "reason": "Persistent UI rendering defect: the menu's only selectable item is invisible, so a player cannot see what to pick. The round agent's 'mid-animation' reading is refuted. This could still be a GDI capture limit on this GPU (GeForce4 Ti), but the same capture shows the full panel on 5 other boxes. Not proven at the physical screen."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "HiddenAndDangerous",
+   "verdict": "PASS_SP",
+   "evidence": "HDE.exe in the foreground. HiddenAndDangerous_143.jpg (640x480) shows the complete profile panel with '< create new >' over the 3D scene.",
+   "reason": "Launch/render check passed. Multiplayer not tested: the profile screen and DirectPlay host lobby need a person (attended only, 4-player sessions)."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "HiddenAndDangerous",
+   "verdict": "FAIL",
+   "evidence": "HDE.exe in the foreground and the 3D scene renders. HiddenAndDangerous_171.jpg and _171_verify0/1.jpg show the same persistent half-drawn panel with no '< create new >' text. The 2026-08-31 perbox frame of .171 showed the COMPLETE panel (that box has since changed GPU to a GeForce FX 5500).",
+   "reason": "Persistent UI rendering defect, not mid-animation: menu text and the top/left panel border never draw. This is a regression against .171's own 2026-08-31 frame. Possibly a GDI capture limit on this GPU, but not proven at the screen."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "HiddenAndDangerous",
+   "verdict": "PASS_SP",
+   "evidence": "HDE.exe in the foreground. HiddenAndDangerous_184.jpg shows the complete profile panel with '< create new >' over the 3D scene, fullscreen.",
+   "reason": "Launch/render check passed. Multiplayer not tested: the profile screen and DirectPlay host lobby need a person (attended only, 4-player sessions)."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "HiddenAndDangerous",
+   "verdict": "PASS_SP",
+   "evidence": "HDE.exe in the foreground. HiddenAndDangerous_240.jpg shows the 16:9 fullscreen 3D scene with the complete profile panel and '< create new >'.",
+   "reason": "Launch/render check passed. Multiplayer not tested: the profile screen and DirectPlay host lobby need a person (attended only, 4-player sessions)."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched (title is Direct3D 8, d3d124 flag set).",
+   "reason": "D3D on vcr-kmd is supervised-only."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not in the title's box list.",
+   "reason": "Windows 7 with the GTX 1650 on the Standard VGA stub: no 3D driver for this OS, and H&D Deluxe has no software renderer."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not in the title's box list.",
+   "reason": "Win98 P166 with a Voodoo 2 (no D3D8-capable adapter); the title needs Direct3D 8."
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "Launch/render check, re-verified at 20:10. 5 boxes PASS_SP (.110 .123 .143 .184 .240), showing the full 3D 'Select game profile' screen fullscreen. .133 and .171 FAIL: in repeated frames the profile panel stays half-drawn with no '< create new >' text, so the round agent's 'mid-animation' reading was wrong. .124 BLOCKED (D3D on vcr-kmd). .186 and .243 NA. Multiplayer is peer DirectPlay with no server and needs a person (profile creation plus the host lobby), so players_in_one_game=0. The game was closed on all 7 boxes; WM_CLOSE was ignored, so it was force-killed, and none remain.",
+ "issues": [
+  ".133 and .171: the H&D profile panel never fully draws (no top/left border, no menu text) in 3 frames over ~1 min. .133 already looked like this on 2026-08-31; .171 is a regression (full panel on 2026-08-31, before its GPU changed). Needs a check at the physical screen to rule out a GDI capture artefact.",
+  "HDE.exe ignores WM_CLOSE at the profile screen; lanparty force-killed it after 12 s on all 7 boxes. Post-kill: no hde.exe/dwwin left, every box at its normal desktop mode (none stranded at 640x480), foreground is the agent or chat console.",
+  "Multiplayer cannot be automated: there is no staged Savegame profile, and the host lobby (campaign/mission/soldiers) has no command-line route. The attended plan is two 4-player sessions.",
+  "The lanparty.py 'kill' action takes the game as a positional argument; the task text's '--game' flag is rejected."
+ ],
+ "library_fix_needed": [
+  "Stage a default game profile (Savegame\\*.bin) so launches skip 'Select game profile' - needed before attended or automated MP."
+ ],
+ "closed_cleanly": true
+}

@@ -1,0 +1,22 @@
+{
+ "game": "SoldierOfFortune",
+ "time": "2026-11-11T20:03:55",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "184": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

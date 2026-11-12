@@ -1,0 +1,101 @@
+{
+ "game": "SystemShock2",
+ "time": "2026-11-11T19:45:13",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "shock2.exe",
+    "shock2.icd"
+   ],
+   "foreground": "System Shock 2 Final 1.15   ",
+   "shot": "SystemShock2_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

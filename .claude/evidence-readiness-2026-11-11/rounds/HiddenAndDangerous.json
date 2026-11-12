@@ -1,0 +1,94 @@
+{
+ "game": "HiddenAndDangerous",
+ "time": "2026-11-11T20:10:12",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "hde.exe"
+   ],
+   "foreground": "Hidden & Dangerous Deluxe",
+   "shot": "HiddenAndDangerous_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

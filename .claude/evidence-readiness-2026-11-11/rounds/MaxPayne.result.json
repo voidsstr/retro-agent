@@ -1,0 +1,26 @@
+{
+ "key": "MaxPayne",
+ "title": "Max Payne",
+ "mode": "single-player render check",
+ "players_in_one_game": 0,
+ "boxes": [
+  {"ip":"192.168.1.110","verdict":"PASS_SP","client":"MaxPayne","evidence":"Re-checked 19:49:43: maxpayne.exe running, foreground Afx 'Max Payne v1.05', frame MaxPayne_110.jpg shows the full main menu; DISPLAYCFG live 1600x1200x32@85 (GAMERES target)."},
+  {"ip":"192.168.1.123","verdict":"PASS_SP","client":"MaxPayne","evidence":"Main menu frame MaxPayne_123.jpg, Afx foreground, live 1280x960x32@100."},
+  {"ip":"192.168.1.124","verdict":"BLOCKED","reason":"D3D on vcr-kmd is supervised-only; Max Payne froze on vcr-kmd D3D 2026-10-04","evidence":"Not launched by design; needs a person at the box."},
+  {"ip":"192.168.1.133","verdict":"PASS_SP","client":"MaxPayne","evidence":"Main menu frame MaxPayne_133.jpg (Resume Game highlighted), Afx foreground, live 1280x960x32@85."},
+  {"ip":"192.168.1.143","verdict":"PASS_SP","client":"MaxPayne","evidence":"Main menu frame MaxPayne_143.jpg, Afx foreground, live 1280x960x32@60."},
+  {"ip":"192.168.1.171","verdict":"PASS_SP","client":"MaxPayne","evidence":"Main menu frame MaxPayne_171.jpg, Afx foreground, live 1280x960x32@85."},
+  {"ip":"192.168.1.184","verdict":"PASS_SP","client":"MaxPayne","evidence":"Main menu frame MaxPayne_184.jpg (Resume Game highlighted), Afx foreground, live 1024x768x32@85."},
+  {"ip":"192.168.1.186","verdict":"NA","reason":"Win7 GTX 1650 on the Standard VGA stub (no D3D8 device) and disc_mount=false so the SafeDisc 2.51 image cannot be mounted; gate suppresses the shortcut","evidence":"Not launched."},
+  {"ip":"192.168.1.240","verdict":"PASS_SP","client":"MaxPayne","evidence":"Main menu frame MaxPayne_240.jpg, Afx foreground, live 1920x1080x32@60 (16:9 LCD); DT mount + SafeDisc passed this time."},
+  {"ip":"192.168.1.243","verdict":"NA","reason":"Gate: 165 MHz CPU vs 450 MHz floor, no hardware T&L (Voodoo 2/Cirrus), no disc mounter, not installed, operator override 'not wanted on .243'","evidence":"Not launched."}
+ ],
+ "summary": "Max Payne is single-player. 7/7 launched XP boxes independently verified at the main menu, fullscreen at their GAMERES modes (frames + DISPLAYCFG re-read now). .124 BLOCKED (supervised-only D3D on vcr-kmd), .186 and .243 NA. Game closed on all 7.",
+ "issues": [
+  "Graceful close (taskkill without /f) did not end MaxPayne.exe on .240: the WM_CLOSE taskkill.exe processes hung and an EXEC taskkill timed out at 40 s; lanparty kill printed 'Expecting value: line 1 column 1 (char 0)' for .123 and .240. .240 was ended with PROCKILL of MaxPayne.exe and the two hung taskkill.exe; .123 closed on the retry.",
+  "After close, .133/.143/.171 report desktop 1280x1024 and .123 1280x1024@100 (their persisted desktop modes, not a stranded 640x480); .110 1600x1200, .184 1024x768, .240 1920x1080.",
+  "Main menu was the proof point; no level was loaded."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": false
+}

@@ -1,0 +1,67 @@
+{
+ "key": "RogueSquadron",
+ "title": "Star Wars: Rogue Squadron 3D",
+ "mode": "single-player render check",
+ "boxes": [
+  {
+   "ip": "192.168.1.243",
+   "client": "RogueSquadron",
+   "verdict": "BLOCKED",
+   "evidence": "Final check (lanparty check, now): ROGUE SQUADRON.EXE running, foreground window 'ROGUE' (HALClass 800x600), no #32770 error dialog; process alive continuously since the 20:17 launch. GDI frame black (RogueSquadron_243.jpg) because the Voodoo 2's Glide output goes through passthrough and is invisible to SCREENSHOT.",
+   "reason": "Needs a person at .243's monitor to confirm the 3D picture (or F12 for Shot_NNN.bmp); remotely it is 'runs', not 'verified'."
+  },
+  {
+   "ip": "192.168.1.110",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "NA",
+   "evidence": "NA: staged RogueSquadron tree is Win9x + Glide only (requires.json max_os win9x); not deployed on this XP box"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "NA: Windows 7 with no 3D driver (Standard VGA stub); title is Win9x + Glide only"
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "Single-player Win9x/Glide title, applicable to .243 only. It runs there in the foreground with no error dialog, but the Voodoo 2 output cannot be captured remotely, so .243 is BLOCKED pending a person's visual check. The other 9 online boxes are NA.",
+ "issues": [
+  ".243 render unverifiable remotely: GDI sees only the Cirrus 2D side; needs a person at the monitor",
+  "lanparty kill reported 'rogue squadron.exe (killed)', which means it had to force the kill (.243 path: PROCKILL + GLRESET9). Afterwards PROCLIST had no ROGUE, START or GLRESET process left, and WINLIST showed .243 back at the desktop (Program Manager 800x600, taskbar focused, no dialog)."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

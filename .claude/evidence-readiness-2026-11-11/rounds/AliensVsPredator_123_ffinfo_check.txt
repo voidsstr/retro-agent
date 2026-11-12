@@ -1,0 +1,11 @@
+2026-11-11 post-host-reboot check of 192.168.1.123 (AliensVsPredator)
+foreground: Retro Remote Agent console; avp.exe not running (round's kill already closed it)
+DOWNLOAD C:\Games\AliensVsPredator\fastfile\ffinfo.txt (3819 B)
+raw head:     c8 18 58 18 64 6c 70 3c ... (InstallShield-obfuscated, no A-Z line starts)
+decoded head (b = ror8(b ^ 0xD5, 2) - (i mod 0x47)):
+  Graphics\Common;Tex1.FFL
+  Graphics\common objects;Tex2.FFL
+  graphics\Envrnmts\Als-dm;Tex3.FFL ...
+=> the deployed tree on .123 is the disc's obfuscated loose files; avp.exe registers no fastfile,
+   menu images miss, ASSERTION pSurface alt_tab.cpp:198 (see AliensVsPredator_LOGFILE_123.txt).
+No relaunch made: it would reproduce the same assert deterministically.

@@ -1,0 +1,94 @@
+{
+ "game": "JediKnightMotS",
+ "time": "2026-11-11T19:24:14",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.123",
+ "boxes": {
+  "123": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_123.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "110": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_110.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_133.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_143.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_171.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_184.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "jkm.exe"
+   ],
+   "foreground": "Mysteries of the Sith",
+   "shot": "JediKnightMotS_240.jpg",
+   "black": true,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

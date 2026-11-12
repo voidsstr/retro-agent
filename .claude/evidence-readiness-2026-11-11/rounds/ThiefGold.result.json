@@ -1,0 +1,83 @@
+{
+ "key": "ThiefGold",
+ "title": "Thief Gold (single player)",
+ "mode": "sp_only",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_110.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1600x1200x32.",
+   "reason": "Menu only. In-mission 3D was not tested."
+  },
+  {
+   "ip": "192.168.1.123",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_123.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1280x1024x32.",
+   "reason": "Menu only. In-mission 3D was not tested."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_133.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1280x1024x32.",
+   "reason": "Menu only. In-mission 3D was not tested. The recipe warns of a possible hang at mission load on this dual-CPU box."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_143.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1280x1024x32.",
+   "reason": "Menu only. In-mission 3D was not tested."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_171.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1280x1024x32.",
+   "reason": "Menu only. In-mission 3D was not tested."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_184.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1024x768x32.",
+   "reason": "Menu only. In-mission 3D was not tested."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "ThiefGold",
+   "verdict": "PASS_SP",
+   "evidence": "Re-checked 19:38 by the final check: THIEF.EXE running, foreground 'Thief  1.37 ', fresh frame .claude/evidence-readiness-2026-11-11/rounds/ThiefGold_240.jpg shows the Thief Gold main menu covering the whole screen (exclusive fullscreen; the round agent read DISPLAYCFG 640x480x16 while it ran). After the kill, PROCLIST has no thief.exe and the desktop is back at 1920x1080x32.",
+   "reason": "Menu only. In-mission 3D was not tested."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched. The title entry has d3d124=true and Thief Gold renders through Direct3D.",
+   "reason": "D3D on vcr-kmd is supervised-only. The agent answered; desktop 1280x1024, screensaver running."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched. Windows 7 32-bit with a GTX 1650 on the Standard VGA stub.",
+   "reason": "No 3D driver exists for this OS and card, so there is no Direct3D HAL for the Dark engine."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not launched. Agent answered PING. scripts/gamegate/overrides.txt:65 marks ThiefGold 'not wanted on .243', so it is not deployed there.",
+   "reason": "Library/gate operator override: not deployed on .243."
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "Single-player title. 7 of 7 applicable boxes (.110 .123 .133 .143 .171 .184 .240) are PASS_SP: each was independently re-verified rendering the Thief Gold main menu fullscreen. .124 is BLOCKED (D3D on vcr-kmd), .186 and .243 are NA. The game was closed on all 7 boxes and every box is back at its desktop mode.",
+ "issues": [
+  "Only the 2D main menu was verified. In-mission 3D rendering was not exercised, and .133 has a recipe warning about a possible mission-load hang.",
+  "THIEF.EXE ignores WM_CLOSE: lanparty kill had to use its forced step on all 7 boxes. No crash dialog was left and the desktop modes were restored.",
+  "lanparty.py kill takes the game as a positional argument. The documented '--game' flag is rejected."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

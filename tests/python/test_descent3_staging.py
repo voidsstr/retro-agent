@@ -186,7 +186,7 @@ JOIN = ('@echo off\r\nsetlocal\r\nset "HOSTIP=%~1"\r\n'
         'cd /d "%~dp0"\r\ncall "%~dp0FLEETRES.BAT"\r\n'
         'echo  Joining Descent 3 on %HOSTIP% ...\r\n'
         'start "" "%~dp0main.exe" -launched -nointro -pilot SDF -directip +connect %HOSTIP% '
-        '-Width %FR_W% -Height %FR_H%\r\nendlocal\r\nexit\r\n')
+        '-Width %FR_W% -Height %FR_H% %D3CAP%\r\nendlocal\r\nexit\r\n')
 
 
 def _stage(tmp_path, body, join=JOIN):
@@ -277,3 +277,11 @@ def test_the_library_launchers_carry_the_block_the_cap_and_the_pilot(name, fix):
     for line in _block()['lines']:
         assert line in body, line
     assert getattr(sf, fix)[0][1] in body
+
+
+def test_join_hands_directip_the_host_address():
+    """'-directip +connect <ip>' broadcast the join (255.255.255.255:2092) on
+    .110 .124 .240 on 2026-11-11; '-directip <ip>' joined all three."""
+    line = sf.D3_JOIN_FIX[0][1]
+    assert ' -directip %HOSTIP% ' in line and '+connect' not in line
+    assert '+connect' in sf.D3_JOIN_FIX[0][0]

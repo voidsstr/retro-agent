@@ -1,0 +1,22 @@
+{
+ "game": "DieByTheSword",
+ "time": "2026-11-11T20:14:52",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "243": {
+   "running": [
+    "windie.exe"
+   ],
+   "foreground": "Die By The Sword",
+   "shot": "DieByTheSword_243.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

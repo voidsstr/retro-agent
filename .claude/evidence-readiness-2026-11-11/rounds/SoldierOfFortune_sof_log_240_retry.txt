@@ -1,0 +1,126 @@
+----------- Cpu info -----------
+Processor : AMD 
+Type      : Original OEM processor
+Speed     : -1 MHz
+MMX instructions supported
+RDTSC instruction supported
+--------------------------------
+1023MB of physical memory
+Winsock Initialized
+Hostname: user-41ea3b3330
+   REMOTE IP #1: 192.168.1.240
+SP_Register: Registered client string package 'won_error' with ID 0b
+SP_Register: Registered client string package 'str_server' with ID 05
+SP_Register: Registered client string package 'items' with ID 03
+SP_Register: Registered client string package 'weapons' with ID 02
+SP_Register: Registered client string package 'general' with ID 04
+SP_Register: Registered client string package 'dm_ctf' with ID 0a
+Console initialized.
+------- Loading ref_gl.dll -------
+ref_gl version: GL 0.01
+Attempting gl_driver : opengl32
+Initializing OpenGL display
+...setting mode 9: 1920 1080 FS
+...attempting fullscreen
+...using desktop display depth of 32
+...calling CDS: ok
+...registering window class: ok
+GL_PFD: color(32-bits) Z(24-bit)
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1950 Pro
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3 GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+...allowing CDS
+...enabling WGL_EXT_swap_control
+...using GL_ARB_multitexture (8 TMUs)
+------------------------------------
+Setting Default Sound support
+------- Loading defsnd.dll -------
+
+------- sound initialization -------
+Initializing DirectSound
+...loading dsound.dll: ok
+...creating DS object: ok
+Creating DS buffers
+...setting NORMAL coop level: ok
+...creating primary buffer: ok
+...setting primary sound format: failed
+...creating secondary buffer: ok
+...using secondary sound buffer
+   2 channel(s)
+   16 bits/sample
+   22050 bytes/sec
+...completed successfully
+dsound init succeeded
+sound sampling rate: 22050
+------------------------------------
+CD Audio Initialized
+
+joystick not found -- no valid joysticks (a5)
+
+
+------- Force Feedback Initialization -------
+Creating feedback device:
+...no feedback devices found
+execing autoexec.cfg
+Account authenticated
+execing fleetres.cfg
+Valid Key Found
+
+====== Soldier of Fortune Initialized ======
+
+WipeSavegame (./user/save/auto.sof)
+LoadLibrary (./base/gamex86.dll)
+==== InitGame ====
+LoadLibrary (./base/player.dll)
+==== InitPlayer Complete ====
+------- Server Initialization -------
+SpawnServer: dm/nycdm1
+CM_ClearMap: Map cleared
+CM_LoadLump: LUMP_TEXINFO 2072 entries (157472 in, 149184 out)
+CM_LoadLump: LUMP_REGIONS 0 entries (0 in, 0 out)
+CM_LoadLump: LUMP_LEAFS 3100 entries (99200 in, 186060 out)
+CM_LoadLump: LUMP_LEAFBRUSHES 3708 entries (7416 in, 7418 out)
+CM_LoadLump: LUMP_PLANES 2140 entries (42800 in, 43040 out)
+CM_LoadLump: LUMP_BRUSHES 1764 entries (21168 in, 28240 out)
+CM_LoadLump: LUMP_BRUSHSIDES 11541 entries (46164 in, 92376 out)
+CM_LoadLump: LUMP_MODELS 2 entries (96 in, 112 out)
+CM_LoadLump: LUMP_NODES 3097 entries (86716 in, 186180 out)
+CM_LoadLump: LUMP_AREAS 2 entries (16 in, 32 out)
+CM_LoadLump: LUMP_AREAPORTALS 1 entries (8 in, 8 out)
+CM_LoadLump: LUMP_VISIBILITY 175407 entries (175407 in, 175407 out)
+CM_LoadLump: LUMP_ENTITIES 44022 entries (44022 in, 44022 out)
+CM_LoadLump: LUMP_FACES 6070 entries (267080 in, 655560 out)
+CM_LoadLump: LUMP_VERTEXES 7801 entries (93612 in, 93612 out)
+CM_LoadLump: LUMP_LIGHTING 726630 entries (726630 in, 726630 out)
+CM_LoadLump: LUMP_LEAFFACES 7098 entries (14196 in, 28392 out)
+CM_LoadLump: LUMP_EDGES 15704 entries (62816 in, 62820 out)
+CM_LoadLump: LUMP_SURFEDGES 28291 entries (113164 in, 113164 out)
+CM_LoadLump: LUMP_POP 256 entries (256 in, 0 out)
+CM_LoadLump: LUMP_REGIONFACES 0 entries (0 in, 0 out)
+CM_LoadLump: LUMP_LIGHTS 1230 entries (44280 in, 0 out)
+Map checkstring: 47969D6DC1B19C18B3B991C788CDE47C1C8B52B7D4B7
+SP_Register: Registered client string package 'dm_generic' with ID 00
+SP_Register: Registered client string package 'items' with ID 03
+SP_Register: Registered client string package 'weapons' with ID 02
+SP_Register: Registered client string package 'general' with ID 04
+item_ammo_sniper doesn't have a spawn function
+item_ammo_sniper doesn't have a spawn function
+0 entities inhibited
+0 teams with 0 entities
+-------------------------------------
+Packet loopback : connect
+SVC_DirectConnect ()
+Fleet240 connected
+loopback: client_connect
+New() from Fleet240
+************************************************************
+ERROR: Please insert the SOF CD and try again.
+************************************************************
+WipeSavegame (./user/save/current.sof)
+==== ShutdownGame ====
+SP_Register: Registered client string package 'menu_generic' with ID c8
+SP_Register: Registered client string package 'menu_generic' with ID c8
+SP_Register: Registered client string package 'menu_won' with ID fd
+SP_Register: Registered client string package 'won_error' with ID 0b

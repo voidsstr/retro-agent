@@ -1,0 +1,106 @@
+{
+ "game": "SoldierOfFortune",
+ "time": "2026-11-11T20:01:32",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "124": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_124.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "fbshot",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "sof.exe"
+   ],
+   "foreground": "SoF",
+   "shot": "SoldierOfFortune_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "game": "Thief2",
+ "time": "2026-11-11T19:41:46",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "thief2.exe"
+   ],
+   "foreground": "Thief 2 Final 1.26",
+   "shot": "Thief2_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

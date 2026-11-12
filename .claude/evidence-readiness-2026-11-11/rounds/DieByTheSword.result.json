@@ -1,0 +1,77 @@
+{
+ "key": "DieByTheSword",
+ "title": "Die by the Sword",
+ "mode": "single-player Glide liveness (.243 only)",
+ "boxes": [
+  {
+   "ip": "192.168.1.243",
+   "client": "DieByTheSword",
+   "verdict": "BLOCKED",
+   "evidence": "Re-checked now (lanparty check): running=['windie.exe'], foreground window 'Die By The Sword' (class Die, 800x600), no #32770 error dialog, black=False. Frame DieByTheSword_243.jpg shows only the Cirrus 2D desktop with the START /w WINDIE.EXE -3dfx -nocd DOS box, because GDI cannot see the Voodoo 2 pass-through.",
+   "reason": "The game launches and stays up with the foreground and no errors (runs). Fullscreen Voodoo 2 rendering cannot be photographed remotely, so PASS_SP needs a person at .243 to see the Glide picture."
+  },
+  {
+   "ip": "192.168.1.110",
+   "verdict": "NA",
+   "evidence": "XP SP3 above max_os win9x; not deployed; GeForce 7800 GS, no Glide",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed; no Glide",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed (Win98 partition gone); Glide 2 on vcr-kmd unproven",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed; no Glide",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed; no Glide",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed; no Glide (the Voodoo 2 moved to .243)",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed; no Glide",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Win7 on the Standard VGA stub, no 3D driver; above max_os win9x; not deployed",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "NA",
+   "evidence": "XP above max_os win9x; not deployed; no Glide",
+   "reason": "max_os win9x + Glide-only; not deployed"
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "Only .243 (Win98 + Voodoo 2) can run this title. Re-verified: windie.exe running in the foreground with no error dialog. The Voodoo 2 output cannot be photographed, so the verdict is BLOCKED (runs, rendering needs a person to see it), not PASS_SP. Every other online box is NA (XP/Win7, above max_os win9x, no Glide). Multiplayer is DirectPlay through the menu only. Closed cleanly: windie.exe and START.EXE are gone, GLRESET reports the pass-through back on the 2D card, and the desktop has the foreground.",
+ "issues": [
+  "Fullscreen rendering on .243 is unverifiable remotely (GDI cannot see the Voodoo 2 pass-through). The compat cell stays 'runs' until a person confirms.",
+  "MP not automatable: DirectPlay host/join is menu-only, and only one fleet box can run the title.",
+  "The task's 'kill --game <key>' syntax is wrong for lanparty.py. It takes the positional 'kill <key>'."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

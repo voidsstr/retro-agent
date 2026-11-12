@@ -636,9 +636,16 @@ def d3_renderer():
 D3_START = 'start "" "%~dp0main.exe" -launched -Width %FR_W% -Height %FR_H%'
 D3_START_FINAL = D3_START + ' -pilot SDF %D3CAP%'
 D3_START_FIX = [(D3_START + ' %D3CAP%\r\n', D3_START_FINAL + '\r\n')]
+# Join: '-directip' TAKES THE HOST ADDRESS. '-directip +connect <ip>' (what
+# the library shipped until 2026-11-11) made the game use the word '+connect'
+# as the address: on .110 .124 .240 the join went to 255.255.255.255:2092 and
+# the client dropped silently to its menu, while '-directip <ip>' put all
+# three on descent3-server (readiness rounds, rounds/d3retest/).
+D3_JOIN_OLD = ('start "" "%~dp0main.exe" -launched -nointro -pilot SDF -directip '
+               '+connect %HOSTIP% -Width %FR_W% -Height %FR_H%')
 D3_JOIN = ('start "" "%~dp0main.exe" -launched -nointro -pilot SDF -directip '
-           '+connect %HOSTIP% -Width %FR_W% -Height %FR_H%')
-D3_JOIN_FIX = [(D3_JOIN + '\r\n', D3_JOIN + ' %D3CAP%\r\n')]
+           '%HOSTIP% -Width %FR_W% -Height %FR_H%')
+D3_JOIN_FIX = [(D3_JOIN_OLD + ' %D3CAP%\r\n', D3_JOIN + ' %D3CAP%\r\n')]
 
 
 def ue1_glide_viewport(ini):

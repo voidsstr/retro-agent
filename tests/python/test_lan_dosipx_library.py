@@ -119,10 +119,13 @@ class TestDescent3Lan(LibraryCase):
 
     def test_join_carries_pilot_directip_and_connect(self):
         body = _read("Descent3", "Join Descent 3 - LAN.bat")
-        for switch in ("-pilot", "-directip", "+connect"):
+        for switch in ("-pilot", "-directip %HOSTIP%"):
             self.assertIn(switch, body,
                           f"{switch} missing - without -pilot the PILOTS modal "
-                          "blocks the join and +connect looks ignored")
+                          "blocks the join")
+        # '-directip +connect <ip>' takes '+connect' as the address and
+        # broadcasts the join (measured 2026-11-11 on .110 .124 .240)
+        self.assertNotIn("-directip +connect", body)
 
     def test_join_never_prompts(self):
         body = _read("Descent3", "Join Descent 3 - LAN.bat")

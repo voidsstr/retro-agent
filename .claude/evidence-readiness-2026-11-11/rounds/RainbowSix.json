@@ -1,0 +1,94 @@
+{
+ "game": "RainbowSix",
+ "time": "2026-11-11T19:29:23",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.123",
+ "boxes": {
+  "123": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": true
+  },
+  "110": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "rainbowsix.exe"
+   ],
+   "foreground": "Rainbow Six",
+   "shot": "RainbowSix_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

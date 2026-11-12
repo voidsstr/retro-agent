@@ -1,0 +1,76 @@
+{
+ "key": "JediKnightMotS",
+ "title": "Star Wars Jedi Knight: Mysteries of the Sith",
+ "mode": "peer DirectPlay TCP/IP, hosted on .123",
+ "boxes": [
+  {
+   "ip": "192.168.1.123",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "HOST of 'fleet's Game' (peer DirectPlay in JKM.EXE). Re-verified: netstat shows ESTABLISHED port-2300 connections in both directions with all 6 joiners; JediKnightMotS_verify_123.jpg shows the level and HUD (8-bpp, wrong colours, right geometry); foreground 'Mysteries of the Sith'."
+  },
+  {
+   "ip": "192.168.1.110",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "Re-verified: host netstat ESTABLISHED 123:2300<->110:2048 and 123->110:2300; JediKnightMotS_verify_110.jpg shows the in-level HUD (health dial 100, weapon dial); jkm.exe in the foreground. The join list count during the round (JediKnightMotS_join_110.jpg) climbed as each box joined. It joined under the pilot 'fleet', not Fleet110."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "Re-verified: host netstat ESTABLISHED 123:2300<->133:1106 and 123->133:2300; JediKnightMotS_verify_133.jpg shows the in-level HUD (health dial 100, weapon dial); jkm.exe in the foreground. The join list count during the round (JediKnightMotS_join_133.jpg) climbed as each box joined. It joined under the pilot 'fleet', not Fleet133."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "Re-verified: host netstat ESTABLISHED 123:2300<->143:1120 and 123->143:2300; JediKnightMotS_verify_143.jpg shows the in-level HUD (health dial 100, weapon dial); jkm.exe in the foreground. The join list count during the round (JediKnightMotS_join_143.jpg) climbed as each box joined. It joined under the pilot 'fleet', not Fleet143."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "Re-verified: host netstat ESTABLISHED 123:2300<->171:2059 and 123->171:2300; JediKnightMotS_verify_171.jpg shows the in-level HUD (health dial 100, weapon dial); jkm.exe in the foreground. The join list count during the round (JediKnightMotS_join_171.jpg) climbed as each box joined. It joined under the pilot 'fleet', not Fleet171."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "Re-verified: host netstat ESTABLISHED 123:2300<->184:1135 and 123->184:2300; JediKnightMotS_verify_184.jpg shows the in-level HUD (health dial 100, weapon dial); jkm.exe in the foreground. The join list count during the round (JediKnightMotS_join_184.jpg) climbed as each box joined. It joined under the pilot 'fleet', not Fleet184."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "JediKnightMotS",
+   "verdict": "PASS_MP",
+   "evidence": "Re-verified: host netstat ESTABLISHED 123:2300<->240:1175 and 123->240:2300; JediKnightMotS_verify_240.jpg shows the in-level HUD (health dial 100, weapon dial); jkm.exe in the foreground. The join list count during the round (JediKnightMotS_join_240.jpg) climbed as each box joined. It joined under the pilot 'fleet', not Fleet240."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "reason": "D3D on vcr-kmd is supervised-only",
+   "evidence": "Not launched: MotS is a Direct3D title, and .124 (V5 6000 on vcr-kmd) is left out of D3D titles in unattended sweeps."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "reason": "no 3D driver: GTX 1650 on the Win7 Standard VGA stub",
+   "evidence": "Recipe exclusion; MotS has never started there."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "reason": "P166 below the 200 MHz floor, no Glide renderer; operator override 'not wanted on .243'",
+   "evidence": "Not installed on the box."
+  }
+ ],
+ "players_in_one_game": 7,
+ "summary": "7 boxes (.123 host, plus .110 .133 .143 .171 .184 .240) proven in one MotS session at the same time. Re-verified now through the host's netstat (two ESTABLISHED :2300 connections per joiner) and fresh SCREENSHOT 0 frames showing the in-level HUD on all 7. .124 BLOCKED (D3D on vcr-kmd); .186 and .243 NA. Game closed on all 7 boxes; PROCLIST shows no jkm.exe.",
+ "issues": [
+  "Every box joined under the pilot 'fleet', not Fleet<octet>. On the Players screen the selected row is drawn WHITE; Fleet<octet> is preselected, so press RETURN without clicking.",
+  "lanparty check's SCREENSHOT 1 frames are all black for this 8-bpp title (black=True); SCREENSHOT 0 shows the level and HUD. lanparty has no roster or packet witness for peer titles; the host netstat is the witness.",
+  "jkm.exe ignored WM_CLOSE on all 7 boxes; lanparty kill force-closed it after 12 s. Afterwards every box was at its desktop mode (32 bpp, normal resolution) with the agent/chat console in the foreground and no crash dialog."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

@@ -1,0 +1,75 @@
+{
+ "key": "RainbowSix",
+ "title": "Tom Clancy's Rainbow Six",
+ "mode": "peer, .123 listen server on TCP 2346",
+ "boxes": [
+  {
+   "ip": "192.168.1.123",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host (listen server, -server 2346). Verifier netstat shows :2346 LISTENING with 6 ESTABLISHED clients (.110 .133 .143 .171 .184 .240). Its lobby listed all 7 Fleet names. Verifier frame RainbowSix_123.jpg shows the action phase on the Airport map, Team Blue, with other players visible."
+  },
+  {
+   "ip": "192.168.1.110",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host .123's lobby listed Fleet110 under CONNECTED PLAYERS. Verifier netstat on .123 (RainbowSix_netstat_123_verify.txt) shows ESTABLISHED 192.168.1.123:2346 <- 192.168.1.110. Verifier frame RainbowSix_110.jpg (19:29:23) shows the 3D action phase: Airport, Adversarial, Double Bluff, Team Gold."
+  },
+  {
+   "ip": "192.168.1.133",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host .123's lobby listed Fleet133 under CONNECTED PLAYERS. Verifier netstat on .123 (RainbowSix_netstat_123_verify.txt) shows ESTABLISHED 192.168.1.123:2346 <- 192.168.1.133. Verifier frame RainbowSix_133.jpg (19:29:23) shows the 3D action phase: Airport, Adversarial, Double Bluff, Team Blue."
+  },
+  {
+   "ip": "192.168.1.143",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host .123's lobby listed Fleet143 under CONNECTED PLAYERS. Verifier netstat on .123 (RainbowSix_netstat_123_verify.txt) shows ESTABLISHED 192.168.1.123:2346 <- 192.168.1.143. Verifier frame RainbowSix_143.jpg (19:29:23) shows the 3D action phase: Airport, Adversarial, Double Bluff, Team Blue."
+  },
+  {
+   "ip": "192.168.1.171",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host .123's lobby listed Fleet171 under CONNECTED PLAYERS. Verifier netstat on .123 (RainbowSix_netstat_123_verify.txt) shows ESTABLISHED 192.168.1.123:2346 <- 192.168.1.171. Verifier frame RainbowSix_171.jpg (19:29:23) shows the 3D action phase: Airport, Adversarial, Double Bluff, Team Blue."
+  },
+  {
+   "ip": "192.168.1.184",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host .123's lobby listed Fleet184 under CONNECTED PLAYERS. Verifier netstat on .123 (RainbowSix_netstat_123_verify.txt) shows ESTABLISHED 192.168.1.123:2346 <- 192.168.1.184. Verifier frame RainbowSix_184.jpg (19:29:23) shows the 3D action phase: Airport, Adversarial, Double Bluff, Team Gold."
+  },
+  {
+   "ip": "192.168.1.240",
+   "client": "RainbowSix",
+   "verdict": "PASS_MP",
+   "evidence": "Host .123's lobby listed Fleet240 under CONNECTED PLAYERS. Verifier netstat on .123 (RainbowSix_netstat_123_verify.txt) shows ESTABLISHED 192.168.1.123:2346 <- 192.168.1.240. Verifier frame RainbowSix_240.jpg (19:29:23) shows the 3D action phase: Airport, Adversarial, Double Bluff, Team Gold."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "evidence": "Not launched.",
+   "reason": "D3D on vcr-kmd is supervised-only: Rainbow Six is a Direct3D title, and the experimental Voodoo 5 6000 kernel driver may not run one in an unattended sweep."
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "evidence": "Not launched.",
+   "reason": "Windows 7 runs the GTX 1650 on the Standard VGA stub, and no 3D driver exists for this OS, so the D3D title cannot render there."
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "evidence": "Not deployed, and no shortcut.",
+   "reason": "An operator gate override says 'not wanted on .243' (scripts/gamegate/overrides.txt)."
+  }
+ ],
+ "players_in_one_game": 7,
+ "summary": "7 boxes were proven together in one Rainbow Six adversarial game: .123 hosting, plus .110 .133 .143 .171 .184 .240. The verifier re-checked this independently. A fresh netstat on .123 showed 6 of 6 clients ESTABLISHED on :2346, and fresh frames from all 7 boxes showed the 3D action phase (Airport, Adversarial, Double Bluff, Blue and Gold teams). .124 is BLOCKED (D3D on vcr-kmd is supervised-only). .186 and .243 are NA. The game was closed gracefully everywhere, PROCLIST shows no rainbowsix.exe left, and every box's foreground is back on the desktop.",
+ "issues": [
+  "lanparty.py check cannot name players for this title (no query): the roster and packet columns are empty. The witnesses were the host's lobby list and its netstat.",
+  "The task's kill syntax 'kill --game RainbowSix' is rejected by lanparty.py. The working form is 'kill RainbowSix'."
+ ],
+ "library_fix_needed": [],
+ "closed_cleanly": true
+}

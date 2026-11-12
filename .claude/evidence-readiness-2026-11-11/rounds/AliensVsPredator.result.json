@@ -1,0 +1,88 @@
+{
+ "key": "AliensVsPredator",
+ "title": "Aliens vs Predator Gold",
+ "mode": "launch check (peer DirectPlay, library tree known broken)",
+ "boxes": [
+  {
+   "ip": "192.168.1.110",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_110.jpg, log AliensVsPredator_LOGFILE_110*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.123",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_123.jpg, log AliensVsPredator_LOGFILE_123*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.133",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_133.jpg, log AliensVsPredator_LOGFILE_133*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.143",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_143.jpg, log AliensVsPredator_LOGFILE_143*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.171",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_171.jpg, log AliensVsPredator_LOGFILE_171*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.184",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_184.jpg, log AliensVsPredator_LOGFILE_184*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.240",
+   "verdict": "FAIL",
+   "client": "AliensVsPredator",
+   "evidence": "LOGFILE.TXT: 98 CL_LoadImageOnce misses, 0 'Loaded FastFile:', then 'ASSERTION FAILED! Expression: pSurface File: ..\\3dc\\win95\\alt_tab.cpp Line: 198' behind a black exclusive 640x480 'AvP' window (frame AliensVsPredator_240.jpg, log AliensVsPredator_LOGFILE_240*.txt). The final check found avp.exe not running and the agent console in front.",
+   "reason": "Library defect: Games-Library\\AliensVsPredator is the disc's loose files, not an installed tree. 154 files are InstallShield-obfuscated (fastfile\\ffinfo.txt starts c8 18 58 18, checked on the share), so the engine registers no fastfile."
+  },
+  {
+   "ip": "192.168.1.124",
+   "verdict": "BLOCKED",
+   "client": "AliensVsPredator",
+   "evidence": "Not launched. AvP is a Direct3D title.",
+   "reason": "D3D on vcr-kmd is supervised-only"
+  },
+  {
+   "ip": "192.168.1.186",
+   "verdict": "NA",
+   "client": "AliensVsPredator",
+   "evidence": "Not launched.",
+   "reason": "No 3D driver (GTX 1650 on the Standard VGA stub, Win7 32-bit), and AvP has no software renderer"
+  },
+  {
+   "ip": "192.168.1.243",
+   "verdict": "NA",
+   "client": "AliensVsPredator",
+   "evidence": "Not deployed.",
+   "reason": "Pentium P54C 165 MHz with no MMX (avp.exe needs MMX). The gate also has an operator override: not wanted on .243"
+  }
+ ],
+ "players_in_one_game": 0,
+ "summary": "FAIL on all 7 applicable XP boxes, all from one library defect: the staged tree is the raw disc files, still InstallShield-obfuscated, so avp.exe asserts at alt_tab.cpp:198 before its menu. .124 is BLOCKED (D3D on vcr-kmd is supervised-only). .186 and .243 are NA. No box reached the front end, so there was no multiplayer game.",
+ "issues": [
+  "Library defect: the AliensVsPredator tree is the disc extract. ffinfo.txt is obfuscated, and 11 logs across 7 boxes all show 0 Loaded FastFile plus the pSurface assertion.",
+  "Even once the library is fixed, multiplayer is a DirectPlay peer game hosted from a relative-mouse menu, so it probably needs a person.",
+  "Every earlier close had to force avp.exe, because the window ignores WM_CLOSE. Boxes are now at their desktops with the agent or retro_chat console in front."
+ ],
+ "library_fix_needed": [
+  "Install AvP Gold in the XP build VM, capture the installed tree, and stage it with stage-new-title.py or libwrite, keeping launch.txt, install.reg and the icons. Alternatively, decode the 154 obfuscated files with b[i]=ror8(b[i]^0xD5,2)-(i mod 0x47), with i reset for each file. Then purge and GAMESYNC. Pass = LOGFILE.TXT shows 'Loaded FastFile:' and no ASSERTION."
+ ],
+ "closed_cleanly": true
+}
