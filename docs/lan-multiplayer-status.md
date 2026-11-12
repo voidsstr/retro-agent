@@ -24,6 +24,81 @@ lost `.123` mid-session — see the last section.*
 
 ---
 
+## WHOLE-FLEET READINESS ROUNDS — measured 2026-11-11
+
+34 titles, one at a time, with every applicable switched-on box (.110 .123 .124 .133 .143
+.171 .184 .186 .240 .243) launched into the SAME game: the dev host's server where one exists,
+otherwise a fleet box hosting. Each box was verified by a separate adversarial pass, using the
+server's own roster (name or IP), a tcpdump packet count to the server port, and a fresh frame.
+Evidence and every verdict's reasoning: `.claude/evidence-readiness-2026-11-11/rounds/<title>.result.json`.
+Tool: `scripts/fleet/lanparty.py` with launchers from `scripts/fleet/lanparty_titles.json`.
+
+`MP` = in the shared multiplayer game · `SP` = single-player title rendering fullscreen ·
+`FAIL` = should work, does not · `blk` = needs a person or a supervised session ·
+`-` = cannot apply (not deployed or gated, hardware, or no 3D driver).
+
+| title | .110 | .123 | .124 | .133 | .143 | .171 | .184 | .186 | .240 | .243 | in one game |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| CounterStrike16 | MP | MP | MP | MP | MP | MP | MP | MP | MP | - | 9 |
+| Quake3Arena | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| Quake3-TeamArena | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| Descent3 | MP* | MP | MP* | MP | MP | MP | MP | - | MP* | - | 5 + 3* |
+| RedAlert2 | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| Halo | MP | MP | blk | - | - | MP | - | - | MP | - | 4 |
+| ReturnToCastleWolfenstein | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| Tribes2 | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| Quake2 | MP | MP | MP | MP | MP | MP | MP | - | MP | MP | 9 |
+| Quake1 | MP | MP | MP | MP | MP | MP | MP | MP | MP | MP | 10 |
+| UT99 | MP | MP | MP | MP | MP | MP | MP | MP | MP | MP | 10 |
+| UT2003 | MP | MP | blk | MP | MP | MP | MP | - | MP | - | 7 |
+| UT2004 | MP | MP | blk | - | MP | MP | MP | - | MP | - | 6 |
+| HalfLife1 | MP | MP | MP | MP | MP | MP | MP | - | MP | MP | 5 |
+| SiNGold | MP | MP | MP | MP | MP | MP | MP | MP | MP | MP | 10 |
+| UnrealGold | MP | MP | MP | MP | - | MP | MP | MP | MP | MP | 9 |
+| DeusEx | MP | MP | MP | MP | MP | MP | MP | MP | MP | - | 9 |
+| SeriousSamFirstEncounter | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| SeriousSamSecondEncounter | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| Shogo | MP | MP | blk | MP | MP | MP | MP | - | MP | - | 7 |
+| Carmageddon2 | MP | MP | MP | MP | MP | MP | MP | - | MP | blk | 8 |
+| Turok2 | MP | MP | MP | MP | MP | MP | MP | - | MP | - | 8 |
+| JediKnightMotS | MP | MP | blk | MP | MP | MP | MP | - | MP | - | 7 |
+| RainbowSix | MP | MP | blk | MP | MP | MP | MP | - | MP | - | 7 |
+| RedFaction | MP | MP | blk | MP | MP | MP | MP | - | MP | - | 7 |
+| ThiefGold | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
+| Thief2 | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
+| SystemShock2 | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
+| MaxPayne | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
+| AliensVsPredator | FAIL | FAIL | blk | FAIL | FAIL | FAIL | FAIL | - | FAIL | - | 0 |
+| SoldierOfFortune | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | - | FAIL | - | 0 |
+| HiddenAndDangerous | SP | SP | blk | FAIL | SP | FAIL | SP | - | SP | - | 0 |
+| DieByTheSword | - | - | - | - | - | - | - | - | - | blk | 0 |
+| RogueSquadron | - | - | - | - | - | - | - | - | - | blk | 0 |
+
+\* Descent 3: .110 .124 .240 failed in the round on a LAUNCHER defect (`-directip +connect <ip>`
+broadcasts the join) and joined with `-directip <ip>` in a retest. The staged Join launcher is fixed
+at its generator (`stage-fleetres.py`) and proven from .123.
+
+Why the gaps:
+- **.124 `blk`** = a Direct3D title. The vcr-kmd README says no D3D title in an unattended
+  sweep (Max Payne froze it on 2026-10-04). It needs a supervised session.
+- **.186 `-`**: Windows 7 32-bit RTM on a GeForce GTX 1650, which has NO 32-bit driver. It
+  plays only software-renderer titles (CS 1.6 -soft, WinQuake, UT99/Unreal/Deus Ex SoftDrv,
+  SiN soft). Its firewall is ON and raises an allow-access prompt per new game.
+- **.243 `blk`** (Carmageddon 2, Die by the Sword, Rogue Squadron): runs, but GDI cannot see the
+  Voodoo 2 picture, so a person has to look. Carmageddon 2's LAN join is not possible on .243.
+- **Halo**: only 5 boxes have it (.124 withheld as D3D). Distinct per-box keys held (4 in one game).
+- **Half-Life (WON)**: one shared CD key = 5 players per game, so it ran in two waves of 5.
+- **Tribes 2**: proven on a temporary `-nologin` server (`tribes2-lan`, :28001). The main
+  `tribes2-server` runs `-online` (TribesNext auth), which no box can join without an account.
+- **AvP / SoF FAIL**: library defects. AvP is the disc's still-obfuscated loose files. SoF lacks
+  FFC11.DLL and the retail disc.
+- **Hidden and Dangerous .133/.171**: the profile panel never fully draws (menu text and border
+  missing). Its MP is 4-player co-op and needs a person.
+- Newly proven automatable (were "needs a person"): Carmageddon 2 (menu join by drag),
+  Red Faction (ListLAN=1, MULTI > JOIN), Deus Ex, Jedi Knight MotS, Rainbow Six, Turok 2.
+
+---
+
 ## VERIFIED LAN — both ends screenshotted
 
 | Title | Engine / transport | Proven on |
