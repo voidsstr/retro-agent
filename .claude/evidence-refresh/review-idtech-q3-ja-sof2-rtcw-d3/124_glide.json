@@ -1,0 +1,48 @@
+{
+ "_ip": "192.168.1.124",
+ "_at": "2026-09-29 01:06:34",
+ "REGREAD HKCU SYSTEM\\CurrentControlSet\\Services\\3dfxvs\\Device0\\glide": {
+  "status": 255,
+  "text": "Cannot open key: error 0"
+ },
+ "REGREAD HKCU Environment": {
+  "status": 0,
+  "text": "{\"root\":\"HKCU\",\"path\":\"Environment\",\"values\":[{\"name\":\"TEMP\",\"type\":\"REG_EXPAND_SZ\",\"data\":\"%USERPROFILE%\\\\Local Settings\\\\Temp\"},{\"name\":\"TMP\",\"type\":\"REG_EXPAND_SZ\",\"data\":\"%USERPROFILE%\\\\Local Settings\\\\Temp\"}],\"subkeys\":[]}"
+ },
+ "REGREAD HKLM SYSTEM\\CurrentControlSet\\Services\\3dfxvs\\Device0\\glide": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Services\\\\3dfxvs\\\\Device0\\\\glide\",\"values\":[{\"name\":\"Localisation\",\"type\":\"REG_SZ\",\"data\":\"OpenGL/Glide\"},{\"name\":\"HTML Help\",\"type\":\"REG_SZ\",\"data\":\"hh ms-its:3dfx%20Voodoo5%20Help.chm::/Advanced%20Features/3dfx%20Tools%20Advanced%20Features%20Help.htm#Glide\"},{\"name\":\"SSTH3_OVERLAYMODE\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"SSTH3_ALPHADITHERMODE\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"FX_GL_16BPP_ZPRECISION\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"FX_GL_32BPP_ZPRECISION\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"FX_GL_COMPRESS_LEGACY_TEXTURES\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"FX_GLIDE_LOD_BIAS\",\"type\":\"REG_SZ\",\"data\":\"0\"},{\"name\":\"FX_GLIDE_SWAPPENDINGCOUNT\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"FX_GLIDE_BPP\",\"type\":\"REG_SZ\",\"data\":\"16\"},{\"name\":\"FX_GLIDE_ALLOC_COLOR\",\"type\":\"REG_SZ\",\"data\":\"-1\"},{\"name\":\"FX_GLIDE_SWAPINTERVAL\",\"type\":\"REG_SZ\",\"data\":\"0\"},{\"name\":\"FX_GL_FORCE_16BPP_TEXTURES\",\"type\":\"REG_SZ\",\"data\":\"0\"},{\"name\":\"FX_GL_GUARDBAND_ENABLED\",\"type\":\"REG_SZ\",\"data\":\"0\"},{\"name\":\"FX_GL_HSR\",\"type\":\"REG_SZ\",\"data\":\"0\"},{\"name\":\"FX_GLIDE_2PPC\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"FX_GLIDE_TAA_TOGGLE_KEY\",\"type\":\"REG_SZ\",\"data\":\"*\"},{\"name\":\"FX_GLIDE_ANALOG_SLI\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"SSTH3_SLI_AA_CONFIGURATION\",\"type\":\"REG_SZ\",\"data\":\"5\"},{\"name\":\"FX_GLIDE_REFRESH\",\"type\":\"REG_SZ\",\"data\":\"75\"}],\"subkeys\":[\"2 Pixel-Per-Clock Rendering\",\"3D Filter Quality\",\"Alpha-Blending\",\"Depth Precision (16 Bit)\",\"Depth Precision (32 Bit)\",\"DualChipAASLI\",\"Force 16-bit Textures\",\"Glide Rendering Color-depth\",\"Glide Splash Screen\",\"Hidden Surface Removal\",\"Legacy Texture Compression\",\"Level Of Detail Bias\",\"Maximum Buffered Frames\",\"MIP Map Dithering\",\"OpenGl Guardband Clipping\",\"QuadChipAASLI\",\"Screen Capture Hotkey\",\"SingleChipAASLI\",\"Speed Settings\",\"Temporal AA Hotkey\",\"Triple Buffering\"]}"
+ },
+ "DIRLIST C:\\WINDOWS\\system32\\glide*": {
+  "status": 0,
+  "text": "[{\"name\":\"glide2x.dll\",\"is_dir\":false,\"size\":94208,\"modified\":\"2003-04-02 05:25:25\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x.dll\",\"is_dir\":false,\"size\":1025320,\"modified\":\"2026-09-28 02:09:00\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x_38a891e8.dll\",\"is_dir\":false,\"size\":1025320,\"modified\":\"2026-09-28 02:09:00\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x_am31.dll\",\"is_dir\":false,\"size\":344064,\"modified\":\"2003-04-02 05:25:25\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\WINDOWS\\system32\\3dfx*": {
+  "status": 0,
+  "text": "[{\"name\":\"3dfxOGL.dll\",\"is_dir\":false,\"size\":2646009,\"modified\":\"2003-04-02 05:25:25\",\"hidden\":false,\"readonly\":false},{\"name\":\"3dfxSpl2.dll\",\"is_dir\":false,\"size\":1105408,\"modified\":\"2003-04-02 05:25:26\",\"hidden\":false,\"readonly\":false},{\"name\":\"3dfxSpl3.dll\",\"is_dir\":false,\"size\":1105408,\"modified\":\"2003-04-02 05:25:26\",\"hidden\":false,\"readonly\":false},{\"name\":\"3dfxvs.dll\",\"is_dir\":false,\"size\":610240,\"modified\":\"2003-04-02 05:25:24\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\WINDOWS\\system32\\retro*": {
+  "status": 0,
+  "text": "[{\"name\":\"retroicd.dll\",\"is_dir\":false,\"size\":2773619,\"modified\":\"2026-09-28 14:57:42\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd.dll.0176\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-28 05:42:47\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.63.dll\",\"is_dir\":false,\"size\":2763236,\"modified\":\"2003-04-10 21:29:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.64.dll\",\"is_dir\":false,\"size\":2764496,\"modified\":\"2003-04-11 00:35:27\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.65.dll\",\"is_dir\":false,\"size\":2764902,\"modified\":\"2003-04-02 07:16:49\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.75.dll\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-25 08:48:47\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\Quake3-TeamArena\\*gl*": {
+  "status": 0,
+  "text": "[{\"name\":\"FLEETGL.BAT\",\"is_dir\":false,\"size\":4094,\"modified\":\"2026-09-02 01:00:20\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x.dll.sep25\",\"is_dir\":false,\"size\":1005435,\"modified\":\"2026-09-25 08:24:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"retrogl.dll\",\"is_dir\":false,\"size\":2773619,\"modified\":\"2026-09-28 14:57:42\",\"hidden\":false,\"readonly\":false},{\"name\":\"retrogl.dll.0176\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-28 05:42:47\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\JediAcademy\\*gl*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\Games\\SoldierOfFortune2\\*gl*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\Games\\ReturnToCastleWolfenstein\\*gl*": {
+  "status": 0,
+  "text": "[{\"name\":\"gl\",\"is_dir\":true,\"size\":0,\"modified\":\"2003-04-03 03:21:23\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x.dll.sep25\",\"is_dir\":false,\"size\":1005435,\"modified\":\"2003-04-02 12:38:29\",\"hidden\":false,\"readonly\":false},{\"name\":\"retrogl.dll\",\"is_dir\":false,\"size\":2773619,\"modified\":\"2026-09-28 14:57:42\",\"hidden\":false,\"readonly\":false},{\"name\":\"retrogl.dll.0174\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-25 07:38:59\",\"hidden\":false,\"readonly\":false},{\"name\":\"retrogl.dll.0176\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-28 05:42:47\",\"hidden\":false,\"readonly\":false},{\"name\":\"WickedGL.swp\",\"is_dir\":false,\"size\":62980,\"modified\":\"2003-04-03 02:44:15\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DISPLAYCFG get": {
+  "status": 0,
+  "text": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}"
+ }
+}

@@ -1,0 +1,9 @@
+### system python3 (no unicorn: the 8 game-code cross-checks skip loudly)
+.............................................ssssssss.....               [100%]
+=========================== short test summary info ============================
+SKIPPED [8] tests/python/test_patch_jk-helper.py:543: SKIPPED LOUDLY: unicorn/pefile not installed - jklogic.h not cross-checked against the game's own code (pip install unicorn pefile in a venv to run it)
+50 passed, 8 skipped in 1.17s
+
+### scratch venv with unicorn+pefile (the 8 cross-checks run the game's own code from JK.EXE/JKM.EXE on the share)
+..........................................................               [100%]
+58 passed in 2.31s

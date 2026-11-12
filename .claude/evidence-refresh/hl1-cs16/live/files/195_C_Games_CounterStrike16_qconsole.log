@@ -1,0 +1,23 @@
+ARB Multitexture extensions found.
+8 texture units.  Detail texture supported.
+Using secondary sound buffer
+Unable to initialize DirectSoundCapture. Trying waveIn.A device ID has been used that is out of range for your system.
+Unable to initialize wave input. You won't be able to speak to other players through a microphone.
+Server module initialized.
+World module initialized.
+NET Ports:  server 27015, client 27005
+Server IP address 192.168.1.246:27015
+Cmd_AddCommand: cs_credits already defined
+Cmd_AddCommand: special already defined
+|--------------[BCShield 2.5]---------------|
+|-------Project by HLDS-Project------------|
+|------------WWW.BCS16.RO------------|
+|----------------------------------------------|
+Connecting to 192.168.1.132:27020...
+Connection accepted by 192.168.1.132:27020
+
+BUILD 10211 SERVER (0 CRC)
+Server # 5
+(1)<Downloadcs.Eu> Player has joined the game
+<Downloadcs.Eu> Player timed out
+- <Downloadcs.Eu> Player has left the game

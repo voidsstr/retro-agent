@@ -1,0 +1,12 @@
+# 2026-09-29T04:56:55-04:00 review: ffmpeg 7.0.2 -xerror -map 0 (video AND audio) over this review's own --build output (md5-identical to the builder's)
+AlienIntro.bik rc=0 frame=809 stderr_bytes=0
+AlienOutro.bik rc=0 frame=1000 stderr_bytes=0
+IntroSound.smk rc=0 frame=953 stderr_bytes=0
+logos.bik rc=0 frame=236 stderr_bytes=0
+MarineIntro.bik rc=0 frame=728 stderr_bytes=0
+MarineOutro.bik rc=0 frame=451 stderr_bytes=0
+Menubackground.bik rc=0 frame=110 stderr_bytes=0
+PredatorIntro.bik rc=0 frame=440 stderr_bytes=0
+PredatorOutro.bik rc=0 frame=642 stderr_bytes=0
+# negative control (staged original):
+[in#0 @ 0x3c62cb80] Error opening input: Invalid data found when processing input

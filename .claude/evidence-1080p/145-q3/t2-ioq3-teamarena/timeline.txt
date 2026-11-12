@@ -1,0 +1,24 @@
+00:09:32 UIKEY SHIFT -> 0 OK
+00:09:32 LAUNCH EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" "Play Team Arena.bat" -> 0 
+00:09:32 t+0s running=False fg=('ConsoleWindowClass', '') wins=[('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:36 t+4s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:40 t+8s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:44 t+12s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:44 GAMERES desktop {'persisted': '1920x1080', 'persisted_hz': 60, 'live': '1920x1080', 'bpp': 32}
+00:09:44 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:09:45 SCREENSHOT /home/voidsstr/development/retro-agent/.claude/evidence-1080p/145-q3/t2-ioq3-teamarena/gdi-screenshot-t12.png (1920, 1080) extrema ((13, 127), (7, 127), (0, 42))
+00:09:49 t+17s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:53 t+21s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:57 t+25s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:09:57 GAMERES desktop {'persisted': '1920x1080', 'persisted_hz': 60, 'live': '1920x1080', 'bpp': 32}
+00:09:57 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:10:01 SCREENSHOT /home/voidsstr/development/retro-agent/.claude/evidence-1080p/145-q3/t2-ioq3-teamarena/gdi-screenshot-t22.png (1920, 1080) extrema ((0, 191), (0, 174), (0, 200))
+00:10:05 t+32s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:09 t+36s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:13 t+40s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:17 t+44s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:21 t+48s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:25 t+52s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:29 t+56s running=False fg=('Shell_TrayWnd', '') wins=[('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:10:29 process gone
+00:10:29 end of watch; running at end = False

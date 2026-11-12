@@ -1,0 +1,49 @@
+== cmp -l Quake2Complete/quake2.exe (offset is 1-based decimal)
+0x54464 100->200
+0x54465 6->7
+0x54468 260->70
+0x54479 66->71
+0x5447a 60->62
+0x5447e 62->60
+0x5447f 60->70
+0x54722 66->71
+0x54723 60->62
+0x54727 62->60
+0x54728 60->70
+== cmp -l SiNGold/sin.exe (offset is 1-based decimal)
+0x944e4 100->200
+0x944e5 6->7
+0x944e8 260->70
+0x944f9 66->71
+0x944fa 60->62
+0x944fe 62->60
+0x944ff 60->70
+== cmp -l SoldierOfFortune/SoF.exe (offset is 1-based decimal)
+0x1c6e9c 100->200
+0x1c6e9d 6->7
+0x1c6ea0 260->70
+0x1c6eb1 66->71
+0x1c6eb2 60->62
+0x1c6eb6 62->60
+0x1c6eb7 60->70
+== diff base main.mnu
+836c836$
+< " 1600 x 1200"^M$
+---$
+> " 1920 x 1080"^M$
+== diff 2015 main.mnu
+976c976$
+< numitems 9^M$
+---$
+> numitems 10^M$
+986c986$
+< " 1600 x 1200" ^M$
+---$
+> " 1920 x 1080" ^M$
+== pak2.pak
+b'PACK' (3092, 64) 3156
+b'menus/m_video.rmf' (12, 3080)
+32c32
+< <list "640x480,800x600,960x720,1024x768,1152x864,1280x960,1600x1200" match "3,4,5,6,7,8,9" atext "^MENU_VIDEO_RESOLUTION^ : " cvar menu_mode key mouse1 "set menu_settings_changed 1"><hbr>
+---
+> <list "640x480,800x600,960x720,1024x768,1152x864,1280x960,1920x1080" match "3,4,5,6,7,8,9" atext "^MENU_VIDEO_RESOLUTION^ : " cvar menu_mode key mouse1 "set menu_settings_changed 1"><hbr>

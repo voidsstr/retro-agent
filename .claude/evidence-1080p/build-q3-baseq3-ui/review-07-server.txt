@@ -1,0 +1,32 @@
+# review: the fleet Q3 server (read-only)
+ActiveState=active
+ExecStart={ path=/usr/lib/ioquake3/ioq3ded ; argv[]=/usr/lib/ioquake3/ioq3ded +set fs_homepath /home/voidsstr/q3a-server/.q3a +set net_port 27961 +set dedicated 2 +set com_legacyprotocol 68 +exec server.cfg ; ignore_errors=no ; start_time=[Mon 2026-09-28 22:53:21 EDT] ; stop_time=[n/a] ; pid=3105 ; code=(null) ; status=0/0 }
+ioquake3-server	1.36+u20251228.3ef30e75+dfsg-1
+Unpure Client. You may need to enable in-game downloads to connect to this server (set cl_allowDownload 1)
+ioq3 1.36+u20251228.3ef30e75+dfsg-1/Ubuntu
+ioq3 1.36+u20251228.3ef30e75+dfsg-1/Ubuntu dedicated server (%s)
+vm/ui.qvm
+server.cfg:
+18:seta sv_pure "1"
+19:seta sv_allowDownload "1"
+server baseq3:
+/home/voidsstr/q3a-server/.q3a/baseq3/pak0.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak1.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak2.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak3.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak4.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak5.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak6.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak7.pk3
+/home/voidsstr/q3a-server/.q3a/baseq3/pak8.pk3
+ioq3 HEAD sv_init.c (the source this 2025 build follows): SV_SpawnServer, sv_pure branch:
+		p = FS_LoadedPakNames();
+		Cvar_Set( "sv_pakNames", p );
+
+		// we need to touch the cgame and ui qvm because they could be in
+		// separate pk3 files and the client will need to download the pk3
+		// files with the latest cgame and ui qvm to pass the pure check
+		SV_TouchFile( "vm/cgame.qvm" );
+		SV_TouchFile( "vm/ui.qvm" );
+	}
+-> vm/ui.qvm is TOUCHED, so a zz pk3 installed here becomes a REFERENCED pak: listed in sv_referencedPakNames and offered to clients with cl_allowDownload 1 (the fleet's autoexec never sets it; default 0)

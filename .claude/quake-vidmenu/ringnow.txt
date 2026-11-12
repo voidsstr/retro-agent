@@ -1,0 +1,1 @@
+{"cmd":"dump","ok":false,"error":"cannot open the dump file"}

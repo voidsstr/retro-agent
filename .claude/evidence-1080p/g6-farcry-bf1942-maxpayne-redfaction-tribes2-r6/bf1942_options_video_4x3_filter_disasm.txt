@@ -1,0 +1,128 @@
+Battlefield 1942 v1.61b BF1942.exe md5 a56d63e83eb5e02b43e1928cb22cd15a (PE timestamp 2004-10-19)
+Options/Video 'DisplayModeList' builder. A driver mode is listed only if 0x45f8d0(w,h) (w==4*h, TripleHead) OR (float)h/(float)w == 0.75 (double at 0x8dbfa0),
+AND w>=640 AND h>=480. 1920x1080 (0.5625) and 1280x1024 (0.8) are never listed. Patch point: 0x6b08d6 (file 0x2b08d6) '75 37' jne -> 'EB 37' jmp skips the aspect test.
+
+006b0833: mov      esi, dword ptr [esp + 0x14]
+006b0837: mov      ecx, 5
+006b083c: lea      edi, [esp + 0x1c]
+006b0840: rep movsd dword ptr es:[edi], dword ptr [esi]
+006b0842: lea      ecx, [esp + 0x3c]
+006b0846: call     dword ptr [0x8c3244]   ; ??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ
+006b084c: mov      ecx, dword ptr [0x971eac]
+006b0852: call     0x444180
+006b0857: test     al, al
+006b0859: mov      esi, dword ptr [esp + 0x1c]
+006b085d: mov      edi, dword ptr [esp + 0x20]
+006b0861: mov      ebp, dword ptr [esp + 0x24]
+006b0865: je       0x6b0898
+006b0867: mov      eax, dword ptr [esp + 0x28]
+006b086b: push     eax
+006b086c: push     ebp
+006b086d: push     edi
+006b086e: push     esi
+006b086f: lea      ecx, [esp + 0x110]
+006b0876: push     0x91e24c  "%dx%dx%d @ %d"
+006b087b: push     ecx
+006b087c: call     0x580eb0
+006b0881: add      esp, 0x18
+006b0884: push     eax
+006b0885: lea      ecx, [esp + 0x40]
+006b0889: call     dword ptr [0x8c3138]   ; ??4?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV01@ABV01@@Z
+006b088f: lea      ecx, [esp + 0x100]
+006b0896: jmp      0x6b08bc
+006b0898: push     ebp
+006b0899: push     edi
+006b089a: push     esi
+006b089b: lea      edx, [esp + 0x64]
+006b089f: push     0x917d04  "%dx%dx%d"
+006b08a4: push     edx
+006b08a5: call     0x580eb0
+006b08aa: add      esp, 0x14
+006b08ad: push     eax
+006b08ae: lea      ecx, [esp + 0x40]
+006b08b2: call     dword ptr [0x8c3138]   ; ??4?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV01@ABV01@@Z
+006b08b8: lea      ecx, [esp + 0x58]
+006b08bc: call     dword ptr [0x8c311c]   ; ??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@XZ
+006b08c2: mov      eax, dword ptr [0x971eac]
+006b08c7: mov      ecx, dword ptr [eax + 0x2d8]
+006b08cd: push     edi
+006b08ce: push     esi
+006b08cf: call     0x45f8d0
+006b08d4: test     al, al
+006b08d6: jne      0x6b090f
+006b08d8: test     edi, edi
+006b08da: mov      dword ptr [esp + 0x38], edi
+006b08de: fild     dword ptr [esp + 0x38]
+006b08e2: jge      0x6b08ea
+006b08e4: fadd     dword ptr [0x8c40a0]
+006b08ea: test     esi, esi
+006b08ec: mov      dword ptr [esp + 0x38], esi
+006b08f0: fild     dword ptr [esp + 0x38]
+006b08f4: jge      0x6b08fc
+006b08f6: fadd     dword ptr [0x8c40a0]
+006b08fc: fdivp    st(1)
+006b08fe: fcomp    qword ptr [0x8dbfa0]
+006b0904: fnstsw   ax
+006b0906: test     ah, 0x44
+006b0909: jp       0x6b09c8
+006b090f: cmp      esi, 0x280
+006b0915: jb       0x6b09c8
+006b091b: cmp      edi, 0x1e0
+006b0921: .byte    0x0f
+006b0922: .byte    0x82
+
+== 0x45f8d0 (TripleHead 4:1 test)
+0045f8d0: mov      ecx, dword ptr [esp + 8]
+0045f8d4: mov      eax, dword ptr [esp + 4]
+0045f8d8: lea      ecx, [ecx + ecx*2]
+0045f8db: lea      edx, [eax + eax*2]
+0045f8de: shl      ecx, 2
+0045f8e1: cmp      ecx, edx
+0045f8e3: sete     al
+0045f8e6: .byte    0xc2
+0045f8e7: .byte    0x08
+
+== renderer setVideoMode lookup (exact w,h,bpp[,refresh] match over the FULL adapter list, no aspect filter) -> 'Invalid videomode specified' only if absent
+0063dc40: push     ebx
+0063dc41: push     ebp
+0063dc42: push     esi
+0063dc43: push     edi
+0063dc44: mov      edi, dword ptr [ecx + 0xac]
+0063dc4a: xor      eax, eax
+0063dc4c: test     edi, edi
+0063dc4e: jle      0x63dc88
+0063dc50: mov      edx, dword ptr [esp + 0x14]
+0063dc54: mov      ebx, dword ptr [ecx + 0xa8]
+0063dc5a: mov      ebp, dword ptr [edx]
+0063dc5c: mov      ecx, ebx
+0063dc5e: mov      edi, edi
+0063dc60: cmp      ebp, dword ptr [ecx]
+0063dc62: jne      0x63dc80
+0063dc64: mov      esi, dword ptr [edx + 4]
+0063dc67: cmp      esi, dword ptr [ecx + 4]
+0063dc6a: jne      0x63dc80
+0063dc6c: mov      esi, dword ptr [edx + 8]
+0063dc6f: cmp      esi, dword ptr [ecx + 8]
+0063dc72: jne      0x63dc80
+0063dc74: mov      esi, dword ptr [edx + 0xc]
+0063dc77: test     esi, esi
+0063dc79: je       0x63dc92
+0063dc7b: cmp      esi, dword ptr [ecx + 0xc]
+0063dc7e: je       0x63dc92
+0063dc80: inc      eax
+0063dc81: add      ecx, 0x14
+0063dc84: cmp      eax, edi
+0063dc86: jl       0x63dc60
+0063dc88: pop      edi
+0063dc89: pop      esi
+0063dc8a: pop      ebp
+0063dc8b: or       eax, 0xffffffff
+0063dc8e: pop      ebx
+0063dc8f: ret      4
+0063dc92: mov      dl, byte ptr [edx + 0x10]
+0063dc95: pop      edi
+0063dc96: pop      esi
+0063dc97: lea      ecx, [eax + eax*4]
+0063dc9a: pop      ebp
+0063dc9b: mov      byte ptr [ebx + ecx*4 + 0x10], dl
+0063dc9f: pop      ebx

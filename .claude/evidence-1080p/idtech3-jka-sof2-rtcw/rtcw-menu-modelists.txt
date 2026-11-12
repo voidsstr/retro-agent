@@ -1,0 +1,13 @@
+Return to Castle Wolfenstein (GOG) - menus that edit r_mode directly
+sp_pak1.pk3 : ui/ingame_system.menu
+    cvarFloatList { "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+sp_pak1.pk3 : ui/system.menu
+    cvarFloatList { "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
+sp_pak3.pk3 : ui/ingame_system.menu
+    cvarFloatList { "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+sp_pak3.pk3 : ui/system.menu
+    cvarFloatList { "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
+mp_pak1.pk3 : ui_mp/ingame_system.menu
+    cvarFloatList { "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+mp_pak1.pk3 : ui_mp/system.menu
+    cvarFloatList { "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }

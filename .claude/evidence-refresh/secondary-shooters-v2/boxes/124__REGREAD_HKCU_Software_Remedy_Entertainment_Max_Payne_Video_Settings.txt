@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKCU Software\Remedy Entertainment\Max Payne\Video Settings  status=0  2026-09-29 04:01:28
+{"root":"HKCU","path":"Software\\Remedy Entertainment\\Max Payne\\Video Settings","values":[{"name":"Display Width","type":"REG_DWORD","data":1280},{"name":"Display Height","type":"REG_DWORD","data":960},{"name":"Display Bits Per Pixel","type":"REG_DWORD","data":32}],"subkeys":[]}

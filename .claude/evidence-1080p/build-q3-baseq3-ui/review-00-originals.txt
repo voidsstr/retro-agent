@@ -1,0 +1,35 @@
+baseq3/pak8.pk3 454478 d8b96d429ca4a9c289071cb7e77e14d2
+  vm/ui.qvm 278308 3e6b8fadb2a970c2b754e48e63a054d7 crc 9e5dd0a3 (recomputed 9e5dd0a3)
+  header magic 12721444 ic 79994 codeOff 32 codeLen 244976 dataOff 245008 data 11764 lit 21536 bss 520196
+  @0x43c2a 'Video Mode:'          OK (NUL-delimited)
+  @0x43cb9 '856x480 wide screen'  OK (NUL-delimited)
+  @0x43ccd '2048x1536'            OK (NUL-delimited)
+  @0x43cd7 '1600x1200'            OK (NUL-delimited)
+  @0x43ce1 '1280x1024'            OK (NUL-delimited)
+  @0x43ceb '1152x864'             OK (NUL-delimited)
+  @0x43cf4 '1024x768'             OK (NUL-delimited)
+  @0x43cfd '960x720'              OK (NUL-delimited)
+  @0x43d05 '800x600'              OK (NUL-delimited)
+  @0x43d0d '640x480'              OK (NUL-delimited)
+  @0x43d15 '512x384'              OK (NUL-delimited)
+  @0x43d1d '400x300'              OK (NUL-delimited)
+  @0x43d25 '320x240'              OK (NUL-delimited)
+  @0x43e1b 'r_glDriver'           OK (NUL-delimited)
+  @0x43e33 'r_mode'               OK (NUL-delimited)
+  @0x43e63 'libMesaVoodooGL.so'   OK (NUL-delimited)
+  @0x43e76 'libGL.so.1'           OK (NUL-delimited)
+quake3.exe 872448 b5cf3dd55e045aac6096ff97379d0cab
+  @0x0ba0a4 '%s has bad header'  OK
+  @0x0b2820 'Q3 1.32c'           OK
+  @0x0bc824 'r_customwidth'      OK
+  @0x0bc80c 'r_customheight'     OK
+  case-insensitive r_availablemodes 0 hit(s)
+  case-insensitive r_gldriver       1 hit(s)
+  case-insensitive 3dfxvgl          1 hit(s)
+ioquake3.x86.exe 1363456 12f99bc0f9ba416ee477a4f13de8feaa
+  @0x135308 'r_availableModes'   OK
+  @0x12b90f 'r_customwidth'      OK
+  case-insensitive r_availablemodes 1 hit(s)
+  case-insensitive r_gldriver       0 hit(s)
+  case-insensitive 3dfxvgl          0 hit(s)
+baseq3 pk3s: ['pak0.pk3', 'pak1.pk3', 'pak2.pk3', 'pak3.pk3', 'pak4.pk3', 'pak5.pk3', 'pak6.pk3', 'pak7.pk3', 'pak8.pk3']

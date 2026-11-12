@@ -1,0 +1,24 @@
+# Fleet Quake III servers on the dev host - read 2026-09-29 04:22 UTC (read-only)
+## systemctl --user cat quake3-server | grep ExecStart
+ExecStart=/usr/lib/ioquake3/ioq3ded +set fs_homepath /home/voidsstr/q3a-server/.q3a +set net_port 27961 +set dedicated 2 +set com_legacyprotocol 68 +exec server.cfg
+## ~/q3a-server/.q3a/baseq3/server.cfg (pure-related lines)
+8:seta com_legacyprotocol "68"
+18:seta sv_pure "1"
+19:seta sv_allowDownload "1"
+## ~/q3a-server/.q3a/baseq3/ contents (the server's pure list = these paks)
+-rwxrwx---+         1 voidsstr voidsstr 479493658 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak0.pk3
+-rwxrwx---+         1 voidsstr voidsstr    374405 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak1.pk3
+-rwxrwx---+         1 voidsstr voidsstr   7511182 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak2.pk3
+-rwxrwx---+         1 voidsstr voidsstr    276305 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak3.pk3
+-rwxrwx---+         1 voidsstr voidsstr   9600350 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak4.pk3
+-rwxrwx---+         1 voidsstr voidsstr    191872 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak5.pk3
+-rwxrwx---+         1 voidsstr voidsstr   7346884 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak6.pk3
+-rwxrwx---+         1 voidsstr voidsstr    320873 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak7.pk3
+-rwxrwx---+         1 voidsstr voidsstr    454478 Aug 24 12:10 /home/voidsstr/q3a-server/.q3a/baseq3/pak8.pk3
+## systemctl --user cat q3ta-server | grep ExecStart
+ExecStart=/usr/lib/ioquake3/ioq3ded +set fs_homepath /home/voidsstr/q3ta-server/.q3a +set fs_game missionpack +set net_port 27962 +set dedicated 2 +set com_legacyprotocol 68 +exec server.cfg
+## ~/q3ta-server/.q3a/missionpack/server.cfg (pure-related lines)
+4:set sv_pure 0
+5:set sv_allowDownload 1
+## server engine
+ioq3 1.36+u20251228.3ef30e75+dfsg-1/Ubuntu dedicated server (Jan 02 2026)

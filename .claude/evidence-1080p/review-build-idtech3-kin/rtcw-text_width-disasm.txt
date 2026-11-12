@@ -1,0 +1,64 @@
+RTCW Text_Width font choice. vmCvar ui_smallFont default '0.25', ui_bigFont '0.4'; [ebp/esi+0x5000] = fontInfo_t.glyphScale
+===== uix86.dll (SP, md5 of staged root copy)
+  40002ad0  mov      eax, dword ptr [esp + 8]
+  40002ad4  test     eax, eax
+  40002ad6  mov      edx, dword ptr [esp + 4]
+  40002ada  push     ebx
+  40002adb  push     ebp
+  40002adc  push     esi
+  40002add  mov      ebp, 0x401e49fc
+  40002ae2  jne      0x40002b14
+  40002ae4  fld      dword ptr [esp + 0x18]
+  40002ae8  fcomp    dword ptr [0x40216a88]
+  40002aee  fnstsw   ax
+  40002af0  test     ah, 0x41
+  40002af3  je       0x40002afc
+  40002af5  mov      ebp, 0x401e9a40
+  40002afa  jmp      0x40002b36
+  40002afc  fld      dword ptr [esp + 0x18]
+  40002b00  fcomp    dword ptr [0x402151c8]
+  40002b06  fnstsw   ax
+  40002b08  test     ah, 0x41
+  40002b0b  jne      0x40002b36
+  40002b0d  mov      ebp, 0x401eea84
+  40002b12  jmp      0x40002b36
+  40002b14  cmp      eax, 2
+  40002b17  jne      0x40002b20
+  40002b19  mov      ebp, 0x401eea84
+  40002b1e  jmp      0x40002b36
+  40002b20  cmp      eax, 3
+  40002b23  jne      0x40002b2c
+  40002b25  mov      ebp, 0x401e9a40
+  40002b2a  jmp      0x40002b36
+  40002b2c  cmp      eax, 4
+  40002b2f  jne      0x40002b36
+  40002b31  mov      ebp, 0x401f3ac8
+  40002b36  test     edx, edx
+===== rtcw_main_ui_mp_x86.dll (MP, = mp_bin.pk3 copy, md5 4c808e5a...)
+  40002d3e  mov      esi, 0x401f02a8
+  40002d43  jne      0x40002d75
+  40002d45  fld      dword ptr [esp + 0x14]
+  40002d49  fcomp    dword ptr [0x40218b08]
+  40002d4f  fnstsw   ax
+  40002d51  test     ah, 0x41
+  40002d54  je       0x40002d5d
+  40002d56  mov      esi, 0x401f52ec
+  40002d5b  jmp      0x40002d88
+  40002d5d  fld      dword ptr [esp + 0x14]
+  40002d61  fcomp    dword ptr [0x40216ee8]
+  40002d67  fnstsw   ax
+  40002d69  test     ah, 1
+  40002d6c  jne      0x40002d88
+  40002d6e  mov      esi, 0x401fa330
+  40002d73  jmp      0x40002d88
+  40002d75  dec      eax
+  40002d76  je       0x40002d83
+  40002d78  dec      eax
+  40002d79  je       0x40002d6e
+  40002d7b  dec      eax
+  40002d7c  mov      esi, 0x401f52ec
+  40002d81  je       0x40002d88
+  40002d83  mov      esi, 0x401f02a8
+  40002d88  test     edx, edx
+  40002d8a  fld      dword ptr [esp + 0x14]
+  40002d8e  fmul     dword ptr [esi + 0x5000]

@@ -1,0 +1,2 @@
+appdata_servercache.dat.orig numglobalservers=0 numfavoriteservers=0 size=692736 filelen=692748
+appdata_servercache.dat numglobalservers=0 numfavoriteservers=0 size=692736 filelen=692748

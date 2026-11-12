@@ -1,0 +1,276 @@
+# Which UI module each engine loads - read from the staged binaries themselves.
+# 0x434de0 = Cvar_Get, 0x4347e0 = Cvar_VariableValue (ioquake3); 0x41db50 = Cvar_Get, 0x41ce70 = Cvar_VariableValue (quake3.exe)
+
+### ioquake3 1.36 VM_Init: Cvar_Get(vm_cgame/vm_game/vm_ui, "2", CVAR_ARCHIVE) -> default = compiled QVM
+### ioquake3.x86.exe @ 0x0046c6a0 (capstone, x86-32)
+    0046c6a0: push ebp
+    0046c6a1: mov ecx, 0x5246b0   ; "2"
+    0046c6a6: mov ebp, esp
+    0046c6a8: mov eax, 1
+    0046c6ad: sub esp, 0x18
+    0046c6b0: mov dword ptr [esp + 4], ecx
+    0046c6b4: mov dword ptr [esp + 8], eax
+    0046c6b8: mov dword ptr [esp], 0x5246b2   ; "vm_cgame"
+    0046c6bf: call 0x434de0
+    0046c6c4: mov dword ptr [esp], 0x5246bb   ; "vm_game"
+    0046c6cb: mov edx, 1
+    0046c6d0: mov eax, 0x5246b0   ; "2"
+    0046c6d5: mov dword ptr [esp + 8], edx
+    0046c6d9: mov dword ptr [esp + 4], eax
+    0046c6dd: call 0x434de0
+    0046c6e2: mov dword ptr [esp], 0x5246c3   ; "vm_ui"
+    0046c6e9: mov edx, 0x5246b0   ; "2"
+    0046c6ee: mov ecx, 1
+    0046c6f3: mov dword ptr [esp + 4], edx
+    0046c6f7: mov dword ptr [esp + 8], ecx
+    0046c6fb: call 0x434de0
+    0046c700: mov dword ptr [esp], 0x5246c9   ; "vmprofile"
+    0046c707: mov eax, 0x46d7f0
+
+### ioquake3 1.36 CL_InitUI: if (cl_connectedToPureServer [0xcaefb0]) interpret = 2 (QVM) else interpret = vm_ui
+### ioquake3.x86.exe @ 0x0041ecc0 (capstone, x86-32)
+    0041ecc0: push ebp
+    0041ecc1: mov eax, 2
+    0041ecc6: mov ebp, esp
+    0041ecc8: sub esp, 0x28
+    0041eccb: mov edx, dword ptr [0xcaefb0]
+    0041ecd1: test edx, edx
+    0041ecd3: je 0x41edb0
+    0041ecd9: mov dword ptr [esp + 8], eax
+    0041ecdd: mov ecx, 0x41ce30
+    0041ece2: mov dword ptr [esp + 4], ecx
+    0041ece6: mov dword ptr [esp], 0x51b994   ; "ui"
+    0041eced: call 0x46d160
+
+### ioquake3 1.36 CL_InitUI (not pure): Cvar_VariableValue("vm_ui")
+### ioquake3.x86.exe @ 0x0041edb0 (capstone, x86-32)
+    0041edb0: mov dword ptr [esp], 0x51b9d9   ; "vm_ui"
+    0041edb7: call 0x4347e0
+    0041edbc: fnstcw word ptr [ebp - 2]
+
+### ioquake3 1.36 Sys_LoadDll: path = FS_BuildOSPath(cwd|homepath|basepath, fs_game, "uix86.dll")
+### ioquake3.x86.exe @ 0x004f08b0 (capstone, x86-32)
+    004f08b0: push ebp
+    004f08b1: mov ebp, esp
+    004f08b3: lea ecx, [ebp - 0x128]
+    004f08b9: push edi
+    004f08ba: mov edi, 0x52fdb4   ; "%sx86.dll"
+    004f08bf: push esi
+    004f08c0: mov esi, 0x103
+    004f08c5: push ebx
+    004f08c6: sub esp, 0x13c
+    004f08cc: mov ebx, dword ptr [ebp + 8]
+    004f08cf: mov dword ptr [esp], ecx
+    004f08d2: mov dword ptr [esp + 8], edi
+    004f08d6: mov dword ptr [esp + 0xc], ebx
+    004f08da: mov dword ptr [esp + 4], esi
+    004f08de: call 0x512500
+    004f08e3: call 0x50dda0
+    004f08e8: mov dword ptr [esp], 0x52fdbe   ; "fs_basepath"
+    004f08ef: mov ebx, eax
+    004f08f1: call 0x4348e0
+    004f08f6: mov dword ptr [ebp - 0x12c], eax
+    004f08fc: mov dword ptr [esp], 0x52fdca   ; "fs_homepath"
+    004f0903: call 0x4348e0
+    004f0908: mov dword ptr [ebp - 0x130], eax
+    004f090e: mov dword ptr [esp], 0x52fdd6   ; "fs_game"
+    004f0915: call 0x4348e0
+    004f091a: mov edx, dword ptr [ebp + 0xc]
+    004f091d: mov edi, eax
+    004f091f: lea eax, [ebp - 0x128]
+    004f0925: mov byte ptr [edx], 0
+    004f0928: mov dword ptr [esp], ebx
+
+### ioquake3 1.36 FS_BuildOSPath: empty game -> jumps to 0x436923 (falls back to fs_gamedir = baseq3)
+### ioquake3.x86.exe @ 0x00436850 (capstone, x86-32)
+    00436850: push ebp
+    00436851: mov ebp, esp
+    00436853: push ebx
+    00436854: sub esp, 0x134
+    0043685a: mov edx, dword ptr [ebp + 0xc]
+    0043685d: xor dword ptr [0x9142c0], 1
+    00436864: test edx, edx
+    00436866: je 0x436923
+
+### retail 1.32c VM_Init: vm_cgame/vm_game/vm_ui default "2"
+### quake3.exe @ 0x00439c10 (capstone, x86-32)
+    00439c10: push 1
+    00439c12: push 0x4b4d48   ; "2"
+    00439c17: push 0x4b2584   ; "vm_cgame"
+    00439c1c: call 0x41db50
+    00439c21: push 1
+    00439c23: push 0x4b4d48   ; "2"
+    00439c28: push 0x4b90fc   ; "vm_game"
+    00439c2d: call 0x41db50
+    00439c32: push 1
+    00439c34: push 0x4b4d48   ; "2"
+    00439c39: push 0x4b4920   ; "vm_ui"
+    00439c3e: call 0x41db50
+    00439c43: push 0x439a60
+    00439c48: push 0x4ba074   ; "vmprofile"
+    00439c4d: call 0x419460
+    00439c52: push 0x439b70
+
+### retail 1.32c CL_InitUI: pure -> 2 else vm_ui
+### quake3.exe @ 0x004110e0 (capstone, x86-32)
+    004110e0: mov eax, dword ptr [0xa59fd4]
+    004110e5: test eax, eax
+    004110e7: je 0x4110f0
+    004110e9: mov eax, 2
+    004110ee: jmp 0x411102
+    004110f0: push 0x4b4920   ; "vm_ui"
+    004110f5: call 0x41ce70
+    004110fa: add esp, 4
+    004110fd: call 0x4a3224
+    00411102: push eax
+
+### baseq3/uix86.dll (ioq3 1.36 q3_ui) GraphicsOptions_MenuInit: r_availableModes -> 1024-byte buffer, split on ' ', at most 31 entries (cmp ebx,0x1e), resolutionsDetected = 1
+### baseq3/uix86.dll @ 0x634648e6 (capstone, x86-32)
+    634648e6: push esi
+    634648e7: push ebx
+    634648e8: sub esp, 0x42c
+    634648ee: mov ebx, 0x83c
+    634648f3: mov dword ptr [esp + 4], ecx
+    634648f7: mov dword ptr [esp + 8], ebx
+    634648fb: mov dword ptr [esp], 0x634c6bf0
+    63464902: call 0x6346b8d0
+    63464907: mov dword ptr [esp], 0x63474cb5   ; "r_availableModes"
+    6346490e: call 0x63444140
+    63464913: mov dword ptr [esp + 4], eax
+    63464917: mov edx, 0x400
+    6346491c: mov dword ptr [esp + 8], edx
+    63464920: mov dword ptr [esp], 0x634c7430
+    63464927: call 0x63468010
+    6346492c: cmp byte ptr [0x634c7430], 0
+    63464933: je 0x634649a0
+    63464935: mov ecx, 0x634c7430
+    6346493a: xor ebx, ebx
+    6346493c: lea esi, [esi]
+    63464940: mov dword ptr [ebx*4 + 0x634c7830], ecx
+    63464947: mov edi, 0x20
+    6346494c: inc ebx
+    6346494d: mov dword ptr [esp], ecx
+    63464950: mov dword ptr [esp + 4], edi
+    63464954: call 0x6346b9a0
+    63464959: test eax, eax
+    6346495b: mov ecx, eax
+    6346495d: je 0x63464963
+    6346495f: mov byte ptr [eax], 0
+    63464962: inc ecx
+    63464963: test ecx, ecx
+    63464965: setne al
+    63464968: xor edx, edx
+    6346496a: cmp ebx, 0x1e
+    6346496d: setbe dl
+    63464970: test eax, edx
+    63464972: jne 0x63464940
+    63464974: xor esi, esi
+    63464976: test ebx, ebx
+    63464978: mov dword ptr [ebx*4 + 0x634c7830], esi
+    6346497f: je 0x634649a0
+    63464981: mov ebx, 0x634c7830
+    63464986: mov ecx, 1
+    6346498b: mov dword ptr [0x6346df00], ebx
+    63464991: mov dword ptr [0x634c6430], ecx
+    63464997: mov esi, esi
+    63464999: lea edi, [edi]
+    634649a0: mov dword ptr [esp], 0x63474a44   ; "menu/art/frame2_l"
+    634649a7: mov edi, 1
+    634649ac: call 0x634698f0
+    634649b1: mov dword ptr [esp], 0x63474a56   ; "menu/art/frame1_r"
+    634649b8: call 0x634698f0
+    634649bd: mov ebx, 0x634645c0
+    634649c2: mov esi, 0x140
+    634649c7: mov dword ptr [esp], 0x63474a68   ; "menu/art/back_0"
+    634649ce: call 0x634698f0
+    634649d3: mov dword ptr [esp], 0x63474a78   ; "menu/art/back_1"
+    634649da: call 0x634698f0
+    634649df: mov dword ptr [esp], 0x63474c00   ; "menu/art/accept_0"
+
+### baseq3/uix86.dll GraphicsOptions_ApplyChanges: non-builtin detected mode -> trap_Cvar_Set(r_customwidth/r_customheight) (16-byte w/h buffers)
+### baseq3/uix86.dll @ 0x63463f3b (capstone, x86-32)
+    63463f3b: call 0x6346b9a0
+    63463f40: mov dword ptr [esp], ebx
+    63463f43: inc eax
+    63463f44: mov ecx, 0x10
+    63463f49: mov dword ptr [esp + 8], ecx
+    63463f4d: mov dword ptr [esp + 4], eax
+    63463f51: call 0x63468010
+    63463f56: mov dword ptr [esp + 4], esi
+    63463f5a: mov dword ptr [esp], 0x63474aee   ; "r_customwidth"
+    63463f61: call 0x634695a0
+    63463f66: mov dword ptr [esp + 4], ebx
+    63463f6a: mov dword ptr [esp], 0x63474afc   ; "r_customheight"
+    63463f71: call 0x634695a0
+    63463f76: push edi
+
+### baseq3/uix86.dll GraphicsOptions_SetMenuItems: r_mode < 0 -> rebuild "WxH" from r_customwidth (buffer 0x3fe) + r_customheight and select it in the detected list
+### baseq3/uix86.dll @ 0x63465619 (capstone, x86-32)
+    63465619: mov dword ptr [esp], 0x63474aee   ; "r_customwidth"
+    63465620: mov esi, 0x3fe
+    63465625: mov dword ptr [esp + 8], esi
+    63465629: lea esi, [ebp - 0x418]
+    6346562f: mov dword ptr [esp + 4], esi
+    63465633: call 0x63469600
+    63465638: mov ecx, esi
+    6346563a: lea esi, [esi]
+
+### string offsets (strings -a -t x, file offsets)
+## ioquake3.x86.exe
+ 11766a zDioq3 1.36
+ 11c0a7 Apr 12 2009
+ 11c0b3 win_mingw-x86
+ 11c0c1 ioq3 1.36
+ 11fde5 ioq3 1.36
+ 12367c Failed to load dll, looking for qvm.
+ 12b2c0 Mode  0: 320x240
+ 12b383 Mode 11: 856x480 (wide)
+ 12ecdd Apr 12 2009
+ 12ece9 ioq3 1.36 client (%s)
+ 13419c SDL_VIDEODRIVER=directx
+ 1341b4 SDL_VIDEODRIVER=windib
+ 1352f1 Available modes: '%s'
+ 135308 r_availableModes
+ 1353d0 Estimated display aspect: %.3f
+## quake3.exe
+  b281e zDQ3 1.32c
+  b5c44 win-x86
+  ba0a4 %s has bad header
+  bacf5 has not been verified for use with Quake III Arena.
+  bad98 Security Warning
+  badac com_blindlyLoadDLLs
+  bbd88 Mode 11: 856x480 (wide)
+  bc7fc r_customaspect
+  bc824 r_customwidth
+## quake3.exe has NO r_availableModes (case-insensitive):
+0
+## baseq3/uix86.dll
+  31cec server%d
+  31fb1 server%d
+  3200e sv_master%d
+  335d0 320x240
+  33626 2048x1536
+  33630 856x480 wide screen
+  336ee r_customwidth
+  336fc r_customheight
+  338b5 r_availableModes
+  3391f Video Mode:
+## baseq3/pak8.pk3!vm/ui.qvm (the UI both engines load by default)
+  4242d server%d
+  4278c server%d
+  43c2a Video Mode:
+  43cb9 856x480 wide screen
+  43ccd 2048x1536
+  43cd7 1600x1200
+  43ce1 1280x1024
+  43ceb 1152x864
+  43cf4 1024x768
+  43cfd 960x720
+  43d05 800x600
+  43d0d 640x480
+  43d15 512x384
+  43d1d 400x300
+  43d25 320x240
+  43e33 r_mode
+## pak8 ui.qvm: r_availableModes / r_customwidth present? (case-insensitive count)
+0

@@ -1,0 +1,116 @@
+{
+ "key": "idtech2",
+ "status": "ready",
+ "summary": "I built the id Tech 2 1080p patch exactly as the verified entries describe, and confirmed their offsets byte for byte against the staged originals. provisioning/patches/idtech2/apply.py rebuilds everything from the share and refuses any file whose md5, size or original bytes differ from what was measured.\n\nQuake2Complete quake2.exe:\n- vid_modes[9] width @0x54464 1600->1920 and height @0x54468 1200->1080.\n- 'Mode 9: 1600x1200' @0x54470 -> 'Mode 9: 1920x1080'.\n- Menu label '[1600 1200]' @0x54720 -> '[1920 1080]'. Pefile confirms that label array @0x54678 entry 9 points there and entry 10 is NULL.\n\nSiNGold sin.exe: width @0x944e4, height @0x944e8, and the desc string @0x944f0 (the string offset is new; the entry gave none). Two new loose menu files:\n- base\\menus\\main.mnu, from pak5.sin, with ' 1600 x 1200' -> ' 1920 x 1080'.\n- 2015\\menus\\main.mnu, from 2015\\pak0.sin, with the same relabel plus numitems 9->10. Wages of SiN declared nine items over ten strings, which is why its menu stopped at 1280 x 960.\n\nSoldierOfFortune SoF.exe: width @0x1c6e9c, height @0x1c6ea0, and the desc string @0x1c6ea8. A new base\\pak2.pak (a PACK with one entry, menus/m_video.rmf) carries the resolution list relabelled '...,1280x960,1920x1080'; the match \"3,...,9\" mapping is unchanged.\n\nOther checks:\n- Every diff is confined to the listed bytes (cmp -l).\n- All three exes have PE checksum 0 and no SafeDisc marker, so the loader has nothing to object to.\n- Quake2Win9x's identical exe stays stock, and --check asserts that.\n\nThe patch is inert until launchers and GAMERES hand these titles gl_mode 9. That value is FR_Q2WIDE / %Q2WIDE%, defined below: 9 on the four 1080p LCDs and 8 on .124 and .143. The staged SiN ctf\\ directory has its own 10-item main.mnu in ctf\\pak1.sin; I did not patch it, because it has no client shortcut. If a CTF shortcut is added later it needs a loose ctf\\menus\\main.mnu the same way. --check and --build pass, and tests are 29/29.",
+ "files_created": [
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/idtech2/apply.py",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/idtech2/README.md",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/tests/python/test_patch_idtech2.py",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech2/check.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech2/build.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech2/verify-outputs.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech2/manifest.json",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech2/pytest.txt",
+  "/home/voidsstr/.retro-fleet/patch-out/idtech2/manifest.json"
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/Quake2Complete/quake2.exe",
+   "md5": "57dd2cf4ba176f3e6ae72fccc94c38b4",
+   "size": 362496
+  },
+  {
+   "share_path": "Files/Games-Library/SiNGold/sin.exe",
+   "md5": "8d320d7fc3ea3a226ec98dafef3e81ba",
+   "size": 667648
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune/SoF.exe",
+   "md5": "2f4db3771d51d8b585bbea695041e40c",
+   "size": 2052096
+  },
+  {
+   "share_path": "Files/Games-Library/SiNGold/base/pak5.sin:menus/main.mnu (source entry; loose target is new)",
+   "md5": "d038864bdf6921ad4181ab96ac1300a4",
+   "size": 90780
+  },
+  {
+   "share_path": "Files/Games-Library/SiNGold/2015/pak0.sin:menus/main.mnu (source entry; loose target is new)",
+   "md5": "3de83c90bf6e20f4ea250ef143648739",
+   "size": 112319
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune/base/pak0.pak:menus/m_video.rmf (source entry; pak2.pak is new)",
+   "md5": "bc6bab97e0a55ca6b42316d210093ee7",
+   "size": 3080
+  },
+  {
+   "share_path": "Files/Games-Library/Quake2Win9x/quake2.exe (must STAY stock, asserted)",
+   "md5": "57dd2cf4ba176f3e6ae72fccc94c38b4",
+   "size": 362496
+  }
+ ],
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/Quake2Complete/quake2.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/Quake2Complete/quake2.exe",
+   "md5": "d4fe128806b9ac7899c8ac6e4d6c367d",
+   "size": 362496
+  },
+  {
+   "share_path": "Files/Games-Library/SiNGold/sin.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/sin.exe",
+   "md5": "55d69eb8584e633b16445adb126f8d47",
+   "size": 667648
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune/SoF.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SoldierOfFortune/SoF.exe",
+   "md5": "b4ed42272887b16a8ecdb92c919a507d",
+   "size": 2052096
+  },
+  {
+   "share_path": "Files/Games-Library/SiNGold/base/menus/main.mnu",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/base/menus/main.mnu",
+   "md5": "886cdbf4cee22fc649b43aa0f42867e4",
+   "size": 90780
+  },
+  {
+   "share_path": "Files/Games-Library/SiNGold/2015/menus/main.mnu",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/2015/menus/main.mnu",
+   "md5": "dce920d214d1e1aa0445578066c2eaeb",
+   "size": 112320
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune/base/pak2.pak",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SoldierOfFortune/base/pak2.pak",
+   "md5": "d2d96ee679c039596c35c3fe9404ef41",
+   "size": 3156
+  }
+ ],
+ "launcher_changes_needed": [
+  "NEW VALUE, defined once and computed identically by both writers of <mod>\\fleetres.cfg. Name: FR_Q2WIDE (FLEETRES) == t->q2wide / token %Q2WIDE% (GAMERES). Rule: 9 if the post-ResCap target is 16:9 (aspect_class_mode / gr_aspect_mode == 169), target_w >= 1920, target_h >= 1080, and the driver offers 1920x1080 (mode_offered / gr_mode_offered); otherwise min(q2mode, 8). The min(...,8) is required: in the patched exes mode 9 means 1920x1080, so a 4:3 box that would resolve FR_Q2MODE=9 (1600x1200) must get 8. Reference implementation: provisioning/patches/idtech2/apply.py fr_q2wide(). Expected per box: .123=9, .145=9, .195=9, .240=9 (all 1920x1080 16:9 LCDs, FR_Q2MODE 8, measured); .124=8 (HP P1120 CRT, target 1280x960, measured by GAMERES 2026-09-29); .143=8 (no EDID, so it takes the 4:3-CRT branch; persisted 1280x1024 gives a 1280x960 target; unmeasured, but never 9).",
+  "provisioning/fleetres/fleetres.c: after q2_mode_for() add `static int q2_wide_for(int w, int h, int q2mode) { if (h > 0 && aspect_class_mode((double)w / (double)h) == 169 && w >= 1920 && h >= 1080 && mode_offered(1920, 1080)) return 9; return q2mode > 8 ? 8 : q2mode; }`. After line 896 (`printf(\"set \\\"FR_Q2MODE=%d\\\"\\n\", ...)`) add `printf(\"set \\\"FR_Q2WIDE=%d\\\"\\n\", q2_wide_for(tgt_w, tgt_h, q2_mode_for(t43_w, t43_h)));` using the same tgt_w/tgt_h as FR_W/FR_H (post-cap). Add `q2wide %d` to the -info 'target 4:3' line. Rebuild FLEETRES.EXE with the usual mingw no-SSE flags and re-stage it into every title with scripts/fleet/stage-fleetres.py. The three launchers pass no -cap, so the launcher and GAMERES targets are the same.",
+  "agent/shared/gameres.h: add `int q2wide;` beside q2mode in gr_target_t. After line 470 (`t->q2mode = gr_q2_mode_for(l, t->w43, t->h43);`) add `t->q2wide = (t->h > 0 && gr_aspect_mode((double)t->w / (double)t->h) == 169 && t->w >= 1920 && t->h >= 1080 && gr_mode_offered(l, 1920, 1080)) ? 9 : (t->q2mode > 8 ? 8 : t->q2mode);`. In gr_expand add `else if (!strcmp(tok, \"Q2WIDE\")) sprintf(val, \"%d\", t->q2wide);` and document %Q2WIDE% in the token comment block (~line 498). In gr_cfg_body kind \"idtech2\" change `set gl_mode \\\"%Q2MODE%\\\"` to `set gl_mode \\\"%Q2WIDE%\\\"`. Rows 702-708 (Quake2Complete x4, SiNGold base/2015, SoldierOfFortune base) stay as they are, because all three titles are patched and Quake2Win9x has no row. agent/src/gameres.c: add q2wide to the log line (~211) and to the GAMERES JSON target (~822, \\\"q2wide\\\":%d). This is a new feature, so bump the agent minor version and publish in order: archive, then pointer, then .ver last.",
+  "scripts/fleet/stage-fleetres.py, FLEETRES.BAT template (lines ~100-150): add a doc line `rem  FR_Q2WIDE         gl_mode for the PATCHED id Tech 2 exes (Quake2Complete, SiNGold, SoF): 9 = 1920x1080 on a 16:9 >=1080p target, else FR_Q2MODE capped at 8`. Add `set FR_Q2WIDE=` to the clear block. After the FR_Q2MODE fallback, add the fallback `if not defined FR_Q2WIDE set FR_Q2WIDE=%FR_Q2MODE%`.",
+  "scripts/fleet/stage-fleetres.py, q2_cfg() (line 357): change to `'>>%s echo set gl_mode \"%%FR_Q2WIDE%%\"' % p`. It is used only by Quake2Complete (baseq2/xatrix/rogue/ctf), SiN 2015, and the NEW_Q2 block (SiN base, SoF). In the Quake2Complete launchers (lines 1343/1347/1351/1355) and SiN 'Play Wages of SiN.bat' (line 1372), change the replacement to `+set gl_mode %FR_Q2WIDE%`. In the NEW_Q2 template (line 1660), change it to `start \"\" {exe} +set gl_mode %FR_Q2WIDE%`. Add MIGRATION pairs for the launchers already on the share, following the Q3MODE precedent at lines 963-966: ('set gl_mode \"%FR_Q2MODE%\"' -> 'set gl_mode \"%FR_Q2WIDE%\"') and ('+set gl_mode %FR_Q2MODE%' -> '+set gl_mode %FR_Q2WIDE%'), applied to Quake II.bat, Quake II - The Reckoning.bat, Quake II - Ground Zero.bat, Quake II - ThreeWave CTF.bat, Play SiN Gold.bat, Play Wages of SiN.bat and Play Soldier of Fortune.bat. Leave 'Play SiN - software renderer.bat' on `+set sw_mode %FR_Q2MODE%`: ref_soft must never get mode 9. Update the q2_cfg/NEW_Q2 comments to say 9=1920x1080 in the patched exes. Do not touch Quake2Win9x.",
+  "tests: tests/python/test_gameres_mirror.py line 287 tok map needs `\"%Q2WIDE%\": \"%FR_Q2WIDE%\"`. tests/python/test_fleetres_staging.py lines 248 and 526 assert FR_Q2MODE in the id Tech 2 cfg; switch them to FR_Q2WIDE and add an assert that the SiN software launcher still uses FR_Q2MODE. tests/native/test_gameres.c: add q2wide cases (1920x1080 LCD offering 1920x1080 -> 9; 1280x960 CRT -> 8; a 1600x1200 4:3 CRT with q2mode 9 -> 8; 1080p LCD whose list lacks 1920x1080 -> q2mode). Also add a fleetres.c-vs-gameres.h mirror case for FR_Q2WIDE.",
+  "ORDER: (1) apply.py --publish, putting the three exes then the three menu files; this is inert because nothing selects 9 yet. (2) Land the fleetres.c + stage-fleetres.py + gameres.h changes and re-stage FLEETRES + the 7 launchers. (3) Publish the agent. (4) Bump Games-Library/_deploy_generation.txt so autodeploy pushes the in-title fix, and run scripts/validate-staged-library.py. GAMESYNC never deletes, so rolling back the new loose/pak files means publishing the stock-extracted menus in their place (or deleting them in the launcher). Rolling back the exes means putting the originals back from _patches/<Title>/originals-2026-09-29/; sharewrite gives a fresh mtime, so a same-size file still re-copies.",
+  "OPTIONAL, separable, not needed to make 1080p selectable: hor+ FOV for Quake II at 16:9. Q2's fov cvar is honoured by baseq2 gamex86 unless DF_FIXED_FOV is set. A value like FR_Q2FOV = (q2wide==9 ? horplus_fov(1920,1080) [=106] : 90) would have to be added identically to both writers, as a new kind 'idtech2-fov' for the 4 Quake2Complete rows only. Leave SiN and SoF alone: SoF's widescreen is reported vert- regardless, and SiN's game DLL saves/restores fov itself. Its effect on SiN and SoF is unverified."
+ ],
+ "tests": "`python3 -m pytest -q tests/python/test_patch_idtech2.py`: 29 passed. With RETRO_LIBRARY=/nonexistent, the 24 pure tests pass and every share-dependent test skips with \"SKIPPED LOUDLY: staged library ... is not mounted\".\n\nThe pure tests cover:\n- The verified offsets for all three exes.\n- The byte patch on a synthetic vid_modes table: old and new values, nothing else changed, refusal on unmeasured bytes, refusal to double-apply.\n- The label pointer array.\n- The SiN main.mnu relabel (base and 2015 numitems 9->10, CRLF and trailing blank kept, other lists untouched, refusal on unexpected blocks).\n- The SoF rmf relabel.\n- PACK/SPAK round trips.\n- The FR_Q2WIDE rule for all six boxes, plus the 1600x1200-CRT, not-offered, ResCap, 16:10 and 2560x1440 cases.\n\nThe share tests cover:\n- Reproducible output md5s.\n- Only edited bytes change.\n- Quake2Win9x is still stock.\n- The publish order and backup paths, driven through a recording stub so nothing is written.\n- Publish stops on the first failure.\n\n`apply.py --check` exits 0 (6 outputs, originals verified), and so does `apply.py --build`. An independent cmp -l / diff / pak parse is in evidence-1080p/build-idtech2/verify-outputs.txt. --publish was NOT run.",
+ "risks": [
+  "The patched exes still show the 1600x1200 slot, now labelled 1920x1080, on the CRT boxes too. On a CRT that cannot do 1920x1080, picking it in the menu fails the mode set, and id Tech 2 reverts to the previous gl_mode. 1600x1200 is no longer reachable on any box, and .124's P1120 supports it; no box was using it.",
+  "id Tech 2 draws the HUD, console and menus at 1:1 pixels, so they are small at 1080p. SoF's stock menus are web-reported to clip at the bottom at 16:9. SiN's 4:3 menu layout at 16:9 has not been measured.",
+  "SiN's software renderer (ref_soft_real.dll, the only path on .145) can be pointed at mode 9 through the menu. The id GPL ref_soft MAXWIDTH is 1600, so that may crash. The launcher keeps sw_mode on FR_Q2MODE, so this only happens if a user picks it in the menu.",
+  "Wages of SiN originally declared numitems 9. Its authors may have dropped mode 9 on purpose; it now lists 10 like base does. Same parser, but unmeasured.",
+  "Rollout churn: until every box runs the agent with the new gameres.h, an old agent writes gl_mode 8 and a new launcher writes 9 into the same fleetres.cfg. The launcher writes last and passes +set, so the game still starts at 9, but GAMERES will not settle at '0 value(s) changed' until the agent is updated. If the launchers ship before the exes, a stock exe asked for mode 9 on a 1080p LCD gets 1600x1200, which is not offered, and falls back; ship the exes first.",
+  "GAMESYNC cannot overwrite a running sin.exe/SoF.exe/quake2.exe (failed_files>0), so make sure the games are closed on each box before syncing.",
+  "SoF may run exe or pak integrity checks for WON/anti-cheat. SoF multiplayer is already blocked by the WON CD error, so there is no regression, but single player with pak2.pak present is unmeasured.",
+  "The new loose SiN menus and SoF pak2.pak persist on boxes forever, because GAMESYNC never deletes; see the rollback note in launcher_changes_needed.",
+  "Another lane (monitor refresh) may be editing fleetres.c/gameres.h/stage-fleetres.py at the same time. The launcher change must be merged, not overwritten.",
+  "Once this ships, CLAUDE.md and provisioning/fleetres/PER-TITLE-STATUS.md, which say 'Quake II / SiN / Soldier of Fortune cannot reach 1080p', become stale and need updating."
+ ],
+ "hw_verification_plan": "Prerequisites: exes and menus published, the launcher and GAMERES change landed, and the agent updated. Test on .123 first, then .240, .195 and .145, all XP boxes except .195 (Win7). On each box:\n\n1. Purge the three titles (C:\\Games\\Quake2Complete, SiNGold, SoldierOfFortune, plus their .lnk files). GAMESYNC RESET, then START. Require state=done, failed_files=0, and titles_total equal to the library's count.\n2. Confirm on the box, with DIRLIST sizes and md5 via DOWNLOAD:\n   - quake2.exe = d4fe1288...\n   - sin.exe = 55d69eb8...\n   - SoF.exe = b4ed4227...\n   - SiNGold\\base\\menus\\main.mnu and 2015\\menus\\main.mnu present\n   - SoldierOfFortune\\base\\pak2.pak = 3156 B\n3. Run GAMERES and check target.q2wide=9. Then run GAMERES APPLY twice: the first run may change 7 values, the second must report 0 value(s) changed.\n\nQuake II:\n- EXEC cmd /c start \"\" /D \"C:\\Games\\Quake2Complete\" \"Quake II.bat\". DISPLAYCFG get must read 1920x1080.\n- Screenshot fullscreen: GDI SCREENSHOT 0 on XP; on .195 (Win7) use F11 -> baseq2\\scrnshot\\quakeNN.tga. The frame must be 1920x1080.\n- The menu is keyboard-navigable: Esc > Options > Video. The 'video mode' spinner must show [1920 1080] as the current, last entry. Screenshot it.\n- Repeat once each for Ground Zero, The Reckoning and CTF (fleetres.cfg lands in rogue/xatrix/ctf).\n- MUST NOT CHANGE: `connect 192.168.1.132:27910` must still join the Yamagi server. Screenshot in-game with the server's player list.\n\nSiN (skip GL on .145):\n- Play SiN Gold.bat, then DISPLAYCFG 1920x1080. Main menu > Controls > Video > 'Video Mode:' must read ' 1920 x 1080'. Keyboard navigation is still unproven; if it cannot be driven, record the frame only.\n- Play Wages of SiN.bat: the same, and its list must now reach ' 1920 x 1080' (it used to stop at 1280 x 960).\n- On .145 the software launcher must still read 1024x768 (sw_mode unchanged).\n- MUST NOT CHANGE: a two-box ds_deathmatch.bat host/join still works.\n\nSoF:\n- Play Soldier of Fortune.bat, then DISPLAYCFG 1920x1080. ARC globe > options > Video > Resolution must read '1920x1080'. The input evidence conflicts (UICLICK worked on .123, relative deltas on .240), so a human may be needed for the menu shot.\n- Levels still stop at the WON CD error, as before. Only menus can be verified.\n\nCRT control:\n- On .124 (and .143 if powered), GAMERES target.q2wide must be 8, Quake II.bat must give DISPLAYCFG 1280x960, and the menu shows [1920 1080] as the last entry but it is not selected.\n\nAfterwards:\n- Every box must be left at its persisted desktop mode.\n- Quake2Win9x stays absent on the LCD boxes, and its exe stays stock on the share.",
+ "review_notes": "The verified entries hold. The only additions:\n- SiN's and SoF's 'Mode 9' desc-string offsets (0x944f0 and 0x1c6ea8); the entries gave only the width and height offsets.\n- A structural check that quake2.exe's label array entry 9 really points at 0x54720.\n\nI did change one thing: FR_Q2WIDE must clamp non-1080p answers to 8, not simply fall back to FR_Q2MODE. Otherwise any 4:3 box that ever resolves FR_Q2MODE=9 (a 1600x1200 CRT, such as .124's P1120 if its persisted mode rose) would be asked for 1920x1080 by a patched exe.\n\nOther notes:\n- The FR_* naming follows the verifier's suggestion.\n- GAMERES rows 702-708 need no per-title split, because exactly the three patched titles use kind idtech2.\n- The launchers are generated. Implement the change in stage-fleetres.py (q2_cfg, NEW_Q2, the rec replacements, plus migration pairs for the already-shipped .bat files), not by editing the share.\n- --publish uses scripts/fleet/sharewrite.py put, which creates parent directories (base\\menus, _patches\\<Title>\\originals-2026-09-29). It refuses to overwrite an existing backup with a different md5, and refuses a pre-existing new-file target that is not our output.\n\nThe worktree files are uncommitted, as instructed. The generated outputs and extracted game data are outside git. Commit only apply.py, README.md and the test."
+}

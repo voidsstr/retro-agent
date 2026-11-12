@@ -1,0 +1,114 @@
+===== HalfLife1/hw.dll D3D-wrapper init 10056e40-10057d00
+-- vtable call at 10056ed1: dword ptr [edx + 0x30]
+   10056ea7  push   ebx
+   10056ea8  push   ecx
+   10056ea9  push   ebx
+   10056eaa  call   0x100a4658
+   10056eaf  test   eax, eax
+   10056eb1  jl     0x10057cb8
+   10056eb7  mov    eax, dword ptr [esp + 0x28]
+   10056ebb  lea    ecx, [esp + 0xe8]
+   10056ec2  mov    dword ptr [esp + 0xe8], 0x6c
+   10056ecd  push   ecx
+   10056ece  mov    edx, dword ptr [eax]
+   10056ed0  push   eax
+   10056ed1  call   dword ptr [edx + 0x30]
+-- vtable call at 10056f14: dword ptr [edx + 0x5c]
+   10056eeb  push   0x100c6208
+   10056ef0  call   0x100c1180
+   10056ef5  test   eax, eax
+   10056ef7  jl     0x10057cb8
+   10056efd  mov    ecx, dword ptr [0x105ea040]
+   10056f03  mov    eax, dword ptr [0x105ea048]
+   10056f08  push   ebx
+   10056f09  push   ecx
+   10056f0a  mov    ecx, dword ptr [0x105ea1c8]
+   10056f10  mov    edx, dword ptr [eax]
+   10056f12  push   ecx
+   10056f13  push   eax
+   10056f14  call   dword ptr [edx + 0x5c]
+-- vtable call at 100570ff: dword ptr [edx + 0x54]
+   100570df  call   dword ptr [ecx + 8]
+   100570e2  call   dword ptr [0x100c53ac]
+   100570e8  pop    edi
+   100570e9  pop    esi
+   100570ea  pop    ebp
+   100570eb  xor    eax, eax
+   100570ed  pop    ebx
+   100570ee  add    esp, 0x33c
+   100570f4  ret    4
+   100570f7  mov    edx, dword ptr [eax]
+   100570f9  push   0x105ea1cc
+   100570fe  push   eax
+   100570ff  call   dword ptr [edx + 0x54]
+-- vtable call at 100577b8: dword ptr [ecx + 0x54]
+   1005779f  push   edx
+   100577a0  push   esi
+   100577a1  mov    ecx, dword ptr [eax]
+   100577a3  push   eax
+   100577a4  call   dword ptr [ecx + 0x64]
+   100577a7  mov    edi, ebp
+   100577a9  mov    esi, 0x105ea264
+   100577ae  mov    eax, dword ptr [0x105ea1cc]
+   100577b3  push   esi
+   100577b4  push   edi
+   100577b5  push   eax
+   100577b6  mov    ecx, dword ptr [eax]
+   100577b8  call   dword ptr [ecx + 0x54]
+===== CounterStrike16/hw.dll D3D-wrapper init 1d7b8f0-1d7c900
+-- vtable call at 01d7b981: dword ptr [edx + 0x30]
+   01d7b957  push   ebp
+   01d7b958  push   ecx
+   01d7b959  push   ebp
+   01d7b95a  call   0x1de1250
+   01d7b95f  test   eax, eax
+   01d7b961  jl     0x1d7c870
+   01d7b967  mov    eax, dword ptr [esp + 0x28]
+   01d7b96b  lea    ecx, [esp + 0xf4]
+   01d7b972  mov    dword ptr [esp + 0xf4], 0x6c
+   01d7b97d  push   ecx
+   01d7b97e  mov    edx, dword ptr [eax]
+   01d7b980  push   eax
+   01d7b981  call   dword ptr [edx + 0x30]
+-- vtable call at 01d7b9c4: dword ptr [edx + 0x5c]
+   01d7b99b  push   0x1e4a248
+   01d7b9a0  call   0x1e41454
+   01d7b9a5  test   eax, eax
+   01d7b9a7  jl     0x1d7c870
+   01d7b9ad  mov    ecx, dword ptr [0x2398338]
+   01d7b9b3  mov    eax, dword ptr [0x2398340]
+   01d7b9b8  push   ebp
+   01d7b9b9  push   ecx
+   01d7b9ba  mov    ecx, dword ptr [0x23984c0]
+   01d7b9c0  mov    edx, dword ptr [eax]
+   01d7b9c2  push   ecx
+   01d7b9c3  push   eax
+   01d7b9c4  call   dword ptr [edx + 0x5c]
+-- vtable call at 01d7bc2e: dword ptr [ecx + 0x54]
+   01d7bc08  mov    edx, dword ptr [eax]
+   01d7bc0a  push   0x23984c0
+   01d7bc0f  push   eax
+   01d7bc10  call   dword ptr [edx + 0x40]
+   01d7bc13  test   eax, eax
+   01d7bc15  jge    0x1d7bc21
+   01d7bc17  mov    eax, dword ptr [0x23984c4]
+   01d7bc1c  jmp    0x1d7c85f
+   01d7bc21  mov    eax, dword ptr [0x2398340]
+   01d7bc26  push   0x23984c4
+   01d7bc2b  push   eax
+   01d7bc2c  mov    ecx, dword ptr [eax]
+   01d7bc2e  call   dword ptr [ecx + 0x54]
+-- vtable call at 01d7c38d: dword ptr [ecx + 0x54]
+   01d7c373  push   edx
+   01d7c374  push   3
+   01d7c376  mov    ecx, dword ptr [eax]
+   01d7c378  push   eax
+   01d7c379  call   dword ptr [ecx + 0x64]
+   01d7c37c  mov    edi, ebx
+   01d7c37e  mov    esi, 0x239856c
+   01d7c383  mov    eax, dword ptr [0x23984c4]
+   01d7c388  push   esi
+   01d7c389  push   edi
+   01d7c38a  push   eax
+   01d7c38b  mov    ecx, dword ptr [eax]
+   01d7c38d  call   dword ptr [ecx + 0x54]

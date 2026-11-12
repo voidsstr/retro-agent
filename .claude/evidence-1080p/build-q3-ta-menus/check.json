@@ -1,0 +1,106 @@
+{
+ "source": {
+  "path": "/mnt/retro-share/Files/Games-Library/Quake3-TeamArena/missionpack/pak0.pk3",
+  "size": 351623691,
+  "md5": "e8ba9e3bf06210930bc0e7fdbcdd01c2"
+ },
+ "pk3s": [
+  "pak0.pk3",
+  "pak1.pk3",
+  "pak2.pk3",
+  "pak3.pk3"
+ ],
+ "members": {
+  "ui/system.menu": {
+   "owners": [
+    "pak0.pk3"
+   ],
+   "anchors": [
+    {
+     "offset": 3276,
+     "old_len": 0,
+     "new_len": 1158
+    },
+    {
+     "offset": 2877,
+     "old_len": 28,
+     "new_len": 40
+    },
+    {
+     "offset": 1686,
+     "old_len": 417,
+     "new_len": 154
+    }
+   ],
+   "audit_original": [
+    "first r_mode entry is [('320*240', 0.0)], not ('Native', -1)",
+    "r_mode -1 does not paint 'Native'",
+    "a click at r_mode -1 still writes r_mode 1",
+    "the Quality (ui_glCustom) control is still present",
+    "expected 3 r_mode-gated overlay items, found []"
+   ],
+   "audit_patched": [],
+   "brace_profile": [
+    0,
+    0
+   ],
+   "layout": {
+    "value_x": 235,
+    "native_end": 283.0,
+    "gap_1920_to_sep": 6.0,
+    "gap_widest_to_sep": 3.0,
+    "sep_end": 337.0,
+    "height_end_max": 378.0,
+    "problems": []
+   },
+   "patched_md5": "4cd05af14011932c330157015f687b01",
+   "patched_size": 15166
+  },
+  "ui/ingame_system.menu": {
+   "owners": [
+    "pak0.pk3"
+   ],
+   "anchors": [
+    {
+     "offset": 4534,
+     "old_len": 0,
+     "new_len": 1155
+    },
+    {
+     "offset": 4131,
+     "old_len": 28,
+     "new_len": 40
+    },
+    {
+     "offset": 2854,
+     "old_len": 440,
+     "new_len": 154
+    }
+   ],
+   "audit_original": [
+    "first r_mode entry is [('320x240', 0.0)], not ('Native', -1)",
+    "r_mode -1 does not paint 'Native'",
+    "a click at r_mode -1 still writes r_mode 1",
+    "the Quality (ui_glCustom) control is still present",
+    "expected 3 r_mode-gated overlay items, found []"
+   ],
+   "audit_patched": [],
+   "brace_profile": [
+    0,
+    0
+   ],
+   "layout": {
+    "value_x": 141,
+    "native_end": 179.0,
+    "gap_1920_to_sep": 4.0,
+    "gap_widest_to_sep": 3.0,
+    "sep_end": 223.0,
+    "height_end_max": 254.0,
+    "problems": []
+   },
+   "patched_md5": "b3466223d6cd10eeba56d09a47bb24b9",
+   "patched_size": 13504
+  }
+ },
+ "ok": true
+}

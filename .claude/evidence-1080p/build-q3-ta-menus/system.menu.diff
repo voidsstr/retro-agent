@@ -1,0 +1,98 @@
+--- a/ui/system.menu
++++ b/ui/system.menu
+@@ -82,22 +82,8 @@
+     	}
+ 
+ 
+-	itemDef {
+-    	name graphics				
+-		group grpSystem
+-		text "Quality:"
+-   		type ITEM_TYPE_MULTI	
+-		cvar "ui_glCustom"
+-		cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
+-		rect 99 42 256 20
+-   		textalign ITEM_ALIGN_RIGHT
+-   		textalignx 128 
+-   		textaligny 20
+-		textscale .333         
+-   		forecolor 1 1 1 1
+-   		visible 0 
+-		action { uiScript update "ui_glCustom" }
+-	}
++	// fleet, provisioning/patches/q3-ta-menus: the Quality presets were removed -
++	// UI_Update wrote r_mode 4 or 3 and dropped the box off its own mode.
+ 
+ 	itemDef {
+   		name graphics
+@@ -137,7 +123,7 @@
+    		type ITEM_TYPE_MULTI	
+ 		text "Video Mode:"
+ 		cvar "r_mode"
+-		cvarFloatList { "320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
++		cvarFloatList { "Native" -1 "320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
+ 		rect 99 117 256 20
+       		textalign ITEM_ALIGN_RIGHT
+       		textalignx 128
+@@ -146,6 +132,61 @@
+       		forecolor 1 1 1 1
+       		visible 0 
+ 		action { uiScript glCustom }
++	}
++
++	// fleet, provisioning/patches/q3-ta-menus: at r_mode -1 the mode is the
++	// box's own r_customwidth x r_customheight, written per box by FLEETRES.
++	// A cvar-only text item is always left-anchored, so x is pinned.
++	itemDef {
++		name graphics
++		type ITEM_TYPE_TEXT
++		cvar "r_customwidth"
++		rect 289 117 42 20
++		group grpSystem
++		style 0
++		cvarTest "r_mode"
++		showCvar { "-1" ; "-1.000000" }
++		textalign ITEM_ALIGN_LEFT
++		textalignx 0
++		textaligny 20
++		textscale .333
++		forecolor 1 1 1 1
++		visible 0
++		decoration
++	}
++	itemDef {
++		name graphics
++		type ITEM_TYPE_TEXT
++		text "*"
++		rect 331 117 10 20
++		group grpSystem
++		style 0
++		cvarTest "r_mode"
++		showCvar { "-1" ; "-1.000000" }
++		textalign ITEM_ALIGN_LEFT
++		textalignx 0
++		textaligny 20
++		textscale .333
++		forecolor 1 1 1 1
++		visible 0
++		decoration
++	}
++	itemDef {
++		name graphics
++		type ITEM_TYPE_TEXT
++		cvar "r_customheight"
++		rect 341 117 48 20
++		group grpSystem
++		style 0
++		cvarTest "r_mode"
++		showCvar { "-1" ; "-1.000000" }
++		textalign ITEM_ALIGN_LEFT
++		textalignx 0
++		textaligny 20
++		textscale .333
++		forecolor 1 1 1 1
++		visible 0
++		decoration
+ 	}
+ 
+ 	itemDef {

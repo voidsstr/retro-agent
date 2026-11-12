@@ -1,0 +1,58 @@
+# Serious Engine refresh symbol, per staged build (strings -a, case-insensitive grep RefreshRate|iRefresh over every exe/dll in the tree)
+SeriousSamFirstEncounter/Bin/Engine.dll: persistent user INDEX gfx_iRefreshRate;|
+SeriousSamSecondEncounter/Bin/Engine.dll: persistent user INDEX gap_iRefreshRate;|
+
+# TFE Engine.dll: gfx_iRefreshRate lives at 0x6023c3a8 (DeclareSymbol push after the string). Its only reader is the OpenGL CDS_SetMode:
+---- 0x600faef5
+   0x600faeea  rep stosd dword ptr es:[edi], eax
+   0x600faeec  mov    eax, dword ptr [ebp + 8]
+   0x600faeef  mov    ecx, dword ptr [ebp + 0xc]
+   0x600faef2  mov    dword ptr [ebp - 0x34], eax
+   0x600faef5  mov    eax, dword ptr [0x6023c3a8]
+   0x600faefa  test   eax, eax
+   0x600faefc  mov    word ptr [ebp - 0x7c], 0x94
+   0x600faf02  mov    dword ptr [ebp - 0x30], ecx
+   0x600faf05  mov    dword ptr [ebp - 0x2c], 4
+   0x600faf0c  mov    dword ptr [ebp - 0x78], 0x380000
+   0x600faf13  jle    0x600faf1f
+   0x600faf15  mov    dword ptr [ebp - 0x78], 0x780000
+   0x600faf1c  mov    dword ptr [ebp - 0x28], eax
+
+# TSE Engine.dll: gap_iRefreshRate at 0x601d5f6c - read by the OpenGL CDS_SetMode (dmFields 0x380000 -> 0x780000 = +DM_DISPLAYFREQUENCY when >0) and by the D3D8 present-params path:
+---- 0x6003ad35
+   0x6003ad2a  rep stosd dword ptr es:[edi], eax
+   0x6003ad2c  mov    eax, dword ptr [ebp + 8]
+   0x6003ad2f  mov    ecx, dword ptr [ebp + 0xc]
+   0x6003ad32  mov    dword ptr [ebp - 0x34], eax
+   0x6003ad35  mov    eax, dword ptr [0x601d5f6c]
+   0x6003ad3a  test   eax, eax
+   0x6003ad3c  mov    word ptr [ebp - 0x7c], 0x94
+   0x6003ad42  mov    dword ptr [ebp - 0x30], ecx
+   0x6003ad45  mov    dword ptr [ebp - 0x2c], 4
+   0x6003ad4c  mov    dword ptr [ebp - 0x78], 0x380000
+   0x6003ad53  jle    0x6003ad5f
+   0x6003ad55  mov    dword ptr [ebp - 0x78], 0x780000
+   0x6003ad5c  mov    dword ptr [ebp - 0x28], eax
+---- 0x6004c27a
+   0x6004c271  push   ecx
+   0x6004c272  push   ebx
+   0x6004c273  call   0x6004c470
+   0x6004c278  mov    edi, eax
+   0x6004c27a  mov    eax, dword ptr [0x601d5f6c]
+   0x6004c27f  mov    edx, dword ptr [ebp - 0x10c]
+   0x6004c285  add    esp, 0xc
+   0x6004c288  xor    ebx, ebx
+   0x6004c28a  mov    ecx, dword ptr [0x601d5f68]
+   0x6004c290  test   eax, eax
+   0x6004c292  setle  bl
+   0x6004c295  dec    ebx
+   0x6004c296  and    ebx, eax
+
+# Croteam GPL source (the TSE 1.07 codebase) says the same thing:
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_Gfx_Direct3D.cpp:846:    extern INDEX gap_iRefreshRate;
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_Gfx_Direct3D.cpp:847:    const UINT uiRefresh = gap_iRefreshRate>0 ? gap_iRefreshRate : D3DPRESENT_RATE_DEFAULT;
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_GfxLibrary.cpp:183:extern INDEX gap_iRefreshRate  = 0;
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_GfxLibrary.cpp:1101:  _pShell->DeclareSymbol("persistent user INDEX gap_iRefreshRate;",  &gap_iRefreshRate);
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_Adapter.cpp:246:  extern INDEX gap_iRefreshRate;
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_Adapter.cpp:247:  if( gap_iRefreshRate>0) {
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/se1_Adapter.cpp:249:    devmode.dmDisplayFrequency = gap_iRefreshRate;

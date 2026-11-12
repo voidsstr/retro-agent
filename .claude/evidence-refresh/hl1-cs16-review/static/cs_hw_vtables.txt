@@ -1,0 +1,6 @@
+CVideoMode_OpenGL vtable 1e4a5f0 COL 1e555b0 TypeDescriptor name .?AVCVideoMode_OpenGL@@
+   slots 16,17: 0x1dc75c0 0x1dc75f0
+CVideoMode_Direct3DFullScreen vtable 1e4a63c COL 1e55600 TypeDescriptor name .?AVCVideoMode_Direct3DFullScreen@@
+   slots 16,17: 0x1dc6c60 0x1dc6c50
+CVideoMode_Direct3DWindowed vtable 1e4a688 COL 1e55650 TypeDescriptor name .?AVVideoMode_Direct3DWindowed@@
+   slots 16,17: 0x1dc6c60 0x1dc6c50

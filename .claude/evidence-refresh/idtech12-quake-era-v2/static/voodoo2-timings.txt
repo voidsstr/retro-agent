@@ -1,0 +1,9 @@
+# glide2x/cvg/init/sst1init.h timing structs; htotal = hSyncOn+hSyncOff, vtotal = vSyncOn+vSyncOff; clkFreq16bpp
+SST_VREZ_640X480_60    clk16=  25.18 MHz htotal=800 vtotal=525 -> hfreq   31.5 kHz, vfreq   59.9 Hz
+SST_VREZ_640X480_75    clk16=  31.50 MHz htotal=838 vtotal=500 -> hfreq   37.6 kHz, vfreq   75.2 Hz
+SST_VREZ_640X480_85    clk16=  36.00 MHz htotal=831 vtotal=509 -> hfreq   43.3 kHz, vfreq   85.1 Hz
+SST_VREZ_640X480_120   clk16=  50.82 MHz htotal=830 vtotal=509 -> hfreq   61.2 kHz, vfreq  120.3 Hz
+SST_VREZ_800X600_60    clk16=  40.00 MHz htotal=1054 vtotal=628 -> hfreq   38.0 kHz, vfreq   60.4 Hz
+SST_VREZ_800X600_75    clk16=  49.50 MHz htotal=1054 vtotal=625 -> hfreq   47.0 kHz, vfreq   75.1 Hz
+SST_VREZ_800X600_85    clk16=  56.25 MHz htotal=1046 vtotal=631 -> hfreq   53.8 kHz, vfreq   85.2 Hz
+SST_VREZ_800X600_120   clk16=  83.95 MHz htotal=1086 vtotal=643 -> hfreq   77.3 kHz, vfreq  120.2 Hz

@@ -1,0 +1,131 @@
+{
+ "192.168.1.123": {
+  "hwprofile_capabilities": {
+   "disc_mount": true,
+   "disc_mount_evidence": "d347bus",
+   "glide": false,
+   "glide_evidence": "",
+   "bits": 1
+  },
+  "dtools_dir_listing_status": 0
+ },
+ "192.168.1.145": {
+  "hwprofile_capabilities": {
+   "disc_mount": true,
+   "disc_mount_evidence": "d347bus",
+   "glide": false,
+   "glide_evidence": "",
+   "bits": 1
+  },
+  "dtools_dir_listing_status": 0
+ },
+ "192.168.1.195": {
+  "hwprofile_capabilities": {
+   "disc_mount": true,
+   "disc_mount_evidence": "BazisVirtualCDBus",
+   "glide": false,
+   "glide_evidence": "",
+   "bits": 1
+  },
+  "dtools_dir_listing_status": 0
+ },
+ "192.168.1.240": {
+  "hwprofile_capabilities": {
+   "disc_mount": true,
+   "disc_mount_evidence": "d347bus",
+   "glide": false,
+   "glide_evidence": "",
+   "bits": 1
+  },
+  "dtools_dir_listing_status": 0
+ },
+ "195_policies_system": {
+  "root": "HKLM",
+  "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+  "values": [
+   {
+    "name": "ConsentPromptBehaviorAdmin",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "ConsentPromptBehaviorUser",
+    "type": "REG_DWORD",
+    "data": 3
+   },
+   {
+    "name": "EnableInstallerDetection",
+    "type": "REG_DWORD",
+    "data": 1
+   },
+   {
+    "name": "EnableLUA",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "EnableSecureUIAPaths",
+    "type": "REG_DWORD",
+    "data": 1
+   },
+   {
+    "name": "EnableUIADesktopToggle",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "EnableVirtualization",
+    "type": "REG_DWORD",
+    "data": 1
+   },
+   {
+    "name": "PromptOnSecureDesktop",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "ValidateAdminCodeSignatures",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "dontdisplaylastusername",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "legalnoticecaption",
+    "type": "REG_SZ",
+    "data": ""
+   },
+   {
+    "name": "legalnoticetext",
+    "type": "REG_SZ",
+    "data": ""
+   },
+   {
+    "name": "scforceoption",
+    "type": "REG_DWORD",
+    "data": 0
+   },
+   {
+    "name": "shutdownwithoutlogon",
+    "type": "REG_DWORD",
+    "data": 1
+   },
+   {
+    "name": "undockwithoutlogon",
+    "type": "REG_DWORD",
+    "data": 1
+   },
+   {
+    "name": "FilterAdministratorToken",
+    "type": "REG_DWORD",
+    "data": 0
+   }
+  ],
+  "subkeys": [
+   "UIPI"
+  ]
+ }
+}

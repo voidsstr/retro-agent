@@ -1,0 +1,3 @@
+Play Quake III Arena.bat	Quake III Arena	ioquake3.x86.exe
+Play Team Arena.bat	Quake III - Team Arena	ioquake3.x86.exe
+Play Quake III Arena - retail 1.32c.bat	Quake III Arena (retail 1.32c)	quake3.exe

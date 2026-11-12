@@ -1,0 +1,20 @@
+pak007 md5 6319f086f930ec1618ab09b4c20c268c 192031
+pak007 members: 38
+   strings/english.lang                       238945 crc 9f753a8d ctype 8
+   guis/mpmain.gui                            142478 crc 9e451c89 ctype 8
+   guis/mainmenu.gui                          696570 crc b34aa79a ctype 8
+guis/mainmenu.gui size/crc/md5 match: (True, True, True)
+   line 4889 starts at byte 0x1c765 (claimed 0x1c765) OK: b'\t\t\t\tchoices\t\t"#str_04222"//320x240;400x300;512x384;'
+   line 4890 starts at byte 0x1c799 (claimed 0x1c799) OK: b'\t\t\t\tvalues\t\t"3;4;5;6;7;8"//0;1;2;'
+   CRLF lines: 0  LF lines: 21396
+   occurrences: #str_04222 = 1  "r_mode" = 1  r_mode(any) = 1
+      r_mode at line 4891 b'cvar\t\t"r_mode"'
+      m_pitch at line 2974 b'choices\t\t"No;Yes"' b'cvar\t\t"m_pitch"'
+      m_pitch at line 4112 b'choices\t\t"#str_04221"' b'cvar\t\t"m_pitch"'
+guis/mpmain.gui size/crc/md5 match: (True, True, True)
+   line 4446 starts at byte 0x19316 (claimed 0x19316) OK: b'\t\t\t\t\tchoices\t"#str_04222"\r'
+   line 4447 starts at byte 0x19331 (claimed 0x19331) OK: b'\t\t\t\t\tvalues\t"3;4;5;6;7;8"\r'
+   CRLF lines: 6317  LF lines: 6317
+   occurrences: #str_04222 = 1  "r_mode" = 1  r_mode(any) = 1
+      r_mode at line 4448 b'cvar\t"r_mode"'
+      m_pitch at line 3791 b'choices\t"#str_04221"' b'cvar\t"m_pitch"'

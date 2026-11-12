@@ -1,0 +1,9 @@
+Sep 28 23:50:27 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653827.1296] dhcp6 (enp129s0): state changed new lease, address=2600:1702:7930:33f0::34
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5474] audit: op="connection-update" uuid="e5dddc2b-bad8-4260-b64f-7ecc43fdafda" name="Profile 1" args="ipv4.addresses,connection.timestamp" pid=183394 uid=1000 result="success"
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5613] audit: op="device-reapply" interface="enp129s0" ifindex=2 args="ipv4.addresses" pid=183401 uid=1000 result="success"
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5624] dhcp4 (enp129s0): canceled DHCP transaction
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5624] dhcp4 (enp129s0): activation: beginning transaction (timeout in 45 seconds)
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5624] dhcp4 (enp129s0): state changed no lease
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5628] dhcp4 (enp129s0): activation: beginning transaction (timeout in 45 seconds)
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5653] dhcp4 (enp129s0): state changed new lease, address=192.168.1.196, acd pending
+Sep 28 23:50:42 voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx NetworkManager[2395]: <info>  [1790653842.5654] dhcp4 (enp129s0): state changed new lease, address=192.168.1.196

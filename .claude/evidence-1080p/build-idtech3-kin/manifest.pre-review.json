@@ -1,0 +1,324 @@
+{
+ "key": "idtech3-kin",
+ "outputs": [
+  {
+   "title": "JediAcademy",
+   "share_path": "Files/Games-Library/JediAcademy/base/zz_fleet_video.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/JediAcademy/base/zz_fleet_video.pk3",
+   "md5": "3c1b3ca3afd41fe5e342243bfce8aab7",
+   "size": 27122,
+   "original_md5": null,
+   "new_file": true,
+   "members": [
+    {
+     "member": "ui/setup.menu",
+     "from": "Files/Games-Library/JediAcademy/base/assets1.pk3",
+     "member_md5": "fceabe412ebe7f25e05a10a64747699a",
+     "patched_md5": "8b21ef6d1694ea448783bc92711e9cd0",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       3.0,
+       4.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       12.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "ui/ingamesetup.menu",
+     "from": "Files/Games-Library/JediAcademy/base/assets1.pk3",
+     "member_md5": "5c95ff28f03e909b729c96e7bc8a7ba7",
+     "patched_md5": "61ead1ab5c24307ff303a4a30f841c35",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       3.0,
+       4.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       12.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "ui/jamp/setup.menu",
+     "from": "Files/Games-Library/JediAcademy/base/assets3.pk3",
+     "member_md5": "032a4a9c916e3ba67b247e9b9a984003",
+     "patched_md5": "a464beff4651f71924ad79730f9ea5ba",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       3.0,
+       4.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       12.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "ui/jamp/ingame_setup.menu",
+     "from": "Files/Games-Library/JediAcademy/base/assets1.pk3",
+     "member_md5": "ae0fbda9d3662658aed0cd70c56ce828",
+     "patched_md5": "8ed71104bd921635ac8971d45b3da583",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       3.0,
+       4.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       12.0,
+       -1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "SoldierOfFortune2",
+   "share_path": "Files/Games-Library/SoldierOfFortune2/base/zz_fleet_video.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/SoldierOfFortune2/base/zz_fleet_video.pk3",
+   "md5": "d894ac0f376dd59986f0b589d8fac7ed",
+   "size": 23405,
+   "original_md5": null,
+   "new_file": true,
+   "members": [
+    {
+     "member": "ui/setup_display.menu",
+     "from": "Files/Games-Library/SoldierOfFortune2/base/update101.pk3",
+     "member_md5": "9c16721f1d78654b23a0751468a9b310",
+     "patched_md5": "2e5ee58f429aa56251d296690c0dd46c",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       2.0,
+       3.0,
+       4.0,
+       5.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "menus/m_video.rmf",
+     "from": "Files/Games-Library/SoldierOfFortune2/base/therest.pk3",
+     "member_md5": "d0bbf978a97fc1af4480a2396b4d21a7",
+     "patched_md5": "f68a2077c774a0bb108c45e1cdc0d9ac",
+     "info": {
+      "match": "3,4,6,7,8,9,-1"
+     }
+    },
+    {
+     "member": "Strip/menu_video.sp",
+     "from": "Files/Games-Library/SoldierOfFortune2/base/update101.pk3",
+     "member_md5": "d03e523a4328782d7cc0a97f47a9ccf5",
+     "patched_md5": "0ee6fb3f6ae8d7881205e93564f535eb",
+     "info": {
+      "vidmodes": "+Custom"
+     }
+    }
+   ]
+  },
+  {
+   "title": "SoldierOfFortune2",
+   "share_path": "Files/Games-Library/SoldierOfFortune2/sof2mp.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/SoldierOfFortune2/sof2mp.exe",
+   "md5": "30f099da5ab0b9a5c29658edf07c7c2e",
+   "size": 1572917,
+   "original_md5": "0263922b67e3474f9e77e769f217f53a",
+   "new_file": false,
+   "backup_share_path": "Files/Games-Library/_patches/SoldierOfFortune2/originals-2026-09-29/sof2mp.exe",
+   "patch": [
+    {
+     "offset": "0xBA61A",
+     "old": "00004040",
+     "new": "000080bf"
+    }
+   ]
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3",
+   "md5": "b88dbdce212eda6bb889c829e626e96b",
+   "size": 11505,
+   "original_md5": null,
+   "new_file": true,
+   "members": [
+    {
+     "member": "ui/system.menu",
+     "from": "Files/Games-Library/ReturnToCastleWolfenstein/Main/sp_pak3.pk3",
+     "member_md5": "2e726bd333bf8555d1668e1e066a1a37",
+     "patched_md5": "c32a8a5c07509c1228a236da327e0d12",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 2,
+      "list_values": [
+       3.0,
+       4.0,
+       5.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       11.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "ui/ingame_system.menu",
+     "from": "Files/Games-Library/ReturnToCastleWolfenstein/Main/sp_pak3.pk3",
+     "member_md5": "766326c734772034d5935e49a89a45a2",
+     "patched_md5": "085c191d1bf4776f27ada35c362fd9df",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 2,
+      "list_values": [
+       3.0,
+       4.0,
+       5.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       11.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "ui_mp/system.menu",
+     "from": "Files/Games-Library/ReturnToCastleWolfenstein/Main/mp_pak1.pk3",
+     "member_md5": "71ca9d89046cb285b04076ec5b1b2f21",
+     "patched_md5": "4f6007e0132610c736906a277062611f",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       3.0,
+       4.0,
+       5.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       11.0,
+       -1.0
+      ]
+     }
+    },
+    {
+     "member": "ui_mp/ingame_system.menu",
+     "from": "Files/Games-Library/ReturnToCastleWolfenstein/Main/mp_pak1.pk3",
+     "member_md5": "8b154829e7e7257d4e4320cca62065c6",
+     "patched_md5": "992eff4c2e2c7711995f09861e3f85dd",
+     "info": {
+      "items_added": 3,
+      "presets_reasserted": 1,
+      "list_values": [
+       3.0,
+       4.0,
+       5.0,
+       6.0,
+       7.0,
+       8.0,
+       9.0,
+       10.0,
+       11.0,
+       -1.0
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/JediAcademy/base/assets1.pk3",
+   "size": 652804510,
+   "md5": "3f47006dde61f171769666f31065a34c"
+  },
+  {
+   "share_path": "Files/Games-Library/JediAcademy/base/assets3.pk3",
+   "size": 9282026,
+   "md5": "71c2edf5a30135d4aa921bf6259946ee"
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/mp_pak1.pk3",
+   "size": 4449596,
+   "md5": "22b972974f499a237c96a2200b0d019e"
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/pak0.pk3",
+   "size": 315823656,
+   "md5": "ce92b11df889cb0a045762bb5fd7cde5"
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/sp_pak3.pk3",
+   "size": 152544,
+   "md5": "cf25d6731ed29c80303febbb177aa585"
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/base/therest.pk3",
+   "size": 69463128,
+   "md5": "4cffdaeead89e89ed03c4ebb24ae3ae8"
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/base/update101.pk3",
+   "size": 9668867,
+   "md5": "9d9ee621e26ffafb8fddc1619ac3b7ee"
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/sof2mp.exe",
+   "size": 1572917,
+   "md5": "0263922b67e3474f9e77e769f217f53a"
+  }
+ ],
+ "launcher_changes": [
+  "scripts/fleet/stage-fleetres.py: IDTECH3_NO_CUSTOM_MODE = set() - drop ReturnToCastleWolfenstein AND SoldierOfFortune2. Both engines render 1920x1080 through r_mode -1 on hardware (.240 R1/R2/F2 for RTCW, P1 for SoF2.exe, S2 for the patched sof2mp.exe). The .246 measurement behind the set was RTCW's first-run Com_SetRecommended pass (F1), and sof2mp's was r_mode's registered minimum 3.0f, which this patch changes to -1.0f.",
+  "stage-fleetres.py: give idtech3_cfg() a fov=True parameter (append the cg_fov line only when wide AND fov), and add an RTCW branch in new_launcher() before the IDTECH3_NO_CUSTOM_MODE one: block = [CALL] + idtech3_cfg(mod, fov=False); args = '+set com_recommendedSet 1 ' + idtech3_args(fov=False). That rewrites 'Play Return to Castle Wolfenstein.bat' and 'Play RTCW Multiplayer.bat' (both 'new' recipes) to write Main\\fleetres.cfg = seta r_mode \"-1\", r_customwidth \"%FR_W%\", r_customheight \"%FR_H%\", r_customaspect \"1\", r_customPixelAspect \"1\", r_fullscreen \"1\", r_displayRefresh \"%FR_HZ%\" and to start 'WolfSP.exe|WolfMP.exe +set com_recommendedSet 1 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1'. The two _REFRESH pairs for those launchers must still read as applied (r_displayRefresh follows r_fullscreen, then a blank line) - re-run --check.",
+  "RTCW LAN pair (hand-written on the share, not generated): in 'Host RTCW - LAN.bat' and 'Join RTCW - LAN.bat' replace the three lines '>>\"%~dp0Main\\fleetres.cfg\" echo // r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,' / '... echo // and FR_Q3MODE not FR_Q2MODE: idTech3 mode 8 is 1280x1024.' / '... echo seta r_mode \"%FR_Q3MODE%\"' with the same seta r_mode \"-1\" + r_customwidth/height/aspect/PixelAspect lines as above, and on the start line replace '+set r_mode %FR_Q3MODE% +set r_fullscreen 1' with '+set com_recommendedSet 1 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1'. Their 'RESOLUTION: a plain r_mode INDEX' rem blocks are then false - rewrite them. Best done as stage-fleetres 'fix' pairs so --check guards them.",
+  "agent/shared/gameres.h: the ReturnToCastleWolfenstein rule 'idtech3-index-nofov' -> a new body 'idtech3-custom-nofov' = the NULL body without its cg_fov line (r_mode -1, r_customwidth %W%, r_customheight %H%, r_customaspect 1, r_customPixelAspect 1, r_fullscreen 1, r_displayRefresh %FRHZ%). gr_w_cfg compares line by line, so it must carry exactly the launcher's setas. Keep 'idtech3-index-nofov' only if another title still uses it.",
+  "SoF2 MP ('Play Soldier of Fortune II - Multiplayer.bat', stage-fleetres 'launchers' recipe): idtech3_modecfg('base') -> idtech3_cfg('base') and idtech3_modeargs() -> idtech3_args(), so base\\fleetres.cfg gets the standard custom body and the start line '+set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%'. ONLY in the same generation as the patched sof2mp.exe (stock clamps -1 to 640x480, S1). Its 'RESOLUTION: r_mode -1 DOES NOT WORK IN THIS ENGINE' rem block becomes false - replace it with a note that the exe carries the 0xBA61A patch.",
+  "SoF2 SP (disc-mount launcher): provisioning/discmount/specs/SoldierOfFortune2.json fleetres_block = '\\r\\n'.join([CALL] + idtech3_cfg('base')) (drops the three 'rem r_customwidth/r_customheight are NOT written' lines and writes r_mode \"-1\" + the custom size) and vars.GAMEARGS = idtech3_args(); regenerate with make-mount-launcher.py. REMOVE the stage-fleetres 'fix' pairs for SoldierOfFortune2 (Q2MODE->Q3MODE, 'seta r_mode \"-1\"'->FR_Q3MODE, and the +set -1 -> FR_Q3MODE pair): left in, repair() reverts the SP launcher to the index.",
+  "agent/shared/gameres.h: the SoldierOfFortune2 rule 'idtech3-index' -> NULL (the standard custom body, which already carries cg_fov and matches idtech3_cfg('base')). Both launchers and GAMERES then write the SAME base\\fleetres.cfg (today the SP and MP launchers write two different bodies). test_gameres_mirror.py and test_fleetres_staging.py must stay green - they may pin RTCW/SoF2 as no-custom-mode titles; update those assertions with the measurement, not the other way round.",
+  "SoF2 cg_fov: keep %FR_FOV% (106 on 16:9) - harmless; the MP cgame registers cg_fov 80..100 with LOCK_RANGE (flags 0x2001), so MP plays at 100. RTCW stays without cg_fov (the verified F2 run used none; the default 90 is vert- at 16:9 - a cg_fov test on hardware is a separate, optional step).",
+  "Docs after deploy: CLAUDE.md 'What cannot reach 1080p' drops SoF2 and RTCW; provisioning/fleetres/PER-TITLE-STATUS.md rows for both."
+ ],
+ "deploy_rules": [
+  "JediAcademy pk3: independent (launchers already r_mode -1).",
+  "RTCW pk3: publish only in the same generation as the RTCW launcher/gameres move to r_mode -1.",
+  "SoF2 pk3 + sof2mp.exe: publish together, and only with the SoF2 launcher/gameres/discmount move to r_mode -1."
+ ]
+}

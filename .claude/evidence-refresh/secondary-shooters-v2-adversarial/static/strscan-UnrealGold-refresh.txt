@@ -1,0 +1,83 @@
+UnrealGold/System/Core.dll	A	0xaec6c	Frequency!=0
+UnrealGold/System/Core.dll	A	0xb0892	QueryPerformanceFrequency
+UnrealGold/System/Editor.dll	A	0xdb1a5	?bspRefresh@UEditorEngine@@UAEXPAVUModel@@H@Z
+UnrealGold/System/Editor.dll	A	0xfc2c8	?ForceRefresh@WProperties@@UAEXXZ
+UnrealGold/System/Editor.dll	A	0xfcfec	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealGold/System/Editor.dll	W	0xb6a2c	UEditorEngine::bspRefresh
+UnrealGold/System/Engine.u	A	0xbd80	NetUpdateFrequency
+UnrealGold/System/Engine.u	A	0x8375e	var float OldMessageTime; //to limit frequency of voice messages
+UnrealGold/System/Engine.u	A	0xe268e	var(Networking) float NetPriority; // Higher priorities means update it more frequently.
+UnrealGold/System/Engine.u	A	0xe26e8	var(Networking) float NetUpdateFrequency; // How many seconds between net updates.
+UnrealGold/System/Fire.u	A	0x654	ForceRefresh
+UnrealGold/System/Fire.u	A	0x76e	FX_Frequency
+UnrealGold/System/Fire.u	A	0x8f4	Frequency
+UnrealGold/System/Fire.u	A	0x1893	byte    FX_Frequency;
+UnrealGold/System/Fire.u	A	0x1def	var(IceLayer)       byte        Frequency;
+UnrealGold/System/Fire.u	A	0x207d	ForceRefresh;
+UnrealGold/System/Fire.u	A	0x22ac	, // Phased depth spot, A=frequency B=phase
+UnrealGold/System/Fire.u	A	0x22ec	, // Shallower phased depth spot, A=frequency B=phase
+UnrealGold/System/Fire.u	A	0x28df	byte   FX_Frequency;
+UnrealGold/System/GlideDrv.dll	W	0xfb0c	Glide: Refresh %i failed, falling back...
+UnrealGold/System/GlideDrv.dll	W	0xfcb8	RefreshRate
+UnrealGold/System/GlideDrv.dll	W	0xfde4	RefreshRates
+UnrealGold/System/UBrowser.u	A	0x165	Refresh
+UnrealGold/System/UBrowser.u	A	0x6fb	RefreshName
+UnrealGold/System/UBrowser.u	A	0x1e6d	AutoRefreshTime
+UnrealGold/System/UBrowser.u	A	0x2781	RefreshSubsets
+UnrealGold/System/UBrowser.u	A	0x2795	RefreshServer
+UnrealGold/System/UBrowser.u	A	0x2861	RefreshServerName
+UnrealGold/System/UBrowser.u	A	0x3e5c	&Refresh Info
+UnrealGold/System/UBrowser.u	A	0x4086	&Refresh All Servers
+UnrealGold/System/UBrowser.u	A	0x1148e	List.Owner.Refresh();
+UnrealGold/System/UBrowser.u	A	0x1424d	AutoRefreshTime;
+UnrealGold/System/UBrowser.u	A	0x14faa	function Refresh(optional bool bBySuperset, optional bool bInitial, optional bool bSaveExistingList, optional bool bInNoSort)
+UnrealGold/System/UBrowser.u	A	0x151d1	RefreshSubsets();
+UnrealGold/System/UBrowser.u	A	0x153bf	function RefreshSubsets()
+UnrealGold/System/UBrowser.u	A	0x154ff	l.SubsetFactory.Owner.Owner.Refresh(True);
+UnrealGold/System/UBrowser.u	A	0x15d41	// AutoRefresh local servers
+UnrealGold/System/UBrowser.u	A	0x15d60	if(AutoRefreshTime > 0)
+UnrealGold/System/UBrowser.u	A	0x15d9c	if(TimeElapsed > AutoRefreshTime)
+UnrealGold/System/UBrowser.u	A	0x15ddc	Refresh(,,True, bNoAutoSort);
+UnrealGold/System/UBrowser.u	A	0x19eca	Refresh();
+UnrealGold/System/UBrowser.u	A	0x1aab2	function Refresh()
+UnrealGold/System/UBrowser.u	A	0x1aaca	UBrowserServerListWindow(ParentWindow).Refresh();
+UnrealGold/System/UBrowser.u	A	0x1ab02	function RefreshServer()
+UnrealGold/System/UBrowser.u	A	0x1bbef	var UWindowPulldownMenuItem Refresh, RefreshServer, PingAll, Info, Favorites;
+UnrealGold/System/UBrowser.u	A	0x1bc40	var localized string RefreshName;
+UnrealGold/System/UBrowser.u	A	0x1bcd3	var localized string RefreshServerName;
+UnrealGold/System/UBrowser.u	A	0x1be2c	RefreshServer = AddMenuItem(RefreshServerName, None);
+UnrealGold/System/UBrowser.u	A	0x1be90	Refresh = AddMenuItem(RefreshName, None);
+UnrealGold/System/UBrowser.u	A	0x1c07e	case Refresh:
+UnrealGold/System/UBrowser.u	A	0x1c08f	Grid.Refresh();
+UnrealGold/System/UBrowser.u	A	0x1c0d7	case RefreshServer:
+UnrealGold/System/UBrowser.u	A	0x1c0ee	Grid.RefreshServer();
+UnrealGold/System/UBrowser.u	A	0x1c2ec	RefreshServer.bDisabled = List == None;
+UnrealGold/System/UBrowser.u	A	0x1f115	FactoryWindows[i].Refresh(False, True);
+UnrealGold/System/UBrowser.u	A	0x20616	var UWindowPulldownMenuItem Refresh, CloseItem;
+UnrealGold/System/UBrowser.u	A	0x20649	var localized string RefreshName;
+UnrealGold/System/UBrowser.u	A	0x206f2	Refresh = AddMenuItem(RefreshName, None);
+UnrealGold/System/UBrowser.u	A	0x207ae	case Refresh:
+UnrealGold/System/UBrowser.u	A	0x23cb5	Refresh();
+UnrealGold/System/Unreal.exe	A	0x1e8d2	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealGold/System/Unreal.exe	A	0x1f0ac	?ForceRefresh@WProperties@@UAEXXZ
+UnrealGold/System/UnrealEd.exe	A	0x64188	BrowserRefresh
+UnrealGold/System/UnrealEd.exe	A	0x65ae8	Refresh
+UnrealGold/System/UnrealEd.exe	A	0x65cb8	Refresh_Click
+UnrealGold/System/UnrealEd.exe	A	0x7e423	Refresh
+UnrealGold/System/UnrealEd.exe	A	0x7e42f	&Refresh
+UnrealGold/System/UnrealEd.exe	W	0x7e447	Refresh the mesh list
+UnrealGold/System/UnrealI.u	A	0xfa3	FX_Frequency
+UnrealGold/System/UnrealShare.u	A	0x326	FX_Frequency
+UnrealGold/System/UPak.u	A	0xa46	FX_Frequency
+UnrealGold/System/UPak.u	A	0x39be	Frequency
+UnrealGold/System/Window.dll	A	0x460e9	?ForceRefresh@WProperties@@UAEXXZ
+UnrealGold/System/Window.dll	A	0x48637	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealGold/System/Window.dll	A	0x49c74	?__FUNC_NAME__@?2??ForceRefresh@WProperties@@UAEXXZ@4QBGB
+UnrealGold/System/Window.dll	A	0x4b67d	?__FUNC_NAME__@?2??RefreshPage@WWizardDialog@@UAEXXZ@4QBGB
+UnrealGold/System/Window.dll	W	0x359e4	WProperties::ForceRefresh
+UnrealGold/System/Window.dll	W	0x36954	WWizardDialog::RefreshPage
+UnrealGold/System/WinDrv.dll	A	0x1b6a8	?ForceRefresh@WProperties@@UAEXXZ
+UnrealGold/System/3DfxSpl2.dll	A	0xd160	QueryPerformanceFrequency
+UnrealGold/System/glide2x.dll	A	0x10585c	Refresh
+UnrealGold/System/nglide_config.exe	A	0x8278	Refresh
+UnrealGold/System/nglide_config.exe	W	0x4fd12	Refresh rate:

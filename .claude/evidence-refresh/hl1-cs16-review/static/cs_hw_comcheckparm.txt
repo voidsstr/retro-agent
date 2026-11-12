@@ -1,0 +1,47 @@
+COM_CheckParm 0x1d383e0:
+   01d383e0  mov    eax, dword ptr [0x2cd35cc]
+   01d383e5  push   esi
+   01d383e6  mov    esi, 1
+   01d383eb  push   edi
+   01d383ec  cmp    eax, esi
+   01d383ee  jle    0x1d38418
+   01d383f0  mov    edi, dword ptr [esp + 0xc]
+   01d383f4  mov    eax, dword ptr [0x2cd36e8]
+   01d383f9  mov    eax, dword ptr [eax + esi*4]
+   01d383fc  test   eax, eax
+   01d383fe  je     0x1d3840e
+   01d38400  push   eax
+   01d38401  push   edi
+   01d38402  call   0x1d367d0
+   01d38407  add    esp, 8
+   01d3840a  test   eax, eax
+   01d3840c  je     0x1d3841d
+   01d3840e  mov    eax, dword ptr [0x2cd35cc]
+   01d38413  inc    esi
+   01d38414  cmp    esi, eax
+   01d38416  jl     0x1d383f4
+   01d38418  pop    edi
+   01d38419  xor    eax, eax
+   01d3841b  pop    esi
+   01d3841c  ret    
+compare helper 0x1d367d0:
+   01d367d0  mov    edx, dword ptr [esp + 8]
+   01d367d4  mov    ecx, dword ptr [esp + 4]
+   01d367d8  push   ebx
+   01d367d9  mov    al, byte ptr [ecx]
+   01d367db  mov    bl, byte ptr [edx]
+   01d367dd  cmp    al, bl
+   01d367df  jne    0x1d367e9
+   01d367e1  test   al, al
+   01d367e3  je     0x1d367ee
+   01d367e5  inc    ecx
+   01d367e6  inc    edx
+   01d367e7  jmp    0x1d367d9
+   01d367e9  or     eax, 0xffffffff
+   01d367ec  pop    ebx
+   01d367ed  ret    
+atoi 0x1e2e266 (first bytes):
+   01e2e266  push   dword ptr [esp + 4]
+   01e2e26a  call   0x1e2e1db
+   01e2e26f  pop    ecx
+   01e2e270  ret    

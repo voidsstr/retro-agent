@@ -1,0 +1,24 @@
+[192.168.1.123] 'REGREAD HKCU Software\\Zeus Software\\nGlide' -> status 255:
+Cannot open key: error 0
+[192.168.1.123] 'REGREAD HKLM SOFTWARE\\SCI\\Carmageddon2' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\SCI\\Carmageddon2","values":[{"name":"Driver","type":"REG_DWORD","data":2},{"name":"Password","type":"REG_DWORD","data":0},{"name":"Flags","type":"REG_DWORD","data":1048607},{"name":"DevGuid","type":"REG_BINARY","data":"E0 3D E6 84 AA 46 CF 11 81 6F 00 00 C0 20 15 6E"}],"subkeys":[]}
+[192.168.1.123] 'REGREAD HKLM SOFTWARE\\Outrage\\Descent3' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\Outrage\\Descent3","values":[{"name":"ProfanityPrevention","type":"REG_DWORD","data":0},{"name":"StraightToSetup","type":"REG_DWORD","data":0},{"name":"PredefDetailSetting","type":"REG_DWORD","data":1},{"name":"DetailLevelConfigured","type":"REG_DWORD","data":1},{"name":"VideoDetectSettings","type":"REG_DWORD","data":1},{"name":"PreferredRenderer","type":"REG_DWORD","data":3},{"name":"RenderingDeviceName","type":"REG_SZ","data":"Primary Display Driver"},{"name":"RS_vsync","type":"REG_DWORD","data":1},{"name":"net directory","type":"REG_SZ","data":""}],"subkeys":["Version"]}
+[192.168.1.145] 'REGREAD HKCU Software\\Zeus Software\\nGlide' -> status 255:
+Cannot open key: error 0
+[192.168.1.145] 'REGREAD HKLM SOFTWARE\\SCI\\Carmageddon2' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\SCI\\Carmageddon2","values":[{"name":"Driver","type":"REG_DWORD","data":2},{"name":"Password","type":"REG_DWORD","data":0},{"name":"Flags","type":"REG_DWORD","data":1048607},{"name":"DevGuid","type":"REG_BINARY","data":"E0 3D E6 84 AA 46 CF 11 81 6F 00 00 C0 20 15 6E"}],"subkeys":[]}
+[192.168.1.145] 'REGREAD HKLM SOFTWARE\\Outrage\\Descent3' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\Outrage\\Descent3","values":[{"name":"net directory","type":"REG_SZ","data":""},{"name":"ProfanityPrevention","type":"REG_DWORD","data":0},{"name":"StraightToSetup","type":"REG_DWORD","data":0},{"name":"PredefDetailSetting","type":"REG_DWORD","data":1},{"name":"DetailLevelConfigured","type":"REG_DWORD","data":1},{"name":"VideoDetectSettings","type":"REG_DWORD","data":1},{"name":"PreferredRenderer","type":"REG_DWORD","data":3},{"name":"RenderingDeviceName","type":"REG_SZ","data":"Primary Display Driver"},{"name":"RS_vsync","type":"REG_DWORD","data":1}],"subkeys":["Version"]}
+[192.168.1.195] 'REGREAD HKCU Software\\Zeus Software\\nGlide' -> status 255:
+Cannot open key: error 0
+[192.168.1.195] 'REGREAD HKLM SOFTWARE\\SCI\\Carmageddon2' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\SCI\\Carmageddon2","values":[{"name":"Password","type":"REG_DWORD","data":0},{"name":"(Default)","type":"REG_SZ","data":"Carmageddon 2"},{"name":"Driver","type":"REG_DWORD","data":2},{"name":"DrvGuid","type":"REG_DWORD","data":0},{"name":"DevGuid","type":"REG_BINARY","data":"E0 3D E6 84 AA 46 CF 11 81 6F 00 00 C0 20 15 6E"},{"name":"Flags","type":"REG_DWORD","data":1048607},{"name":"ProcessId","type":"REG_DWORD","data":3704}],"subkeys":[]}
+[192.168.1.195] 'REGREAD HKLM SOFTWARE\\Outrage\\Descent3' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\Outrage\\Descent3","values":[{"name":"ProfanityPrevention","type":"REG_DWORD","data":0},{"name":"StraightToSetup","type":"REG_DWORD","data":0},{"name":"PredefDetailSetting","type":"REG_DWORD","data":1},{"name":"DetailLevelConfigured","type":"REG_DWORD","data":1},{"name":"VideoDetectSettings","type":"REG_DWORD","data":1},{"name":"PreferredRenderer","type":"REG_DWORD","data":3},{"name":"RenderingDeviceName","type":"REG_SZ","data":"Primary Display Driver"},{"name":"RS_vsync","type":"REG_DWORD","data":1},{"name":"net directory","type":"REG_SZ","data":""}],"subkeys":["Version"]}
+[192.168.1.240] 'REGREAD HKCU Software\\Zeus Software\\nGlide' -> status 255:
+Cannot open key: error 0
+[192.168.1.240] 'REGREAD HKLM SOFTWARE\\SCI\\Carmageddon2' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\SCI\\Carmageddon2","values":[{"name":"Driver","type":"REG_DWORD","data":2},{"name":"Password","type":"REG_DWORD","data":0},{"name":"Flags","type":"REG_DWORD","data":1048607},{"name":"DevGuid","type":"REG_BINARY","data":"E0 3D E6 84 AA 46 CF 11 81 6F 00 00 C0 20 15 6E"}],"subkeys":[]}
+[192.168.1.240] 'REGREAD HKLM SOFTWARE\\Outrage\\Descent3' -> status 0:
+{"root":"HKLM","path":"SOFTWARE\\Outrage\\Descent3","values":[{"name":"net directory","type":"REG_SZ","data":""},{"name":"ProfanityPrevention","type":"REG_DWORD","data":0},{"name":"StraightToSetup","type":"REG_DWORD","data":0},{"name":"PredefDetailSetting","type":"REG_DWORD","data":1},{"name":"DetailLevelConfigured","type":"REG_DWORD","data":1},{"name":"VideoDetectSettings","type":"REG_DWORD","data":1},{"name":"PreferredRenderer","type":"REG_DWORD","data":3},{"name":"RenderingDeviceName","type":"REG_SZ","data":"Primary Display Driver"},{"name":"RS_vsync","type":"REG_DWORD","data":1}],"subkeys":["Version"]}

@@ -1,0 +1,6 @@
+{
+ "ip": "192.168.1.243",
+ "t": "2026-09-29 00:31:54",
+ "out": {},
+ "error": "connect: ConnectionRefusedError(111, \"Connect call failed ('192.168.1.243', 9898)\")"
+}

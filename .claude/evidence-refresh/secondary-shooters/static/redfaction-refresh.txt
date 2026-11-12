@@ -1,0 +1,60 @@
+# Red Faction rf.exe: D3D8 CreateDevice at 0x54471d with pPresentationParameters = 0x1cd42b0 (global).
+# The struct is zeroed (rep stosd, 13 dwords, 0x5445fd); FullScreen_RefreshRateInHz = +0x2c = 0x1cd42dc has NO writer anywhere in .text (absref finds none) -> always 0 = D3DPRESENT_RATE_DEFAULT.
+# Registry value names in rf.exe: Resolution Width / Resolution Height / Resolution Bit Depth / Vsync - no refresh.
+---- vtable+0x3c at 0x54471d
+   0x005446ae  sbb    eax, eax
+   0x005446b0  and    al, 0xfe
+   0x005446b2  add    eax, 0x17
+   0x005446b5  mov    dword ptr [0x1cd42b8], eax
+   0x005446ba  mov    edx, dword ptr [esp + 0x20]
+   0x005446be  mov    dword ptr [0x1cd42e4], eax
+   0x005446c3  mov    dword ptr [0x1cd4340], eax
+   0x005446c8  mov    eax, dword ptr [0x1cd4288]
+   0x005446cd  cmp    eax, 0x1002
+   0x005446d2  mov    dword ptr [0x1cd42d0], ebx
+   0x005446d8  mov    dword ptr [0x1cd42c8], edx
+   0x005446de  mov    dword ptr [0x1cd42d8], ebx
+   0x005446e4  jne    0x544741
+   0x005446e6  cmp    dword ptr [0x1cd428c], 0x5144
+   0x005446f0  je     0x5447a7
+   0x005446f6  mov    dword ptr [0x1cd42d4], 0x50
+   0x00544700  mov    eax, dword ptr [0x1cd4478]
+   0x00544705  push   0x1cd447c
+   0x0054470a  push   0x1cd42b0
+   0x0054470f  push   0x20
+   0x00544711  mov    ecx, dword ptr [eax]
+   0x00544713  push   edx
+   0x00544714  mov    edx, dword ptr [0x1cd44cc]
+   0x0054471a  push   ebx
+   0x0054471b  push   edx
+   0x0054471c  push   eax
+   0x0054471d  call   dword ptr [ecx + 0x3c]
+   0x00544720  test   eax, eax
+   0x00544722  jge    0x5447e6
+---- vtable+0x3c at 0x562b99
+## absref 0x1cd42dc:
+## absref 0x1cd42b0 (pp base):
+---- 0x543b8a
+   0x00543b82  call   dword ptr [edx + 8]
+   0x00543b85  mov    eax, dword ptr [0x1cd447c]
+   0x00543b8a  push   0x1cd42b0
+   0x00543b8f  push   eax
+   0x00543b90  mov    ecx, dword ptr [eax]
+---- 0x5445fd
+   0x005445f6  mov    ecx, 0xd
+   0x005445fb  xor    eax, eax
+   0x005445fd  mov    edi, 0x1cd42b0
+   0x00544602  rep stosd dword ptr es:[edi], eax
+   0x00544604  cmp    dword ptr [0x17c7b38], 0xc9
+---- 0x54468c
+   0x0054467c  mov    dword ptr [0x1cd42cc], esi
+   0x00544682  mov    dword ptr [0x1cd42c4], 2
+   0x0054468c  mov    dword ptr [0x1cd42b0], edx
+   0x00544692  jl     0x5446a1
+   0x00544694  mov    ecx, dword ptr [0x17c7b48]
+---- 0x54470a
+   0x00544700  mov    eax, dword ptr [0x1cd4478]
+   0x00544705  push   0x1cd447c
+   0x0054470a  push   0x1cd42b0
+   0x0054470f  push   0x20
+   0x00544711  mov    ecx, dword ptr [eax]

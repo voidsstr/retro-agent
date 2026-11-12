@@ -1,0 +1,89 @@
+HalfLife1/hl.exe {'0x4cfdf8': 'EngineType', '0x4cfe38': 'EngineType', '0x4cfe50': 'EngineType', '0x4d282c': 'EngineType'}
+
+-- 00423c4e push 0x4cfdf8   [EngineType]
+   00423c39  push   eax
+   00423c3a  push   0x4cfddc
+   00423c3f  push   0x4cfdec
+   00423c44  call   0x424cd0
+   00423c49  add    esp, 0xc
+   00423c4c  push   1
+   00423c4e  push   0x4cfdf8
+   00423c53  push   0x4cfe04
+   00423c58  mov    ecx, dword ptr [ebp - 0x38]
+   00423c5b  call   0x4a1230
+   00423c60  mov    dword ptr [0x4ea8cc], eax
+   00423c65  push   0
+   00423c67  push   0x4cfe10
+   00423c6c  call   0x421a28
+   00423c71  add    esp, 8
+   00423c74  test   eax, eax
+   00423c76  je     0x423c82
+   00423c78  mov    dword ptr [0x4ea8cc], 3
+   00423c82  push   0
+   00423c84  push   0x4cfe18
+
+-- 00423d0b push 0x4cfe38   [EngineType]
+   00423cf2  jg     0x423cfa
+   00423cf4  cmp    dword ptr [ebp - 0x2c], 0
+   00423cf8  je     0x423d1d
+   00423cfa  mov    dword ptr [0x4ea8cc], 1
+   00423d04  mov    ecx, dword ptr [0x4ea8cc]
+   00423d0a  push   ecx
+   00423d0b  push   0x4cfe38
+   00423d10  push   0x4cfe44
+   00423d15  call   0x424cb0
+   00423d1a  add    esp, 0xc
+   00423d1d  mov    edx, dword ptr [0x4ea8cc]
+   00423d23  push   edx
+   00423d24  call   0x46b760
+   00423d29  add    esp, 4
+   00423d2c  mov    eax, dword ptr [0x4ea8cc]
+   00423d31  push   eax
+   00423d32  push   0x4cfe50
+   00423d37  push   0x4cfe5c
+   00423d3c  mov    ecx, dword ptr [ebp - 0x38]
+   00423d3f  call   0x49e5c1
+
+-- 00423d32 push 0x4cfe50   [EngineType]
+   00423d1d  mov    edx, dword ptr [0x4ea8cc]
+   00423d23  push   edx
+   00423d24  call   0x46b760
+   00423d29  add    esp, 4
+   00423d2c  mov    eax, dword ptr [0x4ea8cc]
+   00423d31  push   eax
+   00423d32  push   0x4cfe50
+   00423d37  push   0x4cfe5c
+   00423d3c  mov    ecx, dword ptr [ebp - 0x38]
+   00423d3f  call   0x49e5c1
+   00423d44  push   0x190
+   00423d49  push   0x4cfe68
+   00423d4e  push   0x4cfe74
+   00423d53  mov    ecx, dword ptr [ebp - 0x38]
+   00423d56  call   0x4a1230
+   00423d5b  mov    dword ptr [ebp - 0x1c], eax
+   00423d5e  mov    ecx, dword ptr [ebp - 0x1c]
+   00423d61  push   ecx
+   00423d62  push   0x4cfe80
+   00423d67  push   0x4cfe8c
+
+-- 0046ce3b push 0x4d282c   [EngineType]
+   0046ce25  setne  al
+   0046ce28  jmp    0x46ce2f
+   0046ce2a  mov    eax, 1
+   0046ce2f  mov    ecx, dword ptr [0x4ea8cc]
+   0046ce35  mov    dword ptr [0x4e3198], eax
+   0046ce3a  push   ecx
+   0046ce3b  push   0x4d282c
+   0046ce40  push   0x4ce51c
+   0046ce45  mov    dword ptr [0x4d06cc], eax
+   0046ce4a  call   0x424cb0
+   0046ce4f  mov    edx, dword ptr [0x4e6e10]
+   0046ce55  push   edx
+   0046ce56  push   0x4d2820
+   0046ce5b  push   0x4ce51c
+   0046ce60  call   0x424cb0
+   0046ce65  mov    eax, dword ptr [ebp + 0xa20c]
+   0046ce6b  push   eax
+   0046ce6c  push   0x4d2814
+   0046ce71  push   0x4ce51c
+   0046ce76  call   0x424cb0

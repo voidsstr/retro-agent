@@ -1,0 +1,68 @@
+SoF2 MP sof2mp.exe (md5 0263922b67e3474f9e77e769f217f53a) - Cvar_Get existing-cvar path: min/max are taken from the FIRST registration that carries flag 0x2000, then the value is clamped
+  0044b2e5: test    bh, 0x20
+  0044b2e8: je      0x44b300
+  0044b2ea: mov     eax, dword ptr [esi + 0x18]
+  0044b2ed: test    ah, 0x20
+  0044b2f0: jne     0x44b300
+  0044b2f2: mov     edx, dword ptr [esp + 0x60]
+  0044b2f6: mov     eax, dword ptr [esp + 0x64]
+  0044b2fa: mov     dword ptr [esi + 0x10], edx
+  0044b2fd: mov     dword ptr [esi + 0x14], eax
+r_mode registration (R_Register):
+  004ba614: push    0x41200000   ; float 10
+  004ba619: push    0x40400000   ; float 3
+  004ba61e: push    0x2021
+  004ba623: push    0x5598e0
+  004ba628: push    0x56cc0c   ; "r_mode"
+  004ba62d: mov     dword ptr [0x11a3660], eax
+  004ba632: call    dword ptr [0x11a65c0]
+file 0xBA614: 68 00 00 20 41 68 00 00 40 40 68 21 20 00 00
+TEST PATCH used on .240 (temp copy sof2mp_t1080.exe, deleted after): file 0xBA61A..0xBA61D 00 00 40 40 (3.0f) -> 00 00 80 BF (-1.0f); only 0xBA61C/0xBA61D change; patched md5 30f099da5ab0b9a5c29658edf07c7c2e
+
+SoF2 MP cgame (base/update103.pk3 vm/sof2mp_cgame.qvm) cvar table entry for cg_fov: flags 0x2001 (ARCHIVE|LOCK_RANGE), default '80', min 80.0, max 100.0 -> launcher's cg_fov 106 becomes 100 once a map loads
+SoF2 MP UI (update103 vm/sof2mp_ui.qvm): no vmCvar-table entry points at the 'r_mode' string (referenced from code only)
+
+SoF2 SP SoF2.exe (md5 c0c873320da54b0d191041ba942ab28e) - first-launch/card-change redetect after the first mode set:
+  1000d780: push    1
+  1000d782: push    0x100e3f30   ; "detect"
+  1000d787: push    0x100e3f1c   ; "r_lastValidRenderer"
+  1000d78c: call    0x10039180
+  1000d791: add     esp, 0xc
+  1000d794: test    al, al
+  1000d796: pop     esi
+  1000d797: je      0x1000d824
+  1000d79d: push    0x100e3ed0   ; "^5Redetecting settings due to video card change"
+  1000d7a2: call    0x100341a0
+  1000d7a7: mov     ecx, dword ptr [0x101477f8]
+  1000d7ad: push    1
+  1000d7af: call    dword ptr [ecx + 4]
+  1000d7b2: push    0x100e3e9c   ; "messagebox &GENERAL_NEW_CARD &GENERAL_NEW_CARD_SET"
+  1000d7b7: push    0
+  1000d7b9: call    0x100330e0
+  1000d7be: call    0x10033210
+  1000d7c3: push    0x40
+  1000d7c5: lea     edx, [esp + 0x134]
+  1000d7cc: push    edx
+  1000d7cd: push    0x100e3e90   ; "r_videoCard"
+  1000d7d2: call    0x10036800
+  1000d7d7: lea     eax, [esp + 0x13c]
+  1000d7de: push    eax
+  1000d7df: push    0x100e3e70   ; "exec scalability/card_%s.cfg"
+  1000d7e4: lea     ecx, [esp + 0x104]
+  1000d7eb: push    0x40
+  1000d7ed: push    ecx
+  1000d7ee: call    0x10045dc0
+  1000d7f3: lea     edx, [esp + 0x10c]
+  1000d7fa: push    edx
+  1000d7fb: push    0
+  1000d7fd: call    0x100330e0
+  1000d802: call    0x10033210
+  1000d807: mov     eax, dword ptr [0x101477f8]
+  1000d80c: call    dword ptr [eax]
+  1000d80e: push    0
+  1000d810: push    1
+  1000d812: push    0x100e3f30   ; "detect"
+  1000d817: push    0x100e3f1c   ; "r_lastValidRenderer"
+  1000d81c: call    0x100391b0
+  1000d821: add     esp, 0x44
+scalability/card_*.cfg (therest.pk3, update101.pk3): none sets r_mode (only r_colorbits/r_depthbits/texture/lod cvars)

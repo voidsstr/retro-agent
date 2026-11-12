@@ -1,0 +1,16 @@
+# WINQUAKE.EXE (md5 0b62b82dea48408f45369e1fab53eb0c, 'Exe: 09:30:49 Mar 21 1997') DIB modes: bpp==8, w<=0x500(1280), h<=0x400(1024), nummodes<30
+  40c816:	ff 15 78 95 4f 00    	call   DWORD PTR ds:0x4f9578
+  40c81c:	8b 0d e0 d9 47 00    	mov    ecx,DWORD PTR ds:0x47d9e0
+  40c822:	89 44 24 14          	mov    DWORD PTR [esp+0x14],eax
+  40c826:	8b 84 24 8c 00 00 00 	mov    eax,DWORD PTR [esp+0x8c]
+  40c82d:	83 f8 08             	cmp    eax,0x8
+  40c830:	0f 85 d9 01 00 00    	jne    0x40ca0f
+  40c836:	8b 84 24 90 00 00 00 	mov    eax,DWORD PTR [esp+0x90]
+  40c83d:	3d 00 05 00 00       	cmp    eax,0x500
+  40c842:	0f 87 c7 01 00 00    	ja     0x40ca0f
+  40c848:	8b 84 24 94 00 00 00 	mov    eax,DWORD PTR [esp+0x94]
+  40c84f:	3d 00 04 00 00       	cmp    eax,0x400
+  40c854:	0f 87 b5 01 00 00    	ja     0x40ca0f
+  40c85a:	83 f9 1e             	cmp    ecx,0x1e
+  40c85d:	0f 8d ac 01 00 00    	jge    0x40ca0f
+  40c863:	8d 44 24 24          	lea    eax,[esp+0x24]

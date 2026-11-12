@@ -1,0 +1,369 @@
+# Counter-Strike 1.6 build 4554 hw.dll (1,840,440 B, md5 4903e8e80f2a00d3ab2886f0f209a6d6, linked 2009-06-15)
+# vtable slot 0x1e4a634 = CVideoMode_OpenGL (RTTI .?AVCVideoMode_OpenGL@@) method #17 at 0x1dc75f0:
+#   if windowed return; m=GetCurrentMode(); DEVMODE dm={0}; dmSize=0x94; w,h,bpp from m; dmFields=0x1C0000;
+#   if ((i=COM_CheckParm("-freq"))) { dmDisplayFrequency=atoi(com_argv[i+1]); dmFields|=0x400000; }
+#   ChangeDisplaySettingsA(&dm, CDS_FULLSCREEN);   <- return value ignored
+  01dc75f0  sub      esp, 0x94
+  01dc75f6  push     esi
+  01dc75f7  mov      esi, ecx
+  01dc75f9  mov      eax, dword ptr [esi]
+  01dc75fb  call     dword ptr [eax + 0x1c]
+  01dc75fe  test     al, al
+  01dc7600  jne      0x1dc768a
+  01dc7606  mov      edx, dword ptr [esi]
+  01dc7608  mov      ecx, esi
+  01dc760a  call     dword ptr [edx + 0x10]
+  01dc760d  mov      edx, eax
+  01dc760f  test     edx, edx
+  01dc7611  je       0x1dc768a
+  01dc7613  push     edi
+  01dc7614  mov      ecx, 0x25
+  01dc7619  xor      eax, eax
+  01dc761b  lea      edi, [esp + 8]
+  01dc761f  rep stosd dword ptr es:[edi], eax
+  01dc7621  mov      word ptr [esp + 0x2c], 0x94
+  01dc7628  mov      eax, dword ptr [edx]
+  01dc762a  mov      dword ptr [esp + 0x74], eax
+  01dc762e  mov      ecx, dword ptr [edx + 4]
+  01dc7631  mov      dword ptr [esp + 0x78], ecx
+  01dc7635  mov      dword ptr [esp + 0x30], 0x1c0000
+  01dc763d  mov      edx, dword ptr [edx + 8]
+  01dc7640  push     0x1e8cb0c
+  01dc7645  mov      dword ptr [esp + 0x74], edx
+  01dc7649  call     0x1d383e0
+  01dc764e  add      esp, 4
+  01dc7651  test     eax, eax
+  01dc7653  pop      edi
+  01dc7654  je       0x1dc767d
+  01dc7656  mov      ecx, dword ptr [0x2cd36e8]
+  01dc765c  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01dc7660  push     edx
+  01dc7661  call     0x1e2e266
+  01dc7666  mov      dword ptr [esp + 0x80], eax
+  01dc766d  mov      eax, dword ptr [esp + 0x30]
+  01dc7671  add      esp, 4
+  01dc7674  or       eax, 0x400000
+  01dc7679  mov      dword ptr [esp + 0x2c], eax
+  01dc767d  lea      eax, [esp + 4]
+  01dc7681  push     4
+  01dc7683  push     eax
+  01dc7684  call     dword ptr [0x1e483c4]
+  01dc768a  pop      esi
+  01dc768b  add      esp, 0x94
+  01dc7691  ret      
+
+# COM_CheckParm 0x1d383e0 (exact, case-sensitive Q_strcmp 0x1d367d0):
+  01d383e0  mov      eax, dword ptr [0x2cd35cc]
+  01d383e5  push     esi
+  01d383e6  mov      esi, 1
+  01d383eb  push     edi
+  01d383ec  cmp      eax, esi
+  01d383ee  jle      0x1d38418
+  01d383f0  mov      edi, dword ptr [esp + 0xc]
+  01d383f4  mov      eax, dword ptr [0x2cd36e8]
+  01d383f9  mov      eax, dword ptr [eax + esi*4]
+  01d383fc  test     eax, eax
+  01d383fe  je       0x1d3840e
+  01d38400  push     eax
+  01d38401  push     edi
+  01d38402  call     0x1d367d0
+  01d38407  add      esp, 8
+  01d3840a  test     eax, eax
+  01d3840c  je       0x1d3841d
+  01d3840e  mov      eax, dword ptr [0x2cd35cc]
+  01d38413  inc      esi
+  01d38414  cmp      esi, eax
+  01d38416  jl       0x1d383f4
+  01d38418  pop      edi
+  01d38419  xor      eax, eax
+  01d3841b  pop      esi
+  01d3841c  ret      
+  01d3841d  mov      eax, esi
+  01d3841f  pop      edi
+  01d38420  pop      esi
+  01d38421  ret      
+  01d367d0  mov      edx, dword ptr [esp + 8]
+  01d367d4  mov      ecx, dword ptr [esp + 4]
+  01d367d8  push     ebx
+  01d367d9  mov      al, byte ptr [ecx]
+  01d367db  mov      bl, byte ptr [edx]
+  01d367dd  cmp      al, bl
+  01d367df  jne      0x1d367e9
+  01d367e1  test     al, al
+  01d367e3  je       0x1d367ee
+  01d367e5  inc      ecx
+  01d367e6  inc      edx
+  01d367e7  jmp      0x1d367d9
+  01d367e9  or       eax, 0xffffffff
+  01d367ec  pop      ebx
+  01d367ed  ret      
+  01d367ee  xor      eax, eax
+  01d367f0  pop      ebx
+  01d367f1  ret      
+
+# second -freq reader, the -d3d wrapper path (not used by the staged launchers, which pass -gl):
+string VA 0x1e7e434
+---- ref at operand 0x1d7bb91
+  01d7bb70  add      eax, dword ptr [eax]
+  01d7bb72  add      dl, al
+  01d7bb74  add      al, 0
+  01d7bb76  mov      eax, dword ptr [esp + 0x8c]
+  01d7bb7d  or       al, 2
+  01d7bb7f  mov      dword ptr [esp + 0x8c], eax
+  01d7bb86  mov      eax, dword ptr [esp + 0x18]
+  01d7bb8a  push     eax
+  01d7bb8b  mov      edx, dword ptr [eax]
+  01d7bb8d  call     dword ptr [edx + 8]
+  01d7bb90  push     0x1e7e434
+  01d7bb95  mov      dword ptr [esp + 0xe0], 0x3f800000
+  01d7bba0  mov      dword ptr [esp + 0xe4], 0x41200000
+  01d7bbab  call     0x1d383e0
+  01d7bbb0  add      esp, 4
+  01d7bbb3  cmp      eax, ebp
+  01d7bbb5  je       0x1d7bbd1
+  01d7bbb7  mov      ecx, dword ptr [0x2cd36e8]
+  01d7bbbd  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01d7bbc1  push     edx
+  01d7bbc2  call     0x1e2e266
+  01d7bbc7  add      esp, 4
+  01d7bbca  mov      dword ptr [esp + 0xa4], eax
+  01d7bbd1  mov      eax, dword ptr [0x2398340]
+  01d7bbd6  lea      edx, [esp + 0x8c]
+  01d7bbdd  push     edx
+  01d7bbde  push     eax
+
+# renderer choice: -d3d, else -gl, else registry EngineD3D -> -gl beats a stale EngineD3D=1:
+string VA 0x1e8cb70
+---- ref at operand 0x1dc7a91
+  01dc7a80  push     eax
+  01dc7a81  push     0x1e8cb60
+  01dc7a86  call     dword ptr [edx + 0xc]
+  01dc7a89  mov      ecx, dword ptr [0x1e82cc0]
+  01dc7a8f  push     esi
+  01dc7a90  push     0x1e8cb70
+  01dc7a95  mov      dword ptr [0x23833c0], esi
+  01dc7a9b  mov      edx, dword ptr [ecx]
+  01dc7a9d  call     dword ptr [edx + 8]
+  01dc7aa0  test     eax, eax
+  01dc7aa2  push     0x1e8cb7c
+  01dc7aa7  setne    byte ptr [esp + 0xf]
+  01dc7aac  call     0x1d383e0
+  01dc7ab1  add      esp, 4
+  01dc7ab4  test     eax, eax
+  01dc7ab6  jne      0x1dc7ad1
+  01dc7ab8  push     0x1e8cb84
+  01dc7abd  call     0x1d383e0
+  01dc7ac2  add      esp, 4
+  01dc7ac5  test     eax, eax
+  01dc7ac7  jne      0x1dc7b25
+  01dc7ac9  mov      al, byte ptr [esp + 0xb]
+  01dc7acd  test     al, al
+  01dc7acf  je       0x1dc7b25
+  01dc7ad1  test     bl, bl
+  01dc7ad3  mov      dword ptr [0x23833c0], 1
+  01dc7add  je       0x1dc7b02
+
+# CVideoMode_Common::Init: registry ScreenWidth/Height/BPP, then -width/-w/-height/-h override; exact match in the DDraw-enumerated {w,h,bpp} list, else last same-width mode, else mode 0:
+  01dc6860  sub      esp, 0x10
+  01dc6863  push     ebx
+  01dc6864  push     ebp
+  01dc6865  push     esi
+  01dc6866  push     edi
+  01dc6867  mov      edi, ecx
+  01dc6869  push     0x280
+  01dc686e  mov      ecx, dword ptr [0x1e82cc0]
+  01dc6874  push     0x1e8c9f8
+  01dc6879  mov      eax, dword ptr [ecx]
+  01dc687b  call     dword ptr [eax + 8]
+  01dc687e  mov      ecx, dword ptr [0x1e82cc0]
+  01dc6884  push     0x1e0
+  01dc6889  push     0x1e8ca04
+  01dc688e  mov      dword ptr [esp + 0x1c], eax
+  01dc6892  mov      edx, dword ptr [ecx]
+  01dc6894  call     dword ptr [edx + 8]
+  01dc6897  mov      ecx, dword ptr [0x1e82cc0]
+  01dc689d  mov      dword ptr [esp + 0x10], eax
+  01dc68a1  push     0x10
+  01dc68a3  push     0x1e8ca14
+  01dc68a8  mov      eax, dword ptr [ecx]
+  01dc68aa  call     dword ptr [eax + 8]
+  01dc68ad  push     0x1e8ca20
+  01dc68b2  mov      esi, eax
+  01dc68b4  call     0x1d383e0
+  01dc68b9  add      esp, 4
+  01dc68bc  test     eax, eax
+  01dc68be  je       0x1dc68c5
+  01dc68c0  mov      esi, 0x10
+  01dc68c5  push     0x1e8ca28
+  01dc68ca  call     0x1d383e0
+  01dc68cf  add      esp, 4
+  01dc68d2  test     eax, eax
+  01dc68d4  je       0x1dc68db
+  01dc68d6  mov      esi, 0x18
+  01dc68db  push     0x1e8ca30
+  01dc68e0  call     0x1d383e0
+  01dc68e5  add      esp, 4
+  01dc68e8  test     eax, eax
+  01dc68ea  je       0x1dc68f1
+  01dc68ec  mov      esi, 0x20
+  01dc68f1  mov      edx, dword ptr [edi]
+  01dc68f3  mov      ecx, edi
+  01dc68f5  call     dword ptr [edx + 0x3c]
+  01dc68f8  cmp      esi, eax
+  01dc68fa  jle      0x1dc68fe
+  01dc68fc  mov      esi, eax
+  01dc68fe  mov      ecx, dword ptr [0x1e8cc84]
+  01dc6904  mov      dword ptr [edi + 0x190], 0
+  01dc690e  mov      eax, dword ptr [ecx]
+  01dc6910  call     dword ptr [eax + 4]
+  01dc6913  test     al, al
+  01dc6915  je       0x1dc692e
+  01dc6917  mov      ecx, dword ptr [0x1e8cc84]
+  01dc691d  push     esi
+  01dc691e  mov      edx, dword ptr [ecx]
+  01dc6920  call     dword ptr [edx + 0xc]
+  01dc6923  mov      ecx, dword ptr [0x1e8cc84]
+  01dc6929  mov      eax, dword ptr [ecx]
+  01dc692b  call     dword ptr [eax + 8]
+  01dc692e  mov      eax, dword ptr [edi + 0x190]
+  01dc6934  cmp      eax, 2
+  01dc6937  jl       0x1dc694d
+  01dc6939  push     0x1dc6ba0
+  01dc693e  push     0xc
+  01dc6940  lea      ecx, [edi + 4]
+  01dc6943  push     eax
+  01dc6944  push     ecx
+  01dc6945  call     0x1e2e35f
+  01dc694a  add      esp, 0x10
+  01dc694d  push     0x1e8ca38
+  01dc6952  mov      dword ptr [esp + 0x20], 0xffffffff
+  01dc695a  call     0x1d383e0
+  01dc695f  add      esp, 4
+  01dc6962  test     eax, eax
+  01dc6964  je       0x1dc697d
+  01dc6966  mov      edx, dword ptr [0x2cd36e8]
+  01dc696c  mov      eax, dword ptr [edx + eax*4 + 4]
+  01dc6970  push     eax
+  01dc6971  call     0x1e2e266
+  01dc6976  add      esp, 4
+  01dc6979  mov      dword ptr [esp + 0x14], eax
+  01dc697d  push     0x1e8ca40
+  01dc6982  call     0x1d383e0
+  01dc6987  add      esp, 4
+  01dc698a  test     eax, eax
+  01dc698c  je       0x1dc69a5
+  01dc698e  mov      ecx, dword ptr [0x2cd36e8]
+  01dc6994  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01dc6998  push     edx
+  01dc6999  call     0x1e2e266
+  01dc699e  add      esp, 4
+  01dc69a1  mov      dword ptr [esp + 0x14], eax
+  01dc69a5  push     0x1e8ca44
+  01dc69aa  call     0x1d383e0
+  01dc69af  add      esp, 4
+  01dc69b2  test     eax, eax
+  01dc69b4  je       0x1dc69cd
+  01dc69b6  mov      ecx, dword ptr [0x2cd36e8]
+  01dc69bc  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01dc69c0  push     edx
+  01dc69c1  call     0x1e2e266
+  01dc69c6  add      esp, 4
+  01dc69c9  mov      dword ptr [esp + 0x10], eax
+  01dc69cd  push     0x1e8ca4c
+  01dc69d2  call     0x1d383e0
+  01dc69d7  add      esp, 4
+  01dc69da  test     eax, eax
+  01dc69dc  je       0x1dc69f5
+  01dc69de  mov      ecx, dword ptr [0x2cd36e8]
+  01dc69e4  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01dc69e8  push     edx
+  01dc69e9  call     0x1e2e266
+  01dc69ee  add      esp, 4
+  01dc69f1  mov      dword ptr [esp + 0x10], eax
+  01dc69f5  mov      eax, dword ptr [edi]
+  01dc69f7  mov      ecx, edi
+  01dc69f9  call     dword ptr [eax + 0x1c]
+  01dc69fc  test     al, al
+  01dc69fe  je       0x1dc6a3a
+  01dc6a00  mov      ecx, dword ptr [0x1e8d504]
+  01dc6a06  mov      edx, dword ptr [ecx]
+  01dc6a08  call     dword ptr [edx + 0x14]
+  01dc6a0b  push     eax
+  01dc6a0c  call     dword ptr [0x1e4840c]
+  01dc6a12  mov      ebp, dword ptr [0x1e480c0]
+  01dc6a18  mov      esi, eax
+  01dc6a1a  push     8
+  01dc6a1c  push     esi
+  01dc6a1d  call     ebp
+  01dc6a1f  push     0xa
+  01dc6a21  push     esi
+  01dc6a22  mov      ebx, eax
+  01dc6a24  call     ebp
+  01dc6a26  cmp      dword ptr [esp + 0x14], ebx
+  01dc6a2a  jle      0x1dc6a30
+  01dc6a2c  mov      dword ptr [esp + 0x14], ebx
+  01dc6a30  cmp      dword ptr [esp + 0x10], eax
+  01dc6a34  jle      0x1dc6a3a
+  01dc6a36  mov      dword ptr [esp + 0x10], eax
+  01dc6a3a  mov      ebp, dword ptr [esp + 0x14]
+  01dc6a3e  test     ebp, ebp
+  01dc6a40  jle      0x1dc6a6b
+  01dc6a42  mov      eax, dword ptr [esp + 0x10]
+  01dc6a46  test     eax, eax
+  01dc6a48  jge      0x1dc6a6b
+  01dc6a4a  fild     dword ptr [esp + 0x14]
+  01dc6a4e  fstp     qword ptr [esp + 0x14]
+  01dc6a52  fld      qword ptr [esp + 0x14]
+  01dc6a56  fmul     qword ptr [0x1e4a1a8]
+  01dc6a5c  fdiv     qword ptr [0x1e49a00]
+  01dc6a62  call     0x1e2df0c
+  01dc6a67  mov      dword ptr [esp + 0x10], eax
+  01dc6a6b  mov      ecx, dword ptr [edi + 0x190]
+  01dc6a71  xor      esi, esi
+  01dc6a73  test     ecx, ecx
+  01dc6a75  jle      0x1dc6a97
+  01dc6a77  mov      ebx, dword ptr [esp + 0x10]
+  01dc6a7b  lea      eax, [edi + 8]
+  01dc6a7e  cmp      dword ptr [eax - 4], ebp
+  01dc6a81  jne      0x1dc6a8d
+  01dc6a83  mov      edx, dword ptr [eax]
+  01dc6a85  mov      dword ptr [esp + 0x1c], esi
+  01dc6a89  cmp      edx, ebx
+  01dc6a8b  je       0x1dc6a9b
+  01dc6a8d  inc      esi
+  01dc6a8e  add      eax, 0xc
+  01dc6a91  cmp      esi, ecx
+  01dc6a93  jl       0x1dc6a7e
+  01dc6a95  jmp      0x1dc6a9b
+  01dc6a97  mov      ebx, dword ptr [esp + 0x10]
+  01dc6a9b  cmp      esi, ecx
+  01dc6a9d  jl       0x1dc6aac
+  01dc6a9f  mov      eax, dword ptr [esp + 0x1c]
+  01dc6aa3  mov      esi, eax
+  01dc6aa5  inc      esi
+  01dc6aa6  neg      esi
+  01dc6aa8  sbb      esi, esi
+  01dc6aaa  and      esi, eax
+  01dc6aac  mov      eax, dword ptr [edi]
+  01dc6aae  mov      ecx, edi
+  01dc6ab0  mov      dword ptr [edi + 0x194], esi
+  01dc6ab6  call     dword ptr [eax + 0x1c]
+  01dc6ab9  test     al, al
+  01dc6abb  je       0x1dc6af8
+  01dc6abd  push     0x1e8ca50
+  01dc6ac2  call     0x1d383e0
+  01dc6ac7  add      esp, 4
+  01dc6aca  test     eax, eax
+  01dc6acc  jne      0x1dc6ad8
+  01dc6ace  mov      eax, dword ptr [edi + 0x190]
+  01dc6ad4  test     eax, eax
+  01dc6ad6  jne      0x1dc6af8
+  01dc6ad8  lea      ecx, [esi + esi*2]
+  01dc6adb  lea      eax, [edi + ecx*4]
+  01dc6ade  mov      dword ptr [eax + 4], ebp
+  01dc6ae1  mov      dword ptr [eax + 8], ebx
+  01dc6ae4  mov      eax, dword ptr [edi + 0x190]
+  01dc6aea  test     eax, eax
+  01dc6aec  jne      0x1dc6af8
+  01dc6aee  mov      dword ptr [edi + 0x190], 1
+  01dc6af8  mov      ecx, dword ptr [0x1e82cc0]

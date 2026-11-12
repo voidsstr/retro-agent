@@ -1,0 +1,32 @@
+# /mnt/retro-share/Files/Games-Library/UnrealTournament/System/UMenu.u UMenuVideoClientWindow.LoadAvailableSettings (line 33420 of strings)
+	    WindowModeCombo.SetValue(WindowModes[1]);
+	else
+		WindowModeCombo.SetValue(WindowModes[2]);
+	ResolutionCombo.Clear();
+	ParseString = GetPlayerOwner().ConsoleCommand("GetRes");
+	P = InStr(ParseString, " ");
+	while (P != -1) 
+		ResolutionCombo.AddItem(Left(ParseString, P));
+		ParseString = Mid(ParseString, P+1);
+		P = InStr(ParseString, " ");
+	ResolutionCombo.AddItem(ParseString);
+	ResolutionCombo.SetValue(GetPlayerOwner().ConsoleCommand("GetCurrentRes"));
+	ColorDepthCombo.Clear();
+33237:	ResolutionCombo.SetEditable(False);
+
+# /mnt/retro-share/Files/Games-Library/UnrealTournament436/System/UMenu.u UMenuVideoClientWindow.LoadAvailableSettings (line 31799 of strings)
+	local string ParseString;
+	bInitialized = False;
+	// Load available video drivers and current video driver here.
+	ResolutionCombo.Clear();
+	ParseString = GetPlayerOwner().ConsoleCommand("GetRes");
+	P = InStr(ParseString, " ");
+	while (P != -1) 
+		ResolutionCombo.AddItem(Left(ParseString, P));
+		ParseString = Mid(ParseString, P+1);
+		P = InStr(ParseString, " ");
+	ResolutionCombo.AddItem(ParseString);
+	ResolutionCombo.SetValue(GetPlayerOwner().ConsoleCommand("GetCurrentRes"));
+	ColorDepthCombo.Clear();
+31691:	ResolutionCombo.SetEditable(False);
+

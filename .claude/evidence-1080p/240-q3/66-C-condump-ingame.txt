@@ -1,0 +1,391 @@
+Hunk_Clear: reset the hunk ok
+...detecting CPU, found AMD w/ 3DNow!
+
+------- Input Initialization -------
+No window for DirectInput mouse init, delaying
+Joystick is not active.
+------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode -1: 1920 1080 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...95 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...ignoring GL_S3_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...WGL_3DFX_gamma_control not found
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+locked hardware.  ok
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0x7048060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: user-41ea3b3330
+IP: 192.168.1.240
+Working directory: C:\Games\Quake3-TeamArena
+Proceeding with delayed mouse init
+Initializing DirectInput...
+DirectInput initialized.
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 1 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump fleet240-c-menu.txt
+Dumped console text to fleet240-c-menu.txt.
+]/connect 192.168.1.132:27961
+Resolving update.quake3arena.com
+update.quake3arena.com resolved to 192.246.40.56:27951
+192.168.1.132:27961 resolved to 192.168.1.132:27961
+----- FS_Startup -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Games\Quake3-TeamArena/baseq3
+
+----------------------
+8146 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm.
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 5380768 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 1335 faces, 32 meshes, 59 trisurfs, 13 flares
+CL_InitCGame:  1.54 seconds
+79 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer entered the game
+Patriot entered the game
+Angel entered the game
+Hunter entered the game
+Gorre entered the game
+----- FS_Startup -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: music/sonic5.wav
+----------------------
+12219 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm.
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 5380768 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3059 faces, 206 meshes, 40 trisurfs, 53 flares
+CL_InitCGame:  2.60 seconds
+94 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer entered the game
+Patriot ate Gorre's rocket
+Patriot was kicked
+]/clientinfo
+--------- Client Information ---------
+state: 8
+Server: 192.168.1.132:27961
+User info settings:
+cl_guid             FEDC995C5B7B7B32734CEDA4E5F9D8C9
+name                UnnamedPlayer
+rate                3000
+snaps               20
+model               sarge
+headmodel           sarge
+team_model          james
+team_headmodel      *james
+color1              4
+color2              5
+handicap            100
+teamtask            0
+sex                 male
+cl_anonymous        0
+cl_punkbuster       0
+cg_predictItems     1
+teamoverlay         1
+cg_scorePlums       1
+cg_smoothClients    0
+--------------------------------------
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 1 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump fleet240-c-game.txt
+Dumped console text to fleet240-c-game.txt.
+

@@ -1,0 +1,16 @@
+2: enp129s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    altname enxd0ad08dc0e92
+    inet 192.168.1.132/24 brd 192.168.1.255 scope global noprefixroute enp129s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.1.196/24 brd 192.168.1.255 scope global secondary dynamic noprefixroute enp129s0
+       valid_lft 85130sec preferred_lft 85130sec
+
+default via 192.168.1.254 dev enp129s0 proto dhcp src 192.168.1.196 metric 100 
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 
+172.18.0.0/16 dev br-319674fa7064 proto kernel scope link src 172.18.0.1 
+172.19.0.0/16 dev br-c634444b9485 proto kernel scope link src 172.19.0.1 
+172.20.0.0/16 dev br-b9c0a6294202 proto kernel scope link src 172.20.0.1 
+172.21.0.0/16 dev br-c4034cceaed9 proto kernel scope link src 172.21.0.1 linkdown 
+172.22.0.0/16 dev br-d6d2c0e7562f proto kernel scope link src 172.22.0.1 
+192.168.1.0/24 dev enp129s0 proto kernel scope link src 192.168.1.132 metric 100 
+192.168.1.0/24 dev enp129s0 proto kernel scope link src 192.168.1.196 metric 100 

@@ -1,0 +1,128 @@
+SoF2.exe (single player) - NO clamp, and the -1 branch is live
+
+[1] R_Register: plain 3-argument Cvar_Get(name, default, 0x21). r_mode default "3";
+    r_customwidth default "1600". No min/max anywhere.
+  10090b86: push    0x100f0aa0   ; "r_overBrightBits"
+  10090b8b: mov     dword ptr [0x1079988c], eax
+  10090b90: call    dword ptr [0x1079a338]
+  10090b96: push    0x21
+  10090b98: push    0x100e1bc0
+  10090b9d: push    0x100f0a90   ; "r_ignorehwgamma"
+  10090ba2: mov     dword ptr [0x10799804], eax
+  10090ba7: call    dword ptr [0x1079a338]
+  10090bad: push    0x21
+  10090baf: push    0x100e1a24
+  10090bb4: push    0x100f0a88   ; "r_mode"
+  10090bb9: mov     dword ptr [0x1079997c], eax
+  10090bbe: call    dword ptr [0x1079a338]
+  10090bc4: push    0x21
+  10090bc6: push    0x100e1b34
+  10090bcb: push    0x100e69f4   ; "r_fullscreen"
+  10090bd0: mov     dword ptr [0x10799870], eax
+  10090bd5: call    dword ptr [0x1079a338]
+  10090bdb: add     esp, 0x48
+  10090bde: push    0x21
+  10090be0: push    0x100f0a80   ; "1600"
+  10090be5: push    0x100f0a70   ; "r_customwidth"
+  10090bea: mov     dword ptr [0x10799814], eax
+  10090bef: call    dword ptr [0x1079a338]
+  10090bf5: push    0x21
+  10090bf7: push    0x100f0a68   ; "1024"
+  10090bfc: push    0x100f0a58   ; "r_customheight"
+  10090c01: mov     dword ptr [0x10799810], eax
+  10090c06: call    dword ptr [0x1079a338]
+  10090c0c: push    0x21
+  10090c0e: push    0x100e1b34
+  10090c13: push    0x100f0a48   ; "r_customaspect"
+  10090c18: mov     dword ptr [0x1079980c], eax
+  10090c1d: call    dword ptr [0x1079a338]
+  10090c23: push    0x21
+  10090c25: push    0x100e1bc0
+  10090c2a: push    0x100f0a3c   ; "r_MipMaps"
+  10090c2f: mov     dword ptr [0x10799808], eax
+  10090c34: call    dword ptr [0x1079a338]
+
+[2] R_GetModeInfo: mode == -1 -> r_customwidth ([0x10799810]), r_customheight ([0x1079980c]),
+    r_customaspect ([0x10799808]).
+  1008fc40: mov     eax, dword ptr [esp + 0x10]
+  1008fc44: cmp     eax, -1
+  1008fc47: jge     0x1008fc4c
+  1008fc49: xor     al, al
+  1008fc4b: ret     
+  1008fc4c: cmp     eax, dword ptr [0x100effd8]
+  1008fc52: jl      0x1008fc57
+  1008fc54: xor     al, al
+  1008fc56: ret     
+  1008fc57: cmp     eax, -1
+  1008fc5a: mov     edx, dword ptr [esp + 4]
+  1008fc5e: jne     0x1008fc89
+  1008fc60: mov     eax, dword ptr [0x10799810]
+  1008fc65: mov     ecx, dword ptr [eax + 0x60]
+  1008fc68: mov     dword ptr [edx], ecx
+  1008fc6a: mov     eax, dword ptr [0x1079980c]
+  1008fc6f: mov     ecx, dword ptr [eax + 0x60]
+  1008fc72: mov     edx, dword ptr [esp + 8]
+  1008fc76: mov     dword ptr [edx], ecx
+  1008fc78: mov     eax, dword ptr [0x10799808]
+  1008fc7d: mov     ecx, dword ptr [eax + 0x5c]
+  1008fc80: mov     edx, dword ptr [esp + 0xc]
+  1008fc84: mov     dword ptr [edx], ecx
+  1008fc86: mov     al, 1
+  1008fc88: ret     
+  1008fc89: shl     eax, 4
+  1008fc8c: add     eax, 0x100eff18
+  1008fc91: mov     ecx, dword ptr [eax + 4]
+  1008fc94: mov     dword ptr [edx], ecx
+  1008fc96: mov     ecx, dword ptr [eax + 8]
+  1008fc99: mov     edx, dword ptr [esp + 8]
+  1008fc9d: mov     dword ptr [edx], ecx
+  1008fc9f: fild    dword ptr [eax + 4]
+  1008fca2: fild    dword ptr [eax + 8]
+  1008fca5: fmul    dword ptr [eax + 0xc]
+  1008fca8: mov     eax, dword ptr [esp + 0xc]
+  1008fcac: fdivp   st(1)
+  1008fcae: fstp    dword ptr [eax]
+  1008fcb0: mov     al, 1
+  1008fcb2: ret     
+
+[3] mode-set failure path: Cvar_SetValue("r_mode", 3.0), r_fullscreen 1, r_colorbits 16, retry.
+  100b8810: mov     ecx, dword ptr [0x10799888]
+  100b8816: cmp     dword ptr [ecx + 0x60], 0x10
+  100b881a: jne     0x100b8831
+  100b881c: cmp     bl, 1
+  100b881f: jne     0x100b8831
+  100b8821: mov     edx, dword ptr [0x10799870]
+  100b8827: cmp     dword ptr [edx + 0x60], 3
+  100b882b: je      0x100b88dc
+  100b8831: push    0
+  100b8833: push    0x40400000   ; float 3
+  100b8838: push    0x100f0a88   ; "r_mode"
+  100b883d: call    dword ptr [0x1079a344]
+  100b8843: push    0
+  100b8845: push    0x10103e84
+  100b884a: push    0x100f0a88   ; "r_mode"
+  100b884f: call    dword ptr [0x1079a338]
+  100b8855: push    0
+  100b8857: push    0x3f800000   ; float 1
+  100b885c: push    0x100e69f4   ; "r_fullscreen"
+  100b8861: call    dword ptr [0x1079a344]
+  100b8867: push    0
+  100b8869: push    0x10103e84
+  100b886e: push    0x100e69f4   ; "r_fullscreen"
+  100b8873: call    dword ptr [0x1079a338]
+  100b8879: push    0
+  100b887b: push    0x41800000   ; float 16
+  100b8880: push    0x100f0ad4   ; "r_colorbits"
+  100b8885: call    dword ptr [0x1079a344]
+  100b888b: push    0
+  100b888d: push    0x10103e84
+  100b8892: push    0x100f0ad4   ; "r_colorbits"
+  100b8897: call    dword ptr [0x1079a338]
+  100b889d: add     esp, 0x48
+  100b88a0: call    0x100ba0f0
+  100b88a5: push    1
+  100b88a7: push    0x10
+  100b88a9: push    3
+  100b88ab: push    0x100f6f14   ; "opengl32"
+  100b88b0: call    0x100b8ab0
+  100b88b5: add     esp, 0x10

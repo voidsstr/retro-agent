@@ -1,0 +1,420 @@
+Parsing menu file:ui/error.menu
+Parsing menu file:ui/serverinfo.menu
+Parsing menu file:ui/findplayer.menu
+Parsing menu file:ui/endofgame.menu
+Parsing menu file:ui/quitcredit.menu
+Parsing menu file:ui/resetscore.menu
+Parsing menu file:ui/createfavorite.menu
+UI menu load time = 510 milli seconds
+Parsing menu file:ui/ingame.menu
+Parsing menu file:ui/ingame_vote.menu
+Parsing menu file:ui/ingame_about.menu
+Parsing menu file:ui/ingame_controls.menu
+Parsing menu file:ui/ingame_join.menu
+Parsing menu file:ui/ingame_options.menu
+Parsing menu file:ui/ingame_system.menu
+Parsing menu file:ui/ingame_leave.menu
+Parsing menu file:ui/ingame_player.menu
+Parsing menu file:ui/ingame_addbot.menu
+Parsing menu file:ui/ingame_callvote.menu
+Parsing menu file:ui/ingame_orders.menu
+UI menu load time = 68 milli seconds
+45 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Hostname: nsc-b20c188e96d
+IP: 192.168.1.123
+Opening IP6 socket: [::]:27960
+WARNING: NET_IP6Socket: socket: WSAEAFNOSUPPORT
+WARNING: Couldn't bind to a v6 ip address.
+Opening IP socket: 0.0.0.0:27960
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: ATI Radeon HD 3850 AGP
+GL_VERSION: 3.3.11672 Compatibility Profile Context
+GL_EXTENSIONS: GL_AMDX_debug_output GL_AMDX_vertex_shader_tessellator
+GL_AMD_conservative_depth GL_AMD_debug_output GL_AMD_depth_clamp_separate
+GL_AMD_draw_buffers_blend GL_AMD_name_gen_delete GL_AMD_performance_monitor
+GL_AMD_pinned_memory GL_AMD_sample_positions GL_AMD_shader_stencil_export
+GL_AMD_texture_cube_map_array GL_AMD_texture_texture4
+GL_AMD_vertex_shader_tessellator GL_ARB_ES2_compatibility
+GL_ARB_base_instance GL_ARB_blend_func_extended GL_ARB_color_buffer_float
+GL_ARB_compressed_texture_pixel_storage GL_ARB_conservative_depth
+GL_ARB_copy_buffer GL_ARB_depth_buffer_float GL_ARB_depth_clamp
+GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_draw_buffers_blend
+GL_ARB_draw_elements_base_vertex GL_ARB_draw_instanced
+GL_ARB_explicit_attrib_location GL_ARB_fragment_coord_conventions
+GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader
+GL_ARB_framebuffer_object GL_ARB_framebuffer_sRGB GL_ARB_geometry_shader4
+GL_ARB_get_program_binary GL_ARB_half_float_pixel GL_ARB_half_float_vertex
+GL_ARB_imaging GL_ARB_instanced_arrays GL_ARB_internalformat_query
+GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_occlusion_query2
+GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite
+GL_ARB_provoking_vertex GL_ARB_sample_shading GL_ARB_sampler_objects
+GL_ARB_seamless_cube_map GL_ARB_separate_shader_objects
+GL_ARB_shader_bit_encoding GL_ARB_shader_objects GL_ARB_shader_precision
+GL_ARB_shader_stencil_export GL_ARB_shader_texture_lod
+GL_ARB_shading_language_100 GL_ARB_shading_language_420pack
+GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_shadow_ambient
+GL_ARB_sync GL_ARB_texture_border_clamp GL_ARB_texture_buffer_object
+GL_ARB_texture_buffer_object_rgb32 GL_ARB_texture_compression
+GL_ARB_texture_compression_rgtc GL_ARB_texture_cube_map
+GL_ARB_texture_cube_map_array GL_ARB_texture_env_add
+GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar
+GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_gather
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_multisample
+GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_texture_rg
+GL_ARB_texture_rgb10_a2ui GL_ARB_texture_snorm GL_ARB_texture_storage
+GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3
+GL_ARB_transform_feedback_instanced GL_ARB_transpose_matrix
+GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra
+GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program
+GL_ARB_vertex_shader GL_ARB_vertex_type_2_10_10_10_rev GL_ARB_viewport_array
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_ATI_texture_mirror_once GL_EXT_abgr GL_EXT_bgra
+GL_EXT_bindable_uniform GL_EXT_blend_color GL_EXT_blend_equation_separate
+GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract
+GL_EXT_compiled_vertex_array GL_EXT_copy_buffer GL_EXT_copy_texture
+GL_EXT_direct_state_access GL_EXT_draw_buffers2 GL_EXT_draw_instanced
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_framebuffer_sRGB GL_EXT_geometry_shader4 GL_EXT_gpu_program_parameters
+GL_EXT_gpu_shader4 GL_EXT_histogram GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_float GL_EXT_packed_pixels
+GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_provoking_vertex
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_array
+GL_EXT_texture_buffer_object GL_EXT_texture_compression_latc
+GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_integer GL_EXT_texture_lod
+GL_EXT_texture_lod_bias GL_EXT_texture_mirroêÂ"GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 1 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump q3tl2menu.txt
+Dumped console text to q3tl2menu.txt.
+Scanning for servers on the local network...
+2 servers listed in browser with 4 players.
+0 servers listed in browser with 0 players.
+Scanning for servers on the local network...
+2 servers listed in browser with 4 players.
+0 servers listed in browser with 0 players.
+Scanning for servers on the local network...
+2 servers listed in browser with 5 players.
+Resolving update.quake3arena.com
+update.quake3arena.com resolved to 192.246.40.56:27951
+192.168.1.132:27962 resolved to 192.168.1.132:27962
+----- FS_Startup -----
+Current search path:
+C:\Documents and Settings\Administrator\Application Data\Quake3/missionpack
+C:\Games\Quake3-TeamArena\missionpack\pak3.pk3 (12 files)
+C:\Games\Quake3-TeamArena\missionpack\pak2.pk3 (4 files)
+C:\Games\Quake3-TeamArena\missionpack\pak1.pk3 (8 files)
+C:\Games\Quake3-TeamArena\missionpack\pak0.pk3 (3264 files)
+C:\Games\Quake3-TeamArena/missionpack
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: sound/misc/loop_electricity_05.wav
+----------------------
+14722 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: ATI Radeon HD 3850 AGP
+GL_VERSION: 3.3.11672 Compatibility Profile Context
+GL_EXTENSIONS: GL_AMDX_debug_output GL_AMDX_vertex_shader_tessellator
+GL_AMD_conservative_depth GL_AMD_debug_output GL_AMD_depth_clamp_separate
+GL_AMD_draw_buffers_blend GL_AMD_name_gen_delete GL_AMD_performance_monitor
+GL_AMD_pinned_memory GL_AMD_sample_positions GL_AMD_shader_stencil_export
+GL_AMD_texture_cube_map_array GL_AMD_texture_texture4
+GL_AMD_vertex_shader_tessellator GL_ARB_ES2_compatibility
+GL_ARB_base_instance GL_ARB_blend_func_extended GL_ARB_color_buffer_float
+GL_ARB_compressed_texture_pixel_storage GL_ARB_conservative_depth
+GL_ARB_copy_buffer GL_ARB_depth_buffer_float GL_ARB_depth_clamp
+GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_draw_buffers_blend
+GL_ARB_draw_elements_base_vertex GL_ARB_draw_instanced
+GL_ARB_explicit_attrib_location GL_ARB_fragment_coord_conventions
+GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader
+GL_ARB_framebuffer_object GL_ARB_framebuffer_sRGB GL_ARB_geometry_shader4
+GL_ARB_get_program_binary GL_ARB_half_float_pixel GL_ARB_half_float_vertex
+GL_ARB_imaging GL_ARB_instanced_arrays GL_ARB_internalformat_query
+GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_occlusion_query2
+GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite
+GL_ARB_provoking_vertex GL_ARB_sample_shading GL_ARB_sampler_objects
+GL_ARB_seamless_cube_map GL_ARB_separate_shader_objects
+GL_ARB_shader_bit_encoding GL_ARB_shader_objects GL_ARB_shader_precision
+GL_ARB_shader_stencil_export GL_ARB_shader_texture_lod
+GL_ARB_shading_language_100 GL_ARB_shading_language_420pack
+GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_shadow_ambient
+GL_ARB_sync GL_ARB_texture_border_clamp GL_ARB_texture_buffer_object
+GL_ARB_texture_buffer_object_rgb32 GL_ARB_texture_compression
+GL_ARB_texture_compression_rgtc GL_ARB_texture_cube_map
+GL_ARB_texture_cube_map_array GL_ARB_texture_env_add
+GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar
+GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_gather
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_multisample
+GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_texture_rg
+GL_ARB_texture_rgb10_a2ui GL_ARB_texture_snorm GL_ARB_texture_storage
+GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3
+GL_ARB_transform_feedback_instanced GL_ARB_transpose_matrix
+GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra
+GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program
+GL_ARB_vertex_shader GL_ARB_vertex_type_2_10_10_10_rev GL_ARB_viewport_array
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_ATI_texture_mirror_once GL_EXT_abgr GL_EXT_bgra
+GL_EXT_bindable_uniform GL_EXT_blend_color GL_EXT_blend_equation_separate
+GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract
+GL_EXT_compiled_vertex_array GL_EXT_copy_buffer GL_EXT_copy_texture
+GL_EXT_direct_state_access GL_EXT_draw_buffers2 GL_EXT_draw_instanced
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_framebuffer_sRGB GL_EXT_geometry_shader4 GL_EXT_gpu_program_parameters
+GL_EXT_gpu_shader4 GL_EXT_histogram GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_float GL_EXT_packed_pixels
+GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_provoking_vertex
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_array
+GL_EXT_texture_buffer_object GL_EXT_texture_compression_latc
+GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_integer GL_EXT_texture_lod
+GL_EXT_texture_lod_bias GL_EXT_texture_mirro0ï"GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 646744 bytes of code
+ui loaded in 2427712 bytes on the hunk
+Loaded team Crusaders with team icon ui/assets/crusaders.
+Loaded team Intruders with team icon ui/assets/intruders.
+Loaded team Pagans with team icon ui/assets/pagans.
+Loaded team Stroggs with team icon ui/assets/stroggs.
+Loaded team The Fallen with team icon ui/assets/thefallen.
+Loaded James character James.
+Loaded Janet character Janet.
+Loaded Janet character Callisto.
+Loaded Janet character Gammy.
+Loaded James character Gaunt.
+Loaded James character Khan.
+Loaded Janet character Megan.
+Loaded James character Morgan.
+Loaded James character Neptune.
+Loaded Janet character Ursula.
+Loaded James character Flayer.
+Loaded character alias Darkangel using character ai Janet.
+Loaded character alias Bradamante using character ai Megan.
+Loaded character alias Lionheart using character ai Morgan.
+Loaded character alias Furioso using character ai Neptune.
+Loaded character alias Aria using character ai Ursula.
+Loaded character alias Callisto using character ai Callisto.
+Loaded character alias Deadeye using character ai Gaunt.
+Loaded character alias WarLokk using character ai James.
+Loaded character alias Khan using character ai Khan.
+Loaded character alias Gargouille using character ai Gammy.
+Loaded character alias Enforcer using character ai Callisto.
+Loaded character alias Icarus using character ai Flayer.
+Loaded character alias Gammy using character ai Gammy.
+Loaded character alias Gladiator using character ai Megan.
+Loaded character alias Paracyte using character ai Neptune.
+Loaded character alias Gaunt using character ai Gaunt.
+Loaded character alias Punisher using character ai Khan.
+Loaded character alias November using character ai Janet.
+Loaded character alias Morgan using character ai Morgan.
+Loaded character alias Whyrlwynd using character ai Ursla.
+Loaded character alias Sinister using character ai Callisto.
+Loaded character alias Ursula using character ai Ursula.
+Loaded character alias Abominator using character ai James.
+Loaded character alias Stalker using character ai Morgan.
+Loaded character alias Neptune using character ai Neptune.
+Parsing menu file:ui/main.menu
+Parsing menu file:ui/joinserver.menu
+Parsing menu file:ui/filter.menu
+Parsing menu file:ui/punkbuster.menu
+Parsing menu file:ui/player.menu
+Parsing menu file:ui/setup.menu
+Parsing menu file:ui/fight.menu
+Parsing menu file:ui/skirmish.menu
+Parsing menu file:ui/createserver.menu
+Parsing menu file:ui/controls.menu
+Parsing menu file:ui/cdkey.menu
+Parsing menu file:ui/system.menu
+Parsing menu file:ui/options.menu
+Parsing menu file:ui/help.menu
+Parsing menu file:ui/ordershelp.menu
+Parsing menu file:ui/mod.menu
+Parsing menu file:ui/demo.menu
+Parsing menu file:ui/cinematicmenu.menu
+Parsing menu file:ui/credit.menu
+Parsing menu file:ui/demo_quit.menu
+Parsing menu file:ui/connect.menu
+Parsing menu file:ui/powerup.menu
+Parsing menu file:ui/password.menu
+Parsing menu file:ui/quake3.menu
+Parsing menu file:ui/quit.menu
+Parsing menu file:ui/vid_restart.menu
+Parsing menu file:ui/default.menu
+Parsing menu file:ui/addfilter.menu
+Parsing menu file:ui/error.menu
+Parsing menu file:ui/serverinfo.menu
+Parsing menu file:ui/findplayer.menu
+Parsing menu file:ui/endofgame.menu
+Parsing menu file:ui/quitcredit.menu
+Parsing menu file:ui/resetscore.menu
+Parsing menu file:ui/createfavorite.menu
+UI menu load time = 411 milli seconds
+Parsing menu file:ui/ingame.menu
+Parsing menu file:ui/ingame_vote.menu
+Parsing menu file:ui/ingame_about.menu
+Parsing menu file:ui/ingame_controls.menu
+Parsing menu file:ui/ingame_join.menu
+Parsing menu file:ui/ingame_options.menu
+Parsing menu file:ui/ingame_system.menu
+Parsing menu file:ui/ingame_leave.menu
+Parsing menu file:ui/ingame_player.menu
+Parsing menu file:ui/ingame_addbot.menu
+Parsing menu file:ui/ingame_callvote.menu
+Parsing menu file:ui/ingame_orders.menu
+UI menu load time = 67 milli seconds
+45 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 1167926 bytes of code
+cgame loaded in 8983968 bytes on the hunk
+ERROR: Could not open "sound/voices/male2/tt_01.wav"
+WARNING: Using default sound for sound/voices/male2/tt_01.wav
+voice chat memory size = 0
+stitched 0 LoD cracks
+...loaded 6810 faces, 172 meshes, 280 trisurfs, 42 flares
+UI menu load time = 40 milli seconds
+CL_InitCGame:  5.49 seconds
+176 msec to draw all images
+Com_TouchMemory: 0 msec
+Tozter entered the game
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: ATI Radeon HD 3850 AGP
+GL_VERSION: 3.3.11672 Compatibility Profile Context
+GL_EXTENSIONS: GL_AMDX_debug_output GL_AMDX_vertex_shader_tessellator
+GL_AMD_conservative_depth GL_AMD_debug_output GL_AMD_depth_clamp_separate
+GL_AMD_draw_buffers_blend GL_AMD_name_gen_delete GL_AMD_performance_monitor
+GL_AMD_pinned_memory GL_AMD_sample_positions GL_AMD_shader_stencil_export
+GL_AMD_texture_cube_map_array GL_AMD_texture_texture4
+GL_AMD_vertex_shader_tessellator GL_ARB_ES2_compatibility
+GL_ARB_base_instance GL_ARB_blend_func_extended GL_ARB_color_buffer_float
+GL_ARB_compressed_texture_pixel_storage GL_ARB_conservative_depth
+GL_ARB_copy_buffer GL_ARB_depth_buffer_float GL_ARB_depth_clamp
+GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_draw_buffers_blend
+GL_ARB_draw_elements_base_vertex GL_ARB_draw_instanced
+GL_ARB_explicit_attrib_location GL_ARB_fragment_coord_conventions
+GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader
+GL_ARB_framebuffer_object GL_ARB_framebuffer_sRGB GL_ARB_geometry_shader4
+GL_ARB_get_program_binary GL_ARB_half_float_pixel GL_ARB_half_float_vertex
+GL_ARB_imaging GL_ARB_instanced_arrays GL_ARB_internalformat_query
+GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_occlusion_query2
+GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite
+GL_ARB_provoking_vertex GL_ARB_sample_shading GL_ARB_sampler_objects
+GL_ARB_seamless_cube_map GL_ARB_separate_shader_objects
+GL_ARB_shader_bit_encoding GL_ARB_shader_objects GL_ARB_shader_precision
+GL_ARB_shader_stencil_export GL_ARB_shader_texture_lod
+GL_ARB_shading_language_100 GL_ARB_shading_language_420pack
+GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_shadow_ambient
+GL_ARB_sync GL_ARB_texture_border_clamp GL_ARB_texture_buffer_object
+GL_ARB_texture_buffer_object_rgb32 GL_ARB_texture_compression
+GL_ARB_texture_compression_rgtc GL_ARB_texture_cube_map
+GL_ARB_texture_cube_map_array GL_ARB_texture_env_add
+GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar
+GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_gather
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_multisample
+GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_texture_rg
+GL_ARB_texture_rgb10_a2ui GL_ARB_texture_snorm GL_ARB_texture_storage
+GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3
+GL_ARB_transform_feedback_instanced GL_ARB_transpose_matrix
+GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra
+GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program
+GL_ARB_vertex_shader GL_ARB_vertex_type_2_10_10_10_rev GL_ARB_viewport_array
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_ATI_texture_mirror_once GL_EXT_abgr GL_EXT_bgra
+GL_EXT_bindable_uniform GL_EXT_blend_color GL_EXT_blend_equation_separate
+GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract
+GL_EXT_compiled_vertex_array GL_EXT_copy_buffer GL_EXT_copy_texture
+GL_EXT_direct_state_access GL_EXT_draw_buffers2 GL_EXT_draw_instanced
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_framebuffer_sRGB GL_EXT_geometry_shader4 GL_EXT_gpu_program_parameters
+GL_EXT_gpu_shader4 GL_EXT_histogram GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_float GL_EXT_packed_pixels
+GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_provoking_vertex
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_array
+GL_EXT_texture_buffer_object GL_EXT_texture_compression_latc
+GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_integer GL_EXT_texture_lod
+GL_EXT_texture_lod_bias GL_EXT_texture_mirroêÂ"GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 1 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump q3tl2game.txt
+Dumped console text to q3tl2game.txt.
+

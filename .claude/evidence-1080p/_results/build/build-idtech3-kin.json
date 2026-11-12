@@ -1,0 +1,111 @@
+{
+ "key": "idtech3-kin",
+ "status": "ready",
+ "summary": "I built the in-game 1080p menu patch for Jedi Academy, Soldier of Fortune II and Return to Castle Wolfenstein. --check passed with 0 failures, --build produced four outputs, and the build is deterministic: two rebuilds gave byte-identical md5s. Nothing was published, nothing was installed on a server, and no box was touched.\n\nWhat was built:\n- One pk3 per title, named zz_fleet_video.pk3. It holds edited copies of each title's video menus. For each copy, --check confirms it is the one the engine currently loads (the later pk3 name wins, compared case-insensitively):\n  - JKA: base/ with ui/setup.menu, ui/ingamesetup.menu and ui/jamp/ingame_setup.menu from assets1, and ui/jamp/setup.menu from assets3.\n  - SoF2: base/ with ui/setup_display.menu from update101 (MP), menus/m_video.rmf from therest (SP) and Strip/menu_video.sp from update101 (SP labels).\n  - RTCW: Main/ with ui/system.menu and ui/ingame_system.menu from sp_pak3, and ui_mp/system.menu and ui_mp/ingame_system.menu from mp_pak1.\n- The sof2mp.exe patch at 0xBA61A: 00 00 40 40 becomes 00 00 80 BF. Exactly two bytes change (0xBA61C and 0xBA61D). The patched md5 is 30f099da5ab0b9a5c29658edf07c7c2e, the same as the copy tested on .240.\n\nEach Q3-style menu gets three edits:\n1. The Video Mode list gains a `Custom -1` entry. JKA uses its stock localised string @MENUS_CUSTOM.\n2. Three read-only text items are drawn on the same row, right after the value. They show `<r_customwidth> x <r_customheight>`, so the line reads \"Custom 1920 x 1080\" on an LCD and \"Custom 1024 x 768\" on a CRT. Details:\n   - They show only while the list is on -1 (cvarTest/showCvar \"-1\").\n   - They are `decoration` items with zero-width rects, so they never take the mouse.\n   - They copy the row's name and group. RTCW shows its tabs by name (\"show graphics\"), and SoF2 highlights a row by name.\n   - The x positions come from the game's own font metrics: arialnb for JKA, fontImage_16 for RTCW, hud for SoF2.\n3. After every graphics-quality preset (`uiScript update \"ui_glCustom\"` / `\"ui_r_glCustom\"`) the mode is set back with `setcvar <mode> \"-1\"`.\n\nThe third edit contradicts the review. It said a menu cannot stop the presets writing r_mode 4 or 3. It can. The presets write with immediate Cvar_SetValue calls (I found the same 4/3/3/3 pattern in RTCW SP uix86.dll at 0x4000B747..B9B7), and the menu script's next command runs after that. Stock menus already parse negative numbers in all three engines (textaligny/rect), and cvarTest/showCvar, decoration and cvar-only text items are all stock usage in each engine.\n\nSoF2 single player gets `match \"3,4,6,7,8,9,-1\"` in the RMF file and `,Custom` added to the VIDMODES labels.\n\nServers: jka-server, sof2-server and rtcw-server all run sv_pure 0 (read from their server.cfg), so no server needs a pk3.\n\nDeploy order matters:\n- **SoF2:** the pk3 and the patched exe must ship together, and only with the SoF2 launcher and gameres move to r_mode -1.\n- **RTCW:** the pk3 must ship only with the RTCW launcher and gameres move.\n- **JKA:** its pk3 is independent, because its launchers already use r_mode -1.\n\nThe script is in provisioning/patches/idtech3-kin/apply.py, with --check, --build, --publish (backs up the original first, is idempotent, stops at the first failure) and --install-server (refuses a server running sv_pure 0 unless --force). Tests are in tests/python/test_patch_idtech3-kin.py.",
+ "files_created": [
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/idtech3-kin/apply.py",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/tests/python/test_patch_idtech3-kin.py",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech3-kin/check.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech3-kin/build.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech3-kin/pytest.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech3-kin/manifest.json",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech3-kin/menus.diff",
+  "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/manifest.json",
+  "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/menus.diff"
+ ],
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/JediAcademy/base/zz_fleet_video.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/JediAcademy/base/zz_fleet_video.pk3",
+   "md5": "3c1b3ca3afd41fe5e342243bfce8aab7",
+   "size": 27122
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/base/zz_fleet_video.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/SoldierOfFortune2/base/zz_fleet_video.pk3",
+   "md5": "d894ac0f376dd59986f0b589d8fac7ed",
+   "size": 23405
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/sof2mp.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/SoldierOfFortune2/sof2mp.exe",
+   "md5": "30f099da5ab0b9a5c29658edf07c7c2e",
+   "size": 1572917
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech3-kin/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3",
+   "md5": "b88dbdce212eda6bb889c829e626e96b",
+   "size": 11505
+  }
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/sof2mp.exe",
+   "md5": "0263922b67e3474f9e77e769f217f53a",
+   "size": 1572917
+  },
+  {
+   "share_path": "Files/Games-Library/JediAcademy/base/assets1.pk3",
+   "md5": "3f47006dde61f171769666f31065a34c",
+   "size": 652804510
+  },
+  {
+   "share_path": "Files/Games-Library/JediAcademy/base/assets3.pk3",
+   "md5": "71c2edf5a30135d4aa921bf6259946ee",
+   "size": 9282026
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/base/update101.pk3",
+   "md5": "9d9ee621e26ffafb8fddc1619ac3b7ee",
+   "size": 9668867
+  },
+  {
+   "share_path": "Files/Games-Library/SoldierOfFortune2/base/therest.pk3",
+   "md5": "4cffdaeead89e89ed03c4ebb24ae3ae8",
+   "size": 69463128
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/sp_pak3.pk3",
+   "md5": "cf25d6731ed29c80303febbb177aa585",
+   "size": 152544
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/mp_pak1.pk3",
+   "md5": "22b972974f499a237c96a2200b0d019e",
+   "size": 4449596
+  },
+  {
+   "share_path": "Files/Games-Library/ReturnToCastleWolfenstein/Main/pak0.pk3",
+   "md5": "ce92b11df889cb0a045762bb5fd7cde5",
+   "size": 315823656
+  }
+ ],
+ "launcher_changes_needed": [
+  "scripts/fleet/stage-fleetres.py: set IDTECH3_NO_CUSTOM_MODE = set(), dropping both ReturnToCastleWolfenstein and SoldierOfFortune2. Both engines render 1920x1080 through r_mode -1 on hardware (.240: R1/R2/F2 for RTCW, P1 for SoF2.exe, S2 for the patched sof2mp.exe). The .246 measurement behind the set was RTCW's first-run Com_SetRecommended pass (F1), and SoF2's was the 3.0f r_mode minimum, which this patch changes.",
+  "stage-fleetres.py RTCW: give idtech3_cfg() a fov=True parameter, so the cg_fov line is appended only when wide AND fov. In new_launcher(), add a ReturnToCastleWolfenstein branch ahead of the IDTECH3_NO_CUSTOM_MODE branch: block = [CALL] + idtech3_cfg(mod, fov=False) and args = '+set com_recommendedSet 1 ' + idtech3_args(fov=False). 'Play Return to Castle Wolfenstein.bat' and 'Play RTCW Multiplayer.bat' are 'new' recipes and are regenerated whole. Main\\fleetres.cfg then gets: seta r_mode \"-1\", r_customwidth \"%FR_W%\", r_customheight \"%FR_H%\", r_customaspect \"1\", r_customPixelAspect \"1\", r_fullscreen \"1\", r_displayRefresh \"%FR_HZ%\". The start line becomes WolfSP.exe or WolfMP.exe with +set com_recommendedSet 1 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1. Afterwards confirm the _REFRESH pairs for these launchers still read as applied (--check).",
+  "RTCW LAN pair ('Host RTCW - LAN.bat', 'Join RTCW - LAN.bat', hand-written on the share; best added as stage-fleetres 'fix' pairs): replace the three lines '>>\"%~dp0Main\\fleetres.cfg\" echo // r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,' + '... echo // and FR_Q3MODE not FR_Q2MODE: idTech3 mode 8 is 1280x1024.' + '... echo seta r_mode \"%FR_Q3MODE%\"' with seta r_mode \"-1\" and the r_customwidth/r_customheight/r_customaspect/r_customPixelAspect lines above. On the start line replace '+set r_mode %FR_Q3MODE% +set r_fullscreen 1' with '+set com_recommendedSet 1 +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1'. Rewrite their 'RESOLUTION: a plain r_mode INDEX' rem blocks, which become false.",
+  "agent/shared/gameres.h RTCW: change the rule { \"ReturnToCastleWolfenstein\", GR_OP_CFG, \"Main\\\\fleetres.cfg\", \"idtech3-index-nofov\" } to use a new body \"idtech3-custom-nofov\". That body is the NULL body minus its cg_fov line: seta r_mode \"-1\", r_customwidth \"%W%\", r_customheight \"%H%\", r_customaspect \"1\", r_customPixelAspect \"1\", r_fullscreen \"1\", r_displayRefresh \"%FRHZ%\". It must hold exactly the launcher's setas, because gr_w_cfg compares line by line.",
+  "SoF2 MP ('Play Soldier of Fortune II - Multiplayer.bat', stage-fleetres 'launchers' recipe): change idtech3_modecfg('base') to idtech3_cfg('base') and idtech3_modeargs() to idtech3_args(). The start line becomes sof2mp.exe +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%. Its 'r_mode -1 DOES NOT WORK IN THIS ENGINE' rem block becomes false; replace it with a note that the exe carries the 0xBA61A patch. This must ship in the same generation as the patched sof2mp.exe: stock sof2mp clamps -1 to 640x480 (S1).",
+  "SoF2 SP (disc-mount launcher): in provisioning/discmount/specs/SoldierOfFortune2.json set fleetres_block = '\\r\\n'.join([CALL] + idtech3_cfg('base')). That writes seta r_mode \"-1\" and r_customwidth/r_customheight, and drops the three 'rem r_customwidth/r_customheight are NOT written' lines. Set vars.GAMEARGS = idtech3_args(), then regenerate with make-mount-launcher.py. Remove the stage-fleetres TITLES['SoldierOfFortune2']['fix'] pairs (FR_Q2MODE->FR_Q3MODE, 'seta r_mode \"-1\"'->'seta r_mode \"%FR_Q3MODE%\"', and the '+set r_mode -1 ...'->'+set r_mode %FR_Q3MODE% +set r_fullscreen 1' pair). Left in place, repair() reverts the SP launcher to the index.",
+  "agent/shared/gameres.h SoF2: change the rule { \"SoldierOfFortune2\", GR_OP_CFG, \"base\\\\fleetres.cfg\", \"idtech3-index\" } so arg1 is NULL (the standard custom body, which already carries cg_fov and matches idtech3_cfg('base')). Both SoF2 launchers and GAMERES then write the SAME base\\fleetres.cfg; today SP and MP write two different bodies. tests/python/test_gameres_mirror.py and test_fleetres_staging.py must stay green; update any assertion that pins these titles as no-custom-mode, citing the measurement.",
+  "SoF2 cg_fov: keep %FR_FOV% (106 on 16:9). It is harmless because the MP cgame clamps cg_fov to 80..100 (flags 0x2001), so MP plays at 100. RTCW stays without cg_fov, as in the verified F2 run. The default 90 is vert- at 16:9; testing a cg_fov value on hardware is an optional follow-up.",
+  "Docs after deploy: remove SoF2 and RTCW from CLAUDE.md's 'What cannot reach 1080p' list, and update their rows in provisioning/fleetres/PER-TITLE-STATUS.md."
+ ],
+ "tests": "What passed:\n- `python3 -m pytest -q tests/python/test_patch_idtech3-kin.py`: 40 collected, 40 passed, 0 skipped. The share was mounted, so the share-dependent tests ran.\n- `apply.py --check`: 0 failures. It verified the 8 pinned originals (sof2mp.exe by whole-file md5, pk3s by size), the md5 of all 14 pk3 members read, which pk3 serves each menu, that zz_fleet_video.pk3 sorts last in each game dir, clean transforms of all 11 files, the sof2mp.exe anchor bytes, and sv_pure 0 on all three servers.\n- `apply.py --build`: exit 0. A second build into another directory gave byte-identical md5s.\n- `unzip -t` is clean on all three pk3s.\n- `cmp` of the exe against the original shows exactly two changed bytes, at file offsets 0xBA61C and 0xBA61D.\n\nWhat the tests cover:\n- **Exe patch:** the patch bytes decode as floats (3.0f becomes -1.0f), exactly two bytes change, and a foreign or already-patched binary is refused.\n- **Menu edits**, each checked on sample menus written in JKA, RTCW and SoF2 style:\n  - the Custom -1 entry is present and unique, and three decoration overlay items with showCvar \"-1\" are added;\n  - the preset re-assert quotes \"-1\";\n  - CRLF line endings are kept, and a second application is refused;\n  - RTCW's `//` line after the list does not confuse parsing, and a multi-line list keeps its closing-brace line;\n  - a left-aligned or duplicated mode item is refused, and the brace/quote validator catches broken menus.\n- **SoF2 SP:** the RMF match and Strip labels stay one label per value.\n- **Pk3 order and fonts:** case-insensitive \"last name wins\", zz sorting after every stock name in all three dirs, both font parsers, and deterministic pk3 building.\n- **Publish and install-server** (temporary directories only; the share was never used): the backup is written before the replacement, a re-run is a no-op, an unexpected md5 on the share stops everything, the run stops at the first failed put, and install-server skips a server with sv_pure 0.\n\nEvidence is in /home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-idtech3-kin/.",
+ "risks": [
+  "Nothing here has run in the games yet. The overlay x positions are computed from each game's own font files (Raven fontdat advance \u00d7 textscale; Q3 xSkip \u00d7 glyphScale \u00d7 textscale), but how each engine scales that on screen has not been observed. The size text could sit a few pixels off. SoF2's size spills past its row rect (to about x=331 against a row ending at 290); nothing else is drawn there.",
+  "RTCW's pk3 name was chosen from Q3's pk3 sort rule and the observed sp_pak3-over-sp_pak1 override. I have not observed WolfSP/WolfMP loading a non-stock pk3 name like zz_fleet_video.pk3 on hardware.",
+  "SoF2 SP's RMF list with a -1 match value is untested, as the review already noted. If RMF cannot cycle to -1, the SP resolution line may show blank or skip the entry. MP does not use RMF.",
+  "The preset re-assert (setcvar r_mode/ui_r_mode \"-1\" after a Quality preset) changes stock behaviour: a preset no longer changes resolution, it keeps the box's native size. It relies on the preset's writes being immediate, which I confirmed by disassembly in RTCW SP; the review had confirmed it for RTCW MP, JKA and SoF2 MP.",
+  "Not covered: RTCW's 'Set Recommended' button (it opens rec_restart_popmenu, reruns the recommended pass and drops to 640x480 for that session) and SoF2 SP's 'Apply Defaults' (video_defaults.cfg runs `reset r_mode`). Both are explicit user actions with a confirmation, and the next launch restores the panel size.",
+  "Deploy order is load-bearing. Shipped ahead of its launcher change, the RTCW or SoF2 pk3 offers -1 with r_customwidth unset (the engine default custom size). The SoF2 pk3 without the patched sof2mp.exe offers MP a -1 that stock clamps to 640x480. The JKA pk3 is independent.",
+  "The patched sof2mp.exe was proven on .240 for rendering only. Joining 192.168.1.132:20100 with it has not been tested. It is the same size as the original, so GAMESYNC propagates it only if the mtime changes; sharewrite.py checks for a fresh mtime.",
+  "GAMESYNC never deletes. Rolling back a pk3 needs a launcher-side `del` or removal by hand. The original exe is backed up under _patches/SoldierOfFortune2/originals-2026-09-29/ by --publish.",
+  "SoF2 SP's first launch after the move to -1 shows the modal 'New Video card detected' box (already noted in the review). Someone has to click OK once per box; the mode survives it.",
+  "JKA ships its size overlay with a literal \"x\" text item. Stock JKA menus use only @ strings, so literal text is reasoned from how ui_shared draws text, not seen in a stock menu. The item is a decoration with a zero-width rect, so the worst case is a missing 'x'."
+ ],
+ "hw_verification_plan": "Use .145 or .123: both are XP (GDI can capture fullscreen), both have DAEMON Tools, and both are 1920x1080. Avoid .240 for the disc titles until its unit-0 mount works. On .195 (Win7) use WINLIST only. Publish (sharewrite.py via apply.py --publish, after the launcher and gameres changes land for RTCW and SoF2), then purge and GAMESYNC the title before testing, per the staged-game loop.\n\n1) JKA (independent of the launcher changes):\n- Launch with `EXEC cmd /c start \"\" /D \"C:\\Games\\JediAcademy\" \"Play Jedi Academy.bat\"`, then the same for the Multiplayer .bat.\n- WINLIST must show jasp or jamp at 0,0 1920x1080 (fullscreen).\n- The menus are relative-mouse, so a person has to look. Main menu > SETUP opens on the Video group. The Video Mode line must read `Custom  1920 x 1080`; today it is blank. Cycling through the list must return to Custom, and the size text must disappear on the other entries.\n- Press a Quality preset, then Apply. The game must stay at 1920x1080; before the patch it dropped to 800x600.\n- Repeat in game: ESC > Setup in SP, and the MP in-game setup menu.\n- To photograph the menu without a person, relaunch windowed (+set r_fullscreen 0), type `uimenu setupMenu` at the console, SCREENSHOT, then relaunch fullscreen and confirm WINLIST 1920x1080.\n\n2) SoF2 (needs the patched exe, the pk3 and the launcher move in one generation):\n- MP: 'Play Soldier of Fortune II - Multiplayer.bat' with +set logfile 2. base\\MP\\qconsole.log must read `...setting mode -1: 1920 1080 FS`, and WINLIST must show 'SoF2 MP' at 0,0-1920x1080.\n- Join 192.168.1.132:20100 once, to prove the patched client still connects to sof2-server.\n- A person checks Setup > Display: 'Video Mode:' reads `Custom 1920 x 1080`, and pressing a Quality preset keeps Custom.\n- SP (DAEMON Tools mount): answer 'New Video card detected' once. The log must read `MODE: -1, 1920 x 1080`, and the Video menu resolution list must show Custom (the RMF entry is the untested part).\n\n3) RTCW (needs the launcher move):\n- Move Main\\wolfconfig_mp.cfg aside to prove the first-run case, then launch 'Play RTCW Multiplayer.bat'. Main\\rtcwconsole.log must read `setting mode -1: 1920 1080 FS` with no `Found ... quality` / `setting mode 3` lines, and WINLIST must show 0,0-1920x1080. Restore the cfg afterwards.\n- Repeat with 'Play Return to Castle Wolfenstein.bat' (WolfSP).\n- A person checks Options > System, main and in game: 'Video Mode:' reads `Custom 1920 x 1080`; pressing Quality keeps Custom.\n- F12 writes Main\\screenshots\\shotNNNN.tga as a frame source.\n- Host/Join LAN: two boxes, both at 1920x1080, joined.\n\nWhat must NOT change:\n- Multiplayer joins: JKA to :29070, SoF2 to :20100, RTCW to :27963 (all servers run sv_pure 0; no server install).\n- The CRT boxes: on .124/.133/.143 the Custom entry must show and render the box's own FR_W x FR_H, never 1920x1080.\n- Other menu items still work, and each menu still loads. A .menu syntax error silently empties the whole menu, so open every one of the 9 edited menus plus SoF2 SP's RMF.\n- GAMERES on a settled box must report `0 value(s) changed` for these titles once both writers agree.",
+ "server_installs": [],
+ "review_notes": "Where I departed from the diagnosis, and why:\n1. The review said the Video Quality presets cannot be stopped by a menu-only fix. They can: each preset item's action now ends `; setcvar <mode cvar> \"-1\"`. The presets' r_mode writes are immediate Cvar_SetValue calls, and the menu script runs its next command afterwards. I confirmed the 4/3/3/3 pattern for RTCW SP uix86.dll at 0x4000B747/B822/B8FA/B9B7; the review had confirmed it for the others. The \"-1\" is quoted, because a bare -1 lexes as '-' '1'.\n2. The fix note suggested adding separate width/height rows. JKA has a spare row, but RTCW and SoF2 do not. So the size shows on the Video Mode row itself, right after the value, and only while -1 is selected. The same method is used in all three games.\n3. The pk3 name is zz_fleet_video.pk3 in all three games, as the brief asked. It sorts after assets3, update103 and sp_pak4/pak0/mp_* respectively, and --check proves it. JKA menus were taken from the copies that currently win (assets3 for ui/jamp/setup.menu); the SoF2 MP menu starts from update101's copy, which differs from mp.pk3's.\n4. SoF2 single player needed two files, not one: m_video.rmf for the match values and Strip/menu_video.sp for the labels, so there stays one label per value.\n5. The overlay items copy the mode item's name and group. RTCW shows and hides its tabs by name ('show graphics'), and SoF2 recolours a highlighted row by name.\n\nNothing was committed. Per the brief, the files are left in the worktree for the landing agent. The committable files are the two paths in files_created. The pk3s and the exe live only in ~/.retro-fleet/patch-out/idtech3-kin."
+}

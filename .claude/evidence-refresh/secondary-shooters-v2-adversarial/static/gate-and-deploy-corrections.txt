@@ -1,0 +1,18 @@
+# Published gate verdicts (_gamegate/<profile>.txt on the share) and deploy state, read 2026-09-29 04:3x
+.124 NSC-C543575F526 dec95d42ad08a34d (generated 2026-09-28T14:57:48):
+  run     Halo  operator override: V5 6000 on vcr-kmd with Diag D3D32 + D3DBigTex armed and config.txt DisableRenderTargets - menu verified 2026-09-28, kept armed for the LAN party
+  no      FarCry  gpu_feature_level  GPU too old for this title's renderer (have fixed, needs sm1.x)   [NOT VRAM: HWPROFILE reports 64 MB]
+  no      UnrealTournament  cpu_features  CPU lacks sse2
+  marginal BF1942 / MaxPayne / UT2004 (llm)
+  DIRLIST C:\Games\Halo (04:4x): 41 entries, halo.exe 2,822,144 (2014-05-13), Play Halo.bat 680 B (09-28 19:42), config.txt (09-28 17:35)
+  vcrmp\Diag: D3D32=1, D3DBigTex=7 (armed)
+  docs/v56k-benchmark-plan.md (v56k-bench worktree) resume 2026-09-29 00:00: "Halo 1.10 | PASS to the textured main menu from the LIBRARY tree ... fullscreen 1280x960"
+.243 N5R5L9 d931bfe6c33fae5e (generated 2026-09-29T01:04:12):
+  run     UnrealTournament436  operator override: .243 Pentium 166 + Voodoo 2 (under the 233 MHz floor): the user asked for Unreal Tournament there (2026-09-29); it runs the Glide launcher at 640x480x16 with lighter detail
+  no      UnrealGold  operator override: 3D-noteworthy, but gated until it has a Voodoo launcher for this box (game-local nGlide / cmd.exe-only launchers)
+  no      (every other title in this review) operator override: not wanted on .243
+  HKLM\Software\RetroAgent GamesDir = E:\GAMES (agent 1.93.1); DIRLIST E:\GAMES: Quake1, Descent1, UnrealTournament436, HexenII, Quake2Win9x
+  E:\GAMES\UnrealTournament436: 'Play Unreal Tournament 436 - Voodoo.bat' (1700 B), System\Voodoo.ini 18138 B, UNREALTOURNAMENT.log 0 B (never run)
+  staged System\Voodoo.ini: GameRenderDevice=GlideDrv.GlideRenderDevice, FullscreenViewport 640x480, FullscreenColorBits=16, [GlideDrv.GlideRenderDevice] RefreshRate=60Hz
+  HKLM\Software\3Dfx Interactive\Voodoo2\Glide: only SSTV2_RGAMMA/GGAMMA/BGAMMA (no SSTV2_SCREENREFRESH / SSTV2_REFRESH_640x480); GAMERES: NO EDID, 640x480@0 800x600@0 1024x768@75
+.240 HWPROFILE (04:4x): active adapter Radeon X1600 (0x71C0, Catalyst 8.593); 9800 XT and X800 keys not attached; GAMERES 04:28: DELL E2313H digital EDID, 1920x1080@60 persisted, 640x480..1280x960 @75

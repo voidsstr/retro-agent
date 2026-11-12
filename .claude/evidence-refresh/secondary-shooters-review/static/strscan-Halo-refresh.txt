@@ -1,0 +1,31 @@
+FLEETRES.EXE  A@0x4dfc  native     : %dx%d @%dHz  aspect %s  size %dx%dcm  input %s  vmax %dHz
+FLEETRES.EXE  A@0x4e68  desktop now: %dx%d %dbpp @%dHz  aspect 
+FLEETRES.EXE  A@0x4f8a  set "FR_HZ=%d"
+Keystone.dll  A@0x1115ea  QueryPerformanceFrequency
+Strings.dll  A@0x46a8f  ek~dj}ek~dj}cj{dj{cizbhz`dw^at[[oYZnVXkRVjRRkPMgOJhNJgLIgKJeLKcMIaKE_JC^IA\JA\J@]IC\GC\HD]GD[HE\HEZFD[DAZB?UB?TB>TA?TB@UDBVEBVD?TE>SE>SF<QE=RE>QF=RF<QG>OG?OG@PH
+Strings.dll  A@0x4a674  _j|_hz`fz]dx[atY_rY^rX]qV\oT[mU\nV[nTZmTZmVZmUXkSXkTVkSVjSWiUXjUYkUXkRWjRWiORdMO`LL\JJZKJ[LK]LM`LMaLLaMK_KJ]JH\IG[HFZHEYIEYKF[JFZIEYECWDBUB@QB@N@?N>?MAANBBPHETK
+Strings.dll  W@0xfd0be  -vidmode w,h,r
+Strings.dll  W@0xfd0f4  [, refresh] 
+Strings.dll  W@0xfde98  -vidmode w,h,r
+Strings.dll  W@0xfdf3c  he) und[, r (Refresh-Rate)]
+Strings.dll  W@0xff34a  -vidmode w,h,r
+Strings.dll  W@0xff368  Forces the game to run at width, height[, refresh]
+Strings.dll  W@0x100636  -vidmode w,h,r
+Strings.dll  W@0x101be8  vidmode w,h,r
+Strings.dll  W@0x1030d6  -vidmode w,h,r
+Strings.dll  W@0x104214  -vidmode w,h,r
+Strings.dll  W@0x104232  Forces the game to run at width, height[, refresh]
+Strings.dll  W@0x104d6c  -vidmode w,h,r
+binkw32.dll  A@0x7171  F95hZ
+binkw32.dll  A@0x42e8a  QueryPerformanceFrequency
+halo.exe  A@0x268dfc  rasterizer_refresh_rate
+halo.exe  W@0x26b158  %d Hz
+halo.exe  A@0x26b174  -vidmode
+halo.exe  A@0x26b438  Refresh rate= %d Hz
+halo.exe  A@0x26b7d4  %dMHz, %dMB
+halo.exe  A@0x26b7e8  %dMHz, %dMB, %dM %s %s (DeviceID=0x%04x) Driver=%d.%d.%d.%d Shader=%s
+halo.exe  A@0x26ed70  -refresh
+halo.exe  A@0x2729e8  %dMHz, %dMB
+halo.exe  A@0x2729f4  %dMHz, %dMB, %dM %s %s (0x%04x)
+halo.exe  A@0x27478a  QueryPerformanceFrequency
+WATSON/dw15.exe  A@0x666f  WPhz`

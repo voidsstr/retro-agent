@@ -1,0 +1,16 @@
+DOOM 3 zz_fleetvideo - check against /mnt/retro-share/Files/Games-Library/Doom3
+original  base/pak007.pk4  192031 B  md5 6319f086f930ec1618ab09b4c20c268c  OK
+  member guis/mainmenu.gui  696570 B  crc b34aa79a  md5 e90e5f71de393bc74622c82ec7c57e60  OK
+    line 4889 @ byte 116581 (0x1c765): '\t\t\t\tchoices\t\t"#str_04222"//320x240;400x300;512x384;'  OK (inside choiceDef OS2Primary / r_mode)
+    line 4890 @ byte 116633 (0x1c799): '\t\t\t\tvalues\t\t"3;4;5;6;7;8"//0;1;2;'  OK (inside choiceDef OS2Primary / r_mode)
+    patched menu: 640x480=3, 800x600=4, 1024x768=5, 1152x864=6, 1280x1024=7, 1600x1200=8, Native=-1
+  member guis/mpmain.gui  142478 B  crc 9e451c89  md5 c7adb0744ee918263132201c55b3d890  OK
+    line 4446 @ byte 103190 (0x19316): '\t\t\t\t\tchoices\t"#str_04222"'  OK (inside choiceDef OS2Primary / r_mode)
+    line 4447 @ byte 103217 (0x19331): '\t\t\t\t\tvalues\t"3;4;5;6;7;8"'  OK (inside choiceDef OS2Primary / r_mode)
+    patched menu: 640x480=3, 800x600=4, 1024x768=5, 1152x864=6, 1280x1024=7, 1600x1200=8, Native=-1
+base/*.pk4 (engine order, last wins): game00.pk4, game01.pk4, game02.pk4, game03.pk4, pak000.pk4, pak001.pk4, pak002.pk4, pak003.pk4, pak004.pk4, pak005.pk4, pak006.pk4, pak007.pk4
+precedence: zz_fleetvideo.pk4 sorts after all 12 stock paks (case-sensitive and -insensitive)  OK
+  guis/mainmenu.gui is shipped by pak000.pk4, pak005.pk4, pak006.pk4, pak007.pk4 -> effective today: pak007.pk4; after fix: zz_fleetvideo.pk4
+  guis/mpmain.gui is shipped by pak000.pk4, pak005.pk4, pak007.pk4 -> effective today: pak007.pk4; after fix: zz_fleetvideo.pk4
+share has no base/zz_fleetvideo.pk4 yet (new file; nothing to back up)
+rc=0

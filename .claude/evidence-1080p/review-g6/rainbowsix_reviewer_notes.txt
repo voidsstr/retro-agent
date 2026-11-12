@@ -1,0 +1,39 @@
+Rainbow Six RainbowSix.exe md5 c92073e4c74c2c36ef1a644f913814a5 - reviewer re-check 2026-09-29
+A) mode callback 0x497dd0: drop dwWidth>1024 or dwHeight>768; max 50 accepted modes
+00497dd0: mov      eax, dword ptr [esp + 4]
+00497dd4: mov      ecx, dword ptr [eax + 0xc]
+00497dd7: cmp      ecx, 0x400
+00497ddd: ja       0x497e42
+00497ddf: cmp      dword ptr [eax + 8], 0x300
+00497de6: ja       0x497e42
+00497de8: mov      edx, dword ptr [0x8bb8e8]
+00497dee: shl      edx, 4
+00497df1: mov      dword ptr [edx + 0x8bb8f0], ecx
+00497df7: mov      ecx, dword ptr [0x8bb8e8]
+00497dfd: mov      edx, dword ptr [eax + 8]
+00497e00: shl      ecx, 4
+00497e03: mov      dword ptr [ecx + 0x8bb8f4], edx
+00497e09: mov      ecx, dword ptr [0x8bb8e8]
+00497e0f: mov      edx, dword ptr [eax + 0x54]
+00497e12: shl      ecx, 4
+00497e15: mov      dword ptr [ecx + 0x8bb8f8], edx
+00497e1b: mov      eax, dword ptr [0x8bb8e8]
+00497e20: shl      eax, 4
+00497e23: xor      ecx, ecx
+00497e25: mov      byte ptr [eax + 0x8bb8fc], 0
+00497e2c: mov      eax, dword ptr [0x8bb8e8]
+00497e31: inc      eax
+00497e32: cmp      eax, 0x32
+00497e35: mov      dword ptr [0x8bb8e8], eax
+00497e3a: setne    cl
+00497e3d: mov      eax, ecx
+00497e3f: ret      8
+B) radio labels @0x8a53a0: 320x240 LOW / 640x480 MED / 800x600 HIGH (then BRIGHTNESS, RESOLUTION, L_ares.wav, op_rez_btn.bmp)
+C) registry: the exe imports RegCreateKeyExA (no RegOpenKeyEx); all 8 call sites push 0x80000002 (HKLM): 0x4595d7 0x4596b5 0x45973f 0x459814 0x459896 0x4599c8 0x459a5f 0x459b44
+D) DevicePicker.exe: only 'SoftwareOnly'/'Software Renderer' + device choice; no resolution strings.
+E) SURVEYOR'S PROPOSED FIX REFUTED ON HARDWARE: 'call FLEETRES.BAT -cap 1024 768' then %FR_W43%x%FR_H43%. fleetres.c's -cap re-targets to the largest mode of the PANEL'S aspect under the cap, then FR_W43 is the largest 4:3 ladder entry INSIDE that target. Read-only 'FLEETRES.EXE -cmd -cap 1024 768' output (files fleetres_cmd_cap1024x768_<ip>.txt):
+   .123: set "FR_W=848" set "FR_H=480" set "FR_W43=640" set "FR_H43=480" 
+   .145: set "FR_W=1024" set "FR_H=768" set "FR_W43=1024" set "FR_H43=768" 
+   .195: set "FR_W=1024" set "FR_H=768" set "FR_W43=1024" set "FR_H43=768" 
+   .240: set "FR_W=848" set "FR_H=480" set "FR_W43=640" set "FR_H43=480" 
+   => .123 and .240 (which list 848x480, a 16:9 mode under 1024x768) would get VideoResolution=640x480 - no change from today.

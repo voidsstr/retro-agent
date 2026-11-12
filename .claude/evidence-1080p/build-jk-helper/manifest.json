@@ -1,0 +1,46 @@
+{
+  "key": "jk-helper",
+  "helper": "JKMODE.EXE",
+  "outputs": [
+    {
+      "share_path": "Files/Games-Library/JediKnightDF2/JKMODE.EXE",
+      "local_path": "/home/voidsstr/.retro-fleet/patch-out/jk-helper/JKMODE.EXE",
+      "md5": "ee50a1b453e1f72dd27dbd1a9c712e9b",
+      "size": 13824,
+      "original_md5": null,
+      "written_for": {
+        "file": "JK.EXE",
+        "md5": "85f8f883bbb7a167429879c899be1803",
+        "staged_md5_now": "85f8f883bbb7a167429879c899be1803"
+      }
+    },
+    {
+      "share_path": "Files/Games-Library/JediKnightMotS/JKMODE.EXE",
+      "local_path": "/home/voidsstr/.retro-fleet/patch-out/jk-helper/JKMODE.EXE",
+      "md5": "ee50a1b453e1f72dd27dbd1a9c712e9b",
+      "size": 13824,
+      "original_md5": null,
+      "written_for": {
+        "file": "JKM.EXE",
+        "md5": "192d2be2bfbe5a1acc9f562657a7d9ea",
+        "staged_md5_now": "192d2be2bfbe5a1acc9f562657a7d9ea"
+      }
+    }
+  ],
+  "reference_launchers": [
+    {
+      "share_path": "Files/Games-Library/JediKnightDF2/Play Jedi Knight.bat",
+      "local_path": "/home/voidsstr/.retro-fleet/patch-out/jk-helper/JediKnightDF2/Play Jedi Knight.bat",
+      "md5": "26ff7857f052f09715c12708b08e06e7",
+      "note": "REFERENCE ONLY - stage-fleetres.py must generate this; not published by apply.py",
+      "launch_txt_line_0": "Play Jedi Knight.bat\tJedi Knight - Dark Forces II\tJK.EXE"
+    },
+    {
+      "share_path": "Files/Games-Library/JediKnightMotS/Play Mysteries of the Sith.bat",
+      "local_path": "/home/voidsstr/.retro-fleet/patch-out/jk-helper/JediKnightMotS/Play Mysteries of the Sith.bat",
+      "md5": "b73912116edfa4f28816aa34af4ebfe3",
+      "note": "REFERENCE ONLY - stage-fleetres.py must generate this; not published by apply.py",
+      "launch_txt_line_0": "Play Mysteries of the Sith.bat\tJedi Knight - Mysteries of the Sith\tJKM.EXE"
+    }
+  ]
+}

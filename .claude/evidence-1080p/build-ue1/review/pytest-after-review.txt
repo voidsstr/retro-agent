@@ -1,0 +1,8 @@
+tests/python/test_patch_ue1.py ...............................           [100%]
+
+============================== 31 passed in 1.14s ==============================
+=========================== short test summary info ============================
+SKIPPED [1] test_patch_ue1_noshare.py:452: SKIPPED LOUDLY: /nonexistent/Games-Library is not mounted - the staged UE1 files were NOT verified
+SKIPPED [1] test_patch_ue1_noshare.py:464: SKIPPED LOUDLY: /nonexistent/Games-Library is not mounted - the staged UE1 files were NOT verified
+SKIPPED [1] test_patch_ue1_noshare.py:470: SKIPPED LOUDLY: /nonexistent/Games-Library is not mounted - the staged UE1 files were NOT verified
+======================== 28 passed, 3 skipped in 0.59s =========================

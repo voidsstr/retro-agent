@@ -1,0 +1,41 @@
+{
+ "ip": "192.168.1.195",
+ "t": "2026-09-29 04:28:39 EDT",
+ "out": {
+  "GAMERES": {
+   "status": 0,
+   "text": "{\"panel\":{\"edid\":true,\"name\":\"HP 2511\",\"pnpid\":\"HWP293E\",\"type\":\"LCD\",\"digital\":true,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"55x31\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":60,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1280x960\",\"aspect\":\"16:9\",\"hz\":60,\"hz_four_three\":60,\"hz_desktop\":60,\"hz_launcher\":60,\"fov\":106,\"q2mode\":8,\"q3mode\":6,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"640x480@60\",\"720x480@60\",\"720x576@60\",\"800x600@60\",\"1024x768@60\",\"1152x648@60\",\"1280x720@60\",\"1280x768@60\",\"1280x800@60\",\"1280x960@60\",\"1280x1024@60\",\"1360x768@60\",\"1360x1024@60\",\"1366x768@60\",\"1400x1050@60\",\"1440x900@60\",\"1600x900@60\",\"1680x1050@60\",\"1776x1000@60\",\"1920x1080@60\"],\"rules\":80}"
+  },
+  "DISPLAYCFG get": {
+   "status": 0,
+   "text": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}"
+  },
+  "HWPROFILE": {
+   "status": 0,
+   "text": "{\"profile_hash\":\"7cf5bd34eefa68a7\",\"profile_version\":1,\"hostname\":\"ADMIN-PC\",\"agent_version\":\"1.90.2\",\"reported_at\":\"2026-09-29 04:28:42\",\"cpu\":{\"vendor\":\"GenuineIntel\",\"brand\":\"Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz\",\"family\":6,\"model\":42,\"stepping\":7,\"mhz\":3093,\"mhz_source\":\"registry\",\"count\":4,\"feature_bits\":255,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"sse\",\"sse2\",\"sse3\",\"ssse3\",\"sse4.1\"]},\"ram_mb\":3317,\"gpu\":{\"name\":\"AMD Radeon HD 5450\",\"pci_ven\":\"0x1002\",\"pci_dev\":\"0x68F9\",\"hardware_id\":\"PCI\\\\VEN_1002&DEV_68F9&SUBSYS_21261028&REV_00\",\"vram_mb\":512,\"driver_version\":\"15.200.1062.1004\",\"driver_date\":\"8-3-2015\",\"feature_level\":\"sm3.0\",\"feature_level_num\":5,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows 7\",\"version\":\"6.1.7600\",\"service_pack\":\"\",\"level\":\"win7\",\"level_num\":5},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":11},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"BazisVirtualCDBus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1920,\"height\":1080,\"bpp\":32,\"panel_w\":1920,\"panel_h\":1080,\"panel_source\":\"registry\",\"edid_w\":1920,\"edid_h\":1080,\"panel_hz\":60,\"panel_digital\":1,\"panel_name\":\"HP 2511\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":143238,\"total_mb\":228926}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"Standard VGA Graphics Adapter\",\"pci_ven\":\"0x0000\",\"pci_dev\":\"0x0000\",\"hardware_id\":\"pci\\\\cc_0300\",\"driver_version\":\"6.1.7600.16385\",\"driver_date\":\"6-21-2006\",\"attached_to_desktop\":false},{\"instance\":\"0001\",\"name\":\"AMD Radeon HD 5450\",\"pci_ven\":\"0x1002\",\"pci_dev\":\"0x68F9\",\"hardware_id\":\"pci\\\\ven_1002&dev_68f9\",\"driver_version\":\"15.200.1062.1004\",\"driver_date\":\"8-3-2015\",\"attached_to_desktop\":true}],\"accelerators\":[],\"network\":{\"interfaces\":[{\"description\":\"Intel(R) 82579LM Gigabit Network Connection\",\"mac\":\"78-2B-CB-A5-B4-70\",\"ipv4\":[\"192.168.1.195\"]}],\"source\":\"GetAdaptersInfo\"}}"
+  },
+  "REGREAD HKLM Software\\RetroAgent": {
+   "status": 0,
+   "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.90.2\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-09-28 23:39:41 ok\"},{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 2013-09-26 01:45:38 to 2026-09-26 19:40:57 UTC via http://192.168.1.122/\"}],\"subkeys\":[]}"
+  },
+  "REGREAD HKCU Software\\Valve\\Half-Life\\Settings": {
+   "status": 0,
+   "text": "{\"root\":\"HKCU\",\"path\":\"Software\\\\Valve\\\\Half-Life\\\\Settings\",\"values\":[{\"name\":\"EngineDLL\",\"type\":\"REG_SZ\",\"data\":\"hw.dll\"},{\"name\":\"User Token 2\",\"type\":\"REG_SZ\",\"data\":\"\"},{\"name\":\"User Token 3\",\"type\":\"REG_SZ\",\"data\":\"\"},{\"name\":\"ScreenWindowed\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"CrashInitializingVideoMode\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"ScreenWidth\",\"type\":\"REG_DWORD\",\"data\":1920},{\"name\":\"ScreenHeight\",\"type\":\"REG_DWORD\",\"data\":1080},{\"name\":\"ScreenBPP\",\"type\":\"REG_DWORD\",\"data\":32},{\"name\":\"EngineD3D\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"Version\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"LauncherBPP\",\"type\":\"REG_DWORD\",\"data\":32},{\"name\":\"LauncherWidth\",\"type\":\"REG_DWORD\",\"data\":1280},{\"name\":\"LauncherHeight\",\"type\":\"REG_DWORD\",\"data\":960},{\"name\":\"EngineGLDriver\",\"type\":\"REG_SZ\",\"data\":\"Default\"},{\"name\":\"EngineD3DDevice\",\"type\":\"REG_SZ\",\"data\":\"Default\"},{\"name\":\"EngineType\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"EngineModeW\",\"type\":\"REG_DWORD\",\"data\":1920},{\"name\":\"EngineModeH\",\"type\":\"REG_DWORD\",\"data\":1080},{\"name\":\"EngineModeBPP\",\"type\":\"REG_DWORD\",\"data\":32},{\"name\":\"EngineModeCaptured\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"A3D Support\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"EngineAllowWindowed\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"EngineModeWindowed\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"CPUMHZ\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"Key\",\"type\":\"REG_SZ\",\"data\":\"<REDACTED:fleet-gamekey-half-life-goty>\"}],\"subkeys\":[]}"
+  },
+  "DIRLIST C:\\Documents and Settings": {
+   "status": 0,
+   "text": "[]"
+  },
+  "DIRLIST C:\\Users": {
+   "status": 0,
+   "text": "[{\"name\":\"admin\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-06 21:00:12\",\"hidden\":false,\"readonly\":false},{\"name\":\"All Users\",\"is_dir\":true,\"size\":0,\"modified\":\"2009-07-14 04:53:55\",\"hidden\":true,\"readonly\":false},{\"name\":\"Default\",\"is_dir\":true,\"size\":0,\"modified\":\"2009-07-14 07:18:34\",\"hidden\":true,\"readonly\":true},{\"name\":\"Default User\",\"is_dir\":true,\"size\":0,\"modified\":\"2009-07-14 04:53:55\",\"hidden\":true,\"readonly\":false},{\"name\":\"desktop.ini\",\"is_dir\":false,\"size\":174,\"modified\":\"2009-07-14 04:41:57\",\"hidden\":true,\"readonly\":false},{\"name\":\"Public\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-04 20:39:26\",\"hidden\":false,\"readonly\":true}]"
+  }
+ },
+ "files": {
+  "C:\\Users\\admin\\AppData\\Local\\Temp\\fleetres.cmd": {
+   "status": 1,
+   "len": 505,
+   "text": "set \"FR_W=1920\"\r\nset \"FR_H=1080\"\r\nset \"FR_BPP=32\"\r\nset \"FR_HZ=60\"\r\nset \"FR_ASPECT=16:9\"\r\nset \"FR_PANEL=LCD\"\r\nset \"FR_NATIVE_W=1920\"\r\nset \"FR_NATIVE_H=1080\"\r\nset \"FR_DESK_W=1920\"\r\nset \"FR_DESK_H=1080\"\r\nset \"FR_LIVE_W=1920\"\r\nset \"FR_LIVE_H=1080\"\r\nset \"FR_FOV=106\"\r\nset \"FR_W43=1280\"\r\nset \"FR_H43=960\"\r\nset \"FR_Q2MODE=8\"\r\nset \"FR_Q3MODE=6\"\r\nset \"FR_WIDE=1\"\r\nset \"FR_DOSFULLRES=desktop\"\r\nset \"FR_MON=HP 2511\"\r\nset \"FR_EDID=1\"\r\nset \"FR_GLIDE=0\"\r\nset \"FR_GLIDEDEV=none\"\r\nset \"FR_UE1DEV=D3DDrv.D3DRenderDevice\"\r\n"
+  }
+ }
+}

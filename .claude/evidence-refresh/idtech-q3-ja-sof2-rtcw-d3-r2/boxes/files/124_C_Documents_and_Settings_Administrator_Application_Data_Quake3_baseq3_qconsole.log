@@ -1,0 +1,1500 @@
+logfile opened on Mon Sep 28 06:38:21 2026
+
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+QKEY found.
+----- Client Initialization Complete -----
+----- R_Init -----
+SDL using driver "directx"
+Initializing OpenGL display
+Estimated display aspect: 1.250
+...setting mode -1: 1280 960
+Using 4/4/4 Color bits, 24 depth, 0 stencil display.
+Available modes: '1680x1050 720x576 1280x1024 320x240 320x240 400x300 400x300 512x384 512x384 640x480 800x600 960x720 1024x768 1152x864 1152x864 1280x960 1280x960 1600x1200 720x480 1600x1024 320x200 320x200 640x400 640x400 1280x800 1440x900 1360x768 1280x720'
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+Initializing OpenGL extensions
+...ignoring GL_EXT_texture_compression_s3tc
+...ignoring GL_S3_s3tc
+...using GL_EXT_texture_env_add
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...GL_EXT_texture_filter_anisotropic not found
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+------ Initializing Sound ------
+Loading "OpenAL32.dll"...
+Allocated 96 sources.
+OpenAL default capture device is 'WaveIn on NVIDIA(R) nForce(TM) Audio'
+OpenAL capture device opened.
+OpenAL info:
+  Vendor:     OpenAL Community
+  Version:    1.1 ALSOFT 1.6.372
+  Renderer:   OpenAL Soft
+  AL Extensions: AL_EXTX_buffer_sub_data AL_EXT_EXPONENT_DISTANCE AL_EXT_FLOAT32 AL_EXT_IMA4 AL_EXT_LINEAR_DISTANCE AL_EXT_MCFORMATS AL_EXT_OFFSET AL_LOKI_quadriphonic
+  ALC Extensions: ALC_ENUMERATE_ALL_EXT ALC_ENUMERATION_EXT ALC_EXT_CAPTURE ALC_EXT_EFX
+  Device:     DirectSound Software
+Available Devices:
+DirectSound Software
+Wave File Writer
+Sound initialization successful.
+--------------------------------
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Hostname: nsc-c543575f526
+IP: 192.168.1.124
+Opening IP6 socket: [::]:27960
+WARNING: NET_IP6Socket: socket: WSAEAFNOSUPPORT
+WARNING: Couldn't bind to a v6 ip address.
+Opening IP socket: 0.0.0.0:27960
+execing lancheck.cfg
+------ Server Initialization ------
+Server: q3dm7
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+8146 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+info_firstplace doesn't have a spawn function
+info_secondplace doesn't have a spawn function
+info_thirdplace doesn't have a spawn function
+0 teams with 0 entities
+20 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm7.aas
+loaded maps/q3dm7.aas
+camp spot at 1180.0 -148.0 188.0 in solid
+found 67 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 5823 faces, 189 meshes, 49 trisurfs, 37 flares
+CL_InitCGame:  5.13 seconds
+257 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0018.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm17
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+12219 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+16 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm17.aas
+loaded maps/q3dm17.aas
+found 29 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 1335 faces, 32 meshes, 59 trisurfs, 13 flares
+CL_InitCGame:  1.70 seconds
+130 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0019.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3tourney2
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+16292 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+12 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3tourney2.aas
+loaded maps/q3tourney2.aas
+found 31 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3059 faces, 206 meshes, 40 trisurfs, 53 flares
+CL_InitCGame:  2.61 seconds
+201 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0020.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm6
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+20365 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+19 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm6.aas
+loaded maps/q3dm6.aas
+found 53 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3728 faces, 358 meshes, 180 trisurfs, 52 flares
+CL_InitCGame:  2.44 seconds
+196 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0021.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3ctf1
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+24438 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+2 teams with 4 entities
+15 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3ctf1.aas
+loaded maps/q3ctf1.aas
+found 43 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3936 faces, 226 meshes, 32 trisurfs, 12 flares
+CL_InitCGame:  2.56 seconds
+225 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0022.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm7
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+28511 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+info_firstplace doesn't have a spawn function
+info_secondplace doesn't have a spawn function
+info_thirdplace doesn't have a spawn function
+0 teams with 0 entities
+20 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm7.aas
+loaded maps/q3dm7.aas
+camp spot at 1180.0 -148.0 188.0 in solid
+found 67 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 5823 faces, 189 meshes, 49 trisurfs, 37 flares
+CL_InitCGame:  2.19 seconds
+246 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0023.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm17
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+32584 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+16 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm17.aas
+loaded maps/q3dm17.aas
+found 29 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 1335 faces, 32 meshes, 59 trisurfs, 13 flares
+CL_InitCGame:  1.20 seconds
+130 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0024.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3tourney2
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+36657 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+12 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3tourney2.aas
+loaded maps/q3tourney2.aas
+found 31 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3059 faces, 206 meshes, 40 trisurfs, 53 flares
+CL_InitCGame:  1.89 seconds
+206 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0025.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm6
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+40730 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+19 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm6.aas
+loaded maps/q3dm6.aas
+found 53 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3728 faces, 358 meshes, 180 trisurfs, 52 flares
+CL_InitCGame:  1.98 seconds
+200 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0026.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3ctf1
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+44803 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+2 teams with 4 entities
+15 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3ctf1.aas
+loaded maps/q3ctf1.aas
+found 43 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3936 faces, 226 meshes, 32 trisurfs, 12 flares
+CL_InitCGame:  2.03 seconds
+223 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0027.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm13
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+48876 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+0 teams with 0 entities
+20 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm13.aas
+loaded maps/q3dm13.aas
+found 40 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 4 LoD cracks
+...loaded 3505 faces, 81 meshes, 66 trisurfs, 14 flares
+CL_InitCGame:  2.42 seconds
+214 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0028.jpg
+==== ShutdownGame ====
+AAS shutdown.
+------ Server Initialization ------
+Server: q3dm7
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Documents and Settings\Administrator\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+----------------------
+52949 files in pk3 files
+Loading vm file vm/qagame.qvm...
+VM file qagame compiled to 1137840 bytes of code
+qagame loaded in 2683840 bytes on the hunk
+------- Game Initialization -------
+gamename: baseq3
+gamedate: Sep 30 2002
+info_firstplace doesn't have a spawn function
+info_secondplace doesn't have a spawn function
+info_thirdplace doesn't have a spawn function
+0 teams with 0 entities
+20 items registered
+-----------------------------------
+------- BotLib Initialization -------
+loaded weapons.c
+loaded items.c
+loaded syn.c
+loaded rnd.c
+loaded match.c
+loaded rchat.c
+------------ Map Loading ------------
+trying to load maps/q3dm7.aas
+loaded maps/q3dm7.aas
+camp spot at 1180.0 -148.0 188.0 in solid
+found 67 level items
+-------------------------------------
+32 bots parsed
+35 arenas parsed
+AAS initialized.
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_TEXTURE_UNITS_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(0-bits)
+MODE: -1, 1280 x 960 fullscreen hz:N/A
+GAMMA: software w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_LINEAR
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 5823 faces, 189 meshes, 49 trisurfs, 37 flares
+CL_InitCGame:  2.21 seconds
+247 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer^7 entered the game
+Wrote screenshots/shot0029.jpg
+----- Server Shutdown (Server quit) -----
+==== ShutdownGame ====
+AAS shutdown.
+---------------------------
+----- CL_Shutdown -----
+OpenAL capture device closed.
+RE_Shutdown( 1 )
+-----------------------

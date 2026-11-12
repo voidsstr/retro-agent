@@ -1,0 +1,61 @@
+# Far Cry (CryEngine 1, staged Bin32): no refresh cvar anywhere (case-insensitive over Bin32/*.dll,*.exe: only r_VSync / r_DisplayInfo).
+# XRenderD3D9.dll mode pick (0x38011480..): best-match loop over EnumAdapterModes (W,H,Refresh,Format); chosen mode copied to [esi+0x1b698..0x1b6a4],
+# then 0x38011592 'mov [esi+0x1b6a0], edi' with edi=0 ZEROES the chosen mode's RefreshRate; 0x380532dd/0x380532e9 copy it into pp+0x30 (pp @ [esi+0x1b6c0], passed to CreateDevice at 0x38053710).
+---- 0x3801153a
+   0x38011527  mov    dword ptr [esi + 0x16d54], ecx
+   0x3801152d  mov    dword ptr [esi + 0x16d58], edx
+   0x38011533  mov    eax, dword ptr [0x389df790]
+   0x38011538  mov    edi, dword ptr [eax]
+   0x3801153a  push   0x3816bee0
+   0x3801153f  push   eax
+   0x38011540  call   dword ptr [edi + 8]
+   0x38011543  mov    edx, dword ptr [esp + 0x28]
+   0x38011547  mov    eax, dword ptr [esp + 0x2c]
+   0x3801154b  mov    dword ptr [esi + 0x1b68c], edx
+   0x38011551  mov    edx, dword ptr [esp + 0x50]
+   0x38011555  mov    dword ptr [esi + 0x1b690], eax
+   0x3801155b  mov    eax, dword ptr [esp + 0x54]
+   0x3801155f  lea    ecx, [esi + 0x1b698]
+   0x38011565  mov    dword ptr [ecx], edx
+   0x38011567  mov    edx, dword ptr [esp + 0x58]
+   0x3801156b  mov    dword ptr [ecx + 4], eax
+   0x3801156e  mov    eax, dword ptr [esp + 0x5c]
+   0x38011572  mov    dword ptr [ecx + 8], edx
+   0x38011575  mov    dword ptr [ecx + 0xc], eax
+   0x38011578  mov    al, byte ptr [esi + 0x1b648]
+   0x3801157e  xor    edi, edi
+   0x38011580  add    esp, 0x18
+   0x38011583  test   al, al
+   0x38011585  mov    dword ptr [esi + 0x1b694], ebp
+   0x3801158b  mov    byte ptr [esi + 0x1b650], 0
+   0x38011592  mov    dword ptr [esi + 0x1b6a0], edi
+   0x38011598  je     0x380115a8
+   0x3801159a  push   ebp
+   0x3801159b  mov    ecx, esi
+   0x3801159d  call   0x38011090
+   0x380115a2  mov    dword ptr [esi + 0x1b6a8], eax
+   0x380115a8  mov    ecx, dword ptr [ebp + 0x18]
+   0x380115ab  mov    edx, dword ptr [ecx]
+   0x380115ad  mov    eax, dword ptr [edx]
+   0x380115af  mov    dword ptr [esi + 0x1b6ac], eax
+   0x380115b5  mov    dword ptr [esi + 0x1b6b0], edi
+   0x380115bb  mov    ecx, dword ptr [ebp + 0x24]
+   0x380115be  mov    edx, dword ptr [ecx]
+---- 0x38011592
+   0x38011583  test   al, al
+   0x38011585  mov    dword ptr [esi + 0x1b694], ebp
+   0x3801158b  mov    byte ptr [esi + 0x1b650], 0
+   0x38011592  mov    dword ptr [esi + 0x1b6a0], edi
+   0x38011598  je     0x380115a8
+   0x3801159a  push   ebp
+   0x3801159b  mov    ecx, esi
+   0x3801159d  call   0x38011090
+---- 0x380532dd
+   0x380532d2  jmp    0x380532da
+   0x380532d4  mov    eax, dword ptr [esi + 0x1b694]
+   0x380532da  mov    ecx, dword ptr [eax + 0xc]
+   0x380532dd  mov    eax, dword ptr [esi + 0x1b6a0]
+   0x380532e3  mov    dword ptr [esi + 0x1b6c8], ecx
+   0x380532e9  mov    dword ptr [esi + 0x1b6f0], eax
+   0x380532ef  mov    dword ptr [esi + 0x1b6f4], 0x80000000
+   0x380532f9  cmp    dword ptr [0x38a39410], ebx

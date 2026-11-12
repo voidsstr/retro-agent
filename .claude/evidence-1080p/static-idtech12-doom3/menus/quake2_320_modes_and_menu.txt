@@ -1,0 +1,22 @@
+# Quake2Complete/quake2.exe md5 57dd2cf4ba176f3e6ae72fccc94c38b4 (3.20, 'Oct 16 1998 Win32 RELEASE'); Quake2Win9x/quake2.exe is byte-identical
+# vid_modes[] (vid_dll.c) and the Video menu's resolution labels (vid_menu.c), strings -a:
+Mode 9: 1600x1200
+Mode 8: 1280x960
+Mode 7: 1152x864
+Mode 6: 1024x768
+Mode 5: 960x720
+Mode 4: 800x600
+Mode 3: 640x480
+Mode 2: 512x384
+Mode 1: 400x300
+Mode 0: 320x240
+[1600 1200]
+[1280 960 ]
+[1152 864 ]
+[1024 768 ]
+[960 720  ]
+[800 600  ]
+[640 480  ]
+[512 384  ]
+[400 300  ]
+[320 240  ]

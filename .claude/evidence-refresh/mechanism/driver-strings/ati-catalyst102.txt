@@ -1,0 +1,58 @@
+# ATI Catalyst 10.2 legacy XP (the .240 driver, 8.593) - B_95503 expanded
+== ati102/ati2mtag.sys (md5 c0b86ecb324e50f6bbd529f9d5c6b24b)
+(0 != refreshRate)
+DALRULE_ANALOGDDCDISPLAYSUPPORTALLREFRESHRATE
+DALRULE_APPLYPREVIOUSREFRESHRATE
+DALRULE_DONOTREPORTCUSTOMREFRESHRATE
+DefaultSettings.VRefresh
+GCOOPTION_ExtTMDSMinVerRefreshRate
+GCOOPTION_IntTMDSMinVerRefreshRate
+GCOOPTION_IntTMDSMinVerRefreshRateIncoherentLow
+GCORULE_ExtTMDSReduceRefreshRate
+GCORULE_IntTMDSReduceRefreshRate
+GCORULE_TMDSUseLowerRefreshRate
+GXODFP2CVTLowerRefreshRate
+GXODFP2DualLinkMinVerRefreshRate
+GXODFP2MinVerRefreshRate
+GXODFP2ReducedRefreshRate
+GXODFP3CVTLowerRefreshRate
+GXODFP3DualLinkMinVerRefreshRate
+GXODFP3MinVerRefreshRate
+GXODFP3ReducedRefreshRate
+GXODFP4CVTLowerRefreshRate
+GXODFP4DualLinkMinVerRefreshRate
+GXODFP4MinVerRefreshRate
+GXODFP4ReducedRefreshRate
+GXODFP5CVTLowerRefreshRate
+GXODFP5DualLinkMinVerRefreshRate
+GXODFP5MinVerRefreshRate
+GXODFP5ReducedRefreshRate
+GXODFPCVTLowerRefreshRate
+GXODFPDualLinkMinVerRefreshRate
+GXODFPEXTCVTLowerRefreshRate
+GXODFPEXTDualLinkMinVerRefreshRate
+GXODFPEXTMinVerRefreshRate
+GXODFPEXTReducedRefreshRate
+GXODFPMinVerRefreshRate
+GXODFPReducedRefreshRate
+PECI_ResetReducedRefreshRate
+PECI_SetReducedRefreshRate
+PECI_UpdateRefreshRate
+pPowerState->display.explicitRefreshrate != 0
+PP_PermitReducedRefreshRate
+R6LCD_ALLOWDISABLELOWREFRESHBYUSER
+R6LCD_REFRESHRATECHANGEWITHOUTLVDSONOFF
+Refresh rate cannot be Zero!
+Unknown VBIOS refreshrate index.
+VSyncControl
+VSyncControl_DEF
+== ati102/ati2dvag.dll (md5 8c6e305747617d61a0fe38f1101c8902)
+== ati102/ati3duag.dll (md5 992e3c779d0b7f9df81a2a9674598327)
+CH_A_REFRESH
+CH_B_REFRESH
+CH_C_REFRESH
+CH_D_REFRESH
+VistaVSyncControl
+VSyncControl
+== ati102/atioglxx.dll (md5 b021aa140d3b4d77b5d0609f4ddd65a4)
+VSyncControl

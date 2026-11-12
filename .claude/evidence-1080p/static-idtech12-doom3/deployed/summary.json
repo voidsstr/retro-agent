@@ -1,0 +1,314 @@
+[
+ {
+  "ip": "192.168.1.123",
+  "games": [
+   "aliensvspredator",
+   "bf1942",
+   "carmageddon1",
+   "carmageddon2",
+   "counterstrike16",
+   "daggerfall",
+   "descent1",
+   "descent2",
+   "descent3",
+   "deusex",
+   "doom3",
+   "farcry",
+   "halflife1",
+   "halo",
+   "halo2",
+   "hexenii",
+   "hiddenanddangerous",
+   "jediacademy",
+   "jediknightdf2",
+   "jediknightmots",
+   "lanhost.txt",
+   "masteroforionii",
+   "maxpayne",
+   "postal",
+   "quake1",
+   "quake2complete",
+   "quake3-teamarena",
+   "rainbowsix",
+   "redalert2",
+   "redfaction",
+   "redneckrampage",
+   "returntocastlewolfenstein",
+   "serioussamfirstencounter",
+   "serioussamsecondencounter",
+   "shadowwarrior",
+   "shogo",
+   "singold",
+   "soldieroffortune",
+   "soldieroffortune2",
+   "soldieroffortune2.wip",
+   "starcraft",
+   "systemshock2",
+   "thief2",
+   "thiefgold",
+   "tiberiansun",
+   "tribes2",
+   "turok2",
+   "unrealgold",
+   "unrealtournament",
+   "unrealtournament436",
+   "ut2004",
+   "warcraftii",
+   "warcraftorcsandhumans"
+  ],
+  "Quake1": {
+   "Play Quake.bat": "deployed md5 b263c4414c == staged (897 vs 897 bytes)"
+  },
+  "Quake2Complete": {
+   "Quake II.bat": "deployed md5 294fd67875 == staged (790 vs 790 bytes)"
+  },
+  "Quake2Win9x": "ABSENT (case-insensitive) from C:\\Games",
+  "HexenII": {
+   "Play Hexen II.bat": "deployed md5 95476f8956 == staged (2544 vs 2544 bytes)",
+   "Host Hexen II - LAN.bat": "deployed md5 16b66650eb == staged (2281 vs 2281 bytes)"
+  },
+  "SiNGold": {
+   "Play SiN Gold.bat": "deployed md5 82538f1f99 == staged (827 vs 827 bytes)"
+  },
+  "SoldierOfFortune": {
+   "Play Soldier of Fortune.bat": "deployed md5 948b235900 == staged (837 vs 837 bytes)"
+  },
+  "Doom3": {
+   "Play DOOM 3.bat": "deployed md5 18fe522a8f == staged (1272 vs 1272 bytes)"
+  }
+ },
+ {
+  "ip": "192.168.1.145",
+  "games": [
+   "aliensvspredator",
+   "bf1942",
+   "carmageddon1",
+   "carmageddon2",
+   "counterstrike16",
+   "daggerfall",
+   "descent1",
+   "descent2",
+   "descent3",
+   "descent_2.bin",
+   "descent_2.cue",
+   "descent_3_cd1.iso",
+   "deusex",
+   "doom3",
+   "farcry",
+   "halflife1",
+   "halo",
+   "halo2",
+   "hexenii",
+   "hiddenanddangerous",
+   "jediacademy",
+   "jediknightdf2",
+   "jediknightmots",
+   "masteroforionii",
+   "maxpayne",
+   "postal",
+   "quake1",
+   "quake2complete",
+   "quake3-teamarena",
+   "rainbowsix",
+   "redalert2",
+   "redfaction",
+   "redneckrampage",
+   "returntocastlewolfenstein",
+   "serioussamfirstencounter",
+   "serioussamsecondencounter",
+   "shadowwarrior",
+   "shogo",
+   "singold",
+   "soldieroffortune",
+   "soldieroffortune2",
+   "starcraft",
+   "systemshock2",
+   "thief2",
+   "thiefgold",
+   "tiberiansun",
+   "tribes2",
+   "turok2",
+   "unrealgold",
+   "unrealtournament",
+   "unrealtournament436",
+   "ut2004",
+   "warcraftii",
+   "warcraftorcsandhumans"
+  ],
+  "Quake1": {
+   "Play Quake.bat": "deployed md5 b263c4414c == staged (897 vs 897 bytes)"
+  },
+  "Quake2Complete": {
+   "Quake II.bat": "deployed md5 294fd67875 == staged (790 vs 790 bytes)"
+  },
+  "Quake2Win9x": "ABSENT (case-insensitive) from C:\\Games",
+  "HexenII": {
+   "Play Hexen II.bat": "deployed md5 95476f8956 == staged (2544 vs 2544 bytes)",
+   "Host Hexen II - LAN.bat": "deployed md5 16b66650eb == staged (2281 vs 2281 bytes)"
+  },
+  "SiNGold": {
+   "Play SiN Gold.bat": "deployed md5 82538f1f99 == staged (827 vs 827 bytes)"
+  },
+  "SoldierOfFortune": {
+   "Play Soldier of Fortune.bat": "deployed md5 948b235900 == staged (837 vs 837 bytes)"
+  },
+  "Doom3": {
+   "Play DOOM 3.bat": "deployed md5 18fe522a8f == staged (1272 vs 1272 bytes)"
+  }
+ },
+ {
+  "ip": "192.168.1.195",
+  "games": [
+   "aliensvspredator",
+   "bf1942",
+   "carmageddon1",
+   "carmageddon2",
+   "counterstrike16",
+   "daggerfall",
+   "descent1",
+   "descent2",
+   "descent3",
+   "deusex",
+   "doom3",
+   "farcry",
+   "halflife1",
+   "halo",
+   "halo2",
+   "hexenii",
+   "hiddenanddangerous",
+   "jediacademy",
+   "jediknightdf2",
+   "jediknightmots",
+   "lanhost.txt",
+   "masteroforionii",
+   "maxpayne",
+   "postal",
+   "quake1",
+   "quake2complete",
+   "quake3-teamarena",
+   "rainbowsix",
+   "redalert2",
+   "redfaction",
+   "redneckrampage",
+   "returntocastlewolfenstein",
+   "serioussamfirstencounter",
+   "serioussamsecondencounter",
+   "shadowwarrior",
+   "shogo",
+   "singold",
+   "soldieroffortune",
+   "soldieroffortune2",
+   "starcraft",
+   "systemshock2",
+   "thief2",
+   "thiefgold",
+   "tiberiansun",
+   "tribes2",
+   "turok2",
+   "unrealgold",
+   "unrealtournament",
+   "unrealtournament436",
+   "ut2004",
+   "warcraftii",
+   "warcraftorcsandhumans"
+  ],
+  "Quake1": {
+   "Play Quake.bat": "deployed md5 b263c4414c == staged (897 vs 897 bytes)"
+  },
+  "Quake2Complete": {
+   "Quake II.bat": "deployed md5 294fd67875 == staged (790 vs 790 bytes)"
+  },
+  "Quake2Win9x": "ABSENT (case-insensitive) from C:\\Games",
+  "HexenII": {
+   "Play Hexen II.bat": "deployed md5 95476f8956 == staged (2544 vs 2544 bytes)",
+   "Host Hexen II - LAN.bat": "deployed md5 16b66650eb == staged (2281 vs 2281 bytes)"
+  },
+  "SiNGold": {
+   "Play SiN Gold.bat": "deployed md5 82538f1f99 == staged (827 vs 827 bytes)"
+  },
+  "SoldierOfFortune": {
+   "Play Soldier of Fortune.bat": "deployed md5 948b235900 == staged (837 vs 837 bytes)"
+  },
+  "Doom3": {
+   "Play DOOM 3.bat": "deployed md5 18fe522a8f == staged (1272 vs 1272 bytes)"
+  }
+ },
+ {
+  "ip": "192.168.1.240",
+  "games": [
+   "aliensvspredator",
+   "bf1942",
+   "carmageddon1",
+   "carmageddon2",
+   "counterstrike16",
+   "daggerfall",
+   "descent1",
+   "descent2",
+   "descent3",
+   "deusex",
+   "doom3",
+   "farcry",
+   "halflife1",
+   "halo",
+   "halo2",
+   "hexenii",
+   "hiddenanddangerous",
+   "jediacademy",
+   "jediknightdf2",
+   "jediknightmots",
+   "lanhost.txt",
+   "masteroforionii",
+   "maxpayne",
+   "postal",
+   "quake1",
+   "quake2complete",
+   "quake3-teamarena",
+   "rainbowsix",
+   "redalert2",
+   "redfaction",
+   "redneckrampage",
+   "returntocastlewolfenstein",
+   "serioussamfirstencounter",
+   "serioussamsecondencounter",
+   "shadowwarrior",
+   "shogo",
+   "singold",
+   "soldieroffortune",
+   "soldieroffortune2",
+   "soldieroffortune2.wip",
+   "starcraft",
+   "systemshock2",
+   "thief2",
+   "thiefgold",
+   "tiberiansun",
+   "tribes2",
+   "turok2",
+   "unrealgold",
+   "unrealtournament",
+   "unrealtournament436",
+   "ut2004",
+   "warcraftii",
+   "warcraftorcsandhumans"
+  ],
+  "Quake1": {
+   "Play Quake.bat": "deployed md5 b263c4414c == staged (897 vs 897 bytes)"
+  },
+  "Quake2Complete": {
+   "Quake II.bat": "deployed md5 294fd67875 == staged (790 vs 790 bytes)"
+  },
+  "Quake2Win9x": "ABSENT (case-insensitive) from C:\\Games",
+  "HexenII": {
+   "Play Hexen II.bat": "deployed md5 95476f8956 == staged (2544 vs 2544 bytes)",
+   "Host Hexen II - LAN.bat": "deployed md5 16b66650eb == staged (2281 vs 2281 bytes)"
+  },
+  "SiNGold": {
+   "Play SiN Gold.bat": "deployed md5 82538f1f99 == staged (827 vs 827 bytes)"
+  },
+  "SoldierOfFortune": {
+   "Play Soldier of Fortune.bat": "deployed md5 948b235900 == staged (837 vs 837 bytes)"
+  },
+  "Doom3": {
+   "Play DOOM 3.bat": "deployed md5 18fe522a8f == staged (1272 vs 1272 bytes)"
+  }
+ }
+]

@@ -1,0 +1,73 @@
+HalfLife1/hl.exe callers of ['0x47b448'] : 2
+
+-- 00408433 -> 0047b448
+   004083fa  mov    eax, 1
+   004083ff  and    ecx, 3
+   00408402  inc    edx
+   00408403  rep movsb byte ptr es:[edi], byte ptr [esi]
+   00408405  mov    ecx, dword ptr [esp + 0x1c]
+   00408409  pop    edi
+   0040840a  mov    dword ptr [0x4e1a34], edx
+   00408410  pop    esi
+   00408411  mov    dword ptr [ecx], 1
+   00408417  pop    ebx
+   00408418  ret    0x10
+   0040841b  nop    
+   0040841c  nop    
+   0040841d  nop    
+   0040841e  nop    
+   0040841f  nop    
+   00408420  mov    eax, dword ptr [0x4e1a20]
+   00408425  push   esi
+   00408426  test   eax, eax
+   00408428  jne    0x40846f
+   0040842a  push   0
+   0040842c  push   0x4e1a20
+   00408431  push   0
+   00408433  call   0x47b448
+   00408438  mov    esi, eax
+   0040843a  test   esi, esi
+   0040843c  je     0x40845c
+   0040843e  push   esi
+   0040843f  call   0x4089e0
+   00408444  add    esp, 4
+   00408447  push   eax
+   00408448  push   esi
+   00408449  .byte  0x68
+   0040844a  .byte  0x82
+
+-- 00413927 -> 0047b448
+   004138ec  push   esi
+   004138ed  call   dword ptr [0x4ac36c]
+   004138f3  pop    edi
+   004138f4  pop    esi
+   004138f5  pop    ebp
+   004138f6  pop    ebx
+   004138f7  add    esp, 0x114
+   004138fd  ret    
+   004138fe  nop    
+   004138ff  nop    
+   00413900  mov    eax, dword ptr [0x4e1f04]
+   00413905  push   edi
+   00413906  xor    edi, edi
+   00413908  test   eax, eax
+   0041390a  jne    0x413910
+   0041390c  xor    eax, eax
+   0041390e  pop    edi
+   0041390f  ret    
+   00413910  mov    eax, dword ptr [0x4e1a20]
+   00413915  test   eax, eax
+   00413917  jne    0x413934
+   00413919  push   0
+   0041391b  push   0x4e1a20
+   00413920  push   0
+   00413922  mov    edi, 1
+   00413927  call   0x47b448
+   0041392c  test   eax, eax
+   0041392e  je     0x413934
+   00413930  xor    eax, eax
+   00413932  pop    edi
+   00413933  ret    
+   00413934  call   0x408310
+   00413939  mov    dword ptr [0x4e1f2c], eax
+   0041393e  .byte  0xa1

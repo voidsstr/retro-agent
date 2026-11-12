@@ -1,0 +1,16 @@
+== JediKnightDF2
+ok   JK.EXE md5 85f8f883bbb7a167429879c899be1803 size 1388544; 26 offsets hold
+ok   install.reg creates HKLM\Software\LucasArts Entertainment Company\JediKnight\v1.0 (the key JKMODE writes)
+     JKMODE.EXE staged: no
+     launch.txt line 1: 'JK.EXE\tJedi Knight - Dark Forces II\tJK.EXE'
+     launcher 'Play Jedi Knight.bat' present: no
+     FLEETRES.EXE staged: no
+== JediKnightMotS
+ok   JKM.EXE md5 192d2be2bfbe5a1acc9f562657a7d9ea size 1760256; 25 offsets hold
+ok   install.reg creates HKLM\Software\LucasArts Entertainment Company LLC\Mysteries of the Sith\v1.0 (the key JKMODE writes)
+     JKMODE.EXE staged: no
+     launch.txt line 1: 'JKM.EXE\tJedi Knight - Mysteries of the Sith\tJKM.EXE'
+     launcher 'Play Mysteries of the Sith.bat' present: no
+     FLEETRES.EXE staged: no
+RESULT OK
+rc=0

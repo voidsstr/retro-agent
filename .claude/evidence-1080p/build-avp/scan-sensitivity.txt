@@ -1,0 +1,4 @@
+scan with the 154 removed from the table flags 154 files
+Counter({'rif': 86, 'rffl': 58, 'bink': 8, 'smk': 1, 'plain': 1})
+flagged == the 154: True
+extra flagged: []

@@ -1,0 +1,10 @@
+status 0
+panel      : DELL E2414H  pnp=DEL4090  LCD/flat panel
+native     : 1920x1080 @60Hz  aspect 16:9  size 53x30cm  input analog  vmax 76Hz
+desktop set: 1920x1080  (persisted)
+desktop now: 1920x1080 32bpp @60Hz  aspect 16:9
+target     : 1024x768  aspect 4:3  fov(hor+) 90
+target 4:3 : 1024x768  (for the engines with no widescreen)  q2mode 6  q3mode 6 (1024x768)
+glide      : no 3dfx silicon  render device D3DDrv
+modes(16)  : 640x480 720x480 720x576 800x600 1024x768 1152x864 1280x720 1280x768 1280x800 1280x960 1280x1024 1360x768 1600x900 1600x1024 1680x1050 1920x1080
+

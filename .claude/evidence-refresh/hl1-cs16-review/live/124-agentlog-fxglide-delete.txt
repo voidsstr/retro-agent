@@ -1,0 +1,173 @@
+# excerpt of /mnt/retro-share/Utility/Retro Automation/agent logs/NSC-C543575F526-agent.log.1 (share mirror of .124's agent log), lines 7960-8130, copied 2026-09-29 04:36:36 EDT
+# shows a dev-host session deploying 3dfxctl 2.1.0, then EXEC reg delete ...\3dfxvs\Device0\glide /v FX_GLIDE_REFRESH /f at 04:17:07
+[04:16:25][EXEC ] CreateProcessA OK, PID=1280
+[04:16:25][EXEC ] Process 1280 exited: code=1, output=0 bytes, 62ms elapsed
+[04:16:25][MAIN ] CMD: "UPLOAD C:\RETRO_AGENT\stage\3dfxctl.exe" (39 bytes)
+[04:16:25][PROTO] frame_recv: 427434 bytes
+[04:16:25][FILE ] UPLOAD: CreateFileA("C:\RETRO_AGENT\stage\3dfxctl.exe") = OK
+[04:16:25][FILE ] UPLOAD: Complete, 427434 bytes to "C:\RETRO_AGENT\stage\3dfxctl.exe"
+[04:16:25][MAIN ] CMD: "EXEC cmd /c net use Z: \\192.168.1.122\files /persistent:yes 2>nul" (66 bytes)
+[04:16:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c net use Z: \\192.168.1.122\files /persistent:yes 2>nul"
+[04:16:25][EXEC ] CreateProcessA OK, PID=1632
+[04:16:25][EXEC ] Process 1632 exited: code=2, output=0 bytes, 250ms elapsed
+[04:16:25][MAIN ] CMD: "EXEC cmd /c if exist Z:\ (echo ZOK) else (echo ZDOWN)" (53 bytes)
+[04:16:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist Z:\ (echo ZOK) else (echo ZDOWN)"
+[04:16:25][EXEC ] CreateProcessA OK, PID=168
+[04:16:25][EXEC ] Process 168 exited: code=0, output=5 bytes, 47ms elapsed
+[04:16:25][MAIN ] CMD: "EXEC cmd /c md "Z:\Utility\Retro Automation\3dfx" 2>nul" (55 bytes)
+[04:16:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c md "Z:\Utility\Retro Automation\3dfx" 2>nul"
+[04:16:25][EXEC ] CreateProcessA OK, PID=2044
+[04:16:25][EXEC ] Process 2044 exited: code=1, output=0 bytes, 62ms elapsed
+[04:16:25][MAIN ] CMD: "EXEC cmd /c copy /Y "C:\RETRO_AGENT\stage\3dfxctl.exe" "Z:\Utility\Retro Automat"... (101 bytes)
+[04:16:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c copy /Y "C:\RETRO_AGENT\stage\3dfxctl.exe" "Z:\Utility\Retro Automation\3dfx\3dfxctl.exe""
+[04:16:25][EXEC ] CreateProcessA OK, PID=372
+[04:16:25][EXEC ] Process 372 exited: code=0, output=27 bytes, 156ms elapsed
+[04:16:25][MAIN ] CMD: "EXEC cmd /c dir "Z:\Utility\Retro Automation\3dfx\3dfxctl.exe"" (62 bytes)
+[04:16:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c dir "Z:\Utility\Retro Automation\3dfx\3dfxctl.exe""
+[04:16:25][EXEC ] CreateProcessA OK, PID=1784
+[04:16:25][EXEC ] Process 1784 exited: code=0, output=271 bytes, 63ms elapsed
+[04:16:25][MAIN ] CMD: "PROCLIST" (8 bytes)
+[04:16:25][PROTO] frame_send: 1433 bytes
+[04:16:25][MAIN ] CMD: "EXEC cmd /c copy /Y "C:\RETRO_AGENT\stage\3dfxctl.exe" "C:\RETRO_AGENT\3dfxctl.e"... (83 bytes)
+[04:16:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c copy /Y "C:\RETRO_AGENT\stage\3dfxctl.exe" "C:\RETRO_AGENT\3dfxctl.exe""
+[04:16:25][EXEC ] CreateProcessA OK, PID=1896
+[04:16:25][EXEC ] Process 1896 exited: code=0, output=27 bytes, 93ms elapsed
+[04:16:25][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\3dfxctl.exe" (35 bytes)
+[04:16:25][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\3dfxctl.exe") = OK
+[04:16:25][FILE ] DOWNLOAD: GetFileSize = 427434 bytes
+[04:16:25][PROTO] frame_send: 427435 bytes
+[04:16:25][MAIN ] CMD: "UPLOAD C:\RETRO_AGENT\stage\mk3dfxlnk.vbs" (41 bytes)
+[04:16:26][FILE ] UPLOAD: CreateFileA("C:\RETRO_AGENT\stage\mk3dfxlnk.vbs") = OK
+[04:16:26][FILE ] UPLOAD: Complete, 414 bytes to "C:\RETRO_AGENT\stage\mk3dfxlnk.vbs"
+[04:16:26][MAIN ] CMD: "EXEC cmd /c cscript //nologo "C:\RETRO_AGENT\stage\mk3dfxlnk.vbs" & del "C:\RETR"... (108 bytes)
+[04:16:26][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c cscript //nologo "C:\RETRO_AGENT\stage\mk3dfxlnk.vbs" & del "C:\RETRO_AGENT\stage\mk3dfxlnk.vbs""
+[04:16:26][EXEC ] CreateProcessA OK, PID=544
+[04:16:26][HWPROFILE] hash=dec95d42ad08a34d cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=64MB level=fixed os=winxp caps=3
+[04:16:26][HWPUBLISH] published to \\192.168.1.122\files\Utility\Retro Automation\fleet-inventory\NSC-C543575F526.json
+[04:16:26][EXEC ] Process 544 exited: code=0, output=0 bytes, 766ms elapsed
+[04:16:26][MAIN ] CMD: "EXEC cmd /c if exist "%ALLUSERSPROFILE%\Start Menu\Programs\3dfx Control Panel.l"... (116 bytes)
+[04:16:26][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "%ALLUSERSPROFILE%\Start Menu\Programs\3dfx Control Panel.lnk" (echo LNKOK) else (echo LNKMISS)"
+[04:16:26][EXEC ] CreateProcessA OK, PID=204
+[04:16:26][EXEC ] Process 204 exited: code=0, output=7 bytes, 46ms elapsed
+[04:16:26][MAIN ] CMD: "EXEC cmd /c if exist "%ALLUSERSPROFILE%\Desktop\3dfx Control Panel.lnk" (echo LN"... (104 bytes)
+[04:16:26][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "%ALLUSERSPROFILE%\Desktop\3dfx Control Panel.lnk" (echo LNKOK) else (echo LNKMISS)"
+[04:16:26][EXEC ] CreateProcessA OK, PID=236
+[04:16:26][EXEC ] Process 236 exited: code=0, output=7 bytes, 47ms elapsed
+[04:16:26][MAIN ] CMD: "EXEC cmd /c del "C:\RETRO_AGENT\3dfxctl-report.txt" 2>nul" (57 bytes)
+[04:16:26][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del "C:\RETRO_AGENT\3dfxctl-report.txt" 2>nul"
+[04:16:26][EXEC ] CreateProcessA OK, PID=1880
+[04:16:26][EXEC ] Process 1880 exited: code=0, output=0 bytes, 47ms elapsed
+[04:16:26][MAIN ] CMD: "EXEC C:\RETRO_AGENT\3dfxctl.exe /report C:\RETRO_AGENT\3dfxctl-report.txt" (73 bytes)
+[04:16:26][EXEC ] EXEC: cmdline="cmd.exe /c C:\RETRO_AGENT\3dfxctl.exe /report C:\RETRO_AGENT\3dfxctl-report.txt"
+[04:16:26][EXEC ] CreateProcessA OK, PID=332
+[04:16:27][EXEC ] Process 332 exited: code=0, output=0 bytes, 203ms elapsed
+[04:16:27][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\3dfxctl-report.txt" (42 bytes)
+[04:16:27][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\3dfxctl-report.txt") = OK
+[04:16:27][FILE ] DOWNLOAD: GetFileSize = 3544 bytes
+[04:16:27][PROTO] frame_send: 3545 bytes
+[04:16:27][MAIN ] Client disconnected
+[04:16:48][MAIN ] Connection from 192.168.1.132:42276
+[04:16:48][MAIN ] Connection from 192.168.1.132:42280
+[04:16:48][MAIN ] handle_client: starting auth on socket 1616
+[04:16:48][PROTO] AUTH: success
+[04:16:48][MAIN ] handle_client: starting auth on socket 1604
+[04:16:48][MAIN ] Client authenticated
+[04:16:48][PROTO] AUTH: success
+[04:16:48][MAIN ] CMD: "UIKEY SHIFT" (11 bytes)
+[04:16:48][MAIN ] Client authenticated
+[04:16:48][INPUT] UIKEY: spec="SHIFT"
+[04:16:48][MAIN ] Client disconnected
+[04:16:49][MAIN ] CMD: "LAUNCH C:\RETRO_AGENT\3dfxctl.exe" (33 bytes)
+[04:16:49][EXEC ] LAUNCH: cmdline="cmd.exe /c C:\RETRO_AGENT\3dfxctl.exe"
+[04:16:49][EXEC ] LAUNCH OK, PID=608
+[04:16:55][MAIN ] CMD: "UICLICK 680 336" (15 bytes)
+[04:16:55][INPUT] UICLICK: x=680 y=336 right=0 dbl=0
+[04:16:55][MAIN ] log: batched writes on (flush when full or every 15s) - startup window is past
+[04:16:56][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[04:16:57][PROTO] frame_send: 3932215 bytes
+[04:16:58][MAIN ] CMD: "UICLICK 395 524" (15 bytes)
+[04:16:58][INPUT] UICLICK: x=395 y=524 right=0 dbl=0
+[04:16:59][MAIN ] CMD: "UICLICK 423 569" (15 bytes)
+[04:16:59][INPUT] UICLICK: x=423 y=569 right=0 dbl=0
+[04:17:02][MAIN ] CMD: "UICLICK 344 602" (15 bytes)
+[04:17:02][INPUT] UICLICK: x=344 y=602 right=0 dbl=0
+[04:17:04][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[04:17:05][PROTO] frame_send: 3932215 bytes
+[04:17:05][MAIN ] CMD: "UICLICK 801 754" (15 bytes)
+[04:17:05][INPUT] UICLICK: x=801 y=754 right=0 dbl=0
+[04:17:07][MAIN ] CMD: "EXEC C:\vcr\vcrctl.exe clock" (28 bytes)
+[04:17:07][EXEC ] EXEC: cmdline="cmd.exe /c C:\vcr\vcrctl.exe clock"
+[04:17:07][EXEC ] CreateProcessA OK, PID=828
+[04:17:07][EXEC ] Process 828 exited: code=0, output=712 bytes, 32ms elapsed
+[04:17:07][MAIN ] CMD: "REGREAD HKLM "SOFTWARE\3dfxctl"" (31 bytes)
+[04:17:07][REG  ] REGREAD: RegOpenKeyExA("HKLM\SOFTWARE\3dfxctl") = OK
+[04:17:07][MAIN ] CMD: "REGREAD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"" (60 bytes)
+[04:17:07][REG  ] REGREAD: RegOpenKeyExA("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run") = OK
+[04:17:07][REG  ]   Value: "RetroAgent" type=REG_SZ size=31
+[04:17:07][REG  ]   Value: "NvMixerTray" type=REG_SZ size=60
+[04:17:07][REG  ]   Value: "RetroAgentWD" type=REG_SZ size=45
+[04:17:07][MAIN ] CMD: "REGREAD HKLM "SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide"" (69 bytes)
+[04:17:07][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide") = OK
+[04:17:07][REG  ]   Value: "Localisation" type=REG_SZ size=13
+[04:17:07][REG  ]   Value: "HTML Help" type=REG_SZ size=110
+[04:17:07][REG  ]   Value: "SSTH3_OVERLAYMODE" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "SSTH3_ALPHADITHERMODE" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_16BPP_ZPRECISION" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_32BPP_ZPRECISION" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_COMPRESS_LEGACY_TEXTURES" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_LOD_BIAS" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_SWAPPENDINGCOUNT" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_BPP" type=REG_SZ size=3
+[04:17:07][REG  ]   Value: "FX_GLIDE_ALLOC_COLOR" type=REG_SZ size=3
+[04:17:07][REG  ]   Value: "FX_GLIDE_SWAPINTERVAL" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_FORCE_16BPP_TEXTURES" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_GUARDBAND_ENABLED" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_HSR" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_2PPC" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_TAA_TOGGLE_KEY" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_ANALOG_SLI" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_REFRESH" type=REG_SZ size=3
+[04:17:07][PROTO] frame_send: 1872 bytes
+[04:17:07][MAIN ] CMD: "EXEC reg delete "HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide" /v"... (100 bytes)
+[04:17:07][EXEC ] EXEC: cmdline="cmd.exe /c reg delete "HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide" /v FX_GLIDE_REFRESH /f"
+[04:17:07][EXEC ] CreateProcessA OK, PID=1124
+[04:17:07][EXEC ] Process 1124 exited: code=0, output=40 bytes, 203ms elapsed
+[04:17:07][MAIN ] CMD: "REGREAD HKLM "SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide"" (69 bytes)
+[04:17:07][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide") = OK
+[04:17:07][REG  ]   Value: "Localisation" type=REG_SZ size=13
+[04:17:07][REG  ]   Value: "HTML Help" type=REG_SZ size=110
+[04:17:07][REG  ]   Value: "SSTH3_OVERLAYMODE" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "SSTH3_ALPHADITHERMODE" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_16BPP_ZPRECISION" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_32BPP_ZPRECISION" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_COMPRESS_LEGACY_TEXTURES" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_LOD_BIAS" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_SWAPPENDINGCOUNT" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_BPP" type=REG_SZ size=3
+[04:17:07][REG  ]   Value: "FX_GLIDE_ALLOC_COLOR" type=REG_SZ size=3
+[04:17:07][REG  ]   Value: "FX_GLIDE_SWAPINTERVAL" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_FORCE_16BPP_TEXTURES" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_GUARDBAND_ENABLED" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GL_HSR" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_2PPC" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_TAA_TOGGLE_KEY" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "FX_GLIDE_ANALOG_SLI" type=REG_SZ size=2
+[04:17:07][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[04:17:07][PROTO] frame_send: 1816 bytes
+[04:17:07][MAIN ] CMD: "PROCLIST" (8 bytes)
+[04:17:07][PROTO] frame_send: 1433 bytes
+[04:17:07][MAIN ] Client disconnected
+[04:17:10][GAMEINDEX] scan complete (changed): 46 game(s), hash=44fc0555, 14093ms
+[04:17:36][MAIN ] Connection from 192.168.1.132:40400
+[04:17:36][MAIN ] handle_client: starting auth on socket 1544
+[04:17:36][PROTO] AUTH: success
+[04:17:36][MAIN ] Client authenticated
+[04:17:36][MAIN ] Client disconnected
+[04:17:44][MAIN ] Connection from 192.168.1.132:40402
+[04:17:44][MAIN ] handle_client: starting auth on socket 1540
+[04:17:44][PROTO] AUTH: success
+[04:17:44][MAIN ] Client authenticated
+[04:17:44][MAIN ] CMD: "PING" (4 bytes)
+[04:17:44][MAIN ] Client disconnected
+[04:18:24][MAIN ] Connection from 192.168.1.132:58506

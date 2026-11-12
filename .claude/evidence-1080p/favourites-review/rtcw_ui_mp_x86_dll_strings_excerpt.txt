@@ -1,0 +1,23 @@
+2367:ui_dedicated
+2368:server16
+2369:server15
+2370:server14
+2371:server13
+2372:server12
+2373:server11
+2374:server10
+2375:server9
+2376:server8
+2377:server7
+2378:server6
+2379:server5
+2380:server4
+2381:server3
+2382:server2
+2383:server1
+2384:cg_autoactivate
+2783:createFavorite
+2785:Added favorite server %s
+2786:Favorite list full
+2787:Favorite already in list
+2789:addFavorite

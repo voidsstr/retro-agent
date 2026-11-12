@@ -1,0 +1,24 @@
+EXE JK.EXE | app: Jedi Knight: Dark Forces II
+    APP_NAME Jedi Knight: Dark Forces II
+    VENDOR LucasArts
+    0x9004 b'7Y\xb1\xbf\xa7\x94\x05J\x8b$\xc4\xdd\x11\xba=\xf3'
+    MATCHING_FILE {'NAME': '*'}
+    MATCHING_FILE {'NAME': 'Jedi.EXE', '0x6009': 'LucasArts Entertainment Company', '0x6010': 'Jedi Knight Launcher'}
+    SHIM_REF {'NAME': 'EmulateCDFS', '0x4004': 35046}
+    SHIM_REF {'NAME': 'EmulateGetCommandLine', '0x4004': 35346}
+EXE JKM.EXE | app: Jedi Knight Mysteries of the Sith
+    APP_NAME Jedi Knight Mysteries of the Sith
+    VENDOR LucasArts
+    0x9004 b'2\xcf\xa6\xecM\x94+L\x90\xa8s#\x8fK*\x13'
+    MATCHING_FILE {'NAME': '*'}
+    MATCHING_FILE {'NAME': 'SITH.EXE', '0x6010': 'Mysteries of the Sith Launcher'}
+    SHIM_REF {'NAME': 'EmulateCDFS', '0x4004': 35046}
+    SHIM_REF {'NAME': 'EmulateGetCommandLine', '0x4004': 35346}
+EXE shock2.exe | app: System Shock 2
+    APP_NAME System Shock 2
+    VENDOR Electronic Arts
+    0x9004 b'\rW:q\x17\x04\xd1E\x95\x1c\xe6\x81\xf7in.'
+    0x700d {'0x4017': 1, '0x4010': 1, 'FLAG?': 20730, '0x1005': None}
+    MATCHING_FILE {'NAME': '*', '0x6009': 'Looking Glass Studios', '0x6010': 'System Shock 2', '0x6011': '1.15'}
+    MATCHING_FILE {'NAME': 'SHOCK2.ICD', '0x6009': 'Looking Glass Studios', '0x6010': 'System Shock 2', '0x6011': '1.15'}
+    MATCHING_FILE {'NAME': 'shock2.gam'}

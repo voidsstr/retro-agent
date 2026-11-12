@@ -1,0 +1,255 @@
+# raw tool output - adversarial review disassembly (capstone), staged library binaries
+
+## TFE 1.00 Engine.dll table loop (CDS_TEST per _areResolutions entry; count read from 0x602192b0 = 22)
+600fad7a: a1b0922160           mov eax, dword ptr [0x602192b0]
+600fad7f: 83c418               add esp, 0x18
+600fad82: 85c0                 test eax, eax
+600fad84: c745f000000000       mov dword ptr [ebp - 0x10], 0
+600fad8b: 0f8eb4000000         jle 0x600fae45
+600fad91: 53                   push ebx
+600fad92: 8b1da0021e60         mov ebx, dword ptr [0x601e02a0]
+600fad98: 56                   push esi
+600fad99: be00922160           mov esi, 0x60219200
+600fad9e: b925000000           mov ecx, 0x25
+600fada3: 33c0                 xor eax, eax
+600fada5: 8dbdc4feffff         lea edi, [ebp - 0x13c]
+600fadab: 8d95c4feffff         lea edx, [ebp - 0x13c]
+600fadb1: f3ab                 rep stosd dword ptr es:[edi], eax
+600fadb3: 8b06                 mov eax, dword ptr [esi]
+600fadb5: 8b4e04               mov ecx, dword ptr [esi + 4]
+600fadb8: 6a06                 push 6
+600fadba: 52                   push edx
+600fadbb: 66c785e8feffff9400   mov word ptr [ebp - 0x118], 0x94
+600fadc4: 898530ffffff         mov dword ptr [ebp - 0xd0], eax
+600fadca: 898d34ffffff         mov dword ptr [ebp - 0xcc], ecx
+600fadd0: c78538ffffff04000000 mov dword ptr [ebp - 0xc8], 4
+600fadda: c785ecfeffff00003800 mov dword ptr [ebp - 0x114], 0x380000
+600fade4: ffd3                 call ebx
+600fade6: 33ff                 xor edi, edi
+600fade8: 3bc7                 cmp eax, edi
+600fadea: 753f                 jne 0x600fae2b
+600fadec: 6a14                 push 0x14
+600fadee: e81f9c0d00           call 0x601d4a12
+600fadf3: 83c404               add esp, 4
+600fadf6: 8945ec               mov dword ptr [ebp - 0x14], eax
+
+## TFE 1.00 IsWideScreen / IsDualHead
+600fc1e0: 81790858030000       cmp dword ptr [ecx + 8], 0x358
+600fc1e7: 750f                 jne 0x600fc1f8
+600fc1e9: 81790ce0010000       cmp dword ptr [ecx + 0xc], 0x1e0
+600fc1f0: 7506                 jne 0x600fc1f8
+600fc1f2: b801000000           mov eax, 1
+600fc1f7: c3                   ret 
+600fc1f8: 33c0                 xor eax, eax
+600fc1c0: 8b410c               mov eax, dword ptr [ecx + 0xc]
+600fc1c3: 8b4908               mov ecx, dword ptr [ecx + 8]
+600fc1c6: c1e003               shl eax, 3
+600fc1c9: 8d0c49               lea ecx, [ecx + ecx*2]
+600fc1cc: 33d2                 xor edx, edx
+600fc1ce: 3bc8                 cmp ecx, eax
+600fc1d0: 0f94c2               sete dl
+600fc1d3: 8bc2                 mov eax, edx
+600fc1d5: c3                   ret 
+
+## TFE 1.00 CDS set-mode: dmFields 0x380000 (+0x400000 DM_DISPLAYFREQUENCY when [0x6023c3a8]=gfx_iRefreshRate > 0), dmDisplayFlags=4
+600faedd: b925000000           mov ecx, 0x25
+600faee2: 33c0                 xor eax, eax
+600faee4: 8dbd60ffffff         lea edi, [ebp - 0xa0]
+600faeea: f3ab                 rep stosd dword ptr es:[edi], eax
+600faeec: 8b4508               mov eax, dword ptr [ebp + 8]
+600faeef: 8b4d0c               mov ecx, dword ptr [ebp + 0xc]
+600faef2: 8945cc               mov dword ptr [ebp - 0x34], eax
+600faef5: a1a8c32360           mov eax, dword ptr [0x6023c3a8]
+600faefa: 85c0                 test eax, eax
+600faefc: 66c745849400         mov word ptr [ebp - 0x7c], 0x94
+600faf02: 894dd0               mov dword ptr [ebp - 0x30], ecx
+600faf05: c745d404000000       mov dword ptr [ebp - 0x2c], 4
+600faf0c: c7458800003800       mov dword ptr [ebp - 0x78], 0x380000
+600faf13: 7e0a                 jle 0x600faf1f
+600faf15: c7458800007800       mov dword ptr [ebp - 0x78], 0x780000
+600faf1c: 8945d8               mov dword ptr [ebp - 0x28], eax
+600faf1f: 8b4510               mov eax, dword ptr [ebp + 0x10]
+600faf22: 33ff                 xor edi, edi
+600faf24: 48                   dec eax
+600faf25: 7411                 je 0x600faf38
+600faf27: 48                   dec eax
+600faf28: 7521                 jne 0x600faf4b
+600faf2a: c745c820000000       mov dword ptr [ebp - 0x38], 0x20
+600faf31: bf18000000           mov edi, 0x18
+600faf36: eb0c                 jmp 0x600faf44
+600faf38: c745c810000000       mov dword ptr [ebp - 0x38], 0x10
+600faf3f: bf0f000000           mov edi, 0xf
+600faf44: 814d8800000400       or dword ptr [ebp - 0x78], 0x40000
+600faf4b: 8b1da0021e60         mov ebx, dword ptr [0x601e02a0]
+600faf51: 8d9560ffffff         lea edx, [ebp - 0xa0]
+600faf57: 6a04                 push 4
+600faf59: 52                   push edx
+600faf5a: ffd3                 call ebx
+
+## TSE 1.05 Engine.dll CDS set-mode: identical, refresh from [0x601d5f6c]=gap_iRefreshRate
+6003ad1d: b925000000           mov ecx, 0x25
+6003ad22: 33c0                 xor eax, eax
+6003ad24: 8dbd60ffffff         lea edi, [ebp - 0xa0]
+6003ad2a: f3ab                 rep stosd dword ptr es:[edi], eax
+6003ad2c: 8b4508               mov eax, dword ptr [ebp + 8]
+6003ad2f: 8b4d0c               mov ecx, dword ptr [ebp + 0xc]
+6003ad32: 8945cc               mov dword ptr [ebp - 0x34], eax
+6003ad35: a16c5f1d60           mov eax, dword ptr [0x601d5f6c]
+6003ad3a: 85c0                 test eax, eax
+6003ad3c: 66c745849400         mov word ptr [ebp - 0x7c], 0x94
+6003ad42: 894dd0               mov dword ptr [ebp - 0x30], ecx
+6003ad45: c745d404000000       mov dword ptr [ebp - 0x2c], 4
+6003ad4c: c7458800003800       mov dword ptr [ebp - 0x78], 0x380000
+6003ad53: 7e0a                 jle 0x6003ad5f
+6003ad55: c7458800007800       mov dword ptr [ebp - 0x78], 0x780000
+6003ad5c: 8945d8               mov dword ptr [ebp - 0x28], eax
+6003ad5f: 8b4510               mov eax, dword ptr [ebp + 0x10]
+6003ad62: 33ff                 xor edi, edi
+6003ad64: 48                   dec eax
+6003ad65: 7411                 je 0x6003ad78
+6003ad67: 48                   dec eax
+6003ad68: 7521                 jne 0x6003ad8b
+6003ad6a: c745c820000000       mov dword ptr [ebp - 0x38], 0x20
+6003ad71: bf18000000           mov edi, 0x18
+6003ad76: eb0c                 jmp 0x6003ad84
+6003ad78: c745c810000000       mov dword ptr [ebp - 0x38], 0x10
+6003ad7f: bf0f000000           mov edi, 0xf
+6003ad84: 814d8800000400       or dword ptr [ebp - 0x78], 0x40000
+6003ad8b: 8b1dbc921660         mov ebx, dword ptr [0x601692bc]
+6003ad91: 8d9560ffffff         lea edx, [ebp - 0xa0]
+6003ad97: 6a04                 push 4
+6003ad99: 52                   push edx
+6003ad9a: ffd3                 call ebx
+
+## TSE 1.05 Engine.dll OpenGL table loop and D3D8 EnumAdapterModes loop (both bounded by 0x601ad788)
+6003a8a1: bbd0d61a60           mov ebx, 0x601ad6d0
+6003a8a6: b925000000           mov ecx, 0x25
+6003a8ab: 33c0                 xor eax, eax
+6003a8ad: 8dbdb4feffff         lea edi, [ebp - 0x14c]
+6003a8b3: 8d95b4feffff         lea edx, [ebp - 0x14c]
+6003a8b9: f3ab                 rep stosd dword ptr es:[edi], eax
+6003a8bb: 8b03                 mov eax, dword ptr [ebx]
+6003a8bd: 8b4b04               mov ecx, dword ptr [ebx + 4]
+6003a8c0: 6a06                 push 6
+6003a8c2: 52                   push edx
+6003a8c3: 66c785d8feffff9400   mov word ptr [ebp - 0x128], 0x94
+6003a8cc: 898520ffffff         mov dword ptr [ebp - 0xe0], eax
+6003a8d2: 898d24ffffff         mov dword ptr [ebp - 0xdc], ecx
+6003a8d8: c78528ffffff04000000 mov dword ptr [ebp - 0xd8], 4
+6003a8e2: c785dcfeffff00003800 mov dword ptr [ebp - 0x124], 0x380000
+6003a8ec: ff15bc921660         call dword ptr [0x601692bc]
+6003a8f2: 85c0                 test eax, eax
+6003a8f4: 7523                 jne 0x6003a919
+6003a8f6: 8b862c010000         mov eax, dword ptr [esi + 0x12c]
+6003a8fc: 8b0b                 mov ecx, dword ptr [ebx]
+6003a8fe: 8d0440               lea eax, [eax + eax*2]
+6003a901: 8d0486               lea eax, [esi + eax*4]
+6003a904: 8908                 mov dword ptr [eax], ecx
+6003a906: 8b5304               mov edx, dword ptr [ebx + 4]
+6003a909: 895004               mov dword ptr [eax + 4], edx
+6003a90c: c7400800000000       mov dword ptr [eax + 8], 0
+6003ab16: c745f8d0d61a60       mov dword ptr [ebp - 8], 0x601ad6d0
+6003ab1d: 8b45fc               mov eax, dword ptr [ebp - 4]
+6003ab20: c745f400000000       mov dword ptr [ebp - 0xc], 0
+6003ab27: 85c0                 test eax, eax
+6003ab29: 0f8e96000000         jle 0x6003abc5
+6003ab2f: 8b86580a0000         mov eax, dword ptr [esi + 0xa58]
+6003ab35: 8d4ddc               lea ecx, [ebp - 0x24]
+6003ab38: 51                   push ecx
+6003ab39: 8b4df4               mov ecx, dword ptr [ebp - 0xc]
+6003ab3c: 8b10                 mov edx, dword ptr [eax]
+6003ab3e: 51                   push ecx
+6003ab3f: 53                   push ebx
+6003ab40: 50                   push eax
+6003ab41: ff521c               call dword ptr [edx + 0x1c]
+6003ab44: 8b45f8               mov eax, dword ptr [ebp - 8]
+6003ab47: 8b55dc               mov edx, dword ptr [ebp - 0x24]
+6003ab4a: 3b10                 cmp edx, dword ptr [eax]
+6003ab4c: 7541                 jne 0x6003ab8f
+6003ab4e: 8b4de0               mov ecx, dword ptr [ebp - 0x20]
+6003ab51: 8b5004               mov edx, dword ptr [eax + 4]
+6003ab54: 3bca                 cmp ecx, edx
+6003ab56: 7537                 jne 0x6003ab8f
+6003ab58: 8b45e8               mov eax, dword ptr [ebp - 0x18]
+6003ab5b: 83f815               cmp eax, 0x15
+6003ab5e: 7414                 je 0x6003ab74
+6003ab60: 83f816               cmp eax, 0x16
+6003ab63: 740f                 je 0x6003ab74
+6003ab65: 83f819               cmp eax, 0x19
+6003ab68: 740a                 je 0x6003ab74
+6003ab6a: 83f818               cmp eax, 0x18
+6003ab6d: 7405                 je 0x6003ab74
+6003ab6f: 83f817               cmp eax, 0x17
+6003ab72: 751b                 jne 0x6003ab8f
+6003ab74: 8b8e580a0000         mov ecx, dword ptr [esi + 0xa58]
+6003ab7a: 6a00                 push 0
+6003ab7c: 50                   push eax
+6003ab7d: 50                   push eax
+6003ab7e: a1b4981660           mov eax, dword ptr [0x601698b4]
+6003ab83: 8b11                 mov edx, dword ptr [ecx]
+6003ab85: 50                   push eax
+6003ab86: 53                   push ebx
+6003ab87: 51                   push ecx
+6003ab88: ff5224               call dword ptr [edx + 0x24]
+6003ab8b: 85c0                 test eax, eax
+6003ab8d: 7410                 je 0x6003ab9f
+6003ab8f: 8b45f4               mov eax, dword ptr [ebp - 0xc]
+6003ab92: 8b4dfc               mov ecx, dword ptr [ebp - 4]
+6003ab95: 40                   inc eax
+6003ab96: 3bc1                 cmp eax, ecx
+6003ab98: 8945f4               mov dword ptr [ebp - 0xc], eax
+6003ab9b: 7c92                 jl 0x6003ab2f
+
+## TSE SeriousSam.exe: NEW GAME copies sam_strFirstLevel [0x442f7c] into _pGame+0x14
+004090f0: a10c304400           mov eax, dword ptr [0x44300c]
+004090f5: 8b0d7c2f4400         mov ecx, dword ptr [0x442f7c]
+004090fb: 56                   push esi
+004090fc: 57                   push edi
+004090fd: 51                   push ecx
+004090fe: c70508d84300b8dc4300 mov dword ptr [0x43d808], 0x43dcb8
+00409108: 8d7014               lea esi, [eax + 0x14]
+0040910b: ff15d0b04200         call dword ptr [0x42b0d0]
+00409111: 8b16                 mov edx, dword ptr [esi]
+## static initialisers: sam_strFirstLevel <- 'Levels\\01_Hatshepsut.wld', sam_strIntroLevel <- 'Levels\\Intro.wld', sam_strGameName [0x442f74] <- 'serioussam'
+00422aa0: 687c604300           push 0x43607c
+00422aa5: ff15d0b04200         call dword ptr [0x42b0d0]
+00422aab: 83c404               add esp, 4
+00422aae: a37c2f4400           mov dword ptr [0x442f7c], eax
+00422ab3: c3                   ret 
+00422af0: 6898604300           push 0x436098
+00422af5: ff15d0b04200         call dword ptr [0x42b0d0]
+00422afb: 83c404               add esp, 4
+00422afe: a3782f4400           mov dword ptr [0x442f78], eax
+00422b03: c3                   ret 
+00422b40: 68ac604300           push 0x4360ac
+00422b45: ff15d0b04200         call dword ptr [0x42b0d0]
+00422b4b: 83c404               add esp, 4
+00422b4e: a3742f4400           mov dword ptr [0x442f74], eax
+00422b53: c3                   ret 
+## sam_strGameName copied into _pNetwork at startup
+00424307: a130b24200           mov eax, dword ptr [0x42b230]
+0042430c: 8b0d742f4400         mov ecx, dword ptr [0x442f74]
+00424312: 51                   push ecx
+00424313: 8b18                 mov ebx, dword ptr [eax]
+00424315: 83c30c               add ebx, 0xc
+00424318: ffd6                 call esi
+0042431a: 8b13                 mov edx, dword ptr [ebx]
+0042431c: 894508               mov dword ptr [ebp + 8], eax
+0042431f: 52                   push edx
+
+## Shogo CShell.dll v3 (carved from SHOGOP3.REZ @0x2bca8): resolution append with NO bound check; device record stride 0x1cc = 0x10c header + 12 x 16-byte entries; renderer stride 0x7c0 = 4 devices; renderer count capped at 8
+10003546: 8b4500               mov eax, dword ptr [ebp]
+10003549: c644241201           mov byte ptr [esp + 0x12], 1
+1000354e: 8bc8                 mov ecx, eax
+10003550: c1e104               shl ecx, 4
+10003553: 40                   inc eax
+10003554: 8d4c2904             lea ecx, [ecx + ebp + 4]
+10003558: 894500               mov dword ptr [ebp], eax
+1000355b: 8b9794010000         mov edx, dword ptr [edi + 0x194]
+10003561: 8911                 mov dword ptr [ecx], edx
+10003563: 8b8798010000         mov eax, dword ptr [edi + 0x198]
+10003569: 894104               mov dword ptr [ecx + 4], eax
+1000361e: 8b8604020000         mov eax, dword ptr [esi + 0x204]
+10003624: 83f808               cmp eax, 8
+10003627: 0f8d9d000000         jge 0x100036ca
+1000362d: 8bc8                 mov ecx, eax

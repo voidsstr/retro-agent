@@ -1,0 +1,176 @@
+# WON Half-Life hl.exe (md5 77cce9925d2a039ae38b679b1225e944) - the SECOND mode setter the survey missed.
+# IDirectDraw (v1) vtable: +0x4c RestoreDisplayMode, +0x50 SetCooperativeLevel, +0x54 SetDisplayMode(w,h,bpp) - v1 has NO refresh parameter.
+# Renderer switch (EngineType: registry value, then -d3d=3, -gl/-opengl=2, -soft/-software=1):
+  00423c4c  push     1
+  00423c4e  push     0x4cfdf8
+  00423c53  push     0x4cfe04
+  00423c58  mov      ecx, dword ptr [ebp - 0x38]
+  00423c5b  call     0x4a1230
+  00423c60  mov      dword ptr [0x4ea8cc], eax
+  00423c65  push     0
+  00423c67  push     0x4cfe10
+  00423c6c  call     0x421a28
+  00423c71  add      esp, 8
+  00423c74  test     eax, eax
+  00423c76  je       0x423c82
+  00423c78  mov      dword ptr [0x4ea8cc], 3
+  00423c82  push     0
+  00423c84  push     0x4cfe18
+  00423c89  call     0x421a28
+  00423c8e  add      esp, 8
+  00423c91  test     eax, eax
+  00423c93  jne      0x423ca8
+  00423c95  push     0
+  00423c97  push     0x4cfe1c
+  00423c9c  call     0x421a28
+  00423ca1  add      esp, 8
+  00423ca4  test     eax, eax
+  00423ca6  je       0x423cb2
+  00423ca8  mov      dword ptr [0x4ea8cc], 2
+  00423cb2  push     0
+  00423cb4  push     0x4cfe24
+  00423cb9  call     0x421a28
+  00423cbe  add      esp, 8
+  00423cc1  test     eax, eax
+  00423cc3  jne      0x423cd8
+  00423cc5  push     0
+  00423cc7  push     0x4cfe2c
+  00423ccc  call     0x421a28
+  00423cd1  add      esp, 8
+  00423cd4  test     eax, eax
+  00423cd6  je       0x423ce2
+  00423cd8  mov      dword ptr [0x4ea8cc], 1
+  00423ce2  .byte    0x83
+  00423ce3  .byte    0x3d
+# Per-renderer DirectDraw object: type 1 (software, fullscreen) and 3 (D3D) CREATE it (sub_408420); type 2 (OpenGL) RELEASES it (sub_408560):
+  0040e824  mov      eax, dword ptr [0x4ea8cc]
+  0040e829  dec      eax
+  0040e82a  je       0x40e84b
+  0040e82c  dec      eax
+  0040e82d  je       0x40e83c
+  0040e82f  dec      eax
+  0040e830  jne      0x40e865
+  0040e832  cmp      dword ptr [0x4e1a20], ebp
+  0040e838  jne      0x40e865
+  0040e83a  jmp      0x40e85b
+  0040e83c  cmp      dword ptr [0x4e1a20], ebp
+  0040e842  je       0x40e865
+  0040e844  call     0x408560
+  0040e849  jmp      0x40e865
+  0040e84b  cmp      dword ptr [0x4e1a20], ebp
+  0040e851  jne      0x40e865
+  0040e853  cmp      dword ptr [0x4e6e18], ebp
+  0040e859  jne      0x40e865
+  0040e85b  push     ebp
+  0040e85c  push     esi
+  0040e85d  call     0x408420
+  0040e862  add      esp, 8
+  0040e865  .byte    0x89
+  0040e866  .byte    0x35
+  0040e867  cld      
+# Mode set dispatcher: if g_pDD (0x4e1a20) -> sub_408690 (DirectDraw), else sub_4640d0 -> sub_464070 (ChangeDisplaySettingsA, no DM_DISPLAYFREQUENCY):
+  004641cc  mov      eax, dword ptr [0x4e1a20]
+  004641d1  test     eax, eax
+  004641d3  je       0x464205
+  004641d5  mov      ecx, dword ptr [0x4e6e04]
+  004641db  mov      eax, dword ptr [0x4e6e10]
+  004641e0  xor      edx, edx
+  004641e2  test     ecx, ecx
+  004641e4  sete     dl
+  004641e7  push     edx
+  004641e8  push     eax
+  004641e9  call     0x408690
+  004641ee  add      esp, 8
+  004641f1  test     eax, eax
+  004641f3  jne      0x464205
+  004641f5  push     0x8e
+  004641fa  push     eax
+  004641fb  call     0x466b90
+  00464200  add      esp, 8
+  00464203  jmp      0x464214
+  00464205  mov      ecx, dword ptr [0x4e6e10]
+  0046420b  push     ecx
+  0046420c  .byte    0xe8
+  0046420d  .byte    0xbf
+  0046420e  .byte    0xfe
+  0046420f  .byte    0xff
+# sub_4085c0: IDirectDraw::SetDisplayMode(w,h,bpp) from the mode table (0x408660-0x408666), and the 640x480x16 launcher mode (0x408602-0x408614):
+  004085c0  mov      eax, dword ptr [0x4e1a20]
+  004085c5  push     ebp
+  004085c6  test     eax, eax
+  004085c8  mov      ebp, 1
+  004085cd  jne      0x4085d3
+  004085cf  xor      eax, eax
+  004085d1  pop      ebp
+  004085d2  ret      
+  004085d3  mov      eax, dword ptr [esp + 8]
+  004085d7  cmp      eax, -1
+  004085da  jne      0x408626
+  004085dc  mov      eax, dword ptr [0x4cf8a4]
+  004085e1  mov      ecx, dword ptr [0x4cf8a0]
+  004085e7  mov      edx, dword ptr [0x4ea8e0]
+  004085ed  push     0
+  004085ef  push     eax
+  004085f0  push     ecx
+  004085f1  push     0
+  004085f3  push     0
+  004085f5  push     edx
+  004085f6  call     dword ptr [0x4ac590]
+  004085fc  mov      edx, dword ptr [0x4cf8a4]
+  00408602  mov      eax, dword ptr [0x4e1a20]
+  00408607  push     0x10
+  00408609  push     edx
+  0040860a  mov      edx, dword ptr [0x4cf8a0]
+  00408610  mov      ecx, dword ptr [eax]
+  00408612  push     edx
+  00408613  push     eax
+  00408614  call     dword ptr [ecx + 0x54]
+  00408617  test     eax, eax
+  00408619  je       0x40867f
+  0040861b  push     eax
+  0040861c  call     0x4089e0
+  00408621  add      esp, 4
+  00408624  jmp      0x408670
+  00408626  lea      eax, [eax + eax*2]
+  00408629  push     ebx
+  0040862a  push     esi
+  0040862b  push     edi
+  0040862c  lea      eax, [eax + eax*4]
+  0040862f  push     0
+  00408631  lea      eax, [eax + eax*4]
+  00408634  shl      eax, 2
+  00408637  mov      edi, dword ptr [eax + 0x4e6e38]
+  0040863d  mov      esi, dword ptr [eax + 0x4e6e34]
+  00408643  mov      ebx, dword ptr [eax + 0x4e6e50]
+  00408649  mov      eax, dword ptr [0x4ea8e0]
+  0040864e  push     edi
+  0040864f  push     esi
+  00408650  push     0
+  00408652  push     0
+  00408654  push     eax
+  00408655  call     dword ptr [0x4ac590]
+  0040865b  mov      eax, dword ptr [0x4e1a20]
+  00408660  push     ebx
+  00408661  push     edi
+  00408662  push     esi
+  00408663  mov      ecx, dword ptr [eax]
+  00408665  push     eax
+  00408666  call     dword ptr [ecx + 0x54]
+  00408669  pop      edi
+  0040866a  pop      esi
+  0040866b  test     eax, eax
+  0040866d  pop      ebx
+  0040866e  je       0x40867f
+  00408670  push     0x4cdb4c
+  00408675  call     0x40e460
+  0040867a  add      esp, 4
+  0040867d  xor      ebp, ebp
+  0040867f  mov      eax, dword ptr [0x4e1a20]
+  00408684  push     eax
+  00408685  mov      edx, dword ptr [eax]
+  00408687  call     dword ptr [edx + 0x28]
+  0040868a  mov      eax, ebp
+  0040868c  pop      ebp
+  0040868d  ret      
+  0040868e  nop      
+  0040868f  nop      

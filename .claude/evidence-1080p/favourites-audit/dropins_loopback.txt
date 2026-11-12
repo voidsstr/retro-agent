@@ -1,0 +1,28 @@
+=== /home/voidsstr/.config/systemd/user/retro-gameservers-watch.service.d/20-probe-loopback.conf
+# 2026-09-28: the host's LAN address moved from 192.168.1.132 to .196 (see
+# docs/host-issues-log.md). The watchdog probed .132, heard nothing, and
+# restarted healthy servers ~88x/hour. Every server here listens on 0.0.0.0,
+# so probe them on loopback - correct whatever the LAN address is.
+[Service]
+Environment=RETRO_GAMESERVER_HOST=127.0.0.1
+=== /home/voidsstr/.config/systemd/user/a2s-proxy-cs16-public.service.d/20-target-loopback.conf
+# 2026-09-28: the host moved from 192.168.1.132 to .196 (docs/host-issues-log.md)
+# and this relay still forwarded to .132 - every join through it dead-ended.
+# The relay and hlds share the host, so loopback is right whatever the LAN IP.
+[Service]
+ExecStart=
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent-private/scripts/game-servers/a2s_oldquery_proxy.py --listen-port 27016 --target 127.0.0.1:27019
+=== /home/voidsstr/.config/systemd/user/a2s-proxy-cs16.service.d/20-target-loopback.conf
+# 2026-09-28: the host moved from 192.168.1.132 to .196 (docs/host-issues-log.md)
+# and this relay still forwarded to .132 - every join through it dead-ended.
+# The relay and hlds share the host, so loopback is right whatever the LAN IP.
+[Service]
+ExecStart=
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent-private/scripts/game-servers/a2s_oldquery_proxy.py --listen-port 27015 --target 127.0.0.1:27018
+=== /home/voidsstr/.config/systemd/user/a2s-proxy-hldm.service.d/20-target-loopback.conf
+# 2026-09-28: the host moved from 192.168.1.132 to .196 (docs/host-issues-log.md)
+# and this relay still forwarded to .132 - every join through it dead-ended.
+# The relay and hlds share the host, so loopback is right whatever the LAN IP.
+[Service]
+ExecStart=
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent-private/scripts/game-servers/a2s_oldquery_proxy.py --listen-port 27020 --target 127.0.0.1:27021

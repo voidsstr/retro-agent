@@ -1,0 +1,353 @@
+===== 192.168.1.123 OK NSC-B20C188E96D Win5.1 at 2026-09-29 00:00:28
+  C:\Games\CounterStrike16\config\serverbrowser.vdf
+     dl=1 bytes=352 hash=0bcee3ca5f172322 db=['0bcee3ca5f172322'] -> MATCH block=False dirent=[(352, '2026-09-29 03:52:00')]
+     keys_db=[('cs16', '2026-09-28 23:54:07')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Games\DeusEx\SYSTEM\DeusEx.ini
+     dl=1 bytes=6890 hash=12470715f92ab5b2 db=['12470715f92ab5b2'] -> MATCH block=False dirent=[(6890, '2026-09-29 03:52:00')]
+     keys_db=[('deusex', '2026-09-28 23:54:07')] keys_now=['deusex']
+     132=['192.168.1.132\\7791'] err=None
+  C:\Games\HalfLife1\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['tfc']
+     132=None err=Cannot open file: error 3
+  C:\Games\JediAcademy\baseq3\autoexec.cfg
+     dl=1 bytes=1124 hash=c38b843d9be6212d db=['c38b843d9be6212d'] -> MATCH block=True dirent=[(1124, '2026-08-30 03:06:42')]
+     keys_db=[('jka', '2026-08-29 23:07:31')] keys_now=[]
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\Quake.II.v3.20\Quake.II.v3.20\baseq2\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c6966dd186bd82e6'] -> DIFF block=None dirent=[]
+     keys_db=[('quake2', '2026-08-28 11:12:34')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\Quake2\baseq2\autoexec.cfg
+     dl=255 bytes=None hash=None db=['dd00d17a7bff3801'] -> DIFF block=None dirent=[]
+     keys_db=[('quake2', '2026-08-28 11:12:34')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\Quake2Complete\baseq2\autoexec.cfg
+     dl=1 bytes=3683 hash=26bff2c55a4cb5f1 db=['26bff2c55a4cb5f1'] -> MATCH block=True dirent=[(3683, '2026-09-29 03:52:00')]
+     keys_db=[('quake2', '2026-09-28 23:54:07')] keys_now=['quake2']
+     132=['192.168.1.132:27910'] err=None
+  C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg
+     dl=1 bytes=2642 hash=c21aa07e11946456 db=['c21aa07e11946456'] -> MATCH block=True dirent=[(2642, '2026-09-29 03:57:00')]
+     keys_db=[('ioquake3', '2026-09-28 23:59:07'), ('quake3', '2026-09-28 23:59:07')] keys_now=['quake3', 'ioquake3']
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg
+     dl=1 bytes=1863 hash=884e3d32c806e50b db=['884e3d32c806e50b'] -> MATCH block=True dirent=[(1863, '2026-09-29 03:52:00')]
+     keys_db=[('wolfmp', '2026-09-28 23:54:07')] keys_now=['wolfmp']
+     132=['192.168.1.132:27963'] err=None
+  C:\Games\SoldierOfFortune2\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c38b843d9be6212d'] -> DIFF block=None dirent=[]
+     keys_db=[('sof2', '2026-08-29 23:07:31')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\UnrealGold\System\Unreal.ini
+     dl=1 bytes=8908 hash=82f0e7e55cd1ab92 db=['82f0e7e55cd1ab92'] -> MATCH block=False dirent=[(8908, '2026-09-29 03:52:00')]
+     keys_db=[('unreal', '2026-09-28 23:54:07')] keys_now=['unreal']
+     132=['192.168.1.132\\7808'] err=None
+  C:\Games\UnrealTournament436\System\UnrealTournament.ini
+     dl=1 bytes=17743 hash=738eb44e1c7fd490 db=['738eb44e1c7fd490'] -> MATCH block=False dirent=[(17743, '2026-09-29 03:57:00')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UnrealTournament\System\UnrealTournament.ini
+     dl=1 bytes=19338 hash=1f4eb0ad357c3bf7 db=['1f4eb0ad357c3bf7'] -> MATCH block=False dirent=[(19338, '2026-09-29 03:57:00')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UT2004\System\UT2004.ini
+     dl=1 bytes=19972 hash=f7fe18d23620627a db=['f7fe18d23620627a'] -> MATCH block=False dirent=[(19972, '2026-09-29 03:52:00')]
+     keys_db=[('ut2004', '2026-09-28 23:54:07')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+  C:\Program Files\EA GAMES\MOHAA\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['50242698e0d78013'] -> DIFF block=None dirent=[]
+     keys_db=[('mohaa', '2026-08-28 12:11:40')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Program Files\Quake III Arena\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['5ab8171ff7b1d259'] -> DIFF block=None dirent=[]
+     keys_db=[('quake3', '2026-08-28 12:11:40')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\q3bench\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['90103c2588aa6d66'] -> DIFF block=None dirent=[]
+     keys_db=[('quake3', '2026-08-28 12:11:40')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Quake III Arena\Quake3\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['6498bc1b9c87ac9f'] -> DIFF block=None dirent=[]
+     keys_db=[('quake3', '2026-08-28 12:11:40')] keys_now=[]
+     132=None err=Cannot open file: error 3
+===== 192.168.1.145 OK DELL Win5.1 at 2026-09-29 00:00:28
+  C:\GAMES\CounterStrike16\config\serverbrowser.vdf
+     dl=1 bytes=352 hash=0bcee3ca5f172322 db=['0bcee3ca5f172322'] -> MATCH block=False dirent=[(352, '2026-09-29 03:54:11')]
+     keys_db=[('cs16', '2026-09-28 23:54:08')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Games\DeusEx\SYSTEM\DeusEx.ini
+     dl=1 bytes=6890 hash=12470715f92ab5b2 db=['12470715f92ab5b2'] -> MATCH block=False dirent=[(6890, '2026-09-29 03:54:11')]
+     keys_db=[('deusex', '2026-09-28 23:54:08')] keys_now=['deusex']
+     132=['192.168.1.132\\7791'] err=None
+  C:\GAMES\HalfLife1\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['tfc']
+     132=None err=Cannot open file: error 3
+  C:\GAMES\JediAcademy\baseq3\autoexec.cfg
+     dl=1 bytes=1124 hash=c38b843d9be6212d db=['c38b843d9be6212d'] -> MATCH block=True dirent=[(1124, '2026-08-30 03:07:34')]
+     keys_db=[('jka', '2026-08-29 23:07:32')] keys_now=[]
+     132=['192.168.1.132:27961'] err=None
+  C:\GAMES\Quake III Arena\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['a4462fb166a22119'] -> DIFF block=None dirent=[]
+     keys_db=[('quake3', '2026-08-29 13:41:17')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\GAMES\Quake2\baseq2\autoexec.cfg
+     dl=255 bytes=None hash=None db=['dd00d17a7bff3801'] -> DIFF block=None dirent=[]
+     keys_db=[('quake2', '2026-08-28 19:37:32')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\GAMES\Quake2Complete\baseq2\autoexec.cfg
+     dl=1 bytes=3683 hash=26bff2c55a4cb5f1 db=['26bff2c55a4cb5f1'] -> MATCH block=True dirent=[(3683, '2026-09-29 03:54:11')]
+     keys_db=[('quake2', '2026-09-28 23:54:08')] keys_now=['quake2']
+     132=['192.168.1.132:27910'] err=None
+  C:\GAMES\Quake3-TeamArena\baseq3\autoexec.cfg
+     dl=1 bytes=2642 hash=c21aa07e11946456 db=['c21aa07e11946456'] -> MATCH block=True dirent=[(2642, '2026-09-29 03:59:10')]
+     keys_db=[('ioquake3', '2026-09-28 23:59:07'), ('quake3', '2026-09-28 23:59:07')] keys_now=['quake3', 'ioquake3']
+     132=['192.168.1.132:27961'] err=None
+  C:\GAMES\ReturnToCastleWolfenstein\Main\autoexec.cfg
+     dl=1 bytes=1863 hash=884e3d32c806e50b db=['884e3d32c806e50b'] -> MATCH block=True dirent=[(1863, '2026-09-29 03:54:11')]
+     keys_db=[('wolfmp', '2026-09-28 23:54:08')] keys_now=['wolfmp']
+     132=['192.168.1.132:27963'] err=None
+  C:\GAMES\SoldierOfFortune2\baseq3\autoexec.cfg
+     dl=1 bytes=1124 hash=c38b843d9be6212d db=['c38b843d9be6212d'] -> MATCH block=True dirent=[(1124, '2026-08-30 03:07:34')]
+     keys_db=[('sof2', '2026-08-29 23:07:32')] keys_now=[]
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\UnrealGold\System\Unreal.ini
+     dl=1 bytes=8908 hash=82f0e7e55cd1ab92 db=['82f0e7e55cd1ab92'] -> MATCH block=False dirent=[(8908, '2026-09-29 03:54:11')]
+     keys_db=[('unreal', '2026-09-28 23:54:08')] keys_now=['unreal']
+     132=['192.168.1.132\\7808'] err=None
+  C:\Games\UnrealTournament436\System\UnrealTournament.ini
+     dl=1 bytes=17743 hash=738eb44e1c7fd490 db=['738eb44e1c7fd490'] -> MATCH block=False dirent=[(17743, '2026-09-29 03:59:10')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UnrealTournament\System\UnrealTournament.ini
+     dl=1 bytes=19338 hash=1f4eb0ad357c3bf7 db=['1f4eb0ad357c3bf7'] -> MATCH block=False dirent=[(19338, '2026-09-29 03:59:10')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UT2004\System\UT2004.ini
+     dl=1 bytes=19972 hash=f7fe18d23620627a db=['f7fe18d23620627a'] -> MATCH block=False dirent=[(19972, '2026-09-29 03:54:11')]
+     keys_db=[('ut2004', '2026-09-28 23:54:08')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+  C:\Program Files\Bcs16 Romania\Counter-Strike 1.6\config\serverbrowser.vdf
+     dl=1 bytes=630 hash=1438bca8b9c64d0c db=['1438bca8b9c64d0c'] -> MATCH block=False dirent=[(630, '2026-09-29 03:54:11')]
+     keys_db=[('cs16', '2026-09-28 23:54:08')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Program Files\EA GAMES\MOHAA\baseq3\autoexec.cfg
+     dl=1 bytes=1124 hash=c38b843d9be6212d db=['c38b843d9be6212d'] -> MATCH block=True dirent=[(1124, '2026-08-30 03:07:34')]
+     keys_db=[('mohaa', '2026-08-29 23:07:32')] keys_now=[]
+     132=['192.168.1.132:27961'] err=None
+  C:\q3bench\baseq3\autoexec.cfg
+     dl=1 bytes=1456 hash=156f3d3d6de14c88 db=['156f3d3d6de14c88'] -> MATCH block=True dirent=[(1456, '2026-08-30 03:07:34')]
+     keys_db=[('quake3', '2026-08-29 23:07:32')] keys_now=[]
+     132=['192.168.1.132:27961'] err=None
+  C:\Quake III Arena\Quake3\baseq3\autoexec.cfg
+     dl=1 bytes=1119 hash=70edcb1d206e54a3 db=['70edcb1d206e54a3'] -> MATCH block=True dirent=[(1119, '2026-09-29 03:59:10')]
+     keys_db=[('quake3', '2026-09-28 23:59:07')] keys_now=['quake3']
+     132=['192.168.1.132:27961'] err=None
+  C:\Sierra\Half-Life\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['ts', 'tfc']
+     132=None err=Cannot open file: error 3
+  C:\UT2003\System\UT2003.ini
+     dl=1 bytes=12183 hash=1f820e09eb1304d4 db=[] -> no-db-row block=False dirent=[(12183, '2026-04-17 03:25:09')]
+     keys_db=[] keys_now=['ut2003']
+     132=[] err=None
+  C:\UT2004\System\UT2004.ini
+     dl=1 bytes=19419 hash=5c74dcf61c17d687 db=['5c74dcf61c17d687'] -> MATCH block=False dirent=[(19419, '2026-09-29 03:54:11')]
+     keys_db=[('ut2004', '2026-09-28 23:54:08')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+===== 192.168.1.240 OK USER-41EA3B3330 Win5.1 at 2026-09-29 00:00:28
+  C:\Games\CounterStrike16\config\serverbrowser.vdf
+     dl=1 bytes=352 hash=0bcee3ca5f172322 db=['0bcee3ca5f172322'] -> MATCH block=False dirent=[(352, '2026-09-29 03:53:18')]
+     keys_db=[('cs16', '2026-09-28 23:54:19')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Games\DeusEx\SYSTEM\DeusEx.ini
+     dl=1 bytes=6890 hash=12470715f92ab5b2 db=['12470715f92ab5b2'] -> MATCH block=False dirent=[(6890, '2026-09-29 03:53:18')]
+     keys_db=[('deusex', '2026-09-28 23:54:19')] keys_now=['deusex']
+     132=['192.168.1.132\\7791'] err=None
+  C:\Games\HalfLife1\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['tfc']
+     132=None err=Cannot open file: error 3
+  C:\Games\JediAcademy\baseq3\autoexec.cfg
+     dl=1 bytes=1124 hash=c38b843d9be6212d db=['c38b843d9be6212d'] -> MATCH block=True dirent=[(1124, '2026-08-30 03:07:30')]
+     keys_db=[('jka', '2026-08-29 23:07:32')] keys_now=[]
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\Quake2\baseq2\autoexec.cfg
+     dl=255 bytes=None hash=None db=['487ecc51c095f498'] -> DIFF block=None dirent=[]
+     keys_db=[('quake2', '2026-08-29 13:01:18')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\Quake2Complete\baseq2\autoexec.cfg
+     dl=1 bytes=3683 hash=26bff2c55a4cb5f1 db=['26bff2c55a4cb5f1'] -> MATCH block=True dirent=[(3683, '2026-09-29 03:53:18')]
+     keys_db=[('quake2', '2026-09-28 23:54:19')] keys_now=['quake2']
+     132=['192.168.1.132:27910'] err=None
+  C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg
+     dl=1 bytes=2642 hash=c21aa07e11946456 db=['c21aa07e11946456'] -> MATCH block=True dirent=[(2642, '2026-09-29 03:58:07')]
+     keys_db=[('ioquake3', '2026-09-28 23:59:07'), ('quake3', '2026-09-28 23:59:07')] keys_now=['quake3', 'ioquake3']
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg
+     dl=1 bytes=1863 hash=884e3d32c806e50b db=['884e3d32c806e50b'] -> MATCH block=True dirent=[(1863, '2026-09-29 03:53:18')]
+     keys_db=[('wolfmp', '2026-09-28 23:54:19')] keys_now=['wolfmp']
+     132=['192.168.1.132:27963'] err=None
+  C:\Games\SoldierOfFortune2\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c38b843d9be6212d'] -> DIFF block=None dirent=[]
+     keys_db=[('sof2', '2026-08-29 23:07:32')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\UnrealGold\System\Unreal.ini
+     dl=1 bytes=8908 hash=82f0e7e55cd1ab92 db=['82f0e7e55cd1ab92'] -> MATCH block=False dirent=[(8908, '2026-09-29 03:53:18')]
+     keys_db=[('unreal', '2026-09-28 23:54:19')] keys_now=['unreal']
+     132=['192.168.1.132\\7808'] err=None
+  C:\Games\UnrealTournament436\System\UnrealTournament.ini
+     dl=1 bytes=17743 hash=738eb44e1c7fd490 db=['738eb44e1c7fd490'] -> MATCH block=False dirent=[(17743, '2026-09-29 03:58:07')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UnrealTournament\System\UnrealTournament.ini
+     dl=1 bytes=19338 hash=1f4eb0ad357c3bf7 db=['1f4eb0ad357c3bf7'] -> MATCH block=False dirent=[(19338, '2026-09-29 03:58:07')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UT2004\System\UT2004.ini
+     dl=1 bytes=19972 hash=f7fe18d23620627a db=['f7fe18d23620627a'] -> MATCH block=False dirent=[(19972, '2026-09-29 03:53:18')]
+     keys_db=[('ut2004', '2026-09-28 23:54:19')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+  C:\Program Files\Quake III Arena\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c38d4cbfb53c80d7'] -> DIFF block=None dirent=[]
+     keys_db=[('quake3', '2026-08-29 13:01:18')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\UT2004\System\UT2004.ini
+     dl=1 bytes=23252 hash=a911cd667e35c278 db=['a911cd667e35c278'] -> MATCH block=False dirent=[(23252, '2026-09-29 03:53:18')]
+     keys_db=[('ut2004', '2026-09-28 23:54:19')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+===== 192.168.1.195 OK ADMIN-PC Win6.1 at 2026-09-29 00:00:28
+  C:\Games\CounterStrike16\config\serverbrowser.vdf
+     dl=1 bytes=352 hash=0bcee3ca5f172322 db=['0bcee3ca5f172322'] -> MATCH block=False dirent=[(352, '2026-09-29 03:54:22')]
+     keys_db=[('cs16', '2026-09-28 23:54:19')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Games\DeusEx\SYSTEM\DeusEx.ini
+     dl=1 bytes=6890 hash=12470715f92ab5b2 db=['12470715f92ab5b2'] -> MATCH block=False dirent=[(6890, '2026-09-29 03:54:22')]
+     keys_db=[('deusex', '2026-09-28 23:54:19')] keys_now=['deusex']
+     132=['192.168.1.132\\7791'] err=None
+  C:\Games\HalfLife1\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['tfc']
+     132=None err=Cannot open file: error 3
+  C:\Games\Quake2Complete\baseq2\autoexec.cfg
+     dl=1 bytes=3683 hash=26bff2c55a4cb5f1 db=['26bff2c55a4cb5f1'] -> MATCH block=True dirent=[(3683, '2026-09-29 03:54:22')]
+     keys_db=[('quake2', '2026-09-28 23:54:19')] keys_now=['quake2']
+     132=['192.168.1.132:27910'] err=None
+  C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg
+     dl=1 bytes=2642 hash=c21aa07e11946456 db=['c21aa07e11946456'] -> MATCH block=True dirent=[(2642, '2026-09-29 03:59:10')]
+     keys_db=[('ioquake3', '2026-09-28 23:59:07'), ('quake3', '2026-09-28 23:59:07')] keys_now=['quake3', 'ioquake3']
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg
+     dl=1 bytes=1863 hash=884e3d32c806e50b db=['884e3d32c806e50b'] -> MATCH block=True dirent=[(1863, '2026-09-29 03:54:22')]
+     keys_db=[('wolfmp', '2026-09-28 23:54:19')] keys_now=['wolfmp']
+     132=['192.168.1.132:27963'] err=None
+  C:\Games\UnrealGold\System\Unreal.ini
+     dl=1 bytes=8908 hash=82f0e7e55cd1ab92 db=['82f0e7e55cd1ab92'] -> MATCH block=False dirent=[(8908, '2026-09-29 03:54:22')]
+     keys_db=[('unreal', '2026-09-28 23:54:19')] keys_now=['unreal']
+     132=['192.168.1.132\\7808'] err=None
+  C:\Games\UnrealTournament436\System\UnrealTournament.ini
+     dl=1 bytes=17743 hash=738eb44e1c7fd490 db=['738eb44e1c7fd490'] -> MATCH block=False dirent=[(17743, '2026-09-29 03:59:10')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UnrealTournament\System\UnrealTournament.ini
+     dl=1 bytes=19338 hash=1f4eb0ad357c3bf7 db=['1f4eb0ad357c3bf7'] -> MATCH block=False dirent=[(19338, '2026-09-29 03:59:10')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UT2004\System\UT2004.ini
+     dl=1 bytes=19972 hash=f7fe18d23620627a db=['f7fe18d23620627a'] -> MATCH block=False dirent=[(19972, '2026-09-29 03:54:22')]
+     keys_db=[('ut2004', '2026-09-28 23:54:19')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+  C:\gameservers\cs16bcs\config\serverbrowser.vdf
+     dl=1 bytes=352 hash=0bcee3ca5f172322 db=['0bcee3ca5f172322'] -> MATCH block=False dirent=[(352, '2026-09-29 03:54:22')]
+     keys_db=[('cs16', '2026-09-28 23:54:19')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\gameservers\cs16lan\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['cs16']
+     132=None err=Cannot open file: error 3
+  C:\GOG Games\Return to Castle Wolfenstein\Main\autoexec.cfg
+     dl=1 bytes=540 hash=3ed91a7bb57c06b0 db=['3ed91a7bb57c06b0'] -> MATCH block=True dirent=[(540, '2026-09-29 03:54:22')]
+     keys_db=[('wolfmp', '2026-09-28 23:54:19')] keys_now=['wolfmp']
+     132=['192.168.1.132:27963'] err=None
+  C:\GOG Games\Unreal Gold\System\Unreal.ini
+     dl=1 bytes=10126 hash=b8dedddd03e171fa db=['b8dedddd03e171fa'] -> MATCH block=False dirent=[(10126, '2026-09-29 03:54:22')]
+     keys_db=[('unreal', '2026-09-28 23:54:19')] keys_now=['unreal']
+     132=['192.168.1.132\\7808'] err=None
+  C:\GOG Games\Unreal Gold\System_226bak\System\Unreal.ini
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['unreal']
+     132=None err=Cannot open file: error 3
+  C:\Program Files\Bcs16 Romania\Counter-Strike 1.6\config\serverbrowser.vdf
+     dl=1 bytes=628 hash=d4d35f6e78de1862 db=['d4d35f6e78de1862'] -> MATCH block=False dirent=[(628, '2026-09-29 03:54:22')]
+     keys_db=[('cs16', '2026-09-28 23:54:19')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Quake III Arena\Quake3\baseq3\autoexec.cfg
+     dl=1 bytes=1656 hash=c40fe35c4aedafd9 db=['c40fe35c4aedafd9'] -> MATCH block=True dirent=[(1656, '2026-09-29 03:59:10')]
+     keys_db=[('ioquake3', '2026-09-28 23:59:07'), ('quake3', '2026-09-28 23:59:07')] keys_now=['quake3', 'ioquake3']
+     132=['192.168.1.132:27961'] err=None
+===== 192.168.1.124 OK NSC-C543575F526 Win5.1 at 2026-09-29 00:00:28
+  C:\Games\CounterStrike16\config\serverbrowser.vdf
+     dl=1 bytes=352 hash=0bcee3ca5f172322 db=['0bcee3ca5f172322'] -> MATCH block=False dirent=[(352, '2026-09-29 03:59:36')]
+     keys_db=[('cs16', '2026-09-28 23:59:07')] keys_now=['cs16']
+     132=['192.168.1.132:27015', '192.168.1.132:27016'] err=None
+  C:\Games\DeusEx\SYSTEM\DeusEx.ini
+     dl=1 bytes=6889 hash=37d44edd4a3c22c4 db=['37d44edd4a3c22c4'] -> MATCH block=False dirent=[(6889, '2026-09-29 03:54:37')]
+     keys_db=[('deusex', '2026-09-28 23:54:07')] keys_now=['deusex']
+     132=['192.168.1.132\\7791'] err=None
+  C:\Games\HalfLife1\config\serverbrowser.vdf
+     dl=255 bytes=None hash=None db=[] -> no-db-row block=None dirent=[]
+     keys_db=[] keys_now=['tfc']
+     132=None err=Cannot open file: error 3
+  C:\Games\JediAcademy\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c38b843d9be6212d'] -> DIFF block=None dirent=[]
+     keys_db=[('jka', '2026-08-29 23:07:31')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\Quake2\baseq2\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c6966dd186bd82e6'] -> DIFF block=None dirent=[]
+     keys_db=[('quake2', '2026-08-25 18:31:42')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\Quake2Complete\baseq2\autoexec.cfg
+     dl=1 bytes=3683 hash=26bff2c55a4cb5f1 db=['26bff2c55a4cb5f1'] -> MATCH block=True dirent=[(3683, '2026-09-29 03:54:37')]
+     keys_db=[('quake2', '2026-09-28 23:54:08')] keys_now=['quake2']
+     132=['192.168.1.132:27910'] err=None
+  C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg
+     dl=1 bytes=2642 hash=c21aa07e11946456 db=['c21aa07e11946456'] -> MATCH block=True dirent=[(2642, '2026-09-29 03:59:36')]
+     keys_db=[('ioquake3', '2026-09-28 23:59:07'), ('quake3', '2026-09-28 23:59:07')] keys_now=['quake3', 'ioquake3']
+     132=['192.168.1.132:27961'] err=None
+  C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg
+     dl=1 bytes=1863 hash=884e3d32c806e50b db=['884e3d32c806e50b'] -> MATCH block=True dirent=[(1863, '2026-09-29 03:54:37')]
+     keys_db=[('wolfmp', '2026-09-28 23:54:08')] keys_now=['wolfmp']
+     132=['192.168.1.132:27963'] err=None
+  C:\Games\SoldierOfFortune2\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['c38b843d9be6212d'] -> DIFF block=None dirent=[]
+     keys_db=[('sof2', '2026-08-29 23:07:31')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\UnrealGold\System\Unreal.ini
+     dl=1 bytes=8907 hash=9d3456062f9af8fa db=['9d3456062f9af8fa'] -> MATCH block=False dirent=[(8907, '2026-09-29 03:54:37')]
+     keys_db=[('unreal', '2026-09-28 23:54:08')] keys_now=['unreal']
+     132=['192.168.1.132\\7808'] err=None
+  C:\Games\UnrealTournament436\System\UnrealTournament.ini
+     dl=1 bytes=17742 hash=544e4a5fb054fa6e db=['544e4a5fb054fa6e'] -> MATCH block=False dirent=[(17742, '2026-09-29 03:59:36')]
+     keys_db=[('ut99', '2026-09-28 23:59:07')] keys_now=['ut99']
+     132=['192.168.1.132\\7798'] err=None
+  C:\Games\UnrealTournament\System\UnrealTournament.ini
+     dl=255 bytes=None hash=None db=['274537ab1ef6693d'] -> DIFF block=None dirent=[]
+     keys_db=[('ut99', '2026-08-31 22:09:39')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Games\UT2004\System\UT2004.ini
+     dl=1 bytes=19971 hash=4e20ad979b78ff7d db=['4e20ad979b78ff7d'] -> MATCH block=False dirent=[(19971, '2026-09-29 03:54:37')]
+     keys_db=[('ut2004', '2026-09-28 23:54:08')] keys_now=['ut2004']
+     132=['192.168.1.132"'] err=None
+  C:\Games\UT436\System\UnrealTournament.ini
+     dl=255 bytes=None hash=None db=['ca3737c718bf79ef'] -> DIFF block=None dirent=[]
+     keys_db=[('ut99', '2026-08-31 22:09:39')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  C:\Quake III Arena\Quake3\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['8fd4903511d5579d'] -> DIFF block=None dirent=[]
+     keys_db=[('quake3', '2026-08-25 23:12:14')] keys_now=[]
+     132=None err=Cannot open file: error 3
+  D:\Program Files\EA GAMES\MOHAA\baseq3\autoexec.cfg
+     dl=255 bytes=None hash=None db=['461688c4a90a5473'] -> DIFF block=None dirent=[]
+     keys_db=[('mohaa', '2026-08-25 23:12:13')] keys_now=[]
+     132=None err=Cannot open file: error 3

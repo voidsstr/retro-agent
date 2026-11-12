@@ -1,0 +1,81 @@
+#### /mnt/retro-share/Files/Games-Library/JediAcademy/jamp.exe  image base 0x400000
+
+== cvar r_displayRefresh: exact string at ['0x556f4c']
+   code refs to the string: ['0x4a2351']
+   registration near 0x4a2351 -> stored in global 0xfe311c
+  004a2340: add     al, ch
+  004a2342: sub     dh, byte ptr [ecx - 7]
+  004a2345: inc     dword ptr [ebx + 0x206a48c4]
+  004a234b: push    0x565c50
+  004a2350: push    0x556f4c
+  004a2355: mov     dword ptr [0xfe2fb0], eax
+  004a235a: call    0x439470
+  004a235f: mov     esi, eax
+  004a2361: push    0x43480000
+  004a2366: push    0
+  004a2368: mov     eax, 1
+  004a236d: mov     dword ptr [0xfe311c], esi
+  004a2373: call    0x4a0d80
+  004a2378: push    0x200
+  004a237d: push    0x565c50
+  004a2382: push    0x556f3c
+  004a2387: call    0x439470
+  004a238c: push    0x20
+  004a238e: push    0x5654a8
+   every code ref to 0xfe311c: ['0x4a1fa0', '0x4a236f', '0x4c5b97']
+   --- ref 0x4a1fa0
+  004a1f9f: or      eax, 0xfe311c
+  004a1fa4: mov     eax, dword ptr [ecx + 0x20]
+  004a1fa7: test    eax, eax
+  004a1fa9: je      0x4a1fb9
+  004a1fab: push    eax
+  004a1fac: push    0x557214
+  004a1fb1: call    0x437080
+  004a1fb6: add     esp, 8
+  004a1fb9: mov     eax, dword ptr [0xfe31f4]
+  004a1fbe: test    eax, eax
+  004a1fc0: je      0x4a1fef
+  004a1fc2: fld     dword ptr [eax + 0xd4]
+  004a1fc8: sub     esp, 0x18
+  004a1fcb: fstp    qword ptr [esp + 0x10]
+  004a1fcf: fld     dword ptr [eax + 0xd0]
+  004a1fd5: fstp    qword ptr [esp + 8]
+   --- ref 0x4a236f
+  004a236e: xor     eax, 0xfe311c
+  004a2373: call    0x4a0d80
+  004a2378: push    0x200
+  004a237d: push    0x565c50
+  004a2382: push    0x556f3c
+  004a2387: call    0x439470
+  004a238c: push    0x20
+  004a238e: push    0x5654a8
+  004a2393: push    0x557990
+  004a2398: mov     dword ptr [0xfe30d4], eax
+  004a239d: call    0x439470
+  004a23a2: push    0x220
+  004a23a7: push    0x565c50
+   --- ref 0x4c5b97
+  004c5b78: sar     byte ptr [ecx + 0x27], 0x8d
+  004c5b7f: jl      0x4c5ba5
+  004c5b81: sbb     bl, dh
+  004c5b83: stosd   dword ptr es:[edi], eax
+  004c5b84: mov     eax, dword ptr [0xfe3180]
+  004c5b89: mov     ecx, dword ptr [0xfe3184]
+  004c5b8f: mov     dword ptr [esp + 0x84], eax
+  004c5b96: mov     eax, dword ptr [0xfe311c]
+  004c5b9b: mov     word ptr [esp + 0x3c], 0x9c
+  004c5ba2: mov     dword ptr [esp + 0x88], ecx
+  004c5ba9: mov     dword ptr [esp + 0x40], 0x180000
+  004c5bb1: mov     eax, dword ptr [eax + 0x20]
+  004c5bb4: test    eax, eax
+  004c5bb6: je      0x4c5bc7
+  004c5bb8: mov     dword ptr [esp + 0x90], eax
+  004c5bbf: mov     dword ptr [esp + 0x40], 0x580000
+  004c5bc7: mov     edi, dword ptr [ebp + 8]
+  004c5bca: test    edi, edi
+  004c5bcc: je      0x4c5c03
+  004c5bce: mov     eax, dword ptr [0x10bc08c]
+
+== ChangeDisplaySettingsA (IAT 0x53b238) call sites: ['0x4c5c56', '0x4c5c72', '0x4c5dd1', '0x4c70da']
+
+== EnumDisplaySettingsA (IAT 0x53b23c) call sites: ['0x4c5ce3', '0x4c5d24', '0x4c5e19']

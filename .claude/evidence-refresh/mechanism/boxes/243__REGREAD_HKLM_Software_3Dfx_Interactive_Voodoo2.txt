@@ -1,0 +1,2 @@
+# 192.168.1.243  REGREAD HKLM Software\3Dfx Interactive\Voodoo2  status=0  2026-09-29 00:36:47
+{"root":"HKLM","path":"Software\\3Dfx Interactive\\Voodoo2","values":[{"name":"(Default)","type":"REG_SZ","data":""}],"subkeys":["D3D","Glide","PropPage"]}

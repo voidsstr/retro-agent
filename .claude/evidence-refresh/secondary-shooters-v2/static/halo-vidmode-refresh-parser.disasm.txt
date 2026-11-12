@@ -1,0 +1,91 @@
+# halo.exe (md5 b7aa8f68829a33a9f0b87ec81425f5db, 2,822,144 B, 2014 1.10 build) - command-line video-mode parser at 0x5168c0.
+# defaults w=800 (0x320) h=600 (0x258) hz=60 (0x3c); '-vidmode' (0x66b174) is sscanf'd with '%d,%d,%d' (0x66ed7c): 3 fields -> the refresh out-pointer ([esp+0x24]) gets the 3rd; 2 fields -> refresh untouched.
+# '-refresh' (0x66ed70) is a SECOND switch that atoi()s its value into the SAME refresh out-pointer.
+   0x005168bc  int3    
+   0x005168bd  int3    
+   0x005168be  int3    
+   0x005168bf  int3    
+   0x005168c0  sub     esp, 0x10
+   0x005168c3  push    ebx
+   0x005168c4  push    ebp
+   0x005168c5  mov     ebp, dword ptr [esp + 0x1c]
+   0x005168c9  push    edi
+   0x005168ca  push    0x66b174
+   0x005168cf  lea     edi, [esp + 0x10]
+   0x005168d3  xor     bl, bl
+   0x005168d5  mov     dword ptr [esp + 0x18], 0x320
+   0x005168dd  mov     dword ptr [esp + 0x1c], 0x258
+   0x005168e5  mov     dword ptr [esp + 0x14], 0x3c
+   0x005168ed  call    0x542760
+   0x005168f2  add     esp, 4
+   0x005168f5  test    al, al
+   0x005168f7  je      0x51695b
+   0x005168f9  mov     eax, dword ptr [esp + 0xc]
+   0x005168fd  test    eax, eax
+   0x005168ff  je      0x51695b
+   0x00516901  lea     ecx, [esp + 0x10]
+   0x00516905  push    ecx
+   0x00516906  lea     edx, [esp + 0x1c]
+   0x0051690a  push    edx
+   0x0051690b  lea     ecx, [esp + 0x1c]
+   0x0051690f  push    ecx
+   0x00516910  push    0x66ed7c
+   0x00516915  push    eax
+   0x00516916  call    0x626572
+   0x0051691b  add     esp, 0x14
+   0x0051691e  sub     eax, 2
+   0x00516921  je      0x516934
+   0x00516923  dec     eax
+   0x00516924  jne     0x51695b
+   0x00516926  mov     eax, dword ptr [esp + 0x24]
+   0x0051692a  test    eax, eax
+   0x0051692c  je      0x516934
+   0x0051692e  mov     edx, dword ptr [esp + 0x10]
+   0x00516932  mov     dword ptr [eax], edx
+   0x00516934  test    esi, esi
+   0x00516936  je      0x51693e
+   0x00516938  mov     eax, dword ptr [esp + 0x14]
+   0x0051693c  mov     dword ptr [esi], eax
+   0x0051693e  test    ebp, ebp
+   0x00516940  je      0x516949
+   0x00516942  mov     ecx, dword ptr [esp + 0x18]
+   0x00516946  mov     dword ptr [ebp], ecx
+   0x00516949  mov     al, byte ptr [0x71d1b0]
+   0x0051694e  test    al, al
+   0x00516950  jne     0x516959
+   0x00516952  mov     byte ptr [0x71d16d], 1
+   0x00516959  mov     bl, 1
+>> 0x0051695b  push    0x66ed70
+   0x00516960  lea     edi, [esp + 0x10]
+   0x00516964  call    0x542760
+   0x00516969  add     esp, 4
+   0x0051696c  test    al, al
+   0x0051696e  je      0x516993
+   0x00516970  mov     eax, dword ptr [esp + 0xc]
+   0x00516974  test    eax, eax
+   0x00516976  je      0x516983
+   0x00516978  push    eax
+   0x00516979  call    0x625926
+   0x0051697e  add     esp, 4
+   0x00516981  jmp     0x516985
+   0x00516983  xor     eax, eax
+   0x00516985  mov     ecx, dword ptr [esp + 0x24]
+   0x00516989  test    ecx, ecx
+   0x0051698b  je      0x51698f
+   0x0051698d  mov     dword ptr [ecx], eax
+   0x0051698f  mov     bl, 1
+   0x00516991  jmp     0x516997
+   0x00516993  mov     eax, dword ptr [esp + 0x10]
+   0x00516997  mov     cl, byte ptr [0x71d1b0]
+   0x0051699d  test    cl, cl
+   0x0051699f  jne     0x5169b3
+   0x005169a1  test    eax, eax
+   0x005169a3  jne     0x5169ac
+   0x005169a5  mov     byte ptr [0x71d170], 1
+   0x005169ac  mov     byte ptr [0x71d1b0], 1
+   0x005169b3  pop     edi
+   0x005169b4  pop     ebp
+   0x005169b5  mov     al, bl
+   0x005169b7  pop     ebx
+   0x005169b8  add     esp, 0x10
+   0x005169bb  ret     

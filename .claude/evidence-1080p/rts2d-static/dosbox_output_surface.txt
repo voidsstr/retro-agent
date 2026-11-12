@@ -1,0 +1,48 @@
+# DOSBox output=surface on the 1080p LCD boxes - evidence, 2026-09-29
+
+## Staged DOSBox builds: WC1, MOO2 and Daggerfall run the SAME DOSBox.exe (0.74-2.1 GOG build):
+2318a4462513382c45298be63ec007d8  /mnt/retro-share/Files/Games-Library/WarcraftOrcsAndHumans/DOSBOX/DOSBox.exe
+2318a4462513382c45298be63ec007d8  /mnt/retro-share/Files/Games-Library/MasterOfOrionII/DOSBOX/DOSBox.exe
+2318a4462513382c45298be63ec007d8  /mnt/retro-share/Files/Games-Library/Daggerfall/DOSBOX/DOSBox.exe
+33294e0a8b970b8de45ce446e2add783  /mnt/retro-share/Files/Games-Library/Carmageddon1/DOSBOX/DOSBox.exe
+33294e0a8b970b8de45ce446e2add783  /mnt/retro-share/Files/Games-Library/Descent1/DOSBOX/DOSBox.exe
+
+## That DOSBox.exe's own [sdl] help text (strings -a):
+original
+What resolution to use for fullscreen: original, desktop or fixed size (e.g. 1024x768).
+  Using your monitor's native resolution (desktop) with aspect=true might give the best results.
+  If you end up with small window on a large screen, try an output different from surface.
+
+## output= in every staged DOSBox title's base conf (fullresolution is rewritten per box by FLEETRES/GAMERES):
+Descent1/dosboxD1.conf                        output=ddraw aspect=true scaler=normal2x 
+Carmageddon1/dosboxCarma.conf                 output=overlay aspect=true scaler=normal2x 
+RedneckRampage/dosboxRR.conf                  output=overlay aspect=true scaler=normal2x 
+ShadowWarrior/dosbox_swarrior.conf            output=overlay aspect=false scaler=normal2x 
+Daggerfall/dosbox_daggerfall.conf             output=overlay aspect=true scaler=normal2x 
+WarcraftOrcsAndHumans/dosboxWC1.conf          output=surface aspect=true scaler=normal2x 
+MasterOfOrionII/dosboxMOO2.conf               output=surface aspect=true scaler=normal2x 
+
+## DEPLOYED on the LCD boxes (agent DOWNLOAD, read-only, 2026-09-29 00:14) - files in deployed/:
+deployed/123_MasterOfOrionII_dosboxMOO2.conf       fullresolution=desktop output=surface 
+deployed/123_WarcraftOrcsAndHumans_dosboxWC1.conf  fullresolution=desktop output=surface 
+deployed/145_MasterOfOrionII_dosboxMOO2.conf       fullresolution=desktop output=surface 
+deployed/145_WarcraftOrcsAndHumans_dosboxWC1.conf  fullresolution=desktop output=surface 
+deployed/195_MasterOfOrionII_dosboxMOO2.conf       fullresolution=desktop output=surface 
+deployed/195_WarcraftOrcsAndHumans_dosboxWC1.conf  fullresolution=desktop output=surface 
+deployed/240_MasterOfOrionII_dosboxMOO2.conf       fullresolution=desktop output=surface 
+deployed/240_WarcraftOrcsAndHumans_dosboxWC1.conf  fullresolution=desktop output=surface 
+
+## Screenshot content bounding boxes (pixels brighter than 12) from the 2026-08-31 perbox sweep (copied here):
+  123_Descent1_Play_Descent.png                                  (1920, 1080)  bbox=(240, 0, 1679, 1080)
+  123_MasterOfOrionII_Play_Master_of_Orion_II.png                (1920, 1080)  bbox=(720, 460, 1200, 620)
+  123_RedneckRampage_Play_Redneck_Rampage_-_Game.png             (1920, 1080)  bbox=(240, 0, 1680, 1080)
+  123_WarcraftOrcsAndHumans_Play_Warcraft_-_Orcs_and_Humans.png  (1920, 1080)  bbox=(640, 367, 1280, 712)
+  124_MasterOfOrionII_Play_Master_of_Orion_II.png                (640, 480)  bbox=(80, 160, 560, 320)
+  124_WarcraftOrcsAndHumans_Play_Warcraft_-_Orcs_and_Humans.png  (640, 480)  bbox=(0, 0, 640, 480)
+  240_MasterOfOrionII_Play_Master_of_Orion_II.png                (1920, 1080)  bbox=(720, 460, 1200, 620)
+  240_WarcraftOrcsAndHumans_Play_Warcraft_-_Orcs_and_Humans.png  (1920, 1080)  bbox=(640, 367, 1280, 712)
+  246_MasterOfOrionII_Play_Master_of_Orion_II.png                (1920, 1080)  bbox=(720, 460, 1200, 620)
+  246_WarcraftOrcsAndHumans_Play_Warcraft_-_Orcs_and_Humans.png  (1920, 1080)  bbox=(640, 367, 1280, 712)
+  -> surface (WC1/MOO2) on 1920x1080: the game occupies the unscaled 640x480 box at x=640..1280,y=300..780
+     (MOO2 on the 640x480 CRT .124 shows the same content at (80,160)-(560,320), i.e. offset (640,300));
+     overlay/ddraw (RedneckRampage/Descent1) on the same boxes: 1440x1080 pillarboxed (x=240..1680).

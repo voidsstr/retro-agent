@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKCU Software\Volition\Red Faction  status=0  2026-09-29 04:20:38
+{"root":"HKCU","path":"Software\\Volition\\Red Faction","values":[{"name":"UpdateRate","type":"REG_DWORD","data":200000},{"name":"ForcePort","type":"REG_DWORD","data":0},{"name":"StraightToSetup","type":"REG_DWORD","data":0},{"name":"Geometry Cache Size","type":"REG_DWORD","data":8},{"name":"Fast Animations","type":"REG_DWORD","data":1},{"name":"Vsync","type":"REG_DWORD","data":0}],"subkeys":[]}

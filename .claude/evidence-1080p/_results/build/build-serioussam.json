@@ -1,0 +1,82 @@
+{
+ "key": "serioussam",
+ "status": "ready",
+ "summary": "I built a same-size data patch of the resolution table in Bin\\Engine.dll for Serious Sam TFE 1.00 and TSE 1.05. The three Matrox DualHead pairs are replaced in place: 1280x480 becomes 1280x720, 1600x600 becomes 1600x900 and 2048x768 becomes 1920x1080. The offsets are TFE 0x159288/0x159290/0x159298 and TSE 0x1ad760/0x1ad768/0x1ad770. The TFE count word at 0x1592b0 stays 22, and the TSE loop-end pointer stays 0x601ad788. The PE checksum was valid in both originals, so it is recomputed and pefile agrees it is still valid.\n\n--check does more than match md5s. It asserts the whole original table, the count word, the .data section, and that no base relocation touches the patched bytes. It also checks that every relocated pointer near the table targets only its base, the count word, the end pointer or a neighbouring constant, never an individual entry.\n\nCDisplayMode::IsDualHead (w*3==h*8) and CDisplayMode::IsWideScreen (exactly 856x480) are false for all three new pairs. Correction to the verified entry: CDrawPort::IsWideScreen is a separate function, w*9==h*16 (TFE 0x600fc610, TSE 0x6003ed60), and it is TRUE for the new modes. It depends on the render size, and the 1080p boxes already render at 1920x1080 through the launcher, so the patch changes only what the menu offers.\n\nMultiplayer: Engine.dll is loaded as a PE import of the exe. The engine's CRC challenge covers only files opened through its own file system during a level load. The ssam-tfe/tse servers run their own unpatched Engine.dll (md5 identical to the library), so no server change is needed. --install-server is implemented only as a fallback.\n\nThe same tool also builds the TSE must-fix artifact. The staged Scripts\\Game_startup.ini is kept byte-for-byte as shipped, followed by a comment block and `include \"Scripts\\Game_FleetRes.ini\";`. This is Croteam's own include syntax, and a name starting with G after the backslash is the form their shipped files prove. The launcher and GAMERES must then write only Game_FleetRes.ini (see launcher_changes_needed). As a side effect this ends the existing churn where GAMESYNC re-copies Game_startup.ini on every sync and GAMERES rewrites it again.\n\n--check and --build ran clean. --publish and --install-server are implemented and unit-tested with a stub, but were NOT run. Nothing was written to the share and no box was touched.",
+ "files_created": [
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/serioussam/apply.py",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/tests/python/test_patch_serioussam.py",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-serioussam/notes.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-serioussam/check.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-serioussam/manifest.json"
+ ],
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/SeriousSamFirstEncounter/Bin/Engine.dll",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/serioussam/patched/SeriousSamFirstEncounter/Bin/Engine.dll",
+   "md5": "7158150f6ba8981f6c4d141e0a379f58",
+   "size": 1560576
+  },
+  {
+   "share_path": "Files/Games-Library/SeriousSamSecondEncounter/Bin/Engine.dll",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/serioussam/patched/SeriousSamSecondEncounter/Bin/Engine.dll",
+   "md5": "4bdeec64bb57c0bd09d20319d195e08e",
+   "size": 1929274
+  },
+  {
+   "share_path": "Files/Games-Library/SeriousSamFirstEncounter/Scripts/Game_startup.ini",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/serioussam/patched/SeriousSamFirstEncounter/Scripts/Game_startup.ini",
+   "md5": "c7410f66e11cfd027b8fbfbf1d09bae1",
+   "size": 412
+  },
+  {
+   "share_path": "Files/Games-Library/SeriousSamSecondEncounter/Scripts/Game_startup.ini",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/serioussam/patched/SeriousSamSecondEncounter/Scripts/Game_startup.ini",
+   "md5": "cce33f9ac340461d140f765610f08627",
+   "size": 550
+  }
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/SeriousSamFirstEncounter/Bin/Engine.dll",
+   "md5": "6281c69ec427b9a0dd828bc1cbf0b14b",
+   "size": 1560576
+  },
+  {
+   "share_path": "Files/Games-Library/SeriousSamSecondEncounter/Bin/Engine.dll",
+   "md5": "230c1b52f3bd125dc9af049b70472100",
+   "size": 1929274
+  },
+  {
+   "share_path": "Files/Games-Library/SeriousSamFirstEncounter/Scripts/Game_startup.ini",
+   "md5": "cf9c168d9af4e35df51b81b2b7a925ec",
+   "size": 86
+  },
+  {
+   "share_path": "Files/Games-Library/SeriousSamSecondEncounter/Scripts/Game_startup.ini",
+   "md5": "fb6e5696d4980a0d13e390aa745fea54",
+   "size": 224
+  }
+ ],
+ "launcher_changes_needed": [
+  "Design, and the reason for it: stage Scripts\\Game_startup.ini as SHIPPED plus the include, and have both writers own a separate per-box file, Scripts\\Game_FleetRes.ini. Do not make both writers re-emit the four TSE lines. That would be a third copy of Croteam's content, it would need a separate TSE-only body kind in gameres.h, and it keeps the existing churn: GAMESYNC re-copies the staged Game_startup.ini on every sync because the box copy never matches it, and GAMERES then rewrites it. The staged include file comes from provisioning/patches/serioussam/apply.py (md5 TFE c7410f66..., TSE cce33f9a...).",
+  "scripts/fleet/stage-fleetres.py, ssam_startup_ini(): change `p = '\"%~dp0Scripts\\\\Game_startup.ini\"'` to `p = '\"%~dp0Scripts\\\\Game_FleetRes.ini\"'`. Keep the seven echo lines otherwise identical, and keep `gfx_iRefreshRate=%FR_HZ%;` as the LAST line: in TSE it is an undeclared symbol, and its error path sets the parser's error flag. Rewrite the docstring: Game_startup.ini is now staged as shipped and never written; Game_FleetRes.ini is per-box and owned by the launcher and GAMERES. The refresh line itself belongs to the refresh lane; this change does not touch it.",
+  "provisioning/discmount/specs/SeriousSamFirstEncounter-{Play,Host,Join}.json and SeriousSamSecondEncounter-{Play,Host,Join}.json: in each `fleetres_block`, replace all 7 occurrences of `\"%~dp0Scripts\\\\Game_startup.ini\"` with `\"%~dp0Scripts\\\\Game_FleetRes.ini\"`. In the Join specs those lines follow the HOSTIP block. Then regenerate the six launchers with scripts/fleet/make-mount-launcher.py and publish each one with scripts/fleet/sharewrite.py put, verified one at a time.",
+  "agent/shared/gameres.h lines 716-717: change the file field `\"Scripts\\\\Game_startup.ini\"` to `\"Scripts\\\\Game_FleetRes.ini\"` on both rules (SeriousSamFirstEncounter, SeriousSamSecondEncounter). Keep GR_OP_CFG and the 'ssam' kind, and leave the gr_cfg_body(\"ssam\") text unchanged so it still matches the launcher lines. Update the comment above the rules. This needs an agent release (patch bump) that reaches the fleet BEFORE or together with the tree change. An old agent's GAMERES would keep truncating Game_startup.ini at every sync, which removes the include (the resolution then falls back to PersistentSymbols) and the TSE level lines.",
+  "scripts/fleet/stage-serioussam.py: add os.path.join('Scripts', 'Game_FleetRes.ini') to PER_BOX_STATE, so it is never staged and --check fails if it is. Add a --check assertion that each tree's Scripts\\Game_startup.ini contains the line `include \"Scripts\\Game_FleetRes.ini\";`, and that the TSE tree still has sam_strFirstLevel, sam_strIntroLevel, sam_strTechTestLevel and sam_strGameName = \"serioussamse\" (or pin the md5s above). Update the RESOLUTION paragraph in NOTES.",
+  "Tests to update or add: tests/python/test_serioussam_staging.py (lines ~220-223 and ~387: assert that the helper body writes Game_FleetRes.ini and never redirects into Game_startup.ini; add a share check that no staged SeriousSam launcher contains `> \"%~dp0Scripts\\Game_startup.ini\"`); tests/python/test_gameres_mirror.py (the launcher/gameres body pin still holds; add an assertion that the ssam rule's file is Game_FleetRes.ini); tests/native/test_gameres.c:577-580 (fix the comment); tests/README.md fix->test row. Optional: scripts/validate-staged-library.py FAILs when a SeriousSam launcher writes Game_startup.ini, or when TSE's staged Game_startup.ini lacks sam_strFirstLevel.",
+  "Deploy order (future phase): (1) agent release with the gameres.h change, and confirm the fleet runs it; (2) publish the six regenerated launchers; (3) `apply.py --build OUTDIR` then `apply.py --publish OUTDIR`, which backs up the originals to _patches/<Title>/originals-2026-09-29/ first, then writes one file at a time with read-back through /mnt; (4) GAMESYNC RESET + START on every box that has the titles. A box's truncated Game_startup.ini differs in size, so the staged one is copied back.",
+  "NOT recommended as part of this fix: adding sam_bFirstStarted=0; to Game_FleetRes.ini. The first-start path may also run the engine's renderer auto-detect, which .246/.195 need to land on Direct3D. Treat it as a separate, hardware-tested decision."
+ ],
+ "tests": "python3 -m pytest -q tests/python/test_patch_serioussam.py: 19 passed, 0 skipped (share mounted).\n\nThe pure-logic tests cover:\n- the offset tables and the TSE end-pointer arithmetic;\n- the new table: same length, only the DualHead slots lost, no duplicates, CDisplayMode helpers not tripped, and the CDrawPort 16:9 fact recorded;\n- the patch on a synthetic PE32: only the 3 slots plus the checksum change, and a valid checksum stays valid;\n- refusal of a table that is not the original;\n- the checksum ignoring its own field;\n- the startup-ini transform: shipped bytes preserved, exactly one include, CRLF only, idempotent, a missing final newline handled, Croteam include form, and the truncated writer output detected;\n- --publish ordering with sharewrite stubbed: backup before put, idempotent, stop on the first failure, never overwrite an unknown share state.\n\nThe share tests rebuild the staged originals to the pinned patched md5s and assert Game_FleetRes.ini is not staged. Both skip loudly if the library is unmounted.\n\napply.py --check rc=0 (output saved to build-serioussam/check.txt). apply.py --build wrote ~/.retro-fleet/patch-out/serioussam with manifest.json. pefile independently confirms both patched checksums: TFE 0x1884e3, TSE 0x1e6d99.",
+ "risks": [
+  "The table edit has not yet run on hardware. The TSE menu code (same loop design) was exercised on .123 unpatched, but 1920x1080 appearing in the list, and APPLY at 1920x1080, are still to be proven.",
+  "Win7 .195: TFE currently gets BADMODE there for every mode (the gfx_iRefreshRate suspect belongs to the refresh lane). The table patch cannot fix or worsen that, but TFE on .195 cannot be used to verify it.",
+  "An include of a missing Game_FleetRes.ini goes to the engine's 'Cannot load script file' catch at TSE 0x6013c2d8. It is a console print, not a FatalError, and the include is the last line. Still, it should be seen once on hardware. In normal use the launcher writes the file before every start and GAMERES at every sync.",
+  "Ordering hazard: if the tree changes are published before the agent release, old agents keep truncating Game_startup.ini at every sync, removing the include and the TSE lines. The resolution then falls back to PersistentSymbols and each sync reports a change. The agent must ship first or together.",
+  "The menu lists the new modes after 2048x1536 and before 848x480, not in sorted order. This is cosmetic; the modes stay in the slots the DualHead entries held.",
+  "Same-size Engine.dll edit: publishing depends on sharewrite.py's fresh-mtime check. A stale smbclient timestamp would let GAMESYNC skip the file. sharewrite fails loudly on that, and apply.py stops on the first failure.",
+  "The multiplayer claim is static: the CRC table does not cover Bin\\*.dll, and the server keeps its original DLL. Only a patched client joining the unpatched server proves it; --install-server is the fallback."
+ ],
+ "hw_verification_plan": "Box: .123 (XP, DAEMON Tools, and GDI captures this engine fullscreen), or .145/.240. Do NOT use .195 to verify the menu: TFE BADMODE is pending there.\n\nPrerequisites, all in the future deploy phase: agent with the gameres.h change, regenerated launchers, apply.py --publish, then on the box: taskkill any SeriousSam.exe, GAMESYNC RESET + START, and require state=done, failed_files=0, and titles_total equal to the library count for the box. Then DOWNLOAD C:\\Games\\SeriousSamSecondEncounter\\Bin\\Engine.dll and check md5 4bdeec64bb57c0bd09d20319d195e08e (TFE 7158150f6ba8981f6c4d141e0a379f58). DOWNLOAD Scripts\\Game_startup.ini and check md5 cce33f9ac340461d140f765610f08627 (TFE c7410f66e11cfd027b8fbfbf1d09bae1). Confirm Scripts\\Game_FleetRes.ini exists with sam_iScreenSizeI=1920 / J=1080. Run GAMERES APPLY twice: the second run must report 0 values changed.\n\nTSE on .123:\n1. EXEC cmd /c start \"\" /D \"C:\\Games\\SeriousSamSecondEncounter\" \"Play Serious Sam - The Second Encounter.bat\". If WINLIST shows an 'Information' #32770 window, check WINLIST foreground first, then UIKEY RETURN.\n2. Wait for the window title 'Serious Sam (FullScreen 1920x1080)'.\n3. The menu is keyboard-navigable: SINGLE PLAYER, DOWN x6 to OPTIONS, RETURN, RETURN (VIDEO OPTIONS), DOWN x3 to RESOLUTION.\n4. SCREENSHOT: the RESOLUTION field must now show 1920x1080, not 640x480, because the current mode is now in the list.\n5. RIGHT xN with a SCREENSHOT each: 1280x720, 1600x900 and 1920x1080 must appear; 1280x480, 1600x600 and 2048x768 must not.\n6. Repeat after UP x3, RIGHT (Direct3D), DOWN x3.\n7. Only with the field on 1920x1080, press APPLY once. The screen must stay at 1920x1080 fullscreen.\n8. ESCAPE x2, then SINGLE PLAYER > NEW GAME > NORMAL (RETURN x3). The level must load: a screenshot of 1_0_InTheLastEpisode gameplay.\n9. DOWNLOAD SeriousSam.log. It must have no 'Cannot open file' for Intro.wld or 01_Hatshepsut.wld, no 'Cannot load script file', and must show 'CDS: mode set to 1920x1080'.\n\nRepeat steps 1-7 for TFE with 'Play Serious Sam - The First Encounter.bat'.\n\nInclude-missing check, once: rename Game_FleetRes.ini away, start SeriousSam.exe directly (not the launcher), confirm the game starts and the log shows only the non-fatal message, then restore the file.\n\nWhat must NOT change:\n- Join 192.168.1.132:25600 (TFE) and :25610 (TSE) from the patched client via the 'Join ... - LAN' launchers. There must be no CRC or version rejection, and the server query must flip to openplaying with numplayers 1. The TSE GameSpy gamename must read serioussamse.\n- A two-box LAN game with both boxes patched: screenshots of both.\n- The CRT boxes (.124/.133/.143/.171) must still start at their own FLEETRES mode, and their menus lose only the DualHead entries.\n\nCleanup: taskkill /f /im \"SeriousSam.exe\", then delete the Players\\Player0-7.plr, Controls\\Controls0-7.ctl and SeriousSam.log a first run creates. Leave the desktop at its persisted mode.",
+ "review_notes": "The fix in titles-verified.json was built as specified, with two refinements.\n\n(1) The claim that \"IsWideScreen is exactly 856x480\" holds only for CDisplayMode. CDrawPort::IsWideScreen is w*9==h*16 and is true for the new modes, but that is already the case at runtime today, so there is no behaviour change. This is recorded in the apply.py docstring and asserted in the tests.\n\n(2) The TSE startup fix uses the include design, with Game_FleetRes.ini as the per-box file name. The 'G' is chosen because Croteam's shipped scripts use single-backslash include paths and prove `\\G`.\n\nThe PE checksum is recomputed because it was valid in both originals. TSE loop details and relocation targets were read from the staged binaries with a minimal in-script PE parser, so there is no pefile dependency; pefile was used only to cross-check.\n\nThe manifest has share_path, backup_share_path, md5/size and original_md5/size for every output, plus a per-file report.\n\nOutputs live outside git in ~/.retro-fleet/patch-out/serioussam/. The originals/ copy there is what --publish backs up.\n\nNothing was committed. The worktree files are untracked and must be staged explicitly: provisioning/patches/serioussam/apply.py and tests/python/test_patch_serioussam.py."
+}

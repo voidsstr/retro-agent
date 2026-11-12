@@ -1,0 +1,45 @@
+# UnrealGold/System/D3DDrv.dll - IDirectDraw7::SetDisplayMode (vtable+0x54): push 0 (flags), push 0 (refresh), bpp, h, w, this
+---- vtable+0x54 at 0x1000b2c1
+   0x1000b29f  mov    edi, 6
+   0x1000b2a4  push   0
+   0x1000b2a6  push   0
+   0x1000b2a8  mov    edx, dword ptr [eax]
+   0x1000b2aa  push   ecx
+   0x1000b2ab  mov    ecx, dword ptr [esi + 0xc4]
+   0x1000b2b1  mov    dword ptr [ebp - 4], edi
+   0x1000b2b4  push   ecx
+   0x1000b2b5  mov    ecx, dword ptr [esi + 0xc0]
+   0x1000b2bb  push   ecx
+   0x1000b2bc  push   eax
+   0x1000b2bd  mov    byte ptr [ebp - 4], 0x38
+   0x1000b2c1  call   dword ptr [edx + 0x54]
+# UnrealTournament436/System/D3DDrv.dll - IDirectDraw7::SetDisplayMode (vtable+0x54): push 0 (flags), push 0 (refresh), bpp, h, w, this
+---- vtable+0x54 at 0x1000bcb6
+   0x1000bc94  mov    edi, 6
+   0x1000bc99  push   0
+   0x1000bc9b  push   0
+   0x1000bc9d  mov    edx, dword ptr [eax]
+   0x1000bc9f  push   ecx
+   0x1000bca0  mov    ecx, dword ptr [esi + 0xd8]
+   0x1000bca6  mov    dword ptr [ebp - 4], edi
+   0x1000bca9  push   ecx
+   0x1000bcaa  mov    ecx, dword ptr [esi + 0xd4]
+   0x1000bcb0  push   ecx
+   0x1000bcb1  push   eax
+   0x1000bcb2  mov    byte ptr [ebp - 4], 0x38
+   0x1000bcb6  call   dword ptr [edx + 0x54]
+# DeusEx/SYSTEM/D3DDRV.DLL - IDirectDraw7::SetDisplayMode (vtable+0x54): push 0 (flags), push 0 (refresh), bpp, h, w, this
+---- vtable+0x54 at 0x1000b3bf
+   0x1000b39d  mov    edi, 6
+   0x1000b3a2  push   0
+   0x1000b3a4  push   0
+   0x1000b3a6  mov    edx, dword ptr [eax]
+   0x1000b3a8  push   ecx
+   0x1000b3a9  mov    ecx, dword ptr [esi + 0xd8]
+   0x1000b3af  mov    dword ptr [ebp - 4], edi
+   0x1000b3b2  push   ecx
+   0x1000b3b3  mov    ecx, dword ptr [esi + 0xd4]
+   0x1000b3b9  push   ecx
+   0x1000b3ba  push   eax
+   0x1000b3bb  mov    byte ptr [ebp - 4], 0x38
+   0x1000b3bf  call   dword ptr [edx + 0x54]

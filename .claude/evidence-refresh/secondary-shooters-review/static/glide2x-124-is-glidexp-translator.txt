@@ -1,0 +1,15 @@
+# .124 C:\WINDOWS\system32\glide2x.dll (DOWNLOADed read-only 2026-09-29 01:06; 94,208 B, md5 a0d0841a178acda0dfc200ef9e31f5db)
+# It is GlideXP's Glide2->Glide3 translator, which loads glide3x.dll by name - so Unreal Gold's GlideDrv reaches OUR h5 glide3x (system32, 1,025,320 B) and its FX_GLIDE_REFRESH override.
+Glide2 to Glide3 Translator DLL
+glide3x.dll
+GlideXP.dll
+GXP_GLIDE2_FASTER_PALETTES
+GXP_GLIDE2_NO_MULTITEXTURE
+http://www.users.on.net/triforce/glidexp/
+I@#%2.70 1.00.01.0106GXP
+Unable to load glide3x.dll
+
+# Unreal.log on .124 (09/28/26 12:36:03 local):
+Log: Bound to GlideDrv.dll
+Init: Found Glide: 2.70 1.00.01.0106GXP
+Init: grSstOpen Res=0 Ref=12 Buffers=3

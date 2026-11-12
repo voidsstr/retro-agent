@@ -1,0 +1,66 @@
+{
+ "key": "q3-ta-menus",
+ "title": "Quake3-TeamArena",
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/Quake3-TeamArena/missionpack/zz-fleetres-menus.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-ta-menus/zz-fleetres-menus.pk3",
+   "md5": "627013444d74562c7ed28ed9caa895f2",
+   "size": 28914,
+   "original_md5": null,
+   "note": "NEW file - no original at this path; built from the members below",
+   "members": {
+    "ui/system.menu": {
+     "md5": "4cd05af14011932c330157015f687b01",
+     "size": 15166,
+     "from": "missionpack/pak0.pk3!ui/system.menu",
+     "from_md5": "ff7206507fa15d7a5be609f419d43e6a"
+    },
+    "ui/ingame_system.menu": {
+     "md5": "b3466223d6cd10eeba56d09a47bb24b9",
+     "size": 13504,
+     "from": "missionpack/pak0.pk3!ui/ingame_system.menu",
+     "from_md5": "1f024f1dc61f1aa69f3044a082cef5cc"
+    }
+   }
+  }
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/Quake3-TeamArena/missionpack/pak0.pk3",
+   "md5": "e8ba9e3bf06210930bc0e7fdbcdd01c2",
+   "size": 351623691,
+   "members": {
+    "ui/system.menu": {
+     "md5": "ff7206507fa15d7a5be609f419d43e6a",
+     "size": 14259
+    },
+    "ui/ingame_system.menu": {
+     "md5": "1f024f1dc61f1aa69f3044a082cef5cc",
+     "size": 12623
+    }
+   }
+  }
+ ],
+ "layout": {
+  "ui/system.menu": {
+   "value_x": 235,
+   "native_end": 283.0,
+   "gap_1920_to_sep": 6.0,
+   "gap_widest_to_sep": 3.0,
+   "sep_end": 337.0,
+   "height_end_max": 378.0,
+   "problems": []
+  },
+  "ui/ingame_system.menu": {
+   "value_x": 141,
+   "native_end": 179.0,
+   "gap_1920_to_sep": 4.0,
+   "gap_widest_to_sep": 3.0,
+   "sep_end": 223.0,
+   "height_end_max": 254.0,
+   "problems": []
+  }
+ },
+ "server_install": "/home/voidsstr/q3ta-server/.q3a/missionpack/zz-fleetres-menus.pk3"
+}

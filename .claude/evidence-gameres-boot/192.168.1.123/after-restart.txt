@@ -1,0 +1,6 @@
+agent_version: 1.98.0
+CS 1.6 ScreenWidth=1280 ScreenHeight=960  (was broken to 1600x1200)
+panel: CRT edid=False  persisted desktop=1280x1024@100
+target: wide=1280x960 four_three=1280x960 hz=100
+VERIFY: 83 ok / 0 wrong / 0 absent across 53 titles
+GameResBoot: 2026-10-09 06:42 ok: 34 title(s), 2 value(s) changed, 0 absent, target 1280x960 (4:3 1280x960); verify ok=83 wrong=0 absent=0

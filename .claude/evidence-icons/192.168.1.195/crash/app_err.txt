@@ -1,0 +1,2936 @@
+Event[0]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-09-28T11:32:33.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[1]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-09-28T11:17:03.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: NasNavi.exe, version: 3.15.0.1, time stamp: 0x6a3ba796
+Faulting module name: NasNavi.exe, version: 3.15.0.1, time stamp: 0x6a3ba796
+Exception code: 0xc0000005
+Fault offset: 0x00030623
+Faulting process id: 0xa34
+Faulting application start time: 0x01dd4f5c691ecb0b
+Faulting application path: C:\Program Files\BUFFALO\NASNAVI\NasNavi.exe
+Faulting module path: C:\Program Files\BUFFALO\NASNAVI\NasNavi.exe
+Report Id: a8618fc0-bb4f-11f1-a997-782bcba5b470
+
+Event[2]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-09-26T16:37:38.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[3]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-09-04T11:46:25.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[4]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T12:26:18.036
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[5]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T12:06:08.111
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[6]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T11:55:32.513
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[7]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T11:53:09.550
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[8]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T11:51:08.492
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[9]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T11:44:49.188
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[10]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-01T01:32:05.000
+  Event ID: 1017
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Installation of the Proof of Purchase failed. 0xC004F050
+Partial Pkey=94RKH
+ACID=?
+Detailed Error[?]
+
+
+Event[11]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-09-01T01:26:32.113
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[12]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-09-01T00:35:56.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[13]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T15:41:56.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0xe00
+Faulting application start time: 0x01dd3980c635822f
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: 05c11dea-a574-11f1-bc13-782bcba5b470
+
+Event[14]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T15:37:14.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0xc74
+Faulting application start time: 0x01dd39801e4dfc0a
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: 5dae0381-a573-11f1-bc13-782bcba5b470
+
+Event[15]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T15:02:57.059
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[16]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T14:10:40.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0xa24
+Faulting application start time: 0x01dd397406c07156
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: 4570fedd-a567-11f1-9838-782bcba5b470
+
+Event[17]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T14:09:44.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: hw.dll, version: 0.0.0.0, time stamp: 0x3baa90ad
+Exception code: 0xc0000027
+Fault offset: 0x000b2b48
+Faulting process id: 0x124
+Faulting application start time: 0x01dd3973e412318d
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: C:\Games\HalfLife1\hw.dll
+Report Id: 2411c4d3-a567-11f1-9838-782bcba5b470
+
+Event[18]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T13:57:36.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0x280
+Faulting application start time: 0x01dd397208bbbed3
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: 72258510-a565-11f1-9838-782bcba5b470
+
+Event[19]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T13:54:24.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0xa44
+Faulting application start time: 0x01dd3971556dbfcd
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: ffb5afde-a564-11f1-9838-782bcba5b470
+
+Event[20]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T13:50:10.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0x438
+Faulting application start time: 0x01dd397128c730a6
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: 684fbf21-a564-11f1-9838-782bcba5b470
+
+Event[21]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-31T13:47:02.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: hl.exe, version: 1.1.0.8, time stamp: 0x3b9e639b
+Faulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000
+Exception code: 0xc0000005
+Fault offset: 0x00000000
+Faulting process id: 0xd44
+Faulting application start time: 0x01dd3970b86ba92b
+Faulting application path: C:\Games\HalfLife1\hl.exe
+Faulting module path: unknown
+Report Id: f841daaa-a563-11f1-9838-782bcba5b470
+
+Event[22]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T10:51:59.824
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[23]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T10:46:26.078
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[24]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T10:36:59.129
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[25]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T10:35:52.548
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[26]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T10:31:55.219
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[27]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T10:01:38.098
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[28]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-31T05:06:58.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[29]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T01:42:57.765
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[30]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T01:26:37.804
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[31]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T00:59:14.285
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[32]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T00:55:19.030
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[33]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T00:53:28.509
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[34]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T00:50:47.831
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[35]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T00:46:32.791
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[36]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-31T00:32:28.982
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[37]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T13:31:33.364
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[38]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T12:20:34.580
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[39]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T12:09:43.158
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[40]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T12:03:21.772
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[41]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:52:28.847
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[42]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:49:11.248
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[43]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:44:04.144
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[44]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:38:17.906
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[45]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:33:44.748
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[46]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:12:28.325
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[47]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:12:28.294
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[48]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:12:28.279
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[49]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:12:28.185
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[50]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:07:38.289
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[51]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:07:38.243
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[52]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:07:38.227
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[53]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-30T11:07:38.118
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[54]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-30T01:20:26.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[55]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T20:29:00.979
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[56]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T20:27:50.596
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[57]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T20:10:32.223
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[58]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T20:03:50.752
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[59]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T19:53:03.212
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[60]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T19:26:27.144
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[61]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T17:59:05.131
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[62]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T17:18:47.224
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[63]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T15:59:04.904
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[64]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T15:15:27.448
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[65]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T14:41:05.344
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[66]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-29T14:09:37.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: carma2_hw.exe, version: 0.0.0.0, time stamp: 0x3662d4f7
+Faulting module name: ntdll.dll, version: 6.1.7600.16385, time stamp: 0x4a5bdadb
+Exception code: 0xc0000005
+Fault offset: 0x00055fbd
+Faulting process id: 0xbc4
+Faulting application start time: 0x01dd37e18cd85abe
+Faulting application path: C:\Games\Carmageddon2\carma2_hw.exe
+Faulting module path: C:\Windows\SYSTEM32\ntdll.dll
+Report Id: cb6e2c79-a3d4-11f1-94cb-782bcba5b470
+
+Event[67]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-29T14:05:35.479
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[68]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-29T09:32:42.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[69]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-28T20:02:03.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[70]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-24T06:40:18.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[71]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-21T10:49:02.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[72]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:48.064
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[73]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:48.034
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[74]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.744
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[75]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.714
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[76]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.704
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[77]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.664
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[78]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.654
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[79]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.624
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[80]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.614
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[81]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.584
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[82]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.344
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[83]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.314
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[84]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.304
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[85]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.264
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[86]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.254
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[87]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.224
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[88]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.214
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[89]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:47.184
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[90]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.944
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[91]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.914
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[92]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.904
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[93]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.874
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[94]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.864
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[95]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.824
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[96]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.814
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[97]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:46.784
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[98]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.434
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[99]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.404
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[100]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.394
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[101]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.354
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[102]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.344
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[103]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.294
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[104]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.284
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[105]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:06:39.214
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[106]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.174
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[107]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.134
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[108]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.124
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[109]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.084
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[110]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.074
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[111]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.034
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[112]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:49.014
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[113]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:48.944
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[114]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.664
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[115]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.624
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[116]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.614
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[117]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.574
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[118]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.564
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[119]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.524
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[120]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.514
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[121]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-20T21:05:20.434
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[122]:
+  Log Name: Application
+  Source: Application Hang
+  Date: 2026-08-20T19:50:18.000
+  Event ID: 1002
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The program Counter-Strike 1.6.exe version 1.0.0.0 stopped interacting with Windows and was closed. To see if more information about the problem is available, check the problem history in the Action Center control panel.
+ Process ID: 8ec
+ Start Time: 01dd30fe68036cf9
+ Termination Time: 16
+ Application Path: \\192.168.1.122\files\Files\Games\Windows XP\Counter-Strike 1.6.exe
+ Report Id: c63b4819-9cf1-11f1-93c0-782bcba5b470
+
+
+Event[123]:
+  Log Name: Application
+  Source: Microsoft-Windows-ApplicationExperienceInfrastructure
+  Date: 2026-08-20T15:40:28.158
+  Event ID: 2
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The application (Daemon Tools, from vendor DT Soft Ltd.) was hard-blocked and raised the following: Daemon Tools is incompatible with this version of Windows. For more information, contact DT Soft Ltd..
+
+Event[124]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-20T00:30:01.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[125]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-19T00:30:01.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[126]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-18T10:54:33.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[127]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-15T00:30:01.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[128]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-14T08:57:53.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[129]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-14T08:11:21.000
+  Event ID: 4103
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows license activation failed. Error 0x00000000.
+
+Event[130]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-08-14T08:11:21.000
+  Event ID: 8198
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation (slui.exe) failed with the following error code:
+0x800706BE
+
+Event[131]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-11T00:49:09.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[132]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-10T16:05:01.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[133]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-09T01:00:30.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: winsat.exe, version: 6.1.7600.16385, time stamp: 0x4a5bc1cf
+Faulting module name: atiuxpag.dll, version: 8.14.1.6463, time stamp: 0x55c01808
+Exception code: 0xc0000005
+Fault offset: 0x0000887f
+Faulting process id: 0x15e4
+Faulting application start time: 0x01dd27bbee59b2e4
+Faulting application path: C:\Windows\system32\winsat.exe
+Faulting module path: C:\Windows\system32\atiuxpag.dll
+Report Id: 3df83e33-93af-11f1-8771-782bcba5b470
+
+Event[134]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-09T00:30:01.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[135]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-08T23:01:44.484
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[136]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-08T23:01:44.289
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[137]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-08T23:01:44.257
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[138]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-08T23:01:44.240
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[139]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-08T23:01:44.163
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[140]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-08T19:48:22.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[141]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-07T00:30:04.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[142]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-06T00:30:02.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[143]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-05T16:55:45.001
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[144]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-05T16:55:40.399
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[145]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-05T16:55:40.384
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[146]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-05T16:55:35.735
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[147]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-05T00:30:01.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[148]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-04T10:10:02.322
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[149]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-08-04T10:05:09.975
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[150]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-04T00:30:00.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[151]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-03T00:30:00.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[152]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-08-02T01:00:43.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: winsat.exe, version: 6.1.7600.16385, time stamp: 0x4a5bc1cf
+Faulting module name: atiuxpag.dll, version: 8.14.1.6463, time stamp: 0x55c01808
+Exception code: 0xc0000005
+Fault offset: 0x0000887f
+Faulting process id: 0x1568
+Faulting application start time: 0x01dd223bc59366bf
+Faulting application path: C:\Windows\system32\winsat.exe
+Faulting module path: C:\Windows\system32\atiuxpag.dll
+Report Id: 1cd49320-8e2f-11f1-86a8-782bcba5b470
+
+Event[153]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-02T00:30:00.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[154]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-08-01T00:30:00.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[155]:
+  Log Name: Application
+  Source: SideBySide
+  Date: 2026-07-30T23:34:10.000
+  Event ID: 33
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Activation context generation failed for "c:\program files\WinCDEmu\vmnt64.exe". Dependent Assembly Microsoft.Windows.Common-Controls,language="&#x2a;",processorArchitecture="amd64",publicKeyToken="6595b64144ccf1df",type="win32",version="6.0.0.0" could not be found. Please use sxstrace.exe for detailed diagnosis.
+
+Event[156]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:50.933
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[157]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:50.915
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[158]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:50.895
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[159]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:39.370
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[160]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:39.352
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[161]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:39.183
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[162]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:39.166
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[163]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:39.146
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[164]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:39.135
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[165]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:10.437
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[166]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T23:08:10.426
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[167]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2026-07-30T22:58:31.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: winsat.exe, version: 6.1.7600.16385, time stamp: 0x4a5bc1cf
+Faulting module name: atiuxpag.dll, version: 8.14.1.6463, time stamp: 0x55c01808
+Exception code: 0xc0000005
+Fault offset: 0x0000887f
+Faulting process id: 0x750
+Faulting application start time: 0x01dd20983ac883f7
+Faulting application path: C:\Windows\system32\winsat.exe
+Faulting module path: C:\Windows\system32\atiuxpag.dll
+Report Id: b5d13a49-8c8b-11f1-86a8-782bcba5b470
+
+Event[168]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T22:56:54.347
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[169]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2026-07-30T22:56:54.190
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+.
+
+Event[170]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2013-09-26T12:59:41.006
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.
+.
+
+Event[171]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2013-09-26T12:56:12.670
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.
+.
+
+Event[172]:
+  Log Name: Application
+  Source: VSS
+  Date: 2013-09-26T12:56:05.000
+  Event ID: 8194
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Volume Shadow Copy Service error: Unexpected error querying for the IVssWriterCallback interface.  hr = 0x80070005, Access is denied.
+. This is often caused by incorrect security settings in either the writer or requestor process. 
+
+Operation:
+   Gathering Writer Data
+
+Context:
+   Writer Class Id: {e8132975-6f93-4464-a53e-1050253ae220}
+   Writer Name: System Writer
+   Writer Instance ID: {86227613-faff-4183-87ad-4a7e1974edbd}
+
+Event[173]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2013-09-26T12:54:44.903
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.
+.
+
+Event[174]:
+  Log Name: Application
+  Source: Microsoft-Windows-CAPI2
+  Date: 2013-09-26T12:54:44.885
+  Event ID: 4107
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Failed extract of third-party root list from auto update cab at: <http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/authrootstl.cab> with error: A required certificate is not within its validity period when verifying against the current system clock or the timestamp in the signed file.
+.
+
+Event[175]:
+  Log Name: Application
+  Source: Microsoft-Windows-ApplicationExperienceInfrastructure
+  Date: 2013-09-26T12:49:39.502
+  Event ID: 2
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The application (Daemon Tools, from vendor DT Soft Ltd.) was hard-blocked and raised the following: Daemon Tools is incompatible with this version of Windows. For more information, contact DT Soft Ltd..
+
+Event[176]:
+  Log Name: Application
+  Source: Application Error
+  Date: 2013-09-26T12:47:23.000
+  Event ID: 1000
+  Task: Application Crashing Events
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Faulting application name: Dwm.exe, version: 6.1.7600.16385, time stamp: 0x4a5bc225
+Faulting module name: atiuxpag.dll, version: 8.14.1.6463, time stamp: 0x55c01808
+Exception code: 0xc0000005
+Fault offset: 0x0000887f
+Faulting process id: 0x558
+Faulting application start time: 0x01cebad7b0706dc6
+Faulting application path: C:\Windows\system32\Dwm.exe
+Faulting module path: C:\Windows\system32\atiuxpag.dll
+Report Id: 50c7f16f-26cb-11e3-86a8-782bcba5b470
+
+Event[177]:
+  Log Name: Application
+  Source: Dell - System Update
+  Date: 2013-09-26T03:31:17.000
+  Event ID: 777
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+Update failed
+Package: Setup.exe
+Description: 
+Previous version: NA, New version: 
+Log file: C:\Dell\UpdatePackage\log\bcmwl.log
+Exit code: 111
+

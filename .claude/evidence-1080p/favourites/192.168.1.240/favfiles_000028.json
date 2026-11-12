@@ -1,0 +1,483 @@
+{
+ "ip": "192.168.1.240",
+ "greeting": "OK USER-41EA3B3330 Win5.1",
+ "at": "2026-09-29 00:00:28",
+ "files": [
+  {
+   "path": "C:\\Games\\CounterStrike16\\config\\serverbrowser.vdf",
+   "db_rows": [
+    {
+     "key": "cs16",
+     "dir": "C:\\Games\\CounterStrike16",
+     "hash": "0bcee3ca5f172322",
+     "at": "2026-09-28 23:54:19",
+     "detail": "2 servers -> C:\\Games\\CounterStrike16\\config\\serverbrowser.vdf"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "cs16",
+     "dir": "C:\\Games\\CounterStrike16",
+     "engine": "goldsrc"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_CounterStrike16_config_serverbrowser.vdf",
+   "bytes": 352,
+   "content_hash": "0bcee3ca5f172322",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132:27015",
+    "192.168.1.132:27016"
+   ],
+   "dir_entry": [
+    {
+     "name": "serverbrowser.vdf",
+     "is_dir": false,
+     "size": 352,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini",
+   "db_rows": [
+    {
+     "key": "deusex",
+     "dir": "C:\\Games\\DeusEx\\SYSTEM",
+     "hash": "12470715f92ab5b2",
+     "at": "2026-09-28 23:54:19",
+     "detail": "1 servers -> C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "deusex",
+     "dir": "C:\\Games\\DeusEx\\SYSTEM",
+     "engine": "unreal"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_DeusEx_SYSTEM_DeusEx.ini",
+   "bytes": 6890,
+   "content_hash": "12470715f92ab5b2",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132\\7791"
+   ],
+   "dir_entry": [
+    {
+     "name": "DEUSEX.INI",
+     "is_dir": false,
+     "size": 6890,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\HalfLife1\\config\\serverbrowser.vdf",
+   "db_rows": [],
+   "current_policy": [
+    {
+     "key": "tfc",
+     "dir": "C:\\Games\\HalfLife1",
+     "engine": "goldsrc"
+    }
+   ],
+   "download_status": 255,
+   "error": "Cannot open file: error 3",
+   "dir_entry": []
+  },
+  {
+   "path": "C:\\Games\\JediAcademy\\baseq3\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "jka",
+     "dir": "C:\\Games\\JediAcademy",
+     "hash": "c38b843d9be6212d",
+     "at": "2026-08-29 23:07:32",
+     "detail": "16 servers -> C:\\Games\\JediAcademy\\baseq3\\autoexec.cfg"
+    }
+   ],
+   "current_policy": [],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_JediAcademy_baseq3_autoexec.cfg",
+   "bytes": 1124,
+   "content_hash": "c38b843d9be6212d",
+   "has_block": true,
+   "mentions_132": [
+    "192.168.1.132:27961"
+   ],
+   "dir_entry": [
+    {
+     "name": "autoexec.cfg",
+     "is_dir": false,
+     "size": 1124,
+     "modified": "2026-08-30 03:07:30",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\Quake2\\baseq2\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "quake2",
+     "dir": "C:\\Games\\Quake2",
+     "hash": "487ecc51c095f498",
+     "at": "2026-08-29 13:01:18",
+     "detail": "1 servers -> C:\\Games\\Quake2\\baseq2\\autoexec.cfg"
+    }
+   ],
+   "current_policy": [],
+   "download_status": 255,
+   "error": "Cannot open file: error 3",
+   "dir_entry": []
+  },
+  {
+   "path": "C:\\Games\\Quake2Complete\\baseq2\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "quake2",
+     "dir": "C:\\Games\\Quake2Complete",
+     "hash": "26bff2c55a4cb5f1",
+     "at": "2026-09-28 23:54:19",
+     "detail": "1 servers -> C:\\Games\\Quake2Complete\\baseq2\\autoexec.cfg"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "quake2",
+     "dir": "C:\\Games\\Quake2Complete",
+     "engine": "q2"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_Quake2Complete_baseq2_autoexec.cfg",
+   "bytes": 3683,
+   "content_hash": "26bff2c55a4cb5f1",
+   "has_block": true,
+   "mentions_132": [
+    "192.168.1.132:27910"
+   ],
+   "dir_entry": [
+    {
+     "name": "autoexec.cfg",
+     "is_dir": false,
+     "size": 3683,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "ioquake3",
+     "dir": "C:\\Games\\Quake3-TeamArena",
+     "hash": "c21aa07e11946456",
+     "at": "2026-09-28 23:59:07",
+     "detail": "16 servers -> C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg"
+    },
+    {
+     "key": "quake3",
+     "dir": "C:\\Games\\Quake3-TeamArena",
+     "hash": "c21aa07e11946456",
+     "at": "2026-09-28 23:59:07",
+     "detail": "same file as ioquake3"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "quake3",
+     "dir": "C:\\Games\\Quake3-TeamArena",
+     "engine": "q3"
+    },
+    {
+     "key": "ioquake3",
+     "dir": "C:\\Games\\Quake3-TeamArena",
+     "engine": "q3"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_Quake3-TeamArena_baseq3_autoexec.cfg",
+   "bytes": 2642,
+   "content_hash": "c21aa07e11946456",
+   "has_block": true,
+   "mentions_132": [
+    "192.168.1.132:27961"
+   ],
+   "dir_entry": [
+    {
+     "name": "autoexec.cfg",
+     "is_dir": false,
+     "size": 2642,
+     "modified": "2026-09-29 03:58:07",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "wolfmp",
+     "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+     "hash": "884e3d32c806e50b",
+     "at": "2026-09-28 23:54:19",
+     "detail": "1 servers -> C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "wolfmp",
+     "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+     "engine": "q3"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_ReturnToCastleWolfenstein_Main_autoexec.cfg",
+   "bytes": 1863,
+   "content_hash": "884e3d32c806e50b",
+   "has_block": true,
+   "mentions_132": [
+    "192.168.1.132:27963"
+   ],
+   "dir_entry": [
+    {
+     "name": "autoexec.cfg",
+     "is_dir": false,
+     "size": 1863,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\SoldierOfFortune2\\baseq3\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "sof2",
+     "dir": "C:\\Games\\SoldierOfFortune2",
+     "hash": "c38b843d9be6212d",
+     "at": "2026-08-29 23:07:32",
+     "detail": "16 servers -> C:\\Games\\SoldierOfFortune2\\baseq3\\autoexec.cfg"
+    }
+   ],
+   "current_policy": [],
+   "download_status": 255,
+   "error": "Cannot open file: error 3",
+   "dir_entry": []
+  },
+  {
+   "path": "C:\\Games\\UnrealGold\\System\\Unreal.ini",
+   "db_rows": [
+    {
+     "key": "unreal",
+     "dir": "C:\\Games\\UnrealGold\\System",
+     "hash": "82f0e7e55cd1ab92",
+     "at": "2026-09-28 23:54:19",
+     "detail": "1 servers -> C:\\Games\\UnrealGold\\System\\Unreal.ini"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "unreal",
+     "dir": "C:\\Games\\UnrealGold\\System",
+     "engine": "unreal"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_UnrealGold_System_Unreal.ini",
+   "bytes": 8908,
+   "content_hash": "82f0e7e55cd1ab92",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132\\7808"
+   ],
+   "dir_entry": [
+    {
+     "name": "Unreal.ini",
+     "is_dir": false,
+     "size": 8908,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini",
+   "db_rows": [
+    {
+     "key": "ut99",
+     "dir": "C:\\Games\\UnrealTournament436\\System",
+     "hash": "738eb44e1c7fd490",
+     "at": "2026-09-28 23:59:07",
+     "detail": "16 servers -> C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "ut99",
+     "dir": "C:\\Games\\UnrealTournament436\\System",
+     "engine": "unreal"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_UnrealTournament436_System_UnrealTournament.ini",
+   "bytes": 17743,
+   "content_hash": "738eb44e1c7fd490",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132\\7798"
+   ],
+   "dir_entry": [
+    {
+     "name": "UnrealTournament.ini",
+     "is_dir": false,
+     "size": 17743,
+     "modified": "2026-09-29 03:58:07",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini",
+   "db_rows": [
+    {
+     "key": "ut99",
+     "dir": "C:\\Games\\UnrealTournament\\System",
+     "hash": "1f4eb0ad357c3bf7",
+     "at": "2026-09-28 23:59:07",
+     "detail": "16 servers -> C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "ut99",
+     "dir": "C:\\Games\\UnrealTournament\\System",
+     "engine": "unreal"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_UnrealTournament_System_UnrealTournament.ini",
+   "bytes": 19338,
+   "content_hash": "1f4eb0ad357c3bf7",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132\\7798"
+   ],
+   "dir_entry": [
+    {
+     "name": "UnrealTournament.ini",
+     "is_dir": false,
+     "size": 19338,
+     "modified": "2026-09-29 03:58:07",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Games\\UT2004\\System\\UT2004.ini",
+   "db_rows": [
+    {
+     "key": "ut2004",
+     "dir": "C:\\Games\\UT2004\\System",
+     "hash": "f7fe18d23620627a",
+     "at": "2026-09-28 23:54:19",
+     "detail": "1 servers -> C:\\Games\\UT2004\\System\\UT2004.ini"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "ut2004",
+     "dir": "C:\\Games\\UT2004\\System",
+     "engine": "ut2k4"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_Games_UT2004_System_UT2004.ini",
+   "bytes": 19972,
+   "content_hash": "f7fe18d23620627a",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132\""
+   ],
+   "dir_entry": [
+    {
+     "name": "UT2004.ini",
+     "is_dir": false,
+     "size": 19972,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  },
+  {
+   "path": "C:\\Program Files\\Quake III Arena\\baseq3\\autoexec.cfg",
+   "db_rows": [
+    {
+     "key": "quake3",
+     "dir": "C:\\Program Files\\Quake III Arena",
+     "hash": "c38d4cbfb53c80d7",
+     "at": "2026-08-29 13:01:18",
+     "detail": "16 servers -> C:\\Program Files\\Quake III Arena\\baseq3\\autoexec.cfg"
+    }
+   ],
+   "current_policy": [],
+   "download_status": 255,
+   "error": "Cannot open file: error 3",
+   "dir_entry": []
+  },
+  {
+   "path": "C:\\UT2004\\System\\UT2004.ini",
+   "db_rows": [
+    {
+     "key": "ut2004",
+     "dir": "C:\\UT2004\\System",
+     "hash": "a911cd667e35c278",
+     "at": "2026-09-28 23:54:19",
+     "detail": "1 servers -> C:\\UT2004\\System\\UT2004.ini"
+    }
+   ],
+   "current_policy": [
+    {
+     "key": "ut2004",
+     "dir": "C:\\UT2004\\System",
+     "engine": "ut2k4"
+    }
+   ],
+   "download_status": 1,
+   "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/favourites/192.168.1.240/C_UT2004_System_UT2004.ini",
+   "bytes": 23252,
+   "content_hash": "a911cd667e35c278",
+   "has_block": false,
+   "mentions_132": [
+    "192.168.1.132\""
+   ],
+   "dir_entry": [
+    {
+     "name": "UT2004.ini",
+     "is_dir": false,
+     "size": 23252,
+     "modified": "2026-09-29 03:53:18",
+     "hidden": false,
+     "readonly": false
+    }
+   ]
+  }
+ ]
+}

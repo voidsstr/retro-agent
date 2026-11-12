@@ -1,0 +1,20 @@
+# MEASURED on LCD boxes: refresh-less DirectDraw mode sets land on 60 where 75 is listed (from .claude/evidence-1080p/review-dosbox-descent-carma/hw/commands.log, 2026-09-29)
+# .123 GAMERES: 640x480@75 is the best at 640x480 (EDID vmax 76); desktop 1920x1080@60.
+00:40:33 192.168.1.123 'EXEC cmd /c dir /a "C:\\Games\\Carmageddon2\\glide*" "C:\\Games\\Carmageddon2\\*.nglide" "C:\\Games\\Carmageddon2\\CARMA2_HW.EXE" "C:\\Games\\Carmageddon2\\Play Carmageddon 2.bat"' 0  Volume in drive C has no label.
+09/28/2026  02:41 AM             1,869 Play Carmageddon 2.bat
+00:40:43 192.168.1.123 'EXEC cmd /c start "" /D "C:\\Games\\Carmageddon2" "Play Carmageddon 2.bat"' 0 
+00:40:58 192.168.1.123 'DISPLAYCFG get' 0 {"width":640,"height":480,"bpp":32,"refresh":60}
+00:41:08 192.168.1.123 'DISPLAYCFG get' 0 {"width":640,"height":480,"bpp":32,"refresh":60}
+00:41:31 192.168.1.123 'EXEC cmd /c start "" /D "C:\\Games\\Carmageddon2" "Play Carmageddon 2.bat"' 0 
+00:45:35 192.168.1.123 'EXEC cmd /c dir /a /o-d /tw "C:\\Games\\Carmageddon2" | more +5 | findstr /n "." | findstr /b "[1-9]:"' 0 1:09/28/2026  02:41 AM             1,869 Play Carmageddon 2.bat
+00:46:14 192.168.1.123 'EXEC cmd /c start "" /D "C:\\Games\\Carmageddon2" "Play Carmageddon 2.bat"' 0 
+00:46:48 192.168.1.123 'DISPLAYCFG get' 0 {"width":640,"height":480,"bpp":32,"refresh":60}
+00:49:40 192.168.1.123 'DISPLAYCFG get' 0 {"width":640,"height":480,"bpp":32,"refresh":60}
+00:53:41 192.168.1.123 'EXEC cmd /c start "" /D "C:\\Games\\Descent3" "Play Descent 3.bat"' 0 
+00:54:01 192.168.1.123 'DISPLAYCFG get' 0 {"width":640,"height":480,"bpp":16,"refresh":60}
+# Descent 3 = main.exe D3D path: IDirectDraw4::SetDisplayMode(w,h,bpp,refresh=ebx=0,flags=0) at 0x5354f0/0x535530 (menus run 640x480x16).
+# CAVEAT: the Carmageddon 2 readings (640x480x32@60) are NOT a plain DirectDraw measurement - 'Play Carmageddon 2.bat' starts CARMA2_HW.EXE,
+# and on a box with no 3dfx silicon (FR_GLIDE=0, .123) the game-local nGlide wrapper is restored, which sets its own D3D9 mode and refresh.
+# The clean refresh-less DirectDraw sample is Descent 3's 640x480x16 menu (PreferredRenderer=3 = Direct3D; main.exe SetDisplayMode(640,480,16,0,0) at 0x535530):
+#   .123 00:54:01 640x480x16 @60 where GAMERES lists 640x480 @75  -> lands on the desktop's own 60, not the best 75
+#   .195 00:58:32..01:00:41 640x480x16 @60 (Win7; every mode on .195 is 60-only, so it proves nothing about choice)

@@ -1,0 +1,67 @@
+== C:\Games\Quake3-TeamArena
+   baseq3 0 2026-09-29 04:45:45 DIR
+   COPYING.txt 15429 2026-08-27 13:19:17 
+   defrag 0 2026-08-30 04:51:56 DIR
+   FLEETGL.BAT 4094 2026-09-02 01:00:20 
+   FLEETRES.BAT 4117 2026-08-30 16:56:55 
+   FLEETRES.EXE 30208 2026-08-31 09:30:01 
+   id-readme.txt 6910 2026-08-27 13:19:50 
+   id_patch_pk3s_Q3A_EULA.txt 9930 2026-08-27 13:19:50 
+   instaunlagged 0 2026-08-30 04:51:57 DIR
+   ioq3ded.x86.exe 687104 2026-08-27 13:19:51 
+   ioquake3.x86.exe 1363456 2026-08-27 13:19:51 
+   launch.txt 203 2026-08-30 01:20:06 
+   libcurl-4.dll 224256 2026-08-27 13:19:51 
+   missionpack 0 2026-09-01 23:17:42 DIR
+   openal32.dll 135168 2026-08-27 13:20:14 
+   Play Quake III Arena - retail 1.32c.bat 2162 2026-09-04 15:13:57 
+   Play Quake III Arena.bat 1432 2026-09-04 15:13:57 
+   Play Team Arena.bat 1594 2026-09-04 15:13:57 
+   q3key 167 2026-08-29 17:56:26 
+   Quake III Arena Complete - READ ME.txt 953 2026-08-27 13:20:14 
+   quake3.exe 872448 2026-08-28 23:31:41 
+   README.txt 26823 2026-08-27 13:20:14 
+   requires.json 268 2026-08-30 04:54:50 
+   SDL.dll 338432 2026-08-27 13:20:14 
+   SERVERS-fleet.txt 948 2026-08-31 05:21:18 
+   SERVERS-online.txt 1377 2026-08-28 23:32:21 
+   uninstall-ioquake3-q3a.exe 100114 2026-08-27 13:20:14 
+   uninstall.exe 103463 2026-08-27 13:20:14 
+   unlagged 0 2026-08-30 04:52:15 DIR
+   voip-readme.txt 9947 2026-08-27 13:20:15 
+== C:\Games\Quake3-TeamArena\baseq3
+   autoexec.cfg 2661 2026-09-29 04:44:10 
+   cgamex86.dll 276480 2026-08-27 13:18:42 
+   fleetres.cfg 259 2026-09-29 04:47:24 
+   lan.cfg 183 2026-09-01 18:14:44 
+   q3key 167 2026-09-29 04:45:11 
+   qagamex86.dll 459776 2026-08-27 13:19:17 
+   uix86.dll 261120 2026-08-27 13:19:17 
+== C:\Games\Quake3-TeamArena\missionpack
+   autoexec.cfg 1521 2026-08-30 04:42:37 
+   cgamex86.dll 418304 2026-08-27 13:19:52 
+   fleetres.cfg 259 2026-09-29 04:47:25 
+   q3key 167 2026-08-29 17:56:25 
+   qagamex86.dll 531968 2026-08-27 13:20:14 
+   uix86.dll 255488 2026-08-27 13:20:14 
+== C:\Users\admin\AppData\Roaming\Quake3
+   baseq3 0 2026-09-29 04:29:24 DIR
+   missionpack 0 2026-09-29 04:43:06 DIR
+   qkey 2048 2026-08-31 14:43:05 
+   servercache.dat 692748 2026-09-29 04:43:45 
+== C:\Users\admin\AppData\Roaming\Quake3\baseq3
+   games.log 0 2026-08-31 18:18:17 
+   q3config.cfg 7468 2026-09-29 04:29:24 
+   q3key 167 2026-09-29 04:25:50 
+   screenshots 0 2026-09-29 04:27:44 DIR
+== C:\Users\admin\AppData\Roaming\Quake3\baseq3\screenshots
+   shot0000.jpg 687850 2026-08-31 18:57:24 
+   shot0001.jpg 245996 2026-09-01 18:16:43 
+   shot0002.jpg 252122 2026-09-01 18:18:12 
+== C:\Users\admin\AppData\Roaming\Quake3\missionpack
+   q3config.cfg 8847 2026-09-29 04:43:44 
+   q3history 46 2026-09-29 04:43:44 
+   q3key 167 2026-09-29 04:42:03 
+   screenshots 0 2026-09-29 04:43:01 DIR
+== C:\Users\admin\AppData\Roaming\Quake3\missionpack\screenshots
+   shot0000.jpg 433496 2026-08-31 18:58:31 

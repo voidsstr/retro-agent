@@ -1,0 +1,68 @@
+#### /mnt/retro-share/Files/Games-Library/SoldierOfFortune2/sof2mp.exe  image base 0x400000
+
+== cvar r_displayRefresh: exact string at ['0x56cb6c']
+   code refs to the string: ['0x4ba740']
+   registration near 0x4ba740 -> stored in global 0x11a6464
+  004ba72f: adc     eax, 0x11a65c0
+  004ba734: push    0
+  004ba736: push    0
+  004ba738: push    0x20
+  004ba73a: push    0x5599a4
+  004ba73f: push    0x56cb6c
+  004ba744: mov     dword ptr [0x11a64fc], eax
+  004ba749: call    dword ptr [0x11a65c0]
+  004ba74f: add     esp, 0x50
+  004ba752: push    1
+  004ba754: push    0x43480000
+  004ba759: push    0
+  004ba75b: push    eax
+  004ba75c: mov     dword ptr [0x11a6464], eax
+  004ba761: call    0x4bb170
+  004ba766: push    0
+  004ba768: push    0
+  004ba76a: push    0x220
+  004ba76f: push    0x5599a4
+  004ba774: push    0x56cb5c
+  004ba779: call    dword ptr [0x11a65c0]
+  004ba77f: push    0x3f800000
+   every code ref to 0x11a6464: ['0x4ba75d', '0x4df0d6']
+   --- ref 0x4ba75d
+  004ba73f: push    0x56cb6c
+  004ba744: mov     dword ptr [0x11a64fc], eax
+  004ba749: call    dword ptr [0x11a65c0]
+  004ba74f: add     esp, 0x50
+  004ba752: push    1
+  004ba754: push    0x43480000
+  004ba759: push    0
+  004ba75b: push    eax
+  004ba75c: mov     dword ptr [0x11a6464], eax
+  004ba761: call    0x4bb170
+  004ba766: push    0
+  004ba768: push    0
+  004ba76a: push    0x220
+  004ba76f: push    0x5599a4
+  004ba774: push    0x56cb5c
+  004ba779: call    dword ptr [0x11a65c0]
+  004ba77f: push    0x3f800000
+  004ba784: push    0
+  004ba786: push    0x2020
+  004ba78b: push    0x5598cc
+  004ba790: push    0x56cb48
+  004ba795: mov     dword ptr [0x11a6514], eax
+   --- ref 0x4df0d6
+  004df0d5: or      eax, 0x11a6464
+  004df0da: mov     word ptr [esp + 0x38], 0x94
+  004df0e1: mov     dword ptr [esp + 0x84], eax
+  004df0e8: mov     dword ptr [esp + 0x3c], 0x180000
+  004df0f0: mov     eax, dword ptr [ecx + 0x28]
+  004df0f3: test    eax, eax
+  004df0f5: je      0x4df106
+  004df0f7: mov     dword ptr [esp + 0x8c], eax
+  004df0fe: mov     dword ptr [esp + 0x3c], 0x580000
+  004df106: test    ebx, ebx
+  004df108: je      0x4df142
+  004df10a: mov     eax, dword ptr [0x1243200]
+
+== ChangeDisplaySettingsA (IAT 0x54c24c) call sites: ['0x4df1a4', '0x4df1c6', '0x4df3b6', '0x4df488', '0x4df4be', '0x4dffd4']
+
+== EnumDisplaySettingsA (IAT 0x54c288) call sites: ['0x4df25c', '0x4df343', '0x4df384']

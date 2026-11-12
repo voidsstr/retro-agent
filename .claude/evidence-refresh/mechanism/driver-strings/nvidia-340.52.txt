@@ -1,0 +1,14 @@
+# NVIDIA 340.52 XP (the .145 driver, 6.14.13.4052) - Display.Driver expanded from /mnt/retro-share/Files/Drivers/Nvidia/340.52-desktop-winxp-32bit-english.exe
+== nv340/Display.Driver/nv4_mini.sys (md5 4ac38874925247cf2ae6fd143dd610d7)
+60HzOverride
+DefaultSettings.VRefresh
+EnableRefreshRateOverrideDevices
+IgnoreMonitorLimit
+nvEDIDPruning
+OverlayLimit.VRefresh
+RmPanelSelfRefresh
+UseGDIRefreshRate
+== nv340/Display.Driver/nv4_disp.dll (md5 f7e1abf9a480a0a56f0654d84e34de96)
+
+# nv4_disp.inf: UseGDIRefreshRate is DELETED on install
+line 2207 (HKR,,UseGDIRefreshRate) is in section [nv_clearRegistrySwitches_delreg] (line 1783)

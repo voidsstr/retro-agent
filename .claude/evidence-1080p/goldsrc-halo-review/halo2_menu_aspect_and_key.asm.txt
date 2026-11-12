@@ -1,0 +1,76 @@
+# Halo 2 Vista (halo2.exe md5 8430e0984525ae10d50f51f0ad615974)
+# Every reference to the AspectRatio variable 0xe3a7cc (grep of the full objdump): only its registry setter writes it; nothing reads it
+764043:  663041:	89 0d cc a7 e3 00    	mov    DWORD PTR ds:0xe3a7cc,ecx
+
+# The whitelist's 3rd column (aspect class) is read only by 0x662fa3, which looks up the CURRENT ScreenResX/Y - it does not filter the menu list
+  662fa3:	56                   	push   esi
+  662fa4:	8b 35 d4 a7 e3 00    	mov    esi,DWORD PTR ds:0xe3a7d4
+  662faa:	57                   	push   edi
+  662fab:	8b 3d d0 a7 e3 00    	mov    edi,DWORD PTR ds:0xe3a7d0
+  662fb1:	33 c0                	xor    eax,eax
+  662fb3:	33 d2                	xor    edx,edx
+  662fb5:	33 c9                	xor    ecx,ecx
+  662fb7:	3b b9 10 50 86 00    	cmp    edi,DWORD PTR [ecx+0x865010]
+  662fbd:	75 08                	jne    0x662fc7
+  662fbf:	3b b1 14 50 86 00    	cmp    esi,DWORD PTR [ecx+0x865014]
+  662fc5:	74 0e                	je     0x662fd5
+  662fc7:	83 c1 0c             	add    ecx,0xc
+  662fca:	83 c2 01             	add    edx,0x1
+  662fcd:	83 f9 78             	cmp    ecx,0x78
+  662fd0:	72 e5                	jb     0x662fb7
+  662fd2:	5f                   	pop    edi
+  662fd3:	5e                   	pop    esi
+  662fd4:	c3                   	ret
+  662fd5:	8d 04 52             	lea    eax,[edx+edx*2]
+  662fd8:	8b 04 85 18 50 86 00 	mov    eax,DWORD PTR [eax*4+0x865018]
+  662fdf:	5f                   	pop    edi
+  662fe0:	5e                   	pop    esi
+  662fe1:	c3                   	ret
+
+# Resolution edit list ctor (c_resolution_edit_list): item count = 0x662f1e() (all enumerated whitelist modes, or all 10 when windowed); no aspect filter
+  64f93c:	6a 04                	push   0x4
+  64f93e:	c6 44 24 20 02       	mov    BYTE PTR [esp+0x20],0x2
+  64f943:	e8 d6 35 01 00       	call   0x662f1e
+  64f948:	50                   	push   eax
+  64f949:	68 b8 5c 7d 00       	push   0x7d5cb8
+  64f94e:	e8 9a d5 fb ff       	call   0x60ceed
+  64f953:	50                   	push   eax
+  64f954:	89 46 70             	mov    DWORD PTR [esi+0x70],eax
+  64f957:	e8 97 70 e1 ff       	call   0x4669f3
+
+# item text: '%dx%d' from the w/h accessors 0x662f38/0x662f67
+  64f646:	57                   	push   edi
+  64f647:	e8 1b 39 01 00       	call   0x662f67
+  64f64c:	83 c4 04             	add    esp,0x4
+  64f64f:	50                   	push   eax
+  64f650:	57                   	push   edi
+  64f651:	e8 e2 38 01 00       	call   0x662f38
+  64f656:	83 c4 04             	add    esp,0x4
+  64f659:	50                   	push   eax
+  64f65a:	68 f8 5b 7d 00       	push   0x7d5bf8
+  64f65f:	8d 44 24 14          	lea    eax,[esp+0x14]
+  64f663:	6a 10                	push   0x10
+  64f665:	50                   	push   eax
+  64f666:	e8 05 c4 03 00       	call   0x68ba70
+  0x7d5bf8 = b'%'
+
+# gameres.c gr_w_reg() opens its key with RegCreateKeyExA - a GAMERES Halo2 row on a box that never ran Halo 2 creates a PARTIAL Video Settings key
+
+static int gr_w_reg(const char *root, const char *sub, const char *name,
+                    const char *spec)
+{
+    HKEY  h, k;
+    DWORD disp;
+    LONG  r;
+    int   changed = 1;
+
+    if (_stricmp(root, "HKLM") == 0)      h = HKEY_LOCAL_MACHINE;
+    else if (_stricmp(root, "HKCU") == 0) h = HKEY_CURRENT_USER;
+    else return -1;
+
+    if (RegCreateKeyExA(h, sub, 0, NULL, REG_OPTION_NON_VOLATILE,
+                        KEY_READ | KEY_SET_VALUE, NULL, &k, &disp)
+        != ERROR_SUCCESS)
+        return -1;
+
+  0x7d5bf8 as UTF-16 = '%dx%d'

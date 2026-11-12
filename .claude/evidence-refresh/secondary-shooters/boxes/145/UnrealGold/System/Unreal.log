@@ -1,0 +1,253 @@
+Log: Log file open, 08/29/26 23:39:12
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 226
+Init: Compiled: Aug 15 2000 14:16:34
+Init: Command line: 
+Init: Base directory: C:\GAMES\UnrealGold\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: DELL
+Init: User: voidsstr
+Init: Memory total: Phys=2097151K Pagef=4194303K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=3092.936129 MHz
+Init: CPU Page size=4096, Processors=4
+Init: CPU Detected: PentiumPro-class processor (GenuineIntel)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI
+Log: Loading: Package Engine
+Log: Loading: Package Core
+Log: Bound to Galaxy.dll
+Init: Galaxy is using DirectSound
+Init: Galaxy initialized
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 65536
+Init: Initializing DirectDraw
+Log: DirectDraw drivers:
+Log:    display (Primary Display Driver)
+Init: DirectDraw initialized successfully
+Init: Client initialized
+Log: Bound to Render.dll
+Log: Loading: Package Render
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Loading: Package Entry
+Log: Loading: Package PlayrShp
+Log: Loading: Package Detail
+Log: Bound to Fire.dll
+Log: Loading: Package Fire
+Log: Loading: Package UnrealI
+Log: Loading: Package UnrealShare
+Log: Game class is 'EntryGameInfo'
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is Entry.Mutator0
+DevAudio: Galaxy SetViewport: NULL
+Log: Browse: UPack.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: LoadMap: UPack.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: Loading: Package UPack
+Log: Loading: Package NaliCast
+Log: Loading: Package GenIn
+Log: Loading: Package NaliFX
+Log: Loading: Package GenFluid
+Log: Loading: Package GenFX
+Log: Loading: Package GenEarth
+Log: Loading: Package AmbAncient
+Log: Loading: Package SKYBox
+Log: Loading: Package AmbOutside
+Log: Loading: Package DoorsAnc
+Log: Loading: Package shanesky
+Log: Loading: Package shaneDAY
+Log: Loading: Package Liquids
+Log: Loading: Package flyby
+Log: Bound to UPak.dll
+Log: Loading: Package UPak
+Log: Loading: Package marine
+Log: Loading: Package UDSDemo
+Log: Loading: Package UPakFonts
+Log: Loading: Package UWindow
+Log: Loading: Package UMenu
+Log: Loading: Package UBrowser
+Log: Bound to IpDrv.dll
+Log: Loading: Package IpDrv
+Log: Collecting garbage
+Log: Purging garbage
+Log: Unloading: Package Render
+Log: Game class is 'UPakIntro'
+Log: Bringing Level UPack.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is UPack.Mutator1
+Init: Initialized moving brush tracker for Level UPack.MyLevel
+DevAudio: Galaxy SetViewport: NULL
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: Loading: Package Female1Skins
+Log: Possessed PlayerPawn: UPakFemaleOne UPack.UPakFemaleOne0
+ScriptLog: All inventory from Player is accepted
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to D3DDrv.dll
+Init: DirectDraw drivers detected:
+Init:    display (Primary Display Driver)
+Init: D3D Device: Supports system memory DMA blts
+Init: D3D Device: No page lock required
+Log: D3D Device 511345K vram, 511234K free
+Init: Unreal 1 Direct3D support - internal revision 1.7-UT 
+Init: D3D Device: szDriver=nv4_disp.dll
+Init: D3D Device: szDescription=NVIDIA GeForce 8400GS
+Init: D3D Device: wProduct=0
+Init: D3D Device: wVersion=0
+Init: D3D Device: wSubVersion=0
+Init: D3D Device: wBuild=0
+Init: D3D Device: dwVendorId=4318
+Init: D3D Device: dwDeviceId=4291
+Init: D3D Device: dwSubSysId=4318
+Init: D3D Device: dwRevision=162
+Init: Best-match display mode: 1024x768x32 (Error=0)
+Init: D3D Device: dwZbuffer depth: 32 bits.
+Init: D3D Driver: wMaxTextureBlendStages=8
+Init: D3D Driver: wMaxSimultaneousTextures=8
+Log: D3D Driver: Supports FOURCC DXT1
+Log: D3D Driver: Supports FOURCC DXT2
+Log: D3D Driver: Supports FOURCC DXT3
+Log: D3D Driver: Supports FOURCC DXT4
+Log: D3D Driver: Supports FOURCC DXT5
+Init: D3D Detected: NVidia video card
+Init: D3D Driver: Supports trilinear
+Init: D3D Driver: Supports specular gouraud
+Init: D3D Driver: Supports BLENDDIFFUSEALPHA
+Init: D3D Driver: Supports alpha palettes
+Init: D3D Driver: Supports non-power-of-2 textures
+Init: D3D Driver: Supports LOD biasing
+Init: D3D Driver: Supports Z biasing
+Init: D3D Driver: Supports D3DTOP_ADDSIGNED2X
+Init: D3D Driver: Supports D3DTOP_BUMPENVMAP
+Init: D3D Driver: Supports D3DTOP_BUMPENVMAPLUMINANCE
+Init: D3D Driver: Supports D3DTOP_DOTPRODUCT3
+Init: D3D Driver: Supports D3DTOP_MODULATEALPHA_ADDCOLOR
+Init: D3D Driver: Supports D3DTOP_MODULATECOLOR_ADDALPHA
+Init: D3D Driver: Textures (1x1)-(8192x8192), Max aspect 8192
+Init: D3D Driver: VidMem Disposition: 141 0
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Init: Game engine initialized
+Log: Startup time: 4.610796 seconds
+DevMusic: Load music: Music flyby.flyby
+Log: Viewport WindowsViewport0: WM_DisplayChange
+Log: WM_KILLFOCUS
+Log: EndFullscreen
+Init: DirectDraw drivers detected:
+Init:    display (Primary Display Driver)
+Init: D3D Device: Supports system memory DMA blts
+Init: D3D Device: No page lock required
+Log: D3D Device 511345K vram, 511234K free
+Init: Unreal 1 Direct3D support - internal revision 1.7-UT 
+Init: D3D Device: szDriver=nv4_disp.dll
+Init: D3D Device: szDescription=NVIDIA GeForce 8400GS
+Init: D3D Device: wProduct=0
+Init: D3D Device: wVersion=0
+Init: D3D Device: wSubVersion=0
+Init: D3D Device: wBuild=0
+Init: D3D Device: dwVendorId=4318
+Init: D3D Device: dwDeviceId=4291
+Init: D3D Device: dwSubSysId=4318
+Init: D3D Device: dwRevision=162
+Init: D3D Device: dwZbuffer depth: 32 bits.
+Init: D3D Driver: wMaxTextureBlendStages=8
+Init: D3D Driver: wMaxSimultaneousTextures=8
+Log: D3D Driver: Supports FOURCC DXT1
+Log: D3D Driver: Supports FOURCC DXT2
+Log: D3D Driver: Supports FOURCC DXT3
+Log: D3D Driver: Supports FOURCC DXT4
+Log: D3D Driver: Supports FOURCC DXT5
+Init: D3D Detected: NVidia video card
+Init: D3D Driver: Supports trilinear
+Init: D3D Driver: Supports specular gouraud
+Init: D3D Driver: Supports BLENDDIFFUSEALPHA
+Init: D3D Driver: Supports alpha palettes
+Init: D3D Driver: Supports non-power-of-2 textures
+Init: D3D Driver: Supports LOD biasing
+Init: D3D Driver: Supports Z biasing
+Init: D3D Driver: Supports D3DTOP_ADDSIGNED2X
+Init: D3D Driver: Supports D3DTOP_BUMPENVMAP
+Init: D3D Driver: Supports D3DTOP_BUMPENVMAPLUMINANCE
+Init: D3D Driver: Supports D3DTOP_DOTPRODUCT3
+Init: D3D Driver: Supports D3DTOP_MODULATEALPHA_ADDCOLOR
+Init: D3D Driver: Supports D3DTOP_MODULATECOLOR_ADDALPHA
+Init: D3D Driver: Textures (1x1)-(8192x8192), Max aspect 8192
+Init: D3D Driver: VidMem Disposition: 141 0
+DevAudio: Galaxy SetViewport: NULL
+DevMusic: Unregister music: Music flyby.flyby
+Log: Closed viewport
+Log: All Windows Closed
+Log: appRequestExit(0)
+Exit: appPreExit
+Log: Purging garbage
+Log: Unbound to Engine.dll
+Log: Unbound to Core.dll
+Log: Unbound to Window.dll
+Log: Unloading: Package Engine
+Log: Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to Galaxy.dll
+DevAudio: Galaxy SetViewport: NULL
+Exit: Galaxy shut down
+Log: Unbound to WinDrv.dll
+Log: DirectDraw End Mode
+Log: Flushing cache
+Exit: DirectDraw released
+Exit: Windows client shut down
+Log: Unbound to Render.dll
+Exit: Lighting subsystem shut down
+Exit: Rendering shut down
+Log: Unloading: Package Entry
+Log: Unloading: Package PlayrShp
+Log: Unloading: Package Detail
+Log: Unbound to Fire.dll
+Log: Unloading: Package Fire
+Log: Unloading: Package UnrealI
+Log: Unloading: Package UnrealShare
+Log: Unloading: Package UPack
+Log: Unloading: Package NaliCast
+Log: Unloading: Package GenIn
+Log: Unloading: Package NaliFX
+Log: Unloading: Package GenFluid
+Log: Unloading: Package GenFX
+Log: Unloading: Package GenEarth
+Log: Unloading: Package AmbAncient
+Log: Unloading: Package SKYBox
+Log: Unloading: Package AmbOutside
+Log: Unloading: Package DoorsAnc
+Log: Unloading: Package shanesky
+Log: Unloading: Package shaneDAY
+Log: Unloading: Package Liquids
+Log: Unloading: Package flyby
+Log: Unbound to UPak.dll
+Log: Unloading: Package UPak
+Log: Unloading: Package marine
+Log: Unloading: Package UDSDemo
+Log: Unloading: Package UPakFonts
+Log: Unloading: Package UWindow
+Log: Unloading: Package UMenu
+Log: Unloading: Package UBrowser
+Log: Unbound to IpDrv.dll
+Log: Unloading: Package IpDrv
+Init: Shut down moving brush tracker for Level UPack.MyLevel
+Log: Unloading: Package Female1Skins
+Log: Unbound to D3DDrv.dll
+Exit: Object subsystem successfully closed.
+Exit: appExit
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.726M /  0.246M
+Uninitialized: Peak Memory  31.975M /  33.637M
+Uninitialized: Allocs          53 Current /  158013 Total
+Uninitialized: Log file closed, 08/29/26 23:40:48

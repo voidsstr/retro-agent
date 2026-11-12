@@ -1,0 +1,52 @@
+# SoF.exe (md5 2f4db3771d51d8b585bbea695041e40c) FS_AddGameDirectory @~0x20028200: prepends the loose directory FIRST (0x20028245-0x20028253), then loads %s/pak%i.pak for i=0..9 (cmp edi,0xa) prepending each => paks are searched BEFORE loose files (stock Quake II order); an override must be a pak (base\pak2.pak), a loose menus\m_video.rmf would be shadowed by pak0.pak
+20028245: 8b0dfcfa2f20             mov ecx, dword ptr [0x202ffafc]
+2002824b: 33ff                     xor edi, edi
+2002824d: 898a84000000             mov dword ptr [edx + 0x84], ecx
+20028253: 8915fcfa2f20             mov dword ptr [0x202ffafc], edx
+20028259: 57                       push edi
+2002825a: 53                       push ebx
+2002825b: 6844d61b20               push 0x201bd644
+20028260: 8d542418                 lea edx, [esp + 0x18]
+20028264: 6880000000               push 0x80
+20028269: 52                       push edx
+2002826a: e8810c0300               call 0x20058ef0
+2002826f: 8d442420                 lea eax, [esp + 0x20]
+20028273: 50                       push eax
+20028274: e837bb0200               call 0x20053db0
+20028279: 8bf0                     mov esi, eax
+2002827b: 83c418                   add esp, 0x18
+2002827e: 85f6                     test esi, esi
+20028280: 7424                     je 0x200282a6
+20028282: 6888000000               push 0x88
+20028287: e8b486ffff               call 0x20020940
+2002828c: 89b080000000             mov dword ptr [eax + 0x80], esi
+20028292: 8b0dfcfa2f20             mov ecx, dword ptr [0x202ffafc]
+20028298: 898884000000             mov dword ptr [eax + 0x84], ecx
+2002829e: 83c404                   add esp, 4
+200282a1: a3fcfa2f20               mov dword ptr [0x202ffafc], eax
+200282a6: 47                       inc edi
+200282a7: 83ff0a                   cmp edi, 0xa
+200282aa: 7cad                     jl 0x20028259
+200282ac: 5f                       pop edi
+200282ad: 5e                       pop esi
+200282ae: 5b                       pop ebx
+200282af: 81c480000000             add esp, 0x80
+
+# SoF menus/video.cfg (pak0.pak) runs when the video menu opens (<config "menus/video">): set menu_mode $gl_mode ... so the Resolution list shows the running gl_mode
+set menu_settings_changed 0
+
+set menu_driver $gl_driver
+set menu_mode $gl_mode
+set menu_fullscreen $vid_fullscreen
+set menu_pictip $gl_pictip
+set menu_picmip $gl_picmip
+set menu_mip $ghl_mip
+set menu_isf $r_isf
+set menu_iaf $r_iaf
+set menu_gamma $vid_gamma
+set menu_contrast $vid_contrast
+set menu_brightness $vid_brightness
+set menu_modulate $gl_modulate
+set menu_bitdepth $gl_bitdepth
+
+

@@ -1,0 +1,108 @@
+# JK.EXE / JKM.EXE - where the display settings are SAVED (not only on Setup->Display OK)
+## JK: save routine 0x414be0 writes displayDeviceGUID, 3DDeviceGUID, displayMode, b3DAccel, minTextureDimension ... (HKLM, root 0x80000002 pushed at 0x4011fa)
+00414be0: mov eax, dword ptr [0x556598]
+00414be5: push eax
+00414be6: call 0x427a20
+00414beb: add esp, 4
+00414bee: push 0x10
+00414bf0: push 0x86050c
+00414bf5: push 0x52e808  ; "displayDeviceGUID"
+00414bfa: call 0x50f5a0
+00414bff: add esp, 0xc
+00414c02: push 0x10
+00414c04: push 0x86051c
+00414c09: push 0x52e81c  ; "3DDeviceGUID"
+00414c0e: call 0x50f5a0
+00414c13: mov ecx, dword ptr [0x860504]
+00414c19: add esp, 0xc
+00414c1c: push ecx
+00414c1d: push 0x52e82c  ; "displayMode"
+00414c22: call 0x50f300
+00414c27: mov edx, dword ptr [0x86052c]
+00414c2d: add esp, 8
+00414c30: push edx
+00414c31: push 0x52e838  ; "b3DAccel"
+00414c36: call 0x50f4c0
+00414c3b: mov eax, dword ptr [0x8605e8]
+## its ONLY caller is the program shutdown sequence (0x401370..): call 0x414be0 at 0x4013c5
+004013a2: call 0x417de0
+004013a7: call 0x416be0
+004013ac: call 0x41c4d0
+004013b1: call 0x412c80
+004013b6: call 0x415980
+004013bb: call 0x411f00
+004013c0: call 0x416b20
+004013c5: call 0x414be0
+004013ca: call 0x413460
+## MotS: save routine 0x417560, only caller 0x4013d5 (same shutdown sequence shape)
+00417560: mov eax, dword ptr [0x5b11a0]
+00417565: push eax
+00417566: call 0x42abe0
+0041756b: add esp, 4
+0041756e: push 0x10
+00417570: push 0x941b8c
+00417575: push 0x58734c  ; "displayDeviceGUID"
+0041757a: call 0x561cb0
+0041757f: add esp, 0xc
+00417582: push 0x10
+00417584: push 0x941b9c
+00417589: push 0x587360  ; "3DDeviceGUID"
+0041758e: call 0x561cb0
+00417593: mov ecx, dword ptr [0x941b84]
+00417599: add esp, 0xc
+0041759c: push ecx
+## JK enumeration: coop 0x51 (ALLOWMODEX|EXCLUSIVE|FULLSCREEN) + EnumDisplayModes(cb 0x426030: keeps only 320-wide modes), then coop 0x11 + EnumDisplayModes(cb 0x425e30: keeps every mode); one counter [0x55b3fc] reset at 0x425b9d, cap 0x40
+00425b8e: mov eax, dword ptr [0x55b408]
+00425b93: mov esi, dword ptr [esp + 8]
+00425b97: push 0x51
+00425b99: push esi
+00425b9a: mov ecx, dword ptr [eax]
+00425b9c: push eax
+00425b9d: mov dword ptr [0x55b3fc], 0
+00425ba7: call dword ptr [ecx + 0x50]
+00425baa: test eax, eax
+00425bac: je 0x425bb2
+00425bae: xor eax, eax
+00425bb0: pop esi
+00425bb1: ret 
+00425bb2: mov eax, dword ptr [0x55b408]
+00425bb7: push 0x426030
+00425bbc: push 0
+00425bbe: push 0
+00425bc0: mov edx, dword ptr [eax]
+00425bc2: push 0
+00425bc4: push eax
+00425bc5: call dword ptr [edx + 0x20]
+00425bc8: test eax, eax
+00425bca: je 0x425bd0
+00425bcc: xor eax, eax
+00425bce: pop esi
+00425bcf: ret 
+00425bd0: mov eax, dword ptr [0x55b408]
+00425bd5: push 0x11
+00425bd7: push esi
+00425bd8: push eax
+## MotS enumeration: coop 0x11, cb 0x429160 (320-wide only), coop 0x11, cb 0x428f60 (all); counter [0x5b6bac], cap 0x40
+## JK device record copy (no filter): count [ebx+0x298] = [0x55b3fc]; rep movsd from 0x866cc0
+004277e6: mov ecx, dword ptr [0x55b3fc]
+004277ec: mov dword ptr [ebx + 0x29c], edi
+004277f2: mov eax, ecx
+004277f4: mov dword ptr [ebx + 0x298], ecx
+004277fa: cmp eax, edi
+004277fc: je 0x4278d4
+00427802: mov ecx, dword ptr [0x866bc0]
+00427808: lea edx, [eax + eax*4]
+0042780b: lea eax, [eax + edx*4]
+0042780e: shl eax, 2
+00427811: push eax
+00427812: call dword ptr [ecx + 0x20]
+00427815: mov ecx, dword ptr [0x55b3fc]
+0042781b: mov dword ptr [ebx + 0x29c], eax
+00427821: mov edi, eax
+00427823: mov esi, 0x866cc0
+00427828: lea edx, [ecx + ecx*4]
+0042782b: add esp, 4
+0042782e: lea ecx, [ecx + edx*4]
+00427831: shl ecx, 2
+00427834: mov eax, ecx
+00427836: shr ecx, 2

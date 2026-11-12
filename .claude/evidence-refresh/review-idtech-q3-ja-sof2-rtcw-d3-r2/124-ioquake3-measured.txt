@@ -1,0 +1,64 @@
+# .124 ioquake3 refresh is MEASURED, not inferred (another session's read-only-to-us capture, /home/voidsstr/development/retro-agent/.claude/evidence-refresh/124-window, 03:57 EDT 2026-09-29)
+## /home/voidsstr/development/retro-agent/.claude/evidence-refresh/124-window/run2.txt (Quake III shortcut -> ioquake3.x86.exe pid 332; vcr-kmd flight recorder ev 300 = mode set, 301 = PLL/refresh)
+03:57:12 base seq 1763 {"width":1280,"height":1024,"bpp":32,"refresh":85}
+===== 03:57:12 q3
+03:57:37 running: ['ioquake3.x86.exe'] DISPLAYCFG {"width":1280,"height":960,"bpp":32,"refresh":75}
+ fg: ioquake3 [('ioquake3', {'left': 0, 'top': 0, 'right': 1280, 'bottom': 960}), ('C:\\WINDOWS\\system32\\cmd.exe', {'left': 88, 'top': 116, 'right': 757, 'bottom': 454}), ('Program Manager', {'left': 0, 'top': 0, 'right': 1280, 'bottom': 960})]
+  ev 1777	11919520	1	2	300	332	050003c0	00200055	00000000	00000000	PHASE mode set
+  ev 1778	11919542	1	2	300	332	00000500	000003c0	00000020	00000055	mode 160: 1280x960x32@85
+  ev 1779	11919542	1	2	301	332	00024414	00024447	0000a40a	00000000	pll 148500 kHz -> 148551 kHz, refresh 85031 mHz
+  ev 1846	11919827	2	2	603	332	00000001	045f0000	04600000	04620000	GET_SLAVE_REGS
+  ev 1848	11919827	2	2	603	332	00000002	04630000	04640000	04660000	GET_SLAVE_REGS
+  ev 1850	11919827	2	2	603	332	00000003	04670000	04680000	046a0000	GET_SLAVE_REGS
+  ev 1908	11920214	1	2	300	332	014000c8	00200055	00000000	00000000	PHASE mode set
+  ev 1909	11920234	1	2	300	332	00000140	000000c8	00000020	00000055	mode 171: 320x200x32@85
+  ev 1910	11920234	1	2	301	332	00003d85	00003d85	00002a0f	00000000	pll 15749 kHz -> 15749 kHz, refresh 85074 mHz
+  ev 1956	11920315	2	2	604	332	00000001	0000014c	00000001	00000000	HWCSETEXCLUSIVE
+  ev 2011	11924734	1	2	300	332	014000c8	00200055	00000000	00000000	PHASE mode set
+  ev 2012	11924751	1	2	300	332	00000140	000000c8	00000020	00000055	mode 171: 320x200x32@85
+  ev 2013	11924751	1	2	301	332	00003d85	00003d85	00002a0f	00000000	pll 15749 kHz -> 15749 kHz, refresh 85074 mHz
+  ev 2027	11924772	2	2	604	332	00000000	0000014c	00000001	00000000	HWCRLSEXCLUSIVE
+  ev 2032	11924773	1	2	300	332	05000400	00200055	00000000	00000000	PHASE mode set
+  ev 2033	11924795	1	2	300	332	00000500	00000400	00000020	00000055	mode 163: 1280x1024x32@85
+  ev 2034	11924795	1	2	301	332	0002673c	0002673b	00004005	00000000	pll 157500 kHz -> 157499 kHz, refresh 85023 mHz
+  ev 2095	11924928	1	2	605	332	0000014c	0000000e	00000000	00000000	released 14 views
+  ev 2163	11925314	2	2	603	332	00000001	04600000	04610000	04630000	GET_SLAVE_REGS
+  ev 2165	11925314	2	2	603	332	00000002	04640000	04650000	04670000	GET_SLAVE_REGS
+  ev 2167	11925314	2	2	603	332	00000003	04680000	04690000	046b0000	GET_SLAVE_REGS
+  ev 2175	11925323	1	2	300	332	050003c0	0020004b	00000000	00000000	PHASE mode set
+  ev 2176	11925340	1	2	300	332	00000500	000003c0	00000020	0000004b	mode 199: 1280x960x32@75
+  ev 2177	11925340	1	2	301	332	0001fb5c	0001fb5e	0000fc16	00000000	pll 129884 kHz -> 129886 kHz, refresh 75014 mHz
+  ev 2223	11925442	2	2	604	332	00000001	0000014c	00000001	00000000	HWCSETEXCLUSIVE
+
+## the same pid in C:\retrogl.log (MesaFX asks enum 0 = 60 for SDL's 10x10 GL probe and enum 7 = 85 for the game window)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake3-TeamArena\ioquake3.x86.exe' (pid=332) ###
+wglCreateContext: hWnd=005d00e6 GetClientRect=10x10 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+fxBestRefresh: 10x10 max 0 Hz (EnumDisplaySettings) -> GR_REFRESH enum 0
+grSstWinOpenExt: win=6095078 res=0 (320x200) ref=0 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+wglCreateContext: hWnd=004e00dc GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+grSstWinOpenExt: win=5112028 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+
+## no-rate CDS on vcr-kmd lands on 60 (quake2 1520, glquake 1200, hl 1716 at 1280x960 while the desktop was 1280x1024@85)
+  ev 1009	11776518	1	2	300	1520	00000500	000003c0	00000020	0000003c	mode 159: 1280x960x32@60
+  ev 2824	11969025	1	2	300	1200	00000500	000003c0	00000020	0000003c	mode 159: 1280x960x32@60
+  ev 3735	12020072	1	2	300	1716	00000500	000003c0	00000010	0000003c	mode 89: 1280x960x16@60
+
+## vcr-kmd timing rows (/home/voidsstr/development/retro-agent/voodoo-cleanroom/vcr-kmd/common/vcr_modes.c): 320x200 has no 75 row -> Glide's FX_GLIDE_REFRESH=75 probe open fell back to rate 0 -> 85
+22:    { 320,  200, 70,  12587,   8,  48,  24, 13, 2, 34, N | D },
+41:    { 1152, 864, 75, 108000,  64, 128, 256,  1, 3, 32, 0 },
+42:    { 1280, 960, 60, 108000,  96, 112, 312,  1, 3, 36, 0 },
+43:    { 1280, 960, 85, 148500,  64, 160, 224,  1, 3, 47, 0 },
+60:{  320, 200,  85,  15749,  16,  32,  48,  1, 3, 41, N | D },
+84:    { 1152, 864,  60,  80050,  32,  96, 192,  1, 3, 37, 0 },
+85:    { 1152, 864,  70,  94498,  32,  96, 200,  1, 3, 44, 0 },
+86:    { 1152, 864,  85, 121703,  64, 128, 224,  1, 3, 43, 0 },
+87:    { 1152, 864, 100, 143180,  80, 128, 208,  1, 3, 47, N },
+88:    { 1280, 960,  75, 129884,  88, 136, 224,  1, 3, 38, N },
+
+## Glide regpath + override in the DEPLOYED build (md5 38a891e8 = C:\WINDOWS\system32\glide3x_38a891e8.dll on .124)
+38a891e81ea58379a0c22be6d7c0d6fb  /home/voidsstr/development/retro-agent/.claude/worktrees/v56k-bench/voodoo-cleanroom/out/glide3x_h5.dll
+SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide
+SYSTEM\CurrentControlSet\Services\3dfxvs\Device0
+FX_GLIDE_REFRESH
+source: glide3x/h5/minihwc/minihwc.c:4675 (GETENV FX_GLIDE_REFRESH overrides the app's enum), :9547 hwcGetenv = getenv -> HKCU regPath -> HKLM regPath, :1371 getRegPath = 3dfxvs\Device0\glide when that key exists; win_mode.c:297-352 exact rate else rate 0

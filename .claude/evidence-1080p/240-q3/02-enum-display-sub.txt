@@ -1,0 +1,4 @@
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\DELF045","values":[],"subkeys":["5&234f275&0&10000084&01&00","5&26362c56&0&10000084&01&00"]}
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\DELF044","values":[],"subkeys":["5&234f275&0&10000080&01&00","5&f25d6da&3&10000080&01&00"]}
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\DELA021","values":[],"subkeys":["5&202a5e5b&0&11335587&01&00","5&7ced853&0&4d010100&01&00","5&f25d6da&3&10000084&01&00"]}
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Enum\\DISPLAY\\Default_Monitor","values":[],"subkeys":["5&7ced853&0&4d010101&01&00","5&7ced853&0&4d010102&01&00","5&7ced853&0&4d010103&01&00","5&7ced853&0&4d545880&01&00","5&7ced853&0&4d545881&01&00"]}

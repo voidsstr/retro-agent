@@ -1,0 +1,73 @@
+#### /mnt/retro-share/Files/Games-Library/SoldierOfFortune2/SoF2.exe  image base 0x10000000
+
+== cvar r_displayRefresh: exact string at ['0x100f0a14']
+   code refs to the string: ['0x10090c5e']
+   registration near 0x10090c5e -> stored in global 0x10799994
+  10090c4d: cmp     byte ptr [ebx + 0x1ca31079], ah
+  10090c53: cwde    
+  10090c54: jns     0x10090c66
+  10090c56: push    0x20
+  10090c58: push    0x100e1bc0
+  10090c5d: push    0x100f0a14
+  10090c62: call    dword ptr [0x1079a338]
+  10090c68: add     esp, 0x48
+  10090c6b: push    1
+  10090c6d: push    0x43480000
+  10090c72: push    0
+  10090c74: push    eax
+  10090c75: mov     dword ptr [0x10799994], eax
+  10090c7a: call    0x10091620
+  10090c7f: push    0x200
+  10090c84: push    0x100e1bc0
+  10090c89: push    0x100f0a04
+  10090c8e: call    dword ptr [0x1079a338]
+  10090c94: push    0x20
+  10090c96: push    0x100e1b34
+  10090c9b: push    0x100efec8
+   every code ref to 0x10799994: ['0x10090c76', '0x100b8c35']
+   --- ref 0x10090c76
+  10090c56: push    0x20
+  10090c58: push    0x100e1bc0
+  10090c5d: push    0x100f0a14
+  10090c62: call    dword ptr [0x1079a338]
+  10090c68: add     esp, 0x48
+  10090c6b: push    1
+  10090c6d: push    0x43480000
+  10090c72: push    0
+  10090c74: push    eax
+  10090c75: mov     dword ptr [0x10799994], eax
+  10090c7a: call    0x10091620
+  10090c7f: push    0x200
+  10090c84: push    0x100e1bc0
+  10090c89: push    0x100f0a04
+  10090c8e: call    dword ptr [0x1079a338]
+  10090c94: push    0x20
+  10090c96: push    0x100e1b34
+  10090c9b: push    0x100efec8
+  10090ca0: mov     dword ptr [0x10799948], eax
+  10090ca5: call    dword ptr [0x1079a338]
+  10090cab: push    0x220
+   --- ref 0x100b8c35
+  100b8c15: xor     eax, eax
+  100b8c17: mov     ecx, 0x25
+  100b8c1c: lea     edi, [esp + 0x18]
+  100b8c20: rep stosd dword ptr es:[edi], eax
+  100b8c22: mov     eax, dword ptr [0x1079a23c]
+  100b8c27: mov     ecx, dword ptr [0x1079a240]
+  100b8c2d: mov     dword ptr [esp + 0x84], eax
+  100b8c34: mov     eax, dword ptr [0x10799994]
+  100b8c39: mov     word ptr [esp + 0x3c], 0x94
+  100b8c40: mov     dword ptr [esp + 0x88], ecx
+  100b8c47: mov     dword ptr [esp + 0x40], 0x180000
+  100b8c4f: mov     eax, dword ptr [eax + 0x60]
+  100b8c52: test    eax, eax
+  100b8c54: je      0x100b8c65
+  100b8c56: mov     dword ptr [esp + 0x90], eax
+  100b8c5d: mov     dword ptr [esp + 0x40], 0x580000
+  100b8c65: test    ebx, ebx
+  100b8c67: je      0x100b8c9e
+  100b8c69: mov     al, byte ptr [0x10840a84]
+
+== ChangeDisplaySettingsA (IAT 0x100da1f4) call sites: ['0x100b8cf9', '0x100b8d19', '0x100b8fd3', '0x100b9eb8']
+
+== EnumDisplaySettingsA (IAT 0x100da1f8) call sites: ['0x100b8da9', '0x100b8e84', '0x100b8ec4']

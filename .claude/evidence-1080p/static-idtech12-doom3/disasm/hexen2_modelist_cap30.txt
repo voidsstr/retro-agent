@@ -1,0 +1,45 @@
+# glh2.exe (HexenII, md5 c450ea8ac9aefa9e4a5b48e9c7ae4e66, 'Exe: 15:08:09 Sep  4 1997') same GLQuake-derived loop: bpp>=15, w/h<=10000, nummodes<30 (0x1e)
+  43089e:	ff 15 94 76 df 00    	call   DWORD PTR ds:0xdf7694
+  4308a4:	8b 0d 78 b8 7c 00    	mov    ecx,DWORD PTR ds:0x7cb878
+  4308aa:	89 44 24 18          	mov    DWORD PTR [esp+0x18],eax
+  4308ae:	8b 84 24 88 00 00 00 	mov    eax,DWORD PTR [esp+0x88]
+  4308b5:	83 f8 0f             	cmp    eax,0xf
+  4308b8:	0f 82 b3 01 00 00    	jb     0x430a71
+  4308be:	8b 84 24 8c 00 00 00 	mov    eax,DWORD PTR [esp+0x8c]
+  4308c5:	3d 10 27 00 00       	cmp    eax,0x2710
+  4308ca:	0f 87 a1 01 00 00    	ja     0x430a71
+  4308d0:	8b 84 24 90 00 00 00 	mov    eax,DWORD PTR [esp+0x90]
+  4308d7:	3d 10 27 00 00       	cmp    eax,0x2710
+  4308dc:	0f 87 8f 01 00 00    	ja     0x430a71
+  4308e2:	83 f9 1e             	cmp    ecx,0x1e
+  4308e5:	0f 8d 86 01 00 00    	jge    0x430a71
+  4308eb:	8d 44 24 20          	lea    eax,[esp+0x20]
+# -current (0x468a48): GetSystemMetrics [0xdf76ec] -> modelist[1], leavecurrentmode
+  430e32:	68 48 8a 46 00       	push   0x468a48
+  430e37:	e8 94 36 fd ff       	call   0x4044d0
+  430e3c:	83 c4 04             	add    esp,0x4
+  430e3f:	85 c0                	test   eax,eax
+  430e41:	74 2d                	je     0x430e70
+  430e43:	6a 00                	push   0x0
+  430e45:	8b 3d ec 76 df 00    	mov    edi,DWORD PTR ds:0xdf76ec
+  430e4b:	be 01 00 00 00       	mov    esi,0x1
+  430e50:	ff d7                	call   edi
+  430e52:	56                   	push   esi
+  430e53:	a3 98 b2 7c 00       	mov    ds:0x7cb298,eax
+  430e58:	ff d7                	call   edi
+  430e5a:	a3 9c b2 7c 00       	mov    ds:0x7cb29c,eax
+  430e5f:	89 35 a8 80 46 00    	mov    DWORD PTR ds:0x4680a8,esi
+# h2.exe (software) DIB modes: bpp==8, w<=1280, h<=1024, nummodes<30
+  415e46:	ff 15 14 c6 57 00    	call   DWORD PTR ds:0x57c614
+  415e4c:	8b 0d 50 89 49 00    	mov    ecx,DWORD PTR ds:0x498950
+  415e52:	89 44 24 14          	mov    DWORD PTR [esp+0x14],eax
+  415e56:	8b 84 24 8c 00 00 00 	mov    eax,DWORD PTR [esp+0x8c]
+  415e5d:	83 f8 08             	cmp    eax,0x8
+  415e60:	0f 85 d9 01 00 00    	jne    0x41603f
+  415e66:	8b 84 24 90 00 00 00 	mov    eax,DWORD PTR [esp+0x90]
+  415e6d:	3d 00 05 00 00       	cmp    eax,0x500
+  415e72:	0f 87 c7 01 00 00    	ja     0x41603f
+  415e78:	8b 84 24 94 00 00 00 	mov    eax,DWORD PTR [esp+0x94]
+  415e7f:	3d 00 04 00 00       	cmp    eax,0x400
+  415e84:	0f 87 b5 01 00 00    	ja     0x41603f
+  415e8a:	83 f9 1e             	cmp    ecx,0x1e

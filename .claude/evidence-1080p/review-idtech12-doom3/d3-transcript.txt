@@ -1,0 +1,1 @@
+>>> DOWNLOAD C:\Games\Doom3\base\DoomConfig.cfg [status 1] -> /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-idtech12-doom3/123-Doom3-DoomConfig.cfg (5486 bytes)

@@ -1,0 +1,129 @@
+logfile opened on Tue Sep 29 00:40:11 2026
+
+...detecting CPU, found Intel Pentium III
+
+------- Input Initialization -------
+No window for DirectInput mouse init, delaying
+Joystick is not active.
+------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode -1: 1920 1080 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...125 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 9 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...ignoring GL_S3_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...WGL_3DFX_gamma_control not found
+
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: GeForce 8400GS/PCIe/SSE2
+GL_VERSION: 3.3.0
+GL_EXTENSIONS: GL_ARB_depth_texture GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_imaging GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_texture_float GL_ATI_texture_mirror_once GL_S3_s3tc GL_EXT_texture_env_add GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_Cg_shader GL_EXT_depth_bounds_test GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_two_side GL_EXT_stencil_wrap GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_vertex_array GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_KTX_buffer_region GL_NV_blend_square GL_NV_copy_depth_to_color GL_NV_depth_clamp GL_NV_fence GL_NV_float_buffer GL_NV_fog_distance GL_NV_fragment_program GL_NV_fragment_program_option GL_NV_fragment_program2 GL_NV_half_float GL_NV_light_max_exponent GL_NV_multisample_filter_hint GL_NV_occlusion_query GL_NV_packed_depth_stencil GL_NV_pixel_data_range GL_NV_point_sprite GL_NV_primitive_restart GL_NV_register_combiners GL_NV_register_combiners2 GL_NV_texgen_reflection GL_NV_texture_compression_vtc GL_NV_texture_env_combine4 GL_NV_texture_expand_normal GL_NV_texture_rectangle GL_NV_texture_shader GL_NV_texture_shader2 GL_NV_texture_shader3 GL_NV_vertex_array_range GL_NV_vertex_array_range2 GL_NV_vertex_program GL_NV_vertex_program1_1 GL_NV_vertex_program2 GL_NV_vertex_program2_option GL_NV_vertex_program3 GL_NVX_conditional_render GL_SGIS_generate_mipmap GL_SGIS_texture_lod GL_SGIX_depth_texture GL_SGIX_shadow GL_SUN_slice_accum GL_WIN_swap_hint WGL_EXT_swap_control 
+GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_ACTIVE_TEXTURES_ARB: 4
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: Intel Pentium III
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0x9c10050 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: dell
+IP: 192.168.1.145
+Working directory: C:\Games\Quake3-TeamArena
+Proceeding with delayed mouse init
+Initializing DirectInput...
+DirectInput initialized.
+]/quit
+----- CL_Shutdown -----
+RE_Shutdown( 1 )
+Shutting down OpenGL subsystem
+...wglMakeCurrent( NULL, NULL ): success
+...deleting GL context: success
+...releasing DC: success
+...destroying window
+...resetting display
+...shutting down QGL
+...unloading OpenGL DLL
+-----------------------

@@ -1,0 +1,78 @@
+===== Quake2Complete quake2.exe 362496 57dd2cf4ba176f3e6ae72fccc94c38b4
+ imagebase 0x400000 checksum 0x0 subsys 4.0 timestamp 0x362ba8fe
+  sec .text    va 0x001000 vsz 0x0473a0 raw 0x000400 rsz 0x047400 <-EP
+  sec .rdata   va 0x049000 vsz 0x002698 raw 0x047800 rsz 0x002800
+  sec .data    va 0x04c000 vsz 0x729470 raw 0x04a000 rsz 0x00e400
+  sec .rsrc    va 0x776000 vsz 0x0003a0 raw 0x058400 rsz 0x000400
+  BoG_ marker: -1  stxt: []
+  table in section b'.data' chars 0xc0000040
+  [ 0] @0x543d0 desc va 0x00456510 -> off 0x54510 'Mode 0: 320x240' w=320 h=240 mode=0
+  [ 1] @0x543e0 desc va 0x00456500 -> off 0x54500 'Mode 1: 400x300' w=400 h=300 mode=1
+  [ 2] @0x543f0 desc va 0x004564f0 -> off 0x544f0 'Mode 2: 512x384' w=512 h=384 mode=2
+  [ 3] @0x54400 desc va 0x004564e0 -> off 0x544e0 'Mode 3: 640x480' w=640 h=480 mode=3
+  [ 4] @0x54410 desc va 0x004564d0 -> off 0x544d0 'Mode 4: 800x600' w=800 h=600 mode=4
+  [ 5] @0x54420 desc va 0x004564c0 -> off 0x544c0 'Mode 5: 960x720' w=960 h=720 mode=5
+  [ 6] @0x54430 desc va 0x004564ac -> off 0x544ac 'Mode 6: 1024x768' w=1024 h=768 mode=6
+  [ 7] @0x54440 desc va 0x00456498 -> off 0x54498 'Mode 7: 1152x864' w=1152 h=864 mode=7
+  [ 8] @0x54450 desc va 0x00456484 -> off 0x54484 'Mode 8: 1280x960' w=1280 h=960 mode=8
+  [ 9] @0x54460 desc va 0x00456470 -> off 0x54470 'Mode 9: 1600x1200' w=1600 h=1200 mode=9
+  [10] @0x54470 desc va 0x65646f4d -> off None None w=540686624 h=808465969 mode=808595832
+  [11] @0x54480 desc va 0x00000030 -> off -0x3fffd0 None w=1701080909 h=540686368 mode=808989233
+  label[ 0] @0x54678 va 0x0045678c -> 0x5478c '[320 240  ]'
+  label[ 1] @0x5467c va 0x00456780 -> 0x54780 '[400 300  ]'
+  label[ 2] @0x54680 va 0x00456774 -> 0x54774 '[512 384  ]'
+  label[ 3] @0x54684 va 0x00456768 -> 0x54768 '[640 480  ]'
+  label[ 4] @0x54688 va 0x0045675c -> 0x5475c '[800 600  ]'
+  label[ 5] @0x5468c va 0x00456750 -> 0x54750 '[960 720  ]'
+  label[ 6] @0x54690 va 0x00456744 -> 0x54744 '[1024 768 ]'
+  label[ 7] @0x54694 va 0x00456738 -> 0x54738 '[1152 864 ]'
+  label[ 8] @0x54698 va 0x0045672c -> 0x5472c '[1280 960 ]'
+  label[ 9] @0x5469c va 0x00456720 -> 0x54720 '[1600 1200]'
+  label[10] @0x546a0 va 0x00000000 -> None None
+  label[11] @0x546a4 va 0x00000000 -> None None
+ output 362496 d4fe128806b9ac7899c8ac6e4d6c367d
+  differing byte offsets: ['0x54464', '0x54465', '0x54468', '0x54479', '0x5447a', '0x5447e', '0x5447f', '0x54722', '0x54723', '0x54727', '0x54728']
+===== SiNGold sin.exe 667648 8d320d7fc3ea3a226ec98dafef3e81ba
+ imagebase 0x400000 checksum 0x0 subsys 4.0 timestamp 0x3a6c8e52
+  sec .text    va 0x001000 vsz 0x0808a2 raw 0x001000 rsz 0x081000 <-EP
+  sec .rdata   va 0x082000 vsz 0x002b0a raw 0x082000 rsz 0x003000
+  sec .data    va 0x085000 vsz 0x3a92b4 raw 0x085000 rsz 0x01d000
+  sec .rsrc    va 0x42f000 vsz 0x000980 raw 0x0a2000 rsz 0x001000
+  BoG_ marker: -1  stxt: []
+  table in section b'.data' chars 0xc0000040
+  [ 0] @0x94450 desc va 0x00494590 -> off 0x94590 'Mode 0: 320x240' w=320 h=240 mode=0
+  [ 1] @0x94460 desc va 0x00494580 -> off 0x94580 'Mode 1: 400x300' w=400 h=300 mode=1
+  [ 2] @0x94470 desc va 0x00494570 -> off 0x94570 'Mode 2: 512x384' w=512 h=384 mode=2
+  [ 3] @0x94480 desc va 0x00494560 -> off 0x94560 'Mode 3: 640x480' w=640 h=480 mode=3
+  [ 4] @0x94490 desc va 0x00494550 -> off 0x94550 'Mode 4: 800x600' w=800 h=600 mode=4
+  [ 5] @0x944a0 desc va 0x00494540 -> off 0x94540 'Mode 5: 960x720' w=960 h=720 mode=5
+  [ 6] @0x944b0 desc va 0x0049452c -> off 0x9452c 'Mode 6: 1024x768' w=1024 h=768 mode=6
+  [ 7] @0x944c0 desc va 0x00494518 -> off 0x94518 'Mode 7: 1152x864' w=1152 h=864 mode=7
+  [ 8] @0x944d0 desc va 0x00494504 -> off 0x94504 'Mode 8: 1280x960' w=1280 h=960 mode=8
+  [ 9] @0x944e0 desc va 0x004944f0 -> off 0x944f0 'Mode 9: 1600x1200' w=1600 h=1200 mode=9
+  [10] @0x944f0 desc va 0x65646f4d -> off None None w=540686624 h=808465969 mode=808595832
+  [11] @0x94500 desc va 0x00000030 -> off -0x3fffd0 None w=1701080909 h=540686368 mode=808989233
+ output 667648 55d69eb8584e633b16445adb126f8d47
+  differing byte offsets: ['0x944e4', '0x944e5', '0x944e8', '0x944f9', '0x944fa', '0x944fe', '0x944ff']
+===== SoldierOfFortune SoF.exe 2052096 2f4db3771d51d8b585bbea695041e40c
+ imagebase 0x20000000 checksum 0x0 subsys 4.0 timestamp 0x38c9c088
+  sec .text    va 0x001000 vsz 0x17d85a raw 0x001000 rsz 0x17e000 <-EP
+  sec .rdata   va 0x17f000 vsz 0x028487 raw 0x17f000 rsz 0x029000
+  sec .data    va 0x1a8000 vsz 0x398059 raw 0x1a8000 rsz 0x04c000
+  sec .rsrc    va 0x541000 vsz 0x000720 raw 0x1f4000 rsz 0x001000
+  BoG_ marker: -1  stxt: []
+  table in section b'.data' chars 0xc0000040
+  [ 0] @0x1c6e08 desc va 0x201c6f50 -> off 0x1c6f50 'Mode 0: Unsupported' w=320 h=240 mode=0
+  [ 1] @0x1c6e18 desc va 0x201c6f3c -> off 0x1c6f3c 'Mode 1: Unsupported' w=400 h=300 mode=1
+  [ 2] @0x1c6e28 desc va 0x201c6f28 -> off 0x1c6f28 'Mode 2: Unsupported' w=512 h=384 mode=2
+  [ 3] @0x1c6e38 desc va 0x201c6f18 -> off 0x1c6f18 'Mode 3: 640x480' w=640 h=480 mode=3
+  [ 4] @0x1c6e48 desc va 0x201c6f08 -> off 0x1c6f08 'Mode 4: 800x600' w=800 h=600 mode=4
+  [ 5] @0x1c6e58 desc va 0x201c6ef8 -> off 0x1c6ef8 'Mode 5: 960x720' w=960 h=720 mode=5
+  [ 6] @0x1c6e68 desc va 0x201c6ee4 -> off 0x1c6ee4 'Mode 6: 1024x768' w=1024 h=768 mode=6
+  [ 7] @0x1c6e78 desc va 0x201c6ed0 -> off 0x1c6ed0 'Mode 7: 1152x864' w=1152 h=864 mode=7
+  [ 8] @0x1c6e88 desc va 0x201c6ebc -> off 0x1c6ebc 'Mode 8: 1280x960' w=1280 h=960 mode=8
+  [ 9] @0x1c6e98 desc va 0x201c6ea8 -> off 0x1c6ea8 'Mode 9: 1600x1200' w=1600 h=1200 mode=9
+  [10] @0x1c6ea8 desc va 0x65646f4d -> off None None w=540686624 h=808465969 mode=808595832
+  [11] @0x1c6eb8 desc va 0x00000030 -> off -0x1fffffd0 None w=1701080909 h=540686368 mode=808989233
+ output 2052096 b4ed42272887b16a8ecdb92c919a507d
+  differing byte offsets: ['0x1c6e9c', '0x1c6e9d', '0x1c6ea0', '0x1c6eb1', '0x1c6eb2', '0x1c6eb6', '0x1c6eb7']

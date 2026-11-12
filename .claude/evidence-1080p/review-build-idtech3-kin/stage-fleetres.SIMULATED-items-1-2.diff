@@ -1,0 +1,41 @@
+# SIMULATION ONLY (review 2026-09-29): launcher_changes items 1+2 applied to a SCRATCH copy of scripts/fleet/stage-fleetres.py to prove them. NOT applied to the repo.
+--- a/scripts/fleet/stage-fleetres.py
++++ b/scripts/fleet/stage-fleetres.py
+@@ -156,7 +156,7 @@
+ """
+ 
+ 
+-def idtech3_cfg(mod, wide=True):
++def idtech3_cfg(mod, wide=True, fov=True):
+     """The cfg the staged autoexec.cfg execs, written fresh at every launch.
+ 
+     r_mode / r_customwidth / r_customheight / r_fullscreen are CVAR_LATCH: they
+@@ -190,7 +190,7 @@
+         # including the engines with no refresh setting of their own.
+         '>>%s echo seta r_displayRefresh "%%FR_HZ%%"' % p,
+     ]
+-    if wide:
++    if wide and fov:
+         # id Tech 3 is vert-: at 16:9 with the default FOV you see LESS
+         # vertically, not more horizontally. FR_FOV restores the 4:3 vertical
+         # field of view (106 at 16:9, 90 at 4:3).
+@@ -242,7 +242,7 @@
+ # up 640x480 and wrote back `seta r_mode "3"` beside an intact
+ # `seta r_customwidth "1920"`. Repeated at 1280x1024 with r_colorbits 32 - also
+ # 640x480. A plain `seta r_mode "8"` on the same box came up 1280x1024 at once.
+-IDTECH3_NO_CUSTOM_MODE = {"ReturnToCastleWolfenstein", "SoldierOfFortune2"}
++IDTECH3_NO_CUSTOM_MODE = set()
+ 
+ # ...AND FR_Q3MODE USED TO NAME A MODE THE BOX COULD NOT SET, which this
+ # engine answered by running in a WINDOW rather than by failing.
+@@ -1901,6 +1901,10 @@
+         elif title in ("SiNGold", "SoldierOfFortune"):
+             block = "\n".join([CALL] + q2_cfg(mod))
+             text = NEW_Q2.format(title=disp, exe=exe, block=block)
++        elif title == "ReturnToCastleWolfenstein":
++            block = "\n".join([CALL] + idtech3_cfg(mod, fov=False))
++            text = NEW_IDTECH3.format(title=disp, exe=exe, block=block,
++                                      args="+set com_recommendedSet 1 " + idtech3_args(fov=False))
+         elif title in IDTECH3_NO_CUSTOM_MODE:
+             cap = IDTECH3_MODE_CAP.get(title)
+             head = call_cap(cap[0], cap[1]) if cap else CALL

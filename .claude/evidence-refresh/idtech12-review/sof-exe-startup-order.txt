@@ -1,0 +1,119 @@
+# SoF.exe (md5 2f4db377) start-up ORDER
+## Qcommon_Init: 0x20019b50 = Cbuf_AddEarlyCommands ('+set' -> 'set %s %s'), 0x200196d0 = Cbuf_AddText, 0x20019a80 = Cbuf_Execute
+  0x20020c49: e822810300               call 0x20058d70
+  0x20020c4e: e85d8affff               call 0x200196b0
+  0x20020c53: e8e8a4ffff               call 0x2001b140
+  0x20020c58: e8b3480000               call 0x20025510
+  0x20020c5d: e8cef20200               call 0x2004ff30
+  0x20020c62: 6a00                     push 0
+  0x20020c64: e8e78effff               call 0x20019b50
+  0x20020c69: 83c404                   add esp, 4
+  0x20020c6c: e80f8effff               call 0x20019a80
+  0x20020c71: e89a850000               call 0x20029210
+  0x20020c76: 6854db1a20               push 0x201adb54
+  0x20020c7b: e8508affff               call 0x200196d0
+  0x20020c80: 83c404                   add esp, 4
+  0x20020c83: 6840db1a20               push 0x201adb40
+  0x20020c88: e8438affff               call 0x200196d0
+  0x20020c8d: 83c404                   add esp, 4
+  0x20020c90: e8eb8dffff               call 0x20019a80
+  0x20020c95: 6a01                     push 1
+  0x20020c97: e8b48effff               call 0x20019b50
+  0x20020c9c: 83c404                   add esp, 4
+  0x20020c9f: e8dc8dffff               call 0x20019a80
+  0x20020ca4: 6870040220               push 0x20020470
+  0x20020ca9: 6838db1a20               push 0x201adb38
+  0x20020cae: e8cd9affff               call 0x2001a780
+  0x20020cb3: 83c408                   add esp, 8
+  0x20020cb6: 68700a0220               push 0x20020a70
+## CL_Init: VID_Init (0x2006d110) at 0x2000dda0 ... FS_ExecAutoexec (0x20028020, pushes '%s/%s/autoexec.cfg') at 0x2000ddf3
+  0x2000dd9b: e8f04f0100               call 0x20022d90
+  0x2000dda0: e86bf30500               call 0x2006d110
+  0x2000dda5: e856b80400               call 0x20059600
+  0x2000ddaa: ff15d85f4c20             call dword ptr [0x204c5fd8]
+  0x2000ddb0: e80ba90000               call 0x200186c0
+  0x2000ddb5: 8b0ddc2d1c20             mov ecx, dword ptr [0x201c2ddc]
+  0x2000ddbb: c7053ccf3f204ccf3f20     mov dword ptr [0x203fcf3c], 0x203fcf4c
+  0x2000ddc5: 890d40cf3f20             mov dword ptr [0x203fcf40], ecx
+  0x2000ddcb: e8302f0c00               call 0x200d0d00
+  0x2000ddd0: e8cb690000               call 0x200147a0
+  0x2000ddd5: e80638ffff               call 0x200015e0
+  0x2000ddda: e8b1ecffff               call 0x2000ca90
+  0x2000dddf: e88c030400               call 0x2004e170
+  0x2000dde4: e8f7650200               call 0x200343e0
+  0x2000dde9: 6a01                     push 1
+  0x2000ddeb: e8c07a0e00               call 0x200f58b0
+  0x2000ddf0: 83c424                   add esp, 0x24
+  0x2000ddf3: e828a20100               call 0x20028020
+  0x2000ddf8: e883bc0000               call 0x20019a80
+  0x2000ddfd: 8b4c2404                 mov ecx, dword ptr [esp + 4]
+  0x2000de01: 64890d00000000           mov dword ptr fs:[0], ecx
+  0x2000de08: 83c410                   add esp, 0x10
+## VID_Init tail: registers vid_restart (0x201c7108) then tail-jumps to VID_CheckChanges (0x2006ce60), which loads ref_%s.dll (0x2006cf6a)
+  0x2006d1d9: 6800cb0620               push 0x2006cb00
+  0x2006d1de: 6808711c20               push 0x201c7108
+  0x2006d1e3: e898d5faff               call 0x2001a780
+  0x2006d1e8: 6810cb0620               push 0x2006cb10
+  0x2006d1ed: 68fc701c20               push 0x201c70fc
+  0x2006d1f2: e889d5faff               call 0x2001a780
+  0x2006d1f7: 6870cb0620               push 0x2006cb70
+  0x2006d1fc: 68f0701c20               push 0x201c70f0
+  0x2006d201: e87ad5faff               call 0x2001a780
+  0x2006d206: 68d8701c20               push 0x201c70d8
+  0x2006d20b: e8fae20f00               call 0x2016b50a
+  0x2006d210: 83c41c                   add esp, 0x1c
+## vid_fullscreen default in VID_Init is '1' (string at 0x201a9840), so autoexec's set vid_fullscreen 1 changes nothing -> no vid_restart
+  0x2006d157: 6840981a20               push 0x201a9840
+  0x2006d15c: 68846f1c20               push 0x201c6f84
+  0x2006d161: a374a85320               mov dword ptr [0x2053a874], eax
+  0x2006d166: e8456ffbff               call 0x200240b0
+  0x2006d16b: 83c440                   add esp, 0x40
+## ...VID_Init ends with the tail jump:
+  0x2006d20b: e8fae20f00               call 0x2016b50a
+  0x2006d210: 83c41c                   add esp, 0x1c
+  0x2006d213: e948fcffff               jmp 0x2006ce60
+## 0x2006ce60 (VID_CheckChanges) -> loads 'ref_%s.dll' (push 0x201c7094 at 0x2006cf6a) and starts the renderer:
+  0x2006cea2: ff150cf31720             call dword ptr [0x2017f30c]
+  0x2006ceaf: eb52                     jmp 0x2006cf03
+  0x2006cebd: ffd6                     call esi
+  0x2006cec6: ffd6                     call esi
+  0x2006cecf: eb32                     jmp 0x2006cf03
+  0x2006cee7: ff150cf31720             call dword ptr [0x2017f30c]
+  0x2006ceed: eb0e                     jmp 0x2006cefd
+  0x2006cef6: ffd6                     call esi
+  0x2006cefb: ffd6                     call esi
+  0x2006cf26: ffd0                     call eax
+  0x2006cf28: e81369fcff               call 0x20033840
+## same function, no ret in between: if vid_ref->modified -> Com_sprintf(name,100,'ref_%s.dll',vid_ref) -> VID_LoadRefresh(0x2006cbc0)
+  0x2006cf2d: 8b0dd8a65320             mov ecx, dword ptr [0x2053a6d8]
+  0x2006cf33: 8d4114                   lea eax, [ecx + 0x14]
+  0x2006cf36: 8b4914                   mov ecx, dword ptr [ecx + 0x14]
+  0x2006cf39: 3bcb                     cmp ecx, ebx
+  0x2006cf3b: 0f84d6000000             je 0x2006d017
+  0x2006cf41: 8918                     mov dword ptr [eax], ebx
+  0x2006cf43: 8b157ca85320             mov edx, dword ptr [0x2053a87c]
+  0x2006cf49: c7421401000000           mov dword ptr [edx + 0x14], 1
+  0x2006cf50: a1d8a65320               mov eax, dword ptr [0x2053a6d8]
+  0x2006cf55: 881d1cc82720             mov byte ptr [0x2027c81c], bl
+  0x2006cf5b: c6057c71252001           mov byte ptr [0x2025717c], 1
+  0x2006cf62: 8b4804                   mov ecx, dword ptr [eax + 4]
+  0x2006cf65: 8d54241c                 lea edx, [esp + 0x1c]
+  0x2006cf69: 51                       push ecx
+  0x2006cf6a: 6894701c20               push 0x201c7094
+  0x2006cf6f: 6a64                     push 0x64
+  0x2006cf71: 52                       push edx
+  0x2006cf72: e879bffeff               call 0x20058ef0
+  0x2006cf77: 8d44242c                 lea eax, [esp + 0x2c]
+  0x2006cf7b: 50                       push eax
+
+## CONFIRMED ON HARDWARE: .124 C:\Games\SoldierOfFortune\user\sof.log (DOWNLOAD 01:12 EDT, boxes/124-soflog.json.*sof.log):
+15:------- Loading ref_gl.dll -------
+18:...setting mode 8: 1280 960 FS
+21:...calling CDS: ok
+55:execing autoexec.cfg
+57:execing fleetres.cfg
+61:execing lancheck.cfg
+73:Wrote configuration to ./user/config.cfg.
+## and its archive user\config.cfg:
+134:set gl_displayrefresh "0"
+283:set gl_mode "8"

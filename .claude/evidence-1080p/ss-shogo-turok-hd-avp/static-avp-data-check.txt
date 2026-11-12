@@ -1,0 +1,78 @@
+# raw tool output - AliensVsPredator (Gold, avp.exe 2000-03-22 md5 91bb8e752f42d35f594fc06feabd49cf)
+## launch.txt (library)
+avp.exe^IAliens vs Predator^Iavp.exe^M$
+
+## avp.exe EnumDisplayModes callback 0x559344: keep bpp>8, w>=512, h>=384, bpp allowed by D3D caps flags [0x85c569]; stop at 100 (0x64) modes
+  00559344: push ebx
+  00559345: push esi
+  00559346: mov ebx, dword ptr [esp + 0xc]
+  0055934a: imul edx, dword ptr [0x85c4c0], 0xe94
+  00559354: add edx, 0x858a70
+  0055935a: mov ecx, dword ptr [edx + 0xe90]
+  00559360: lea eax, [ecx*4]
+  00559367: sub eax, ecx
+  00559369: shl eax, 2
+  0055936c: lea ecx, [edx + 0x9e0]
+  00559372: add eax, ecx
+  00559374: mov ecx, dword ptr [ebx + 0xc]
+  00559377: mov dword ptr [eax], ecx
+  00559379: mov ecx, dword ptr [ebx + 8]
+  0055937c: mov dword ptr [eax + 4], ecx
+  0055937f: mov ecx, dword ptr [ebx + 0x54]
+  00559382: mov dword ptr [eax + 8], ecx
+  00559385: cmp ecx, 8
+  00559388: jle 0x5593bb
+  0055938a: cmp dword ptr [eax], 0x200
+  00559390: jl 0x5593bb
+  00559392: cmp dword ptr [eax + 4], 0x180
+  00559399: jl 0x5593bb
+  0055939b: cmp ecx, 0x10
+  0055939e: jg 0x5593c5
+  005593a0: test byte ptr [0x85c569], 4
+  005593a7: je 0x5593bb
+  005593a9: mov esi, dword ptr [edx + 0xe90]
+  005593af: inc esi
+  005593b0: mov dword ptr [edx + 0xe90], esi
+  005593b6: cmp esi, 0x64
+  005593b9: jge 0x5593e5
+  005593bb: mov eax, 1
+  005593c0: pop esi
+  005593c1: pop ebx
+  005593c2: ret 8
+  005593c5: cmp ecx, 0x18
+  005593c8: jg 0x5593d5
+  005593ca: test byte ptr [0x85c569], 2
+  005593d1: jne 0x5593a9
+  005593d3: jmp 0x5593bb
+  005593d5: cmp ecx, 0x20
+  005593d8: jg 0x5593a9
+  005593da: test byte ptr [0x85c569], 1
+  005593e1: jne 0x5593a9
+  005593e3: jmp 0x5593bb
+## default mode when AvP_Video.cfg is absent/unmatched (0x5598f8): 640x480x16
+  0055992a: cmp dword ptr [eax + 0x9e0], 0x280
+  00559934: jne 0x559989
+  00559936: cmp dword ptr [eax + 0x9e4], 0x1e0
+  00559940: jne 0x559989
+  00559942: cmp dword ptr [eax + 0x9e8], 0x10
+  00559949: jne 0x559989
+## fastfile headers: valid RFFL vs not (staged Gold tree)
+  Snd2.FFL: 5246464c000000000d0000002c020000
+  Tex1.FFL: 9cc8f4e8c5c1cdc9a5f1fdf946e9ede9
+  Tex30.FFL: 9cc8f4e8c5c1cdc94df1fdf98599ede9
+  common.ffl: 00fd6c61756e636865722e7761760052
+  ffinfo.txt: c8185818646c703c44e43034302424fc
+## same files from the 1999 disc image on the share (Freeware & Open Source/Classic Freeware/AvP_1999_Disc1.iso)
+  alien.rif: 5245424352494631707a010004970100
+  ffinfo.txt: 47726170686963735c436f6d6d6f6e3b
+  Tex1.FFL: 5246464c0000000014000000d8020000
+  staged avp_huds/alien.rif: 9cccc4cc8cece43564dbf9f99547e9e9
+## md5 comparison against the Gold-edition MD5 list published in github.com/atsb/NakedAVP README (web source)
+  reference files 201, match 56, mismatch 145, missing 0
+  mismatch by dir: {'avp_huds': 23, 'avp_rifs': 63, 'fastfile': 59}
+  match by dir: {'fastfile': 55, 'language.txt': 1}
+## last run on each LCD box ends (LOGFILE.TXT tails are saved per box in ./123 ./145 ./195 ./240)
+  .123: ASSERTION FAILED! Expression: pSurface File: ..\3dc\win95\alt_tab.cpp Line: 198 
+  .145: ASSERTION FAILED! Expression: pSurface File: ..\3dc\win95\alt_tab.cpp Line: 198 
+  .195: ASSERTION FAILED! Expression: pSurface File: ..\3dc\win95\alt_tab.cpp Line: 198 
+  .240: ASSERTION FAILED! Expression: pSurface File: ..\3dc\win95\alt_tab.cpp Line: 198 

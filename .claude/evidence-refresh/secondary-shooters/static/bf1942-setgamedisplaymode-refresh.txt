@@ -1,0 +1,65 @@
+# BF1942.exe: 'game.setGameDisplayMode %d %d %d %d' (Video.con writer 0x6b14ba). Setter 0x6af100 stores w,h,bpp,refresh at +0x40..+0x4c and ZEROES refresh
+# unless the renderer flag at +0x2dd is set (0x444180). +0x2dd is written only by 0x4440f0, the 'allowAllRefreshRates' console setter: on NT it takes the argument; on Win98/ME it is forced 0.
+## 0x6af100
+   0x006af100  mov    eax, dword ptr [esp + 4]
+   0x006af104  mov    edx, dword ptr [esp + 0xc]
+   0x006af108  push   esi
+   0x006af109  mov    esi, ecx
+   0x006af10b  mov    ecx, dword ptr [esp + 0xc]
+   0x006af10f  push   edi
+   0x006af110  mov    edi, dword ptr [esp + 0x18]
+   0x006af114  mov    dword ptr [esi + 0x40], eax
+   0x006af117  mov    dword ptr [esi + 0x44], ecx
+   0x006af11a  mov    dword ptr [esi + 0x48], edx
+   0x006af11d  mov    dword ptr [esi + 0x4c], edi
+   0x006af120  mov    ecx, dword ptr [0x971eac]
+   0x006af126  call   0x444180
+   0x006af12b  test   al, al
+   0x006af12d  jne    0x6af13f
+   0x006af12f  test   edi, edi
+   0x006af131  je     0x6af13f
+   0x006af133  pop    edi
+   0x006af134  mov    dword ptr [esi + 0x4c], 0
+   0x006af13b  pop    esi
+   0x006af13c  ret    0x10
+## 0x444180
+   0x00444180  mov    al, byte ptr [ecx + 0x2dd]
+   0x00444186  ret    
+## 0x4440f0
+   0x004440f0  sub    esp, 0x94
+   0x004440f6  push   esi
+   0x004440f7  lea    eax, [esp + 4]
+   0x004440fb  push   eax
+   0x004440fc  mov    esi, ecx
+   0x004440fe  mov    dword ptr [esp + 8], 0x94
+   0x00444106  call   dword ptr [0x8c33ac]
+   0x0044410c  cmp    dword ptr [esp + 0x14], 1
+   0x00444111  jne    0x444166
+   0x00444113  mov    eax, dword ptr [esp + 8]
+   0x00444117  cmp    eax, 4
+   0x0044411a  ja     0x444126
+   0x0044411c  jne    0x444138
+   0x0044411e  mov    eax, dword ptr [esp + 0xc]
+   0x00444122  test   eax, eax
+   0x00444124  jbe    0x44414f
+   0x00444126  xor    al, al
+   0x00444128  mov    byte ptr [esi + 0x2dd], al
+   0x0044412e  pop    esi
+   0x0044412f  add    esp, 0x94
+   0x00444135  ret    4
+   0x00444138  mov    cl, byte ptr [esp + 0x9c]
+   0x0044413f  mov    byte ptr [esi + 0x2dd], cl
+   0x00444145  pop    esi
+   0x00444146  add    esp, 0x94
+   0x0044414c  ret    4
+   0x0044414f  mov    dl, byte ptr [esp + 0x9c]
+   0x00444156  mov    byte ptr [esi + 0x2dd], dl
+   0x0044415c  pop    esi
+   0x0044415d  add    esp, 0x94
+   0x00444163  ret    4
+   0x00444166  mov    al, byte ptr [esp + 0x9c]
+   0x0044416d  mov    byte ptr [esi + 0x2dd], al
+   0x00444173  pop    esi
+   0x00444174  add    esp, 0x94
+   0x0044417a  ret    4
+# strings: allowAllRefreshRates, m_d3dpp.FullScreen_RefreshRateInHz ; staged Mods/bf1942/Settings/VideoDefault.con contains 'renderer.allowAllRefreshRates 1' but no .con in the tree runs VideoDefault.con (grep -ril VideoDefault) and BF1942.exe carries no 'VideoDefault' string

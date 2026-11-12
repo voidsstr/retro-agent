@@ -1,0 +1,42 @@
+# /mnt/retro-share/Files/Games-Library/Thief2/doc/T1.7z -> readme.txt (NewDark T2 package's own Thief 1/Gold mode)
+Before running the game in a Thief 1/G install you must add the config var "dark1" (NOT "game dark1") to the
+"cam.cfg" (or "cam_ext.cfg"). Failure to do so will lead to strange things happening and ultimately a crash.
+
+In order for option menus to look right, the provided "interface.crf" has to be added. Either by putting
+it in a mod dir and adding it to the "mod_path" in "cam_mod.ini" or by placing it in a "patch" dir.
+
+Note that at heart you're still running Thief 2. Not everything will be exactly like it was in Thief 1/G, and
+some things may not work entirely without some fixing. Take it for what it is, a nice bonus that all in all works
+good, but it's not intended to be 100% authentic and it's not flawless.
+
+Some occasional mission may have problems with pathfinding, like an AI stopping to patrol, this is usually caused
+by differences in T1 and T2 pathfinding code and/or the pathfinding db. It should be fixable by reportalizing and
+rebuilding the pathfinding db in the latest DromEd.
+
+
+
+Bunnyhop enthusiasts may get problems with the head lagging. To counter that, it requires increasing a max velocity
+for limit for the head. This is done with following two config vars:
+
+    springcap
+    max_spring_vel 70
+
+The max velocity may have to be adjusted empirically if 70 isn't enough. For reference, the default value is 25.
+
+# 7z listing
+   Date      Time    Attr         Size   Compressed  Name
+------------------- ----- ------------ ------------  ------------------------
+2012-11-15 10:28:55 ....A         7483         6819  INTRFACE.CRF
+2012-12-27 09:14:58 ....A         1364          814  readme.txt
+------------------- ----- ------------ ------------  ------------------------
+2012-12-27 09:14:58               8847         7633  2 files
+
+# Thief2/doc/new_config_vars.txt (NewDark 1.26):
+dark1
+    (Thief only) added to cam.cfg to tell game to run in Thief1 "mode". It also requires a couple of extra
+    patch resources to make the menu system fully usable.
+
+# staged Thief2.exe 1.26 contains the string: dark1
+# release_notes.txt T1-mode lines:
+396: - fixed bug when saving Rendering Parameters in T1 mode (would cause ambient light to lose color info and all other parameters not originally in T1 to get reset)
+422: - fixed reversed gamma bindings and walk forward bind in options menu (requires re-bind to take effect) in the T1 INTRFACE.CRF patch (T1.7z)

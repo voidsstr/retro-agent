@@ -1,0 +1,120 @@
+# WON Half-Life 1.1.0.8 hl.exe (942,080 B, md5 77cce9925d2a039ae38b679b1225e944, linked 2001-09-11)
+# The ONLY mode-set routine: sub_464070(w,h,bpp). dmFields=0x1C0000 (BITSPERPEL|PELSWIDTH|PELSHEIGHT), flags 4 = CDS_FULLSCREEN. No DM_DISPLAYFREQUENCY (0x400000) anywhere.
+  00464070  sub      esp, 0x94
+  00464076  push     edi
+  00464077  mov      edx, dword ptr [esp + 0xa4]
+  0046407e  mov      ecx, 0x25
+  00464083  xor      eax, eax
+  00464085  lea      edi, [esp + 4]
+  00464089  push     4
+  0046408b  rep stosd dword ptr es:[edi], eax
+  0046408d  mov      eax, dword ptr [esp + 0xa0]
+  00464094  mov      ecx, dword ptr [esp + 0xa4]
+  0046409b  mov      dword ptr [esp + 0x74], eax
+  0046409f  lea      eax, [esp + 8]
+  004640a3  push     eax
+  004640a4  mov      word ptr [esp + 0x30], 0x94
+  004640ab  mov      dword ptr [esp + 0x7c], ecx
+  004640af  mov      dword ptr [esp + 0x34], 0x1c0000
+  004640b7  mov      dword ptr [esp + 0x74], edx
+  004640bb  call     dword ptr [0x4ac42c]
+  004640c1  neg      eax
+  004640c3  sbb      eax, eax
+  004640c5  pop      edi
+  004640c6  inc      eax
+  004640c7  add      esp, 0x94
+  004640cd  ret      
+
+# every caller of sub_464070 / the CDS IAT slot 0x4ac42c:
+IAT slot 0x4ac42c
+---- ref at operand 0x4240cf
+  004240ad  call     dword ptr [edx + 4]
+  004240b0  mov      dword ptr [ebp - 0x10], eax
+  004240b3  jmp      0x4240bc
+  004240b5  mov      dword ptr [ebp - 0x10], 0
+  004240bc  mov      eax, dword ptr [ebp - 0xc]
+  004240bf  mov      dword ptr [eax + 0xd4], 0
+  004240c9  push     0
+  004240cb  push     0
+  004240cd  call     dword ptr [0x4ac42c]
+---- ref at operand 0x4640bd
+  0046409b  mov      dword ptr [esp + 0x74], eax
+  0046409f  lea      eax, [esp + 8]
+  004640a3  push     eax
+  004640a4  mov      word ptr [esp + 0x30], 0x94
+  004640ab  mov      dword ptr [esp + 0x7c], ecx
+  004640af  mov      dword ptr [esp + 0x34], 0x1c0000
+  004640b7  mov      dword ptr [esp + 0x74], edx
+  004640bb  call     dword ptr [0x4ac42c]
+  004640c1  neg      eax
+---- ref at operand 0x464157
+  00464135  or       eax, 0x4ea8dc
+  0046413a  push     6
+  0046413c  push     ecx
+  0046413d  call     esi
+  0046413f  mov      eax, dword ptr [0x4e1a20]
+  00464144  pop      esi
+  00464145  test     eax, eax
+  00464147  je       0x464151
+  00464149  mov      edx, dword ptr [eax]
+  0046414b  push     eax
+  0046414c  call     dword ptr [edx + 0x4c]
+  0046414f  jmp      0x46415b
+  00464151  push     0
+  00464153  push     0
+  00464155  call     dword ptr [0x4ac42c]
+  0046415b  push     0
+---- ref at operand 0x46cf5d
+  0046cf3b  add      al, 0xeb
+  0046cf3d  and      ecx, dword ptr [ebx + 0x4cf8a415]
+  0046cf43  add      byte ptr [ecx + 0x4cf8a0], ah
+  0046cf49  push     0x10
+  0046cf4b  push     edx
+  0046cf4c  push     eax
+  0046cf4d  call     0x464070
+  0046cf52  add      esp, 0xc
+  0046cf55  jmp      0x46cf61
+  0046cf57  push     0
+  0046cf59  push     0
+  0046cf5b  call     dword ptr [0x4ac42c]
+
+# the video-mode dialog prints a refresh column ('%d x %d %d hz', table 0x4e6e34 stride 300, hz at +0x24) that sub_4640d0 never passes on:
+  004640d0  mov      eax, dword ptr [esp + 4]
+  004640d4  lea      eax, [eax + eax*2]
+  004640d7  lea      eax, [eax + eax*4]
+  004640da  lea      eax, [eax + eax*4]
+  004640dd  shl      eax, 2
+  004640e0  mov      ecx, dword ptr [eax + 0x4e6e50]
+  004640e6  mov      edx, dword ptr [eax + 0x4e6e38]
+  004640ec  mov      eax, dword ptr [eax + 0x4e6e34]
+  004640f2  push     ecx
+  004640f3  push     edx
+  004640f4  push     eax
+  004640f5  call     0x464070
+  004640fa  add      esp, 0xc
+  004640fd  ret      
+string VA 0x4d2874
+---- ref at operand 0x46d084
+  0046d053  mov      dword ptr [esp + 0xc], edx
+  0046d057  mov      dword ptr [esp + 0x14], ebp
+  0046d05b  jle      0x46d174
+  0046d061  push     ebx
+  0046d062  mov      ebx, 0x4e6e34
+  0046d067  mov      ecx, dword ptr [esp + 0x1c]
+  0046d06b  cmp      dword ptr [ebx - 4], ecx
+  0046d06e  jne      0x46d141
+  0046d074  mov      edx, dword ptr [ebx + 0x24]
+  0046d077  mov      eax, dword ptr [ebx + 4]
+  0046d07a  mov      ecx, dword ptr [ebx]
+  0046d07c  push     edx
+  0046d07d  push     eax
+  0046d07e  push     ecx
+  0046d07f  lea      edx, [esp + 0x2c]
+  0046d083  push     0x4d2874
+  0046d088  push     edx
+  0046d089  call     0x481101
+  0046d08e  mov      eax, dword ptr [esp + 0xb8]
+  0046d095  mov      ecx, dword ptr [ebx]
+  0046d097  add      esp, 0x14
+  0046d09a  cmp      ecx, eax
+  0046d09c  jne      0x46d0c2

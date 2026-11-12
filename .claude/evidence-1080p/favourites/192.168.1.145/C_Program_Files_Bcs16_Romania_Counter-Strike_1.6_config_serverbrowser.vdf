@@ -1,0 +1,43 @@
+"filters"
+{
+	"favorites"
+	{
+		"0"
+		{
+			"name"		"NSC Retro Fleet Arena (CS 1.6)"
+			"address"		"192.168.1.132:27015"
+			"lastplayed"	"0"
+			"appID"		"10"
+		}
+
+		"1"
+		{
+			"name"		"NSC Retro Fleet Arena (CS 1.6 No Blood)"
+			"address"		"192.168.1.132:27016"
+			"lastplayed"	"0"
+			"appID"		"10"
+		}
+
+	}
+
+	"history"
+	{
+		"0"
+		{
+			"name"		"135.125.248.237:27015"
+			"address"		"135.125.248.237:27015"
+			"lastplayed"	"1787269984"
+			"appID"		"0"
+		}
+
+		"1"
+		{
+			"name"		"81.181.244.49:27015"
+			"address"		"81.181.244.49:27015"
+			"lastplayed"	"1787270985"
+			"appID"		"0"
+		}
+
+	}
+
+}

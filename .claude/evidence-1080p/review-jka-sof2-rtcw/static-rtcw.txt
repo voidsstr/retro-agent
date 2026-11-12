@@ -1,0 +1,53 @@
+1) ioRTCW 1.51c (share: Game Updates/iortcw-1.51c-win-x86.zip, also Games/Mods & Patches/iortcw-1.51c-mp-ready.zip)
+   Main/mp_bin0.pk3 vm/ui.mp.qvm carries a built-in 32-entry video-mode table (data offset 8948) and, for any menu item whose cvar is r_mode,
+   clears the item's cvarFloatList and refills it from that table (code at qvm insn ~72660-72790: Q_stricmp(item->cvar,"r_mode") then a loop to 32).
+     320x240 (4:3)          r_mode 0
+     400x300 (4:3)          r_mode 1
+     512x384 (4:3)          r_mode 2
+     640x480 (4:3)          r_mode 3
+     800x600 (4:3)          r_mode 4
+     960x720 (4:3)          r_mode 5
+     1024x768 (4:3)         r_mode 6
+     1152x864 (4:3)         r_mode 7
+     1280x1024 (5:4)        r_mode 8
+     1600x1200 (4:3)        r_mode 9
+     2048x1536 (4:3)        r_mode 10
+     856x480 (16:9)         r_mode 11
+     640x360 (16:9)         r_mode 12
+     640x400 (16:10)        r_mode 13
+     800x450 (16:9)         r_mode 14
+     800x500 (16:10)        r_mode 15
+     1024x640 (16:10)       r_mode 16
+     1024x576 (16:9)        r_mode 17
+     1280x720 (16:9)        r_mode 18
+     1280x768 (16:10)       r_mode 19
+     1280x800 (16:10)       r_mode 20
+     1280x960 (4:3)         r_mode 21
+     1440x900 (16:10)       r_mode 22
+     1600x900 (16:9)        r_mode 23
+     1600x1000 (16:10)      r_mode 24
+     1680x1050 (16:10)      r_mode 25
+     1920x1080 (16:9)       r_mode 26
+     1920x1200 (16:10)      r_mode 27
+     1920x1440 (4:3)        r_mode 28
+     2560x1600 (16:10)      r_mode 29
+     Automatic (Native)     r_mode -2
+     Custom                 r_mode -1
+   The same labels ('1920x1080 (16:9)', 'Automatic (Native)', 'Custom') are in its Main/ui_sp_x86.dll. Engine table (renderer_mp_opengl1_x86.dll): Mode 26 = 1920x1080 (16:9).
+   All ioRTCW 1.51c win-x86 PEs are SubsystemVersion 4.0 with no known Vista-only imports; XP loading NOT tested. Default homepath is My Documents\RTCW (needs +set fs_homepath).
+
+2) retail RTCW MP UI presets rewrite r_mode (Main/ui_mp_x86.dll):
+  4000d2a6: push    0x40800000   ; float 4
+  4000d2ab: push    0x4002fb94   ; "r_mode"
+  4000d2b0: call    0x4001af10
+  4000d372: push    0x40400000   ; float 3
+  4000d377: push    0x4002fb94   ; "r_mode"
+  4000d37c: call    0x4001af10
+  4000d4fb: push    0x40400000   ; float 3
+  4000d500: push    0x4002fb94   ; "r_mode"
+  4000d505: call    0x4001af10
+
+3) retail menus: ui_mp/system.menu + ui_mp/ingame_system.menu exist ONLY in mp_pak1.pk3 (mp_pak3/mp_pak5 update ui_mp/menus.txt only); SP copies in sp_pak3.pk3 override sp_pak1.pk3.
+4) Knightmare 1.42d (Game Updates/RTCW/rtcw-sp-1.42d-win32-bin.zip): all four PEs SubsystemVersion 5.0, kernel32 imports XP-available; the only SSE2 code sits in the
+   statically linked CRT's runtime-dispatched math at the tail of .text (WolfSP.exe 0x4C3710-0x4DEAD0), none in game code - not tested on a non-SSE2 box (.124/.133).
+   Its Main/sp_pak4.pk3 (66,821 B: ui/*.menu + maps/*.ai + norway.script) collides by NAME with the staged 15,532,040 B sp_pak4.pk3 (crypt1/dam/end BSPs).

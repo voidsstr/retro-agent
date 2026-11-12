@@ -1,0 +1,29 @@
+====================================================================================================
+PE Quake2Complete/ref_soft.dll imagebase 0x10000000
+import slots: {'0x1002103c': 'KERNEL32.dll!LoadLibraryA', '0x10021040': 'KERNEL32.dll!GetProcAddress'}
+----------------------------------------------------------------------------------------------------
+SITE 0x10010897  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x100108c5  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x10015bf5  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1001e673  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1001e68b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x1001e67f then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1001e69c  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x1001e67f then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1001e6a9  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x1001e67f then call edi)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x100056e4: adc dword ptr [esi], 0x568810   | next: adc byte ptr [eax - 0x7c6f6f70], dl
+   0x1000c815: mov eax, 0x7fffff   | next: and edx, eax
+   0x1000faa9: and ebx, 0x7fffff   | next: and ecx, 0x7fffff
+   0x1000faaf: and ecx, 0x7fffff   | next: mov dword ptr [0x10032b48], ebx
+   0x1000fe21: and ebx, 0x7fffff   | next: and ecx, 0x7fffff
+   0x1000fe27: and ecx, 0x7fffff   | next: mov dword ptr [0x10032b48], ebx
+   0x10011b5d: push 0xcc0020   | next: push 0
+   0x10014e43: test edx, 0xff0000   | next: je 0x10014e57
+   0x1001770e: push 0x400000   | next: push 0
+   0x10017783: lea eax, [esi + 0x400000]   | next: lea ecx, [ebp + 0x18]

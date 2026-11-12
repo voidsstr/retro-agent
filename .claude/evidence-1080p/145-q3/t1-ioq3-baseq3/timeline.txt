@@ -1,0 +1,18 @@
+00:07:59 UIKEY SHIFT -> 0 OK
+00:07:59 LAUNCH EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" "Play Quake III Arena.bat" -> 0 
+00:08:05 t+0s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:09 t+4s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:09 GAMERES desktop {'persisted': '1920x1080', 'persisted_hz': 60, 'live': '1920x1080', 'bpp': 32}
+00:08:09 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:08:09 SCREENSHOT /home/voidsstr/development/retro-agent/.claude/evidence-1080p/145-q3/t1-ioq3-baseq3/gdi-screenshot-t3.png (1920, 1080) extrema ((0, 140), (0, 130), (0, 127))
+00:08:13 t+8s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:17 t+12s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:21 t+16s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:25 t+20s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:25 GAMERES desktop {'persisted': '1920x1080', 'persisted_hz': 60, 'live': '1920x1080', 'bpp': 32}
+00:08:25 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:08:28 SCREENSHOT /home/voidsstr/development/retro-agent/.claude/evidence-1080p/145-q3/t1-ioq3-baseq3/gdi-screenshot-t18.png (1920, 1080) extrema ((0, 255), (0, 252), (0, 132))
+00:08:32 t+27s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:36 t+31s running=False fg=('Shell_TrayWnd', '') wins=[('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:08:36 process gone
+00:08:36 end of watch; running at end = False

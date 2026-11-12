@@ -1,0 +1,428 @@
+{
+ "C:\\Games": [
+  {
+   "name": "AliensVsPredator",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:31:01",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "BF1942",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 18:02:38",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-28 13:13:21",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:40:35",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "CounterStrike16",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-02 00:38:24",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Daggerfall",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 16:32:12",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 03:47:43",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 03:47:43",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent3",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:10:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DeusEx",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:00:45",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Doom3",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:13:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "FarCry",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 03:47:45",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HalfLife1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-02 02:39:42",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Halo",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 05:23:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Halo2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 16:33:03",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HexenII",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-26 19:04:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HiddenAndDangerous",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:38:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "JediAcademy",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 02:20:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "JediKnightDF2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:54:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "JediKnightMotS",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:55:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "lanhost.txt",
+   "is_dir": false,
+   "size": 16,
+   "modified": "2026-08-31 04:02:36",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "MasterOfOrionII",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 09:11:51",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "MaxPayne",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:57:06",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Postal",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 16:32:42",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-26 19:04:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake2Complete",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:00:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake3-TeamArena",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-02 00:08:37",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RainbowSix",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 13:49:41",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RedAlert2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:40:08",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RedFaction",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 14:58:39",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RedneckRampage",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:54:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ReturnToCastleWolfenstein",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 03:43:08",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSamFirstEncounter",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-28 13:19:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SeriousSamSecondEncounter",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-28 13:19:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ShadowWarrior",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 09:10:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Shogo",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 03:47:42",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SiNGold",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:54:13",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SoldierOfFortune",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 18:06:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SoldierOfFortune2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:56:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SoldierOfFortune2.wip",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-29 21:09:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "StarCraft",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 15:00:12",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SystemShock2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 15:01:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Thief2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-29 03:47:41",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ThiefGold",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:00:43",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "TiberianSun",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:15:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Tribes2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-01 22:09:07",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Turok2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:43:42",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "UnrealGold",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-31 05:09:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "UnrealTournament",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:00:36",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "UnrealTournament436",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:02:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "UT2004",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-08-30 15:02:43",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "WarcraftII",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-28 13:19:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "WarcraftOrcsAndHumans",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-28 13:19:54",
+   "hidden": false,
+   "readonly": false
+  }
+ ]
+}

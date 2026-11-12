@@ -1,0 +1,13 @@
+# review: independent drift check (reviewer, 2026-09-29)
+# 1. stock build vs pak8.pk3 vm/ui.qvm extracted by the reviewer from /mnt (read-only):
+IDENTICAL (md5 3e6b8fadb2a970c2b754e48e63a054d7)
+# 2. every compiled unit, stock vs patched (textual .asm):
+DIFFERS: ui_video.asm
+identical units: 42 of 43
+# 3. inside ui_video.asm, per function (line/file/comment lines dropped, $N labels normalized, string literals by content):
+identical in ui_video.asm: ['DriverInfo_Cache', 'DriverInfo_Event', 'DriverInfo_MenuDraw', 'GraphicsOptions_Cache', 'GraphicsOptions_GetInitialVideo', 'GraphicsOptions_MenuDraw', 'GraphicsOptions_TQEvent', 'GraphicsOptions_UpdateMenuItems', 'UI_DriverInfo_Menu', 'UI_GraphicsOptionsMenu']
+changed / new / removed  : ['FR_Accept', 'FR_Add', 'FR_AddLabel', 'FR_Build', 'FR_BuiltinMode', 'FR_Find', 'FR_ModeOf', 'FR_ParseSize', 'FR_PresetIndex', 'FR_Select', 'GraphicsOptions_ApplyChanges', 'GraphicsOptions_BuildModeList', 'GraphicsOptions_CheckConfig', 'GraphicsOptions_Event', 'GraphicsOptions_MenuInit', 'GraphicsOptions_SetMenuItems']
+only in stock : []
+only in patched: ['FR_Accept', 'FR_Add', 'FR_AddLabel', 'FR_Build', 'FR_BuiltinMode', 'FR_Find', 'FR_ModeOf', 'FR_ParseSize', 'FR_PresetIndex', 'FR_Select', 'GraphicsOptions_BuildModeList']
+lit strings removed: []
+lit strings added  : [b'%i', b'r_availableModes', b'r_customheight', b'r_customwidth']

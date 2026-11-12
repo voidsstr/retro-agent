@@ -1,0 +1,4 @@
+{
+ "inst": "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Enum\\\\DISPLAY\\\\HWP293E\",\"values\":[],\"subkeys\":[\"5&22402632&0&UID515\"]}",
+ "5&22402632&0&UID515": "{\"root\":\"HKLM\",\"path\":\"SYSTEM\\\\CurrentControlSet\\\\Enum\\\\DISPLAY\\\\HWP293E\\\\5&22402632&0&UID515\\\\Device Parameters\",\"values\":[{\"name\":\"EDID\",\"type\":\"REG_BINARY\",\"data\":\"00 FF FF FF FF FF FF 00 22 F0 3E 29 01 01 01 01 2C 16 01 03 80 37 1F 78 2A B6 95 A5 54 4B A2 26 11 50 54 A1 08 00 81 C0 81 80 95 00 B3 00 D1 C0 01 01 01 01 01 01 02 3A 80 18 71 38 2D 40 58 2C 45 00 29 37 21 00 00 1E 00 00 00 FD 00 32 4C 18 5E 11 00 0A 20 20 20 20 20 20 00 00 00 FC 00 48 50 20 32 35 31 31 0A 20 20 20 20 20 00 00 00 FF 00 43 4E 4B 32 34 34 30 31 50 33 0A 20 20 01 0C\"}],\"subkeys\":[]}"
+}

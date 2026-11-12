@@ -1,0 +1,28 @@
+# read-only observations 2026-09-29 ~00:35-00:45 EDT
+## .145 C:\Games\Halo2 - files NOT in the staged tree, left by a 2026-09-01 debugging session (not created by this review; left in place):
+   dwmapi.dll 6144 2026-09-01 05:10:15
+   _dbg.bat 306 2026-09-01 16:50:24
+   _go.bat 141 2026-09-01 17:02:30
+   plus C:\h2.log (0 bytes) written by _go.bat/_dbg.bat; no ...\Local Settings\Application Data\Microsoft\Halo 2 folder and no My Games\Halo 2 folder for user voidsstr
+
+## .240 live desktop dropped to 16 bpp at box time 21:40:20, 16 s after ANOTHER session EXEC'd 'Play Tiberian Sun.bat' (box log excerpt):
+132:[21:39:23][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+133:[21:39:23][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+144:[21:39:56][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+145:[21:39:56][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+283:[21:40:00][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+284:[21:40:00][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+322:[21:40:04][MAIN ] CMD: "EXEC cmd /c start "" /D "C:\Games\TiberianSun" "Play Tiberian Sun.bat"" (70 bytes)
+323:[21:40:04][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "" /D "C:\Games\TiberianSun" "Play Tiberian Sun.bat""
+330:[21:40:20][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+331:[21:40:20][DISPLAY] Current: 1920x1080 16bpp 60Hz (dmFields=0x007E00A0)
+551:[21:40:59][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+552:[21:40:59][DISPLAY] Current: 1920x1080 16bpp 60Hz (dmFields=0x007E00A0)
+731:[21:41:56][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+732:[21:41:56][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+779:[21:42:14][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+780:[21:42:14][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+3021:[21:42:49][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+3022:[21:42:49][DISPLAY] Current: 1920x1080 16bpp 60Hz (dmFields=0x007E00A0)
+3030:[21:42:56][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+3031:[21:42:56][DISPLAY] Current: 1920x1080 16bpp 60Hz (dmFields=0x007E00A0)

@@ -1,0 +1,444 @@
+{
+ "key": "q3-baseq3-ui",
+ "title": "Quake3-TeamArena",
+ "built_at": "2026-09-29T05:16:59-0400",
+ "build_seconds": 4.6,
+ "sources": {
+  "id": {
+   "repo": "https://github.com/id-Software/Quake-III-Arena.git",
+   "commit": "dbe4ddb10315479fc00086f08e25d968b4b43c49",
+   "paths": [
+    "code/q3_ui",
+    "code/game",
+    "code/cgame",
+    "code/ui"
+   ]
+  },
+  "ioq3_tools": {
+   "repo": "https://github.com/ioquake/ioq3.git",
+   "commit": "83a776283bdb958f82db25554b5ed0966aaf6e49",
+   "paths": [
+    "code/tools",
+    "code/qcommon/q_platform.h",
+    "code/qcommon/qfiles.h"
+   ]
+  },
+  "patch": {
+   "file": "provisioning/patches/q3-baseq3-ui/ui_video-fleetres.patch",
+   "md5": "dfdfae854f301f13b5ef3dee851aa943"
+  },
+  "header": {
+   "file": "provisioning/patches/q3-baseq3-ui/ui_fleetres.h",
+   "md5": "23870ec028a13391d0d2049aee7dd4a7"
+  },
+  "release_132_tr_types": [
+   "#if defined(Q3_VM) || defined(_WIN32)\n",
+   "#if defined(_WIN32)\n"
+  ],
+  "q3asm_order": [
+   "ui_main",
+   "bg_misc",
+   "q_math",
+   "q_shared",
+   "ui_addbots",
+   "ui_atoms",
+   "ui_cdkey",
+   "ui_cinematics",
+   "ui_confirm",
+   "ui_connect",
+   "ui_controls2",
+   "ui_credits",
+   "ui_demo2",
+   "ui_display",
+   "ui_gameinfo",
+   "ui_ingame",
+   "ui_loadconfig",
+   "ui_menu",
+   "ui_mfield",
+   "ui_mods",
+   "ui_network",
+   "ui_options",
+   "ui_playermodel",
+   "ui_players",
+   "ui_playersettings",
+   "ui_preferences",
+   "ui_qmenu",
+   "ui_removebots",
+   "ui_saveconfig",
+   "ui_serverinfo",
+   "ui_servers2",
+   "ui_setup",
+   "ui_sound",
+   "ui_sparena",
+   "ui_specifyserver",
+   "ui_splevel",
+   "ui_sppostgame",
+   "ui_spskill",
+   "ui_startserver",
+   "ui_team",
+   "ui_teamorders",
+   "ui_video",
+   "bg_lib",
+   "../../ui/ui_syscalls"
+  ]
+ },
+ "toolchain": {
+  "cc": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "q3lcc": "888e4f9c87688c6ef6b7d7f57a4ae6c7",
+  "q3cpp": "43b5d56dad51e7370bdaf09ce3fd01c1",
+  "q3rcc": "18f2e76560cdbf2a49a1a7955b5c316f",
+  "q3asm": "23de7430df837a149fce1d73136e2926",
+  "q3asm_flags": "-vq3 -m",
+  "lcc_flags": [
+   "-DQ3_VM",
+   "-S",
+   "-Wf-target=bytecode",
+   "-Wf-g",
+   "-I../../cgame",
+   "-I../../game",
+   "-I../../q3_ui"
+  ]
+ },
+ "gates": {
+  "reproduction": {
+   "stock_md5": "3e6b8fadb2a970c2b754e48e63a054d7",
+   "pak8_ui_md5": "3e6b8fadb2a970c2b754e48e63a054d7",
+   "identical": true
+  },
+  "drift": {
+   "asm_changed": [
+    "ui_video"
+   ],
+   "functions_compared": 560,
+   "functions_identical": 560,
+   "ui_video_functions_stock": [
+    "DriverInfo_Cache",
+    "DriverInfo_Event",
+    "DriverInfo_MenuDraw",
+    "GraphicsOptions_ApplyChanges",
+    "GraphicsOptions_Cache",
+    "GraphicsOptions_CheckConfig",
+    "GraphicsOptions_Event",
+    "GraphicsOptions_GetInitialVideo",
+    "GraphicsOptions_MenuDraw",
+    "GraphicsOptions_MenuInit",
+    "GraphicsOptions_SetMenuItems",
+    "GraphicsOptions_TQEvent",
+    "GraphicsOptions_UpdateMenuItems",
+    "UI_DriverInfo_Menu",
+    "UI_GraphicsOptionsMenu"
+   ],
+   "ui_video_functions_patched": [
+    "DriverInfo_Cache",
+    "DriverInfo_Event",
+    "DriverInfo_MenuDraw",
+    "FR_Accept",
+    "FR_Add",
+    "FR_AddLabel",
+    "FR_Build",
+    "FR_BuiltinMode",
+    "FR_Find",
+    "FR_ModeOf",
+    "FR_ParseSize",
+    "FR_PresetIndex",
+    "FR_Select",
+    "GraphicsOptions_ApplyChanges",
+    "GraphicsOptions_BuildModeList",
+    "GraphicsOptions_Cache",
+    "GraphicsOptions_CheckConfig",
+    "GraphicsOptions_Event",
+    "GraphicsOptions_GetInitialVideo",
+    "GraphicsOptions_MenuDraw",
+    "GraphicsOptions_MenuInit",
+    "GraphicsOptions_SetMenuItems",
+    "GraphicsOptions_TQEvent",
+    "GraphicsOptions_UpdateMenuItems",
+    "UI_DriverInfo_Menu",
+    "UI_GraphicsOptionsMenu"
+   ],
+   "strings_added": [
+    "r_availableModes",
+    "r_customheight",
+    "r_customwidth"
+   ]
+  },
+  "format": {
+   "vm_magic": "0x12721444",
+   "header_bytes": 32,
+   "jump_table": false,
+   "problems": []
+  },
+  "behaviour": [
+   {
+    "name": "retail 1.32c, LCD, ACCEPT with Video Mode untouched",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "640x480",
+     "r_mode": "3",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1920x1080",
+     "index": 12,
+     "count": 13,
+     "chosen": "1920x1080",
+     "r_mode": "-1",
+     "r_customwidth": "1920",
+     "r_customheight": "1080"
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "ioquake3 1.36, LCD, ACCEPT with Video Mode untouched",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "640x480",
+     "r_mode": "3",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1920x1080",
+     "index": 0,
+     "count": 9,
+     "chosen": "1920x1080",
+     "r_mode": "-1",
+     "r_customwidth": "1920",
+     "r_customheight": "1080"
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "ioquake3 1.36, LCD, pick the next driver mode",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "800x600",
+     "r_mode": "4",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1920x1080",
+     "index": 0,
+     "count": 9,
+     "chosen": "1680x1050",
+     "r_mode": "-1",
+     "r_customwidth": "1680",
+     "r_customheight": "1050"
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "ioquake3 1.36, LCD, pick a driver mode that is one of id's",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "1600x1200",
+     "r_mode": "9",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1920x1080",
+     "index": 0,
+     "count": 9,
+     "chosen": "1024x768",
+     "r_mode": "6",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "retail 1.32c, LCD, pick id's wide-screen entry",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "512x384",
+     "r_mode": "2",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1920x1080",
+     "index": 12,
+     "count": 13,
+     "chosen": "856x480 wide screen",
+     "r_mode": "11",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "retail 1.32c, LCD, RIGHT at the end of the list does nothing",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "800x600",
+     "r_mode": "4",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1920x1080",
+     "index": 12,
+     "count": 13,
+     "chosen": "1920x1080",
+     "r_mode": "-1",
+     "r_customwidth": "1920",
+     "r_customheight": "1080"
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "retail 1.32c, 4:3 CRT at r_mode -1 1024x768 (one of id's sizes)",
+    "stock": {
+     "label": "640x480",
+     "index": 3,
+     "count": 12,
+     "chosen": "640x480",
+     "r_mode": "3",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1024x768",
+     "index": 6,
+     "count": 12,
+     "chosen": "1024x768",
+     "r_mode": "-1",
+     "r_customwidth": "1024",
+     "r_customheight": "768"
+    },
+    "other_writes_identical": 11
+   },
+   {
+    "name": "retail 1.32c, r_mode 6 (a plain id mode) - unchanged from id",
+    "stock": {
+     "label": "1024x768",
+     "index": 6,
+     "count": 12,
+     "chosen": "1024x768",
+     "r_mode": "6",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "patched": {
+     "label": "1024x768",
+     "index": 6,
+     "count": 12,
+     "chosen": "1024x768",
+     "r_mode": "6",
+     "r_customwidth": null,
+     "r_customheight": null
+    },
+    "other_writes_identical": 11
+   }
+  ]
+ },
+ "qvm": {
+  "size": 283592,
+  "md5": "b764efe7d8856bc5191e5df3b4349289",
+  "header": {
+   "vmMagic": 309466180,
+   "instructionCount": 81705,
+   "codeOffset": 32,
+   "codeLength": 250212,
+   "dataOffset": 250244,
+   "dataLength": 11764,
+   "litLength": 21584,
+   "bssLength": 522036
+  },
+  "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/ui.qvm"
+ },
+ "pk3": {
+  "name": "zz-fleetres-ui.pk3",
+  "member": "vm/ui.qvm",
+  "size": 283708,
+  "md5": "f737a9d51ed89c22d6b2be31cf8368d3",
+  "stored": true,
+  "date_time": [
+   2026,
+   9,
+   29,
+   0,
+   0,
+   0
+  ],
+  "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/baseq3/zz-fleetres-ui.pk3"
+ },
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/_patches/Quake3-TeamArena/zz-fleetres-ui-source/ui_video-fleetres.patch",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/source/ui_video-fleetres.patch",
+   "md5": "dfdfae854f301f13b5ef3dee851aa943",
+   "size": 6762,
+   "original_md5": null,
+   "kind": "source"
+  },
+  {
+   "share_path": "Files/Games-Library/_patches/Quake3-TeamArena/zz-fleetres-ui-source/ui_fleetres.h",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/source/ui_fleetres.h",
+   "md5": "23870ec028a13391d0d2049aee7dd4a7",
+   "size": 10471,
+   "original_md5": null,
+   "kind": "source"
+  },
+  {
+   "share_path": "Files/Games-Library/_patches/Quake3-TeamArena/zz-fleetres-ui-source/apply.py",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/source/apply.py",
+   "md5": "a33fb36903b02aef99e7315a383c53ba",
+   "size": 60470,
+   "original_md5": null,
+   "kind": "source"
+  },
+  {
+   "share_path": "Files/Games-Library/_patches/Quake3-TeamArena/zz-fleetres-ui-source/qvmsim.py",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/source/qvmsim.py",
+   "md5": "1e12577ce481a62788ab2ee6c07d0dd5",
+   "size": 24887,
+   "original_md5": null,
+   "kind": "source"
+  },
+  {
+   "share_path": "Files/Games-Library/_patches/Quake3-TeamArena/zz-fleetres-ui-source/SOURCE.txt",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/source/SOURCE.txt",
+   "md5": "9a82e502537f44a7f630e7560cc377d3",
+   "size": 1220,
+   "original_md5": null,
+   "kind": "source"
+  },
+  {
+   "share_path": "Files/Games-Library/Quake3-TeamArena/baseq3/zz-fleetres-ui.pk3",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/baseq3/zz-fleetres-ui.pk3",
+   "md5": "f737a9d51ed89c22d6b2be31cf8368d3",
+   "size": 283708,
+   "original_md5": null,
+   "kind": "pk3",
+   "original_note": "new file; pak8.pk3 is NOT modified - it is overridden. Rollback = sharewrite.py rm this path, then delete it on each box.",
+   "overrides": {
+    "share_path": "Files/Games-Library/Quake3-TeamArena/baseq3/pak8.pk3",
+    "md5": "d8b96d429ca4a9c289071cb7e77e14d2",
+    "member": "vm/ui.qvm",
+    "member_md5": "3e6b8fadb2a970c2b754e48e63a054d7"
+   }
+  }
+ ],
+ "server_install": {
+  "unit": "quake3-server",
+  "port": 27961,
+  "path": "/home/voidsstr/q3a-server/.q3a/baseq3/zz-fleetres-ui.pk3",
+  "note": "install ONLY after every fleet box has the pk3 (GAMESYNC); the pure server then lists it and a client without it is dropped as unpure (or downloads it: sv_allowDownload 1 + cl_allowDownload 1)"
+ }
+}

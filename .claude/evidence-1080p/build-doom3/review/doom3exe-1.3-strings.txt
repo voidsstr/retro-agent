@@ -1,0 +1,13 @@
+ 34dae8 .lang
+ 352710 guis/temp.guied
+ 352728 default.cfg
+ 352774 textures/bigchars.tga
+ 352868 sound/VO
+ 352874 .pd
+ 352878 .gui
+ 352880 .pda
+ 352ec4     on the pure list
+ 352edc     not on the pure list
+ 352f4c Current search path:
+ 352f64 set pure list - %d paks ( %s)
+ 353718 Loaded pk4 %s with checksum 0x%x

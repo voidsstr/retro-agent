@@ -44,3 +44,6 @@ scripts/gamebots/adapters/*/out/
 
 # hand-made config backups (e.g. scripts/pxe/pxe_config.json.bak)
 *.bak
+
+# Downloaded vendor driver/update installers (re-downloadable, ~2 GB) - never commit
+.claude/dl-*/

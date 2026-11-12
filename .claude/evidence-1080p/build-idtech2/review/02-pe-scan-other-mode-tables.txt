@@ -1,0 +1,37 @@
+Quake2Complete/3dfxgl.dll                                 142848  -
+Quake2Complete/pvrgl.dll                                  227328  -
+Quake2Complete/quake2.exe                                 362496  pair@0x54464, b'1600x1200'@0x54478, b'1600 1200'@0x54721, b'[1600'@0x54720, b'1600X1200'@0x54478, 'Mode 9'@0x54470
+Quake2Complete/ref_gl.dll                                 234496  -
+Quake2Complete/ref_soft.dll                               193024  -
+Quake2Complete/FLEETRES.EXE                                30208  pair@0x5188, pair@0x51e8, pair@0x5248
+Quake2Complete/baseq2/gamex86.dll                         397824  -
+Quake2Complete/ctf/gamex86.dll                            312832  -
+Quake2Complete/rogue/gamex86.dll                          561152  -
+Quake2Complete/xatrix/gamex86.dll                         468992  -
+SiNGold/ref_gl.dll                                        278528  -
+SiNGold/ref_soft.dll                                      278528  -
+SiNGold/sin.exe                                           667648  pair@0x944e4, b'1600x1200'@0x944f8, b'1600X1200'@0x944f8, 'Mode 9'@0x944f0
+SiNGold/3dfxgl.dll                                        137728  -
+SiNGold/ref_gl_amd.dll                                    283648  -
+SiNGold/ref_soft_real.dll                                 262144  -
+SiNGold/FLEETRES.EXE                                       30208  pair@0x5188, pair@0x51e8, pair@0x5248
+SiNGold/2015/gamex86.dll                                 1909760  -
+SiNGold/ctf/gamex86.dll                                  1458176  -
+SiNGold/base/gamex86.dll                                 1458176  -
+SoldierOfFortune/a3dapi.dll                               290816  -
+SoldierOfFortune/A3Dsnd.dll                               102400  -
+SoldierOfFortune/Defsnd.dll                                77824  -
+SoldierOfFortune/EaxMan.dll                                61440  -
+SoldierOfFortune/EAXSnd.dll                                77824  -
+SoldierOfFortune/FFC10.dll                                126976  -
+SoldierOfFortune/ref_gl.dll                               225280  -
+SoldierOfFortune/SoF.exe                                 2052096  pair@0x1c6e9c, b'1600x1200'@0x1c6eb0, b'1600X1200'@0x1c6eb0, 'Mode 9'@0x1c6ea8
+SoldierOfFortune/FLEETRES.EXE                              30208  pair@0x5188, pair@0x51e8, pair@0x5248
+SoldierOfFortune/base/gamex86.dll                        1421312  -
+SoldierOfFortune/base/player.dll                           98304  -
+Quake2Win9x/3dfxgl.dll                                    142848  -
+Quake2Win9x/DESKFIX9.EXE                                    4608  -
+Quake2Win9x/quake2.exe                                    362496  pair@0x54464, b'1600x1200'@0x54478, b'1600 1200'@0x54721, b'[1600'@0x54720, b'1600X1200'@0x54478, 'Mode 9'@0x54470
+Quake2Win9x/ref_gl.dll                                    234496  -
+Quake2Win9x/ref_soft.dll                                  193024  -
+Quake2Win9x/baseq2/gamex86.dll                            397824  -

@@ -1,0 +1,713 @@
+Log: Log file open, 09/28/26 04:00:58
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 436
+Init: Compiled: Oct 24 2000 23:40:18
+Init: Command line: 192.168.1.196:7797 -log=lancheck.log
+Init: Base directory: C:\Games\UnrealTournament436\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: Memory total: Phys=261608K Pagef=634912K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=2004.569236 MHz
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI 3DNow!
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 0
+Init: Initializing DirectDraw
+Log: DirectDraw drivers:
+Log:    display (Primary Display Driver)
+Init: DirectDraw initialized successfully
+Init: Client initialized
+Log: Bound to Render.dll
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Bound to Fire.dll
+Log: Bound to IpDrv.dll
+Log: Game class is 'UTIntro'
+Log: Level is Level Entry.MyLevel
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Base Mutator is Entry.Mutator0
+Log: Browse: 192.168.1.196:7797/Index.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Init: WinSock: version 1.1 (2.2), MaxSocks=32767, MaxUdp=65467
+Init: WinSock: Socket queue size left as default.
+Init: WinSock: I am nsc-c543575f526 (192.168.1.124)
+DevNet: Game client on port 0, rate 12000
+Log: Browse: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: LoadMap: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package Render
+Log: Garbage: objects: 16416->16413; refs: 225679
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+ScriptLog: Base Mutator is CityIntro.Mutator1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Bound to UWeb.dll
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale0
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to OpenGLDrv.dll
+Init: Pixel format 1:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=6 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 2:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=6 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 3:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=1
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 4:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=1
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 5:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=0 Depth=24 Stencil=8
+Init: Pixel format 6:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=0 Depth=24 Stencil=8
+Init: Pixel format 7:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 8:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 9:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 10:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 11:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 12:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 13:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 14:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 15:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 16:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 17:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 18:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 19:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 20:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 21:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 22:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 23:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 24:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 25:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 26:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 27:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=8
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 28:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=8
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 29:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 30:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 31:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 32:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 33:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=8
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 34:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=8
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 35:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 36:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 37:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=0
+Init:    Bits: Accum=16 Depth=32 Stencil=8
+Init: Pixel format 38:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=0
+Init:    Bits: Accum=16 Depth=16 Stencil=8
+Init: Pixel format 39:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=8
+Init:    Bits: Accum=16 Depth=32 Stencil=8
+Init: Pixel format 40:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=8
+Init:    Bits: Accum=16 Depth=16 Stencil=8
+Init: Pixel format 41:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=4 R=1 G=1 B=1 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Using pixel format 2
+Init: glGetString(GL_VENDOR): Brian Paul
+Init: glGetString(GL_RENDERER): Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+Init: glGetString(GL_VERSION): 1.2 Mesa 6.2.2
+Init: glGetString(GL_EXTENSIONS): [Extension logging disabled in this version of UT-OpenGL.] 
+Init: Pixel format 2:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=6 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Device supports: GL
+Init: Device supports: GL_EXT_bgra
+Init: Device supports: GL_EXT_paletted_texture
+Init: Device supports: GL_EXT_compiled_vertex_array
+Init: Device supports: GL_ARB_multitexture
+Init: Device supports: GL_EXT_clip_volume_hint
+Init: Using OpenGL settings [Default]
+Log: Bound to Galaxy.dll
+Init: Galaxy is using DirectSound
+Init: Galaxy initialized
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Init: Game engine initialized
+Log: Startup time: 14.002443 seconds
+DevNet: PendingLevel received: CHALLENGE VER=436 CHALLENGE=1035141538 STATS=1
+DevMusic: Load music: Music Uttitle.Uttitle
+DevNet: PendingLevel received: USES GUID=5711808211D37D8AE0006BA2D2321081 PKG=DM-Codex FLAGS=1 SIZE=1603015 GEN=1 FNAME=DM-Codex.unr
+DevNet: PendingLevel received: USES GUID=D18A7B9211D38F04100067B9F6F8975A PKG=Engine FLAGS=1 SIZE=1271784 GEN=66 REALGEN=68 FNAME=Engine.u
+DevNet: PendingLevel received: USES GUID=4770B88411D38E3E100067B9F6F8975A PKG=Core FLAGS=1 SIZE=67362 GEN=17 FNAME=Core.u
+DevNet: PendingLevel received: USES GUID=05F3756011D378EDE0006BA2D2321081 PKG=utcrypt FLAGS=1 SIZE=12086576 GEN=1 REALGEN=2 FNAME=UTcrypt.utx
+DevNet: PendingLevel received: USES GUID=1E90ACA811D1ED664544279700005453 PKG=Detail FLAGS=1 SIZE=1729964 GEN=1 FNAME=Detail.utx
+DevNet: PendingLevel received: USES GUID=4770B88811D38E3E100067B9F6F8975A PKG=Fire FLAGS=1 SIZE=19278 GEN=11 REALGEN=12 FNAME=Fire.u
+DevNet: PendingLevel received: USES GUID=A079EC3411D38D0DC00084B50A1E604F PKG=Indus6 FLAGS=1 SIZE=4135228 GEN=1 REALGEN=2 FNAME=Indus6.utx
+DevNet: PendingLevel received: USES GUID=5C0AABC211D282F44544289700005453 PKG=Crypt2 FLAGS=1 SIZE=10902905 GEN=1 REALGEN=2 FNAME=Crypt2.utx
+DevNet: PendingLevel received: USES GUID=1E90ACA311D1ED664544279700005453 PKG=Ancient FLAGS=1 SIZE=30778134 GEN=1 REALGEN=2 FNAME=Ancient.utx
+DevNet: PendingLevel received: USES GUID=1E90ACBF11D1ED664544279700005453 PKG=NaliCast FLAGS=1 SIZE=20008337 GEN=1 REALGEN=2 FNAME=NaliCast.utx
+DevNet: PendingLevel received: USES GUID=1C69657611D38F44100067B9F6F8975A PKG=Botpack FLAGS=1 SIZE=40132959 GEN=62 REALGEN=67 FNAME=Botpack.u
+DevNet: PendingLevel received: USES GUID=4770B88C11D38E3E100067B9F6F8975A PKG=UnrealShare FLAGS=1 SIZE=22195438 GEN=18 REALGEN=22 FNAME=UnrealShare.u
+DevNet: PendingLevel received: USES GUID=4770B88D11D38E3E100067B9F6F8975A PKG=UnrealI FLAGS=1 SIZE=18575638 GEN=11 REALGEN=13 FNAME=UnrealI.u
+DevNet: PendingLevel received: USES GUID=2E3682A411D379A7E0006BA2D2321081 PKG=UTtech1 FLAGS=1 SIZE=28824612 GEN=1 REALGEN=2 FNAME=UTtech1.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAF11D1ED664544279700005453 PKG=GenFX FLAGS=1 SIZE=2501201 GEN=1 REALGEN=2 FNAME=GenFX.utx
+DevNet: PendingLevel received: USES GUID=561AD02011D38D0FC00084B50A1E604F PKG=SKYBox FLAGS=1 SIZE=1282579 GEN=1 REALGEN=2 FNAME=SkyBox.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE711D1ED674544E58A00005453 PKG=DoorsAnc FLAGS=1 SIZE=3740119 GEN=1 FNAME=DoorsAnc.uax
+DevNet: PendingLevel received: USES GUID=1E90ACC611D1ED664544279700005453 PKG=ShaneSky FLAGS=1 SIZE=782994 GEN=1 REALGEN=2 FNAME=ShaneSky.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE311D1ED674544E58A00005453 PKG=Ambancient FLAGS=1 SIZE=6773021 GEN=1 FNAME=AmbAncient.uax
+DevNet: PendingLevel received: USES GUID=FD6597E211D38A65E0006BA2D2321081 PKG=UTtech2 FLAGS=1 SIZE=5068185 GEN=1 REALGEN=2 FNAME=UTtech2.utx
+DevNet: PendingLevel received: USES GUID=1E90ACB511D1ED664544279700005453 PKG=hubeffects FLAGS=1 SIZE=310586 GEN=1 REALGEN=2 FNAME=HubEffects.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAE11D1ED664544279700005453 PKG=genfluid FLAGS=1 SIZE=8227913 GEN=1 REALGEN=2 FNAME=GenFluid.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE511D1ED674544E58A00005453 PKG=AmbOutside FLAGS=1 SIZE=5469933 GEN=1 FNAME=AmbOutside.uax
+DevNet: PendingLevel received: USES GUID=1E90ACB911D1ED664544279700005453 PKG=Liquids FLAGS=1 SIZE=14013 GEN=1 FNAME=Liquids.utx
+DevNet: PendingLevel received: USES GUID=1E90ACC511D1ED664544279700005453 PKG=shaneDAY FLAGS=1 SIZE=490478 GEN=1 REALGEN=2 FNAME=ShaneDay.utx
+DevNet: PendingLevel received: USES GUID=C073770C11D2D1A4E000278383161081 PKG=Mission FLAGS=1 SIZE=734957 GEN=1 FNAME=Mission.umx
+DevNet: PendingLevel received: USES GUID=93CC0A8111D3888FE0006295BE341081 PKG=SoldierSkins FLAGS=1 SIZE=13048958 GEN=1 REALGEN=2 FNAME=Soldierskins.utx
+DevNet: PendingLevel received: USES GUID=E96BC96311D31D2F4F006B8CDE9A0349 PKG=CommandoSkins FLAGS=1 SIZE=6448136 GEN=1 REALGEN=2 FNAME=commandoskins.utx
+DevNet: PendingLevel received: USES GUID=B7B49CA611D38BCDE0006395BE341081 PKG=FCommandoSkins FLAGS=1 SIZE=7604256 GEN=1 REALGEN=2 FNAME=FCommandoSkins.utx
+DevNet: PendingLevel received: USES GUID=D4F6ABE111D385CAE0006295BE341081 PKG=SGirlSkins FLAGS=1 SIZE=10789818 GEN=1 REALGEN=2 FNAME=SGirlSkins.utx
+DevNet: PendingLevel received: USES GUID=24E5A72411D321104F006B8CDE9A0349 PKG=BossSkins FLAGS=1 SIZE=2790891 GEN=1 REALGEN=2 FNAME=BossSkins.utx
+DevNet: PendingLevel received: USES GUID=2DB53B0011D3E9001000D3B9F6F8975A PKG=MultiMesh FLAGS=1 SIZE=78157 GEN=16 FNAME=multimesh.u
+DevNet: PendingLevel received: USES GUID=13F8255A11D3DBA01000CBB9F6F8975A PKG=EpicCustomModels FLAGS=1 SIZE=2408888 GEN=2 REALGEN=4 FNAME=epiccustommodels.u
+DevNet: PendingLevel received: USES GUID=D011F66E11D3E9B81000D5B9F6F8975A PKG=Relics FLAGS=1 SIZE=456086 GEN=10 REALGEN=11 FNAME=relics.u
+DevNet: PendingLevel received: DLMGR CLASS=Engine.ChannelDownload PARAMS=Enabled COMPRESSION=0
+DevNet: PendingLevel received: WELCOME LEVEL=DM-Codex LONE=0
+DevNet: Welcomed by server: LEVEL=DM-Codex LONE=0
+Log: LoadMap: 192.168.1.196:7797/DM-Codex?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CityIntro
+Log: 0.0ms Unloading: Package city
+Log: 0.0ms Unloading: Package ArenaTex
+Log: 0.0ms Unloading: Package RainFX
+Log: 0.0ms Unloading: Package DecayedS
+Log: 0.0ms Unloading: Package GenIn
+Log: 0.0ms Unloading: Package NaliFX
+Log: 0.0ms Unloading: Package AmbModern
+Log: 0.0ms Unloading: Package openingwave
+Log: 0.0ms Unloading: Package Uttitle
+DevMusic: Unregister music: Music Uttitle.Uttitle
+Log: Garbage: objects: 19198->18309; refs: 509226
+Log: Level is Level DM-Codex.MyLevel
+Log: Bringing Level DM-Codex.MyLevel up for play (187)...
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale1
+Init: Initialized moving brush tracker for Level DM-Codex.MyLevel
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Possessed PlayerPawn: TMale1 DM-Codex.TMale2
+DevMusic: Load music: Music Mission.Mission
+ScriptLog: Getting CommandoSkins.goth1, CommandoSkins.goth2Kragoth, CommandoSkins.goth3, CommandoSkins.goth4
+ScriptLog: Getting FCommandoSkins.goth1T_2, FCommandoSkins.goth2T_2, None, FCommandoSkins.goth4Freylis
+ScriptLog: Getting CommandoSkins.daco1, CommandoSkins.daco2Boris, CommandoSkins.daco3t_1, CommandoSkins.daco4t_1
+ScriptLog: Getting FCommandoSkins.daco1T_3, FCommandoSkins.daco2T_3, None, FCommandoSkins.daco4Jayce
+ScriptLog: Getting FCommandoSkins.goth1, FCommandoSkins.goth2, None, FCommandoSkins.goth4Cryss
+Log: Browse: 192.168.1.196:7797/DM-turbine.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+Init: WinSock: Socket queue size left as default.
+DevNet: Game client on port 0, rate 12000
+Log: UDP recvfrom error: 10054
+Log: URL: Adding default option Name=pigga
+Log: URL: Adding default option Class=Botpack.TMale1
+Log: URL: Adding default option team=255
+Log: URL: Adding default option skin=CommandoSkins.daco
+Log: URL: Adding default option Face=CommandoSkins.Boris
+Log: URL: Adding default option Voice=BotPack.VoiceMaleOne
+Log: Browse: Index.unr?failed?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Failed; returning to Entry
+Init: Shut down moving brush tracker for Level DM-Codex.MyLevel
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale1
+DevAudio: Galaxy SetViewport: WindowsViewport0
+DevNet: PendingLevel received: CHALLENGE VER=436 CHALLENGE=1850940268 STATS=1
+DevNet: PendingLevel received: USES GUID=187EDD4011D37D1CE0006BA2D2321081 PKG=DM-turbine FLAGS=1 SIZE=1755136 GEN=1 FNAME=DM-Turbine.unr
+DevNet: PendingLevel received: USES GUID=D18A7B9211D38F04100067B9F6F8975A PKG=Engine FLAGS=1 SIZE=1271784 GEN=66 REALGEN=68 FNAME=Engine.u
+DevNet: PendingLevel received: USES GUID=4770B88411D38E3E100067B9F6F8975A PKG=Core FLAGS=1 SIZE=67362 GEN=17 FNAME=Core.u
+DevNet: PendingLevel received: USES GUID=2E3682A411D379A7E0006BA2D2321081 PKG=UTtech1 FLAGS=1 SIZE=28824612 GEN=1 REALGEN=2 FNAME=UTtech1.utx
+DevNet: PendingLevel received: USES GUID=1E90ACA811D1ED664544279700005453 PKG=Detail FLAGS=1 SIZE=1729964 GEN=1 FNAME=Detail.utx
+DevNet: PendingLevel received: USES GUID=4770B88811D38E3E100067B9F6F8975A PKG=Fire FLAGS=1 SIZE=19278 GEN=11 REALGEN=12 FNAME=Fire.u
+DevNet: PendingLevel received: USES GUID=66FC62C111D389A2E0006BA2D2321081 PKG=RainFX FLAGS=1 SIZE=13802700 GEN=1 REALGEN=2 FNAME=RainFX.utx
+DevNet: PendingLevel received: USES GUID=C47BBD4011D38CFBC00084B50A1E604F PKG=DecayedS FLAGS=1 SIZE=61599760 GEN=1 REALGEN=2 FNAME=DecayedS.utx
+DevNet: PendingLevel received: USES GUID=7944E70211D2D09C9000F1BD583F3D27 PKG=Indus1 FLAGS=1 SIZE=2969102 GEN=1 REALGEN=2 FNAME=Indus1.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAE11D1ED664544279700005453 PKG=genfluid FLAGS=1 SIZE=8227913 GEN=1 REALGEN=2 FNAME=GenFluid.utx
+DevNet: PendingLevel received: USES GUID=1E90ACBE11D1ED664544279700005453 PKG=Mine FLAGS=1 SIZE=39344068 GEN=1 REALGEN=2 FNAME=Mine.utx
+DevNet: PendingLevel received: USES GUID=032118C011D327DE9000F1BD623F3D27 PKG=UT FLAGS=1 SIZE=5933105 GEN=1 REALGEN=2 FNAME=UT.utx
+DevNet: PendingLevel received: USES GUID=8076B8C911D2D270E000278383161081 PKG=Metalmys FLAGS=1 SIZE=3167860 GEN=1 REALGEN=2 FNAME=Metalmys.utx
+DevNet: PendingLevel received: USES GUID=1C69657611D38F44100067B9F6F8975A PKG=Botpack FLAGS=1 SIZE=40132959 GEN=62 REALGEN=67 FNAME=Botpack.u
+DevNet: PendingLevel received: USES GUID=4770B88C11D38E3E100067B9F6F8975A PKG=UnrealShare FLAGS=1 SIZE=22195438 GEN=18 REALGEN=22 FNAME=UnrealShare.u
+DevNet: PendingLevel received: USES GUID=4770B88D11D38E3E100067B9F6F8975A PKG=UnrealI FLAGS=1 SIZE=18575638 GEN=11 REALGEN=13 FNAME=UnrealI.u
+DevNet: PendingLevel received: USES GUID=381560A111D3108B9000F1BD623F3D27 PKG=Slums FLAGS=1 SIZE=5630974 GEN=1 REALGEN=2 FNAME=Slums.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAF11D1ED664544279700005453 PKG=GenFX FLAGS=1 SIZE=2501201 GEN=1 REALGEN=2 FNAME=GenFX.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE811D1ED674544E58A00005453 PKG=DoorsMod FLAGS=1 SIZE=2547363 GEN=1 FNAME=DoorsMod.uax
+DevNet: PendingLevel received: USES GUID=1E90ACB911D1ED664544279700005453 PKG=Liquids FLAGS=1 SIZE=14013 GEN=1 FNAME=Liquids.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE411D1ED674544E58A00005453 PKG=AmbModern FLAGS=1 SIZE=6112404 GEN=1 FNAME=AmbModern.uax
+DevNet: PendingLevel received: USES GUID=05F3756011D378EDE0006BA2D2321081 PKG=utcrypt FLAGS=1 SIZE=12086576 GEN=1 REALGEN=2 FNAME=UTcrypt.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE511D1ED674544E58A00005453 PKG=AmbOutside FLAGS=1 SIZE=5469933 GEN=1 FNAME=AmbOutside.uax
+DevNet: PendingLevel received: USES GUID=C073770811D2D1A4E000278383161081 PKG=Run FLAGS=1 SIZE=1707015 GEN=1 FNAME=Run.umx
+DevNet: PendingLevel received: USES GUID=93CC0A8111D3888FE0006295BE341081 PKG=SoldierSkins FLAGS=1 SIZE=13048958 GEN=1 REALGEN=2 FNAME=Soldierskins.utx
+DevNet: PendingLevel received: USES GUID=E96BC96311D31D2F4F006B8CDE9A0349 PKG=CommandoSkins FLAGS=1 SIZE=6448136 GEN=1 REALGEN=2 FNAME=commandoskins.utx
+DevNet: PendingLevel received: USES GUID=B7B49CA611D38BCDE0006395BE341081 PKG=FCommandoSkins FLAGS=1 SIZE=7604256 GEN=1 REALGEN=2 FNAME=FCommandoSkins.utx
+DevNet: PendingLevel received: USES GUID=D4F6ABE111D385CAE0006295BE341081 PKG=SGirlSkins FLAGS=1 SIZE=10789818 GEN=1 REALGEN=2 FNAME=SGirlSkins.utx
+DevNet: PendingLevel received: USES GUID=24E5A72411D321104F006B8CDE9A0349 PKG=BossSkins FLAGS=1 SIZE=2790891 GEN=1 REALGEN=2 FNAME=BossSkins.utx
+DevNet: PendingLevel received: USES GUID=2DB53B0011D3E9001000D3B9F6F8975A PKG=MultiMesh FLAGS=1 SIZE=78157 GEN=16 FNAME=multimesh.u
+DevNet: PendingLevel received: USES GUID=13F8255A11D3DBA01000CBB9F6F8975A PKG=EpicCustomModels FLAGS=1 SIZE=2408888 GEN=2 REALGEN=4 FNAME=epiccustommodels.u
+DevNet: PendingLevel received: USES GUID=D011F66E11D3E9B81000D5B9F6F8975A PKG=Relics FLAGS=1 SIZE=456086 GEN=10 REALGEN=11 FNAME=relics.u
+DevNet: PendingLevel received: DLMGR CLASS=Engine.ChannelDownload PARAMS=Enabled COMPRESSION=0
+DevNet: PendingLevel received: WELCOME LEVEL=DM-turbine LONE=0
+DevNet: Welcomed by server: LEVEL=DM-turbine LONE=0
+Log: LoadMap: 192.168.1.196:7797/DM-turbine?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Collecting garbage
+Log: Purging garbage
+NetComeGo: Close TcpipConnection0 09/28/26 04:10:53
+Exit: WinSock shut down
+Log: 0.0ms Unloading: Package NaliCast
+Log: 0.0ms Unloading: Package ShaneSky
+Log: 0.0ms Unloading: Package AmbAncient
+Log: 0.0ms Unloading: Package DM-Codex
+Log: 0.0ms Unloading: Package Indus6
+Log: 0.0ms Unloading: Package Crypt2
+Log: 0.0ms Unloading: Package Ancient
+Log: 0.0ms Unloading: Package SKYBox
+Log: 0.0ms Unloading: Package DoorsAnc
+Log: 0.0ms Unloading: Package UTtech2
+Log: 0.0ms Unloading: Package hubeffects
+Log: 0.0ms Unloading: Package shaneDAY
+Log: 0.0ms Unloading: Package Mission
+DevMusic: Unregister music: Music Mission.Mission
+Log: Garbage: objects: 19256->18250; refs: 392871
+Log: Level is Level DM-turbine.MyLevel
+Log: Bringing Level DM-turbine.MyLevel up for play (187)...
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale3
+Init: Initialized moving brush tracker for Level DM-turbine.MyLevel
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Possessed PlayerPawn: TMale1 DM-turbine.TMale4
+DevMusic: Load music: Music Run.Run
+ScriptLog: Getting CommandoSkins.daco1, CommandoSkins.daco2Boris, CommandoSkins.daco3t_1, CommandoSkins.daco4t_1
+ScriptLog: Getting SoldierSkins.RawS1, SoldierSkins.RawS2, SoldierSkins.RawS3, SoldierSkins.RawS4Arkon
+ScriptLog: Getting SGirlSkins.Garf1T_1, SGirlSkins.Garf2T_1, SGirlSkins.Garf3, SGirlSkins.Garf4Isis
+ScriptLog: Getting CommandoSkins.goth1, CommandoSkins.goth2Grail, CommandoSkins.goth3, CommandoSkins.goth4
+ScriptLog: Getting SGirlSkins.Garf1, SGirlSkins.Garf2, SGirlSkins.Garf3, SGirlSkins.Garf4Vixen
+Log: Browse: 192.168.1.196:7797/DM-Phobos.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+Init: WinSock: Socket queue size left as default.
+DevNet: Game client on port 0, rate 12000
+Log: URL: Adding default option Name=pigga
+Log: URL: Adding default option Class=Botpack.TMale1
+Log: URL: Adding default option team=255
+Log: URL: Adding default option skin=CommandoSkins.daco
+Log: URL: Adding default option Face=CommandoSkins.Boris
+Log: URL: Adding default option Voice=BotPack.VoiceMaleOne
+Log: Browse: Index.unr?failed?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Failed; returning to Entry
+Init: Shut down moving brush tracker for Level DM-turbine.MyLevel
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale3
+DevAudio: Galaxy SetViewport: WindowsViewport0
+DevNet: PendingLevel received: CHALLENGE VER=436 CHALLENGE=1106501995 STATS=1
+DevNet: PendingLevel received: USES GUID=68722E6511D38195E0006BA2D2321081 PKG=DM-Phobos FLAGS=1 SIZE=1601030 GEN=1 FNAME=DM-Phobos.unr
+DevNet: PendingLevel received: USES GUID=2E3682A411D379A7E0006BA2D2321081 PKG=UTtech1 FLAGS=1 SIZE=28824612 GEN=1 REALGEN=2 FNAME=UTtech1.utx
+DevNet: PendingLevel received: USES GUID=D18A7B9211D38F04100067B9F6F8975A PKG=Engine FLAGS=1 SIZE=1271784 GEN=66 REALGEN=68 FNAME=Engine.u
+DevNet: PendingLevel received: USES GUID=4770B88411D38E3E100067B9F6F8975A PKG=Core FLAGS=1 SIZE=67362 GEN=17 FNAME=Core.u
+DevNet: PendingLevel received: USES GUID=1E90ACA811D1ED664544279700005453 PKG=Detail FLAGS=1 SIZE=1729964 GEN=1 FNAME=Detail.utx
+DevNet: PendingLevel received: USES GUID=4770B88811D38E3E100067B9F6F8975A PKG=Fire FLAGS=1 SIZE=19278 GEN=11 REALGEN=12 FNAME=Fire.u
+DevNet: PendingLevel received: USES GUID=F717F4C611D38B66C00081B50A1E604F PKG=XbpFX FLAGS=1 SIZE=4120561 GEN=1 REALGEN=2 FNAME=XbpFX.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAE11D1ED664544279700005453 PKG=genfluid FLAGS=1 SIZE=8227913 GEN=1 REALGEN=2 FNAME=GenFluid.utx
+DevNet: PendingLevel received: USES GUID=1E90ACCF11D1ED664544279700005453 PKG=XFX FLAGS=1 SIZE=198416 GEN=1 FNAME=XFX.utx
+DevNet: PendingLevel received: USES GUID=C47BBD4011D38CFBC00084B50A1E604F PKG=DecayedS FLAGS=1 SIZE=61599760 GEN=1 REALGEN=2 FNAME=DecayedS.utx
+DevNet: PendingLevel received: USES GUID=1E90ACC111D1ED664544279700005453 PKG=Palettes FLAGS=1 SIZE=421024 GEN=1 FNAME=Palettes.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAF11D1ED664544279700005453 PKG=GenFX FLAGS=1 SIZE=2501201 GEN=1 REALGEN=2 FNAME=GenFX.utx
+DevNet: PendingLevel received: USES GUID=1C69657611D38F44100067B9F6F8975A PKG=Botpack FLAGS=1 SIZE=40132959 GEN=62 REALGEN=67 FNAME=Botpack.u
+DevNet: PendingLevel received: USES GUID=4770B88C11D38E3E100067B9F6F8975A PKG=UnrealShare FLAGS=1 SIZE=22195438 GEN=18 REALGEN=22 FNAME=UnrealShare.u
+DevNet: PendingLevel received: USES GUID=4770B88D11D38E3E100067B9F6F8975A PKG=UnrealI FLAGS=1 SIZE=18575638 GEN=11 REALGEN=13 FNAME=UnrealI.u
+DevNet: PendingLevel received: USES GUID=1E90ACCA11D1ED664544279700005453 PKG=SkyCity FLAGS=1 SIZE=37347488 GEN=1 REALGEN=2 FNAME=SkyCity.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE811D1ED674544E58A00005453 PKG=DoorsMod FLAGS=1 SIZE=2547363 GEN=1 FNAME=DoorsMod.uax
+DevNet: PendingLevel received: USES GUID=1E90ACB011D1ED664544279700005453 PKG=GenIn FLAGS=1 SIZE=6245263 GEN=1 REALGEN=2 FNAME=GenIn.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE411D1ED674544E58A00005453 PKG=AmbModern FLAGS=1 SIZE=6112404 GEN=1 FNAME=AmbModern.uax
+DevNet: PendingLevel received: USES GUID=ADF58F0211D26DC24544F98100005453 PKG=noxxsnd FLAGS=1 SIZE=806029 GEN=1 FNAME=noxxsnd.uax
+DevNet: PendingLevel received: USES GUID=A3B94EE211D1ED674544E58A00005453 PKG=Activates FLAGS=1 SIZE=906293 GEN=1 FNAME=Activates.uax
+DevNet: PendingLevel received: USES GUID=0571616211D3017E4F002C97CC350349 PKG=Botmca9 FLAGS=1 SIZE=1208303 GEN=1 FNAME=Botmca9.umx
+DevNet: PendingLevel received: USES GUID=93CC0A8111D3888FE0006295BE341081 PKG=SoldierSkins FLAGS=1 SIZE=13048958 GEN=1 REALGEN=2 FNAME=Soldierskins.utx
+DevNet: PendingLevel received: USES GUID=E96BC96311D31D2F4F006B8CDE9A0349 PKG=CommandoSkins FLAGS=1 SIZE=6448136 GEN=1 REALGEN=2 FNAME=commandoskins.utx
+DevNet: PendingLevel received: USES GUID=B7B49CA611D38BCDE0006395BE341081 PKG=FCommandoSkins FLAGS=1 SIZE=7604256 GEN=1 REALGEN=2 FNAME=FCommandoSkins.utx
+DevNet: PendingLevel received: USES GUID=D4F6ABE111D385CAE0006295BE341081 PKG=SGirlSkins FLAGS=1 SIZE=10789818 GEN=1 REALGEN=2 FNAME=SGirlSkins.utx
+DevNet: PendingLevel received: USES GUID=24E5A72411D321104F006B8CDE9A0349 PKG=BossSkins FLAGS=1 SIZE=2790891 GEN=1 REALGEN=2 FNAME=BossSkins.utx
+DevNet: PendingLevel received: USES GUID=2DB53B0011D3E9001000D3B9F6F8975A PKG=MultiMesh FLAGS=1 SIZE=78157 GEN=16 FNAME=multimesh.u
+DevNet: PendingLevel received: USES GUID=13F8255A11D3DBA01000CBB9F6F8975A PKG=EpicCustomModels FLAGS=1 SIZE=2408888 GEN=2 REALGEN=4 FNAME=epiccustommodels.u
+DevNet: PendingLevel received: USES GUID=D011F66E11D3E9B81000D5B9F6F8975A PKG=Relics FLAGS=1 SIZE=456086 GEN=10 REALGEN=11 FNAME=relics.u
+DevNet: PendingLevel received: DLMGR CLASS=Engine.ChannelDownload PARAMS=Enabled COMPRESSION=0
+DevNet: PendingLevel received: WELCOME LEVEL=DM-Phobos LONE=0
+DevNet: Welcomed by server: LEVEL=DM-Phobos LONE=0
+Log: LoadMap: 192.168.1.196:7797/DM-Phobos?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package AmbOutside
+NetComeGo: Close TcpipConnection1 09/28/26 04:16:33
+Log: 0.0ms Unloading: Package RainFX
+Log: 0.0ms Unloading: Package Slums
+Log: 0.0ms Unloading: Package UT
+Log: 0.0ms Unloading: Package Indus1
+Exit: WinSock shut down
+Log: 0.0ms Unloading: Package Mine
+Log: 0.0ms Unloading: Package DM-turbine
+Log: 0.0ms Unloading: Package Metalmys
+Log: 0.0ms Unloading: Package utcrypt
+Log: 0.0ms Unloading: Package Liquids
+Log: 0.0ms Unloading: Package Run
+DevMusic: Unregister music: Music Run.Run
+Log: Garbage: objects: 20137->19112; refs: 280240
+Log: Level is Level DM-Phobos.MyLevel
+Log: Bringing Level DM-Phobos.MyLevel up for play (187)...
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale5
+Init: Initialized moving brush tracker for Level DM-Phobos.MyLevel
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Possessed PlayerPawn: TMale1 DM-Phobos.TMale6
+DevMusic: Load music: Music Botmca9.Botmca9
+ScriptLog: Getting SoldierSkins.Blkt1, SoldierSkins.Blkt2, SoldierSkins.Blkt3, SoldierSkins.blkt4Riker
+ScriptLog: Getting SGirlSkins.fbth1T_0, SGirlSkins.fbth2T_0, SGirlSkins.fbth3, SGirlSkins.fbth4Aryss
+ScriptLog: Getting FCommandoSkins.daco1T_0, FCommandoSkins.daco2T_0, None, FCommandoSkins.daco4Tanya
+ScriptLog: Getting SoldierSkins.RawS1, SoldierSkins.RawS2, SoldierSkins.RawS3, SoldierSkins.RawS4Arkon
+ScriptLog: Getting SGirlSkins.Garf1, SGirlSkins.Garf2, SGirlSkins.Garf3, SGirlSkins.Garf4Vixen
+Log: Browse: 192.168.1.196:7797/DM-barricade.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+Init: WinSock: Socket queue size left as default.
+DevNet: Game client on port 0, rate 12000
+Log: URL: Adding default option Name=pigga
+Log: URL: Adding default option Class=Botpack.TMale1
+Log: URL: Adding default option team=255
+Log: URL: Adding default option skin=CommandoSkins.daco
+Log: URL: Adding default option Face=CommandoSkins.Boris
+Log: URL: Adding default option Voice=BotPack.VoiceMaleOne
+Log: Browse: Index.unr?failed?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Failed; returning to Entry
+Init: Shut down moving brush tracker for Level DM-Phobos.MyLevel
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale5
+DevAudio: Galaxy SetViewport: WindowsViewport0
+DevNet: PendingLevel received: CHALLENGE VER=436 CHALLENGE=-333559476 STATS=1
+DevNet: PendingLevel received: USES GUID=B09FEA0011D38CD1E0006BA2D2321081 PKG=DM-barricade FLAGS=1 SIZE=1907673 GEN=1 FNAME=DM-Barricade.unr
+DevNet: PendingLevel received: USES GUID=D18A7B9211D38F04100067B9F6F8975A PKG=Engine FLAGS=1 SIZE=1271784 GEN=66 REALGEN=68 FNAME=Engine.u
+DevNet: PendingLevel received: USES GUID=4770B88411D38E3E100067B9F6F8975A PKG=Core FLAGS=1 SIZE=67362 GEN=17 FNAME=Core.u
+DevNet: PendingLevel received: USES GUID=05F3756011D378EDE0006BA2D2321081 PKG=utcrypt FLAGS=1 SIZE=12086576 GEN=1 REALGEN=2 FNAME=UTcrypt.utx
+DevNet: PendingLevel received: USES GUID=1E90ACA811D1ED664544279700005453 PKG=Detail FLAGS=1 SIZE=1729964 GEN=1 FNAME=Detail.utx
+DevNet: PendingLevel received: USES GUID=4770B88811D38E3E100067B9F6F8975A PKG=Fire FLAGS=1 SIZE=19278 GEN=11 REALGEN=12 FNAME=Fire.u
+DevNet: PendingLevel received: USES GUID=A079EC3411D38D0DC00084B50A1E604F PKG=Indus6 FLAGS=1 SIZE=4135228 GEN=1 REALGEN=2 FNAME=Indus6.utx
+DevNet: PendingLevel received: USES GUID=5C0AABC211D282F44544289700005453 PKG=Crypt2 FLAGS=1 SIZE=10902905 GEN=1 REALGEN=2 FNAME=Crypt2.utx
+DevNet: PendingLevel received: USES GUID=2E3682A411D379A7E0006BA2D2321081 PKG=UTtech1 FLAGS=1 SIZE=28824612 GEN=1 REALGEN=2 FNAME=UTtech1.utx
+DevNet: PendingLevel received: USES GUID=1E90ACBF11D1ED664544279700005453 PKG=NaliCast FLAGS=1 SIZE=20008337 GEN=1 REALGEN=2 FNAME=NaliCast.utx
+DevNet: PendingLevel received: USES GUID=1C69657611D38F44100067B9F6F8975A PKG=Botpack FLAGS=1 SIZE=40132959 GEN=62 REALGEN=67 FNAME=Botpack.u
+DevNet: PendingLevel received: USES GUID=4770B88C11D38E3E100067B9F6F8975A PKG=UnrealShare FLAGS=1 SIZE=22195438 GEN=18 REALGEN=22 FNAME=UnrealShare.u
+DevNet: PendingLevel received: USES GUID=4770B88D11D38E3E100067B9F6F8975A PKG=UnrealI FLAGS=1 SIZE=18575638 GEN=11 REALGEN=13 FNAME=UnrealI.u
+DevNet: PendingLevel received: USES GUID=5CA303AC11D38D0CC00084B50A1E604F PKG=ShaneChurch FLAGS=1 SIZE=15201556 GEN=1 REALGEN=2 FNAME=ShaneChurch.utx
+DevNet: PendingLevel received: USES GUID=1E90ACCA11D1ED664544279700005453 PKG=SkyCity FLAGS=1 SIZE=37347488 GEN=1 REALGEN=2 FNAME=SkyCity.utx
+DevNet: PendingLevel received: USES GUID=1E90ACAF11D1ED664544279700005453 PKG=GenFX FLAGS=1 SIZE=2501201 GEN=1 REALGEN=2 FNAME=GenFX.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE711D1ED674544E58A00005453 PKG=DoorsAnc FLAGS=1 SIZE=3740119 GEN=1 FNAME=DoorsAnc.uax
+DevNet: PendingLevel received: USES GUID=1E90ACAE11D1ED664544279700005453 PKG=genfluid FLAGS=1 SIZE=8227913 GEN=1 REALGEN=2 FNAME=GenFluid.utx
+DevNet: PendingLevel received: USES GUID=A3B94EE511D1ED674544E58A00005453 PKG=AmbOutside FLAGS=1 SIZE=5469933 GEN=1 FNAME=AmbOutside.uax
+DevNet: PendingLevel received: USES GUID=A3B94EE411D1ED674544E58A00005453 PKG=AmbModern FLAGS=1 SIZE=6112404 GEN=1 FNAME=AmbModern.uax
+DevNet: PendingLevel received: USES GUID=1E90ACCF11D1ED664544279700005453 PKG=XFX FLAGS=1 SIZE=198416 GEN=1 FNAME=XFX.utx
+DevNet: PendingLevel received: USES GUID=C47BBD4011D38CFBC00084B50A1E604F PKG=DecayedS FLAGS=1 SIZE=61599760 GEN=1 REALGEN=2 FNAME=DecayedS.utx
+DevNet: PendingLevel received: USES GUID=1E90ACC111D1ED664544279700005453 PKG=Palettes FLAGS=1 SIZE=421024 GEN=1 FNAME=Palettes.utx
+DevNet: PendingLevel received: USES GUID=1E90ACB011D1ED664544279700005453 PKG=GenIn FLAGS=1 SIZE=6245263 GEN=1 REALGEN=2 FNAME=GenIn.utx
+DevNet: PendingLevel received: USES GUID=1E90ACCB11D1ED664544279700005453 PKG=SpaceFX FLAGS=1 SIZE=1124420 GEN=1 FNAME=SpaceFX.utx
+DevNet: PendingLevel received: USES GUID=1E90ACC611D1ED664544279700005453 PKG=ShaneSky FLAGS=1 SIZE=782994 GEN=1 REALGEN=2 FNAME=ShaneSky.utx
+DevNet: PendingLevel received: USES GUID=C073770A11D2D1A4E000278383161081 PKG=Phantom FLAGS=1 SIZE=819883 GEN=1 FNAME=Phantom.umx
+DevNet: PendingLevel received: USES GUID=93CC0A8111D3888FE0006295BE341081 PKG=SoldierSkins FLAGS=1 SIZE=13048958 GEN=1 REALGEN=2 FNAME=Soldierskins.utx
+DevNet: PendingLevel received: USES GUID=E96BC96311D31D2F4F006B8CDE9A0349 PKG=CommandoSkins FLAGS=1 SIZE=6448136 GEN=1 REALGEN=2 FNAME=commandoskins.utx
+DevNet: PendingLevel received: USES GUID=B7B49CA611D38BCDE0006395BE341081 PKG=FCommandoSkins FLAGS=1 SIZE=7604256 GEN=1 REALGEN=2 FNAME=FCommandoSkins.utx
+DevNet: PendingLevel received: USES GUID=D4F6ABE111D385CAE0006295BE341081 PKG=SGirlSkins FLAGS=1 SIZE=10789818 GEN=1 REALGEN=2 FNAME=SGirlSkins.utx
+DevNet: PendingLevel received: USES GUID=24E5A72411D321104F006B8CDE9A0349 PKG=BossSkins FLAGS=1 SIZE=2790891 GEN=1 REALGEN=2 FNAME=BossSkins.utx
+DevNet: PendingLevel received: USES GUID=2DB53B0011D3E9001000D3B9F6F8975A PKG=MultiMesh FLAGS=1 SIZE=78157 GEN=16 FNAME=multimesh.u
+DevNet: PendingLevel received: USES GUID=13F8255A11D3DBA01000CBB9F6F8975A PKG=EpicCustomModels FLAGS=1 SIZE=2408888 GEN=2 REALGEN=4 FNAME=epiccustommodels.u
+DevNet: PendingLevel received: USES GUID=D011F66E11D3E9B81000D5B9F6F8975A PKG=Relics FLAGS=1 SIZE=456086 GEN=10 REALGEN=11 FNAME=relics.u
+DevNet: PendingLevel received: DLMGR CLASS=Engine.ChannelDownload PARAMS=Enabled COMPRESSION=0
+DevNet: PendingLevel received: WELCOME LEVEL=DM-barricade LONE=0
+DevNet: Welcomed by server: LEVEL=DM-barricade LONE=0
+Log: LoadMap: 192.168.1.196:7797/DM-barricade?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?Checksum=NoChecksum
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Collecting garbage
+Log: Purging garbage
+NetComeGo: Close TcpipConnection2 09/28/26 04:22:07
+Exit: WinSock shut down
+Log: 0.0ms Unloading: Package XbpFX
+Log: 0.0ms Unloading: Package DM-Phobos
+Log: 0.0ms Unloading: Package noxxsnd
+Log: 0.0ms Unloading: Package Botmca9
+Log: 0.0ms Unloading: Package Activates
+Log: 0.0ms Unloading: Package DoorsMod
+DevMusic: Unregister music: Music Botmca9.Botmca9
+Log: Garbage: objects: 20496->18813; refs: 299367
+Log: Level is Level DM-barricade.MyLevel
+Log: Bringing Level DM-barricade.MyLevel up for play (187)...
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 Entry.TMale7
+Init: Initialized moving brush tracker for Level DM-barricade.MyLevel
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Possessed PlayerPawn: TMale1 DM-barricade.TMale8
+DevMusic: Load music: Music Phantom.Phantom
+ScriptLog: Getting CommandoSkins.goth1, CommandoSkins.goth2Grail, CommandoSkins.goth3, CommandoSkins.goth4
+ScriptLog: Getting SGirlSkins.Garf1T_1, SGirlSkins.Garf2T_1, SGirlSkins.Garf3, SGirlSkins.Garf4Isis
+ScriptLog: Getting SoldierSkins.sldr1, SoldierSkins.sldr2, SoldierSkins.sldr3, SoldierSkins.sldr4Johnson
+ScriptLog: Getting CommandoSkins.cmdo1, CommandoSkins.cmdo2Gorn, CommandoSkins.cmdo3, CommandoSkins.cmdo4
+ScriptLog: Getting FCommandoSkins.goth1T_2, FCommandoSkins.goth2T_2, None, FCommandoSkins.goth4Visse
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Engine.dll
+Log: Unbound to Core.dll
+Log: Unbound to Window.dll
+Log: 0.0ms Unloading: Package Engine
+Log: 0.0ms Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Log: DirectDraw End Mode
+Log: DirectDraw RestoreDisplayMode: DDERR_NOEXCLUSIVEMODE
+Log: Flushing cache
+Exit: DirectDraw released
+Exit: Windows client shut down
+Log: Unbound to Render.dll
+Exit: Lighting subsystem shut down
+Exit: Rendering shut down
+Log: 0.0ms Unloading: Package Entry
+Log: 0.0ms Unloading: Package Logo
+Log: Unbound to Fire.dll
+Log: 0.0ms Unloading: Package Fire
+Log: 0.0ms Unloading: Package credits
+Log: 0.0ms Unloading: Package Botpack
+Log: 0.0ms Unloading: Package UnrealShare
+Log: 0.0ms Unloading: Package UnrealI
+Log: 0.0ms Unloading: Package Female2Voice
+Log: 0.0ms Unloading: Package Male2Voice
+Log: 0.0ms Unloading: Package Female1Voice
+Log: 0.0ms Unloading: Package BossVoice
+Log: 0.0ms Unloading: Package Male1Voice
+Log: 0.0ms Unloading: Package UMenu
+Log: 0.0ms Unloading: Package UWindow
+Log: 0.0ms Unloading: Package UBrowser
+Log: Unbound to IpDrv.dll
+Log: 0.0ms Unloading: Package IpDrv
+Log: 0.0ms Unloading: Package Announcer
+Log: 0.0ms Unloading: Package Detail
+Log: 0.0ms Unloading: Package GenFX
+Log: 0.0ms Unloading: Package genfluid
+Log: 0.0ms Unloading: Package DecayedS
+Log: 0.0ms Unloading: Package ShaneSky
+Log: 0.0ms Unloading: Package NaliCast
+NetComeGo: Close TcpipConnection3 09/28/26 04:30:59
+Log: 0.0ms Unloading: Package AmbOutside
+Log: 0.0ms Unloading: Package utcrypt
+Log: 0.0ms Unloading: Package DoorsAnc
+Log: 0.0ms Unloading: Package DM-barricade
+Exit: WinSock shut down
+Log: 0.0ms Unloading: Package SpaceFX
+Log: 0.0ms Unloading: Package SkyCity
+Log: 0.0ms Unloading: Package XFX
+Log: 0.0ms Unloading: Package Palettes
+Log: 0.0ms Unloading: Package Crypt2
+Log: 0.0ms Unloading: Package GenIn
+Init: Shut down moving brush tracker for Level DM-barricade.MyLevel
+Log: 0.0ms Unloading: Package Indus6
+Log: 0.0ms Unloading: Package UTMenu
+Log: 0.0ms Unloading: Package LadderSounds
+Log: Unbound to UWeb.dll
+Log: 0.0ms Unloading: Package UWeb
+Log: 0.0ms Unloading: Package UTServerAdmin
+Log: 0.0ms Unloading: Package IpServer
+Log: 0.0ms Unloading: Package LadrArrow
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Unbound to OpenGLDrv.dll
+Log: Unbound to Galaxy.dll
+DevAudio: Galaxy SetViewport: NULL
+DevMusic: Unregister music: Music Phantom.Phantom
+Exit: Galaxy shut down
+Log: 0.0ms Unloading: Package LadderFonts
+Log: 0.0ms Unloading: Package UTtech1
+Log: 0.0ms Unloading: Package SoldierSkins
+Log: 0.0ms Unloading: Package FCommandoSkins
+Log: 0.0ms Unloading: Package SGirlSkins
+Log: 0.0ms Unloading: Package BossSkins
+Log: 0.0ms Unloading: Package MultiMesh
+Log: 0.0ms Unloading: Package EpicCustomModels
+Log: 0.0ms Unloading: Package Relics
+Log: 0.0ms Unloading: Package Phantom
+Log: 0.0ms Unloading: Package AmbModern
+Log: 0.0ms Unloading: Package ShaneChurch
+Log: Garbage: objects: 19322->0; refs: 299367
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  3.650M /  0.809M
+Uninitialized: Peak Memory  74.855M /  73.977M
+Uninitialized: Allocs          43 Current /  161117960 Total
+Uninitialized: Log file closed, 09/28/26 04:31:05

@@ -1,0 +1,165 @@
+Tribes 2 v25034 + TribesNext RC2a GameData\Tribes2.exe md5 766bc1bd4fde4c59f44093df8bbefa6b - reviewer re-check 2026-09-29
+A) OpenGL device activation: profiler 0x562730 is called at 0x56356b (skipped if $DisableSystemProfiling), THEN setScreenMode [edi+0xc] at 0x5635a4 is called with the function's OWN args ([ebp+8]/[ebp+0xc]/[ebp+0x10]) - i.e. the w/h/bpp captured from $pref::Video::resolution BEFORE the profile .cs ran.
+00563513: push     0x1f00
+00563518: call     dword ptr [0x9e82d4]
+0056351e: mov      edi, eax
+00563520: call     0x55fdd0
+00563525: push     0
+00563527: push     0x78d034   ; '$DisableSystemProfiling'
+0056352c: mov      ebx, eax
+0056352e: call     0x426320
+00563533: test     al, al
+00563535: pop      ecx
+00563536: pop      ecx
+00563537: jne      0x563579
+00563539: push     0x78cff4   ; '$pref::Video::profiledVendor'
+0056353e: call     0x4261f0
+00563543: pop      ecx
+00563544: push     eax
+00563545: push     edi
+00563546: call     0x55b1e0
+0056354b: test     eax, eax
+0056354d: pop      ecx
+0056354e: pop      ecx
+0056354f: jne      0x563569
+00563551: push     0x78d014   ; '$pref::Video::profiledRenderer'
+00563556: call     0x4261f0
+0056355b: pop      ecx
+0056355c: push     eax
+0056355d: push     ebx
+0056355e: call     0x55b1e0
+00563563: test     eax, eax
+00563565: pop      ecx
+00563566: pop      ecx
+00563567: je       0x563579
+00563569: push     ebx
+0056356a: push     edi
+0056356b: call     0x562730
+00563570: mov      byte ptr [ebp - 0xb4], 1
+00563577: pop      ecx
+00563578: pop      ecx
+00563579: mov      byte ptr [0x83c428], 1
+00563580: cmp      byte ptr [ebp + 0x14], 0
+00563584: mov      al, 1
+00563586: jne      0x563590
+00563588: cmp      byte ptr [esi + 0x14], 0
+0056358c: jne      0x563590
+0056358e: xor      al, al
+00563590: mov      ecx, esi
+00563592: mov      edx, dword ptr [ebp + 0xc]
+00563595: push     0
+00563597: push     1
+00563599: push     eax
+0056359a: mov      eax, dword ptr [ebp + 8]
+0056359d: mov      edi, dword ptr [ecx]
+0056359f: push     dword ptr [ebp + 0x10]
+005635a2: push     edx
+005635a3: push     eax
+005635a4: call     dword ptr [edi + 0xc]
+005635a7: test     al, al
+005635a9: jne      0x5635b7
+005635ab: lea      esp, [ebp - 0xc]
+005635ae: xor      al, al
+005635b0: pop      edi
+005635b1: pop      esi
+005635b2: pop      ebx
+005635b3: pop      ebp
+005635b4: ret      0x10
+
+B) profiler: execs <ProFile>.cs (e.g. GeForce.cs / Radeon.cs = "800 600 32") only when $pref::Video::defaultsVendor/defaultsRenderer differ from the live GL strings; then records them and exports prefs/ClientPrefs.cs
+00562e30: push     0
+00562e32: push     0x78d034   ; '$DisableSystemProfiling'
+00562e37: call     0x426320
+00562e3c: test     al, al
+00562e3e: pop      ecx
+00562e3f: pop      ecx
+00562e40: jne      0x56311c
+00562e46: push     0x78d04c   ; '$pref::Video::defaultsVendor'
+00562e4b: call     0x4261f0
+00562e50: pop      ecx
+00562e51: push     eax
+00562e52: push     dword ptr [ebp + 8]
+00562e55: call     0x55b1e0
+00562e5a: test     eax, eax
+00562e5c: pop      ecx
+00562e5d: pop      ecx
+00562e5e: jne      0x562e7e
+00562e60: push     0x78d06c   ; '$pref::Video::defaultsRenderer'
+00562e65: call     0x4261f0
+00562e6a: pop      ecx
+00562e6b: push     eax
+00562e6c: push     dword ptr [ebp + 0xc]
+00562e6f: call     0x55b1e0
+00562e74: test     eax, eax
+00562e76: pop      ecx
+00562e77: pop      ecx
+00562e78: je       0x56311c
+00562e7e: cmp      dword ptr [ebp - 0x1c4], 0
+00562e85: je       0x562eb0
+00562e87: lea      eax, [ebp - 0x4c]
+00562e8a: push     dword ptr [ebp - 0x1c4]
+00562e90: push     0x78d08c   ; '%s.cs'
+00562e95: push     0x40
+00562e97: push     eax
+00562e98: call     0x55b5e0
+00562e9d: lea      eax, [ebp - 0x4c]
+005630fe: push     dword ptr [ebp + 8]
+00563101: push     0x78d04c   ; '$pref::Video::defaultsVendor'
+00563106: call     0x426070
+0056310b: pop      ecx
+0056310c: pop      ecx
+0056310d: push     dword ptr [ebp + 0xc]
+00563110: push     0x78d06c   ; '$pref::Video::defaultsRenderer'
+00563115: call     0x426070
+0056311a: pop      ecx
+0056311b: pop      ecx
+0056311c: mov      ecx, 0x847794
+00563121: push     0
+00563123: push     0x78d1d0   ; 'prefs/ClientPrefs.cs'
+00563128: push     0x78d1e8   ; '$pref::*'
+0056312d: call     0x427470
+00563132: call     0x562580
+
+C) console_start.cs order (staged GameData\console_start.cs):
+$clientprefs = "prefs/clientPrefs.cs";
+	   else if($arg $= "-clientprefs" && $hasNextArg)
+	   {
+	      $i++;
+	      $clientprefs = $nextArg;
+	   }
+exec("scripts/clientDefaults.cs", true);
+exec("scripts/serverDefaults.cs", true);
+exec($clientprefs, true, true);
+exec($serverprefs, true, true);
+// load autoexec again to override video settings/window creation
+
+exec("autojournal.cs", true, true); // put journal'd startup options in here
+                                    // so you can autoconnect to servers, etc.
+exec("autoexec.cs", true); 
+   export( "$pref::*", "prefs/ClientPrefs.cs", False );
+   if(!createCanvas())
+   scripts/clientDefaults.cs (base\scripts.vl2) sets NO $pref::Video::resolution (only displayDevice/fullScreen/allow*).
+   No autoexec.cs and no ClientPrefs.cs anywhere in the staged tree or inside any base\*.vl2 (case-insensitive).
+
+D) OpenGL resolution list builder 0x563180: EnumDisplaySettingsA, w>=640, h>=480, bpp 16|32, bpp==desktop unless depth switching allowed, dedupe; no maximum, no aspect test
+005631f5: call     dword ptr [0x7dc854]   ; USER32.dll!EnumDisplaySettingsA
+005631fb: mov      dword ptr [ebp - 0xb0], eax
+00563201: mov      eax, dword ptr [ebp - 0x3c]
+00563204: cmp      eax, 0x280
+00563209: mov      dword ptr [ebp - 0xc0], eax
+0056320f: jb       0x563321
+00563215: mov      eax, dword ptr [ebp - 0x38]
+00563218: cmp      eax, 0x1e0
+0056321d: mov      dword ptr [ebp - 0xbc], eax
+00563223: jb       0x563321
+00563229: mov      eax, dword ptr [ebp - 0x40]
+0056322c: cmp      eax, 0x10
+0056322f: mov      dword ptr [ebp - 0xc4], eax
+00563235: je       0x563240
+00563237: cmp      eax, 0x20
+0056323a: jne      0x563321
+00563240: cmp      byte ptr [0x78ca60], 0
+00563247: jne      0x56325b
+00563249: mov      eax, dword ptr [ebp - 0xc4]
+0056324f: cmp      eax, dword ptr [0x9e8f70]
+00563255: jne      0x563321

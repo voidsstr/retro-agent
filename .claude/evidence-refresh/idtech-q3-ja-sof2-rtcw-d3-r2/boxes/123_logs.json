@@ -1,0 +1,52 @@
+{
+ "_ip": "192.168.1.123",
+ "_at": "2026-09-29 04:00:19 EDT",
+ "DOWNLOAD C:\\Documents and Settings\\Administrator\\Application Data\\Quake3\\baseq3\\q3config.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_q3config.cfg",
+  "bytes": 7467,
+  "md5": "93d2ddefa214276ef0a05525d4ca5dfd"
+ },
+ "DOWNLOAD C:\\Games\\JediAcademy\\base\\jampconfig.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_JediAcademy_base_jampconfig.cfg",
+  "bytes": 6768,
+  "md5": "1a2fb0051155e8a32382da030b90b164"
+ },
+ "DOWNLOAD C:\\Games\\JediAcademy\\base\\jaconfig.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_JediAcademy_base_jaconfig.cfg",
+  "bytes": 4463,
+  "md5": "5bcf56b7ae99fecd1a1ba11c2a014632"
+ },
+ "DOWNLOAD C:\\Games\\SoldierOfFortune2\\base\\MP\\sof2mp.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_SoldierOfFortune2_base_MP_sof2mp.cfg",
+  "bytes": 7818,
+  "md5": "af8942ba6c242fc9b3dbe0bd8d4eebfc"
+ },
+ "DOWNLOAD C:\\Games\\ReturnToCastleWolfenstein\\Main\\wolfconfig_mp.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_ReturnToCastleWolfenstein_Main_wolfconfig_mp.cfg",
+  "bytes": 8592,
+  "md5": "9a8f97857d08ff9ac5ad0986d64576ec"
+ },
+ "DOWNLOAD C:\\Games\\ReturnToCastleWolfenstein\\Main\\wolfconfig.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_ReturnToCastleWolfenstein_Main_wolfconfig.cfg",
+  "bytes": 5958,
+  "md5": "e22b037f3b2f9076a5bcf12b72859d17"
+ },
+ "DOWNLOAD C:\\Games\\Doom3\\base\\DoomConfig.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_Doom3_base_DoomConfig.cfg",
+  "bytes": 5486,
+  "md5": "8da6ca2527f49516652cbee527434044"
+ },
+ "DOWNLOAD C:\\Games\\Doom3\\Play DOOM 3.bat": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/123_C_Games_Doom3_Play_DOOM_3.bat",
+  "bytes": 1272,
+  "md5": "18fe522a8f25af950d7bfe9cc31e92c5"
+ }
+}

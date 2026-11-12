@@ -1,0 +1,7 @@
+dgVoodoo2 2.87 (share: Files/Game Updates/dgVoodoo2_87.zip) - PE subsystem of the x86 wrappers:
+  MS/x86/DDraw.dll       machine 0x14c subsys 6.0
+  MS/x86/D3DImm.dll      machine 0x14c subsys 6.0
+  MS/x86/D3D8.dll        machine 0x14c subsys 6.0
+  MS/x86/D3D9.dll        machine 0x14c subsys 6.0
+  dgVoodooCpl.exe        machine 0x8664 subsys 6.0
+=> XP's loader refuses all of them; usable only on .195 (Windows 7). dgVoodooCpl.exe at the zip root is x64.

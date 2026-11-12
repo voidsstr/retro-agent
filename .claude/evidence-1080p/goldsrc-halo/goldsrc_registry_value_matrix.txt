@@ -1,0 +1,18 @@
+# Which registry values under HKCU\Software\Valve\Half-Life\Settings each GoldSrc build reads (strings -a + strings -el, grep -i -c ^name$)
+ScreenWidth                  WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:1 Steam-4554-hw.dll:3
+ScreenHeight                 WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:1 Steam-4554-hw.dll:3
+ScreenBPP                    WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:1 Steam-4554-hw.dll:3
+ScreenWindowed               WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:3
+EngineDLL                    WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:1 Steam-4554-hw.dll:2
+EngineD3D                    WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:1 Steam-4554-hw.dll:3
+CrashInitializingVideoMode   WON-1.1.0.8-hl.exe:0 WON-hw.dll:0  Steam-4554-hl.exe:1 Steam-4554-hw.dll:2
+EngineModeW                  WON-1.1.0.8-hl.exe:3 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineModeH                  WON-1.1.0.8-hl.exe:3 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineModeBPP                WON-1.1.0.8-hl.exe:3 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineModeWindowed           WON-1.1.0.8-hl.exe:3 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineType                   WON-1.1.0.8-hl.exe:4 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineGLDriver               WON-1.1.0.8-hl.exe:3 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineD3DDevice              WON-1.1.0.8-hl.exe:3 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+LauncherWidth                WON-1.1.0.8-hl.exe:2 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+LauncherHeight               WON-1.1.0.8-hl.exe:2 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0
+EngineMode                   WON-1.1.0.8-hl.exe:1 WON-hw.dll:0  Steam-4554-hl.exe:0 Steam-4554-hw.dll:0

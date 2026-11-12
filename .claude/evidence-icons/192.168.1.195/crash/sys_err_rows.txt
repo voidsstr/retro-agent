@@ -1,0 +1,400 @@
+2026-09-28T11:42:16 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-28T11:42:16 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-28T11:32:09 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-28T11:32:09 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-28T11:15:00 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-09-28T11:14:57 Critical 41 Microsoft-Windows-Kernel-Power :: The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+2026-09-28T11:15:00 Error 6008 EventLog :: The previous system shutdown at 11:13:39 AM on ?9/?28/?2026 was unexpected.
+2026-09-28T00:07:06 Error 10010 Microsoft-Windows-DistributedCOM :: The server {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83} did not register with DCOM within the required timeout.
+2026-09-26T23:52:06 Error 10010 Microsoft-Windows-DistributedCOM :: The server {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83} did not register with DCOM within the required timeout.
+2026-09-26T16:20:09 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-09-26T16:20:05 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-09-26T16:02:32 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-09-26T16:01:36 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-09-26T16:00:09 Warning 1014 Microsoft-Windows-DNS-Client :: Name resolution for the name wpad.attlocal.net timed out after none of the configured DNS servers responded.
+2026-09-26T16:00:02 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-09-26T15:45:17 Error 8003 bowser :: The master browser has received a server announcement from the computer 1GHZ that believes that it is the master browser for the domain on transport NetBT_Tcpip_{803A12CD-3B63-42D5-A893-3F3F26EFF64B}. The master browser is stopping or an election is being forced.
+2026-09-26T15:44:20 Warning 1014 Microsoft-Windows-DNS-Client :: Name resolution for the name watson.microsoft.com timed out after none of the configured DNS servers responded.
+2013-09-25T21:45:17 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2013-09-25T21:45:14 Critical 41 Microsoft-Windows-Kernel-Power :: The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+2013-09-25T21:45:17 Error 6008 EventLog :: The previous system shutdown at 9:16:32 PM on ?9/?25/?2013 was unexpected.
+2013-09-25T21:09:32 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2013-09-24T05:11:03 Error 36887 Schannel :: The following fatal alert was received: 40.
+2013-09-24T05:11:03 Error 36887 Schannel :: The following fatal alert was received: 70.
+2013-09-24T05:03:25 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2013-09-24T05:00:55 Error 36887 Schannel :: The following fatal alert was received: 40.
+2013-09-24T05:00:55 Error 36887 Schannel :: The following fatal alert was received: 70.
+2013-09-24T04:59:24 Error 36887 Schannel :: The following fatal alert was received: 40.
+2013-09-24T04:59:24 Error 36887 Schannel :: The following fatal alert was received: 70.
+2013-09-24T04:43:44 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-09-04T16:45:26 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-04T16:45:26 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-04T12:35:18 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-04T12:35:18 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-04T11:45:10 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-04T11:45:10 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-04T11:35:03 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-04T11:35:03 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-04T11:18:28 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-04T11:17:56 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-09-01T16:06:20 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-01T16:06:20 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-01T11:56:12 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-01T11:56:12 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-01T11:06:04 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-01T11:06:04 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-01T10:55:57 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-01T10:55:57 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-09-01T10:38:39 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-09-01T03:57:37 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-09-01T03:57:37 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T20:22:06 Error 36 volsnap :: The shadow copies of volume C: were aborted because the shadow copy storage could not grow due to a user imposed limit.
+2026-08-31T19:57:09 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T19:57:09 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T15:54:45 Error 36887 Schannel :: The following fatal alert was received: 80.
+2026-08-31T15:54:45 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T15:54:45 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T15:47:02 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T15:47:02 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T14:56:52 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T14:56:52 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T14:46:42 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T14:46:42 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T14:32:01 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T14:32:01 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T14:29:30 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-31T14:29:26 Critical 41 Microsoft-Windows-Kernel-Power :: The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+2026-08-31T14:29:29 Error 6008 EventLog :: The previous system shutdown at 2:27:55 PM on ?8/?31/?2026 was unexpected.
+2026-08-31T12:15:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T12:15:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T11:25:19 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T11:25:19 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T11:15:09 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T11:15:09 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T10:57:54 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-31T10:57:53 Error 6008 EventLog :: The previous system shutdown at 10:50:38 AM on ?8/?31/?2026 was unexpected.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Group Policy Client service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The IKE and AuthIP IPsec Keying Modules service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the IKE and AuthIP IPsec Keying Modules service to connect.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The IP Helper service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The Multimedia Class Scheduler service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Multimedia Class Scheduler service to connect.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The System Event Notification Service service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the System Event Notification Service service to connect.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The User Profile Service service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Distributed Link Tracking Client service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Offline Files service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The Windows Driver Foundation - User-mode Driver Framework service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Windows Driver Foundation - User-mode Driver Framework service to connect.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The Desktop Window Manager Session Manager service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Desktop Window Manager Session Manager service to connect.
+2026-08-31T10:53:22 Error 7000 Service Control Manager :: The DHCP Client service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:53:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the DHCP Client service to connect.
+2026-08-31T10:53:22 Error 7032 Service Control Manager :: The Service Control Manager tried to take a corrective action (Restart the service) after the unexpected termination of the RPC Endpoint Mapper service, but this action failed with the following error:  | An instance of the service is already running.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Security Center service depends on the Windows Management Instrumentation service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:53:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Windows Update service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Task Scheduler service depends on the Windows Event Log service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The Windows Event Log service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Windows Event Log service to connect.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The Themes service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Themes service to connect.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Portable Device Enumerator Service service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The Windows Audio Endpoint Builder service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Windows Audio Endpoint Builder service to connect.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Program Compatibility Assistant Service service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The Multimedia Class Scheduler service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Multimedia Class Scheduler service to connect.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Windows Audio service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:52:22 Error 7019 Service Control Manager :: The Windows Audio Endpoint Builder service depends on a service in a group which starts later. Change the order in the service dependency tree to ensure that all services required to start this service are starting before this service is started.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The HomeGroup Provider service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the HomeGroup Provider service to connect.
+2026-08-31T10:52:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:52:22 Error 7000 Service Control Manager :: The Windows Event Log service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:52:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Windows Event Log service to connect.
+2026-08-31T10:51:33 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:25 Error 7000 Service Control Manager :: The IKE and AuthIP IPsec Keying Modules service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:25 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the IKE and AuthIP IPsec Keying Modules service to connect.
+2026-08-31T10:51:25 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The IKE and AuthIP IPsec Keying Modules service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the IKE and AuthIP IPsec Keying Modules service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Computer Browser service depends on the Server service which failed to start because of the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7000 Service Control Manager :: The Server service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:24 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+2026-08-31T10:51:24 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has not been started.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Windows Update service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Windows Management Instrumentation service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Themes service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Shell Hardware Detection service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The System Event Notification Service service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Task Scheduler service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The User Profile Service service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Multimedia Class Scheduler service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Server service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The IP Helper service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The IKE and AuthIP IPsec Keying Modules service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Group Policy Client service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Computer Browser service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7001 Service Control Manager :: The Network Connections service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error:  | The dependency service or group failed to start.
+2026-08-31T10:51:22 Error 7001 Service Control Manager :: The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error:  | The service has returned a service-specific error code.
+2026-08-31T10:51:22 Error 7000 Service Control Manager :: The TCP/IP NetBIOS Helper service failed to start due to the following error:  | The service did not respond to the start or control request in a timely fashion.
+2026-08-31T10:51:22 Error 7009 Service Control Manager :: A timeout was reached (30000 milliseconds) while waiting for the TCP/IP NetBIOS Helper service to connect.
+2026-08-31T10:51:22 Error 7032 Service Control Manager :: The Service Control Manager tried to take a corrective action (Reboot the machine) after the unexpected termination of the Power service, but this action failed with the following error:  | A system shutdown has already been scheduled.
+2026-08-31T10:51:22 Error 7032 Service Control Manager :: The Service Control Manager tried to take a corrective action (Reboot the machine) after the unexpected termination of the Plug and Play service, but this action failed with the following error:  | A system shutdown has already been scheduled.
+2026-08-31T10:51:22 Error 7032 Service Control Manager :: The Service Control Manager tried to take a corrective action (Reboot the machine) after the unexpected termination of the DCOM Server Process Launcher service, but this action failed with the following error:  | A system shutdown has already been scheduled.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Windows Driver Foundation - User-mode Driver Framework service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Desktop Window Manager Session Manager service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Distributed Link Tracking Client service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Superfetch service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Program Compatibility Assistant Service service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Network Connections service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 100 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Offline Files service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Windows Audio Endpoint Builder service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Security Center service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The TCP/IP NetBIOS Helper service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 100 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The HomeGroup Provider service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Windows Event Log service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The DHCP Client service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Windows Audio service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Remote Procedure Call (RPC) service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The RPC Endpoint Mapper service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Power service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The Plug and Play service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+2026-08-31T10:51:22 Error 7031 Service Control Manager :: The DCOM Server Process Launcher service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+2026-08-31T05:49:20 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T05:49:20 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T05:05:09 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T05:05:09 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T01:39:08 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T01:39:08 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T00:48:58 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T00:48:58 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T00:38:48 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-31T00:38:48 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-31T00:21:33 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-31T00:19:48 Warning 219 Microsoft-Windows-Kernel-PnP :: The driver \Driver\cdrom failed to load for the device BazisVirtualCDBus\StandardDevice\VirtualCD_0000.
+2026-08-31T00:17:25 Warning 219 Microsoft-Windows-Kernel-PnP :: The driver \Driver\cdrom failed to load for the device BazisVirtualCDBus\StandardDevice\VirtualCD_0000.
+2026-08-30T19:46:57 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-30T05:49:45 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-30T05:49:45 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-30T04:19:17 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-30T04:19:17 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-30T00:09:16 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-30T00:09:16 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T23:19:06 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-29T23:19:06 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T23:08:57 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-29T23:08:57 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T22:51:42 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-29T14:41:46 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-29T14:41:46 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T12:47:03 Warning 51 Disk :: An error was detected on device \Device\Harddisk1\DR1 during a paging operation.
+2026-08-29T12:46:45 Error 16 volsnap :: The shadow copies of volume D: were aborted because volume D:, which contains shadow copy storage for this shadow copy, was force dismounted.
+2026-08-29T10:31:34 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-29T10:31:33 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T09:41:23 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-29T09:41:23 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T09:31:13 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-29T09:31:13 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-29T09:14:03 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-28T22:53:55 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-28T22:53:55 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-28T22:03:44 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-28T22:03:44 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-28T21:53:34 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-28T21:53:34 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-28T21:36:21 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-28T20:01:04 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-28T20:01:04 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-28T19:46:56 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-28T19:43:53 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-24T11:48:34 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-24T11:48:34 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-24T07:38:21 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-24T07:38:21 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-24T06:48:11 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-24T06:48:11 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-24T06:38:01 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-24T06:38:01 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-24T06:24:05 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-24T06:21:02 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-21T11:49:01 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-21T11:49:01 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-21T10:58:51 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-21T10:58:51 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-21T10:48:41 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-21T10:48:41 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-21T10:33:41 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-21T10:31:28 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-20T15:40:38 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-20T15:40:38 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-20T15:40:37 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-20T10:32:31 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-20T02:23:23 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-20T02:23:23 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-19T02:23:21 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-19T02:23:21 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T18:59:02 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T18:59:02 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T14:48:49 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T14:48:49 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T13:58:39 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T13:58:39 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T13:48:30 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T13:48:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T13:31:16 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-18T11:46:37 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T11:46:37 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T10:56:27 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T10:56:27 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T10:46:17 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-18T10:46:17 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-18T10:32:30 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-18T10:29:27 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-08-18T10:29:23 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-14T13:39:50 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-14T13:39:49 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-14T09:29:37 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-14T09:29:37 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-14T08:39:27 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-14T08:39:27 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-14T08:29:17 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-14T08:29:17 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-14T08:15:13 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-14T08:12:05 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-14T08:11:21 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-11T00:48:50 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-11T00:48:50 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-11T00:31:36 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-11T00:31:32 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on F: cannot be read.
+2026-08-10T20:49:40 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-10T20:47:16 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-10T20:47:16 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-10T20:37:07 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-10T20:37:07 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-10T20:19:53 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-10T20:19:49 Critical 41 Microsoft-Windows-Kernel-Power :: The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+2026-08-10T17:03:58 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-10T17:03:58 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-10T16:13:47 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-10T16:13:47 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-10T16:03:38 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-10T16:03:38 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-10T15:46:30 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on F: cannot be read.
+2026-08-10T15:46:29 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on F: cannot be read.
+2026-08-10T15:46:28 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-10T15:46:24 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on F: cannot be read.
+2026-08-09T12:11:55 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T12:11:55 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-09T08:01:43 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T08:01:43 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-09T07:11:33 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T07:11:33 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-09T07:01:23 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T07:01:23 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-09T06:46:09 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T06:46:09 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-09T06:44:08 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-09T06:44:05 Critical 41 Microsoft-Windows-Kernel-Power :: The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+2026-08-09T06:44:08 Error 6008 EventLog :: The previous system shutdown at 6:42:25 AM on ?8/?9/?2026 was unexpected.
+2026-08-09T06:44:04 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on F: cannot be read.
+2026-08-09T06:40:04 Warning 4228 Tcpip :: TCP/IP has chosen to restrict the scale factor due to a network condition.  This could be related to a problem in a network device and will cause  degraded throughput.
+2026-08-09T05:30:31 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T05:30:31 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-09T00:58:26 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-09T00:58:26 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-08T20:48:14 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-08T20:48:14 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-08T19:58:03 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-08T19:58:03 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-08T19:47:54 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-08T19:47:53 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-08T19:30:41 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-08T19:30:37 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on \\?\Volume{02d5f3af-2764-4d72-9089-a0c2f5e35591} cannot be read.
+2026-08-08T19:21:38 Warning 16 Microsoft-Windows-WindowsUpdateClient :: Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+2026-08-08T19:18:50 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-08-08T19:18:49 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on F: cannot be read.
+2026-08-08T19:18:47 Error 7026 Service Control Manager :: The following boot-start or system-start driver(s) failed to load:  | cdrom
+2026-08-08T19:18:42 Error 24620 Microsoft-Windows-BitLocker-Driver :: Encrypted volume check: Volume information on \\?\Volume{89b0b599-5a37-41ec-9cfe-09fe3ded0bfd} cannot be read.
+2026-08-07T14:38:11 Warning 27 e1cexpress :: Intel(R) 82579LM Gigabit Network Connection |  Network link is disconnected.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:02:29 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T08:01:40 Error 36887 Schannel :: The following fatal alert was received: 70.
+2026-08-07T02:15:57 Error 36887 Schannel :: The following fatal alert was received: 40.
+2026-08-07T02:15:57 Error 36887 Schannel :: The following fatal alert was received: 70.

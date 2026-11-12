@@ -1,0 +1,78 @@
+{
+ "key": "ue1",
+ "status": "ready",
+ "summary": "I built the four one-byte UE1 edits from the diagnosis, with no changes to what it concluded. Every original byte, md5 and size was re-read from the staged library and matched.\n- UnrealGold System\\D3DDrv.dll @0x64f5: 83 FF 10 -> 83 FF 7F (VA 0x100064f5, `cmp edi,0x10` -> `cmp edi,0x7f`, followed by `jge`). Required.\n- DeusEx SYSTEM\\D3DDRV.DLL @0x62ce: the same edit. The file has a second `83 FF 10` at 0x8d91; it is an unrelated `jg` loop and is left alone.\n- DeusEx SYSTEM\\DEUSEX.U @0x4607ce: 0x10 -> 0x28. Required.\n- UnrealTournament436 System\\D3DDrv.dll @0x659f: the same D3DDrv edit. Optional, and harmless because the staged renderer is OpenGLDrv.\n\nChecks on the DLLs: none of them carries a PE CheckSum (0) or an Authenticode signature, so nothing has to be recomputed after a byte edit. After the edit, capstone disassembles each site as `cmp edi,0x7f` / `jge`.\n\nChecks on DEUSEX.U: apply.py parses the whole UE1 package (name, import and export tables). MenuChoice_Resolution.GetScreenResolutions is export #20668 (0-based), serial 0x460754..0x46086c, 280 B. The loop-test pattern `07 4b 01 96 00 4b 5f 2c 10 16` occurs once, at 0x4607c6, inside that function. After the edit the file has the same size (5,386,972), GUID (6bcadecaffb7b34e92b50c1f8eccec21), generation [21422 exports, 12872 names] and name/export/import counts, and exactly one byte differs. 0x28 = 40 = ArrayCount(enumText[40]). ResNum counts every token, so choiceCount stays at 40 or below and no write goes past enumText[39].\n\nMultiplayer: deusex-server's own /home/voidsstr/deusex-server/System/DEUSEX.U is the identical original (md5 d343da03\u2026). At join, a UE1 (v68) client and server compare the package by name, GUID and generation counts, and all three are unchanged. There is no content hash; the login `Checksum=` option belongs to ngStats and is only logged. GetScreenResolutions is client-side menu code that is not replicated. So a patched client joining the unpatched server, and patched and unpatched boxes playing each other, should link the package normally. It still has to be re-proved on hardware.\n\nThe two Deus Ex edits need each other, but either one alone is a no-op: the other file still cuts the list at 16, in the same order. So a publish that stops halfway leaves the menu exactly as it is today.\n\nOutputs are in ~/.retro-fleet/patch-out/ue1/ (outside git): patched/, byte-exact originals/, notes/ and manifest.json.\n\nI also ran `--publish --dry-run` once against the real share paths, to exercise the ordering. Only sharewrite's `--dry-run` path ran, which returns before reading any vault credentials, and nothing was written. Afterwards the share still read the original DEUSEX.U md5, and _patches/DeusEx does not exist. I did not run `--publish` for real, and I did not touch any box or service.",
+ "files_created": [
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/ue1/apply.py",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/tests/python/test_patch_ue1.py",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/check.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/build.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/manifest.json",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/publish-dry-run.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/install-server.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/pytest.txt"
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/UnrealGold/System/D3DDrv.dll",
+   "md5": "f924e209e7bc23b90b6f0360174683d3",
+   "size": 208896
+  },
+  {
+   "share_path": "Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL",
+   "md5": "6179c83ce1d7516908e5442ebfb4d154",
+   "size": 212992
+  },
+  {
+   "share_path": "Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U",
+   "md5": "d343da03a6d311ee412dfae4b52ff975",
+   "size": 5386972
+  },
+  {
+   "share_path": "Files/Games-Library/UnrealTournament436/System/D3DDrv.dll",
+   "md5": "dd6e3692f8ead5e1df88716024bc25d1",
+   "size": 217088
+  }
+ ],
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/UnrealGold/System/D3DDrv.dll",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealGold/System/D3DDrv.dll",
+   "md5": "c51ba326f6a287f2e29ec3cc7dcb5e01",
+   "size": 208896
+  },
+  {
+   "share_path": "Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/D3DDRV.DLL",
+   "md5": "deff85e5e043b700567db9377c45b0ee",
+   "size": 212992
+  },
+  {
+   "share_path": "Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/DEUSEX.U",
+   "md5": "4e18e635d2dc0df2069171c72ec89eff",
+   "size": 5386972
+  },
+  {
+   "share_path": "Files/Games-Library/UnrealTournament436/System/D3DDrv.dll",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealTournament436/System/D3DDrv.dll",
+   "md5": "35a4f321d06bf6da519b2d023be4eaa2",
+   "size": 217088
+  }
+ ],
+ "launcher_changes_needed": [
+  "NONE for the launchers or GAMERES. 'Play Unreal Gold.bat', 'Play Deus Ex.bat', 'Host Deus Ex Multiplayer.bat' and both UT436 launchers already write FullscreenViewportX/Y=%FR_W%/%FR_H% and StartupFullscreen=True, and gameres.h lines 721-735 write the same keys. The only defect was the menu list, and it lives in the binaries this patch edits. Do not change FR_UE1DEV: GameRenderDevice must stay D3DDrv for Unreal Gold and Deus Ex, because the fix is inside D3DDrv.",
+  "Record-keeping, which --publish deliberately does not do because it is a shared file: append to Files/Games-Library/_patches/README.txt a block like: 'ue1 (2026-09-29, retro-agent provisioning/patches/ue1/apply.py): D3DDrv GetRes 16-entry cap lifted (83 FF 10 -> 83 FF 7F) in UnrealGold\\System\\D3DDrv.dll @0x64f5 f924e209e7bc23b90b6f0360174683d3 -> c51ba326f6a287f2e29ec3cc7dcb5e01; DeusEx\\SYSTEM\\D3DDRV.DLL @0x62ce 6179c83ce1d7516908e5442ebfb4d154 -> deff85e5e043b700567db9377c45b0ee; UnrealTournament436\\System\\D3DDrv.dll @0x659f dd6e3692f8ead5e1df88716024bc25d1 -> 35a4f321d06bf6da519b2d023be4eaa2 (optional). DeusEx\\SYSTEM\\DEUSEX.U @0x4607ce 0x10 -> 0x28 (MenuChoice_Resolution.GetScreenResolutions loop bound 16 -> 40), d343da03a6d311ee412dfae4b52ff975 -> 4e18e635d2dc0df2069171c72ec89eff, same size/GUID/generation. Originals in _patches/<Title>/originals-2026-09-29/.' --publish does write its own per-title PATCH-NOTES-ue1.txt into that backup folder."
+ ],
+ "tests": "`python3 -m pytest -q tests/python/test_patch_ue1.py`: 24 passed in 1.34 s. The share was mounted, so the share-dependent tests ran rather than skipped.\n\nWhat the tests cover:\n- **Offset table:** the exact four files, offsets and before/after bytes; the recorded original md5s; a recorded patched md5 for every file; UT436 as the only optional edit.\n- **Caps:** 16 -> 127 (signed imm8) and 16 -> 40. With the measured mode counts (15/16/20/24), the old cap hides 1080p on .195 and .240 and the new one hides it nowhere.\n- **Transforms:** `apply_edits` refuses bytes it does not expect and any change of length; `edit_state` returns original, patched or unknown.\n- **Parsing helpers:** compact-index round trip, including '4b 5f' = 6091; case-insensitive path resolution.\n- **Synthetic PE:** original and patched both pass; a checksummed PE, a non-executable section and a wrong context are all refused.\n- **Synthetic UE1 package:** the export lookup works; GUID, generations and size are kept; exactly one byte changes; an ambiguous loop pattern or a changed GUID is refused.\n- **End to end on a synthetic library:** --check, then --build (manifest, md5s, backup paths), then --publish --dry-run. The original's backup is put before the patched file. A share copy that is already patched is skipped. An unknown share copy stops the run with rc 3 before anything is written.\n- **--install-server:** returns 0 and changes nothing.\n- **Share, skipped loudly when absent:** the staged files are the recorded originals or already patched, and their structure verifies; --check passes; the patched DEUSEX.U has the same GUID, generations and name/export/import counts as /home/voidsstr/deusex-server/System/DEUSEX.U.\n\nScript runs: `apply.py --check` returned rc 0 (\"all files verified\"); `--build` returned rc 0, one byte changed per file. Logs are in /home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-ue1/.",
+ "risks": [
+  "DEUSEX.U is a network package (moderate risk). The edit keeps GUID, generation and all table counts, and the fleet server's copy is the identical original, so joining should link the package normally. I found no content check in UE1 v68, and the login Checksum= option is ngStats-only. This still has to be proven on hardware: a patched box joining deusex-server (join 7790), and a box-hosted LAN game.",
+  "The two Deus Ex files are required together, but a half-published pair is a no-op (the other file still cuts at 16 in the same order), not a regression. --publish stops on the first failure, and each file is verified through /mnt.",
+  "All four edits keep file size. GAMESYNC's resume test compares size AND mtime, and sharewrite.py fails if the mtime it reads back is stale, so the new files will reach the boxes, but only after GAMESYNC RESET + GAMESYNC START (a provisioned box's startup sync stays idle). GAMESYNC cannot overwrite a DLL that is loaded, so Unreal.exe, DeusEx.exe and UnrealTournament.exe must not be running during the sync, or it reports failed_files > 0.",
+  "With more than 16 modes, the classic UnrealShare.UnrealVideoMenu (Resolutions[16]) would log 'Accessed array out of bounds', because UnrealScript clamps that write. That menu is not on the UMenu Esc path, so this is harmless.",
+  "UT436's D3DDrv edit only matters for a player who switches that tree to Direct3D. The staged OpenGLDrv already lists 1920x1080.",
+  "Deus Ex's menu uses a relative-mouse cursor, so opening Settings > Display and reading the drop-down needs a person (or Ctrl+F9 shots plus keyboard, not yet verified). Until the fix ships, Esc, Enter or OK on Display Settings still drops .195 to 640x480 and .240 to 640x400."
+ ],
+ "hw_verification_plan": "Prerequisite: `apply.py --publish` has been run. Each file is backed up to `_patches/<Title>/originals-2026-09-29/`, then put, then read back through /mnt. After that, run `apply.py --check`; it must report PATCHED for all four files.\n\nOn each LCD box (.123, .145, .195 Win7, .240):\n1. PROCLIST/WINLIST: make sure no game or dialog is up and no other session is working on the box. Kill Unreal.exe, DeusEx.exe and UnrealTournament.exe (quote the names).\n2. GAMESYNC RESET, then GAMESYNC START. Wait for state=done with failed_files == 0 and titles_done == titles_total, where titles_total must equal the library's count for that box.\n3. DOWNLOAD C:\\Games\\UnrealGold\\System\\D3DDrv.dll (md5 c51ba326f6a287f2e29ec3cc7dcb5e01), C:\\Games\\DeusEx\\SYSTEM\\D3DDRV.DLL (deff85e5e043b700567db9377c45b0ee), C:\\Games\\DeusEx\\SYSTEM\\DEUSEX.U (4e18e635d2dc0df2069171c72ec89eff) and C:\\Games\\UnrealTournament436\\System\\D3DDrv.dll (35a4f321d06bf6da519b2d023be4eaa2). Compare md5s.\n\nUNREAL GOLD (keyboard-navigable console; the procedure was validated on .145):\n1. `EXEC cmd /c start \"\" /D \"C:\\Games\\UnrealGold\" \"Play Unreal Gold.bat\"` and wait about 40 s.\n2. UIKEY TILDE once, then `UIKEY TEXT:getres`, then UIKEY ENTER.\n3. SCREENSHOT 0. XP captures the D3D fullscreen frame. On .195 (Win7), use F9/Shot plus DOWNLOAD instead if GDI returns black.\n4. Pass: the list ends in 1920x1080 on all four boxes. On .195 that is 20 entries (it used to stop at 1440x900); on .240 it is 24 entries (it used to stop at 1280x768). The game itself is fullscreen at 1920x1080.\n5. `taskkill /f /im \"Unreal.exe\"`, then `DISPLAYCFG get` must read 1920x1080.\n6. A person can confirm Options > Preferences > Video > Resolution shows the same list. The UWindow cursor moves by relative mouse deltas, so the agent cannot open that drop-down.\n\nDEUS EX (relative-mouse menu, so NOT fully automatable):\n1. Launch 'Play Deus Ex.bat'. Settings (4th button) > Display (4th) > Resolution.\n2. Capture with UIKEY CTRL+F9, then DOWNLOAD SYSTEM\\Shot####.bmp. On .240, where GDI is black, and on .195, this is the only way; SCREENSHOT 0 works on the XP boxes that GDI can capture.\n3. Pass: the Resolution choice shows 1920x1080 as the CURRENT selection. Left/Right cycles through 20 entries on .195 and .240.\n4. The Esc trap must be gone: leave the screen with Esc. DISPLAYCFG get and the game must stay at 1920x1080, and DeusEx.log must show no SetRes to 640x480 or 640x400.\n5. A person at the box should confirm the drop-down once.\n\nUT436 (optional): check the md5 only. Its OpenGL getres already lists 1080p.\n\nMUST NOT CHANGE:\n- Deus Ex multiplayer: a patched box joins deusex-server at 192.168.1.132:7790 and plays. Also host a LAN game with 'Host Deus Ex Multiplayer.bat' on one box and join it from another, with screenshots of both, and no package mismatch or version mismatch in DeusEx.log.\n- Unreal Gold: joins unrealgold-server at :7807 as before; only the renderer changed.\n- Single-player launch still starts fullscreen at 1920x1080 on all four boxes.\n- The CRT boxes' menus only gain entries, and their launch mode is unchanged. Spot-check one CRT box (e.g. .124) with getres.\n- A settled box: GAMERES APPLY reports 0 values changed.",
+ "review_notes": "Correction to the evidence, with no effect on the fix: I print the GetScreenResolutions export as #20668 (0-based) and object ref 20669. The survey's 'export 20668' is the 0-based index, so the two agree.\n\nOnly --check and --build were run for real. --publish was exercised once with --dry-run: that path invokes only sharewrite's --dry-run, which returns before reading vault credentials, and nothing was written; afterwards the share still read the original DEUSEX.U md5, and _patches/DeusEx does not exist. --install-server only prints that no server needs anything. deusex-server's DEUSEX.U must stay the original, and dedicated servers never load D3DDrv.\n\n--publish refuses to run unless the local outputs match the manifest. It skips a file whose share copy already has the patched md5, stops on a share md5 that is unknown, backs each original up before putting the patched file, and uses scripts/fleet/sharewrite.py put one file at a time, stopping on the first failure. Options: --titles and --no-optional (the latter skips the UT436 edit).\n\nNothing copyrighted is in git: patched binaries and originals live only under ~/.retro-fleet/patch-out/ue1/. The commit-able files are apply.py and the test.\n\ntests/python/test_patch_descent3.py in the worktree belongs to another builder; I did not touch it. I did not commit anything."
+}

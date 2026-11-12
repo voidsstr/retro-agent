@@ -1,0 +1,16 @@
+DOWNLOAD C:\RETRO_AGENT\HANDOFF.TXT | status 1 
+ [50801372 ms] handoff9x 1.0
+[50801454 ms] take C:\RETRO_AGENT\RA190.EXE: waiting for the agent's mutex to free - send RESTART now
+[50801484 ms] mutex seen held by the running agent
+[50805278 ms] mutex freed after 3794 ms
+[50805291 ms] mutex TAKEN after 3807 ms - RESTART's relaunch will exit
+[50825301 ms] mutex released - starting the target minimized
+[50825371 ms] started C:\RETRO_AGENT\RA190.EXE (pid 4294824815)
+[50850421 ms] C:\RETRO_AGENT\RA190.EXE still running after 25 s (exit code 259)
+[50850446 ms] done - the target is the running agent
+
+
+WINLIST | status 0 
+ {"windows":[{"hwnd":"000001F8","title":"START C:\\RETRO_AGENT\\retro_agent.exe","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"00000A88","title":"Retro Remote Agent Version 1.90.0","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"0000016C","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1024,"bottom":768},"visible":true}]}
+
+PROCLIST: [('KERNEL32.DLL', 4279214187, 4, 2123309635), ('MSGSRV32.EXE', 4294940635, 1, 4279214187), ('MPREXE.EXE', 4294959435, 1, 4294940635), ('MSTASK.EXE', 4294838943, 2, 4294959435), ('EXPLORER.EXE', 4294952163, 5, 4294940635), ('TASKMON.EXE', 4294900803, 1, 4294952163), ('SYSTRAY.EXE', 4294780563, 1, 4294952163), ('RETRO_AGENT.EXE', 4294817635, 3, 4294776823), ('WINOA386.MOD', 4294776395, 1, 4294817635), ('RETRO_CHAT.EXE', 4294814819, 4, 4294776395), ('RETRO_CHAT.EXE', 4294795095, 4, 4294776395), ('RA190.EXE', 4294824815, 9, 4294828935), ('WINOA386.MOD', 4294827863, 1, 4294824815)]

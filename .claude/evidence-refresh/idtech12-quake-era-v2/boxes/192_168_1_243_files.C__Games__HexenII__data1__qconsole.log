@@ -1,0 +1,36 @@
+Console initialized.
+Winsock TCP/IP Initialized
+WIPX_Init: Unable to open control socket
+Exe: 15:08:09 Sep  4 1997
+32.0 megabyte heap
+800x600x16
+GL_VENDOR: 3Dfx Interactive Inc.
+GL_RENDERER: 3Dfx Interactive Voodoo(tm)
+GL_VERSION: 1.1
+GL_EXTENSIONS: 3DFX_set_global_palette WGL_EXT_swap_control GL_EXT_paletted_texture GL_EXT_shared_texture_palette GL_SGIS_multitexture 
+Using palettized textures!
+
+Sound Initialization
+Set primary sound buffer format: yes
+Using secondary sound buffer
+   2 channel(s)
+   16 bits/sample
+   11025 bytes/sec
+DirectSound initialized
+Sound sampling rate: 11025
+
+joystick not found -- no valid joysticks (a5)
+
+execing hexen.rc
+execing default.cfg
+execing config.cfg
+execing autoexec.cfg
+Read in 409 string lines
+
+VERSION 1.07 SERVER (20607 CRC)
+
+
+
+Blackmarsh
+Wrote shots/hexen03.tga
+]quit

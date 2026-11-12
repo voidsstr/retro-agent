@@ -1,0 +1,624 @@
+[12:22:55][MAIN ] handle_client: starting auth on socket 780
+[12:22:55][PROTO] AUTH: success
+[12:22:55][MAIN ] Client authenticated
+[12:22:55][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+[12:22:55][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+[12:22:55][MAIN ] Client disconnected
+[12:24:02][MAIN ] Connection from 192.168.1.196:38298
+[12:24:02][MAIN ] handle_client: starting auth on socket 808
+[12:24:02][PROTO] AUTH: success
+[12:24:02][MAIN ] Client authenticated
+[12:24:02][MAIN ] CMD: "UICLICK 1250 850 right" (22 bytes)
+[12:24:02][INPUT] UICLICK: x=1250 y=850 right=1 dbl=0
+[12:24:04][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:24:04][PROTO] frame_send: 6220855 bytes
+[12:24:04][MAIN ] Client disconnected
+[12:24:31][MAIN ] Connection from 192.168.1.196:35274
+[12:24:31][MAIN ] handle_client: starting auth on socket 796
+[12:24:31][PROTO] AUTH: success
+[12:24:31][MAIN ] Client authenticated
+[12:24:31][MAIN ] CMD: "UICLICK 1290 672" (16 bytes)
+[12:24:31][INPUT] UICLICK: x=1290 y=672 right=0 dbl=0
+[12:24:33][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:24:33][PROTO] frame_send: 6220855 bytes
+[12:24:33][MAIN ] Client disconnected
+[12:24:49][MAIN ] Connection from 192.168.1.196:34850
+[12:24:49][MAIN ] handle_client: starting auth on socket 808
+[12:24:49][MAIN ] Auth failed, closing connection
+[12:24:51][MAIN ] Connection from 192.168.1.196:34858
+[12:24:51][MAIN ] handle_client: starting auth on socket 780
+[12:24:51][PROTO] AUTH: success
+[12:24:51][MAIN ] Client authenticated
+[12:24:51][MAIN ] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:24:51][MAIN ] Client disconnected
+[12:25:00][MAIN ] Connection from 192.168.1.196:40108
+[12:25:00][MAIN ] handle_client: starting auth on socket 900
+[12:25:00][PROTO] AUTH: success
+[12:25:00][MAIN ] Client authenticated
+[12:25:00][MAIN ] CMD: "UICLICK 1474 688" (16 bytes)
+[12:25:00][INPUT] UICLICK: x=1474 y=688 right=0 dbl=0
+[12:25:02][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:25:02][PROTO] frame_send: 6220855 bytes
+[12:25:02][MAIN ] Client disconnected
+[12:25:39][MAIN ] Connection from 192.168.1.196:43110
+[12:25:39][MAIN ] handle_client: starting auth on socket 808
+[12:25:39][PROTO] AUTH: success
+[12:25:39][MAIN ] Client authenticated
+[12:25:39][MAIN ] CMD: "UICLICK 1250 850 right" (22 bytes)
+[12:25:39][INPUT] UICLICK: x=1250 y=850 right=1 dbl=0
+[12:25:40][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:25:40][PROTO] frame_send: 6220855 bytes
+[12:25:41][MAIN ] Client disconnected
+[12:25:57][MAIN ] Connection from 192.168.1.196:50082
+[12:25:57][MAIN ] handle_client: starting auth on socket 900
+[12:25:57][PROTO] AUTH: success
+[12:25:57][MAIN ] Client authenticated
+[12:25:57][MAIN ] CMD: "UICLICK 1290 672" (16 bytes)
+[12:25:57][INPUT] UICLICK: x=1290 y=672 right=0 dbl=0
+[12:25:58][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:25:58][PROTO] frame_send: 6220855 bytes
+[12:25:59][MAIN ] Client disconnected
+[12:26:11][MAIN ] Connection from 192.168.1.196:44960
+[12:26:11][MAIN ] handle_client: starting auth on socket 808
+[12:26:11][PROTO] AUTH: success
+[12:26:11][MAIN ] Client authenticated
+[12:26:11][MAIN ] CMD: "PROCLIST" (8 bytes)
+[12:26:11][PROTO] frame_send: 2378 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\CounterStrike16\config\serverbrowser.vdf" (58 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\CounterStrike16\config\serverbrowser.vdf") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 352 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Program Files\Bcs16 Romania\Counter-Strike 1.6\config\serverbrowser."... (83 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Program Files\Bcs16 Romania\Counter-Strike 1.6\config\serverbrowser.vdf") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 628 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\gameservers\cs16bcs\config\serverbrowser.vdf" (56 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\gameservers\cs16bcs\config\serverbrowser.vdf") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 352 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\gameservers\cs16lan\config\serverbrowser.vdf" (56 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\gameservers\cs16lan\config\serverbrowser.vdf") failed, error 3
+[12:26:11][MAIN ] CMD: "DIRLIST C:\gameservers\cs16lan\config" (37 bytes)
+[12:26:11][FILE ] DIRLIST: FindFirstFileA("C:\gameservers\cs16lan\config\*")
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\DeusEx\SYSTEM\DeusEx.ini" (42 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\DeusEx\SYSTEM\DeusEx.ini") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 6890 bytes
+[12:26:11][PROTO] frame_send: 6891 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg" (54 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 2713 bytes
+[12:26:11][PROTO] frame_send: 2714 bytes
+[12:26:11][MAIN ] CMD: "MKDIR C:\Games\Quake3-TeamArena\baseq3" (38 bytes)
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:\Games\Quake3-TeamArena") = 183
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:\Games\Quake3-TeamArena\baseq3") final = OK
+[12:26:11][MAIN ] CMD: "UPLOAD C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg" (52 bytes)
+[12:26:11][PROTO] frame_recv: 2739 bytes
+[12:26:11][FILE ] UPLOAD: CreateFileA("C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg") = OK
+[12:26:11][FILE ] UPLOAD: Complete, 2739 bytes to "C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg"
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Quake III Arena\Quake3\baseq3\autoexec.cfg" (54 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Quake III Arena\Quake3\baseq3\autoexec.cfg") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 1727 bytes
+[12:26:11][PROTO] frame_send: 1728 bytes
+[12:26:11][MAIN ] CMD: "MKDIR C:\Quake III Arena\Quake3\baseq3" (38 bytes)
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:\Quake III Arena") = 183
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:\Quake III Arena\Quake3") = 183
+[12:26:11][FILE ] MKDIR: CreateDirectoryA("C:\Quake III Arena\Quake3\baseq3") final = OK
+[12:26:11][MAIN ] CMD: "UPLOAD C:\Quake III Arena\Quake3\baseq3\autoexec.cfg" (52 bytes)
+[12:26:11][PROTO] frame_recv: 1753 bytes
+[12:26:11][FILE ] UPLOAD: CreateFileA("C:\Quake III Arena\Quake3\baseq3\autoexec.cfg") = OK
+[12:26:11][FILE ] UPLOAD: Complete, 1753 bytes to "C:\Quake III Arena\Quake3\baseq3\autoexec.cfg"
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 3689 bytes
+[12:26:11][PROTO] frame_send: 3690 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\GOG Games\Unreal Gold\System\Unreal.ini" (51 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\GOG Games\Unreal Gold\System\Unreal.ini") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 10126 bytes
+[12:26:11][PROTO] frame_send: 10127 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\GOG Games\Unreal Gold\System_226bak\System\Unreal.ini" (65 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\GOG Games\Unreal Gold\System_226bak\System\Unreal.ini") failed, error 3
+[12:26:11][MAIN ] CMD: "DIRLIST C:\GOG Games\Unreal Gold\System_226bak\System" (53 bytes)
+[12:26:11][FILE ] DIRLIST: FindFirstFileA("C:\GOG Games\Unreal Gold\System_226bak\System\*")
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealGold\System\Unreal.ini") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 8908 bytes
+[12:26:11][PROTO] frame_send: 8909 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\UT2004\System\UT2004.ini" (42 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 19981 bytes
+[12:26:11][PROTO] frame_send: 19982 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 17743 bytes
+[12:26:11][PROTO] frame_send: 17744 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealTournament\System\UnrealTournament.ini" (62 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealTournament\System\UnrealTournament.ini") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 19338 bytes
+[12:26:11][PROTO] frame_send: 19339 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\GOG Games\Return to Castle Wolfenstein\Main\autoexec.cfg" (68 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\GOG Games\Return to Castle Wolfenstein\Main\autoexec.cfg") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 540 bytes
+[12:26:11][MAIN ] CMD: "DOWNLOAD C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg" (61 bytes)
+[12:26:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg") = OK
+[12:26:11][FILE ] DOWNLOAD: GetFileSize = 1863 bytes
+[12:26:11][PROTO] frame_send: 1864 bytes
+[12:26:11][MAIN ] Client disconnected
+[12:26:25][MAIN ] Connection from 192.168.1.196:42370
+[12:26:25][MAIN ] handle_client: starting auth on socket 796
+[12:26:25][PROTO] AUTH: success
+[12:26:25][MAIN ] Client authenticated
+[12:26:25][MAIN ] CMD: "UICLICK 1485 732" (16 bytes)
+[12:26:25][INPUT] UICLICK: x=1485 y=732 right=0 dbl=0
+[12:26:26][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:26:26][PROTO] frame_send: 6220855 bytes
+[12:26:27][MAIN ] Client disconnected
+[12:26:43][MAIN ] Connection from 192.168.1.196:59154
+[12:26:43][MAIN ] handle_client: starting auth on socket 780
+[12:26:43][PROTO] AUTH: success
+[12:26:43][MAIN ] Client authenticated
+[12:26:43][MAIN ] CMD: "UICLICK 1250 850 right" (22 bytes)
+[12:26:43][INPUT] UICLICK: x=1250 y=850 right=1 dbl=0
+[12:26:44][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:26:44][PROTO] frame_send: 6220855 bytes
+[12:26:45][MAIN ] Client disconnected
+[12:26:46][MAIN ] Connection from 192.168.1.196:55776
+[12:26:46][MAIN ] handle_client: starting auth on socket 796
+[12:26:46][PROTO] AUTH: success
+[12:26:46][MAIN ] Client authenticated
+[12:26:46][PROTO] frame_recv: 1152 bytes
+[12:26:46][MAIN ] CMD: "EXECW 120 cmd /c wevtutil qe System /q:"*[System[TimeCreated[@SystemTime>='2026-"... (1152 bytes)
+[12:26:46][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c wevtutil qe System /q:"*[System[TimeCreated[@SystemTime>='2026-09-27T03:25:00' and @SystemTime<='2026-09-27T05:10:00']]]" /f:text > C:\RETRO_AGENT\diag\w1.txt 2>&1 & wevtutil qe System /q:"*[System[TimeCreated[@SystemTime>='2026-09-28T02:30:00' and @SystemTime<='2026-09-28T03:20:00']]]" /f:text > C:\RETRO_AGENT\diag\w2.txt 2>&1 & wevtutil qe System /q:"*[System[TimeCreated[@SystemTime>='2026-09-28T12:30:00' and @SystemTime<='2026-09-28T15:16:00']]]" /f:text > C:\RETRO_AGENT\diag\w3.txt 2>&1 & wevtutil qe System /q:"*[System[TimeCreated[@SystemTime>='2013-09-26T01:05:00' and @SystemTime<='2013-09-26T01:50:00']]]" /f:text > C:\RETRO_AGENT\diag\w4.txt 2>&1 & wevtutil qe Application /q:"*[System[TimeCreated[@SystemTime>='2026-09-27T03:25:00' and @SystemTime<='2026-09-27T05:10:00'] or TimeCreated[@SystemTime>='2026-09-28T02:30:00' and @SystemTime<='2026-09-28T03:20:00'] or TimeCreated[@SystemTime>='2026-09-28T12:30:00' and @SystemTime<='2026-09-28T15:16:00'] or TimeCreated[@SystemTime>='2013-09-26T01:05:00' and @SystemTime<='2013-09-26T01:50:00']]]" /f:text > C:\RETRO_AGENT\diag\wa.txt 2>&1 & dir C:\RETRO_AGENT\diag\w*.txt"
+[12:26:46][EXEC ] CreateProcessA OK, PID=2712
+[12:26:47][EXEC ] Process 2712 exited: code=0, output=492 bytes, 374ms elapsed
+[12:26:47][MAIN ] Client disconnected
+[12:26:54][MAIN ] Connection from 192.168.1.196:40562
+[12:26:54][MAIN ] handle_client: starting auth on socket 900
+[12:26:54][PROTO] AUTH: success
+[12:26:54][MAIN ] Client authenticated
+[12:26:54][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\diag\w1.txt" (35 bytes)
+[12:26:54][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\diag\w1.txt") = OK
+[12:26:54][FILE ] DOWNLOAD: GetFileSize = 6591 bytes
+[12:26:54][PROTO] frame_send: 6592 bytes
+[12:26:54][MAIN ] Client disconnected
+[12:26:55][MAIN ] Connection from 192.168.1.196:40566
+[12:26:55][MAIN ] handle_client: starting auth on socket 808
+[12:26:55][PROTO] AUTH: success
+[12:26:55][MAIN ] Client authenticated
+[12:26:55][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\diag\w3.txt" (35 bytes)
+[12:26:55][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\diag\w3.txt") = OK
+[12:26:55][FILE ] DOWNLOAD: GetFileSize = 21760 bytes
+[12:26:55][PROTO] frame_send: 21761 bytes
+[12:26:55][MAIN ] Client disconnected
+[12:26:55][MAIN ] Connection from 192.168.1.196:40582
+[12:26:55][MAIN ] handle_client: starting auth on socket 796
+[12:26:55][PROTO] AUTH: success
+[12:26:55][MAIN ] Client authenticated
+[12:26:55][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\diag\w4.txt" (35 bytes)
+[12:26:55][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\diag\w4.txt") = OK
+[12:26:55][FILE ] DOWNLOAD: GetFileSize = 51322 bytes
+[12:26:55][PROTO] frame_send: 51323 bytes
+[12:26:55][MAIN ] Client disconnected
+[12:26:55][MAIN ] Connection from 192.168.1.196:40596
+[12:26:55][MAIN ] handle_client: starting auth on socket 900
+[12:26:55][PROTO] AUTH: success
+[12:26:55][MAIN ] Client authenticated
+[12:26:55][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\diag\wa.txt" (35 bytes)
+[12:26:55][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\diag\wa.txt") = OK
+[12:26:55][FILE ] DOWNLOAD: GetFileSize = 30585 bytes
+[12:26:55][PROTO] frame_send: 30586 bytes
+[12:26:55][MAIN ] Client disconnected
+[12:27:01][MAIN ] Connection from 192.168.1.196:40608
+[12:27:01][MAIN ] handle_client: starting auth on socket 808
+[12:27:01][PROTO] AUTH: success
+[12:27:01][MAIN ] Client authenticated
+[12:27:01][MAIN ] CMD: "UICLICK 1290 672" (16 bytes)
+[12:27:01][INPUT] UICLICK: x=1290 y=672 right=0 dbl=0
+[12:27:03][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:27:03][PROTO] frame_send: 6220855 bytes
+[12:27:03][MAIN ] Client disconnected
+[12:27:23][MAIN ] Connection from 192.168.1.196:46374
+[12:27:23][MAIN ] handle_client: starting auth on socket 780
+[12:27:23][PROTO] AUTH: success
+[12:27:23][MAIN ] Client authenticated
+[12:27:23][MAIN ] CMD: "UIKEY ESC" (9 bytes)
+[12:27:23][INPUT] UIKEY: spec="ESC"
+[12:27:23][MAIN ] Client disconnected
+[12:27:33][MAIN ] Connection from 192.168.1.196:49654
+[12:27:33][MAIN ] handle_client: starting auth on socket 796
+[12:27:33][PROTO] AUTH: success
+[12:27:33][MAIN ] Client authenticated
+[12:27:33][MAIN ] CMD: "EXECW 120 cmd /c wevtutil qe Application /q:"*[System[(EventID=8197 or EventID=9"... (377 bytes)
+[12:27:33][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c wevtutil qe Application /q:"*[System[(EventID=8197 or EventID=9010 or EventID=1002 or EventID=4105)]]" /c:400 /rd:true /f:text > C:\RETRO_AGENT\diag\a2.txt 2>&1 & wevtutil qe System /q:"*[System[(EventID=26 or EventID=4101 or EventID=4097)]]" /c:100 /rd:true /f:text > C:\RETRO_AGENT\diag\s2.txt 2>&1 & dir C:\RETRO_AGENT\diag\a2.txt C:\RETRO_AGENT\diag\s2.txt"
+[12:27:33][EXEC ] CreateProcessA OK, PID=624
+[12:27:33][EXEC ] Process 624 exited: code=0, output=342 bytes, 250ms elapsed
+[12:27:33][MAIN ] Client disconnected
+[12:27:33][MAIN ] Connection from 192.168.1.196:49668
+[12:27:33][MAIN ] handle_client: starting auth on socket 808
+[12:27:33][PROTO] AUTH: success
+[12:27:33][MAIN ] Client authenticated
+[12:27:33][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\diag\a2.txt" (35 bytes)
+[12:27:33][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\diag\a2.txt") = OK
+[12:27:33][FILE ] DOWNLOAD: GetFileSize = 127009 bytes
+[12:27:33][PROTO] frame_send: 127010 bytes
+[12:27:33][MAIN ] Client disconnected
+[12:27:33][MAIN ] Connection from 192.168.1.196:49674
+[12:27:33][MAIN ] handle_client: starting auth on socket 900
+[12:27:33][PROTO] AUTH: success
+[12:27:33][MAIN ] Client authenticated
+[12:27:33][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\diag\s2.txt" (35 bytes)
+[12:27:33][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\diag\s2.txt") = OK
+[12:27:33][FILE ] DOWNLOAD: GetFileSize = 40445 bytes
+[12:27:33][PROTO] frame_send: 40446 bytes
+[12:27:33][MAIN ] Client disconnected
+[12:27:39][MAIN ] Connection from 192.168.1.196:44636
+[12:27:39][MAIN ] handle_client: starting auth on socket 796
+[12:27:39][PROTO] AUTH: success
+[12:27:39][MAIN ] Client authenticated
+[12:27:39][MAIN ] CMD: "UIKEY ESC" (9 bytes)
+[12:27:39][INPUT] UIKEY: spec="ESC"
+[12:27:39][MAIN ] Client disconnected
+[12:27:56][MAIN ] Connection from 192.168.1.196:52408
+[12:27:56][MAIN ] handle_client: starting auth on socket 780
+[12:27:56][PROTO] AUTH: success
+[12:27:56][MAIN ] Client authenticated
+[12:27:56][MAIN ] CMD: "REGREAD HKCU Software\Microsoft\Windows\Shell\Bags\1\Desktop" (60 bytes)
+[12:27:56][REG  ] REGREAD: RegOpenKeyExA("HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop") = OK
+[12:27:56][REG  ]   Value: "FFlags" type=REG_DWORD size=4
+[12:27:56][MAIN ] Client disconnected
+[12:28:26][MAIN ] Connection from 192.168.1.196:53940
+[12:28:26][MAIN ] handle_client: starting auth on socket 808
+[12:28:26][PROTO] AUTH: success
+[12:28:26][MAIN ] Client authenticated
+[12:28:26][MAIN ] CMD: "EXEC cmd /c wmic path Win32_VideoController get Name,DriverVersion,DriverDate,Vi"... (277 bytes)
+[12:28:26][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c wmic path Win32_VideoController get Name,DriverVersion,DriverDate,VideoModeDescription /value & wmic datafile where "name=\"C:\\Windows\\System32\\drivers\\atikmdag.sys\" or name=\"C:\\Windows\\System32\\drivers\\atikmpag.sys\"" get Name,Version,LastModified /value"
+[12:28:26][EXEC ] CreateProcessA OK, PID=3368
+[12:28:26][EXEC ] Process 3368 exited: code=0, output=410 bytes, 156ms elapsed
+[12:28:26][MAIN ] Client disconnected
+[12:28:48][MAIN ] Connection from 192.168.1.196:48684
+[12:28:48][MAIN ] handle_client: starting auth on socket 780
+[12:28:48][PROTO] AUTH: success
+[12:28:48][MAIN ] Client authenticated
+[12:28:48][MAIN ] CMD: "REGWRITE HKCU Software\Microsoft\Windows\Shell\Bags\1\Desktop Mode REG_DWORD 1" (78 bytes)
+[12:28:48][REG  ] REGWRITE: key="HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop" name="Mode" type=REG_DWORD
+[12:28:48][REG  ] REGWRITE: RegSetValueExA = OK
+[12:28:48][MAIN ] Client disconnected
+[12:29:04][MAIN ] Connection from 192.168.1.196:34708
+[12:29:04][MAIN ] handle_client: starting auth on socket 900
+[12:29:04][PROTO] AUTH: success
+[12:29:04][MAIN ] Client authenticated
+[12:29:04][MAIN ] CMD: "REGWRITE HKCU Software\Microsoft\Windows\Shell\Bags\1\Desktop LogicalViewMode RE"... (89 bytes)
+[12:29:04][REG  ] REGWRITE: key="HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop" name="LogicalViewMode" type=REG_DWORD
+[12:29:04][REG  ] REGWRITE: RegSetValueExA = OK
+[12:29:04][MAIN ] Client disconnected
+[12:29:13][MAIN ] Connection from 192.168.1.196:59496
+[12:29:13][MAIN ] handle_client: starting auth on socket 808
+[12:29:13][PROTO] AUTH: success
+[12:29:13][MAIN ] Client authenticated
+[12:29:13][MAIN ] CMD: "REGREAD HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Run" (58 bytes)
+[12:29:13][REG  ] REGREAD: RegOpenKeyExA("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run") = OK
+[12:29:13][REG  ]   Value: "RetroAgent" type=REG_SZ size=59
+[12:29:13][REG  ]   Value: "MapShare" type=REG_SZ size=51
+[12:29:13][REG  ]   Value: "StartCCC" type=REG_SZ size=66
+[12:29:13][REG  ]   Value: "StarCraftCD" type=REG_SZ size=65
+[12:29:13][MAIN ] Client disconnected
+[12:29:14][MAIN ] Connection from 192.168.1.196:58960
+[12:29:14][MAIN ] handle_client: starting auth on socket 780
+[12:29:14][PROTO] AUTH: success
+[12:29:14][MAIN ] Client authenticated
+[12:29:14][MAIN ] CMD: "REGREAD HKCU Console" (20 bytes)
+[12:29:14][REG  ] REGREAD: RegOpenKeyExA("HKCU\Console") = OK
+[12:29:14][REG  ]   Value: "ColorTable00" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable01" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable02" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable03" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable04" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable05" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable06" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable07" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable08" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable09" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable10" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable11" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable12" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable13" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable14" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ColorTable15" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "CursorSize" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "EnableColorSelection" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ExtendedEditKey" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ExtendedEditKeyCustom" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "FontFamily" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "FontSize" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "FontWeight" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "FullScreen" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "HistoryBufferSize" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "HistoryNoDup" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "InsertMode" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "LoadConIme" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "NumberOfHistoryBuffers" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "PopupColors" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "QuickEdit" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ScreenBufferSize" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "ScreenColors" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "TrimLeadingZeros" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "WindowSize" type=REG_DWORD size=4
+[12:29:14][REG  ]   Value: "WordDelimiters" type=REG_DWORD size=4
+[12:29:14][PROTO] frame_send: 2048 bytes
+[12:29:14][MAIN ] Client disconnected
+[12:29:15][MAIN ] Connection from 192.168.1.196:58964
+[12:29:15][MAIN ] handle_client: starting auth on socket 900
+[12:29:15][PROTO] AUTH: success
+[12:29:15][MAIN ] Client authenticated
+[12:29:15][MAIN ] CMD: "WINLIST" (7 bytes)
+[12:29:15][INPUT] WINLIST: found 4 visible windows
+[12:29:15][MAIN ] Client disconnected
+[12:29:20][MAIN ] Connection from 192.168.1.196:58968
+[12:29:20][MAIN ] handle_client: starting auth on socket 796
+[12:29:20][PROTO] AUTH: success
+[12:29:20][MAIN ] Client authenticated
+[12:29:20][MAIN ] CMD: "REGWRITE HKCU Software\Microsoft\Windows\Shell\Bags\1\Desktop IconSize REG_DWORD"... (83 bytes)
+[12:29:20][REG  ] REGWRITE: key="HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop" name="IconSize" type=REG_DWORD
+[12:29:20][REG  ] REGWRITE: RegSetValueExA = OK
+[12:29:20][MAIN ] Client disconnected
+[12:29:36][MAIN ] Connection from 192.168.1.196:48930
+[12:29:36][MAIN ] handle_client: starting auth on socket 780
+[12:29:36][PROTO] AUTH: success
+[12:29:36][MAIN ] Client authenticated
+[12:29:36][MAIN ] CMD: "REGREAD HKCU Software\Microsoft\Windows\Shell\Bags\1\Desktop" (60 bytes)
+[12:29:36][REG  ] REGREAD: RegOpenKeyExA("HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop") = OK
+[12:29:36][REG  ]   Value: "FFlags" type=REG_DWORD size=4
+[12:29:36][REG  ]   Value: "Mode" type=REG_DWORD size=4
+[12:29:36][REG  ]   Value: "LogicalViewMode" type=REG_DWORD size=4
+[12:29:36][REG  ]   Value: "IconSize" type=REG_DWORD size=4
+[12:29:36][MAIN ] Client disconnected
+[12:29:42][MAIN ] Connection from 192.168.1.196:48940
+[12:29:42][MAIN ] handle_client: starting auth on socket 808
+[12:29:42][PROTO] AUTH: success
+[12:29:42][MAIN ] Client authenticated
+[12:29:42][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\GraphicsDrivers" (61 bytes)
+[12:29:42][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers") = OK
+[12:29:42][REG  ]   Value: "DxgKrnlVersion" type=REG_DWORD size=4
+[12:29:42][MAIN ] Client disconnected
+[12:29:47][MAIN ] Connection from 192.168.1.196:43238
+[12:29:47][MAIN ] handle_client: starting auth on socket 796
+[12:29:47][PROTO] AUTH: success
+[12:29:47][MAIN ] Client authenticated
+[12:29:47][MAIN ] CMD: "EXEC cmd /c wmic /namespace:\\root\wmi path MSAcpi_ThermalZoneTemperature get In"... (239 bytes)
+[12:29:47][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c wmic /namespace:\\root\wmi path MSAcpi_ThermalZoneTemperature get InstanceName,CurrentTemperature /value 2>&1 & wmic path Win32_WindowsProductActivation get /value 2>&1 & cscript //nologo C:\Windows\System32\slmgr.vbs /dli 2>&1"
+[12:29:47][EXEC ] CreateProcessA OK, PID=380
+[12:29:49][EXEC ] Process 380 exited: code=0, output=332 bytes, 1950ms elapsed
+[12:29:49][MAIN ] Client disconnected
+[12:29:49][MAIN ] Connection from 192.168.1.196:43248
+[12:29:49][MAIN ] handle_client: starting auth on socket 780
+[12:29:49][MAIN ] Auth failed, closing connection
+[12:29:51][MAIN ] Connection from 192.168.1.196:43250
+[12:29:51][MAIN ] handle_client: starting auth on socket 808
+[12:29:51][PROTO] AUTH: success
+[12:29:51][MAIN ] Client authenticated
+[12:29:51][MAIN ] CMD: "GAMEINDEX HASH" (14 bytes)
+[12:29:51][MAIN ] Client disconnected
+[12:29:58][MAIN ] Connection from 192.168.1.196:38908
+[12:29:58][MAIN ] handle_client: starting auth on socket 796
+[12:29:58][PROTO] AUTH: success
+[12:29:58][MAIN ] Client authenticated
+[12:29:58][MAIN ] CMD: "EXEC taskkill /f /im explorer.exe" (33 bytes)
+[12:29:58][EXEC ] EXEC: cmdline="cmd.exe /c taskkill /f /im explorer.exe"
+[12:29:58][EXEC ] CreateProcessA OK, PID=3872
+[12:29:58][EXEC ] Process 3872 exited: code=0, output=72 bytes, 47ms elapsed
+[12:29:58][MAIN ] Client disconnected
+[12:30:05][MAIN ] Connection from 192.168.1.196:35558
+[12:30:05][MAIN ] handle_client: starting auth on socket 780
+[12:30:05][PROTO] AUTH: success
+[12:30:05][MAIN ] Client authenticated
+[12:30:05][MAIN ] CMD: "DIRLIST C:\Windows\Prefetch" (27 bytes)
+[12:30:05][FILE ] DIRLIST: FindFirstFileA("C:\Windows\Prefetch\*")
+[12:30:05][FILE ] DIRLIST: entry: ACTIVATE.EXE-31C4AF4E.pf (11394 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgAppLaunch.db (332116 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgCx_SC4.db (121763 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgGlFaultHistory.db (158051 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgGlFgAppHistory.db (987192 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgGlGlobalHistory.db (1610650 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgGlUAD_P_S-1-5-21-3994847488-226062-2860159258-1000.db (553599 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgGlUAD_S-1-5-21-3994847488-226062-2860159258-1000.db (793121 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AgRobust.db (113332 bytes)
+[12:30:05][FILE ] DIRLIST: entry: AUDIODG.EXE-D0D776AC.pf (21544 bytes)
+[12:30:05][FILE ] DIRLIST: entry: BATCHMNT.EXE-9C0D4692.pf (16000 bytes)
+[12:30:05][FILE ] DIRLIST: entry: BF1942.EXE-BB650CEB.pf (41808 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CCC.EXE-4B8DF98F.pf (180084 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CERTUTIL.EXE-CB7805D7.pf (24404 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CLI.EXE-509653D2.pf (8358 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CLISTART.EXE-02B262E2.pf (22952 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CMD.EXE-89305D47.pf (9828 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CONHOST.EXE-3218E401.pf (9148 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CSC.EXE-4EF173D0.pf (46030 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CSCRIPT.EXE-E4C98DEB.pf (37322 bytes)
+[12:30:05][FILE ] DIRLIST: entry: CVTRES.EXE-419E4E46.pf (12374 bytes)
+[12:30:05][FILE ] DIRLIST: entry: DEFRAG.EXE-738093E8.pf (13916 bytes)
+[12:30:05][FILE ] DIRLIST: entry: DLLHOST.EXE-71214090.pf (24246 bytes)
+[12:30:05][FILE ] DIRLIST: entry: DLLHOST.EXE-893DDF55.pf (13722 bytes)
+[12:30:05][FILE ] DIRLIST: entry: DWM.EXE-AEABE78B.pf (30796 bytes)
+[12:30:05][FILE ] DIRLIST: entry: EXPLORER.EXE-7A3328DA.pf (184640 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FIND.EXE-162DFE58.pf (8288 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FINDSTR.EXE-4176B665.pf (7214 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-1AB4C61E.pf (6998 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-1E3A82BD.pf (8408 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-1E82E43F.pf (7256 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-57F91B31.pf (6950 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-9A2F39FA.pf (7534 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-A8F1B9BB.pf (7030 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-BF417E0E.pf (7254 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-DF26DA36.pf (7046 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-EE8FFDC9.pf (6970 bytes)
+[12:30:05][FILE ] DIRLIST: entry: FLEETRES.EXE-F977C802.pf (6994 bytes)
+[12:30:05][FILE ] DIRLIST: entry: GAMEMD.EXE-96B0229B.pf (46022 bytes)
+[12:30:05][FILE ] DIRLIST: entry: HALO.EXE-F2095AB3.pf (126884 bytes)
+[12:30:05][FILE ] DIRLIST: entry: HALO2.EXE-2698A917.pf (250524 bytes)
+[12:30:05][FILE ] DIRLIST: entry: HL.EXE-10D0AE04.pf (321686 bytes)
+[12:30:05][FILE ] DIRLIST: entry: HL.EXE-3A67F61B.pf (219044 bytes)
+[12:30:05][FILE ] DIRLIST: entry: IOQUAKE3.X86.EXE-63C9433A.pf (147096 bytes)
+[12:30:05][FILE ] DIRLIST: entry: IPCONFIG.EXE-62724FE6.pf (11310 bytes)
+[12:30:05][FILE ] DIRLIST: entry: Layout.ini (685122 bytes)
+[12:30:05][FILE ] DIRLIST: entry: LOADER.EXE-C47E6AA4.pf (10614 bytes)
+[12:30:05][FILE ] DIRLIST: entry: LOGONUI.EXE-1BEE4A84.pf (38204 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MOBSYNC.EXE-D8BC6ED2.pf (21838 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MOM.EXE-D84029AF.pf (83178 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MORE.COM-9B8170C3.pf (7652 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MPCMDRUN.EXE-BB72ED6F.pf (28990 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MSCORSVW.EXE-FAA88858.pf (10320 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MSIAA2B.TMP-666F76BD.pf (42062 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MSIEXEC.EXE-B5AFA339.pf (178586 bytes)
+[12:30:05][FILE ] DIRLIST: entry: MSIF991.TMP-0D1ACF0C.pf (24668 bytes)
+[12:30:05][FILE ] DIRLIST: entry: NASNAVI.EXE-412505B0.pf (43468 bytes)
+[12:30:05][FILE ] DIRLIST: entry: NASSCHE.EXE-9AC324D1.pf (21894 bytes)
+[12:30:05][FILE ] DIRLIST: entry: NET.EXE-1DF3A2F6.pf (23048 bytes)
+[12:30:05][FILE ] DIRLIST: entry: NETSH.EXE-3DD790C5.pf (44902 bytes)
+[12:30:05][FILE ] DIRLIST: entry: NETSTAT.EXE-6D34D712.pf (11008 bytes)
+[12:30:05][FILE ] DIRLIST: entry: NTOSBOOT-B00DFAAD.pf (2407986 bytes)
+[12:30:05][FILE ] DIRLIST: entry: PfSvPerfStats.bin (508 bytes)
+[12:30:05][FILE ] DIRLIST: entry: PING.EXE-B29F6629.pf (10680 bytes)
+[12:30:05][FILE ] DIRLIST: entry: QUAKE2.EXE-55706892.pf (91824 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RA2MD.EXE-FCF9E89A.pf (44188 bytes)
+[12:30:05][FILE ] DIRLIST: entry: ReadyBoot (0 bytes, dir)
+[12:30:05][FILE ] DIRLIST: entry: REG.EXE-26976709.pf (9108 bytes)
+[12:30:05][FILE ] DIRLIST: entry: REGEDIT.EXE-4748FE01.pf (14274 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RETRO_AGENT.EXE-F0EC25D2.pf (16894 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RETRO_CHAT.EXE-5DCDCE97.pf (8110 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RUNDLL32.EXE-125D4518.pf (274572 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RUNDLL32.EXE-752665EB.pf (29312 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RUNDLL32.EXE-AFD98684.pf (7652 bytes)
+[12:30:05][FILE ] DIRLIST: entry: RUNDLL32.EXE-F452D79D.pf (25228 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SC.EXE-BC6DAF49.pf (6738 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SDCLT.EXE-2D2C4DDD.pf (1096 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SDIAGNHOST.EXE-67CD1457.pf (124182 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SEARCHFILTERHOST.EXE-AA7A1FDD.pf (14270 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SEARCHPROTOCOLHOST.EXE-AFAD3EF9.pf (10212 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SERIOUSSAM.EXE-4E0CBA79.pf (59024 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SLUI.EXE-A65918C4.pf (43278 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SPPSVC.EXE-CBE91656.pf (13378 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SSSTARS.SCR-3B0000D8.pf (8360 bytes)
+[12:30:05][FILE ] DIRLIST: entry: STARCRAFT.EXE-83CED25F.pf (61246 bytes)
+[12:30:05][FILE ] DIRLIST: entry: STARTUP.EXE-CFC0FE00.pf (55278 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SVCHOST.EXE-135A30D8.pf (17840 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SVCHOST.EXE-18D06B2E.pf (13158 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SVCHOST.EXE-8DA0BAAD.pf (14220 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SVCHOST.EXE-8FD92526.pf (15340 bytes)
+[12:30:05][FILE ] DIRLIST: entry: SVCHOST.EXE-93CEEE07.pf (11536 bytes)
+[12:30:05][FILE ] DIRLIST: entry: TASKHOST.EXE-437C05A8.pf (56760 bytes)
+[12:30:05][FILE ] DIRLIST: entry: TASKKILL.EXE-609E34DE.pf (19608 bytes)
+[12:30:05][FILE ] DIRLIST: entry: TASKLIST.EXE-9811F41E.pf (18996 bytes)
+[12:30:05][FILE ] DIRLIST: entry: TASKMGR.EXE-72398DC0.pf (31506 bytes)
+[12:30:05][FILE ] DIRLIST: entry: THIEF2.EXE-88EDDA5F.pf (55360 bytes)
+[12:30:05][FILE ] DIRLIST: entry: TNPCACHEENGINE.EXE-9A1F3145.pf (55696 bytes)
+[12:30:05][FILE ] DIRLIST: entry: TRUSTEDINSTALLER.EXE-031B6478.pf (192880 bytes)
+[12:30:05][FILE ] DIRLIST: entry: UNREALTOURNAMENT.EXE-78D693F1.pf (210502 bytes)
+[12:30:05][FILE ] DIRLIST: entry: USERINIT.EXE-F39AB672.pf (181842 bytes)
+[12:30:05][FILE ] DIRLIST: entry: VSSVC.EXE-04D079CC.pf (27568 bytes)
+[12:30:05][FILE ] DIRLIST: entry: W32TM.EXE-5D2265F4.pf (15722 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WERFAULT.EXE-B7E27BE5.pf (41958 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WERMGR.EXE-2A1BCBC7.pf (21760 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WEVTUTIL.EXE-C09B744F.pf (14452 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WMIADAP.EXE-369DF1CD.pf (15832 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WMIC.EXE-B77E8CD6.pf (34012 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WMIPRVSE.EXE-43972D0F.pf (41240 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WMPNETWK.EXE-BD0344CA.pf (55696 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WMPNSCFG.EXE-DF1DD51A.pf (23512 bytes)
+[12:30:05][FILE ] DIRLIST: entry: WOLFMP.EXE-59BF829D.pf (76512 bytes)
+[12:30:05][FILE ] DIRLIST: entry: ~E5D141.TMP-47E5E066.pf (11840 bytes)
+[12:30:05][PROTO] frame_send: 14325 bytes
+[12:30:05][MAIN ] Client disconnected
+[12:30:14][MAIN ] Connection from 192.168.1.196:35570
+[12:30:14][MAIN ] handle_client: starting auth on socket 808
+[12:30:14][PROTO] AUTH: success
+[12:30:14][MAIN ] Client authenticated
+[12:30:14][MAIN ] CMD: "LAUNCH C:\Windows\explorer.exe" (30 bytes)
+[12:30:14][EXEC ] LAUNCH: cmdline="cmd.exe /c C:\Windows\explorer.exe"
+[12:30:14][EXEC ] LAUNCH OK, PID=2616
+[12:30:14][MAIN ] Client disconnected
+[12:30:24][MAIN ] Connection from 192.168.1.196:33282
+[12:30:24][MAIN ] handle_client: starting auth on socket 796
+[12:30:24][PROTO] AUTH: success
+[12:30:24][MAIN ] Client authenticated
+[12:30:24][MAIN ] CMD: "REGREAD HKCU Control Panel\Desktop" (34 bytes)
+[12:30:24][REG  ] REGREAD: RegOpenKeyExA("HKCU\Control Panel\Desktop") = OK
+[12:30:24][REG  ]   Value: "ScreenSaveActive" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "ActiveWndTrackTimeout" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "BlockSendInputResets" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "CaretWidth" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "ClickLockTime" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "CoolSwitchColumns" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "CoolSwitchRows" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "CursorBlinkRate" type=REG_SZ size=4
+[12:30:24][REG  ]   Value: "DockMoving" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "DragFromMaximize" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "DragFullWindows" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "DragHeight" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "DragWidth" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "FocusBorderHeight" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "FocusBorderWidth" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "FontSmoothing" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "FontSmoothingGamma" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "FontSmoothingOrientation" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "FontSmoothingType" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "ForegroundFlashCount" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "ForegroundLockTimeout" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "LeftOverlapChars" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "MenuShowDelay" type=REG_SZ size=4
+[12:30:24][REG  ]   Value: "PaintDesktopVersion" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "Pattern" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "RightOverlapChars" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "SnapSizing" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "TileWallpaper" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "WallpaperOriginX" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "WallpaperOriginY" type=REG_DWORD size=4
+[12:30:24][REG  ]   Value: "WallpaperStyle" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "WheelScrollChars" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "WheelScrollLines" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "WindowArrangementActive" type=REG_SZ size=2
+[12:30:24][REG  ]   Value: "UserPreferencesMask" type=REG_BINARY size=8
+[12:30:24][REG  ]   Value: "Wallpaper" type=REG_SZ size=38
+[12:30:24][REG  ]   Value: "SCRNSAVE.EXE" type=REG_SZ size=26
+[12:30:24][REG  ]   Value: "ScreenSaveTimeOut" type=REG_SZ size=4
+[12:30:24][REG  ]   Value: "ScreenSaverIsSecure" type=REG_SZ size=2
+[12:30:24][PROTO] frame_send: 2375 bytes
+[12:30:24][MAIN ] Client disconnected
+[12:30:25][MAIN ] Connection from 192.168.1.196:38658
+[12:30:25][MAIN ] handle_client: starting auth on socket 780
+[12:30:25][PROTO] AUTH: success
+[12:30:25][MAIN ] Client authenticated
+[12:30:25][MAIN ] CMD: "DIRLIST C:\retro-wall" (21 bytes)
+[12:30:25][FILE ] DIRLIST: FindFirstFileA("C:\retro-wall\*")
+[12:30:25][FILE ] DIRLIST: entry: arrange_icons.exe.superseded (241712 bytes)
+[12:30:25][FILE ] DIRLIST: entry: deskbay.exe (45056 bytes)
+[12:30:25][FILE ] DIRLIST: entry: icon_bay.json (1052 bytes)
+[12:30:25][FILE ] DIRLIST: entry: minwin.exe (44544 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_1024x768.bmp (2359350 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_1280x1024.bmp (3932214 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_1280x800.bmp (3072054 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_1440x900.bmp (3888054 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_1600x1200.bmp (5760054 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_1920x1080.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retrowall_800x600.bmp (1440054 bytes)
+[12:30:25][FILE ] DIRLIST: entry: retro_theme.reg (825 bytes)
+[12:30:25][FILE ] DIRLIST: entry: rotate_wall.exe.superseded (106475 bytes)
+[12:30:25][FILE ] DIRLIST: entry: setaero.exe (44544 bytes)
+[12:30:25][FILE ] DIRLIST: entry: setsyscolors.exe (385809 bytes)
+[12:30:25][FILE ] DIRLIST: entry: ssstars.scr (14336 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall00.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall01.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall02.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall03.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall04.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall05.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall06.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall07.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall08.bmp (6220854 bytes)
+[12:30:25][FILE ] DIRLIST: entry: wall09.bmp (6220854 bytes)
+[12:30:25][PROTO] frame_send: 3163 bytes
+[12:30:25][MAIN ] Client disconnected
+[12:30:39][MAIN ] Connection from 192.168.1.196:34716
+[12:30:39][MAIN ] handle_client: starting auth on socket 796
+[12:30:39][PROTO] AUTH: success
+[12:30:39][MAIN ] Client authenticated
+[12:30:40][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[12:30:40][PROTO] frame_send: 6220855 bytes
+[12:30:41][MAIN ] Client disconnected

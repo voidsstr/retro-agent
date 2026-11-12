@@ -1,0 +1,30 @@
+Fleet game servers on 192.168.1.132   25/25 up · 4 players (0 human)
+
+  OK  CS 1.6             active       0/16   10.3ms  de_chateau
+  OK  CS 1.6 no-blood    active       0/16   10.7ms  de_chateau
+  OK  Specialists        active       0/16   10.6ms  ts_antrodome
+  OK  CS: Source         active       0/16   15.0ms  de_dust2
+  OK  Half-Life DM       active       0/12   10.7ms  stalkyard
+  OK  Quake III          active       4/16    0.0ms  q3dm17
+  OK  OpenArena          active       0/12    0.1ms  oa_dm6
+  OK  Q3 Team Arena      active       0/12    0.0ms  mpteam1
+  OK  Jedi Academy       active       0/12    0.1ms  mp/ffa1
+  OK  SoF II             active       0/12    0.1ms  mp_shop
+  OK  RTCW               active       0/16    0.0ms  mp_depot
+  OK  Quake 2            active       0/12    0.0ms  q2dm1
+  OK  Quake (NetQuake)   active       0/16    5.1ms  e1m1
+  OK  QuakeWorld         active       0/16    0.1ms  start
+  OK  UT99               active       0/10   16.7ms  Deck #16 ][
+  OK  UT2004             active       0/12    4.9ms  Rankin
+  OK  Unreal Gold        active       0/12    7.5ms  DMDeck16  [gamever 226]
+  OK  Deus Ex            active       0/16   20.2ms  DXMP_Cathedral  [gamever 1100]
+  OK  DOOM 3             active          -    0.5ms  game/mp/d3dm1
+  OK  Serious Sam TFE    active        0/8    2.1ms  Desert Temple
+  OK  Serious Sam TSE    active        0/8    1.1ms  Yodeller
+  OK  Shogo              active       0/16    7.5ms  MCA_12FLOZ
+  OK  Tribes 2           active          -    1.3ms  
+  OK  Descent 3          active          -    0.1ms  
+  OK  Far Cry            active          -        -  
+  OK  a2s 27015          active
+  OK  a2s 27016          active
+  OK  a2s 27020          active

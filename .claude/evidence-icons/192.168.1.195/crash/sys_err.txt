@@ -1,0 +1,6117 @@
+Event[0]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-28T11:42:16.473
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[1]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-28T11:42:16.442
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[2]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-28T11:32:09.289
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[3]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-28T11:32:09.258
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[4]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.868
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[5]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-28T11:14:57.436
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[6]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 11:13:39 AM on ?9/?28/?2026 was unexpected.
+
+Event[7]:
+  Log Name: System
+  Source: Microsoft-Windows-DistributedCOM
+  Date: 2026-09-28T00:07:06.000
+  Event ID: 10010
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The server {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83} did not register with DCOM within the required timeout.
+
+Event[8]:
+  Log Name: System
+  Source: Microsoft-Windows-DistributedCOM
+  Date: 2026-09-26T23:52:06.000
+  Event ID: 10010
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The server {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83} did not register with DCOM within the required timeout.
+
+Event[9]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-09-26T16:20:09.237
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[10]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T16:20:05.868
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[11]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-09-26T16:02:32.366
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[12]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-09-26T16:01:36.799
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[13]:
+  Log Name: System
+  Source: Microsoft-Windows-DNS-Client
+  Date: 2026-09-26T16:00:09.563
+  Event ID: 1014
+  Task: N/A
+  Level: Warning
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-20
+  User Name: NT AUTHORITY\NETWORK SERVICE
+  Computer: admin-PC
+  Description: 
+Name resolution for the name wpad.attlocal.net timed out after none of the configured DNS servers responded.
+
+Event[14]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-09-26T16:00:02.855
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[15]:
+  Log Name: System
+  Source: bowser
+  Date: 2026-09-26T15:45:17.663
+  Event ID: 8003
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The master browser has received a server announcement from the computer 1GHZ that believes that it is the master browser for the domain on transport NetBT_Tcpip_{803A12CD-3B63-42D5-A893-3F3F26EFF64B}. The master browser is stopping or an election is being forced.
+
+Event[16]:
+  Log Name: System
+  Source: Microsoft-Windows-DNS-Client
+  Date: 2026-09-26T15:44:20.286
+  Event ID: 1014
+  Task: N/A
+  Level: Warning
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-20
+  User Name: NT AUTHORITY\NETWORK SERVICE
+  Computer: admin-PC
+  Description: 
+Name resolution for the name watson.microsoft.com timed out after none of the configured DNS servers responded.
+
+Event[17]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2013-09-25T21:45:17.946
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[18]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2013-09-25T21:45:14.576
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[19]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 9:16:32 PM on ?9/?25/?2013 was unexpected.
+
+Event[20]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2013-09-25T21:09:32.805
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[21]:
+  Log Name: System
+  Source: Schannel
+  Date: 2013-09-24T05:11:03.054
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[22]:
+  Log Name: System
+  Source: Schannel
+  Date: 2013-09-24T05:11:03.023
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[23]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2013-09-24T05:03:25.994
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[24]:
+  Log Name: System
+  Source: Schannel
+  Date: 2013-09-24T05:00:55.626
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[25]:
+  Log Name: System
+  Source: Schannel
+  Date: 2013-09-24T05:00:55.595
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[26]:
+  Log Name: System
+  Source: Schannel
+  Date: 2013-09-24T04:59:24.272
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[27]:
+  Log Name: System
+  Source: Schannel
+  Date: 2013-09-24T04:59:24.241
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[28]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2013-09-24T04:43:44.883
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[29]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T16:45:26.353
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[30]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T16:45:26.322
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[31]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T12:35:18.581
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[32]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T12:35:18.550
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[33]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T11:45:10.833
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[34]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T11:45:10.818
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[35]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T11:35:03.743
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[36]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T11:35:03.712
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[37]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-04T11:18:28.099
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[38]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-04T11:17:56.304
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[39]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T16:06:20.392
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[40]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T16:06:20.376
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[41]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T11:56:12.610
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[42]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T11:56:12.590
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[43]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T11:06:04.910
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[44]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T11:06:04.879
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[45]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T10:55:57.819
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[46]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T10:55:57.788
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[47]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-01T10:38:39.086
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[48]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T03:57:37.573
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[49]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-09-01T03:57:37.541
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[50]:
+  Log Name: System
+  Source: volsnap
+  Date: 2026-08-31T20:22:06.140
+  Event ID: 36
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The shadow copies of volume C: were aborted because the shadow copy storage could not grow due to a user imposed limit.
+
+Event[51]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T19:57:09.864
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[52]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T19:57:09.848
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[53]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T15:54:45.077
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 80.
+
+Event[54]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T15:54:45.057
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[55]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T15:54:45.037
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[56]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T15:47:02.090
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[57]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T15:47:02.060
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[58]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T14:56:52.556
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[59]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T14:56:52.525
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[60]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T14:46:42.938
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[61]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T14:46:42.907
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[62]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T14:32:01.952
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[63]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T14:32:01.937
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[64]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T14:29:30.226
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[65]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-31T14:29:26.841
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[66]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T14:29:29.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 2:27:55 PM on ?8/?31/?2026 was unexpected.
+
+Event[67]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T12:15:29.375
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[68]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T12:15:29.344
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[69]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T11:25:19.106
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[70]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T11:25:19.077
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[71]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T11:15:09.659
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[72]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T11:15:09.628
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[73]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:57:54.148
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[74]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T10:57:53.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 10:50:38 AM on ?8/?31/?2026 was unexpected.
+
+Event[75]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.870
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[76]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.870
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[77]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.870
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[78]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.865
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[79]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.864
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Group Policy Client service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[80]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.864
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[81]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.864
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IKE and AuthIP IPsec Keying Modules service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[82]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.864
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the IKE and AuthIP IPsec Keying Modules service to connect.
+
+Event[83]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.859
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[84]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.859
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IP Helper service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[85]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.859
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[86]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.859
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Multimedia Class Scheduler service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[87]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.859
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Multimedia Class Scheduler service to connect.
+
+Event[88]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.854
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The System Event Notification Service service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[89]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.854
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the System Event Notification Service service to connect.
+
+Event[90]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.848
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[91]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.848
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The User Profile Service service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[92]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.848
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[93]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.848
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[94]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.579
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Distributed Link Tracking Client service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[95]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.579
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[96]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.579
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Offline Files service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[97]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.579
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[98]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.579
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Driver Foundation - User-mode Driver Framework service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[99]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.579
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Windows Driver Foundation - User-mode Driver Framework service to connect.
+
+Event[100]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.573
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager Session Manager service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[101]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.573
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Desktop Window Manager Session Manager service to connect.
+
+Event[102]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.558
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The DHCP Client service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[103]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.558
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the DHCP Client service to connect.
+
+Event[104]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.551
+  Event ID: 7032
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Service Control Manager tried to take a corrective action (Restart the service) after the unexpected termination of the RPC Endpoint Mapper service, but this action failed with the following error: 
+An instance of the service is already running.
+
+Event[105]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.551
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Security Center service depends on the Windows Management Instrumentation service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[106]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:53:22.551
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[107]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.863
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Update service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[108]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.863
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[109]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.863
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[110]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.863
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[111]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.859
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[112]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.859
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Task Scheduler service depends on the Windows Event Log service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[113]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.859
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Event Log service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[114]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.859
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Windows Event Log service to connect.
+
+Event[115]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.854
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[116]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.853
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[117]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.853
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Themes service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[118]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.853
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Themes service to connect.
+
+Event[119]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.602
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Portable Device Enumerator Service service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[120]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.602
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[121]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.602
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio Endpoint Builder service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[122]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.602
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Windows Audio Endpoint Builder service to connect.
+
+Event[123]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.595
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[124]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.595
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Program Compatibility Assistant Service service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[125]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.595
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[126]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.570
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Multimedia Class Scheduler service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[127]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.570
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Multimedia Class Scheduler service to connect.
+
+Event[128]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.564
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[129]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.564
+  Event ID: 7019
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio Endpoint Builder service depends on a service in a group which starts later. Change the order in the service dependency tree to ensure that all services required to start this service are starting before this service is started.
+
+Event[130]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.564
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[131]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.564
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The HomeGroup Provider service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[132]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.564
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the HomeGroup Provider service to connect.
+
+Event[133]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.559
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[134]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.559
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Event Log service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[135]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:52:22.558
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Windows Event Log service to connect.
+
+Event[136]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:33.532
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[137]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:25.656
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IKE and AuthIP IPsec Keying Modules service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[138]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:25.656
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the IKE and AuthIP IPsec Keying Modules service to connect.
+
+Event[139]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:25.656
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[140]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[141]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[142]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[143]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[144]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[145]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[146]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.376
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[147]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[148]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[149]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[150]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[151]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[152]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[153]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[154]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[155]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[156]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[157]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[158]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.361
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[159]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[160]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IKE and AuthIP IPsec Keying Modules service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[161]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the IKE and AuthIP IPsec Keying Modules service to connect.
+
+Event[162]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[163]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service depends on the Server service which failed to start because of the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[164]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[165]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the Server service to connect.
+
+Event[166]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:24.345
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has not been started.
+
+Event[167]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Update service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[168]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Management Instrumentation service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[169]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Themes service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[170]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Shell Hardware Detection service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[171]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The System Event Notification Service service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[172]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Task Scheduler service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[173]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The User Profile Service service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[174]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Multimedia Class Scheduler service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[175]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[176]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IP Helper service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[177]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IKE and AuthIP IPsec Keying Modules service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[178]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Group Policy Client service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[179]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.848
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[180]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.676
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Network Connections service depends on the Remote Procedure Call (RPC) service which failed to start because of the following error: 
+The dependency service or group failed to start.
+
+Event[181]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.676
+  Event ID: 7001
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service depends on the RPC Endpoint Mapper service which failed to start because of the following error: 
+The service has returned a service-specific error code.
+
+Event[182]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.660
+  Event ID: 7000
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The TCP/IP NetBIOS Helper service failed to start due to the following error: 
+The service did not respond to the start or control request in a timely fashion.
+
+Event[183]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.660
+  Event ID: 7009
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A timeout was reached (30000 milliseconds) while waiting for the TCP/IP NetBIOS Helper service to connect.
+
+Event[184]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7032
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Service Control Manager tried to take a corrective action (Reboot the machine) after the unexpected termination of the Power service, but this action failed with the following error: 
+A system shutdown has already been scheduled.
+
+Event[185]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7032
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Service Control Manager tried to take a corrective action (Reboot the machine) after the unexpected termination of the Plug and Play service, but this action failed with the following error: 
+A system shutdown has already been scheduled.
+
+Event[186]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7032
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Service Control Manager tried to take a corrective action (Reboot the machine) after the unexpected termination of the DCOM Server Process Launcher service, but this action failed with the following error: 
+A system shutdown has already been scheduled.
+
+Event[187]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Driver Foundation - User-mode Driver Framework service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[188]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager Session Manager service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[189]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Distributed Link Tracking Client service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[190]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Superfetch service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[191]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Program Compatibility Assistant Service service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[192]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Network Connections service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 100 milliseconds: Restart the service.
+
+Event[193]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Offline Files service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[194]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.567
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio Endpoint Builder service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[195]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Security Center service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[196]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The TCP/IP NetBIOS Helper service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 100 milliseconds: Restart the service.
+
+Event[197]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The HomeGroup Provider service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[198]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Event Log service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[199]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The DHCP Client service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[200]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Restart the service.
+
+Event[201]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+
+Event[202]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The RPC Endpoint Mapper service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 120000 milliseconds: Restart the service.
+
+Event[203]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Power service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+
+Event[204]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Plug and Play service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+
+Event[205]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T10:51:22.551
+  Event ID: 7031
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The DCOM Server Process Launcher service terminated unexpectedly.  It has done this 1 time(s).  The following corrective action will be taken in 60000 milliseconds: Reboot the machine.
+
+Event[206]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T05:49:20.762
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[207]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T05:49:20.731
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[208]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T05:05:09.350
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[209]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T05:05:09.319
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[210]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T01:39:08.304
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[211]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T01:39:08.273
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[212]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T00:48:58.171
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[213]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T00:48:58.143
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[214]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T00:38:48.687
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[215]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-31T00:38:48.657
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[216]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-31T00:21:33.242
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[217]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-PnP
+  Date: 2026-08-31T00:19:48.543
+  Event ID: 219
+  Task: N/A
+  Level: Warning
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The driver \Driver\cdrom failed to load for the device BazisVirtualCDBus\StandardDevice\VirtualCD_0000.
+
+Event[218]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-PnP
+  Date: 2026-08-31T00:17:25.415
+  Event ID: 219
+  Task: N/A
+  Level: Warning
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The driver \Driver\cdrom failed to load for the device BazisVirtualCDBus\StandardDevice\VirtualCD_0000.
+
+Event[219]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-30T19:46:57.000
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[220]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-30T05:49:45.179
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[221]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-30T05:49:45.148
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[222]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-30T04:19:17.714
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[223]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-30T04:19:17.683
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[224]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-30T00:09:16.761
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[225]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-30T00:09:16.733
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[226]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T23:19:06.670
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[227]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T23:19:06.639
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[228]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T23:08:57.045
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[229]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T23:08:57.014
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[230]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-29T22:51:42.460
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[231]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T14:41:46.593
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[232]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T14:41:46.565
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[233]:
+  Log Name: System
+  Source: Disk
+  Date: 2026-08-29T12:47:03.856
+  Event ID: 51
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+An error was detected on device \Device\Harddisk1\DR1 during a paging operation.
+
+Event[234]:
+  Log Name: System
+  Source: volsnap
+  Date: 2026-08-29T12:46:45.033
+  Event ID: 16
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The shadow copies of volume D: were aborted because volume D:, which contains shadow copy storage for this shadow copy, was force dismounted.
+
+Event[235]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T10:31:34.004
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[236]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T10:31:33.973
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[237]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T09:41:23.639
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[238]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T09:41:23.608
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[239]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T09:31:13.874
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[240]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-29T09:31:13.843
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[241]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-29T09:14:03.914
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[242]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T22:53:55.245
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[243]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T22:53:55.213
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[244]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T22:03:44.635
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[245]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T22:03:44.604
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[246]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T21:53:34.906
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[247]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T21:53:34.875
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[248]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-28T21:36:21.070
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[249]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T20:01:04.701
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[250]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-28T20:01:04.670
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[251]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-28T19:46:56.339
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[252]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-28T19:43:53.008
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[253]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T11:48:34.052
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[254]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T11:48:34.021
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[255]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T07:38:21.457
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[256]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T07:38:21.425
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[257]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T06:48:11.190
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[258]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T06:48:11.159
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[259]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T06:38:01.690
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[260]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-24T06:38:01.659
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[261]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-24T06:24:05.344
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[262]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-24T06:21:02.861
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[263]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T11:49:01.878
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[264]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T11:49:01.847
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[265]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T10:58:51.549
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[266]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T10:58:51.518
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[267]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T10:48:41.971
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[268]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T10:48:41.955
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[269]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-21T10:33:41.695
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[270]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-21T10:31:28.741
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[271]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-20T15:40:38.033
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[272]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-20T15:40:38.002
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[273]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-20T15:40:37.986
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[274]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-20T10:32:31.008
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[275]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-20T02:23:23.395
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[276]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-20T02:23:23.364
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[277]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-19T02:23:21.037
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[278]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-19T02:23:21.022
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[279]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T18:59:02.592
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[280]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T18:59:02.561
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[281]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T14:48:49.986
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[282]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T14:48:49.955
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[283]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T13:58:39.673
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[284]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T13:58:39.657
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[285]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T13:48:30.007
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[286]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T13:48:29.976
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[287]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-18T13:31:16.273
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[288]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T11:46:37.428
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[289]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T11:46:37.397
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[290]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T10:56:27.154
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[291]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T10:56:27.123
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[292]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T10:46:17.426
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[293]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-18T10:46:17.394
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[294]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-18T10:32:30.544
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[295]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-08-18T10:29:27.144
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[296]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-18T10:29:23.712
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[297]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T13:39:50.005
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[298]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T13:39:49.989
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[299]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T09:29:37.481
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[300]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T09:29:37.450
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[301]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T08:39:27.558
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[302]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T08:39:27.527
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[303]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T08:29:17.919
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[304]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-14T08:29:17.888
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[305]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-14T08:15:13.248
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[306]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-14T08:12:05.790
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[307]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-14T08:11:21.774
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[308]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-11T00:48:50.515
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[309]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-11T00:48:50.499
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[310]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-11T00:31:36.086
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[311]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-11T00:31:32.139
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on F: cannot be read.
+
+Event[312]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-10T20:49:40.448
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[313]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T20:47:16.854
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[314]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T20:47:16.822
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[315]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T20:37:07.197
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[316]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T20:37:07.166
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[317]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-10T20:19:53.070
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[318]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-10T20:19:49.638
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[319]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T17:03:58.042
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[320]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T17:03:58.011
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[321]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T16:13:47.791
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[322]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T16:13:47.760
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[323]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T16:03:38.057
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[324]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-10T16:03:38.026
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[325]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-10T15:46:30.863
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on F: cannot be read.
+
+Event[326]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-10T15:46:29.708
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on F: cannot be read.
+
+Event[327]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-10T15:46:28.226
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[328]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-10T15:46:24.124
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on F: cannot be read.
+
+Event[329]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T12:11:55.900
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[330]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T12:11:55.869
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[331]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T08:01:43.328
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[332]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T08:01:43.296
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[333]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T07:11:33.045
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[334]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T07:11:33.014
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[335]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T07:01:23.420
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[336]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T07:01:23.389
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[337]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T06:46:09.290
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[338]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T06:46:09.290
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[339]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-09T06:44:08.866
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[340]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-09T06:44:05.512
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[341]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-09T06:44:08.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 6:42:25 AM on ?8/?9/?2026 was unexpected.
+
+Event[342]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-09T06:44:04.685
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on F: cannot be read.
+
+Event[343]:
+  Log Name: System
+  Source: Tcpip
+  Date: 2026-08-09T06:40:04.898
+  Event ID: 4228
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+TCP/IP has chosen to restrict the scale factor due to a network condition.  This could be related to a problem in a network device and will cause  degraded throughput.
+
+Event[344]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T05:30:31.528
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[345]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T05:30:31.499
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[346]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T00:58:26.630
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[347]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-09T00:58:26.601
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[348]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-08T20:48:14.054
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[349]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-08T20:48:14.038
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[350]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-08T19:58:03.772
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[351]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-08T19:58:03.741
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[352]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-08T19:47:54.006
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[353]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-08T19:47:53.975
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[354]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-08T19:30:41.429
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[355]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-08T19:30:37.014
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on \\?\Volume{02d5f3af-2764-4d72-9089-a0c2f5e35591} cannot be read.
+
+Event[356]:
+  Log Name: System
+  Source: Microsoft-Windows-WindowsUpdateClient
+  Date: 2026-08-08T19:21:38.668
+  Event ID: 16
+  Task: Automatic Updates
+  Level: Warning
+  Opcode: Check for Updates
+  Keyword: Connection
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Unable to Connect: Windows is unable to connect to the automatic updates service and therefore cannot download and install updates according to the set schedule. Windows will continue to try to establish a connection.
+
+Event[357]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-08-08T19:18:50.284
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[358]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-08T19:18:49.114
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on F: cannot be read.
+
+Event[359]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-08-08T19:18:47.414
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[360]:
+  Log Name: System
+  Source: Microsoft-Windows-BitLocker-Driver
+  Date: 2026-08-08T19:18:42.999
+  Event ID: 24620
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Encrypted volume check: Volume information on \\?\Volume{89b0b599-5a37-41ec-9cfe-09fe3ded0bfd} cannot be read.
+
+Event[361]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-08-07T14:38:11.021
+  Event ID: 27
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link is disconnected.
+
+
+Event[362]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.705
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[363]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.689
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[364]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.674
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[365]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.658
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[366]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.658
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[367]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.642
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[368]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.642
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[369]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.642
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[370]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.627
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[371]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.627
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[372]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.627
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[373]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.611
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[374]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.596
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[375]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.596
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[376]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.596
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[377]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.580
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[378]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.580
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[379]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.580
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[380]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.564
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[381]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.564
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[382]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.564
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[383]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.533
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[384]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.518
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[385]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:02:29.486
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[386]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.693
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[387]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.662
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[388]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.646
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[389]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.615
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[390]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.584
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[391]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.568
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[392]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.381
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[393]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.366
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[394]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.350
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[395]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.303
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[396]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.288
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[397]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T08:01:40.272
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+
+Event[398]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T02:15:57.975
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 40.
+
+Event[399]:
+  Log Name: System
+  Source: Schannel
+  Date: 2026-08-07T02:15:57.944
+  Event ID: 36887
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The following fatal alert was received: 70.
+

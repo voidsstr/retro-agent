@@ -1,0 +1,223 @@
+== Quake1/GLQUAKE.EXE 435712 bcf40493
+-current
+QueryPerformanceFrequency
+r_norefresh
+timerefresh
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== Quake1/WINQUAKE.EXE 553472 0b62b82d
+DDERR_NOVSYNCHW
+QueryPerformanceFrequency
+timerefresh
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== Quake1/QUAKE.EXE 409600 e3e7fcc9
+F,	hz<
+PhZ)
+timerefresh
+tJhz
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== Quake1/VOODOO/GLQUAKE.EXE 435712 bcf40493
+-current
+QueryPerformanceFrequency
+r_norefresh
+timerefresh
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== Quake1/VOODOO/OPENGL32.DLL 142848 332ee07b
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== Quake2Complete/quake2.exe 362496 57dd2cf4
+Couldn't fall back to software refresh!
+FX_GLIDE_NO_SPLASH=0
+gl_mode
+refresh server list
+s_khz
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+timerefresh
+vid_ref
+== Quake2Complete/ref_gl.dll 234496 b6d33427
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== Quake2Complete/ref_soft.dll 193024 203dc879
+DDERR_NOVSYNCHW
+sw_mode
+== Quake2Complete/3dfxgl.dll 142848 332ee07b
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== Quake2Complete/pvrgl.dll 227328 9c28b9a9
+== Quake2Win9x/quake2.exe 362496 57dd2cf4
+Couldn't fall back to software refresh!
+FX_GLIDE_NO_SPLASH=0
+gl_mode
+refresh server list
+s_khz
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+timerefresh
+vid_ref
+== Quake2Win9x/ref_gl.dll 234496 b6d33427
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== Quake2Win9x/ref_soft.dll 193024 203dc879
+DDERR_NOVSYNCHW
+sw_mode
+== Quake2Win9x/3dfxgl.dll 142848 332ee07b
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== HexenII/glh2.exe 530944 c450ea8a
+-current
+QueryPerformanceFrequency
+r_norefresh
+timerefresh
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== HexenII/h2.exe 674816 7ad8abed
+QueryPerformanceFrequency
+timerefresh
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== HexenII/VOODOO/GLH2.EXE 530944 c450ea8a
+-current
+QueryPerformanceFrequency
+r_norefresh
+timerefresh
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+== HexenII/VOODOO/OPENGL32.DLL 142848 332ee07b
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== HexenII/Glroot-3dfx-minigl/opengl32.dll 126464 914847f5
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+== SiNGold/sin.exe 667648 8d320d7f
+apply_vid_changes
+B1hz
+B1phz
+B2hz
+B2phz
+B3hz
+B3phz
+B4hz
+B4phz
+B5hz
+B5phz
+B6hz
+B6phz
+Base F0 in 0.1Hz
+BNPhz
+BNZhz
+Couldn't fall back to software refresh!
+F0hz10
+F1hz
+F2hz
+F3hz
+F4hz
+F5hz
+F6hz
+FNPhz
+FNZhz
+FX_GLIDE_NO_SPLASH=0
+gl_mode
+refreshnetservers
+refreshservers
+Setting frequency from "%f" to "%f"
+s_khz
+SNDEAX_RefreshBuffers: Buffer does not exist FL
+SNDEAX_RefreshBuffers: Buffer does not exist FR
+SNDEAX_RefreshBuffers: Buffer does not exist RL
+SNDEAX_RefreshBuffers: Buffer does not exist RR
+SNDEAX_RefreshBuffers: Unable to refresh FL
+SNDEAX_RefreshBuffers: Unable to refresh FR
+SNDEAX_RefreshBuffers: Unable to refresh RL
+SNDEAX_RefreshBuffers: Unable to refresh RR
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+timerefresh
+vid_ref
+== SiNGold/ref_gl.dll 278528 050bdfd6
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== SiNGold/ref_gl_amd.dll 283648 4dd5b116
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== SiNGold/ref_soft.dll 278528 050bdfd6
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== SiNGold/ref_soft_real.dll 262144 d5320ca5
+DDERR_NOVSYNCHW
+sw_mode
+== SiNGold/3dfxgl.dll 137728 226edb25
+FX_GLIDE_ALLOC_COLOR
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== SoldierOfFortune/SoF.exe 2052096 2f4db377
+FX_GLIDE_NO_SPLASH=0
+refresh
+Speed     : %d MHz
+timerefresh
+       Trail Frequency %s%6.1f
+vid_modes
+vid_ref
+== SoldierOfFortune/ref_gl.dll 225280 e0454d95
+gl_displayrefresh
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+vid_ref
+wglSwapIntervalEXT

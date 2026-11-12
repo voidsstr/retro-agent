@@ -1,0 +1,555 @@
+# raw capstone disassembly of the staged avp.exe (md5 91bb8e752f42d35f594fc06feabd49cf) - AvP_Video.cfg handling
+# strings: 0x5f3ac2 'wb', 0x5f3ac5 'AvP_Video.cfg', 0x5f3ad3 'rb', 0x5f3ad6 'AvP_Video.cfg', 0x5f3a9c 'DDRAW', 0x5f3aa2 'DirectDrawEnumerateExA'
+## 0x559668 enumerate DirectDraw devices (DirectDrawEnumerateExA flags 7), then 0x559a40 load prefs
+  00559668: push     ecx
+  00559669: push     edx
+  0055966a: xor      edx, edx
+  0055966c: push     0x5f3a9c
+  00559671: mov      dword ptr [0x85c4c0], edx
+  00559677: call     dword ptr cs:[0x56953c]
+  0055967e: test     eax, eax
+  00559680: jne      0x55968a
+  00559682: mov      eax, 0xffffffff
+  00559687: pop      edx
+  00559688: pop      ecx
+  00559689: ret      
+  0055968a: push     0x5f3aa2
+  0055968f: push     eax
+  00559690: call     dword ptr cs:[0x569544]
+  00559697: mov      edx, eax
+  00559699: test     eax, eax
+  0055969b: je       0x559682
+  0055969d: push     7
+  0055969f: push     0
+  005596a1: push     0x5593ec
+  005596a6: call     edx
+  005596a8: cmp      dword ptr [0x85c4c0], 0
+  005596af: je       0x559682
+  005596b1: call     0x559a40
+  005596b6: xor      eax, eax
+  005596b8: pop      edx
+  005596b9: pop      ecx
+  005596ba: ret      
+## 0x5593ec per-device callback: DirectDrawCreate(lpGUID); needs DDCAPS_3D and a HAL D3D device; NULL GUID (primary) -> GUID bytes left zero, DDGUIDIsSet=0; EnumDisplayModes(dwFlags=0) at 0x559629
+  005593ec: push     ebx
+  005593ed: push     esi
+  005593ee: push     edi
+  005593ef: push     ebp
+  005593f0: sub      esp, 0x188
+  005593f6: mov      esi, dword ptr [esp + 0x19c]
+  005593fd: xor      edx, edx
+  005593ff: push     edx
+  00559400: lea      eax, [esp + 0x180]
+  00559407: push     eax
+  00559408: push     esi
+  00559409: mov      dword ptr [esp + 0x18c], edx
+  00559410: mov      dword ptr [esp + 0x190], edx
+  00559417: call     0x568250
+  0055941c: test     eax, eax
+  0055941e: je       0x55942f
+  00559420: xor      eax, eax
+  00559422: add      esp, 0x188
+  00559428: pop      ebp
+  00559429: pop      edi
+  0055942a: pop      esi
+  0055942b: pop      ebx
+  0055942c: ret      0x14
+  0055942f: mov      eax, dword ptr [esp + 0x17c]
+  00559436: mov      edx, dword ptr [eax]
+  00559438: lea      eax, [esp + 0x180]
+  0055943f: push     eax
+  00559440: push     0x5f8460
+  00559445: mov      ebx, dword ptr [esp + 0x184]
+  0055944c: push     ebx
+  0055944d: call     dword ptr [edx]
+  0055944f: test     eax, eax
+  00559451: jne      0x559420
+  00559453: imul     eax, dword ptr [0x85c4c0], 0xe94
+  0055945d: mov      ebx, 0x17c
+  00559462: add      eax, 0x858a70
+  00559467: xor      edx, edx
+  00559469: add      eax, 0x864
+  0055946e: call     0x55afb3
+  00559473: imul     eax, dword ptr [0x85c4c0], 0xe94
+  0055947d: mov      edx, 0x17c
+  00559482: mov      ebx, edx
+  00559484: mov      dword ptr [eax + 0x8592d4], edx
+  0055948a: mov      eax, esp
+  0055948c: xor      edx, edx
+  0055948e: mov      ecx, 0x17c
+  00559493: call     0x55afb3
+  00559498: mov      eax, dword ptr [esp + 0x17c]
+  0055949f: mov      dword ptr [esp], ecx
+  005594a2: mov      edx, dword ptr [eax]
+  005594a4: mov      eax, esp
+  005594a6: mov      ebx, dword ptr [0x85c4c0]
+  005594ac: push     eax
+  005594ad: imul     eax, ebx, 0xe94
+  005594b3: add      eax, 0x858a70
+  005594b8: add      eax, 0x864
+  005594bd: push     eax
+  005594be: mov      edi, dword ptr [esp + 0x184]
+  005594c5: push     edi
+  005594c6: call     dword ptr [edx + 0x2c]
+  005594c9: test     eax, eax
+  005594cb: je       0x5594f0
+  005594cd: mov      ecx, dword ptr [esp + 0x180]
+  005594d4: test     ecx, ecx
+  005594d6: je       0x5594de
+  005594d8: push     ecx
+  005594d9: mov      eax, dword ptr [ecx]
+  005594db: call     dword ptr [eax + 8]
+  005594de: mov      eax, 1
+  005594e3: add      esp, 0x188
+  005594e9: pop      ebp
+  005594ea: pop      edi
+  005594eb: pop      esi
+  005594ec: pop      ebx
+  005594ed: ret      0x14
+  005594f0: imul     eax, dword ptr [0x85c4c0], 0xe94
+  005594fa: test     byte ptr [eax + 0x8592d8], 1
+  00559501: je       0x5594cd
+  00559503: test     esi, esi
+  00559505: jne      0x5595f3
+  0055950b: mov      dword ptr [eax + 0x858a80], esi
+  00559511: mov      eax, dword ptr [esp + 0x180]
+  00559518: mov      ebx, dword ptr [0x85c4c0]
+  0055951e: mov      edx, dword ptr [eax]
+  00559520: imul     eax, ebx, 0xe94
+  00559526: add      eax, 0x858a70
+  0055952b: push     0
+  0055952d: add      eax, 0x14
+  00559530: push     eax
+  00559531: mov      esi, dword ptr [esp + 0x188]
+  00559538: push     esi
+  00559539: call     dword ptr [edx + 0x6c]
+  0055953c: mov      eax, dword ptr [esp + 0x180]
+  00559543: mov      edi, dword ptr [0x85c4c0]
+  00559549: mov      edx, dword ptr [eax]
+  0055954b: imul     eax, edi, 0xe94
+  00559551: add      eax, 0x858a70
+  00559556: push     1
+  00559558: add      eax, 0x43c
+  0055955d: push     eax
+  0055955e: mov      ebp, dword ptr [esp + 0x188]
+  00559565: push     ebp
+  00559566: call     dword ptr [edx + 0x6c]
+  00559569: imul     eax, dword ptr [0x85c4c0], 0xe94
+  00559573: xor      ecx, ecx
+  00559575: mov      dword ptr [eax + 0x859900], ecx
+  0055957b: lea      eax, [esp + 0x184]
+  00559582: push     eax
+  00559583: mov      esi, dword ptr [esp + 0x180]
+  0055958a: push     0x5f84f0
+  0055958f: mov      ebx, dword ptr [esp + 0x184]
+  00559596: mov      esi, dword ptr [esi]
+  00559598: push     ebx
+  00559599: call     dword ptr [esi]
+  0055959b: push     0
+  0055959d: mov      eax, dword ptr [esp + 0x188]
+  005595a4: push     0x559310
+  005595a9: mov      esi, dword ptr [esp + 0x18c]
+  005595b0: mov      eax, dword ptr [eax]
+  005595b2: push     esi
+  005595b3: call     dword ptr [eax + 0x10]
+  005595b6: mov      edi, dword ptr [esp + 0x184]
+  005595bd: test     edi, edi
+  005595bf: je       0x5595c7
+  005595c1: push     edi
+  005595c2: mov      eax, dword ptr [edi]
+  005595c4: call     dword ptr [eax + 8]
+  005595c7: cmp      dword ptr [0x85c5c8], 0
+  005595ce: jne      0x55960d
+  005595d0: mov      edx, dword ptr [esp + 0x180]
+  005595d7: test     edx, edx
+  005595d9: je       0x5595e1
+  005595db: push     edx
+  005595dc: mov      eax, dword ptr [edx]
+  005595de: call     dword ptr [eax + 8]
+  005595e1: mov      eax, 1
+  005595e6: add      esp, 0x188
+  005595ec: pop      ebp
+  005595ed: pop      edi
+  005595ee: pop      esi
+  005595ef: pop      ebx
+  005595f0: ret      0x14
+  005595f3: lea      edi, [eax + 0x858a70]
+  005595f9: mov      ecx, 1
+  005595fe: movsd    dword ptr es:[edi], dword ptr [esi]
+  005595ff: movsd    dword ptr es:[edi], dword ptr [esi]
+  00559600: movsd    dword ptr es:[edi], dword ptr [esi]
+  00559601: movsd    dword ptr es:[edi], dword ptr [esi]
+  00559602: mov      dword ptr [eax + 0x858a80], ecx
+  00559608: jmp      0x559511
+  0055960d: push     0x559344
+  00559612: push     0
+  00559614: push     0
+  00559616: mov      eax, dword ptr [esp + 0x18c]
+  0055961d: push     0
+  0055961f: mov      ebx, dword ptr [esp + 0x190]
+  00559626: mov      eax, dword ptr [eax]
+  00559628: push     ebx
+  00559629: call     dword ptr [eax + 0x20]
+  0055962c: mov      esi, dword ptr [esp + 0x180]
+  00559633: test     esi, esi
+  00559635: je       0x55963d
+  00559637: push     esi
+  00559638: mov      eax, dword ptr [esi]
+  0055963a: call     dword ptr [eax + 8]
+  0055963d: mov      ebp, dword ptr [0x85c4c0]
+  00559643: cmp      ebp, 4
+  00559646: jge      0x559420
+  0055964c: mov      eax, 1
+  00559651: lea      edx, [eax + ebp]
+  00559654: mov      dword ptr [0x85c4c0], edx
+  0055965a: add      esp, 0x188
+  00559660: pop      ebp
+  00559661: pop      edi
+  00559662: pop      esi
+  00559663: pop      ebx
+  00559664: ret      0x14
+  00559667: nop      
+## 0x559310 D3D EnumDevices callback: first HW device with dcmColorModel!=0 -> D3DDEVICEDESC copied to 0x85c4cc (dwDeviceRenderBitDepth = 0x85c568)
+  00559310: push     esi
+  00559311: mov      esi, dword ptr [esp + 0x14]
+  00559315: cmp      dword ptr [esi + 8], 0
+  00559319: jne      0x559324
+  0055931b: mov      eax, 1
+  00559320: pop      esi
+  00559321: ret      0x18
+  00559324: push     edi
+  00559325: mov      ecx, 0x3f
+  0055932a: mov      edi, 0x85c4cc
+  0055932f: rep movsd dword ptr es:[edi], dword ptr [esi]
+  00559331: mov      ecx, 1
+  00559336: xor      eax, eax
+  00559338: mov      dword ptr [0x85c5c8], ecx
+  0055933e: pop      edi
+  0055933f: pop      esi
+  00559340: ret      0x18
+  00559343: nop      
+## 0x559344 EnumDisplayModes callback: keep bpp>8, w>=512, h>=384, depth in dwDeviceRenderBitDepth (byte 0x85c569: 4=DDBD_16 2=DDBD_24 1=DDBD_32); stop at 100
+  00559344: push     ebx
+  00559345: push     esi
+  00559346: mov      ebx, dword ptr [esp + 0xc]
+  0055934a: imul     edx, dword ptr [0x85c4c0], 0xe94
+  00559354: add      edx, 0x858a70
+  0055935a: mov      ecx, dword ptr [edx + 0xe90]
+  00559360: lea      eax, [ecx*4]
+  00559367: sub      eax, ecx
+  00559369: shl      eax, 2
+  0055936c: lea      ecx, [edx + 0x9e0]
+  00559372: add      eax, ecx
+  00559374: mov      ecx, dword ptr [ebx + 0xc]
+  00559377: mov      dword ptr [eax], ecx
+  00559379: mov      ecx, dword ptr [ebx + 8]
+  0055937c: mov      dword ptr [eax + 4], ecx
+  0055937f: mov      ecx, dword ptr [ebx + 0x54]
+  00559382: mov      dword ptr [eax + 8], ecx
+  00559385: cmp      ecx, 8
+  00559388: jle      0x5593bb
+  0055938a: cmp      dword ptr [eax], 0x200
+  00559390: jl       0x5593bb
+  00559392: cmp      dword ptr [eax + 4], 0x180
+  00559399: jl       0x5593bb
+  0055939b: cmp      ecx, 0x10
+  0055939e: jg       0x5593c5
+  005593a0: test     byte ptr [0x85c569], 4
+  005593a7: je       0x5593bb
+  005593a9: mov      esi, dword ptr [edx + 0xe90]
+  005593af: inc      esi
+  005593b0: mov      dword ptr [edx + 0xe90], esi
+  005593b6: cmp      esi, 0x64
+  005593b9: jge      0x5593e5
+  005593bb: mov      eax, 1
+  005593c0: pop      esi
+  005593c1: pop      ebx
+  005593c2: ret      8
+  005593c5: cmp      ecx, 0x18
+  005593c8: jg       0x5593d5
+  005593ca: test     byte ptr [0x85c569], 2
+  005593d1: jne      0x5593a9
+  005593d3: jmp      0x5593bb
+  005593d5: cmp      ecx, 0x20
+  005593d8: jg       0x5593a9
+  005593da: test     byte ptr [0x85c569], 1
+  005593e1: jne      0x5593a9
+  005593e3: jmp      0x5593bb
+  005593e5: xor      eax, eax
+  005593e7: pop      esi
+  005593e8: pop      ebx
+  005593e9: ret      8
+## 0x559810 match AvP_Video.cfg: compares ONLY the 16 GUID bytes, then w/h/bpp; device found + mode not found leaves mode = -1 and still calls 0x55999c
+  00559810: push     ebx
+  00559811: push     ecx
+  00559812: push     edx
+  00559813: push     esi
+  00559814: push     edi
+  00559815: push     ebp
+  00559816: mov      edx, 0xffffffff
+  0055981b: mov      esi, dword ptr [0x85c4c0]
+  00559821: xor      ebx, ebx
+  00559823: mov      dword ptr [0x85c4c4], edx
+  00559829: mov      dword ptr [0x85c4c8], edx
+  0055982f: test     esi, esi
+  00559831: jle      0x559868
+  00559833: mov      edx, 0x858a70
+  00559838: mov      ecx, 0x10
+  0055983d: mov      esi, 0x85c5f0
+  00559842: mov      edi, edx
+  00559844: xor      eax, eax
+  00559846: repe cmpsb byte ptr [esi], byte ptr es:[edi]
+  00559848: je       0x55984f
+  0055984a: sbb      eax, eax
+  0055984c: sbb      eax, -1
+  0055984f: test     eax, eax
+  00559851: je       0x5598d2
+  00559857: mov      edi, dword ptr [0x85c4c0]
+  0055985d: inc      ebx
+  0055985e: add      edx, 0xe94
+  00559864: cmp      ebx, edi
+  00559866: jl       0x559838
+  00559868: mov      ebp, dword ptr [0x85c4c4]
+  0055986e: cmp      ebp, -1
+  00559871: je       0x5598c6
+  00559873: imul     ecx, ebp, 0xe94
+  00559879: add      ecx, 0x858a70
+  0055987f: mov      ebx, dword ptr [ecx + 0xe90]
+  00559885: xor      edx, edx
+  00559887: test     ebx, ebx
+  00559889: jle      0x5598bd
+  0055988b: mov      eax, ecx
+  0055988d: mov      ebx, dword ptr [0x85c604]
+  00559893: cmp      ebx, dword ptr [eax + 0x9e0]
+  00559899: jne      0x5598da
+  0055989b: mov      ebx, dword ptr [0x85c608]
+  005598a1: cmp      ebx, dword ptr [eax + 0x9e4]
+  005598a7: jne      0x5598da
+  005598a9: mov      ebx, dword ptr [0x85c60c]
+  005598af: cmp      ebx, dword ptr [eax + 0x9e8]
+  005598b5: jne      0x5598da
+  005598b7: mov      dword ptr [0x85c4c8], edx
+  005598bd: cmp      dword ptr [0x85c4c4], -1
+  005598c4: jne      0x5598ea
+  005598c6: call     0x5598f8
+  005598cb: pop      ebp
+  005598cc: pop      edi
+  005598cd: pop      esi
+  005598ce: pop      edx
+  005598cf: pop      ecx
+  005598d0: pop      ebx
+  005598d1: ret      
+  005598d2: mov      dword ptr [0x85c4c4], ebx
+  005598d8: jmp      0x559868
+  005598da: inc      edx
+  005598db: mov      esi, dword ptr [ecx + 0xe90]
+  005598e1: add      eax, 0xc
+  005598e4: cmp      edx, esi
+  005598e6: jl       0x55988d
+  005598e8: jmp      0x5598bd
+  005598ea: call     0x55999c
+  005598ef: pop      ebp
+  005598f0: pop      edi
+  005598f1: pop      esi
+  005598f2: pop      edx
+  005598f3: pop      ecx
+  005598f4: pop      ebx
+  005598f5: ret      
+  005598f6: mov      eax, eax
+## 0x5598f8 SelectBasicDeviceAndVideoMode: 640x480x16 (last device having it), else device 0 mode 0
+  005598f8: push     ebx
+  005598f9: push     ecx
+  005598fa: push     edx
+  005598fb: push     esi
+  005598fc: push     edi
+  005598fd: push     ebp
+  005598fe: mov      edi, 0xffffffff
+  00559903: mov      ecx, dword ptr [0x85c4c0]
+  00559909: xor      esi, esi
+  0055990b: mov      dword ptr [0x85c4c8], edi
+  00559911: test     ecx, ecx
+  00559913: jle      0x559964
+  00559915: mov      ebx, 0x858a70
+  0055991a: mov      ecx, ebx
+  0055991c: mov      ebp, dword ptr [ebx + 0xe90]
+  00559922: xor      edx, edx
+  00559924: test     ebp, ebp
+  00559926: jle      0x559953
+  00559928: mov      eax, ebx
+  0055992a: cmp      dword ptr [eax + 0x9e0], 0x280
+  00559934: jne      0x559989
+  00559936: cmp      dword ptr [eax + 0x9e4], 0x1e0
+  00559940: jne      0x559989
+  00559942: cmp      dword ptr [eax + 0x9e8], 0x10
+  00559949: jne      0x559989
+  0055994b: mov      dword ptr [0x85c4c8], edx
+  00559951: mov      edi, esi
+  00559953: mov      ebp, dword ptr [0x85c4c0]
+  00559959: inc      esi
+  0055995a: add      ebx, 0xe94
+  00559960: cmp      esi, ebp
+  00559962: jl       0x55991a
+  00559964: cmp      edi, -1
+  00559967: jne      0x559971
+  00559969: xor      edi, edi
+  0055996b: mov      dword ptr [0x85c4c8], edi
+  00559971: mov      dword ptr [0x85c4c4], edi
+  00559977: call     0x55999c
+  0055997c: mov      edi, dword ptr [0x85c4c4]
+  00559982: pop      ebp
+  00559983: pop      edi
+  00559984: pop      esi
+  00559985: pop      edx
+  00559986: pop      ecx
+  00559987: pop      ebx
+  00559988: ret      
+  00559989: inc      edx
+  0055998a: mov      ebp, dword ptr [ecx + 0xe90]
+  00559990: add      eax, 0xc
+  00559993: cmp      edx, ebp
+  00559995: jl       0x55992a
+  00559997: jmp      0x559953
+  00559999: lea      eax, [eax]
+## 0x55999c copy current (device, mode) -> 32-byte struct at 0x85c5f0: GUID[16], DDGUIDIsSet, W, H, BPP
+  0055999c: push     ecx
+  0055999d: push     edx
+  0055999e: push     esi
+  0055999f: push     edi
+  005599a0: imul     edx, dword ptr [0x85c4c4], 0xe94
+  005599aa: mov      ecx, dword ptr [0x85c4c8]
+  005599b0: lea      eax, [ecx*4]
+  005599b7: add      edx, 0x858a70
+  005599bd: sub      eax, ecx
+  005599bf: lea      ecx, [edx + 0x9e0]
+  005599c5: mov      edi, 0x85c5f0
+  005599ca: mov      esi, edx
+  005599cc: movsd    dword ptr es:[edi], dword ptr [esi]
+  005599cd: movsd    dword ptr es:[edi], dword ptr [esi]
+  005599ce: movsd    dword ptr es:[edi], dword ptr [esi]
+  005599cf: movsd    dword ptr es:[edi], dword ptr [esi]
+  005599d0: mov      edx, dword ptr [edx + 0x10]
+  005599d3: mov      dword ptr [0x85c600], edx
+  005599d9: mov      edx, dword ptr [ecx + eax*4]
+  005599dc: mov      dword ptr [0x85c604], edx
+  005599e2: mov      edx, dword ptr [ecx + eax*4 + 4]
+  005599e6: mov      eax, dword ptr [ecx + eax*4 + 8]
+  005599ea: mov      dword ptr [0x85c608], edx
+  005599f0: mov      dword ptr [0x85c60c], eax
+  005599f5: pop      edi
+  005599f6: pop      esi
+  005599f7: pop      edx
+  005599f8: pop      ecx
+  005599f9: ret      
+  005599fa: mov      eax, eax
+## 0x5599fc save (fopen wb, fwrite 0x20) / 0x559a40 load (fopen rb, fread 0x20, 0x559810; absent -> 0x5598f8)
+  005599fc: push     edx
+  005599fd: push     esi
+  005599fe: call     0x55999c
+  00559a03: mov      edx, 0x5f3ac2
+  00559a08: mov      eax, 0x5f3ac5
+  00559a0d: call     0x55b854
+  00559a12: mov      esi, eax
+  00559a14: test     eax, eax
+  00559a16: jne      0x559a1b
+  00559a18: pop      esi
+  00559a19: pop      edx
+  00559a1a: ret      
+  00559a1b: push     ecx
+  00559a1c: push     ebx
+  00559a1d: mov      ebx, 1
+  00559a22: mov      edx, 0x20
+  00559a27: mov      ecx, eax
+  00559a29: mov      eax, 0x85c5f0
+  00559a2e: call     0x55c3d9
+  00559a33: mov      eax, esi
+  00559a35: call     0x55b94f
+  00559a3a: pop      ebx
+  00559a3b: pop      ecx
+  00559a3c: pop      esi
+  00559a3d: pop      edx
+  00559a3e: ret      
+  00559a3f: nop      
+  00559a40: push     edx
+  00559a41: push     esi
+  00559a42: mov      edx, 0x5f3ad3
+  00559a47: mov      eax, 0x5f3ad6
+  00559a4c: call     0x55b854
+  00559a51: mov      esi, eax
+  00559a53: test     eax, eax
+  00559a55: je       0x559a80
+  00559a57: push     ecx
+  00559a58: push     ebx
+  00559a59: mov      ebx, 1
+  00559a5e: mov      edx, 0x20
+  00559a63: mov      ecx, eax
+  00559a65: mov      eax, 0x85c5f0
+  00559a6a: call     0x55bcd4
+  00559a6f: mov      eax, esi
+  00559a71: call     0x55b94f
+  00559a76: call     0x559810
+  00559a7b: pop      ebx
+  00559a7c: pop      ecx
+  00559a7d: pop      esi
+  00559a7e: pop      edx
+  00559a7f: ret      
+  00559a80: call     0x5598f8
+  00559a85: pop      esi
+  00559a86: pop      edx
+  00559a87: ret      
+## 0x491e90 SelectMenuDisplayMode: the MENUS always run 640x480 on the primary device (0x538580(0,0)); the chosen mode is only for gameplay (SetGameVideoMode 0x4fada0 reads 0x85c4c4/0x85c4c8)
+  00491e90: push     edx
+  00491e91: push     esi
+  00491e92: push     edi
+  00491e93: push     ebp
+  00491e94: call     0x4c1d74
+  00491e99: mov      eax, 0x5dea58
+  00491e9e: call     0x457458
+  00491ea3: call     0x4dbd84
+  00491ea8: mov      eax, 0x5dea70
+  00491ead: mov      esi, 6
+  00491eb2: call     0x457458
+  00491eb7: call     0x536ff4
+  00491ebc: mov      eax, 0x5dea8c
+  00491ec1: mov      edi, 1
+  00491ec6: call     0x457458
+  00491ecb: call     0x538784
+  00491ed0: mov      eax, 0x5deab0
+  00491ed5: mov      ebp, 0x280
+  00491eda: call     0x457458
+  00491edf: call     0x537f28
+  00491ee4: xor      eax, eax
+  00491ee6: xor      edx, edx
+  00491ee8: call     0x538580
+  00491eed: mov      eax, dword ptr [0x75a348]
+  00491ef2: mov      dword ptr [0x75a358], edx
+  00491ef8: mov      dword ptr [0x82082c], edx
+  00491efe: mov      dword ptr [0x75a350], edx
+  00491f04: mov      dword ptr [0x82084c], esi
+  00491f0a: mov      dword ptr [0x820840], edi
+  00491f10: mov      dword ptr [0x819bd0], ebp
+  00491f16: mov      dword ptr [0x820838], eax
+  00491f1b: mov      eax, 0x1e0
+  00491f20: mov      dword ptr [0x819bdc], edi
+  00491f26: mov      dword ptr [0x819bd4], eax
+  00491f2b: call     0x538658
+  00491f30: mov      eax, 0x5deacc
+  00491f35: call     0x457458
+  00491f3a: call     0x537460
+## 0x5374ef the one IDirectDraw::SetDisplayMode(w,h,bpp) call - DirectDraw 1 signature, NO refresh argument
+  005374e0: pushfd   
+  005374e1: and      al, 0x90
+  005374e3: add      al, 0
+  005374e5: add      byte ptr [ebx - 0x7df7c7c3], al
+  005374eb: add      byte ptr [eax], al
+  005374ed: jne      0x537530
+  005374ef: mov      ebp, dword ptr [0x852c4c]
+  005374f5: push     ebp
+  005374f6: mov      edx, dword ptr [0x819bd4]
+  005374fc: push     edx
+  005374fd: mov      ebx, dword ptr [0x819bd0]
+  00537503: mov      eax, dword ptr [0x852c20]
+  00537508: push     ebx
+  00537509: mov      ecx, dword ptr [eax]
+  0053750b: push     eax
+  0053750c: mov      ebx, 0x5f1333
+  00537511: call     dword ptr [ecx + 0x54]

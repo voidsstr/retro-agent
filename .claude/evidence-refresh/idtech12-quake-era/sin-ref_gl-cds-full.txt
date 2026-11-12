@@ -1,0 +1,133 @@
+==== mov ebx, dword ptr [0x1202f120] at 0x12017cb1
+    0x12017c39: sbb eax, 0x1202f170
+    0x12017c3e: fnstsw ax
+    0x12017c40: test ah, 0x40
+    0x12017c43: jne 0x12017c77
+    0x12017c45: fld dword ptr [esi + 0x14]
+    0x12017c48: call 0x12022b20
+    0x12017c4d: mov dword ptr [esp + 0x84], eax
+    0x12017c54: mov dword ptr [esp + 0x44], 0x1c0000
+    0x12017c5c: fld dword ptr [esi + 0x14]
+    0x12017c5f: call 0x12022b20
+    0x12017c64: push eax
+    0x12017c65: push 0x12037d80
+    0x12017c6a: push 0
+    0x12017c6c: call dword ptr [0x12056e98]
+    0x12017c72: add esp, 0xc
+    0x12017c75: jmp 0x12017ca4
+    0x12017c77: push 0
+    0x12017c79: call dword ptr [0x1202f118]
+    0x12017c7f: mov esi, eax
+    0x12017c81: push 0xc
+    0x12017c83: push esi
+    0x12017c84: call dword ptr [0x1202f008]
+    0x12017c8a: push eax
+    0x12017c8b: push 0x12037d58
+    0x12017c90: push 0
+    0x12017c92: call dword ptr [0x12056e98]
+    0x12017c98: add esp, 0xc
+    0x12017c9b: push esi
+    0x12017c9c: push 0
+    0x12017c9e: call dword ptr [0x1202f11c]
+    0x12017ca4: push 0x12037d44
+    0x12017ca9: push 0
+    0x12017cab: call dword ptr [0x12056e98]
+ >> 0x12017cb1: mov ebx, dword ptr [0x1202f120]
+    0x12017cb7: add esp, 8
+    0x12017cba: lea ecx, [esp + 0x1c]
+    0x12017cbe: push 4
+    0x12017cc0: push ecx
+    0x12017cc1: call ebx
+    0x12017cc3: test eax, eax
+    0x12017cc5: jne 0x12017d1f
+==== call dword ptr [0x1202f120] at 0x12017e65
+    0x12017df3: add esp, 0xc
+    0x12017df6: neg eax
+    0x12017df8: sbb eax, eax
+    0x12017dfa: pop edi
+    0x12017dfb: pop esi
+    0x12017dfc: add eax, 2
+    0x12017dff: pop ebx
+    0x12017e00: add esp, 0xa4
+    0x12017e06: ret 
+    0x12017e07: push 0x12037ce0
+    0x12017e0c: push 0
+    0x12017e0e: call dword ptr [0x12056e98]
+    0x12017e14: mov edx, dword ptr [esp + 0x14]
+    0x12017e18: mov eax, dword ptr [esp + 0x18]
+    0x12017e1c: push 1
+    0x12017e1e: push edx
+    0x12017e1f: push eax
+    0x12017e20: call 0x12017970
+    0x12017e25: add esp, 0x14
+    0x12017e28: test eax, eax
+    0x12017e2a: jne 0x12017e3b
+    0x12017e2c: pop edi
+    0x12017e2d: pop esi
+    0x12017e2e: mov eax, 2
+    0x12017e33: pop ebx
+    0x12017e34: add esp, 0xa4
+    0x12017e3a: ret 
+    0x12017e3b: pop edi
+    0x12017e3c: pop esi
+    0x12017e3d: mov dword ptr [0x12057064], 1
+    0x12017e47: xor eax, eax
+    0x12017e49: pop ebx
+    0x12017e4a: add esp, 0xa4
+    0x12017e50: ret 
+    0x12017e51: push 0x12037ce8
+    0x12017e56: push 0
+    0x12017e58: call dword ptr [0x12056e98]
+    0x12017e5e: add esp, 8
+    0x12017e61: push 0
+    0x12017e63: push 0
+ >> 0x12017e65: call dword ptr [0x1202f120]
+    0x12017e6b: mov ecx, dword ptr [esp + 0xb4]
+    0x12017e72: mov eax, dword ptr [esp + 0x10]
+    0x12017e76: mov edx, dword ptr [esp + 0xb8]
+    0x12017e7d: push 0
+    0x12017e7f: mov dword ptr [ecx], eax
+    0x12017e81: mov ecx, dword ptr [esp + 0x10]
+==== call dword ptr [0x1202f120] at 0x12017f89
+    0x12017f11: push eax
+    0x12017f12: call dword ptr [0x1202f11c]
+    0x12017f18: test eax, eax
+    0x12017f1a: jne 0x12017f2b
+    0x12017f1c: push 0x12037e0c
+    0x12017f21: push esi
+    0x12017f22: call dword ptr [0x12056e98]
+    0x12017f28: add esp, 8
+    0x12017f2b: mov dword ptr [0x12055a48], esi
+    0x12017f31: mov eax, dword ptr [0x12055a4c]
+    0x12017f36: cmp eax, esi
+    0x12017f38: je 0x12017f55
+    0x12017f3a: push esi
+    0x12017f3b: push eax
+    0x12017f3c: call dword ptr [0x1202f108]
+    0x12017f42: mov ecx, dword ptr [0x12055a4c]
+    0x12017f48: push ecx
+    0x12017f49: call dword ptr [0x1202f110]
+    0x12017f4f: mov dword ptr [0x12055a4c], esi
+    0x12017f55: mov eax, dword ptr [0x12055a64]
+    0x12017f5a: cmp eax, esi
+    0x12017f5c: je 0x12017f6d
+    0x12017f5e: push eax
+    0x12017f5f: call 0x120233bb
+    0x12017f64: add esp, 4
+    0x12017f67: mov dword ptr [0x12055a64], esi
+    0x12017f6d: mov edx, dword ptr [0x12055a40]
+    0x12017f73: push edx
+    0x12017f74: push 0x12037cdc
+    0x12017f79: call dword ptr [0x1202f114]
+    0x12017f7f: cmp dword ptr [0x12057064], esi
+    0x12017f85: je 0x12017f95
+    0x12017f87: push esi
+    0x12017f88: push esi
+ >> 0x12017f89: call dword ptr [0x1202f120]
+    0x12017f8f: mov dword ptr [0x12057064], esi
+    0x12017f95: pop esi
+    0x12017f96: ret 
+    0x12017f97: nop 
+    0x12017f98: nop 
+    0x12017f99: nop 
+    0x12017f9a: nop 

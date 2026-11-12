@@ -1,0 +1,218 @@
+### GLQUAKE.EXE VID_SetFullDIBMode (bcf40493)
+00414470 <.text+0x13470>:
+  414470:	a1 a0 94 80 00       	mov    eax,ds:0x8094a0
+  414475:	83 ec 10             	sub    esp,0x10
+  414478:	85 c0                	test   eax,eax
+  41447a:	56                   	push   esi
+  41447b:	8b 74 24 18          	mov    esi,DWORD PTR [esp+0x18]
+  41447f:	57                   	push   edi
+  414480:	75 65                	jne    0x4144e7
+  414482:	8d 04 76             	lea    eax,[esi+esi*2]
+  414485:	6a 04                	push   0x4
+  414487:	68 d8 93 80 00       	push   0x8093d8
+  41448c:	c7 05 00 94 80 00 00 	mov    DWORD PTR ds:0x809400,0x1c0000
+  414493:	00 1c 00 
+  414496:	8d 04 86             	lea    eax,[esi+eax*4]
+  414499:	66 c7 05 fc 93 80 00 	mov    WORD PTR ds:0x8093fc,0x9c
+  4144a0:	9c 00 
+  4144a2:	c1 e0 02             	shl    eax,0x2
+  4144a5:	8b 88 d0 8d 80 00    	mov    ecx,DWORD PTR [eax+0x808dd0]
+  4144ab:	8b 90 bc 8d 80 00    	mov    edx,DWORD PTR [eax+0x808dbc]
+  4144b1:	89 0d 40 94 80 00    	mov    DWORD PTR ds:0x809440,ecx
+  4144b7:	8b 88 d4 8d 80 00    	mov    ecx,DWORD PTR [eax+0x808dd4]
+  4144bd:	8b 80 c0 8d 80 00    	mov    eax,DWORD PTR [eax+0x808dc0]
+  4144c3:	d3 e2                	shl    edx,cl
+  4144c5:	a3 48 94 80 00       	mov    ds:0x809448,eax
+  4144ca:	89 15 44 94 80 00    	mov    DWORD PTR ds:0x809444,edx
+  4144d0:	ff 15 08 86 d5 00    	call   DWORD PTR ds:0xd58608
+  4144d6:	85 c0                	test   eax,eax
+  4144d8:	74 0d                	je     0x4144e7
+  4144da:	68 18 09 45 00       	push   0x450918
+  4144df:	e8                   	.byte 0xe8
+### Quake2 3.20 ref_gl.dll GLimp_SetMode (b6d33427)
+1000de5e <.text+0xce5e>:
+1000de5e:	66 c7 44 24 40 9c 00 	mov    WORD PTR [esp+0x40],0x9c
+1000de65:	89 94 24 88 00 00 00 	mov    DWORD PTR [esp+0x88],edx
+1000de6c:	89 84 24 8c 00 00 00 	mov    DWORD PTR [esp+0x8c],eax
+1000de73:	c7 44 24 44 00 00 18 	mov    DWORD PTR [esp+0x44],0x180000
+1000de7a:	00 
+1000de7b:	d9 46 14             	fld    DWORD PTR [esi+0x14]
+1000de7e:	d8 1d 1c 74 02 10    	fcomp  DWORD PTR ds:0x1002741c
+1000de84:	df e0                	fnstsw ax
+1000de86:	f6 c4 40             	test   ah,0x40
+1000de89:	75 32                	jne    0x1000debd
+1000de8b:	d9 46 14             	fld    DWORD PTR [esi+0x14]
+1000de8e:	e8 9d a0 00 00       	call   0x10017f30
+1000de93:	89 84 24 84 00 00 00 	mov    DWORD PTR [esp+0x84],eax
+1000de9a:	c7 44 24 44 00 00 1c 	mov    DWORD PTR [esp+0x44],0x1c0000
+1000dea1:	00 
+1000dea2:	d9 46 14             	fld    DWORD PTR [esi+0x14]
+1000dea5:	e8 86 a0 00 00       	call   0x10017f30
+1000deaa:	50                   	push   eax
+1000deab:	68 bc f2 02 10       	push   0x1002f2bc
+1000deb0:	6a 00                	push   0x0
+1000deb2:	ff 15 b8 67 05 10    	call   DWORD PTR ds:0x100567b8
+1000deb8:	83 c4 0c             	add    esp,0xc
+1000debb:	eb 2d                	jmp    0x1000deea
+1000debd:	6a 00                	push   0x0
+1000debf:	ff 15 44 71 02 10    	call   DWORD PTR ds:0x10027144
+1000dec5:	8b f0                	mov    esi,eax
+1000dec7:	6a 0c                	push   0xc
+1000dec9:	56                   	push   esi
+1000deca:	ff 15 00 70 02 10    	call   DWORD PTR ds:0x10027000
+1000ded0:	50                   	push   eax
+1000ded1:	68 94 f2 02 10       	push   0x1002f294
+1000ded6:	6a 00                	push   0x0
+1000ded8:	ff 15 b8 67 05 10    	call   DWORD PTR ds:0x100567b8
+1000dede:	83 c4 0c             	add    esp,0xc
+1000dee1:	56                   	push   esi
+1000dee2:	6a 00                	push   0x0
+1000dee4:	ff 15 48 71 02 10    	call   DWORD PTR ds:0x10027148
+1000deea:	68 80 f2 02 10       	push   0x1002f280
+1000deef:	6a 00                	push   0x0
+1000def1:	ff 15 b8 67 05 10    	call   DWORD PTR ds:0x100567b8
+1000def7:	8b 1d 4c 71 02 10    	mov    ebx,DWORD PTR ds:0x1002714c
+1000defd:	83 c4 08             	add    esp,0x8
+1000df00:	8d 4c 24 1c          	lea    ecx,[esp+0x1c]
+1000df04:	6a 04                	push   0x4
+1000df06:	51                   	push   ecx
+1000df07:	ff d3                	call   ebx
+1000df09:	85 c0                	test   eax,eax
+### glh2.exe VID_SetFullDIBMode (c450ea8a)
+0042f560 <.text+0x2e560>:
+  42f560:	70 8b                	jo     0x42f4ed
+  42f562:	7c 24                	jl     0x42f588
+  42f564:	24 c7                	and    al,0xc7
+  42f566:	05 a8 b8 7c 00       	add    eax,0x7cb8a8
+  42f56b:	00 00                	add    BYTE PTR [eax],al
+  42f56d:	1c 00                	sbb    al,0x0
+  42f56f:	8d 04 7f             	lea    eax,[edi+edi*2]
+  42f572:	8d 0c 87             	lea    ecx,[edi+eax*4]
+  42f575:	8b 04 8d 78 b2 7c 00 	mov    eax,DWORD PTR [ecx*4+0x7cb278]
+  42f57c:	8d 14 8d 00 00 00 00 	lea    edx,[ecx*4+0x0]
+  42f583:	a3 e8 b8 7c 00       	mov    ds:0x7cb8e8,eax
+  42f588:	90                   	nop
+  42f589:	8a 8a 7c b2 7c 00    	mov    cl,BYTE PTR [edx+0x7cb27c]
+  42f58f:	8b 82 64 b2 7c 00    	mov    eax,DWORD PTR [edx+0x7cb264]
+  42f595:	d3 e0                	shl    eax,cl
+  42f597:	8b 8a 68 b2 7c 00    	mov    ecx,DWORD PTR [edx+0x7cb268]
+  42f59d:	6a 04                	push   0x4
+  42f59f:	68 80 b8 7c 00       	push   0x7cb880
+  42f5a4:	a3 ec b8 7c 00       	mov    ds:0x7cb8ec,eax
+  42f5a9:	66 c7 05 a4 b8 7c 00 	mov    WORD PTR ds:0x7cb8a4,0x9c
+  42f5b0:	9c 00 
+  42f5b2:	89 0d f0 b8 7c 00    	mov    DWORD PTR ds:0x7cb8f0,ecx
+  42f5b8:	ff 15 c8 76 df 00    	call   DWORD PTR ds:0xdf76c8
+  42f5be:	85 c0                	test   eax,eax
+### SiN ref_gl.dll GLimp_SetMode (050bdfd6)
+12017c30 <.text+0x16c30>:
+12017c30:	44                   	inc    esp
+12017c31:	00 00                	add    BYTE PTR [eax],al
+12017c33:	18 00                	sbb    BYTE PTR [eax],al
+12017c35:	d9 46 14             	fld    DWORD PTR [esi+0x14]
+12017c38:	d8 1d 70 f1 02 12    	fcomp  DWORD PTR ds:0x1202f170
+12017c3e:	df e0                	fnstsw ax
+12017c40:	f6 c4 40             	test   ah,0x40
+12017c43:	75 32                	jne    0x12017c77
+12017c45:	d9 46 14             	fld    DWORD PTR [esi+0x14]
+12017c48:	e8 d3 ae 00 00       	call   0x12022b20
+12017c4d:	89 84 24 84 00 00 00 	mov    DWORD PTR [esp+0x84],eax
+12017c54:	c7 44 24 44 00 00 1c 	mov    DWORD PTR [esp+0x44],0x1c0000
+12017c5b:	00 
+12017c5c:	d9 46 14             	fld    DWORD PTR [esi+0x14]
+12017c5f:	e8 bc ae 00 00       	call   0x12022b20
+12017c64:	50                   	push   eax
+12017c65:	68 80 7d 03 12       	push   0x12037d80
+12017c6a:	6a 00                	push   0x0
+12017c6c:	ff 15 98 6e 05 12    	call   DWORD PTR ds:0x12056e98
+12017c72:	83 c4 0c             	add    esp,0xc
+12017c75:	eb 2d                	jmp    0x12017ca4
+12017c77:	6a 00                	push   0x0
+12017c79:	ff 15 18 f1 02 12    	call   DWORD PTR ds:0x1202f118
+12017c7f:	8b f0                	mov    esi,eax
+12017c81:	6a 0c                	push   0xc
+12017c83:	56                   	push   esi
+12017c84:	ff 15 08 f0 02 12    	call   DWORD PTR ds:0x1202f008
+12017c8a:	50                   	push   eax
+12017c8b:	68 58 7d 03 12       	push   0x12037d58
+12017c90:	6a 00                	push   0x0
+12017c92:	ff 15 98 6e 05 12    	call   DWORD PTR ds:0x12056e98
+12017c98:	83 c4 0c             	add    esp,0xc
+12017c9b:	56                   	push   esi
+12017c9c:	6a 00                	push   0x0
+12017c9e:	ff 15 1c f1 02 12    	call   DWORD PTR ds:0x1202f11c
+12017ca4:	68 44 7d 03 12       	push   0x12037d44
+12017ca9:	6a 00                	push   0x0
+12017cab:	ff 15 98 6e 05 12    	call   DWORD PTR ds:0x12056e98
+12017cb1:	8b 1d 20 f1 02 12    	mov    ebx,DWORD PTR ds:0x1202f120
+12017cb7:	83 c4 08             	add    esp,0x8
+12017cba:	8d 4c 24 1c          	lea    ecx,[esp+0x1c]
+12017cbe:	6a 04                	push   0x4
+12017cc0:	51                   	push   ecx
+12017cc1:	ff d3                	call   ebx
+12017cc3:	85 c0                	test   eax,eax
+### SoF ref_gl.dll GLimp_SetMode (e0454d95)
+3001b81b <.text+0x1a81b>:
+3001b81b:	8b 44 24 18          	mov    eax,DWORD PTR [esp+0x18]
+3001b81f:	8b 0d dc ca 08 30    	mov    ecx,DWORD PTR ds:0x3008cadc
+3001b825:	66 c7 44 24 4c 94 00 	mov    WORD PTR [esp+0x4c],0x94
+3001b82c:	89 94 24 94 00 00 00 	mov    DWORD PTR [esp+0x94],edx
+3001b833:	89 84 24 98 00 00 00 	mov    DWORD PTR [esp+0x98],eax
+3001b83a:	c7 44 24 50 00 00 18 	mov    DWORD PTR [esp+0x50],0x180000
+3001b841:	00 
+3001b842:	d9 41 18             	fld    DWORD PTR [ecx+0x18]
+3001b845:	d8 1d a4 b2 02 30    	fcomp  DWORD PTR ds:0x3002b2a4
+3001b84b:	83 c4 08             	add    esp,0x8
+3001b84e:	df e0                	fnstsw ax
+3001b850:	f6 c4 40             	test   ah,0x40
+3001b853:	75 17                	jne    0x3001b86c
+3001b855:	d9 41 18             	fld    DWORD PTR [ecx+0x18]
+3001b858:	e8 03 42 00 00       	call   0x3001fa60
+3001b85d:	89 84 24 98 00 00 00 	mov    DWORD PTR [esp+0x98],eax
+3001b864:	c7 44 24 48 00 00 58 	mov    DWORD PTR [esp+0x48],0x580000
+3001b86b:	00 
+3001b86c:	8b 35 d0 ca 08 30    	mov    esi,DWORD PTR ds:0x3008cad0
+3001b872:	d9 46 18             	fld    DWORD PTR [esi+0x18]
+3001b875:	d8 1d a4 b2 02 30    	fcomp  DWORD PTR ds:0x3002b2a4
+3001b87b:	df e0                	fnstsw ax
+3001b87d:	f6 c4 40             	test   ah,0x40
+3001b880:	75 37                	jne    0x3001b8b9
+3001b882:	d9 46 18             	fld    DWORD PTR [esi+0x18]
+3001b885:	e8 d6 41 00 00       	call   0x3001fa60
+3001b88a:	8b 7c 24 48          	mov    edi,DWORD PTR [esp+0x48]
+3001b88e:	89 84 24 88 00 00 00 	mov    DWORD PTR [esp+0x88],eax
+3001b895:	81 cf 00 00 04 00    	or     edi,0x40000
+3001b89b:	89 7c 24 48          	mov    DWORD PTR [esp+0x48],edi
+3001b89f:	d9 46 18             	fld    DWORD PTR [esi+0x18]
+3001b8a2:	e8 b9 41 00 00       	call   0x3001fa60
+3001b8a7:	50                   	push   eax
+3001b8a8:	68 7c 04 03 30       	push   0x3003047c
+3001b8ad:	55                   	push   ebp
+3001b8ae:	ff 15 08 cc 08 30    	call   DWORD PTR ds:0x3008cc08
+3001b8b4:	83 c4 0c             	add    esp,0xc
+3001b8b7:	eb 2a                	jmp    0x3001b8e3
+3001b8b9:	55                   	push   ebp
+3001b8ba:	ff 15 20 b1 02 30    	call   DWORD PTR ds:0x3002b120
+3001b8c0:	8b f0                	mov    esi,eax
+3001b8c2:	6a 0c                	push   0xc
+3001b8c4:	56                   	push   esi
+3001b8c5:	ff 15 34 b0 02 30    	call   DWORD PTR ds:0x3002b034
+3001b8cb:	50                   	push   eax
+3001b8cc:	68 54 04 03 30       	push   0x30030454
+3001b8d1:	55                   	push   ebp
+3001b8d2:	ff 15 08 cc 08 30    	call   DWORD PTR ds:0x3008cc08
+3001b8d8:	83 c4 0c             	add    esp,0xc
+3001b8db:	56                   	push   esi
+3001b8dc:	55                   	push   ebp
+3001b8dd:	ff 15 28 b1 02 30    	call   DWORD PTR ds:0x3002b128
+3001b8e3:	68 40 04 03 30       	push   0x30030440
+3001b8e8:	55                   	push   ebp
+3001b8e9:	ff 15 08 cc 08 30    	call   DWORD PTR ds:0x3008cc08
+3001b8ef:	8b 1d 24 b1 02 30    	mov    ebx,DWORD PTR ds:0x3002b124
+3001b8f5:	83 c4 08             	add    esp,0x8
+3001b8f8:	8d 4c 24 20          	lea    ecx,[esp+0x20]
+3001b8fc:	6a 04                	push   0x4
+3001b8fe:	51                   	push   ecx
+3001b8ff:	ff d3                	call   ebx
+3001b901:	85 c0                	test   eax,eax
+3001b903:	75 66                	jne    0x3001b96b

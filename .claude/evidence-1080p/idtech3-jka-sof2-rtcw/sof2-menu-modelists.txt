@@ -1,0 +1,13 @@
+Soldier of Fortune II Gold 1.03
+
+== MP (sof2mp.exe) - ui/setup_display.menu; update101.pk3 overrides mp.pk3
+mp.pk3 : ui/setup_display.menu
+    cvarFloatList { "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 }
+update101.pk3 : ui/setup_display.menu
+    cvarFloatList { "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 }
+
+== SP (SoF2.exe) - Raven RMF menu, therest.pk3 menus/m_video.rmf
+    <list "&MENU_VIDEO_VIDMODES&" atext "&MENU_VIDEO_RESOLUTION& : " cvar menu_mode match "3,4,6,7,8,9" key mouse1 "set menu_settings_changed 1" key mouse2 "set menu_settings_changed 1" btint clickable tip "&MENU_VIDEO_RES_WARN&">
+    menus/video_init.cfg: ['set menu_mode $r_mode']
+    menus/video_apply.cfg: ['set r_mode $menu_mode']
+    labels (update101.pk3 Strip/menu_video.sp VIDMODES): "640x480,800x600,1024x768,1152x864,1280x1024,1600x1200"

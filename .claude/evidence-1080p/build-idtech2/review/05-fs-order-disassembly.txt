@@ -1,0 +1,140 @@
+===== SiN FS_AddGameDirectory
+00441ef0: sub      esp, 0x80
+00441ef6: or       ecx, 0xffffffff
+00441ef9: xor      eax, eax
+00441efb: push     ebx
+00441efc: mov      ebx, dword ptr [esp + 0x88]
+00441f03: push     esi
+00441f04: push     edi
+00441f05: mov      edi, ebx
+00441f07: repne scasb al, byte ptr es:[edi]
+00441f09: not      ecx
+00441f0b: sub      edi, ecx
+00441f0d: mov      eax, ecx
+00441f0f: mov      esi, edi
+00441f11: mov      edi, 0x5f0760
+00441f16: shr      ecx, 2
+00441f19: rep movsd dword ptr es:[edi], dword ptr [esi]
+00441f1b: mov      ecx, eax
+00441f1d: and      ecx, 3
+00441f20: rep movsb byte ptr es:[edi], byte ptr [esi]
+00441f22: xor      edi, edi
+00441f24: push     edi
+00441f25: push     ebx
+00441f26: push     0x48cf84
+00441f2b: lea      ecx, [esp + 0x18]
+00441f2f: push     0x80
+00441f34: push     ecx
+00441f35: call     0x451fb0
+00441f3a: lea      edx, [esp + 0x20]
+00441f3e: push     edx
+00441f3f: call     0x441d50
+00441f44: mov      esi, eax
+00441f46: add      esp, 0x18
+00441f49: test     esi, esi
+00441f4b: je       0x441f71
+00441f4d: push     0x88
+00441f52: call     0x428540
+00441f57: mov      dword ptr [eax + 0x80], esi
+00441f5d: mov      ecx, dword ptr [0x5f0740]
+00441f63: mov      dword ptr [eax + 0x84], ecx
+00441f69: add      esp, 4
+00441f6c: mov      dword ptr [0x5f0740], eax
+00441f71: inc      edi
+00441f72: cmp      edi, 0x20
+00441f75: jl       0x441f24
+00441f77: push     0x88
+00441f7c: call     0x428540
+00441f81: mov      edx, eax
+00441f83: mov      edi, ebx
+00441f85: or       ecx, 0xffffffff
+00441f88: xor      eax, eax
+00441f8a: add      esp, 4
+00441f8d: repne scasb al, byte ptr es:[edi]
+00441f8f: not      ecx
+00441f91: sub      edi, ecx
+00441f93: mov      eax, ecx
+00441f95: mov      esi, edi
+00441f97: mov      edi, edx
+00441f99: shr      ecx, 2
+00441f9c: rep movsd dword ptr es:[edi], dword ptr [esi]
+00441f9e: mov      ecx, eax
+00441fa0: and      ecx, 3
+00441fa3: rep movsb byte ptr es:[edi], byte ptr [esi]
+00441fa5: mov      ecx, dword ptr [0x5f0740]
+00441fab: pop      edi
+00441fac: mov      dword ptr [edx + 0x84], ecx
+00441fb2: pop      esi
+00441fb3: mov      dword ptr [0x5f0740], edx
+00441fb9: pop      ebx
+00441fba: add      esp, 0x80
+00441fc0: ret      
+00441fc1: nop      
+===== SoF FS_AddGameDirectory
+200281f0: or       al, 3
+200281f2: add      byte ptr [ebx - 0x367c28], cl
+200281f8: mov      edi, ebx
+200281fa: xor      eax, eax
+200281fc: repne scasb al, byte ptr es:[edi]
+200281fe: not      ecx
+20028200: sub      edi, ecx
+20028202: push     0x88
+20028207: mov      edx, ecx
+20028209: mov      esi, edi
+2002820b: mov      edi, 0x202ffb00
+20028210: shr      ecx, 2
+20028213: rep movsd dword ptr es:[edi], dword ptr [esi]
+20028215: mov      ecx, edx
+20028217: and      ecx, 3
+2002821a: rep movsb byte ptr es:[edi], byte ptr [esi]
+2002821c: call     0x20020940
+20028221: mov      edx, eax
+20028223: mov      edi, ebx
+20028225: or       ecx, 0xffffffff
+20028228: xor      eax, eax
+2002822a: add      esp, 0x1c
+2002822d: repne scasb al, byte ptr es:[edi]
+2002822f: not      ecx
+20028231: sub      edi, ecx
+20028233: mov      eax, ecx
+20028235: mov      esi, edi
+20028237: mov      edi, edx
+20028239: shr      ecx, 2
+2002823c: rep movsd dword ptr es:[edi], dword ptr [esi]
+2002823e: mov      ecx, eax
+20028240: and      ecx, 3
+20028243: rep movsb byte ptr es:[edi], byte ptr [esi]
+20028245: mov      ecx, dword ptr [0x202ffafc]
+2002824b: xor      edi, edi
+2002824d: mov      dword ptr [edx + 0x84], ecx
+20028253: mov      dword ptr [0x202ffafc], edx
+20028259: push     edi
+2002825a: push     ebx
+2002825b: push     0x201bd644
+20028260: lea      edx, [esp + 0x18]
+20028264: push     0x80
+20028269: push     edx
+2002826a: call     0x20058ef0
+2002826f: lea      eax, [esp + 0x20]
+20028273: push     eax
+20028274: call     0x20053db0
+20028279: mov      esi, eax
+2002827b: add      esp, 0x18
+2002827e: test     esi, esi
+20028280: je       0x200282a6
+20028282: push     0x88
+20028287: call     0x20020940
+2002828c: mov      dword ptr [eax + 0x80], esi
+20028292: mov      ecx, dword ptr [0x202ffafc]
+20028298: mov      dword ptr [eax + 0x84], ecx
+2002829e: add      esp, 4
+200282a1: mov      dword ptr [0x202ffafc], eax
+200282a6: inc      edi
+200282a7: cmp      edi, 0xa
+200282aa: jl       0x20028259
+200282ac: pop      edi
+200282ad: pop      esi
+200282ae: pop      ebx
+200282af: add      esp, 0x80
+200282b5: ret      
+200282b6: push     0xc

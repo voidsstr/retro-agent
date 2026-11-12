@@ -1,0 +1,66 @@
+00:52:32 A-vmui0-default-pure launch: EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 106 +set vm_ui 0 +set logfile 2  +map q3dm17
+00:52:32 A-vmui0-default-pure exec status 0 b''
+00:52:37 A-vmui0-default-pure t+5s [('SDL_app', 'ioquake3', 1920, 1080), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:52:38 A-vmui0-default-pure screenshot (1920, 1080) extrema ((0, 255), (0, 255), (0, 255))
+00:52:38 A-vmui0-default-pure DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:52:38 A-vmui0-default-pure taskkill SUCCESS: The process "ioquake3.x86.exe" with PID 628 has been terminated.
+00:52:41 A-vmui0-default-pure still running after kill: False
+00:52:41 A-vmui0-default-pure DISPLAYCFG after kill {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:52:41 A-vmui0-default-pure   log: ...setting mode -1: 1920 1080
+00:52:41 A-vmui0-default-pure   log: MODE: -1, 1920 x 1080 fullscreen hz:N/A
+00:52:41 A-vmui0-default-pure   log: Loading dll file ui.
+00:52:41 A-vmui0-default-pure   log: Sys_LoadDll(C:\Games\Quake3-TeamArena\baseq3\uix86.dll)...
+00:52:41 A-vmui0-default-pure   log: Sys_LoadDll(C:\Games\Quake3-TeamArena\baseq3\uix86.dll): succeeded ...
+00:52:41 A-vmui0-default-pure   log: ------ Server Initialization ------
+00:52:41 A-vmui0-default-pure   log: MODE: -1, 1920 x 1080 fullscreen hz:N/A
+00:52:41 A-vmui0-default-pure   log: Current search path:
+00:52:41 A-vmui0-default-pure   log: MODE: -1, 1920 x 1080 fullscreen hz:N/A
+00:52:41 A-vmui0-default-pure   log: Loading vm file vm/ui.qvm...
+00:52:41 A-vmui0-default-pure   log: Loading vm file vm/cgame.qvm...
+00:52:41 A-vmui0-default-pure   log: CL_InitCGame:  0.59 seconds
+00:52:45 B-vmui0-svpure0 launch: EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 106 +set vm_ui 0 +set logfile 2 +set sv_pure 0 +map q3dm17
+00:52:45 B-vmui0-svpure0 exec status 0 b''
+00:52:50 B-vmui0-svpure0 t+5s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:52:55 B-vmui0-svpure0 t+10s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:00 B-vmui0-svpure0 t+15s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:05 B-vmui0-svpure0 t+20s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:10 B-vmui0-svpure0 t+25s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:15 B-vmui0-svpure0 t+30s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:20 B-vmui0-svpure0 t+35s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:25 B-vmui0-svpure0 t+40s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 160, 31), ('#32770', 'Error', 305, 126), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31)]
+00:53:30 B-vmui0-svpure0 t+45s [('UnrealTournamentUnrealWWindowsViewportWindow', 'Unreal Tournament', 1920, 1080), ('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:53:36 B-vmui0-svpure0 t+50s [('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:53:41 B-vmui0-svpure0 t+55s [('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:53:46 B-vmui0-svpure0 t+60s [('ConsoleWindowClass', 'Retro Remote Agent V', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:53:46 B-vmui0-svpure0 screenshot (1920, 1080) extrema ((0, 255), (0, 255), (0, 255))
+00:53:46 B-vmui0-svpure0 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:53:46 B-vmui0-svpure0 taskkill ERROR: The process "ioquake3.x86.exe" not found.
+00:53:49 B-vmui0-svpure0 still running after kill: False
+00:53:49 B-vmui0-svpure0 DISPLAYCFG after kill {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:54:35 B2-vmui0-svpure0 launch: EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 106 +set vm_ui 0 +set logfile 2 +set sv_pure 0 +map q3dm17
+00:54:37 B2-vmui0-svpure0 t+2s [('SDL_app', 'ioquake3', 1920, 1080), ('ConsoleWindowClass', 'Retro Remote Agent Versi', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:54:38 B2-vmui0-svpure0 screenshot (1920, 1080)
+00:54:38 B2-vmui0-svpure0 taskkill SUCCESS: The process "ioquake3.x86.exe" with PID 1784 has been terminated.
+00:54:40 B2-vmui0-svpure0 DISPLAYCFG after kill {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:54:40 B2-vmui0-svpure0 wins after kill [('ConsoleWindowClass', 'Retro Remote Agent Versi', 160, 31), ('Progman', 'Program Manager', 1920, 1080)]
+00:54:40 B2-vmui0-svpure0   log: ...setting mode -1: 1920 1080
+00:54:40 B2-vmui0-svpure0   log: Loading dll file ui.
+00:54:40 B2-vmui0-svpure0   log: Sys_LoadDll(C:\Games\Quake3-TeamArena\baseq3\uix86.dll)...
+00:54:40 B2-vmui0-svpure0   log: Sys_LoadDll(C:\Games\Quake3-TeamArena\baseq3\uix86.dll): succeeded ...
+00:54:40 B2-vmui0-svpure0   log: ------ Server Initialization ------
+00:54:40 B2-vmui0-svpure0   log: Loading dll file ui.
+00:54:40 B2-vmui0-svpure0   log: Sys_LoadDll(C:\Games\Quake3-TeamArena\baseq3\uix86.dll)...
+00:54:40 B2-vmui0-svpure0   log: Sys_LoadDll(C:\Games\Quake3-TeamArena\baseq3\uix86.dll): succeeded ...
+00:54:40 B2-vmui0-svpure0   log: Loading vm file vm/cgame.qvm...
+00:54:40 B2-vmui0-svpure0   log: CL_InitCGame:  0.59 seconds
+NOTE (written 00:57): run B at 00:52:45 COLLIDED with another agent's Unreal Tournament 469e launch on .145
+  (ue-review/145-ut469e-getres, launched the same second). ioquake3 failed SDL_Init ("No available video
+  device"), and its fatal dialog "GLimp_Init() - could not load OpenGL subsystem - Copy console log to
+  clipboard?" sat over UT's start-up until ~00:53:30 - it is visible in ue-review/145-ut469e-getres/
+  00-after-launch.png. That UT capture sequence (tilde/getres/enter at 00:53:25-00:53:34) may have typed
+  into this dialog and should be re-run. Run B's result is void; run B2 (00:54:35, box idle) replaces it.
+RESTORE (00:55-00:56): %APPDATA%\Quake3\baseq3\q3config.cfg and qconsole.log re-uploaded from
+  ../box145-before/ and md5-verified (2a799787..., 7caa2aaa...); games.log still 0 bytes; missionpack
+  q3config.cfg unchanged (e913dda1...); no ioquake3 process left; desktop 1920x1080@60.
+  Finding: ioquake3 wrote q3config.cfg DURING the session (00:54:39, 4 s after launch), so a +set of an
+  archived cvar (vm_ui) persists even when the process is killed - a forced kill does not prevent it.

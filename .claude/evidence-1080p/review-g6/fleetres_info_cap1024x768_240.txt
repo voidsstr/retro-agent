@@ -1,0 +1,10 @@
+status 0
+panel      : DELL E2313H  pnp=DELF045  LCD/flat panel
+native     : 1920x1080 @60Hz  aspect 16:9  size 51x29cm  input digital  vmax 76Hz
+desktop set: 1920x1080  (persisted)
+desktop now: 1920x1080 32bpp @60Hz  aspect 16:9
+target     : 848x480  aspect 16:9  fov(hor+) 106
+target 4:3 : 640x480  (for the engines with no widescreen)  q2mode 3  q3mode 3 (640x480)
+glide      : no 3dfx silicon  render device D3DDrv
+modes(24)  : 320x200 320x240 400x300 512x384 640x400 640x432 640x480 720x480 720x576 800x480 800x600 848x480 1024x768 1152x864 1280x720 1280x768 1280x800 1280x960 1280x1024 1360x768 1360x1024 1440x900 1776x1000 1920x1080
+

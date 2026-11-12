@@ -1,0 +1,10 @@
+[Video]
+ScreenWidth=1920
+ScreenHeight=1080
+AllowHiResModes=yes
+VideoBackBuffer=yes
+StretchMovies=no
+
+[Intro]
+PlaySide01=no
+PlaySide00=no

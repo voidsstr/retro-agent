@@ -1,0 +1,19 @@
+zz-fleetres-ui.pk3 - Quake III Arena baseq3 UI (vm/ui.qvm) for the retro-agent fleet
+
+This QVM is id Software's q3_ui (GPL-2.0-or-later) rebuilt from the GPL
+source with one change, to code/q3_ui/ui_video.c: the Video Mode list
+shows the mode the game is running in (1920x1080 on the fleet LCDs) and
+ACCEPT keeps it. ui_video-fleetres.patch + ui_fleetres.h here are that
+change; apply.py builds it and proves nothing else changed.
+
+source:    https://github.com/id-Software/Quake-III-Arena.git @ dbe4ddb10315479fc00086f08e25d968b4b43c49
+tools:     https://github.com/ioquake/ioq3.git @ 83a776283bdb958f82db25554b5ed0966aaf6e49 (q3lcc/q3cpp/q3rcc/q3asm -vq3)
+rebuild:   python3 provisioning/patches/q3-baseq3-ui/apply.py --build OUTDIR
+           (retro-agent repo; the unmodified source must first reproduce
+           pak8.pk3 vm/ui.qvm md5 3e6b8fadb2a970c2b754e48e63a054d7 byte for byte)
+
+vm/ui.qvm: 283592 B md5 b764efe7d8856bc5191e5df3b4349289, VM_MAGIC 0x12721444, 81705 instructions
+pk3:       283708 B md5 f737a9d51ed89c22d6b2be31cf8368d3
+
+Remove it: delete baseq3\zz-fleetres-ui.pk3 (GAMESYNC never deletes - add a del line
+to the launchers or clear it per box), and from the server's baseq3.

@@ -1,0 +1,8 @@
+# SoF.exe md5 2f4db377 - strings pushed in Qcommon_Init / CL_Init / VID_CheckChanges
+0x201adb54 'exec default.cfg\n'
+0x201adb40 'exec config.cfg\n'
+0x201c7094 'ref_%s.dll'
+0x201a9840 '1'
+0x201c6f84 'vid_fullscreen'
+# Cbuf_AddEarlyCommands @0x20019b50 - pushed string constants:
+   0x20019bc8 0x201ac570 'set %s %s\n'

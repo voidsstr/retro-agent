@@ -1,0 +1,8 @@
+>> UIDRAG 700 300 780 360 | status 0
+OK
+>> PING | status 0
+PONG
+>> UIDRAG 700 300 700 300 | status 0
+OK
+>> PING | status 0
+PONG

@@ -1,0 +1,32 @@
+====================================================================================================
+PE SiNGold/3dfxgl.dll imagebase 0x10000000
+import slots: {'0x10027240': 'KERNEL32.dll!LoadLibraryA', '0x100272b0': 'KERNEL32.dll!GetProcAddress'}
+----------------------------------------------------------------------------------------------------
+SITE 0x1000f03b  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1000f705  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x10015a92  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x10015aaa  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x10015aa3 then call ebx)
+----------------------------------------------------------------------------------------------------
+SITE 0x10015abb  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x10015aa3 then call ebx)
+----------------------------------------------------------------------------------------------------
+SITE 0x10015ac8  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x10015aa3 then call ebx)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x10002349: and eax, 0xff0000   | next: shr eax, 0x10
+   0x100023ec: and edi, 0xff0000   | next: and ebx, 0xff
+   0x10002660: and edx, 0xff0000   | next: shr edx, 0x10
+   0x1000298c: and esi, 0xff0000   | next: and ebx, 0xff
+   0x1000a5d5: push 0xffffff   | next: push 0x41400000
+   0x1000a612: push 0xffff00   | next: push 0x41400000
+   0x1000a680: push 0xff0000   | next: push 0x41400000
+   0x1000cf07: adc byte ptr [eax - 0xefff33], bh   | next: int 0
+   0x10010d2f: push 0x400000   | next: push 0
+   0x10010fd7: add eax, 0x400000   | next: cmp eax, edx
+   0x100110e2: cmp ebp, 0x400000   | next: jl 0x1001109b
+   0x10015bd3: test edx, 0xff0000   | next: je 0x10015be7
+   0x10017883: test eax, 0xff0000   | next: je 0x1001789d
+   0x1001790f: test eax, 0xff0000   | next: je 0x10017924
+   0x10017978: test edx, 0xff0000   | next: je 0x10017992

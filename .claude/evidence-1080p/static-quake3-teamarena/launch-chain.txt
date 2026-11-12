@@ -1,0 +1,129 @@
+# How the staged tree sets the mode today (read 2026-09-29 from /mnt/retro-share/Files/Games-Library/Quake3-TeamArena)
+## launch.txt
+Play Quake III Arena.bat^IQuake III Arena^Iioquake3.x86.exe
+Play Team Arena.bat^IQuake III - Team Arena^Iioquake3.x86.exe
+Play Quake III Arena - retail 1.32c.bat^IQuake III Arena (retail 1.32c)^Iquake3.exe
+
+## Play Quake III Arena.bat (non-comment lines)
+@echo off
+call "%~dp0FLEETRES.BAT"
+> "%~dp0baseq3\fleetres.cfg" echo // written by the launcher at every start - do not edit
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_mode "-1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customwidth "%FR_W%"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customheight "%FR_H%"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customaspect "1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customPixelAspect "1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_fullscreen "1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_displayRefresh "%FR_HZ%"
+>>"%~dp0baseq3\fleetres.cfg" echo seta cg_fov "%FR_FOV%"
+call "%~dp0FLEETGL.BAT" "%~dp0baseq3\fleetres.cfg"
+cd /d "%~dp0"
+start "" %FR_ENGINE% +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%
+exit
+
+## Play Team Arena.bat (non-comment lines)
+@echo off
+call "%~dp0FLEETRES.BAT"
+> "%~dp0missionpack\fleetres.cfg" echo // written by the launcher at every start - do not edit
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_mode "-1"
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_customwidth "%FR_W%"
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_customheight "%FR_H%"
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_customaspect "1"
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_customPixelAspect "1"
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_fullscreen "1"
+>>"%~dp0missionpack\fleetres.cfg" echo seta r_displayRefresh "%FR_HZ%"
+>>"%~dp0missionpack\fleetres.cfg" echo seta cg_fov "%FR_FOV%"
+call "%~dp0FLEETGL.BAT" "%~dp0missionpack\fleetres.cfg"
+cd /d "%~dp0"
+start "" %FR_ENGINE% +set fs_game missionpack +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%
+exit
+
+## Play Quake III Arena - retail 1.32c.bat (non-comment lines)
+@echo off
+call "%~dp0FLEETRES.BAT"
+> "%~dp0baseq3\fleetres.cfg" echo // written by the launcher at every start - do not edit
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_mode "-1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customwidth "%FR_W%"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customheight "%FR_H%"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customaspect "1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_customPixelAspect "1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_fullscreen "1"
+>>"%~dp0baseq3\fleetres.cfg" echo seta r_displayRefresh "%FR_HZ%"
+>>"%~dp0baseq3\fleetres.cfg" echo seta cg_fov "%FR_FOV%"
+call "%~dp0FLEETGL.BAT" "%~dp0baseq3\fleetres.cfg"
+cd /d "%~dp0"
+start "" quake3.exe +set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%
+exit
+
+## FLEETGL.BAT (non-comment lines) - FR_ENGINE is quake3.exe ONLY where system32\3dfxvgl.dll exists AND FR_W<=800 AND FR_H<=600
+@echo off
+set "FR_ENGINE=ioquake3.x86.exe"
+if not exist "%SystemRoot%\system32\3dfxvgl.dll" goto :eof
+if not defined FR_W goto :eof
+if not defined FR_H goto :eof
+if %FR_W% GTR 800 goto :toobig
+if %FR_H% GTR 600 goto :toobig
+set "FR_ENGINE=quake3.exe"
+>>%1 echo seta r_glDriver "3dfxvgl"
+>>%1 echo seta r_colorbits "16"
+>>%1 echo seta r_texturebits "16"
+>>%1 echo seta r_depthbits "16"
+>>%1 echo seta r_stencilbits "0"
+>>%1 echo seta r_ext_compressed_textures "0"
+goto :eof
+:toobig
+echo Quake III: %FR_W%x%FR_H% exceeds the Voodoo 2's 800x600 ceiling -
+echo using this machine's ordinary OpenGL instead. Set ResCapW/ResCapH
+echo under HKLM\Software\RetroAgent to 800x600 to use the Voodoo 2.
+
+## baseq3/autoexec.cfg == missionpack/autoexec.cfg (md5 d6cec237...) - active lines
+seta r_colorbits "32"
+seta com_maxfps "125"
+bind F11 "screenshotJPEG"
+bind F10 "screenshot"
+exec fleetres.cfg
+
+## no staged fleetres.cfg / q3config.cfg in the tree (case-insensitive):
+  (end of list)
+
+## vm_ui / sv_pure mentioned anywhere in the staged cfg/bat files? (case-insensitive)
+  (end of list)
+
+## agent/shared/gameres.h - the GAMESYNC-time writer for this title
+685:{ "Quake3-TeamArena", GR_OP_CFG, "baseq3\\fleetres.cfg", NULL, NULL, NULL },
+686:{ "Quake3-TeamArena", GR_OP_CFG, "missionpack\\fleetres.cfg", NULL, NULL, NULL },
+ * engines that have no refresh setting at all. Quake II and GoldSrc were
+ * checked: their binaries carry no refresh cvar, only `timerefresh` and
+ * `r_norefresh`.
+ */
+GR_FN const char *gr_cfg_body(const char *kind)
+{
+    if (!kind)
+        return "// written by GAMESYNC for this box's monitor - do not edit\n"
+               "seta r_mode \"-1\"\n"
+               "seta r_customwidth \"%W%\"\n"
+               "seta r_customheight \"%H%\"\n"
+               "seta r_customaspect \"1\"\n"
+
+## scripts/fleet/stage-fleetres.py - the GENERATOR of the three Play*.bat (fix the launchers here, not on the share)
+def q3(mod, exe, extra=""):
+    args = idtech3_args()
+    old = re.escape('start "" %s%s' % (exe, extra))
+    return rec('cd /d "%~dp0"',
+               [CALL] + idtech3_cfg(mod),
+               (old, 'start "" %s%s %s' % (exe, extra, args)))
+
+    "Quake3-TeamArena": {
+        "launchers": {
+            "Play Quake III Arena.bat": q3("baseq3", "ioquake3.x86.exe"),
+            "Play Team Arena.bat": q3("missionpack", "ioquake3.x86.exe",
+                                      " +set fs_game missionpack"),
+            "Play Quake III Arena - retail 1.32c.bat": q3("baseq3", "quake3.exe"),
+        },
+        "cfg_strip": ["baseq3/autoexec.cfg", "missionpack/autoexec.cfg"],
+    },
+
+## provisioning/fleetres/PER-TITLE-STATUS.md rows
+96:| **Quake3-TeamArena** | 1080p | `r_mode -1` + custom w/h, both by command line and `fleetres.cfg` | **measured on .145: `ioquake3` SDL_app 1920x1080 through its launcher; `quake3.exe` 1920x1080** |
+149:| `Quake3-TeamArena/quake3.exe` | works | 1920x1080 |
+150:| `Quake3-TeamArena/ioquake3.x86.exe` | works | 1920x1080 (through its launcher) |

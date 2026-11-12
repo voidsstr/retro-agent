@@ -1,0 +1,17 @@
+== /mnt/retro-share/Files/Games-Library/Carmageddon1/DOSBOX/DOSBox.exe
+table @0x300d90: 23 entries, 0 VESA (>=0x100)
+table @0x301390: 33 entries, 0 VESA (>=0x100)
+table @0x301e10: 62 entries, 43 VESA (>=0x100)
+  100:640x400(t5), 101:640x480(t5), 102:800x600(t4), 103:800x600(t5), 104:1024x768(t4), 105:1024x768(t5), 106:1280x1024(t4), 107:1280x1024(t5), 10D:320x200(t6), 10E:320x200(t7), 10F:320x200(t8), 110:640x480(t6), 111:640x480(t7), 112:640x480(t8), 113:800x600(t6), 114:800x600(t7), 115:800x600(t8), 116:1024x768(t6), 117:1024x768(t7), 118:1024x768(t8), 150:320x200(t5), 151:320x240(t5), 152:320x400(t5), 153:320x480(t5), 160:320x240(t6), 161:320x400(t6), 162:320x480(t6), 165:640x400(t6), 170:320x240(t7), 171:320x400(t7), 172:320x480(t7), 175:640x400(t7), 190:320x240(t8), 191:320x400(t8), 192:320x480(t8), 207:1152x864(t5), 209:1152x864(t6), 20A:1152x864(t7), 213:640x400(t8), 222:848x480(t5), 223:848x480(t6), 224:848x480(t7), 225:848x480(t8)
+  largest: 106 1280x1024; any 1920x1080: False; 8bpp-type set: [4, 5, 6, 7, 8]
+== /mnt/retro-share/Files/Games-Library/Daggerfall/DOSBOX/DOSBox.exe
+table @0x30f9c0: 23 entries, 0 VESA (>=0x100)
+table @0x30ffc0: 33 entries, 0 VESA (>=0x100)
+table @0x310a40: 62 entries, 43 VESA (>=0x100)
+  100:640x400(t5), 101:640x480(t5), 102:800x600(t4), 103:800x600(t5), 104:1024x768(t4), 105:1024x768(t5), 106:1280x1024(t4), 107:1280x1024(t5), 10D:320x200(t6), 10E:320x200(t7), 10F:320x200(t8), 110:640x480(t6), 111:640x480(t7), 112:640x480(t8), 113:800x600(t6), 114:800x600(t7), 115:800x600(t8), 116:1024x768(t6), 117:1024x768(t7), 118:1024x768(t8), 150:320x200(t5), 151:320x240(t5), 152:320x400(t5), 153:320x480(t5), 160:320x240(t6), 161:320x400(t6), 162:320x480(t6), 165:640x400(t6), 170:320x240(t7), 171:320x400(t7), 172:320x480(t7), 175:640x400(t7), 190:320x240(t8), 191:320x400(t8), 192:320x480(t8), 207:1152x864(t5), 209:1152x864(t6), 20A:1152x864(t7), 213:640x400(t8), 222:848x480(t5), 223:848x480(t6), 224:848x480(t7), 225:848x480(t8)
+  largest: 106 1280x1024; any 1920x1080: False; 8bpp-type set: [4, 5, 6, 7, 8]
+33294e0a8b970b8de45ce446e2add783  /mnt/retro-share/Files/Games-Library/Carmageddon1/DOSBOX/DOSBox.exe
+33294e0a8b970b8de45ce446e2add783  /mnt/retro-share/Files/Games-Library/RedneckRampage/DOSBOX/DOSBox.exe
+33294e0a8b970b8de45ce446e2add783  /mnt/retro-share/Files/Games-Library/ShadowWarrior/DOSBOX/DOSBox.exe
+33294e0a8b970b8de45ce446e2add783  /mnt/retro-share/Files/Games-Library/Descent1/DOSBOX/DOSBox.exe
+2318a4462513382c45298be63ec007d8  /mnt/retro-share/Files/Games-Library/Daggerfall/DOSBOX/DOSBox.exe

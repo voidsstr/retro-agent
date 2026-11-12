@@ -1,0 +1,4 @@
+# UE1 GlideDrv.dll (UnrealGold, 86,016 B): the grSstOpen log line prints the REFRESH under 'Res=' and the RESOLUTION under 'Ref='
+# format 0x1070fa78 'grSstOpen Res=%i Ref=%i Buffers=%i' is pushed with (ecx=[ebp-0x14], edi, ebx) at 0x10702cfa..0x10702d08;
+# [ebp-0x14] is the variable the 'Glide: Refresh %i failed, falling back...' (0x1070fb0c) path prints and resets; edi is the one 'Glide: Resolution %i failed' (0x1070fb70) resets.
+# So 'Res=0 Ref=12' = GR_REFRESH_60Hz (0), GR_RESOLUTION_1024x768 (12).

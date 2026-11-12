@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKCU Environment  status=0  2026-09-29 04:35:22
+{"root":"HKCU","path":"Environment","values":[{"name":"TEMP","type":"REG_EXPAND_SZ","data":"%USERPROFILE%\\Local Settings\\Temp"},{"name":"TMP","type":"REG_EXPAND_SZ","data":"%USERPROFILE%\\Local Settings\\Temp"}],"subkeys":[]}

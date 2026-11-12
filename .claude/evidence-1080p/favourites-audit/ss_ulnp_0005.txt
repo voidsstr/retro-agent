@@ -1,0 +1,75 @@
+State  Recv-Q Send-Q                       Local Address:Port  Peer Address:PortProcess                                                               
+UNCONN 0      0                                  0.0.0.0:49001      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:49124      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:20100      0.0.0.0:*    users:(("sof2ded",pid=3117,fd=14))                                   
+UNCONN 0      0                                  0.0.0.0:20142      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:25600      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:25601      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:25610      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:25611      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:26000      0.0.0.0:*    users:(("darkplaces-serv",pid=3103,fd=6))                            
+UNCONN 0      0                                  0.0.0.0:26900      0.0.0.0:*    users:(("srcds_linux",pid=221499,fd=16))                             
+UNCONN 0      0                            192.168.1.132:27005      0.0.0.0:*    users:(("srcds_linux",pid=221499,fd=14))                             
+UNCONN 0      0                                  0.0.0.0:27015      0.0.0.0:*    users:(("python3",pid=3035,fd=3))                                    
+UNCONN 0      0                                  0.0.0.0:27016      0.0.0.0:*    users:(("python3",pid=3032,fd=3))                                    
+UNCONN 0      0                                  0.0.0.0:27017      0.0.0.0:*    users:(("hlds_linux",pid=3244,fd=10))                                
+UNCONN 0      0                                  0.0.0.0:27018      0.0.0.0:*    users:(("hlds_linux",pid=3206,fd=10))                                
+UNCONN 0      0                                  0.0.0.0:27019      0.0.0.0:*    users:(("hlds_linux",pid=3203,fd=10))                                
+UNCONN 0      0                                  0.0.0.0:27020      0.0.0.0:*    users:(("python3",pid=3036,fd=3))                                    
+UNCONN 0      0                                  0.0.0.0:27021      0.0.0.0:*    users:(("hlds_linux",pid=3204,fd=10))                                
+UNCONN 0      0                            192.168.1.132:27025      0.0.0.0:*    users:(("srcds_linux",pid=221499,fd=13))                             
+UNCONN 0      0                            192.168.1.132:27035      0.0.0.0:*    users:(("srcds_linux",pid=221499,fd=15))                             
+UNCONN 0      0                                  0.0.0.0:27502      0.0.0.0:*    users:(("mvdsv",pid=3106,fd=4))                                      
+UNCONN 0      0                                  0.0.0.0:27666      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:27888      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:27910      0.0.0.0:*    users:(("quake2",pid=3104,fd=9))                                     
+UNCONN 0      0                                  0.0.0.0:27960      0.0.0.0:*    users:(("ioq3ded",pid=3099,fd=12))                                   
+UNCONN 0      0                                  0.0.0.0:27961      0.0.0.0:*    users:(("ioq3ded",pid=3105,fd=12))                                   
+UNCONN 0      0                                  0.0.0.0:27962      0.0.0.0:*    users:(("ioq3ded",pid=3102,fd=16))                                   
+UNCONN 0      0                                  0.0.0.0:27963      0.0.0.0:*    users:(("iowolfded.x86_6",pid=3113,fd=18))                           
+UNCONN 0      0                                  0.0.0.0:28000      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:28037      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:60854      0.0.0.0:*    users:(("quake2",pid=3104,fd=10))                                    
+UNCONN 0      0                                  0.0.0.0:29070      0.0.0.0:*    users:(("openjkded.x86_6",pid=3097,fd=3))                            
+UNCONN 0      0                               127.0.0.54:53         0.0.0.0:*                                                                         
+UNCONN 0      0                            127.0.0.53%lo:53         0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:67         0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:69         0.0.0.0:*                                                                         
+UNCONN 0      0                                127.0.0.1:323        0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:2092       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:4011       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:5353       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:5678       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:7775       0.0.0.0:*    users:(("UCC.exe",pid=60621,fd=45),("wineserver64",pid=53826,fd=279))
+UNCONN 0      0                                  0.0.0.0:7777       0.0.0.0:*    users:(("ucc-bin-linux-a",pid=3124,fd=173))                          
+UNCONN 0      0                                  0.0.0.0:7778       0.0.0.0:*    users:(("ucc-bin-linux-a",pid=3124,fd=215))                          
+UNCONN 0      0                                  0.0.0.0:7778       0.0.0.0:*    users:(("ucc-bin-linux-a",pid=3124,fd=213))                          
+UNCONN 0      0                                  0.0.0.0:7787       0.0.0.0:*    users:(("ucc-bin-linux-a",pid=3124,fd=216))                          
+UNCONN 0      0                                  0.0.0.0:7790       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:7791       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:7797       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=34))                             
+UNCONN 0      0                                  0.0.0.0:7798       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=45))                             
+UNCONN 0      0                                  0.0.0.0:7799       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=47))                             
+UNCONN 0      0                                  0.0.0.0:7800       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=49))                             
+UNCONN 0      0                                  0.0.0.0:7801       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=48))                             
+UNCONN 0      0                                  0.0.0.0:7802       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=50))                             
+UNCONN 0      0                                  0.0.0.0:7803       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=52))                             
+UNCONN 0      0                                  0.0.0.0:7804       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=51))                             
+UNCONN 0      0                                  0.0.0.0:7805       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=46))                             
+UNCONN 0      0                                  0.0.0.0:7806       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=53))                             
+UNCONN 0      0                                  0.0.0.0:7807       0.0.0.0:*    users:(("UCC.exe",pid=60621,fd=29),("wineserver64",pid=53826,fd=257))
+UNCONN 0      0                                  0.0.0.0:7808       0.0.0.0:*    users:(("UCC.exe",pid=60621,fd=44),("wineserver64",pid=53826,fd=278))
+UNCONN 0      0                                  0.0.0.0:8777       0.0.0.0:*    users:(("ucc-bin-amd64",pid=3125,fd=54))                             
+UNCONN 0      0                                  0.0.0.0:8778       0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:41641      0.0.0.0:*                                                                         
+UNCONN 0      0                                  0.0.0.0:9899       0.0.0.0:*    users:(("python3",pid=3109,fd=9))                                    
+UNCONN 0      0                                  0.0.0.0:10777      0.0.0.0:*    users:(("ucc-bin-linux-a",pid=3124,fd=217))                          
+UNCONN 0      0                                  0.0.0.0:10777      0.0.0.0:*    users:(("ucc-bin-linux-a",pid=3124,fd=214))                          
+UNCONN 0      0                                     [::]:26000         [::]:*    users:(("darkplaces-serv",pid=3103,fd=7))                            
+UNCONN 0      0                                        *:59804            *:*    users:(("quake2",pid=3104,fd=8))                                     
+UNCONN 0      0                                        *:27910            *:*    users:(("quake2",pid=3104,fd=7))                                     
+UNCONN 0      0                                     [::]:28000         [::]:*                                                                         
+UNCONN 0      0                                    [::1]:323           [::]:*                                                                         
+UNCONN 0      0      [fe80::bba:689f:19f8:bcff]%enp129s0:546           [::]:*                                                                         
+UNCONN 0      0                                     [::]:5353          [::]:*                                                                         
+UNCONN 0      0                                     [::]:41641         [::]:*                                                                         

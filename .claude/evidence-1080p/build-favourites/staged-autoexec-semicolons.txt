@@ -1,0 +1,37 @@
+Staged Quake-family autoexec.cfg lines that the engine's Cbuf splits at ';' (outside quotes, INSIDE // comments) - 2026-09-29, read-only scan of /mnt/retro-share/Files/Games-Library
+id Q2 3.20 / Q3 1.32 / ioq3 1.36 Cbuf_Execute break at ';' when the quotes seen so far are even; '//' only matters to the tokenizer afterwards, so the text after ';' runs as a command.
+
+./JediAcademy/base/autoexec.cfg:2: executes 'this file is not.'   <- // jaconfig.cfg / jampconfig.cfg are rewritten on exit; this file is not.
+./Quake2Complete/baseq2/autoexec.cfg:15: executes 'invuse is its action key'   <- bind f "invuse"                 // Quake II has no +use; invuse is its action key
+./Quake2Complete/baseq2/autoexec.cfg:28: executes 'nobody wants 1997 walk speed'   <- set cl_run "1"                  // always run; nobody wants 1997 walk speed
+./Quake2Complete/rogue/autoexec.cfg:15: executes 'invuse is its action key'   <- bind f "invuse"                 // Quake II has no +use; invuse is its action key
+./Quake2Complete/rogue/autoexec.cfg:28: executes 'nobody wants 1997 walk speed'   <- set cl_run "1"                  // always run; nobody wants 1997 walk speed
+./Quake2Complete/xatrix/autoexec.cfg:15: executes 'invuse is its action key'   <- bind f "invuse"                 // Quake II has no +use; invuse is its action key
+./Quake2Complete/xatrix/autoexec.cfg:28: executes 'nobody wants 1997 walk speed'   <- set cl_run "1"                  // always run; nobody wants 1997 walk speed
+./Quake2Win9x/baseq2/autoexec.cfg:15: executes 'invuse is its action key'   <- bind f "invuse"                 // Quake II has no +use; invuse is its action key
+./Quake2Win9x/baseq2/autoexec.cfg:28: executes 'nobody wants 1997 walk speed'   <- set cl_run "1"                  // always run; nobody wants 1997 walk speed
+./Quake3-TeamArena/baseq3/autoexec.cfg:4: executes 'this is not.'   <- // the renderer comes up with. q3config.cfg is rewritten on exit; this is not.
+./Quake3-TeamArena/baseq3/autoexec.cfg:16: executes ''   <- // ioquake3 writes to %APPDATA%\Quake3\<mod>\screenshots\;
+./Quake3-TeamArena/missionpack/autoexec.cfg:4: executes 'this is not.'   <- // the renderer comes up with. q3config.cfg is rewritten on exit; this is not.
+./Quake3-TeamArena/missionpack/autoexec.cfg:16: executes ''   <- // ioquake3 writes to %APPDATA%\Quake3\<mod>\screenshots\;
+./Shogo/autoexec.cfg:151: executes '0 = exclusive fullscreen.'   <- // LithTech 1.0 keeps the windowed flag here; 0 = exclusive fullscreen.
+./SiNGold/2015/autoexec.cfg:60: executes "if (n%2) print NR, $0}' autoexec.cfg"   <- //     awk '{n=gsub(/\x22/,x); if (n%2) print NR, $0}' autoexec.cfg
+./SiNGold/2015/autoexec.cfg:83: executes 'I did not receive this directly, so I'   <- // ANOTHER AGENT (provenance via the lead; I did not receive this directly, so I
+./SiNGold/2015/autoexec.cfg:90: executes 'sixty seconds'   <- // A screenshot taken during one of the soft phases reads 320x240; sixty seconds
+./SiNGold/2015/autoexec.cfg:100: executes 'it just takes over a minute of renderer'   <- // configured resolution; it just takes over a minute of renderer
+./SiNGold/2015/autoexec.cfg:157: executes 'a hand-written'   <- // vid_fullscreen / con_vidmode / sw_mode on the command line; a hand-written
+./SiNGold/2015/autoexec.cfg:158: executes 'gl_ext_palettedtexture 0 with con_texmode 0; and dropping'   <- // base\config.cfg; gl_ext_palettedtexture 0 with con_texmode 0; and dropping
+./SiNGold/base/autoexec.cfg:48: executes "if (n%2) print NR, $0}' autoexec.cfg"   <- //     awk '{n=gsub(/\x22/,x); if (n%2) print NR, $0}' autoexec.cfg
+./SiNGold/base/autoexec.cfg:71: executes 'I did not receive this directly, so I'   <- // ANOTHER AGENT (provenance via the lead; I did not receive this directly, so I
+./SiNGold/base/autoexec.cfg:78: executes 'sixty seconds'   <- // A screenshot taken during one of the soft phases reads 320x240; sixty seconds
+./SiNGold/base/autoexec.cfg:88: executes 'it just takes over a minute of renderer'   <- // configured resolution; it just takes over a minute of renderer
+./SiNGold/base/autoexec.cfg:145: executes 'a hand-written'   <- // vid_fullscreen / con_vidmode / sw_mode on the command line; a hand-written
+./SiNGold/base/autoexec.cfg:146: executes 'gl_ext_palettedtexture 0 with con_texmode 0; and dropping'   <- // base\config.cfg; gl_ext_palettedtexture 0 with con_texmode 0; and dropping
+./SiNGold/ctf/autoexec.cfg:43: executes "if (n%2) print NR, $0}' autoexec.cfg"   <- //     awk '{n=gsub(/\x22/,x); if (n%2) print NR, $0}' autoexec.cfg
+./SiNGold/ctf/autoexec.cfg:66: executes 'I did not receive this directly, so I'   <- // ANOTHER AGENT (provenance via the lead; I did not receive this directly, so I
+./SiNGold/ctf/autoexec.cfg:73: executes 'sixty seconds'   <- // A screenshot taken during one of the soft phases reads 320x240; sixty seconds
+./SiNGold/ctf/autoexec.cfg:83: executes 'it just takes over a minute of renderer'   <- // configured resolution; it just takes over a minute of renderer
+./SiNGold/ctf/autoexec.cfg:140: executes 'a hand-written'   <- // vid_fullscreen / con_vidmode / sw_mode on the command line; a hand-written
+./SiNGold/ctf/autoexec.cfg:141: executes 'gl_ext_palettedtexture 0 with con_texmode 0; and dropping'   <- // base\config.cfg; gl_ext_palettedtexture 0 with con_texmode 0; and dropping
+./SoldierOfFortune2/base/autoexec.cfg:36: executes 'it is removed so nobody'   <- //    seta line that used to sit here did nothing; it is removed so nobody
+./SoldierOfFortune/base/autoexec.cfg:26: executes 'an earlier pass typed the dashed key'   <- // shows, and it is the form that works; an earlier pass typed the dashed key

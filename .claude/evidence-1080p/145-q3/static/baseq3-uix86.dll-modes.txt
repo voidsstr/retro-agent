@@ -1,0 +1,17 @@
+# strings -a baseq3/uix86.dll (ioq3 native q3_ui, used only with vm_ui 0 and never on a pure server)
+1974:ui_ioq3
+3172:320x240
+3173:400x300
+3174:512x384
+3175:640x480
+3176:800x600
+3177:960x720
+3178:1024x768
+3179:1152x864
+3180:1280x1024
+3181:1600x1200
+3182:2048x1536
+3183:856x480 wide screen
+3194:r_customwidth
+3230:r_availableModes
+3808:ui_ioq3

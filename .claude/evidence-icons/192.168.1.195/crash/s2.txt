@@ -1,0 +1,1896 @@
+Event[0]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[1]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[2]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[3]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[4]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-26T16:20:03.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[5]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-26T16:20:03.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[6]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-26T16:20:03.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[7]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-26T16:20:03.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[8]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:45:15.387
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[9]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:45:15.387
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[10]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:45:15.387
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[11]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:45:15.387
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[12]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:09:30.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[13]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:09:30.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[14]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:09:30.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[15]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-25T21:09:30.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[16]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-24T04:43:42.309
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[17]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-24T04:43:42.309
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[18]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-24T04:43:42.309
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[19]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2013-09-24T04:43:42.309
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[20]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-04T11:17:53.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[21]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-04T11:17:53.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[22]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-04T11:17:53.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[23]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-04T11:17:53.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[24]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-01T10:38:36.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[25]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-01T10:38:36.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[26]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-01T10:38:36.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[27]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-01T10:38:36.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[28]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T14:29:27.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[29]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T14:29:27.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[30]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T14:29:27.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[31]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T14:29:27.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[32]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T10:57:51.574
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[33]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T10:57:51.574
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[34]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T10:57:51.574
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[35]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T10:57:51.574
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[36]:
+  Log Name: System
+  Source: Application Popup
+  Date: 2026-08-31T10:01:34.000
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Application popup: Turok 2 Game Launcher : Turok2MPEnglish.exe - System Error : The program can't start because glide3x.dll is missing from your computer. Try reinstalling the program to fix this problem. 
+
+Event[37]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T00:21:30.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[38]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T00:21:30.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[39]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T00:21:30.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[40]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-31T00:21:30.652
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[41]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T22:51:39.902
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[42]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T22:51:39.902
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[43]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T22:51:39.902
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[44]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T22:51:39.902
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[45]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T09:14:01.356
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[46]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T09:14:01.356
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[47]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T09:14:01.356
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[48]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-29T09:14:01.356
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[49]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T21:36:18.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[50]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T21:36:18.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[51]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T21:36:18.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[52]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T21:36:18.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[53]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T19:43:50.465
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[54]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T19:43:50.465
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[55]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T19:43:50.465
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[56]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-28T19:43:50.465
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[57]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-24T06:17:41.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[58]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-24T06:17:41.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[59]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-24T06:17:41.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[60]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-24T06:17:41.294
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[61]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-21T10:31:25.886
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[62]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-21T10:31:25.886
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[63]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-21T10:31:25.886
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[64]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-21T10:31:25.886
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[65]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T13:31:13.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[66]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T13:31:13.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[67]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T13:31:13.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[68]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T13:31:13.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[69]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T10:29:21.200
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[70]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T10:29:21.200
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[71]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T10:29:21.200
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[72]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-18T10:29:21.200
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[73]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:12:03.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[74]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:12:03.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[75]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:12:03.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[76]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:12:03.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[77]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:11:19.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[78]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:11:19.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[79]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:11:19.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[80]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-14T08:11:19.262
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[81]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-11T00:31:33.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[82]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-11T00:31:33.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[83]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-11T00:31:33.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[84]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-11T00:31:33.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[85]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T20:19:50.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[86]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T20:19:50.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[87]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T20:19:50.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[88]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T20:19:50.543
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[89]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T15:46:25.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[90]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T15:46:25.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[91]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T15:46:25.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[92]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-10T15:46:25.528
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[93]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-09T06:44:06.370
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[94]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-09T06:44:06.370
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[95]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-09T06:44:06.370
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[96]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-09T06:44:06.370
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[97]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-08T19:30:38.434
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[98]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-08T19:30:38.434
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[99]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-08-08T19:30:38.434
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+

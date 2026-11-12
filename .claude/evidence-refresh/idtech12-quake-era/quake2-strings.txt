@@ -1,0 +1,72 @@
+=== quake2.exe 362496
+3dfxgl
+[3Dfx OpenGL   ]
+bosstart
+CMod_LoadBrushModel: %s has wrong version number (%i should be %i)
+Couldn't fall back to software refresh!
+game is version %i, not %i
+GetVersion
+GetVersionExA
+gl_driver
+gl_mode
+Local map version differs from server: %i != '%s'
+Quake2 requires windows version 4 or greater
+refresh server list
+    rejected connect from version %i
+Server is version %4.2f.
+Server returned version %i, not %i
+%s has incompatible api_version
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+%s: wrong version
+timerefresh
+version
+vid_front
+vid_fullscreen
+vid_gamma
+vid_ref
+vid_restart
+vid_xpos
+vid_ypos
+=== ref_gl.dll 234496
+GetVersion
+GetVersionExA
+gl_bitdepth
+gl_bitdepth requires Win95 OSR2.x or WinNT 4.x
+gl_driver
+gl_ext_swapinterval
+GLimp_Init() - GetVersionEx failed
+gl_mode
+glPassThrough
+gl_swapinterval
+GL_VERSION: %s
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+ref_gl version: GL 0.01
+r_norefresh
+%s has wrong version number (%i should be %i)
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+...using gl_bitdepth of %d
+VID_CreateWindow() - GLimp_InitGL failed
+vid_fullscreen
+vid_gamma
+vid_ref
+vid_xpos
+vid_ypos
+wglSwapIntervalEXT
+=== ref_soft.dll 193024
+DDERR_WASSTILLDRAWING
+GetVersion
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+ref_soft version: SOFT 0.01
+%s has wrong version number (%i should be %i)
+sw_mode
+vid_fullscreen
+vid_gamma
+vid_xpos
+vid_ypos
+=== pvrgl.dll 227328
+GetVersion
+glPassThrough
+sgl_get_win_versions

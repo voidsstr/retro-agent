@@ -1,0 +1,15 @@
+2026-09-29 00:30:30 EDT launch2 (Team Arena) start
+[status 0]
+
+[{'pid': 2412, 'name': 'ioquake3.x86.exe', 'threads': 18, 'parent_pid': 3572}]
+[status 0]
+{"windows":[{"hwnd":"0008013E","title":"ioquake3","class":"SDL_app","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true},{"hwnd":"000200F0","title":"Retro Remote Agent Version 1.90.2","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31974},"visible":true},{"hwnd":"00010148","title":"AMD:CCC-AEMCapturingWindow","class":"WindowsForms10.Window.8.app.0.282af8c_r11_ad1","rect":{"left":-10000,"top":-10000,"right":-9994,"bottom":-9978},"visible":true},{"hwnd":"00010068","title":"Start","class":"Button","rect":{"left":2,"top":1040,"right":52,"bottom":1078},"visible":true},{"hwnd":"000100CC","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true}]}
+[status 0]
+{"panel":{"edid":true,"name":"HP 2511","pnpid":"HWP293E","type":"LCD","digital":true,"native":"1920x1080","native_hz":60,"vmax_hz":76,"size_cm":"55x31"},"desktop":{"persisted":"1920x1080","persisted_hz":60,"live":"1920x1080","bpp":32},"cap":"0x0","target":{"wide":"1920x1080","four_three":"1280x960","aspect":"16:9","hz":60,"hz_four_three":60,"hz_desktop":60,"hz_launcher":60,"fov":106,"q2mode":8,"q3mode":6,"d3_aspect":1,"dosbox_fullresolution":"desktop"},"modes":["640x480@60","720x480@60","720x576@60","800x600@60","1024x768@60","1152x648@60","1280x720@60","1280x768@60","1280x800@60","1280x960@60","1280x1024@60","1360x768@60","1360x1024@60","1366x768@60","1400x1050@60","1440x900@60","1600x900@60","1680x1050@60","1776x1000@60","1920x1080@60"],"rules":80}
+[status 0]
+{"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:33:30 TA quit sent
+2026-09-29 00:33:46 EDT launch2b (TA, reproduced cmdline + in_mouse -1)
+2026-09-29 00:36:21 EDT launch2b (TA via temp bat + in_mouse -1)
+00:41:56 TA connect sent
+00:43:17 TA(windib) quit sent

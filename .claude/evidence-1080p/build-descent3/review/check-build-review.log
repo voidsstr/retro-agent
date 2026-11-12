@@ -1,0 +1,57 @@
+# 2026-09-29T04:28:12-04:00 REVIEW re-run of apply.py (revised) --check
+staged tree: /mnt/retro-share/Files/Games-Library/Descent3
+pilot files (*.plt, case-insensitive): ['sdf.plt']
+sdf.plt: 1770 B md5 b03f1b0f19e6d430f3d64b8c426f4da6 -> original
+  version 0x2A name 'sdf' ship 'Pyro-GL' hud_mode 2 window 640x480 at 0x1F/0x23
+  would patch -> md5 a42937534d704dce2374df0a0deea849 (bytes 0x1F..0x26: 80020000e0010000 -> 0010000000100000)
+check: OK
+rc=0
+
+# --build (default outdir, run 1)
+built /home/voidsstr/.retro-fleet/patch-out/descent3/Descent3/sdf.plt (1770 B, md5 a42937534d704dce2374df0a0deea849) from original md5 b03f1b0f19e6d430f3d64b8c426f4da6 - the live staged file (still the original)
+manifest: /home/voidsstr/.retro-fleet/patch-out/descent3/manifest.json
+rc=0
+
+# --build (default outdir, run 2 - idempotency)
+built /home/voidsstr/.retro-fleet/patch-out/descent3/Descent3/sdf.plt (1770 B, md5 a42937534d704dce2374df0a0deea849) from original md5 b03f1b0f19e6d430f3d64b8c426f4da6 - the live staged file (still the original)
+manifest: /home/voidsstr/.retro-fleet/patch-out/descent3/manifest.json
+rc=0
+
+# md5 run1 vs run2 vs share original
+a42937534d704dce2374df0a0deea849  /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/run1.plt
+a42937534d704dce2374df0a0deea849  /home/voidsstr/.retro-fleet/patch-out/descent3/Descent3/sdf.plt
+b03f1b0f19e6d430f3d64b8c426f4da6  /home/voidsstr/.retro-fleet/patch-out/descent3/originals/Descent3/sdf.plt
+b03f1b0f19e6d430f3d64b8c426f4da6  /mnt/retro-share/Files/Games-Library/Descent3/sdf.plt
+
+# cmp -l share original vs built (1-indexed octal)
+  32 200   0
+  33   2  20
+  36 340   0
+  37   1  20
+
+# cmp -l hw-verified rvw.plt vs built
+   5 162 163
+   6 166 144
+   7 167 146
+
+# --publish --dry-run (sharewrite --dry-run: nothing written)
+$ /usr/bin/python3 /home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/scripts/fleet/sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/descent3/originals/Descent3/sdf.plt Files/Games-Library/_patches/Descent3/originals-2026-09-29/sdf.plt --dry-run
+put /home/voidsstr/.retro-fleet/patch-out/descent3/originals/Descent3/sdf.plt (1770 B, md5 b03f1b0f19e6d430f3d64b8c426f4da6) -> Files/Games-Library/_patches/Descent3/originals-2026-09-29/sdf.plt
+dry-run: nothing written
+$ /usr/bin/python3 /home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/scripts/fleet/sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/descent3/Descent3/sdf.plt Files/Games-Library/Descent3/sdf.plt --dry-run
+put /home/voidsstr/.retro-fleet/patch-out/descent3/Descent3/sdf.plt (1770 B, md5 a42937534d704dce2374df0a0deea849) -> Files/Games-Library/Descent3/sdf.plt
+dry-run: nothing written
+publish: dry run complete - nothing written
+NEXT (not done here): the stage-fleetres.py 'fix' pair that adds -pilot SDF to 'Play Descent 3.bat', then ONE bump of Files/Games-Library/_deploy_generation.txt after every lane has published - without it no provisioned box re-syncs the title.
+rc=0
+
+# share unchanged after all of the above
+b03f1b0f19e6d430f3d64b8c426f4da6  /mnt/retro-share/Files/Games-Library/Descent3/sdf.plt
+ls: cannot access '/mnt/retro-share/Files/Games-Library/_patches/Descent3': No such file or directory
+
+# pytest
+..................................                                       [100%]
+
+# pytest with idtech2 both orders (shared 'apply' module name collision, fixed on the descent3 side)
+...............................................................          [100%]
+...............................................................          [100%]

@@ -1,0 +1,2148 @@
+logfile opened on Mon Sep 28 06:40:39 2026
+
+...detecting CPU, found AMD w/ 3DNow!
+Bypassing CD checks
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+Loaded 714 translation strings from scripts/translation.cfg
+Loaded 97 translation strings from translations/rocket.cfg
+Loaded 86 translation strings from translations/dam.cfg
+Loaded 114 translation strings from translations/tram.cfg
+Loaded 57 translation strings from translations/chateau.cfg
+Loaded 54 translation strings from translations/keep.cfg
+Loaded 73 translation strings from translations/icelab.cfg
+Loaded 6 translation strings from translations/translation-1_4.cfg
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode 7: 1152 864 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1152x864)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 0 )
+...41 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 6 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...using GL_EXT_texture_compression_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...ignoring WGL_3DFX_gamma_control
+...GL_NV_fog_distance not found
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+locked hardware.  ok
+DirectSound initialized successfully
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0x1e158060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: nsc-c543575f526
+IP: 192.168.1.124
+Working directory: C:\Games\ReturnToCastleWolfenstein
+^5PunkBuster Client: PunkBuster Client (v1.002 | A0) **DISABLED**
+^3PunkBuster Server: PunkBuster Server (v0.996 | A0 C0.0) **DISABLED**
+execing lancheck.cfg
+------ Server Initialization ------
+Server: mp_beach
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+310484 MAIN memory in 63 blocks
+309224 MAIN memory overhead
+
+================
+SMALL log
+================
+42452 SMALL memory in 1161 blocks
+19232 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+12768 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+Gametype changed, clearing session data.
+func_timer at (3244 2212 1384) has random >= wait
+0 teams with 0 entities
+24 items registered
+-----------------------------------
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 4352
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_beach.bsp
+stitched 0 LoD cracks
+...loaded 5432 faces, 264 meshes, 259 trisurfs, 168 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 234 milli seconds
+CL_InitCGame: 17.20 seconds
+478 msec to draw all images
+Com_TouchMemory: 926 msec
+Wrote screenshots/shot0000.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_village
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+318508 MAIN memory in 127 blocks
+315968 MAIN memory overhead
+
+================
+SMALL log
+================
+54076 SMALL memory in 1472 blocks
+24636 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+19152 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+0 teams with 0 entities
+23 items registered
+-----------------------------------
+-----------------------------------
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_village.bsp
+stitched 68 LoD cracks
+...loaded 16743 faces, 260 meshes, 586 trisurfs, 63 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 27 milli seconds
+CL_InitCGame: 11.82 seconds
+239 msec to draw all images
+Com_TouchMemory: 4 msec
+Couldn't find target(cem-tree-05) for misc_vis_dummy at (-872 3520 8)
+Couldn't find target(gtree06) for misc_vis_dummy at (-872 4184 8)
+[skipnotify]Server: timelimit changed to 10
+Wrote screenshots/shot0001.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_assault
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+318508 MAIN memory in 127 blocks
+315968 MAIN memory overhead
+
+================
+SMALL log
+================
+54104 SMALL memory in 1473 blocks
+24644 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+25536 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+0 teams with 0 entities
+22 items registered
+-----------------------------------
+-----------------------------------
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_base
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+318508 MAIN memory in 127 blocks
+315968 MAIN memory overhead
+
+================
+SMALL log
+================
+54104 SMALL memory in 1473 blocks
+24644 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+31920 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+0 teams with 0 entities
+22 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+38304 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_assault.bsp
+stitched 0 LoD cracks
+...loaded 9781 faces, 318 meshes, 168 trisurfs, 268 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 27 milli seconds
+CL_InitCGame: 11.92 seconds
+246 msec to draw all images
+Com_TouchMemory: 5 msec
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+44688 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_base.bsp
+stitched 47 LoD cracks
+...loaded 10150 faces, 287 meshes, 163 trisurfs, 209 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 79 milli seconds
+CL_InitCGame: 22.45 seconds
+261 msec to draw all images
+Com_TouchMemory: 0 msec
+Wrote screenshots/shot0002.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_depot
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+318508 MAIN memory in 127 blocks
+315968 MAIN memory overhead
+
+================
+SMALL log
+================
+54180 SMALL memory in 1473 blocks
+24720 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+51072 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+0 teams with 0 entities
+22 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+57456 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_base.bsp
+stitched 47 LoD cracks
+...loaded 10150 faces, 287 meshes, 163 trisurfs, 209 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 44 milli seconds
+CL_InitCGame: 11.27 seconds
+244 msec to draw all images
+Com_TouchMemory: 4 msec
+Wrote screenshots/shot0003.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_sub
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+318508 MAIN memory in 127 blocks
+315968 MAIN memory overhead
+
+================
+SMALL log
+================
+54188 SMALL memory in 1473 blocks
+24728 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+63840 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+0 teams with 0 entities
+22 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+70224 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_depot.bsp
+stitched 4 LoD cracks
+...loaded 19448 faces, 386 meshes, 343 trisurfs, 514 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 63 milli seconds
+CL_InitCGame: 17.90 seconds
+257 msec to draw all images
+Com_TouchMemory: 5 msec
+Wrote screenshots/shot0004.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_beach
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+318508 MAIN memory in 127 blocks
+315968 MAIN memory overhead
+
+================
+SMALL log
+================
+54104 SMALL memory in 1473 blocks
+24644 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+76608 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+func_timer at (3244 2212 1384) has random >= wait
+0 teams with 0 entities
+24 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+82992 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_sub.bsp
+stitched 0 LoD cracks
+...loaded 18260 faces, 661 meshes, 35 trisurfs, 486 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 43 milli seconds
+CL_InitCGame: 12.12 seconds
+222 msec to draw all images
+Com_TouchMemory: 5 msec
+Wrote screenshots/shot0005.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_village
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+326620 MAIN memory in 191 blocks
+322800 MAIN memory overhead
+
+================
+SMALL log
+================
+54216 SMALL memory in 1472 blocks
+24776 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+89376 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+0 teams with 0 entities
+23 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+95760 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_beach.bsp
+stitched 0 LoD cracks
+...loaded 5432 faces, 264 meshes, 259 trisurfs, 168 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 53 milli seconds
+CL_InitCGame: 10.65 seconds
+235 msec to draw all images
+Com_TouchMemory: 4 msec
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+102144 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_village.bsp
+stitched 68 LoD cracks
+...loaded 16743 faces, 260 meshes, 586 trisurfs, 63 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 95 milli seconds
+CL_InitCGame: 29.34 seconds
+266 msec to draw all images
+Com_TouchMemory: 7 msec
+Couldn't find target(cem-tree-05) for misc_vis_dummy at (-872 3520 8)
+Couldn't find target(gtree06) for misc_vis_dummy at (-872 4184 8)
+Wrote screenshots/shot0006.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_assault
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+334604 MAIN memory in 255 blocks
+329504 MAIN memory overhead
+
+================
+SMALL log
+================
+54104 SMALL memory in 1473 blocks
+24644 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+108528 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+trigger_aidoor at loc (0 0 0) does not have a targetname for ai_marker assignments
+0 teams with 0 entities
+22 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+114912 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_village.bsp
+stitched 68 LoD cracks
+...loaded 16743 faces, 260 meshes, 586 trisurfs, 63 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 26 milli seconds
+CL_InitCGame: 11.14 seconds
+244 msec to draw all images
+Com_TouchMemory: 5 msec
+Wrote screenshots/shot0007.jpg
+==== ShutdownGame ====
+------ Server Initialization ------
+Server: mp_base
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+
+================
+MAIN log
+================
+334604 MAIN memory in 255 blocks
+329504 MAIN memory overhead
+
+================
+SMALL log
+================
+54212 SMALL memory in 1473 blocks
+24752 SMALL memory overhead
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+121296 files in pk3 files
+------- Game Initialization -------
+gamename: main
+gamedate: Nov 13 2002
+Not logging to disk.
+0 teams with 0 entities
+22 items registered
+-----------------------------------
+-----------------------------------
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+127680 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_assault.bsp
+stitched 0 LoD cracks
+...loaded 9781 faces, 318 meshes, 168 trisurfs, 268 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 26 milli seconds
+CL_InitCGame: 12.40 seconds
+255 msec to draw all images
+Com_TouchMemory: 5 msec
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+    on the pure list
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+----------------------
+134064 files in pk3 files
+RE_Shutdown( 0 )
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 7, 1152 x 864 fullscreen hz:75
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+NV distance fog: disabled
+HACK: using vertex lightmap approximation
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_base.bsp
+stitched 47 LoD cracks
+...loaded 10150 faces, 287 meshes, 163 trisurfs, 209 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 40 milli seconds
+CL_InitCGame: 12.70 seconds
+252 msec to draw all images
+Com_TouchMemory: 0 msec
+Wrote screenshots/shot0008.jpg
+----- Server Shutdown -----
+==== ShutdownGame ====
+---------------------------
+----- CL_Shutdown -----
+RE_Shutdown( 1 )
+Shutting down OpenGL subsystem
+...wglMakeCurrent( NULL, NULL ): success
+...deleting GL context: success
+...releasing DC: success
+...destroying window
+...resetting display
+...shutting down QGL
+...unloading OpenGL DLL
+-----------------------

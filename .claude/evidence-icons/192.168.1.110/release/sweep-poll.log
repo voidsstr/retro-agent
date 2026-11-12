@@ -1,0 +1,8 @@
+{"t": "14:09:47", "phase": "before", "state": "idle", "lnk": 99, "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+RESET OK marker cleared
+START OK started
+{"t": "14:09:50", "el": 2, "state": "idle", "msg": "", "done": 0, "total": 0, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+{"t": "14:09:56", "el": 8, "state": "sizing", "msg": "sizing FarCry (36 of 52)", "done": 0, "total": 0, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+{"t": "14:10:00", "el": 12, "state": "copying", "msg": "copying HalfLife1", "done": 6, "total": 52, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+{"t": "14:10:30", "el": 43, "state": "done", "msg": "complete - 51 title(s)", "done": 51, "total": 52, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+END min_lnk_seen=99 sizing_samples=1

@@ -1,0 +1,53 @@
+  ok    JediAcademy/base/assets1.pk3  size 652804510
+  ok    JediAcademy/base/assets3.pk3  size 9282026
+  ok    ReturnToCastleWolfenstein/Main/mp_pak1.pk3  size 4449596
+  ok    ReturnToCastleWolfenstein/Main/pak0.pk3  size 315823656
+  ok    ReturnToCastleWolfenstein/Main/sp_pak3.pk3  size 152544
+  ok    SoldierOfFortune2/base/therest.pk3  size 69463128
+  ok    SoldierOfFortune2/base/update101.pk3  size 9668867
+  ok    SoldierOfFortune2/sof2mp.exe  1572917  0263922b67e3474f9e77e769f217f53a
+  ok    JediAcademy/base/assets1.pk3!fonts/arialnb.fontdat  e4f927c1d9841faa82cf05bc98a06d83
+  ok    JediAcademy/base/assets1.pk3!ui/ingamesetup.menu  5c95ff28f03e909b729c96e7bc8a7ba7
+  ok    JediAcademy/base/assets1.pk3!ui/jamp/ingame_setup.menu  ae0fbda9d3662658aed0cd70c56ce828
+  ok    JediAcademy/base/assets1.pk3!ui/setup.menu  fceabe412ebe7f25e05a10a64747699a
+  ok    JediAcademy/base/assets3.pk3!ui/jamp/setup.menu  032a4a9c916e3ba67b247e9b9a984003
+  ok    ReturnToCastleWolfenstein/Main/mp_pak1.pk3!ui_mp/ingame_system.menu  8b154829e7e7257d4e4320cca62065c6
+  ok    ReturnToCastleWolfenstein/Main/mp_pak1.pk3!ui_mp/system.menu  71ca9d89046cb285b04076ec5b1b2f21
+  ok    ReturnToCastleWolfenstein/Main/pak0.pk3!fonts/fontImage_12.dat  0f755299ce9114e7bd7aad722c54abdf
+  ok    ReturnToCastleWolfenstein/Main/pak0.pk3!fonts/fontImage_16.dat  32a2100f57bde8a4fc4c5f3776a772d5
+  ok    ReturnToCastleWolfenstein/Main/sp_pak3.pk3!ui/ingame_system.menu  766326c734772034d5935e49a89a45a2
+  ok    ReturnToCastleWolfenstein/Main/sp_pak3.pk3!ui/system.menu  2e726bd333bf8555d1668e1e066a1a37
+  ok    SoldierOfFortune2/base/therest.pk3!fonts/hud.fontdat  cbab2a0a22545eabdf80eb40892ea8ea
+  ok    SoldierOfFortune2/base/therest.pk3!menus/m_video.rmf  d0bbf978a97fc1af4480a2396b4d21a7
+  ok    SoldierOfFortune2/base/update101.pk3!Strip/menu_video.sp  d03e523a4328782d7cc0a97f47a9ccf5
+  ok    SoldierOfFortune2/base/update101.pk3!ui/setup_display.menu  9c16721f1d78654b23a0751468a9b310
+  ok    JediAcademy: zz_fleet_video.pk3 sorts after assets3.pk3
+  ok    JediAcademy: ui/setup.menu is served by assets1.pk3 (the copy patched)
+  ok    JediAcademy: ui/setup.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [3.0, 4.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, -1.0], 'font': 'assets1.pk3!fonts/arialnb.fontdat'}
+  ok    JediAcademy: ui/ingamesetup.menu is served by assets1.pk3 (the copy patched)
+  ok    JediAcademy: ui/ingamesetup.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [3.0, 4.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, -1.0], 'font': 'assets1.pk3!fonts/arialnb.fontdat'}
+  ok    JediAcademy: ui/jamp/setup.menu is served by assets3.pk3 (the copy patched)
+  ok    JediAcademy: ui/jamp/setup.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [3.0, 4.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, -1.0], 'font': 'assets1.pk3!fonts/arialnb.fontdat'}
+  ok    JediAcademy: ui/jamp/ingame_setup.menu is served by assets1.pk3 (the copy patched)
+  ok    JediAcademy: ui/jamp/ingame_setup.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [3.0, 4.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, -1.0], 'font': 'assets1.pk3!fonts/arialnb.fontdat'}
+        JediAcademy: fleet server jka-server sv_pure=0 -> pk3 NOT needed on the server
+  ok    SoldierOfFortune2: zz_fleet_video.pk3 sorts after update103.pk3
+  ok    SoldierOfFortune2: ui/setup_display.menu is served by update101.pk3 (the copy patched)
+  ok    SoldierOfFortune2: ui/setup_display.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, -1.0], 'font': 'therest.pk3!fonts/hud.fontdat'}
+  ok    SoldierOfFortune2: menus/m_video.rmf is served by therest.pk3 (the copy patched)
+  ok    SoldierOfFortune2: menus/m_video.rmf transforms cleanly {'match': '3,4,6,7,8,9,-1'}
+  ok    SoldierOfFortune2: Strip/menu_video.sp is served by update101.pk3 (the copy patched)
+  ok    SoldierOfFortune2: Strip/menu_video.sp transforms cleanly {'vidmodes': '+Custom'}
+  ok    SoldierOfFortune2/sof2mp.exe: anchors match; patched md5 30f099da5ab0b9a5c29658edf07c7c2e = the copy tested on .240
+        SoldierOfFortune2: fleet server sof2-server sv_pure=0 -> pk3 NOT needed on the server
+  ok    ReturnToCastleWolfenstein: zz_fleet_video.pk3 sorts after sp_pak4.pk3
+  ok    ReturnToCastleWolfenstein: ui/system.menu is served by sp_pak3.pk3 (the copy patched)
+  ok    ReturnToCastleWolfenstein: ui/system.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 2, 'list_values': [3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, -1.0], 'font': 'pak0.pk3!fonts/fontImage_12.dat'}
+  ok    ReturnToCastleWolfenstein: ui/ingame_system.menu is served by sp_pak3.pk3 (the copy patched)
+  ok    ReturnToCastleWolfenstein: ui/ingame_system.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 2, 'list_values': [3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, -1.0], 'font': 'pak0.pk3!fonts/fontImage_12.dat'}
+  ok    ReturnToCastleWolfenstein: ui_mp/system.menu is served by mp_pak1.pk3 (the copy patched)
+  ok    ReturnToCastleWolfenstein: ui_mp/system.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, -1.0], 'font': 'pak0.pk3!fonts/fontImage_16.dat'}
+  ok    ReturnToCastleWolfenstein: ui_mp/ingame_system.menu is served by mp_pak1.pk3 (the copy patched)
+  ok    ReturnToCastleWolfenstein: ui_mp/ingame_system.menu transforms cleanly {'items_added': 3, 'presets_reasserted': 1, 'list_values': [3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, -1.0], 'font': 'pak0.pk3!fonts/fontImage_16.dat'}
+        ReturnToCastleWolfenstein: fleet server rtcw-server sv_pure=0 -> pk3 NOT needed on the server
+idtech3-kin: 0 failure(s)

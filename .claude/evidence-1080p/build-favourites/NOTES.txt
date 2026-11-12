@@ -1,0 +1,89 @@
+favourites builder - scripts/gameindex changes, 2026-09-29 (build phase, nothing deployed)
+=========================================================================================
+
+Worktree: .claude/worktrees/lcd1080-patches (uncommitted - the lead commits)
+Files:    scripts/gameindex/{favorites,sync,db,masters}.py, scripts/gameindex/README.md
+          tests/python/test_patch_favourites.py (new, 88 tests)
+          tests/python/test_gameindex_favorites.py (4 tests updated for deliberate changes)
+Tests:    python3 -m pytest -q tests/python/test_gameindex*.py tests/python/test_patch_favourites.py
+          tests/python/test_autodeploy.py tests/python/test_host_duties.py   -> 279 passed (88 of them new, in test_patch_favourites.py)
+
+THE FIVE ASKED FOR
+1. Labels: favorites.clean_label() - every writer strips control chars; the Q3/Q2
+   comment labels also lose ';' (-> space) and '"' (-> '). Tested against a
+   transcription of ioq3 1.36 Cbuf_Execute (code/qcommon/cmd.c): every command
+   the engine would run out of our block is one seta/set line, for hostnames
+   carrying ';', '"', CR, LF, NUL, DEL. same_favourites() refuses to call a file
+   "unchanged" when an existing favourite line has an unsafe comment, so an old
+   dirty block is rewritten.
+2. Team Arena: TITLES["missionpack"] (engine q3cache, accepts {missionpack},
+   strict_accepts - internet rows must be gamename missionpack too), derived from
+   every `ioquake3` row whose dir has a missionpack\ subfolder. sync.push_servercache:
+   REGREAD HKCU Shell Folders\AppData -> <AppData>\Quake3\servercache.dat; never
+   creates a folder; BUSY while ANY Q3 client runs (quake3.exe, ioquake3*.exe) and
+   PROCLIST re-checked right before UPLOAD; reads back and compares; FAILED on any
+   mismatch; a file that is not the 1.36 layout is refused.
+   Layout proven two ways (servercache-layout-verification.txt): ioq3 source at
+   06954842 (the 1.36 release point, box says "ioq3 1.36 ... Apr 12 2009") and the
+   staged ioquake3.x86.exe (md5 12f99bc0f9ba416ee477a4f13de8feaa) disassembled:
+   cmp size,0xa9200; reads 0xa4000 + 0x5200; CL_SetServerInfo offsets; NA_IP == 4;
+   NET_CompareAdr compares type + 4 ip bytes + port only.
+   Ownership: our records carry b"retro-fleet-fav\0" in netadr_t.ip6 (never read for
+   NA_IP; LAN_AddServer leaves stack garbage there itself; copied verbatim on save).
+   Only marked entries are ever removed; numglobal + 4096 global records + the
+   player's favourites are carried byte for byte.
+3. BUSY per FILE: sync.plan_targets() groups titles by target path (case-insensitive);
+   a file is BUSY if the exe of ANY title that reads it is running; one result line
+   per file naming the path and the keys ("ioquake3+quake3"). running_exes() now
+   matches .EXE case-insensitively (Win98 PROCLIST is upper-case full paths).
+   BUSY reasons are per file kind (autoexec: execs at start; ini: rewritten on exit;
+   vdf; servercache).
+4. Settled box -> "unchanged":
+   - favorites.same_favourites(): unchanged when the GAME would see the same servers
+     and every non-favourite line is identical (order, labels, whitespace,
+     lastplayed ignored) and the file is one our writer could have produced.
+   - stable ordering: q3/q2 slots are kept per server (_assign_slots), packed arrays
+     keep their existing order (_stable_sequence).
+   - incumbents: db.best_servers(incumbent=...) keeps what the box already lists
+     while it is alive and eligible; ranking only fills vacancies.
+   - curated seeds are no longer deduped by host (UT99 85.214.243.170:7777/:9000 flip).
+   - masters._udp times the FIRST reply (GameSpy "ping" was the 2.5 s read timeout).
+   - vdf "address" written with ONE tab, as revSrvBrowser.dll's own template;
+     a rewrite keeps the lastplayed stamp CS recorded for a kept favourite.
+   Offline replay (offline-replay.txt): every captured box file, pass 2 = unchanged.
+5. Reasons re-checked (only proven ones changed):
+   jka (disc image mounted; engine servercache.dat), descent3 (descent3-server :2092
+   exists; no 'favorit' in any binary/.d3c; Join launcher defaults to .132),
+   tribes2 ($pref::ServerBrowser::Favorite exists; unverified joinable), hl2
+   (css-server :27025 exists, no fleet box can join), sof2 (engine servercache.dat),
+   halflife (WON protocol 45 - hw.dll cmp eax,2Dh - not 46; CS16 tree HLDM :27020
+   explained), new: bf1942, heretic, hexen, doom3, farcry.
+   wolfmp + deusex moved to UNWRITABLE: both were false successes (RTCW MP UI has no
+   server%d, its servercache.dat read favourites=0 after sessions with server1 set;
+   no DEUSEX.U class references UBrowserFavoritesFact).
+
+ALSO FIXED (verified defects from the audits, all in scripts/gameindex)
+- FAV-2: DIRLIST answers [] for a missing folder; read_existing now proves the
+  folder one level up ("no-parent" -> skip) and the push never MKDIRs.
+- FAV-1(b): a box whose GAMESYNC STATUS is sizing/copying is deferred whole (BUSY).
+- N3: a box whose re-index failed this pass is not written from the DB's old index.
+- N2: all local servers silent AND this host not holding ME -> ok:false + first error.
+- FAV-9/N4: files read/written as latin-1 (byte-transparent), not ascii/'replace'.
+- FAV-11: Q3/Q2 `players` counts humans (ping > 0); bots are not players.
+
+DEPLOY (host-side only - no share publish, no agent release)
+  systemctl --user restart retro-gameindex
+  journalctl --user -u retro-gameindex -f      # watch two passes
+
+VERIFY ON A BOX (e.g. .240), after the first pass that reaches it:
+  - DOWNLOAD C:\Documents and Settings\User\Application Data\Quake3\servercache.dat:
+    header (numglobal, 1, 692736), favourite 0 = 192.168.1.132:27962 with our mark;
+    Team Arena -> Play -> Source: Favorites lists "NSC Retro Fleet Arena" and joins.
+  - journal: second pass says "unchanged: ..." for every file on the box; status.json
+    writes.wrote == 0 on a quiet fleet.
+  - one Q3 autoexec.cfg: no ';' or '"' after any '//' in the managed block.
+  - with ioquake3 running: one "BUSY: <path>: ioquake3.x86.exe is running" per file,
+    no "quake3 wrote" for the same file.
+EXPECTED ONE-TIME CHURN on the first pass after deploy: Q3 files rewritten once
+(bot-only servers stop counting as busy; unsafe labels cleaned), both UT99 inis gain
+the second same-host seed, the RTCW/Deus Ex lines become "skipped: <reason>".

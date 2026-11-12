@@ -1,0 +1,27 @@
+Client.exe  A@0x7e2c2  QueryPerformanceFrequency
+FLEETRES.EXE  A@0x4dfc  native     : %dx%d @%dHz  aspect %s  size %dx%dcm  input %s  vmax %dHz
+FLEETRES.EXE  A@0x4e68  desktop now: %dx%d %dbpp @%dHz  aspect 
+FLEETRES.EXE  A@0x4f8a  set "FR_HZ=%d"
+MSSA3D.M3D  A@0x8a88  _AIL_set_timer_frequency@8
+MSSDS3DH.M3D  A@0x8a68  _AIL_set_timer_frequency@8
+MSSDS3DS.M3D  A@0x8a68  _AIL_set_timer_frequency@8
+MSSEAX.M3D  A@0x8af8  _AIL_set_timer_frequency@8
+MSSFAST.M3D  A@0x9bfe  _AIL_set_timer_frequency@8
+MSSRSX.M3D  A@0x499e4  QueryPerformanceFrequency
+Shogo.exe  A@0x71593  HZ@sGn=mG
+mss16.dll  A@0x143a  AIL_SET_TIMER_FREQUENCY
+mss16.dll  A@0x13be7  hz'f
+mss16.dll  A@0x26d3f  PPhz
+mss16.dll  A@0x35f17  AIL_set_timer_frequency(%ld,%lu)
+mss16.dll  A@0x37f32  CONN_DST_LFO_FREQUENCY   
+mss16.dll  A@0x3cb02  LFO Frequency                     
+mss16.dll  A@0x3d01e  %.1f Hz
+mss16.dll  A@0x3d33c          WAVE: %d bytes, %d Hz %d-bit %s
+mss32.dll  A@0x3baa4  QueryPerformanceFrequency
+mss32.dll  A@0x3e73b  _AIL_set_timer_frequency@8
+mss32.dll  A@0x3f928  AIL_set_timer_frequency(%ld,%lu)
+mss32.dll  A@0x44120  CONN_DST_LFO_FREQUENCY   
+mss32.dll  A@0x48b00  LFO Frequency                     
+mss32.dll  A@0x48b58  %.1f Hz
+mss32.dll  A@0x48d6e          WAVE: %d bytes, %d Hz %d-bit %s
+server.dll  A@0x44446  QueryPerformanceFrequency

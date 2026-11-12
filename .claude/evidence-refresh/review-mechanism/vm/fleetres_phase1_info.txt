@@ -1,0 +1,8 @@
+panel      : (no EDID)  pnp=-  CRT
+desktop set: 640x480  (persisted)
+desktop now: 640x480 24bpp @60Hz  aspect 4:3
+target     : 640x480  aspect 4:3  fov(hor+) 90
+target 4:3 : 640x480  (for the engines with no widescreen)  q2mode 3  q3mode 3 (640x480)
+refresh    : 0 Hz at 640x480, 0 Hz at 640x480, id Tech 2/3 index 0/0 Hz  (none; 0 = left alone)
+glide      : no 3dfx silicon  render device D3DDrv
+modes(4)  : 640x480 800x600 1024x768 1280x1024

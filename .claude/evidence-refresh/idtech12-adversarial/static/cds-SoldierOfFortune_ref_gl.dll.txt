@@ -1,0 +1,486 @@
+====================================================================================================
+PE SoldierOfFortune/ref_gl.dll imagebase 0x30000000
+import slots: {'0x3002b048': 'KERNEL32.dll!LoadLibraryA', '0x3002b04c': 'KERNEL32.dll!GetProcAddress', '0x3002b124': 'USER32.dll!ChangeDisplaySettingsA'}
+  string b'ChangeDisplaySettingsA' at VA 0x3002c728
+----------------------------------------------------------------------------------------------------
+SITE 0x300199b8  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x300199d8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x300199e8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x300199f8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a08  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a18  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a28  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a38  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a48  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a58  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a68  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a78  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a88  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019a98  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019aa8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ab8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ac8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ad8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ae8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019af8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b08  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b18  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b28  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b38  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b48  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b58  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b68  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b78  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b88  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019b98  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ba8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019bb8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019bc8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019bd8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019be8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019bf8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c08  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c18  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c28  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c38  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c48  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c58  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c68  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c78  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c88  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019c98  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ca8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019cb8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019cc8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019cd8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ce8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019cf8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d08  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d18  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d28  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d38  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d48  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d58  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d68  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d78  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d88  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019d98  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019da8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019db8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019dc8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019dd8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019de8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019df8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e08  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e18  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e28  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e38  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e48  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e58  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e68  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e78  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e88  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019e98  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ea8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019eb8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x30019ec8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x300199cc then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x3001b8ff  USER32.dll!ChangeDisplaySettingsA  (mov ebx,[slot] @0x3001b8ef then call ebx)
+   0x3001b7ef: je 0x3001b7f6
+   0x3001b7f1: call 0x3001bfd0
+   0x3001b7f6: cmp esi, ebp
+   0x3001b7f8: je 0x3001ba9e
+   0x3001b7fe: push 0x30030498
+   0x3001b803: push ebp
+   0x3001b804: call dword ptr [0x3008cc08]
+   0x3001b80a: mov edx, dword ptr [esp + 0x1c]
+   0x3001b80e: mov ecx, 0x25
+   0x3001b813: xor eax, eax
+   0x3001b815: lea edi, [esp + 0x28]
+   0x3001b819: rep stosd dword ptr es:[edi], eax
+   0x3001b81b: mov eax, dword ptr [esp + 0x18]
+   0x3001b81f: mov ecx, dword ptr [0x3008cadc]
+   0x3001b825: mov word ptr [esp + 0x4c], 0x94
+   0x3001b82c: mov dword ptr [esp + 0x94], edx
+   0x3001b833: mov dword ptr [esp + 0x98], eax
+   0x3001b83a: mov dword ptr [esp + 0x50], 0x180000
+   0x3001b842: fld dword ptr [ecx + 0x18]
+   0x3001b845: fcomp dword ptr [0x3002b2a4]
+   0x3001b84b: add esp, 8
+   0x3001b84e: fnstsw ax
+   0x3001b850: test ah, 0x40
+   0x3001b853: jne 0x3001b86c
+   0x3001b855: fld dword ptr [ecx + 0x18]
+   0x3001b858: call 0x3001fa60
+   0x3001b85d: mov dword ptr [esp + 0x98], eax
+   0x3001b864: mov dword ptr [esp + 0x48], 0x580000
+   0x3001b86c: mov esi, dword ptr [0x3008cad0]
+   0x3001b872: fld dword ptr [esi + 0x18]
+   0x3001b875: fcomp dword ptr [0x3002b2a4]
+   0x3001b87b: fnstsw ax
+   0x3001b87d: test ah, 0x40
+   0x3001b880: jne 0x3001b8b9
+   0x3001b882: fld dword ptr [esi + 0x18]
+   0x3001b885: call 0x3001fa60
+   0x3001b88a: mov edi, dword ptr [esp + 0x48]
+   0x3001b88e: mov dword ptr [esp + 0x88], eax
+   0x3001b895: or edi, 0x40000
+   0x3001b89b: mov dword ptr [esp + 0x48], edi
+   0x3001b89f: fld dword ptr [esi + 0x18]
+   0x3001b8a2: call 0x3001fa60
+   0x3001b8a7: push eax
+   0x3001b8a8: push 0x3003047c
+   0x3001b8ad: push ebp
+   0x3001b8ae: call dword ptr [0x3008cc08]
+   0x3001b8b4: add esp, 0xc
+   0x3001b8b7: jmp 0x3001b8e3
+   0x3001b8b9: push ebp
+   0x3001b8ba: call dword ptr [0x3002b120]
+   0x3001b8c0: mov esi, eax
+   0x3001b8c2: push 0xc
+   0x3001b8c4: push esi
+   0x3001b8c5: call dword ptr [0x3002b034]
+   0x3001b8cb: push eax
+   0x3001b8cc: push 0x30030454
+   0x3001b8d1: push ebp
+   0x3001b8d2: call dword ptr [0x3008cc08]
+   0x3001b8d8: add esp, 0xc
+   0x3001b8db: push esi
+   0x3001b8dc: push ebp
+   0x3001b8dd: call dword ptr [0x3002b128]
+   0x3001b8e3: push 0x30030440
+   0x3001b8e8: push ebp
+   0x3001b8e9: call dword ptr [0x3008cc08]
+   0x3001b8ef: mov ebx, dword ptr [0x3002b124]
+   0x3001b8f5: add esp, 8
+   0x3001b8f8: lea ecx, [esp + 0x20]
+   0x3001b8fc: push 4
+   0x3001b8fe: push ecx
+   0x3001b8ff: call ebx
+   0x3001b901: test eax, eax
+   0x3001b903: jne 0x3001b96b
+----------------------------------------------------------------------------------------------------
+SITE 0x3001b953  USER32.dll!ChangeDisplaySettingsA  (mov ebx,[slot] @0x3001b8ef then call ebx)
+   0x3001b855: fld dword ptr [ecx + 0x18]
+   0x3001b858: call 0x3001fa60
+   0x3001b85d: mov dword ptr [esp + 0x98], eax
+   0x3001b864: mov dword ptr [esp + 0x48], 0x580000
+   0x3001b86c: mov esi, dword ptr [0x3008cad0]
+   0x3001b872: fld dword ptr [esi + 0x18]
+   0x3001b875: fcomp dword ptr [0x3002b2a4]
+   0x3001b87b: fnstsw ax
+   0x3001b87d: test ah, 0x40
+   0x3001b880: jne 0x3001b8b9
+   0x3001b882: fld dword ptr [esi + 0x18]
+   0x3001b885: call 0x3001fa60
+   0x3001b88a: mov edi, dword ptr [esp + 0x48]
+   0x3001b88e: mov dword ptr [esp + 0x88], eax
+   0x3001b895: or edi, 0x40000
+   0x3001b89b: mov dword ptr [esp + 0x48], edi
+   0x3001b89f: fld dword ptr [esi + 0x18]
+   0x3001b8a2: call 0x3001fa60
+   0x3001b8a7: push eax
+   0x3001b8a8: push 0x3003047c
+   0x3001b8ad: push ebp
+   0x3001b8ae: call dword ptr [0x3008cc08]
+   0x3001b8b4: add esp, 0xc
+   0x3001b8b7: jmp 0x3001b8e3
+   0x3001b8b9: push ebp
+   0x3001b8ba: call dword ptr [0x3002b120]
+   0x3001b8c0: mov esi, eax
+   0x3001b8c2: push 0xc
+   0x3001b8c4: push esi
+   0x3001b8c5: call dword ptr [0x3002b034]
+   0x3001b8cb: push eax
+   0x3001b8cc: push 0x30030454
+   0x3001b8d1: push ebp
+   0x3001b8d2: call dword ptr [0x3008cc08]
+   0x3001b8d8: add esp, 0xc
+   0x3001b8db: push esi
+   0x3001b8dc: push ebp
+   0x3001b8dd: call dword ptr [0x3002b128]
+   0x3001b8e3: push 0x30030440
+   0x3001b8e8: push ebp
+   0x3001b8e9: call dword ptr [0x3008cc08]
+   0x3001b8ef: mov ebx, dword ptr [0x3002b124]
+   0x3001b8f5: add esp, 8
+   0x3001b8f8: lea ecx, [esp + 0x20]
+   0x3001b8fc: push 4
+   0x3001b8fe: push ecx
+   0x3001b8ff: call ebx
+   0x3001b901: test eax, eax
+   0x3001b903: jne 0x3001b96b
+   0x3001b905: mov eax, dword ptr [esp + 0xb8]
+   0x3001b90c: mov edx, dword ptr [esp + 0x14]
+   0x3001b910: mov ecx, dword ptr [esp + 0x10]
+   0x3001b914: push 0x3003043c
+   0x3001b919: mov dword ptr [eax], edx
+   0x3001b91b: mov edx, dword ptr [esp + 0xc0]
+   0x3001b922: push ebp
+   0x3001b923: mov dword ptr [edx], ecx
+   0x3001b925: mov dword ptr [0x3008cde0], 1
+   0x3001b92f: call dword ptr [0x3008cc08]
+   0x3001b935: mov eax, dword ptr [esp + 0x18]
+   0x3001b939: mov ecx, dword ptr [esp + 0x1c]
+   0x3001b93d: push 1
+   0x3001b93f: push eax
+   0x3001b940: push ecx
+   0x3001b941: call 0x3001bb00
+   0x3001b946: add esp, 0x14
+   0x3001b949: test eax, eax
+   0x3001b94b: jne 0x3001ba91
+   0x3001b951: push ebp
+   0x3001b952: push ebp
+   0x3001b953: call ebx
+   0x3001b955: pop edi
+   0x3001b956: mov dword ptr [0x3008cde0], ebp
+----------------------------------------------------------------------------------------------------
+SITE 0x3001babb  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x3001b9f9: je 0x3001ba49
+   0x3001b9fb: push 0x30030400
+   0x3001ba00: push ebp
+   0x3001ba01: call dword ptr [0x3008cc08]
+   0x3001ba07: push 0x300303e4
+   0x3001ba0c: push ebp
+   0x3001ba0d: call dword ptr [0x3008cc08]
+   0x3001ba13: add esp, 0x10
+   0x3001ba16: push ebp
+   0x3001ba17: push ebp
+   0x3001ba18: call ebx
+   0x3001ba1a: mov eax, dword ptr [esp + 0x14]
+   0x3001ba1e: mov ecx, dword ptr [esp + 0x10]
+   0x3001ba22: push ebp
+   0x3001ba23: mov dword ptr [esi], eax
+   0x3001ba25: push ecx
+   0x3001ba26: mov dword ptr [edi], ecx
+   0x3001ba28: push eax
+   0x3001ba29: mov dword ptr [0x3008cde0], ebp
+   0x3001ba2f: call 0x3001bb00
+   0x3001ba34: add esp, 0xc
+   0x3001ba37: neg eax
+   0x3001ba39: pop edi
+   0x3001ba3a: pop esi
+   0x3001ba3b: sbb eax, eax
+   0x3001ba3d: pop ebp
+   0x3001ba3e: add eax, 2
+   0x3001ba41: pop ebx
+   0x3001ba42: add esp, 0xa4
+   0x3001ba48: ret 
+   0x3001ba49: push 0x300303dc
+   0x3001ba4e: push ebp
+   0x3001ba4f: call dword ptr [0x3008cc08]
+   0x3001ba55: mov edx, dword ptr [esp + 0x18]
+   0x3001ba59: mov eax, dword ptr [esp + 0x1c]
+   0x3001ba5d: push 1
+   0x3001ba5f: push edx
+   0x3001ba60: push eax
+   0x3001ba61: call 0x3001bb00
+   0x3001ba66: add esp, 0x14
+   0x3001ba69: test eax, eax
+   0x3001ba6b: jne 0x3001ba87
+   0x3001ba6d: push ebp
+   0x3001ba6e: push ebp
+   0x3001ba6f: call ebx
+   0x3001ba71: pop edi
+   0x3001ba72: mov dword ptr [0x3008cde0], ebp
+   0x3001ba78: pop esi
+   0x3001ba79: pop ebp
+   0x3001ba7a: mov eax, 2
+   0x3001ba7f: pop ebx
+   0x3001ba80: add esp, 0xa4
+   0x3001ba86: ret 
+   0x3001ba87: mov dword ptr [0x3008cde0], 1
+   0x3001ba91: pop edi
+   0x3001ba92: pop esi
+   0x3001ba93: pop ebp
+   0x3001ba94: xor eax, eax
+   0x3001ba96: pop ebx
+   0x3001ba97: add esp, 0xa4
+   0x3001ba9d: ret 
+   0x3001ba9e: push ebp
+   0x3001ba9f: push 0x3002e374
+   0x3001baa4: call dword ptr [0x3008cc30]
+   0x3001baaa: push 0x300303e4
+   0x3001baaf: push ebp
+   0x3001bab0: call dword ptr [0x3008cc08]
+   0x3001bab6: add esp, 0x10
+   0x3001bab9: push ebp
+   0x3001baba: push ebp
+   0x3001babb: call dword ptr [0x3002b124]
+   0x3001bac1: mov ecx, dword ptr [esp + 0xb8]
+   0x3001bac8: mov eax, dword ptr [esp + 0x14]
+----------------------------------------------------------------------------------------------------
+SITE 0x3001c0bb  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x3001bfd9: call dword ptr [0x3008cc08]
+   0x3001bfdf: mov eax, dword ptr [0x300a112c]
+   0x3001bfe4: add esp, 8
+   0x3001bfe7: cmp eax, esi
+   0x3001bfe9: je 0x3001c002
+   0x3001bfeb: push esi
+   0x3001bfec: push esi
+   0x3001bfed: call eax
+   0x3001bfef: test al, al
+   0x3001bff1: jne 0x3001c002
+   0x3001bff3: push 0x300307a4
+   0x3001bff8: push esi
+   0x3001bff9: call dword ptr [0x3008cc08]
+   0x3001bfff: add esp, 8
+   0x3001c002: mov ecx, dword ptr [0x300a1650]
+   0x3001c008: cmp ecx, esi
+   0x3001c00a: je 0x3001c031
+   0x3001c00c: mov eax, dword ptr [0x300a12dc]
+   0x3001c011: cmp eax, esi
+   0x3001c013: je 0x3001c02b
+   0x3001c015: push ecx
+   0x3001c016: call eax
+   0x3001c018: test al, al
+   0x3001c01a: jne 0x3001c02b
+   0x3001c01c: push 0x30030774
+   0x3001c021: push esi
+   0x3001c022: call dword ptr [0x3008cc08]
+   0x3001c028: add esp, 8
+   0x3001c02b: mov dword ptr [0x300a1650], esi
+   0x3001c031: mov eax, dword ptr [0x300a1648]
+   0x3001c036: cmp eax, esi
+   0x3001c038: je 0x3001c060
+   0x3001c03a: push eax
+   0x3001c03b: mov eax, dword ptr [0x300a164c]
+   0x3001c040: push eax
+   0x3001c041: call dword ptr [0x3002b128]
+   0x3001c047: test eax, eax
+   0x3001c049: jne 0x3001c05a
+   0x3001c04b: push 0x30030748
+   0x3001c050: push esi
+   0x3001c051: call dword ptr [0x3008cc08]
+   0x3001c057: add esp, 8
+   0x3001c05a: mov dword ptr [0x300a1648], esi
+   0x3001c060: mov eax, dword ptr [0x300a164c]
+   0x3001c065: cmp eax, esi
+   0x3001c067: je 0x3001c084
+   0x3001c069: push esi
+   0x3001c06a: push eax
+   0x3001c06b: call dword ptr [0x3002b12c]
+   0x3001c071: mov ecx, dword ptr [0x300a164c]
+   0x3001c077: push ecx
+   0x3001c078: call dword ptr [0x3002b134]
+   0x3001c07e: mov dword ptr [0x300a164c], esi
+   0x3001c084: mov eax, dword ptr [0x300a1664]
+   0x3001c089: cmp eax, esi
+   0x3001c08b: je 0x3001c09c
+   0x3001c08d: push eax
+   0x3001c08e: call 0x3002097b
+   0x3001c093: add esp, 4
+   0x3001c096: mov dword ptr [0x300a1664], esi
+   0x3001c09c: mov eax, dword ptr [0x300a1640]
+   0x3001c0a1: cmp eax, esi
+   0x3001c0a3: je 0x3001c0b1
+   0x3001c0a5: push eax
+   0x3001c0a6: push 0x30030724
+   0x3001c0ab: call dword ptr [0x3002b130]
+   0x3001c0b1: cmp dword ptr [0x3008cde0], esi
+   0x3001c0b7: je 0x3001c0c7
+   0x3001c0b9: push esi
+   0x3001c0ba: push esi
+   0x3001c0bb: call dword ptr [0x3002b124]
+   0x3001c0c1: mov dword ptr [0x3008cde0], esi
+   0x3001c0c7: pop esi
+----------------------------------------------------------------------------------------------------
+SITE 0x300221f5  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x30029098  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x300290b0  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x300290a4 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x300290c1  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x300290a4 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x300290ce  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x300290a4 then call esi)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x3000f04b: mov esi, 0x400000   | next: fld dword ptr [edx + 0x18]
+   0x30011635: mov ebx, 0x400000   | next: jle 0x300116fc
+   0x3001b864: mov dword ptr [esp + 0x48], 0x580000   | next: mov esi, dword ptr [0x3008cad0]
+   0x3001ff4f: xor byte ptr [edi + edi*8 - 0x6bcfff], bl   | next: add dword ptr [eax], esi
+   0x30020e73: test edx, 0xff0000   | next: je 0x30020e87
+   0x300211b3: test eax, 0xff0000   | next: je 0x300211cd
+   0x3002605f: test eax, 0xff0000   | next: je 0x30026074
+   0x300260c8: test edx, 0xff0000   | next: je 0x300260e2

@@ -1,0 +1,65 @@
+# SoF ref_gl.dll (md5 e0454d95): gl_displayrefresh registration + every use of its cvar pointer 0x3008cadc
+  "gl_displayrefresh" at VA 0x3002e254
+  0x3001045c: 6a00                     push 0
+  0x3001045e: 6a01                     push 1
+  0x30010460: 6888db0230               push 0x3002db88
+  0x30010465: 6854e20230               push 0x3002e254
+  0x3001046a: ff1528cc0830             call dword ptr [0x3008cc28]
+  0x30010470: 6a00                     push 0
+  0x30010472: 6a01                     push 1
+  0x30010474: 6850e20230               push 0x3002e250
+  0x30010479: 683ce20230               push 0x3002e23c
+## xrefs to 0x3008cadc (ONLY the store and ONE read in GLimp_SetMode - no ->modified check anywhere)
+  0x3001047e: mov dword ptr [0x3008cadc], eax
+  0x3001b81f: mov ecx, dword ptr [0x3008cadc]
+## GLimp_SetMode: freq only when cvar != 0.0, dmFields 0x580000, CDS(&dm, CDS_FULLSCREEN)
+  0x3001b81b: 8b442418                 mov eax, dword ptr [esp + 0x18]
+  0x3001b81f: 8b0ddcca0830             mov ecx, dword ptr [0x3008cadc]
+  0x3001b825: 66c744244c9400           mov word ptr [esp + 0x4c], 0x94
+  0x3001b82c: 89942494000000           mov dword ptr [esp + 0x94], edx
+  0x3001b833: 89842498000000           mov dword ptr [esp + 0x98], eax
+  0x3001b83a: c744245000001800         mov dword ptr [esp + 0x50], 0x180000
+  0x3001b842: d94118                   fld dword ptr [ecx + 0x18]
+  0x3001b845: d81da4b20230             fcomp dword ptr [0x3002b2a4]
+  0x3001b84b: 83c408                   add esp, 8
+  0x3001b84e: dfe0                     fnstsw ax
+  0x3001b850: f6c440                   test ah, 0x40
+  0x3001b853: 7517                     jne 0x3001b86c
+  0x3001b855: d94118                   fld dword ptr [ecx + 0x18]
+  0x3001b858: e803420000               call 0x3001fa60
+  0x3001b85d: 89842498000000           mov dword ptr [esp + 0x98], eax
+  0x3001b864: c744244800005800         mov dword ptr [esp + 0x48], 0x580000
+  0x3001b86c: 8b35d0ca0830             mov esi, dword ptr [0x3008cad0]
+  0x3001b872: d94618                   fld dword ptr [esi + 0x18]
+  0x3001b875: d81da4b20230             fcomp dword ptr [0x3002b2a4]
+  0x3001b87b: dfe0                     fnstsw ax
+  0x3001b87d: f6c440                   test ah, 0x40
+  0x3001b880: 7537                     jne 0x3001b8b9
+  0x3001b882: d94618                   fld dword ptr [esi + 0x18]
+  0x3001b885: e8d6410000               call 0x3001fa60
+  0x3001b88a: 8b7c2448                 mov edi, dword ptr [esp + 0x48]
+  0x3001b88e: 89842488000000           mov dword ptr [esp + 0x88], eax
+  0x3001b895: 81cf00000400             or edi, 0x40000
+  0x3001b89b: 897c2448                 mov dword ptr [esp + 0x48], edi
+  0x3001b89f: d94618                   fld dword ptr [esi + 0x18]
+  0x3001b8a2: e8b9410000               call 0x3001fa60
+  0x3001b8a7: 50                       push eax
+  0x3001b8a8: 687c040330               push 0x3003047c
+  0x3001b8ad: 55                       push ebp
+  0x3001b8ae: ff1508cc0830             call dword ptr [0x3008cc08]
+  0x3001b8b4: 83c40c                   add esp, 0xc
+  0x3001b8b7: eb2a                     jmp 0x3001b8e3
+  0x3001b8b9: 55                       push ebp
+  0x3001b8ba: ff1520b10230             call dword ptr [0x3002b120]
+  0x3001b8c0: 8bf0                     mov esi, eax
+  0x3001b8c2: 6a0c                     push 0xc
+  0x3001b8c4: 56                       push esi
+  0x3001b8c5: ff1534b00230             call dword ptr [0x3002b034]
+  0x3001b8cb: 50                       push eax
+  0x3001b8cc: 6854040330               push 0x30030454
+  0x3001b8d1: 55                       push ebp
+  0x3001b8d2: ff1508cc0830             call dword ptr [0x3008cc08]
+  0x3001b8d8: 83c40c                   add esp, 0xc
+  0x3001b8db: 56                       push esi
+  0x3001b8dc: 55                       push ebp
+  0x3001b8dd: ff1528b10230             call dword ptr [0x3002b128]

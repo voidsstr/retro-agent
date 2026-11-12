@@ -1,0 +1,231 @@
+{
+ "reproduction": {
+  "stock_md5": "3e6b8fadb2a970c2b754e48e63a054d7",
+  "pak8_ui_md5": "3e6b8fadb2a970c2b754e48e63a054d7",
+  "identical": true
+ },
+ "drift": {
+  "asm_changed": [
+   "ui_video"
+  ],
+  "functions_compared": 560,
+  "functions_identical": 560,
+  "ui_video_functions_patched": [
+   "DriverInfo_Cache",
+   "DriverInfo_Event",
+   "DriverInfo_MenuDraw",
+   "FR_Accept",
+   "FR_Add",
+   "FR_AddLabel",
+   "FR_Build",
+   "FR_BuiltinMode",
+   "FR_Find",
+   "FR_ModeOf",
+   "FR_ParseSize",
+   "FR_PresetIndex",
+   "FR_Select",
+   "GraphicsOptions_ApplyChanges",
+   "GraphicsOptions_BuildModeList",
+   "GraphicsOptions_Cache",
+   "GraphicsOptions_CheckConfig",
+   "GraphicsOptions_Event",
+   "GraphicsOptions_GetInitialVideo",
+   "GraphicsOptions_MenuDraw",
+   "GraphicsOptions_MenuInit",
+   "GraphicsOptions_SetMenuItems",
+   "GraphicsOptions_TQEvent",
+   "GraphicsOptions_UpdateMenuItems",
+   "UI_DriverInfo_Menu",
+   "UI_GraphicsOptionsMenu"
+  ],
+  "strings_added": [
+   "r_availableModes",
+   "r_customheight",
+   "r_customwidth"
+  ]
+ },
+ "format": {
+  "vm_magic": "0x12721444",
+  "header_bytes": 32,
+  "jump_table": false,
+  "problems": []
+ },
+ "behaviour": [
+  {
+   "name": "retail 1.32c, LCD, ACCEPT with Video Mode untouched",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "640x480",
+    "r_mode": "3",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1920x1080",
+    "index": 12,
+    "count": 13,
+    "chosen": "1920x1080",
+    "r_mode": "-1",
+    "r_customwidth": "1920",
+    "r_customheight": "1080"
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "ioquake3 1.36, LCD, ACCEPT with Video Mode untouched",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "640x480",
+    "r_mode": "3",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1920x1080",
+    "index": 0,
+    "count": 9,
+    "chosen": "1920x1080",
+    "r_mode": "-1",
+    "r_customwidth": "1920",
+    "r_customheight": "1080"
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "ioquake3 1.36, LCD, pick the next driver mode",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "800x600",
+    "r_mode": "4",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1920x1080",
+    "index": 0,
+    "count": 9,
+    "chosen": "1680x1050",
+    "r_mode": "-1",
+    "r_customwidth": "1680",
+    "r_customheight": "1050"
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "ioquake3 1.36, LCD, pick a driver mode that is one of id's",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "1600x1200",
+    "r_mode": "9",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1920x1080",
+    "index": 0,
+    "count": 9,
+    "chosen": "1024x768",
+    "r_mode": "6",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "retail 1.32c, LCD, pick id's wide-screen entry",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "512x384",
+    "r_mode": "2",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1920x1080",
+    "index": 12,
+    "count": 13,
+    "chosen": "856x480 wide screen",
+    "r_mode": "11",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "retail 1.32c, LCD, RIGHT at the end of the list does nothing",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "800x600",
+    "r_mode": "4",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1920x1080",
+    "index": 12,
+    "count": 13,
+    "chosen": "1920x1080",
+    "r_mode": "-1",
+    "r_customwidth": "1920",
+    "r_customheight": "1080"
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "retail 1.32c, 4:3 CRT at r_mode -1 1024x768 (one of id's sizes)",
+   "stock": {
+    "label": "640x480",
+    "index": 3,
+    "count": 12,
+    "chosen": "640x480",
+    "r_mode": "3",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1024x768",
+    "index": 6,
+    "count": 12,
+    "chosen": "1024x768",
+    "r_mode": "-1",
+    "r_customwidth": "1024",
+    "r_customheight": "768"
+   },
+   "other_writes_identical": 11
+  },
+  {
+   "name": "retail 1.32c, r_mode 6 (a plain id mode) - unchanged from id",
+   "stock": {
+    "label": "1024x768",
+    "index": 6,
+    "count": 12,
+    "chosen": "1024x768",
+    "r_mode": "6",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "patched": {
+    "label": "1024x768",
+    "index": 6,
+    "count": 12,
+    "chosen": "1024x768",
+    "r_mode": "6",
+    "r_customwidth": null,
+    "r_customheight": null
+   },
+   "other_writes_identical": 11
+  }
+ ]
+}

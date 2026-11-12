@@ -1,0 +1,17 @@
+ Volume in drive C has no label.
+ Volume Serial Number is D8EB-6589
+
+ Directory of C:\Windows
+
+
+ Directory of C:\Windows
+
+File Not Found
+
+ Directory of C:\Windows\LiveKernelReports
+
+09/26/2026  11:43 PM    <DIR>          WATCHDOG
+09/25/2013  09:16 PM    <DIR>          ..
+09/25/2013  09:16 PM    <DIR>          .
+               0 File(s)              0 bytes
+               3 Dir(s)  150,230,970,368 bytes free

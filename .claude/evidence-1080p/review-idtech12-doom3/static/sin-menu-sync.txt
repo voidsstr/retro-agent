@@ -1,0 +1,137 @@
+# sin.exe 1.11 (md5 8d320d7fc3ea3a226ec98dafef3e81ba): command table - menu_main @0x44a8e0 calls vid_reset @0x44a050
+0044a8e0: a110c75b00               mov eax, dword ptr [0x5bc710]
+0044a8e5: 85c0                     test eax, eax
+0044a8e7: 740a                     je 0x44a8f3
+0044a8e9: 6a01                     push 1
+0044a8eb: e8e00d0200               call 0x46b6d0
+0044a8f0: 83c404                   add esp, 4
+0044a8f3: a174ec7600               mov eax, dword ptr [0x76ec74]
+0044a8f8: c70584d4760005000000     mov dword ptr [0x76d484], 5
+0044a902: a370ec7600               mov dword ptr [0x76ec70], eax
+0044a907: c7801401000000000000     mov dword ptr [eax + 0x114], 0
+0044a911: a174ec7600               mov eax, dword ptr [0x76ec74]
+0044a916: c7801801000000000000     mov dword ptr [eax + 0x118], 0
+0044a920: 8b0d74ec7600             mov ecx, dword ptr [0x76ec74]
+0044a926: 8b5138                   mov edx, dword ptr [ecx + 0x38]
+0044a929: c60200                   mov byte ptr [edx], 0
+0044a92c: a174ec7600               mov eax, dword ptr [0x76ec74]
+0044a931: 50                       push eax
+0044a932: e8695cffff               call 0x4405a0
+0044a937: 6a00                     push 0
+0044a939: e812f7ffff               call 0x44a050
+0044a93e: e80df2ffff               call 0x449b50
+0044a943: 8b0d74ec7600             mov ecx, dword ptr [0x76ec74]
+0044a949: 51                       push ecx
+0044a94a: e8c1d7ffff               call 0x448110
+0044a94f: e82cfdffff               call 0x44a680
+0044a954: e8f7ecffff               call 0x449650
+
+# vid_reset @0x44a050 (registered as 'vid_reset' in the table at 0x48e208): if vid_ref == 'soft' -> con_vidmode = sw_mode; if vid_ref == 'gl' -> con_vidmode = gl_mode
+0044a22f: 68a0594800               push 0x4859a0
+0044a234: e83769ffff               call 0x440b70
+0044a239: e8ce9f0200               call 0x47420c
+0044a23e: 55                       push ebp
+0044a23f: 6a00                     push 0
+0044a241: 6818e64800               push 0x48e618
+0044a246: 89442420                 mov dword ptr [esp + 0x20], eax
+0044a24a: e891ddffff               call 0x447fe0
+0044a24f: db442420                 fild dword ptr [esp + 0x20]
+0044a253: 83c410                   add esp, 0x10
+0044a256: 55                       push ebp
+0044a257: 51                       push ecx
+0044a258: d91c24                   fstp dword ptr [esp]
+0044a25b: 6838e64800               push 0x48e638
+0044a260: e87bddffff               call 0x447fe0
+0044a265: 83c40c                   add esp, 0xc
+0044a26e: bec8594800               mov esi, 0x4859c8
+0044a273: 8bc7                     mov eax, edi
+0044a275: 8a10                     mov dl, byte ptr [eax]
+0044a277: 8a1e                     mov bl, byte ptr [esi]
+0044a2aa: 55                       push ebp
+0044a2ab: 6830e64800               push 0x48e630
+0044a2b0: e8bb68ffff               call 0x440b70
+0044a2b5: d91c24                   fstp dword ptr [esp]
+0044a2b8: 6838e64800               push 0x48e638
+0044a2bd: e81eddffff               call 0x447fe0
+
+# apply_vid_changes @0x449dd0 region: gl_mode = con_vidmode, sw_mode = con_vidmode
+00449e3b: 6838e64800               push 0x48e638
+00449e40: e82b6dffff               call 0x440b70
+00449e45: d95c2408                 fstp dword ptr [esp + 8]
+00449e49: 83c408                   add esp, 8
+00449e4c: 6830e64800               push 0x48e630
+00449e51: e85a72ffff               call 0x4410b0
+00449e56: 6838e64800               push 0x48e638
+00449e5b: e8106dffff               call 0x440b70
+00449e60: d95c2408                 fstp dword ptr [esp + 8]
+00449e64: 83c408                   add esp, 8
+00449e67: 68a0594800               push 0x4859a0
+00449e6c: e83f72ffff               call 0x4410b0
+00449e71: 6824e64800               push 0x48e624
+00449e76: e8f56cffff               call 0x440b70
+
+# main.mnu vs main_alt.mnu @0x429c3a: main.mnu when width>=640 && height>=480, main_alt.mnu only below that
+00429c3a: 813de834520080020000     cmp dword ptr [0x5234e8], 0x280
+00429c44: 7c1a                     jl 0x429c60
+00429c46: 813dec345200e0010000     cmp dword ptr [0x5234ec], 0x1e0
+00429c50: 7c0e                     jl 0x429c60
+00429c52: 68d4ab4800               push 0x48abd4
+00429c57: e8b4180100               call 0x43b510
+00429c5c: 83c404                   add esp, 4
+00429c5f: c3                       ret 
+00429c60: 68b8ab4800               push 0x48abb8
+00429c65: e8a6180100               call 0x43b510
+00429c6a: 59                       pop ecx
+00429c6b: c3                       ret 
+
+# sin.exe FS_AddGameDirectory @0x441ef0: loads %s/pak%i.sin for i=0..31 (cmp edi,0x20), prepending each pack; THEN allocates the loose-directory searchpath and prepends it (0x441f77-0x441fb3) => the loose game directory is searched BEFORE that directory's paks, so a loose base\menus\main.mnu / 2015\menus\main.mnu overrides pak5.sin / 2015\pak0.sin
+00441f22: 33ff                     xor edi, edi
+00441f24: 57                       push edi
+00441f25: 53                       push ebx
+00441f26: 6884cf4800               push 0x48cf84
+00441f2b: 8d4c2418                 lea ecx, [esp + 0x18]
+00441f2f: 6880000000               push 0x80
+00441f34: 51                       push ecx
+00441f35: e876000100               call 0x451fb0
+00441f3a: 8d542420                 lea edx, [esp + 0x20]
+00441f3e: 52                       push edx
+00441f3f: e80cfeffff               call 0x441d50
+00441f44: 8bf0                     mov esi, eax
+00441f46: 83c418                   add esp, 0x18
+00441f49: 85f6                     test esi, esi
+00441f4b: 7424                     je 0x441f71
+00441f4d: 6888000000               push 0x88
+00441f52: e8e965feff               call 0x428540
+00441f57: 89b080000000             mov dword ptr [eax + 0x80], esi
+00441f5d: 8b0d40075f00             mov ecx, dword ptr [0x5f0740]
+00441f63: 898884000000             mov dword ptr [eax + 0x84], ecx
+00441f69: 83c404                   add esp, 4
+00441f6c: a340075f00               mov dword ptr [0x5f0740], eax
+00441f71: 47                       inc edi
+00441f72: 83ff20                   cmp edi, 0x20
+00441f75: 7cad                     jl 0x441f24
+00441f77: 6888000000               push 0x88
+00441f7c: e8bf65feff               call 0x428540
+00441f81: 8bd0                     mov edx, eax
+00441f83: 8bfb                     mov edi, ebx
+00441f85: 83c9ff                   or ecx, 0xffffffff
+00441f88: 33c0                     xor eax, eax
+00441f8a: 83c404                   add esp, 4
+00441f8d: f2ae                     repne scasb al, byte ptr es:[edi]
+00441f8f: f7d1                     not ecx
+00441f91: 2bf9                     sub edi, ecx
+00441f93: 8bc1                     mov eax, ecx
+00441f95: 8bf7                     mov esi, edi
+00441f97: 8bfa                     mov edi, edx
+00441f99: c1e902                   shr ecx, 2
+00441f9c: f3a5                     rep movsd dword ptr es:[edi], dword ptr [esi]
+00441f9e: 8bc8                     mov ecx, eax
+00441fa0: 83e103                   and ecx, 3
+00441fa3: f3a4                     rep movsb byte ptr es:[edi], byte ptr [esi]
+00441fa5: 8b0d40075f00             mov ecx, dword ptr [0x5f0740]
+00441fab: 5f                       pop edi
+00441fac: 898a84000000             mov dword ptr [edx + 0x84], ecx
+00441fb2: 5e                       pop esi
+00441fb3: 891540075f00             mov dword ptr [0x5f0740], edx
+00441fb9: 5b                       pop ebx
+00441fba: 81c480000000             add esp, 0x80

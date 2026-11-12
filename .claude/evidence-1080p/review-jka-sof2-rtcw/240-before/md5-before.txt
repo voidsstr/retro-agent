@@ -1,0 +1,8 @@
+1374d0c0e076af61802eeebfe482ab1e  jka-base-fleetres.cfg
+814a88ccb683ec429325458268d3b07d  jka-base-jaconfig.cfg
+bd5be88652f53cfe10ef8fafb136defc  rtcw-Main-autoexec.cfg
+39ca79fe933539c4578cb0f0b3127027  rtcw-Main-fleetres.cfg
+0d889f855e25b67ba93ffdb4fa6dd3a6  rtcw-Main-wolfconfig.cfg
+48578255bb337e1897e697335e76634c  rtcw-Main-wolfconfig_mp.cfg
+870814c92ea59e2949e501ff0e7871a3  sof2-base-fleetres.cfg
+cec6d240f2bbcacd3417ab7662952088  sof2-base-MP-sof2mp.cfg

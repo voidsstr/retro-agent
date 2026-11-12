@@ -1,0 +1,2 @@
+# 192.168.1.145  DIRLIST C:\Games\Tribes2\GameData\Classic  status=0  2026-09-29 04:48:34
+[{"name":"Classic_readme.txt","is_dir":false,"size":44271,"modified":"2002-11-02 13:35:50","hidden":false,"readonly":false},{"name":"Classic_technical.txt","is_dir":false,"size":31190,"modified":"2002-11-02 13:36:44","hidden":false,"readonly":false},{"name":"scripts","is_dir":true,"size":0,"modified":"2026-09-01 21:45:41","hidden":false,"readonly":false}]

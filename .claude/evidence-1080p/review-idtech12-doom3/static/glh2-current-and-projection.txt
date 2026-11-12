@@ -1,0 +1,90 @@
+# glh2.exe (md5 c450ea8ac9aefa9e4a5b48e9c7ae4e66) -current: GetSystemMetrics -> modelist[1], vid_default [0x4680a8]=1, leavecurrentmode [0x7cb948]=1
+00430e32: 68488a4600               push 0x468a48
+00430e37: e89436fdff               call 0x4044d0
+00430e3c: 83c404                   add esp, 4
+00430e3f: 85c0                     test eax, eax
+00430e41: 742d                     je 0x430e70
+00430e43: 6a00                     push 0
+00430e45: 8b3dec76df00             mov edi, dword ptr [0xdf76ec]
+00430e4b: be01000000               mov esi, 1
+00430e50: ffd7                     call edi
+00430e52: 56                       push esi
+00430e53: a398b27c00               mov dword ptr [0x7cb298], eax
+00430e58: ffd7                     call edi
+00430e5a: a39cb27c00               mov dword ptr [0x7cb29c], eax
+00430e5f: 8935a8804600             mov dword ptr [0x4680a8], esi
+00430e65: 893548b97c00             mov dword ptr [0x7cb948], esi
+00430e6b: e9eb020000               jmp 0x43115b
+
+# glh2 VID_SetFullDIBMode @0x42f550: leavecurrentmode [0x7cb948] != 0 -> jne 0x42f5d1 skips ChangeDisplaySettings
+0042f550: 83ec10                   sub esp, 0x10
+0042f553: a148b97c00               mov eax, dword ptr [0x7cb948]
+0042f558: 85c0                     test eax, eax
+0042f55a: 90                       nop 
+0042f55b: 53                       push ebx
+0042f55c: 56                       push esi
+0042f55d: 57                       push edi
+0042f55e: 55                       push ebp
+0042f55f: 7570                     jne 0x42f5d1
+0042f561: 8b7c2424                 mov edi, dword ptr [esp + 0x24]
+
+# glh2 VID_SetFullDIBMode tail: vid.width=vid.conwidth=320 (0x140), vid.height=vid.conheight=200 (0xc8) - FIXED 320x200 virtual screen, no -conwidth switch exists in this build
+0042f708: c7057031c30002000000     mov dword ptr [0xc33170], 2
+0042f712: b8c8000000               mov eax, 0xc8
+0042f717: 89352004bf00             mov dword ptr [0xbf0420], esi
+0042f71d: 8b0d1404bf00             mov ecx, dword ptr [0xbf0414]
+0042f723: a38431c300               mov dword ptr [0xc33184], eax
+0042f728: 8b1550b97c00             mov edx, dword ptr [0x7cb950]
+0042f72e: a36831c300               mov dword ptr [0xc33168], eax
+0042f733: b840010000               mov eax, 0x140
+0042f738: 52                       push edx
+0042f739: 6a01                     push 1
+0042f73b: a38031c300               mov dword ptr [0xc33180], eax
+0042f740: 6880000000               push 0x80
+
+# glh2 R_SetupGL @0x407bb0: vrect scaled by glwidth/320 and glheight/200 (immediates), then MYgluPerspective(fovy=atan(h/w)*[0x45a130]=114.5916=360/pi, aspect=w/h) from the 320x200-space vrect => horizontal FOV fixed at 90, fov cvar ignored, projection aspect = 320x200-space aspect regardless of window size
+00407bc8: a1e835c300               mov eax, dword ptr [0xc335e8]
+00407bcd: b940010000               mov ecx, 0x140
+00407bd2: 0faf0530c1dd00           imul eax, dword ptr [0xddc130]
+00407bd9: 99                       cdq 
+00407bda: f7f9                     idiv ecx
+00407bdc: 8bf0                     mov esi, eax
+00407bde: 8b0d30c1dd00             mov ecx, dword ptr [0xddc130]
+00407be4: a138c1dd00               mov eax, dword ptr [0xddc138]
+00407be9: bb40010000               mov ebx, 0x140
+00407bee: 03c1                     add eax, ecx
+00407bf0: 0faf05e835c300           imul eax, dword ptr [0xc335e8]
+00407bf7: 99                       cdq 
+00407bf8: f7fb                     idiv ebx
+00407bfa: 8bf8                     mov edi, eax
+00407bfc: 8b1534c1dd00             mov edx, dword ptr [0xddc134]
+00407c02: b8c8000000               mov eax, 0xc8
+00407c07: 8b2da435c300             mov ebp, dword ptr [0xc335a4]
+00407c0d: 2bc2                     sub eax, edx
+00407c0f: b9c8000000               mov ecx, 0xc8
+00407c14: 0fafc5                   imul eax, ebp
+00407c83: db0538c1dd00             fild dword ptr [0xddc138]
+00407c89: db053cc1dd00             fild dword ptr [0xddc13c]
+00407c8f: d9c1                     fld st(1)
+00407c91: d9e8                     fld1 
+00407c93: d9c9                     fxch st(1)
+00407c95: d8f2                     fdiv st(2)
+00407c97: 680000b040               push 0x40b00000
+00407c9c: 6a00                     push 0
+00407c9e: 6800001040               push 0x40100000
+00407ca3: 6a00                     push 0
+00407ca5: 83ec08                   sub esp, 8
+00407ca8: 83ec08                   sub esp, 8
+00407cab: dd5c2408                 fstp qword ptr [esp + 8]
+00407caf: d9c9                     fxch st(1)
+00407cb1: d8f2                     fdiv st(2)
+00407cb3: d9c9                     fxch st(1)
+00407cb5: d9f3                     fpatan 
+00407cb7: dc0d30a14500             fmul qword ptr [0x45a130]
+00407cbd: d9c9                     fxch st(1)
+00407cbf: ddd8                     fstp st(0)
+00407cc1: dd1c24                   fstp qword ptr [esp]
+00407cc4: e877feffff               call 0x407b40
+00407cc9: 83c420                   add esp, 0x20
+00407ccc: 8b0dc0c1dd00             mov ecx, dword ptr [0xddc1c0]
+00407cd2: 85c9                     test ecx, ecx

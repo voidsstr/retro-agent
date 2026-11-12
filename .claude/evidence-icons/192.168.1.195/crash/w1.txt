@@ -1,0 +1,287 @@
+Event[0]:
+  Log Name: System
+  Source: Microsoft-Windows-WMPNSS-Service
+  Date: 2026-09-26T23:31:19.000
+  Event ID: 14204
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Service 'WMPNetworkSvc' started.
+
+Event[1]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-09-26T23:31:18.893
+  Event ID: 32
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link has been established at 1Gbps full duplex.
+
+
+Event[2]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:19.798
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Function Discovery Provider Host service entered the running state.
+
+Event[3]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:19.954
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Function Discovery Resource Publication service entered the running state.
+
+Event[4]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:19.969
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The HomeGroup Provider service entered the running state.
+
+Event[5]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:19.969
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Media Player Network Sharing Service service entered the running state.
+
+Event[6]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:20.203
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The SSDP Discovery service entered the running state.
+
+Event[7]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:20.297
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The WinHTTP Web Proxy Auto-Discovery Service service entered the running state.
+
+Event[8]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:34.555
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Multimedia Class Scheduler service entered the running state.
+
+Event[9]:
+  Log Name: System
+  Source: Microsoft-Windows-Application-Experience
+  Date: 2026-09-26T23:31:39.719
+  Event ID: 201
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The Program Compatibility Assistant service started successfully.
+
+Event[10]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:31:39.719
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Program Compatibility Assistant Service service entered the running state.
+
+Event[11]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:36:36.806
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Multimedia Class Scheduler service entered the stopped state.
+
+Event[12]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-26T23:47:50.306
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The WinHTTP Web Proxy Auto-Discovery Service service entered the stopped state.
+
+Event[13]:
+  Log Name: System
+  Source: Microsoft-Windows-DistributedCOM
+  Date: 2026-09-26T23:52:06.000
+  Event ID: 10010
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The server {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83} did not register with DCOM within the required timeout.
+
+Event[14]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-27T01:00:00.484
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Time service entered the running state.
+
+Event[15]:
+  Log Name: System
+  Source: Microsoft-Windows-Time-Service
+  Date: 2026-09-27T01:00:02.059
+  Event ID: 37
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The time provider NtpClient is currently receiving valid time data from time.windows.com,0x9 (ntp.m|0x9|0.0.0.0:123->168.61.215.74:123).
+
+Event[16]:
+  Log Name: System
+  Source: Microsoft-Windows-Time-Service
+  Date: 2026-09-27T01:00:16.567
+  Event ID: 35
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The time service is now synchronizing the system time with the time source time.windows.com,0x9 (ntp.m|0x9|0.0.0.0:123->168.61.215.74:123).
+
+Event[17]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-27T01:00:16.567
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?27T05:00:16.567000000Z from ?2026?-?09?-?27T05:00:16.614652400Z.
+
+Event[18]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-27T01:00:16.567
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Time service entered the stopped state.
+

@@ -1,0 +1,63 @@
+====================================================================================================
+STAGED ORIGINAL /mnt/retro-share/Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U
+  v68 GUID 6bcadecaffb7b34e92b50c1f8eccec21 generations [(21422, 12872)] names/exports/imports (12872, 21422, 3336)
+  export #20668 (object ref 20669), serial 0x460754..0x46086c; bytecode from file 0x46076a
+    file 0x46076a  I:CurrentRes = I:Player.[ctx skip=21 sz=0]ConsoleCommand('GetCurrentRes')
+    file 0x460786  L:AvailableRes = I:Player.[ctx skip=14 sz=0]ConsoleCommand('GetRes')
+    file 0x46079c  L:resNum = 0
+    file 0x4607a1  L:choiceCount = 0
+    file 0x4607a6  L:ParseString = L:AvailableRes
+    file 0x4607ae  L:P = InStr(L:ParseString, ' ')
+    file 0x4607ba  L:resString = Left(L:ParseString, L:P)
+    file 0x4607c6  if !(<(int,int)(L:resNum, IntConstByte(16))) goto 0x14b
+    file 0x4607d0  L:resX = InStr(L:resString, 'x')
+    file 0x4607dc  L:resWidth = int(Left(L:resString, L:resX))
+    file 0x4607e9  if !(>=(int,int)(L:resWidth, int(640))) goto 0xd2
+    file 0x4607f6  I:enumText[L:choiceCount] = L:resString
+    file 0x460801  ++(int)post(L:choiceCount)
+    file 0x460806  if !(==(int,int)(L:P, int(-1))) goto 0xe4
+    file 0x460813  goto 0x14b
+    file 0x460816  L:ParseString = Right(L:ParseString, -(int,int)(-(int,int)(Len(L:ParseString), L:P), 1))
+    file 0x46082c  L:P = InStr(L:ParseString, ' ')
+    file 0x460838  if !(!=(int,int)(L:P, int(-1))) goto 0x136
+    file 0x460845  L:resString = Left(L:ParseString, L:P)
+    file 0x460851  goto 0x141
+    file 0x460854  L:resString = L:ParseString
+    file 0x46085b  ++(int)post(L:resNum)
+    file 0x460860  goto 0x7c
+    file 0x460863  return Nothing
+  MenuUIChoiceEnum.enumText ArrayDim=40 PropertyFlags=0x00408000  (raw 00 00 57 be 02 28 00 00 00 00 80 40 00 00)
+  MenuChoice_Resolution.GetScreenResolutions.Resolutions ArrayDim=16 PropertyFlags=0x00400000  (raw 00 00 46 80 01 10 00 00 00 00 00 40 00 00)
+====================================================================================================
+PATCHED BUILD /home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/DEUSEX.U
+  v68 GUID 6bcadecaffb7b34e92b50c1f8eccec21 generations [(21422, 12872)] names/exports/imports (12872, 21422, 3336)
+  export #20668 (object ref 20669), serial 0x460754..0x46086c; bytecode from file 0x46076a
+    file 0x46076a  I:CurrentRes = I:Player.[ctx skip=21 sz=0]ConsoleCommand('GetCurrentRes')
+    file 0x460786  L:AvailableRes = I:Player.[ctx skip=14 sz=0]ConsoleCommand('GetRes')
+    file 0x46079c  L:resNum = 0
+    file 0x4607a1  L:choiceCount = 0
+    file 0x4607a6  L:ParseString = L:AvailableRes
+    file 0x4607ae  L:P = InStr(L:ParseString, ' ')
+    file 0x4607ba  L:resString = Left(L:ParseString, L:P)
+    file 0x4607c6  if !(<(int,int)(L:resNum, IntConstByte(40))) goto 0x14b
+    file 0x4607d0  L:resX = InStr(L:resString, 'x')
+    file 0x4607dc  L:resWidth = int(Left(L:resString, L:resX))
+    file 0x4607e9  if !(>=(int,int)(L:resWidth, int(640))) goto 0xd2
+    file 0x4607f6  I:enumText[L:choiceCount] = L:resString
+    file 0x460801  ++(int)post(L:choiceCount)
+    file 0x460806  if !(==(int,int)(L:P, int(-1))) goto 0xe4
+    file 0x460813  goto 0x14b
+    file 0x460816  L:ParseString = Right(L:ParseString, -(int,int)(-(int,int)(Len(L:ParseString), L:P), 1))
+    file 0x46082c  L:P = InStr(L:ParseString, ' ')
+    file 0x460838  if !(!=(int,int)(L:P, int(-1))) goto 0x136
+    file 0x460845  L:resString = Left(L:ParseString, L:P)
+    file 0x460851  goto 0x141
+    file 0x460854  L:resString = L:ParseString
+    file 0x46085b  ++(int)post(L:resNum)
+    file 0x460860  goto 0x7c
+    file 0x460863  return Nothing
+  MenuUIChoiceEnum.enumText ArrayDim=40 PropertyFlags=0x00408000  (raw 00 00 57 be 02 28 00 00 00 00 80 40 00 00)
+  MenuChoice_Resolution.GetScreenResolutions.Resolutions ArrayDim=16 PropertyFlags=0x00400000  (raw 00 00 46 80 01 10 00 00 00 00 00 40 00 00)
+====================================================================================================
+deusex-server /home/voidsstr/deusex-server/System/DEUSEX.U
+  v68 GUID 6bcadecaffb7b34e92b50c1f8eccec21 generations [(21422, 12872)] names/exports/imports (12872, 21422, 3336)

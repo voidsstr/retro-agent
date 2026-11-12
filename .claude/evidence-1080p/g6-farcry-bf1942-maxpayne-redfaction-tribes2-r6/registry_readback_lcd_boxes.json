@@ -1,0 +1,992 @@
+{
+ "taken_at": "2026-09-29T00:23:20.136500",
+ "note": "read-only REGREAD/DIRLIST; *Path values of the R6 key omitted",
+ "192.168.1.123": {
+  "REGREAD HKCU SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKCU",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "UpdateRate",
+     "type": "REG_DWORD",
+     "data": 200000
+    },
+    {
+     "name": "ForcePort",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "StraightToSetup",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "Geometry Cache Size",
+     "type": "REG_DWORD",
+     "data": 8
+    },
+    {
+     "name": "Fast Animations",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "Vsync",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": [
+    "Version"
+   ]
+  },
+  "REGREAD HKLM SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "Resolution Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Resolution Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Resolution Bit Depth",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKCU Software\\Remedy Entertainment\\Max Payne\\Video Settings": {
+   "root": "HKCU",
+   "path": "Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+   "values": [
+    {
+     "name": "Display Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Display Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Display Bits Per Pixel",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKLM SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six",
+   "values": [
+    {
+     "name": "Language",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "InstallType",
+     "type": "REG_SZ",
+     "data": "Full"
+    },
+    {
+     "name": "FullScreen",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "SoftwareOnly",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "Movie On",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "Sounds On",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "MouseRadiansPerPixel",
+     "type": "REG_SZ",
+     "data": "0.008727"
+    },
+    {
+     "name": "Volume",
+     "type": "REG_SZ",
+     "data": "1.000000"
+    },
+    {
+     "name": "GameNeverRun",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "GameHasBeenWon",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "PlayIntroMovie",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "MultiplayerPlayerName",
+     "type": "REG_SZ",
+     "data": "JOHN DOE"
+    },
+    {
+     "name": "MultiplayerServerName",
+     "type": "REG_SZ",
+     "data": "R6 GAME SERVER"
+    },
+    {
+     "name": "MultiplayerMessageName",
+     "type": "REG_SZ",
+     "data": "Message of the Day"
+    },
+    {
+     "name": "MultiplayerGameJoinPort",
+     "type": "REG_DWORD",
+     "data": 2346
+    },
+    {
+     "name": "MultiplayerManualJoinPort",
+     "type": "REG_SZ",
+     "data": ""
+    },
+    {
+     "name": "MultiplayerManualHostAddress",
+     "type": "REG_SZ",
+     "data": ""
+    },
+    {
+     "name": "MultiplayerGameAnnouncePort",
+     "type": "REG_DWORD",
+     "data": 2347
+    },
+    {
+     "name": "MultiplayerGameInfoPort",
+     "type": "REG_DWORD",
+     "data": 2348
+    },
+    {
+     "name": "MultiplayerConnectionType",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "MultiplayerPassword",
+     "type": "REG_SZ",
+     "data": "SECRET"
+    },
+    {
+     "name": "MultiplayerAnnounceGames",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "MultiplayerRequirePassword",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerBehindFirewall",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerUseVoice",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerAllowVoice",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerOnLan",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerAutotargetting",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "MultiplayerRandomTeams",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerRandomMaps",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerGameType",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "MultiplayerGameLength",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "MultiplayerShowEnemies",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "MultiplayerTimeLimit",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "MultiplayerAdversarialGame",
+     "type": "REG_SZ",
+     "data": ""
+    },
+    {
+     "name": "MultiplayerCharacter",
+     "type": "REG_SZ",
+     "data": "Chavez.act"
+    },
+    {
+     "name": "MultiplayerSpecialty",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "MultiplayerUniform",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "MultiplayerWeapon1",
+     "type": "REG_SZ",
+     "data": "pw_mp5.wpn"
+    },
+    {
+     "name": "MultiplayerWeapon2",
+     "type": "REG_SZ",
+     "data": "sw_9mm.wpn"
+    },
+    {
+     "name": "MultiplayerItem1",
+     "type": "REG_SZ",
+     "data": "flashbng.eq"
+    },
+    {
+     "name": "MultiplayerItem2",
+     "type": "REG_SZ",
+     "data": "frag.eq"
+    },
+    {
+     "name": "MultiplayerMissionMapCoop",
+     "type": "REG_SZ",
+     "data": ""
+    },
+    {
+     "name": "MultiplayerMissionMapAdvr",
+     "type": "REG_SZ",
+     "data": ""
+    },
+    {
+     "name": "MultiplayerDifficulty",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "MultiplayerAiBackup",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "MultiplayerGender",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "RequireInsertionPoint",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "DifficultySetting",
+     "type": "REG_SZ",
+     "data": "EASY"
+    },
+    {
+     "name": "KeyMapFileName",
+     "type": "REG_SZ",
+     "data": "sherman.kmp"
+    },
+    {
+     "name": "GoreOn",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "InvertMouse",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "UseMaxSounds",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "PromptForDefaultPlan",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "PromptForGameStart",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "GammaValue",
+     "type": "REG_SZ",
+     "data": "1.500000"
+    },
+    {
+     "name": "AutoTarget",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "ShowFog",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "MusicOn",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "RadioVolume",
+     "type": "REG_SZ",
+     "data": "1.000000"
+    },
+    {
+     "name": "SoundFxVolume",
+     "type": "REG_SZ",
+     "data": "1.000000"
+    },
+    {
+     "name": "RadioChatterOn",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "SoundFxOn",
+     "type": "REG_SZ",
+     "data": "TRUE"
+    },
+    {
+     "name": "ActionMusicVolume",
+     "type": "REG_SZ",
+     "data": "100.000000"
+    },
+    {
+     "name": "VideoResolution",
+     "type": "REG_SZ",
+     "data": "640x480"
+    },
+    {
+     "name": "UseSoundDeviceGuid",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "SoundDeviceGuid",
+     "type": "REG_BINARY",
+     "data": "1A D7 6D BD EB 3D D1 11 B1 71 00 C0 4F C2 00 00"
+    },
+    {
+     "name": "UsePrimaryDisplay",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "UseDisplayDeviceGuid",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "DisplayDeviceGuid",
+     "type": "REG_BINARY",
+     "data": "41 4D 5F 4D 45 4D 42 45 51 00 41 00 00 10 00 01"
+    },
+    {
+     "name": "ForbidVoiceRecord",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    },
+    {
+     "name": "ReverseSoundInitializationOrder",
+     "type": "REG_SZ",
+     "data": "FALSE"
+    }
+   ],
+   "subkeys": []
+  },
+  "DIRLIST C:\\Games\\Tribes2\\GameData\\base\\prefs": [
+   {
+    "name": "French Config.cs",
+    "is_dir": false,
+    "size": 5117,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "German config.cs",
+    "is_dir": false,
+    "size": 5111,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Italian Config.cs",
+    "is_dir": false,
+    "size": 5119,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Spanish Config.cs",
+    "is_dir": false,
+    "size": 5063,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "TR2HudPrefs.cs",
+    "is_dir": false,
+    "size": 351,
+    "modified": "2002-09-02 14:48:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WASDConfig.cs",
+    "is_dir": false,
+    "size": 5129,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "192.168.1.145": {
+  "REGREAD HKCU SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKCU",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "UpdateRate",
+     "type": "REG_DWORD",
+     "data": 200000
+    },
+    {
+     "name": "ForcePort",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "StraightToSetup",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "Geometry Cache Size",
+     "type": "REG_DWORD",
+     "data": 8
+    },
+    {
+     "name": "Fast Animations",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "Vsync",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": [
+    "Version"
+   ]
+  },
+  "REGREAD HKLM SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "Resolution Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Resolution Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Resolution Bit Depth",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKCU Software\\Remedy Entertainment\\Max Payne\\Video Settings": {
+   "root": "HKCU",
+   "path": "Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+   "values": [
+    {
+     "name": "Display Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Display Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Display Bits Per Pixel",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKLM SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six",
+   "values": [
+    {
+     "name": "Language",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "InstallType",
+     "type": "REG_SZ",
+     "data": "Full"
+    },
+    {
+     "name": "FullScreen",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "SoftwareOnly",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": []
+  },
+  "DIRLIST C:\\Games\\Tribes2\\GameData\\base\\prefs": [
+   {
+    "name": "French Config.cs",
+    "is_dir": false,
+    "size": 5117,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "German config.cs",
+    "is_dir": false,
+    "size": 5111,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Italian Config.cs",
+    "is_dir": false,
+    "size": 5119,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Spanish Config.cs",
+    "is_dir": false,
+    "size": 5063,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "TR2HudPrefs.cs",
+    "is_dir": false,
+    "size": 351,
+    "modified": "2002-09-02 14:48:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WASDConfig.cs",
+    "is_dir": false,
+    "size": 5129,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "192.168.1.195": {
+  "REGREAD HKCU SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKCU",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "UpdateRate",
+     "type": "REG_DWORD",
+     "data": 200000
+    },
+    {
+     "name": "ForcePort",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "StraightToSetup",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "Geometry Cache Size",
+     "type": "REG_DWORD",
+     "data": 8
+    },
+    {
+     "name": "Fast Animations",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "Vsync",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": [
+    "Version"
+   ]
+  },
+  "REGREAD HKLM SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "Resolution Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Resolution Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Resolution Bit Depth",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKCU Software\\Remedy Entertainment\\Max Payne\\Video Settings": {
+   "root": "HKCU",
+   "path": "Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+   "values": [
+    {
+     "name": "Display Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Display Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Display Bits Per Pixel",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKLM SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six",
+   "values": [
+    {
+     "name": "Language",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "InstallType",
+     "type": "REG_SZ",
+     "data": "Full"
+    },
+    {
+     "name": "FullScreen",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "SoftwareOnly",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": []
+  },
+  "DIRLIST C:\\Games\\Tribes2\\GameData\\base\\prefs": [
+   {
+    "name": "French Config.cs",
+    "is_dir": false,
+    "size": 5117,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "German config.cs",
+    "is_dir": false,
+    "size": 5111,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Italian Config.cs",
+    "is_dir": false,
+    "size": 5119,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Spanish Config.cs",
+    "is_dir": false,
+    "size": 5063,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "TR2HudPrefs.cs",
+    "is_dir": false,
+    "size": 351,
+    "modified": "2002-09-02 14:48:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WASDConfig.cs",
+    "is_dir": false,
+    "size": 5129,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ },
+ "192.168.1.240": {
+  "REGREAD HKCU SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKCU",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "UpdateRate",
+     "type": "REG_DWORD",
+     "data": 200000
+    },
+    {
+     "name": "ForcePort",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "StraightToSetup",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "Geometry Cache Size",
+     "type": "REG_DWORD",
+     "data": 8
+    },
+    {
+     "name": "Fast Animations",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "Vsync",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": [
+    "Version"
+   ]
+  },
+  "REGREAD HKLM SOFTWARE\\Volition\\Red Faction": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Volition\\Red Faction",
+   "values": [
+    {
+     "name": "Resolution Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Resolution Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Resolution Bit Depth",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKCU Software\\Remedy Entertainment\\Max Payne\\Video Settings": {
+   "root": "HKCU",
+   "path": "Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+   "values": [
+    {
+     "name": "Display Width",
+     "type": "REG_DWORD",
+     "data": 1920
+    },
+    {
+     "name": "Display Height",
+     "type": "REG_DWORD",
+     "data": 1080
+    },
+    {
+     "name": "Display Bits Per Pixel",
+     "type": "REG_DWORD",
+     "data": 32
+    }
+   ],
+   "subkeys": []
+  },
+  "REGREAD HKLM SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six": {
+   "root": "HKLM",
+   "path": "SOFTWARE\\Red Storm Entertainment\\Tom Clancy's Rainbow Six",
+   "values": [
+    {
+     "name": "Language",
+     "type": "REG_DWORD",
+     "data": 0
+    },
+    {
+     "name": "InstallType",
+     "type": "REG_SZ",
+     "data": "Full"
+    },
+    {
+     "name": "FullScreen",
+     "type": "REG_DWORD",
+     "data": 1
+    },
+    {
+     "name": "SoftwareOnly",
+     "type": "REG_DWORD",
+     "data": 0
+    }
+   ],
+   "subkeys": []
+  },
+  "DIRLIST C:\\Games\\Tribes2\\GameData\\base\\prefs": [
+   {
+    "name": "French Config.cs",
+    "is_dir": false,
+    "size": 5117,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "German config.cs",
+    "is_dir": false,
+    "size": 5111,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Italian Config.cs",
+    "is_dir": false,
+    "size": 5119,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "Spanish Config.cs",
+    "is_dir": false,
+    "size": 5063,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "TR2HudPrefs.cs",
+    "is_dir": false,
+    "size": 351,
+    "modified": "2002-09-02 14:48:00",
+    "hidden": false,
+    "readonly": false
+   },
+   {
+    "name": "WASDConfig.cs",
+    "is_dir": false,
+    "size": 5129,
+    "modified": "2001-09-20 19:48:44",
+    "hidden": false,
+    "readonly": false
+   }
+  ]
+ }
+}

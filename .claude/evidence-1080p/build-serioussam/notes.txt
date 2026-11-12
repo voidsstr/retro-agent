@@ -1,0 +1,54 @@
+REVIEW 2026-09-29 04:35 - READ review.txt FIRST. The Game_startup.ini outputs below are
+SUPERSEDED: the include comment was made title-neutral, so TFE is now dc8292081b7a038acc9f6def8e9f1aac
+(499 B) and TSE is now 7e38c3e47336da600a196bf5a06cca55 (637 B). The Engine.dll md5s are unchanged.
+check.txt and manifest.json were regenerated; the builder's copies are kept as *-builder-0412.*.
+Tests: 25 passed (share mounted).
+
+serioussam build - 2026-09-29 (building only; nothing published, no box touched)
+
+TOOL   provisioning/patches/serioussam/apply.py   (worktree lcd1080-patches)
+TESTS  tests/python/test_patch_serioussam.py      19 passed, 0 skipped (share mounted)
+CHECK  check.txt (this dir)                        rc=0
+OUT    ~/.retro-fleet/patch-out/serioussam/{patched,originals}/..., manifest.json (copy here)
+
+OUTPUTS (share path -> md5, original md5)
+  SeriousSamFirstEncounter/Bin/Engine.dll            7158150f6ba8981f6c4d141e0a379f58  1560576 B  (orig 6281c69ec427b9a0dd828bc1cbf0b14b)
+  SeriousSamFirstEncounter/Scripts/Game_startup.ini  c7410f66e11cfd027b8fbfbf1d09bae1   412 B     (orig cf9c168d9af4e35df51b81b2b7a925ec, 86 B)
+  SeriousSamSecondEncounter/Bin/Engine.dll           4bdeec64bb57c0bd09d20319d195e08e  1929274 B  (orig 230c1b52f3bd125dc9af049b70472100)
+  SeriousSamSecondEncounter/Scripts/Game_startup.ini cce33f9ac340461d140f765610f08627   550 B     (orig fb6e5696d4980a0d13e390aa745fea54, 224 B)
+
+ENGINE DIFF (only these bytes change)
+  TFE: 0x159288..0x15929f (3 pairs) + PE checksum 0x148 (0x18820f -> 0x1884e3, valid before and after, pefile agrees)
+  TSE: 0x1ad760..0x1ad777 (3 pairs) + PE checksum 0x158 (0x1e6ac5 -> 0x1e6d99)
+  Table after: ... 2048x1536 1280x720 1600x900 1920x1080 848x480 856x480 (count/end pointer unchanged)
+  No base relocation in the patched bytes; every relocated pointer near the table
+  targets its base, the TFE count word, the TSE end pointer 0x601ad788, or a
+  neighbouring non-table constant - none addresses an individual entry.
+
+CORRECTION to titles-verified.json: "IsWideScreen is exactly 856x480" is true for
+CDisplayMode::IsWideScreen only. CDrawPort::IsWideScreen (TFE 0x600fc610, TSE
+0x6003ed60) is w*9==h*16 and IS true at 1920x1080/1600x900/1280x720 - but that is
+the render size, which every 1080p box already runs at via the launcher. The
+patch changes the menu list, not runtime behaviour at a given size.
+
+MULTIPLAYER: Engine.dll is a PE import of SeriousSam.exe/DedicatedServer.exe, not
+a file the engine opens through its CRC-gathering file system (CRCT covers world,
+.ecl classes and their components). The ssam-tfe/tse servers run their own
+ORIGINAL Engine.dll (same md5s as the library). --install-server exists only as a
+fallback if a hardware join says otherwise (copies the patched dll into
+~/ssam-*-server/Bin with a .orig-2026-09-29 backup; prints the unit to restart).
+
+STARTUP SCRIPT DESIGN (the TSE must-fix)
+  Staged Scripts\Game_startup.ini = shipped bytes verbatim + a comment block +
+      include "Scripts\Game_FleetRes.ini";
+  (Croteam's own syntax: Scripts\GLSettings\*.ini use `include "Scripts\GLSettings\X.ini";`,
+  single backslashes. The per-box name starts with G because `\G` after a
+  backslash is proven by those shipped files.)
+  Both writers (launcher + GAMERES) write ONLY Scripts\Game_FleetRes.ini.
+  Game_FleetRes.ini must never be staged (GAMESYNC would overwrite GAMERES's copy
+  at every sync -> churn). A missing include target reaches the engine's
+  "Cannot load script file '%s': %s" catch (TSE Engine.dll 0x6013c2d8): a console
+  print, not a FatalError - and the include is the last line, so nothing after
+  it could be skipped. Still to be seen once on hardware (hw plan step).
+  Keep gfx_iRefreshRate as the LAST line of Game_FleetRes.ini: in TSE it is an
+  undeclared symbol, and the error path sets the same parser flag.

@@ -1,0 +1,56 @@
+#### /mnt/retro-share/Files/Games-Library/Quake3-TeamArena/quake3.exe  image base 0x400000
+
+== cvar r_displayRefresh: exact string at ['0x4bc78c']
+   code refs to the string: ['0x445165']
+   registration near 0x445165 -> stored in global 0xc59ba0
+  00445154: call    dword ptr [0xc599c0]
+  0044515a: add     esp, 0x48
+  0044515d: push    0x20
+  0044515f: push    0x4b29a8
+  00445164: push    0x4bc78c
+  00445169: mov     dword ptr [0xc59b08], eax
+  0044516e: call    dword ptr [0xc599c0]
+  00445174: mov     esi, eax
+  00445176: mov     dword ptr [0xc59ba0], esi
+  0044517c: push    0x43480000
+  00445181: push    0
+  00445183: mov     eax, 1
+  00445188: call    0x443e50
+  0044518d: push    0x220
+  00445192: push    0x4b29a8
+  00445197: push    0x4bc77c
+  0044519c: call    dword ptr [0xc599c0]
+  004451a2: push    0x20
+  004451a4: push    0x4b4d48
+   every code ref to 0xc59ba0: ['0x445178', '0x459ee9']
+   --- ref 0x445178
+  00445177: xor     eax, 0xc59ba0
+  0044517c: push    0x43480000
+  00445181: push    0
+  00445183: mov     eax, 1
+  00445188: call    0x443e50
+  0044518d: push    0x220
+  00445192: push    0x4b29a8
+  00445197: push    0x4bc77c
+  0044519c: call    dword ptr [0xc599c0]
+  004451a2: push    0x20
+  004451a4: push    0x4b4d48
+  004451a9: push    0x4bc768
+  004451ae: mov     dword ptr [0xc59ac4], eax
+   --- ref 0x459ee9
+  00459ee8: or      eax, 0xc59ba0
+  00459eed: mov     word ptr [esp + 0x3c], 0x9c
+  00459ef4: mov     dword ptr [esp + 0x88], eax
+  00459efb: mov     dword ptr [esp + 0x40], 0x180000
+  00459f03: mov     eax, dword ptr [ecx + 0x20]
+  00459f06: test    eax, eax
+  00459f08: je      0x459f19
+  00459f0a: mov     dword ptr [esp + 0x90], eax
+  00459f11: mov     dword ptr [esp + 0x40], 0x580000
+  00459f19: test    esi, esi
+  00459f1b: je      0x459f55
+  00459f1d: mov     eax, dword ptr [0xc2f070]
+
+== ChangeDisplaySettingsA (IAT 0x4b224c) call sites: ['0x459fb6', '0x459fd5', '0x45a15c', '0x45a744']
+
+== EnumDisplaySettingsA (IAT 0x4b2248) call sites: ['0x45a036', '0x45a074', '0x45a1a8']

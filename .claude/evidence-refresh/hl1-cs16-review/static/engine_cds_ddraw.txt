@@ -1,0 +1,529 @@
+==============================================================================
+HalfLife1/hw.dll 1175552 374a87fd6175a6a9541656bc959bc822 base 0x10000000
+slots: {'0x100c501c': 'DDRAW.dll!DirectDrawCreate'}
+
+-- 100a4658 jmp dword ptr [0x100c501c]  (DDRAW.dll!DirectDrawCreate)
+   100a461b  fmul   dword ptr [edx + 8]
+   100a461e  fxch   st(1)
+   100a4620  faddp  st(2)
+   100a4622  faddp  st(1)
+   100a4624  fsub   dword ptr ds:[ebp + ecx*4 + 0xc]
+   100a4629  jmp    0x100a4633
+   100a462b  fld    dword ptr ds:[ebp + ecx*4 + 0xc]
+   100a4630  fsubr  dword ptr [edx + ebx*4]
+   100a4633  sar    eax, 0x10
+   100a4636  sar    esi, 0x10
+   100a4639  fstp   dword ptr [0x100f9130]
+   100a463f  mov    ecx, dword ptr [0x100f9130]
+   100a4645  sar    ecx, 0x1f
+   100a4648  and    esi, ecx
+   100a464a  xor    ecx, 0xffffffff
+   100a464d  and    eax, ecx
+   100a464f  or     eax, esi
+   100a4651  jns    0x100a45ee
+   100a4653  pop    esi
+   100a4654  pop    ebp
+   100a4655  pop    ebx
+   100a4656  pop    edi
+   100a4657  ret    
+   100a4658  jmp    dword ptr [0x100c501c]
+   100a465e  jmp    dword ptr [0x100c5370]
+   100a4664  jmp    dword ptr [0x100c5374]
+   100a466a  jmp    dword ptr [0x100c5378]
+   100a4670  jmp    dword ptr [0x100c537c]
+   100a4676  .byte  0xff
+   100a4677  .byte  0x25
+
+vgui.dll imports naming Surface/App (69 of 277):
+    ?repaintAll@App@vgui@@UAEXXZ
+    ?getFocus@App@vgui@@UAEPAVPanel@2@XZ
+    ?requestFocus@App@vgui@@UAEXPAVPanel@2@@Z
+    ?setMouseArena@App@vgui@@UAEXHHHH_N@Z
+    ?setMouseArena@App@vgui@@UAEXPAVPanel@2@@Z
+    ?setScheme@App@vgui@@UAEXPAVScheme@2@@Z
+    ?setMouseCapture@App@vgui@@UAEXPAVPanel@2@@Z
+    ?getCursorPos@App@vgui@@UAEXAAH0@Z
+    ?setCursorPos@App@vgui@@UAEXHH@Z
+    ?addTickSignal@App@vgui@@UAEXPAVTickSignal@2@@Z
+    ?wasKeyReleased@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?wasKeyTyped@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?isKeyDown@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?enableBuildMode@App@vgui@@UAEXXZ
+    ?isMouseDown@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasMouseDoublePressed@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasMousePressed@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?externalTick@App@vgui@@UAEXXZ
+    ?stop@App@vgui@@UAEXXZ
+    ?start@App@vgui@@UAEXXZ
+    ?wasMouseReleased@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasKeyPressed@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?getInstance@App@vgui@@SAPAV12@XZ
+    ?platTick@App@vgui@@MAEXXZ
+    ?getKeyCodeText@App@vgui@@UAEXW4KeyCode@2@PADH@Z
+    ?getCursorOveride@App@vgui@@UAEPAVCursor@2@XZ
+    ?setMinimumTickMillisInterval@App@vgui@@UAEXH@Z
+    ?run@App@vgui@@UAEXXZ
+    ?internalCursorMoved@App@vgui@@UAEXHHPAVSurfaceBase@2@@Z
+    ?internalTick@App@vgui@@MAEXXZ
+    ?internalMouseDoublePressed@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseReleased@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseWheeled@App@vgui@@UAEXHPAVSurfaceBase@2@@Z
+    ?getSurfaceBase@Panel@vgui@@UAEPAVSurfaceBase@2@XZ
+    ?getApp@Panel@vgui@@UAEPAVApp@2@XZ
+    ?setSurfaceBaseTraverse@Panel@vgui@@UAEXPAVSurfaceBase@2@@Z
+    ?internalKeyPressed@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalKeyTyped@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalKeyReleased@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?init@App@vgui@@EAEXXZ
+    ?updateMouseFocus@App@vgui@@EAEXHHPAVSurfaceBase@2@@Z
+    ?setMouseFocus@App@vgui@@EAEXPAVPanel@2@@Z
+    ?surfaceBaseCreated@App@vgui@@MAEXPAVSurfaceBase@2@@Z
+    ?surfaceBaseDeleted@App@vgui@@MAEXPAVSurfaceBase@2@@Z
+    ??0SurfaceBase@vgui@@QAE@PAVPanel@1@@Z
+    ??1SurfaceBase@vgui@@IAE@XZ
+    ?getPanel@SurfaceBase@vgui@@UAEPAVPanel@2@XZ
+    ?requestSwap@SurfaceBase@vgui@@UAEXXZ
+    ?resetModeInfo@SurfaceBase@vgui@@UAEXXZ
+    ?getModeInfoCount@SurfaceBase@vgui@@UAEHXZ
+    ?getModeInfo@SurfaceBase@vgui@@UAE_NHAAH00@Z
+    ?getApp@SurfaceBase@vgui@@UAEPAVApp@2@XZ
+    ?setEmulatedCursorVisible@SurfaceBase@vgui@@UAEX_N@Z
+    ?setEmulatedCursorPos@SurfaceBase@vgui@@UAEXHH@Z
+    ?addModeInfo@SurfaceBase@vgui@@MAEXHHH@Z
+    ?getTimeMillis@App@vgui@@UAEJXZ
+    ?getKeyCodeChar@App@vgui@@UAEDW4KeyCode@2@_N@Z
+    ?getClipboardText@App@vgui@@UAEHHPADH@Z
+    ?getClipboardTextCount@App@vgui@@UAEHXZ
+    ?setClipboardText@App@vgui@@UAEXPBDH@Z
+    ?setRegistryString@App@vgui@@UAE_NPBD0@Z
+    ?reset@App@vgui@@UAEXXZ
+    ?internalSetMouseArena@App@vgui@@UAEXHHHH_N@Z
+    ?getRegistryInteger@App@vgui@@UAE_NPBDAAH@Z
+    ?getRegistryString@App@vgui@@UAE_NPBDPADH@Z
+    ?setRegistryInteger@App@vgui@@UAE_NPBDH@Z
+    ?setCursorOveride@App@vgui@@UAEXPAVCursor@2@@Z
+    ?getScheme@App@vgui@@UAEPAVScheme@2@XZ
+    ?internalMousePressed@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+==============================================================================
+CounterStrike16/hw.dll 1840440 4903e8e80f2a00d3ab2886f0f209a6d6 base 0x1d00000
+slots: {'0x1e48094': 'DDRAW.dll!DirectDrawCreate', '0x1e483c4': 'USER32.dll!ChangeDisplaySettingsA'}
+
+-- 01dc75cd call dword ptr [0x1e483c4]  (USER32.dll!ChangeDisplaySettingsA)
+   01dc75b5  nop    
+   01dc75b6  nop    
+   01dc75b7  nop    
+   01dc75b8  nop    
+   01dc75b9  nop    
+   01dc75ba  nop    
+   01dc75bb  nop    
+   01dc75bc  nop    
+   01dc75bd  nop    
+   01dc75be  nop    
+   01dc75bf  nop    
+   01dc75c0  mov    eax, dword ptr [ecx]
+   01dc75c2  call   dword ptr [eax + 0x1c]
+   01dc75c5  test   al, al
+   01dc75c7  jne    0x1dc75e7
+   01dc75c9  push   0
+   01dc75cb  push   0
+   01dc75cd  call   dword ptr [0x1e483c4]
+   01dc75d3  mov    ecx, dword ptr [0x1e8d504]
+   01dc75d9  push   6
+   01dc75db  mov    edx, dword ptr [ecx]
+   01dc75dd  call   dword ptr [edx + 0x14]
+   01dc75e0  push   eax
+   01dc75e1  call   dword ptr [0x1e48438]
+   01dc75e7  ret    
+   01dc75e8  nop    
+   01dc75e9  nop    
+   01dc75ea  nop    
+   01dc75eb  nop    
+   01dc75ec  nop    
+
+-- 01dc7684 call dword ptr [0x1e483c4]  (USER32.dll!ChangeDisplaySettingsA)
+   01dc7661  call   0x1e2e266
+   01dc7666  mov    dword ptr [esp + 0x80], eax
+   01dc766d  mov    eax, dword ptr [esp + 0x30]
+   01dc7671  add    esp, 4
+   01dc7674  or     eax, 0x400000
+   01dc7679  mov    dword ptr [esp + 0x2c], eax
+   01dc767d  lea    eax, [esp + 4]
+   01dc7681  push   4
+   01dc7683  push   eax
+   01dc7684  call   dword ptr [0x1e483c4]
+   01dc768a  pop    esi
+   01dc768b  add    esp, 0x94
+   01dc7691  ret    
+   01dc7692  nop    
+   01dc7693  nop    
+   01dc7694  nop    
+   01dc7695  nop    
+   01dc7696  nop    
+   01dc7697  nop    
+   01dc7698  nop    
+   01dc7699  nop    
+   01dc769a  nop    
+   01dc769b  nop    
+   01dc769c  nop    
+   01dc769d  nop    
+   01dc769e  nop    
+   01dc769f  nop    
+   01dc76a0  push   esi
+   01dc76a1  push   edi
+   01dc76a2  mov    esi, ecx
+
+-- 01de1250 jmp dword ptr [0x1e48094]  (DDRAW.dll!DirectDrawCreate)
+   01de1211  shl    esp, 1
+   01de1214  cld    
+   01de1215  add    byte ptr [eax], al
+   01de1217  add    byte ptr [esp + edi*8], cl
+   01de121a  add    byte ptr [eax], al
+   01de1220  inc    eax
+   01de1221  shl    esp, 1
+   01de1224  std    
+   01de1225  add    byte ptr [eax], al
+   01de1227  add    byte ptr [edi*8 + 0x8000], cl
+   01de122e  add    byte ptr [eax], al
+   01de1230  inc    eax
+   01de1231  shl    esp, 1
+   01de1234  inc    byte ptr [eax]
+   01de1236  add    byte ptr [eax], al
+   01de1238  or     al, 0xfe
+   01de123a  add    byte ptr [eax], al
+   01de1240  inc    eax
+   01de1241  shl    esp, 1
+   01de1244  inc    dword ptr [eax]
+   01de1246  add    byte ptr [eax], al
+   01de1248  or     al, 0xff
+   01de124a  add    byte ptr [eax], al
+   01de1250  jmp    dword ptr [0x1e48094]
+   01de1256  jmp    dword ptr [0x1e48514]
+   01de125c  jmp    dword ptr [0x1e48510]
+   01de1262  jmp    dword ptr [0x1e4850c]
+   01de1268  jmp    dword ptr [0x1e48508]
+   01de126e  .byte  0xff
+   01de126f  .byte  0x25
+
+-- 01de1592 jmp dword ptr [0x1e483c4]  (USER32.dll!ChangeDisplaySettingsA)
+   01de1508  jmp    dword ptr [0x1e48468]
+   01de150e  jmp    dword ptr [0x1e4846c]
+   01de1514  jmp    dword ptr [0x1e48470]
+   01de151a  jmp    dword ptr [0x1e48474]
+   01de1520  jmp    dword ptr [0x1e48478]
+   01de1526  jmp    dword ptr [0x1e4847c]
+   01de152c  jmp    dword ptr [0x1e48444]
+   01de1532  jmp    dword ptr [0x1e4839c]
+   01de1538  jmp    dword ptr [0x1e48398]
+   01de153e  jmp    dword ptr [0x1e48394]
+   01de1544  jmp    dword ptr [0x1e48390]
+   01de154a  jmp    dword ptr [0x1e4838c]
+   01de1550  jmp    dword ptr [0x1e48388]
+   01de1556  jmp    dword ptr [0x1e48384]
+   01de155c  jmp    dword ptr [0x1e48380]
+   01de1562  jmp    dword ptr [0x1e4837c]
+   01de1568  jmp    dword ptr [0x1e48378]
+   01de156e  jmp    dword ptr [0x1e48480]
+   01de1574  jmp    dword ptr [0x1e483d8]
+   01de157a  jmp    dword ptr [0x1e483d4]
+   01de1580  jmp    dword ptr [0x1e483d0]
+   01de1586  jmp    dword ptr [0x1e483cc]
+   01de158c  jmp    dword ptr [0x1e483c8]
+   01de1592  jmp    dword ptr [0x1e483c4]
+   01de1598  jmp    dword ptr [0x1e483c0]
+   01de159e  jmp    dword ptr [0x1e483bc]
+   01de15a4  jmp    dword ptr [0x1e483b8]
+   01de15aa  jmp    dword ptr [0x1e483b4]
+   01de15b0  .byte  0xff
+   01de15b1  .byte  0x25
+
+vgui.dll imports naming Surface/App (70 of 278):
+    ??1SurfaceBase@vgui@@IAE@XZ
+    ?getInstance@App@vgui@@SAPAV12@XZ
+    ??0App@vgui@@QAE@XZ
+    ?start@App@vgui@@UAEXXZ
+    ?stop@App@vgui@@UAEXXZ
+    ?externalTick@App@vgui@@UAEXXZ
+    ?wasMousePressed@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasMouseDoublePressed@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?isMouseDown@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasMouseReleased@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasKeyPressed@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?isKeyDown@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?wasKeyTyped@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?wasKeyReleased@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?addTickSignal@App@vgui@@UAEXPAVTickSignal@2@@Z
+    ?setCursorPos@App@vgui@@UAEXHH@Z
+    ?getCursorPos@App@vgui@@UAEXAAH0@Z
+    ?setMouseCapture@App@vgui@@UAEXPAVPanel@2@@Z
+    ?setMouseArena@App@vgui@@UAEXPAVPanel@2@@Z
+    ?setMouseArena@App@vgui@@UAEXHHHH_N@Z
+    ?requestFocus@App@vgui@@UAEXPAVPanel@2@@Z
+    ?getFocus@App@vgui@@UAEPAVPanel@2@XZ
+    ?repaintAll@App@vgui@@UAEXXZ
+    ?setScheme@App@vgui@@UAEXPAVScheme@2@@Z
+    ?getScheme@App@vgui@@UAEPAVScheme@2@XZ
+    ?enableBuildMode@App@vgui@@UAEXXZ
+    ?getTimeMillis@App@vgui@@UAEJXZ
+    ?getKeyCodeChar@App@vgui@@UAEDW4KeyCode@2@_N@Z
+    ?getKeyCodeText@App@vgui@@UAEXW4KeyCode@2@PADH@Z
+    ?getClipboardTextCount@App@vgui@@UAEHXZ
+    ?setClipboardText@App@vgui@@UAEXPBDH@Z
+    ?getClipboardText@App@vgui@@UAEHHPADH@Z
+    ?reset@App@vgui@@UAEXXZ
+    ?internalSetMouseArena@App@vgui@@UAEXHHHH_N@Z
+    ?setRegistryString@App@vgui@@UAE_NPBD0@Z
+    ?getRegistryString@App@vgui@@UAE_NPBDPADH@Z
+    ?setRegistryInteger@App@vgui@@UAE_NPBDH@Z
+    ?getRegistryInteger@App@vgui@@UAE_NPBDAAH@Z
+    ?setCursorOveride@App@vgui@@UAEXPAVCursor@2@@Z
+    ?getCursorOveride@App@vgui@@UAEPAVCursor@2@XZ
+    ?setMinimumTickMillisInterval@App@vgui@@UAEXH@Z
+    ?run@App@vgui@@UAEXXZ
+    ?internalCursorMoved@App@vgui@@UAEXHHPAVSurfaceBase@2@@Z
+    ?internalMousePressed@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseDoublePressed@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseReleased@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseWheeled@App@vgui@@UAEXHPAVSurfaceBase@2@@Z
+    ?internalKeyPressed@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalKeyTyped@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalKeyReleased@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?init@App@vgui@@EAEXXZ
+    ?getApp@SurfaceBase@vgui@@UAEPAVApp@2@XZ
+    ?setEmulatedCursorVisible@SurfaceBase@vgui@@UAEX_N@Z
+    ?setEmulatedCursorPos@SurfaceBase@vgui@@UAEXHH@Z
+    ?addModeInfo@SurfaceBase@vgui@@MAEXHHH@Z
+    ?updateMouseFocus@App@vgui@@EAEXHHPAVSurfaceBase@2@@Z
+    ?setMouseFocus@App@vgui@@EAEXPAVPanel@2@@Z
+    ?surfaceBaseCreated@App@vgui@@MAEXPAVSurfaceBase@2@@Z
+    ?surfaceBaseDeleted@App@vgui@@MAEXPAVSurfaceBase@2@@Z
+    ?getSurfaceBase@Panel@vgui@@UAEPAVSurfaceBase@2@XZ
+    ?getApp@Panel@vgui@@UAEPAVApp@2@XZ
+    ?setSurfaceBaseTraverse@Panel@vgui@@UAEXPAVSurfaceBase@2@@Z
+    ?platTick@App@vgui@@MAEXXZ
+    ?internalTick@App@vgui@@MAEXXZ
+    ?getModeInfo@SurfaceBase@vgui@@UAE_NHAAH00@Z
+    ?getPanel@SurfaceBase@vgui@@UAEPAVPanel@2@XZ
+    ?requestSwap@SurfaceBase@vgui@@UAEXXZ
+    ?resetModeInfo@SurfaceBase@vgui@@UAEXXZ
+    ??0SurfaceBase@vgui@@QAE@PAVPanel@1@@Z
+    ?getModeInfoCount@SurfaceBase@vgui@@UAEHXZ
+==============================================================================
+HalfLife1/hl.exe 942080 77cce9925d2a039ae38b679b1225e944 base 0x400000
+slots: {'0x4ac080': 'DDRAW.dll!DirectDrawCreate', '0x4ac42c': 'USER32.dll!ChangeDisplaySettingsA'}
+
+-- 004240cd call dword ptr [0x4ac42c]  (USER32.dll!ChangeDisplaySettingsA)
+   00424086  mov    edx, dword ptr [eax]
+   00424088  call   dword ptr [edx + 0x14]
+   0042408b  mov    eax, dword ptr [ebp - 0xc]
+   0042408e  mov    ecx, dword ptr [eax + 0xd4]
+   00424094  mov    dword ptr [ebp - 8], ecx
+   00424097  mov    edx, dword ptr [ebp - 8]
+   0042409a  mov    dword ptr [ebp - 4], edx
+   0042409d  cmp    dword ptr [ebp - 4], 0
+   004240a1  je     0x4240b5
+   004240a3  push   1
+   004240a5  mov    eax, dword ptr [ebp - 4]
+   004240a8  mov    edx, dword ptr [eax]
+   004240aa  mov    ecx, dword ptr [ebp - 4]
+   004240ad  call   dword ptr [edx + 4]
+   004240b0  mov    dword ptr [ebp - 0x10], eax
+   004240b3  jmp    0x4240bc
+   004240b5  mov    dword ptr [ebp - 0x10], 0
+   004240bc  mov    eax, dword ptr [ebp - 0xc]
+   004240bf  mov    dword ptr [eax + 0xd4], 0
+   004240c9  push   0
+   004240cb  push   0
+   004240cd  call   dword ptr [0x4ac42c]
+   004240d3  cmp    dword ptr [0x4e391c], 0
+   004240da  je     0x4240eb
+   004240dc  mov    ecx, dword ptr [0x4e391c]
+   004240e2  push   ecx
+   004240e3  call   0x481bfc
+   004240e8  add    esp, 4
+   004240eb  .byte  0xc7
+   004240ec  .byte  0x05
+
+-- 004640bb call dword ptr [0x4ac42c]  (USER32.dll!ChangeDisplaySettingsA)
+   00464070  sub    esp, 0x94
+   00464076  push   edi
+   00464077  mov    edx, dword ptr [esp + 0xa4]
+   0046407e  mov    ecx, 0x25
+   00464083  xor    eax, eax
+   00464085  lea    edi, [esp + 4]
+   00464089  push   4
+   0046408b  rep stosd dword ptr es:[edi], eax
+   0046408d  mov    eax, dword ptr [esp + 0xa0]
+   00464094  mov    ecx, dword ptr [esp + 0xa4]
+   0046409b  mov    dword ptr [esp + 0x74], eax
+   0046409f  lea    eax, [esp + 8]
+   004640a3  push   eax
+   004640a4  mov    word ptr [esp + 0x30], 0x94
+   004640ab  mov    dword ptr [esp + 0x7c], ecx
+   004640af  mov    dword ptr [esp + 0x34], 0x1c0000
+   004640b7  mov    dword ptr [esp + 0x74], edx
+   004640bb  call   dword ptr [0x4ac42c]
+   004640c1  neg    eax
+   004640c3  sbb    eax, eax
+   004640c5  pop    edi
+   004640c6  inc    eax
+   004640c7  add    esp, 0x94
+   004640cd  ret    
+   004640ce  nop    
+   004640cf  nop    
+   004640d0  mov    eax, dword ptr [esp + 4]
+   004640d4  lea    eax, [eax + eax*2]
+   004640d7  lea    eax, [eax + eax*4]
+   004640da  .byte  0x8d
+
+-- 00464155 call dword ptr [0x4ac42c]  (USER32.dll!ChangeDisplaySettingsA)
+   00464123  mov    eax, dword ptr [0x4ea8e0]
+   00464128  push   esi
+   00464129  mov    esi, dword ptr [0x4ac5d8]
+   0046412f  push   0
+   00464131  push   eax
+   00464132  call   esi
+   00464134  mov    ecx, dword ptr [0x4ea8dc]
+   0046413a  push   6
+   0046413c  push   ecx
+   0046413d  call   esi
+   0046413f  mov    eax, dword ptr [0x4e1a20]
+   00464144  pop    esi
+   00464145  test   eax, eax
+   00464147  je     0x464151
+   00464149  mov    edx, dword ptr [eax]
+   0046414b  push   eax
+   0046414c  call   dword ptr [edx + 0x4c]
+   0046414f  jmp    0x46415b
+   00464151  push   0
+   00464153  push   0
+   00464155  call   dword ptr [0x4ac42c]
+   0046415b  push   0
+   0046415d  call   dword ptr [0x4ac5dc]
+   00464163  call   dword ptr [0x4ac4f8]
+   00464169  call   dword ptr [0x4e1abc]
+   0046416f  push   1
+   00464171  .byte  0xe8
+   00464172  .byte  0xea
+   00464173  .byte  0xa2
+   00464174  cli    
+
+-- 0046cf5b call dword ptr [0x4ac42c]  (USER32.dll!ChangeDisplaySettingsA)
+   0046cf27  jne    0x46cf57
+   0046cf29  mov    eax, dword ptr [0x4e1a20]
+   0046cf2e  test   eax, eax
+   0046cf30  je     0x46cf3e
+   0046cf32  push   -1
+   0046cf34  call   0x4085c0
+   0046cf39  add    esp, 4
+   0046cf3c  jmp    0x46cf61
+   0046cf3e  mov    edx, dword ptr [0x4cf8a4]
+   0046cf44  mov    eax, dword ptr [0x4cf8a0]
+   0046cf49  push   0x10
+   0046cf4b  push   edx
+   0046cf4c  push   eax
+   0046cf4d  call   0x464070
+   0046cf52  add    esp, 0xc
+   0046cf55  jmp    0x46cf61
+   0046cf57  push   0
+   0046cf59  push   0
+   0046cf5b  call   dword ptr [0x4ac42c]
+   0046cf61  call   0x4999e6
+   0046cf66  test   eax, eax
+   0046cf68  je     0x46cf9b
+   0046cf6a  mov    edx, dword ptr [eax]
+   0046cf6c  mov    ecx, eax
+   0046cf6e  call   dword ptr [edx + 0x74]
+   0046cf71  test   eax, eax
+   0046cf73  je     0x46cf9b
+   0046cf75  test   esi, esi
+   0046cf77  mov    esi, dword ptr [eax + 0x1c]
+   0046cf7a  .byte  0x6a
+
+-- 0047b448 jmp dword ptr [0x4ac080]  (DDRAW.dll!DirectDrawCreate)
+   0047b3ee  jmp    dword ptr [0x4ac890]
+   0047b3f4  jmp    dword ptr [0x4ac894]
+   0047b3fa  jmp    dword ptr [0x4ac898]
+   0047b400  jmp    dword ptr [0x4ac89c]
+   0047b406  jmp    dword ptr [0x4ac8a0]
+   0047b40c  jmp    dword ptr [0x4ac8a4]
+   0047b412  jmp    dword ptr [0x4ac8a8]
+   0047b418  jmp    dword ptr [0x4ac8ac]
+   0047b41e  jmp    dword ptr [0x4ac8b0]
+   0047b424  jmp    dword ptr [0x4ac8b4]
+   0047b42a  jmp    dword ptr [0x4ac8b8]
+   0047b430  jmp    dword ptr [0x4ac8bc]
+   0047b436  jmp    dword ptr [0x4ac8c0]
+   0047b43c  jmp    dword ptr [0x4ac8c4]
+   0047b442  jmp    dword ptr [0x4ac07c]
+   0047b448  jmp    dword ptr [0x4ac080]
+   0047b44e  int3   
+   0047b44f  int3   
+   0047b450  push   ebp
+   0047b451  mov    ebp, esp
+   0047b453  push   ecx
+   0047b454  push   ebx
+   0047b455  mov    dword ptr [ebp - 4], 0
+   0047b45c  push   ebx
+   0047b45d  pushfd 
+   0047b45e  pushfd 
+   0047b45f  pop    eax
+   0047b460  mov    ebx, eax
+   0047b462  xor    eax, 0x200000
+   0047b467  push   eax
+
+vgui.dll imports naming Surface/App (55 of 59):
+    ?setMouseFocus@App@vgui@@EAEXPAVPanel@2@@Z
+    ?init@App@vgui@@EAEXXZ
+    ?internalKeyReleased@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalKeyTyped@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalKeyPressed@App@vgui@@UAEXW4KeyCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseWheeled@App@vgui@@UAEXHPAVSurfaceBase@2@@Z
+    ?internalMouseReleased@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMouseDoublePressed@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalMousePressed@App@vgui@@UAEXW4MouseCode@2@PAVSurfaceBase@2@@Z
+    ?internalCursorMoved@App@vgui@@UAEXHHPAVSurfaceBase@2@@Z
+    ?run@App@vgui@@UAEXXZ
+    ?setMinimumTickMillisInterval@App@vgui@@UAEXH@Z
+    ?getCursorOveride@App@vgui@@UAEPAVCursor@2@XZ
+    ?setCursorOveride@App@vgui@@UAEXPAVCursor@2@@Z
+    ?getRegistryInteger@App@vgui@@UAE_NPBDAAH@Z
+    ?setRegistryInteger@App@vgui@@UAE_NPBDH@Z
+    ?surfaceBaseCreated@App@vgui@@MAEXPAVSurfaceBase@2@@Z
+    ?updateMouseFocus@App@vgui@@EAEXHHPAVSurfaceBase@2@@Z
+    ?internalSetMouseArena@App@vgui@@UAEXHHHH_N@Z
+    ?reset@App@vgui@@UAEXXZ
+    ?getClipboardText@App@vgui@@UAEHHPADH@Z
+    ?setClipboardText@App@vgui@@UAEXPBDH@Z
+    ?getClipboardTextCount@App@vgui@@UAEHXZ
+    ?getKeyCodeText@App@vgui@@UAEXW4KeyCode@2@PADH@Z
+    ?getKeyCodeChar@App@vgui@@UAEDW4KeyCode@2@_N@Z
+    ?enableBuildMode@App@vgui@@UAEXXZ
+    ?getScheme@App@vgui@@UAEPAVScheme@2@XZ
+    ?setScheme@App@vgui@@UAEXPAVScheme@2@@Z
+    ?repaintAll@App@vgui@@UAEXXZ
+    ?getFocus@App@vgui@@UAEPAVPanel@2@XZ
+    ?requestFocus@App@vgui@@UAEXPAVPanel@2@@Z
+    ?setMouseArena@App@vgui@@UAEXHHHH_N@Z
+    ?setMouseArena@App@vgui@@UAEXPAVPanel@2@@Z
+    ?setMouseCapture@App@vgui@@UAEXPAVPanel@2@@Z
+    ?internalTick@App@vgui@@MAEXXZ
+    ?surfaceBaseDeleted@App@vgui@@MAEXPAVSurfaceBase@2@@Z
+    ?platTick@App@vgui@@MAEXXZ
+    ?getRegistryString@App@vgui@@UAE_NPBDPADH@Z
+    ?setRegistryString@App@vgui@@UAE_NPBD0@Z
+    ?getTimeMillis@App@vgui@@UAEJXZ
+    ?getCursorPos@App@vgui@@UAEXAAH0@Z
+    ?setCursorPos@App@vgui@@UAEXHH@Z
+    ?addTickSignal@App@vgui@@UAEXPAVTickSignal@2@@Z
+    ?wasKeyReleased@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?wasKeyTyped@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?isKeyDown@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?wasKeyPressed@App@vgui@@UAE_NW4KeyCode@2@PAVPanel@2@@Z
+    ?wasMouseReleased@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?isMouseDown@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasMouseDoublePressed@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?wasMousePressed@App@vgui@@UAE_NW4MouseCode@2@PAVPanel@2@@Z
+    ?externalTick@App@vgui@@UAEXXZ
+    ?stop@App@vgui@@UAEXXZ
+    ?start@App@vgui@@UAEXXZ
+    ??0App@vgui@@QAE@_N@Z

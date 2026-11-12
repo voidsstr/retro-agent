@@ -1,0 +1,18 @@
+{
+ "GAMERES": {
+  "status": 0,
+  "text": "{\"panel\":{\"edid\":true,\"name\":\"HP 2511\",\"pnpid\":\"HWP293E\",\"type\":\"LCD\",\"digital\":true,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"55x31\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":60,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1280x960\",\"aspect\":\"16:9\",\"hz\":60,\"hz_four_three\":60,\"hz_desktop\":60,\"hz_launcher\":60,\"fov\":106,\"q2mode\":8,\"q3mode\":6,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"640x480@60\",\"720x480@60\",\"720x576@60\",\"800x600@60\",\"1024x768@60\",\"1152x648@60\",\"1280x720@60\",\"1280x768@60\",\"1280x800@60\",\"1280x960@60\",\"1280x1024@60\",\"1360x768@60\",\"1360x1024@60\",\"1366x768@60\",\"1400x1050@60\",\"1440x900@60\",\"1600x900@60\",\"1680x1050@60\",\"1776x1000@60\",\"1920x1080@60\"],\"rules\":80}"
+ },
+ "DISPLAYCFG get": {
+  "status": 0,
+  "text": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}"
+ },
+ "DIRLIST C:\\Users\\admin\\AppData\\Local\\Temp\\fleetres*": {
+  "status": 0,
+  "text": "[{\"name\":\"fleetres.cmd\",\"is_dir\":false,\"size\":505,\"modified\":\"2026-09-29 04:58:20\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Windows\\Temp\\fleetres*": {
+  "status": 0,
+  "text": "[]"
+ }
+}

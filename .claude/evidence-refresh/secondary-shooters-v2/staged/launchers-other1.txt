@@ -1,0 +1,335 @@
+################ Descent3
+--- launch.txt
+Play Descent 3.bat	Descent 3	Descent3.ico
+Host Descent 3 - LAN.bat	Descent 3 - Host LAN Server	Descent3.ico
+Join Descent 3 - LAN.bat	Descent 3 - Join LAN Game	Descent3.ico
+--- Descent3/Descent3.bat (877 B)
+@echo off
+cd /d "%~dp0"
+start "" "Descent 3.exe"
+
+exit
+--- Descent3/Host Descent 3 - LAN.bat (1693 B)
+@echo off
+cd /d "%~dp0"
+if not exist "%~dp0main.exe" (
+    echo.
+    echo  Descent 3 is not installed correctly: main.exe is missing.
+    echo  Re-run GAMESYNC for this title.
+    ping -n 6 127.0.0.1 >nul
+    exit
+)
+echo.
+echo  Other players need THIS machine's address:
+ipconfig | findstr /i "IPv4 Address"
+echo.
+echo  On every other machine: put that address on the first line of
+echo  C:\Games\lanhost.txt and run "Join Descent 3 - LAN.bat".
+echo.
+start "" "%~dp0main.exe" -launched -dedicated Dedicated.cfg
+exit
+--- Descent3/Join Descent 3 - LAN.bat (2420 B)
+@echo off
+setlocal
+set "HOSTIP=%~1"
+if not defined HOSTIP if exist "%~dp0lanhost.txt" for /f "usebackq eol=; tokens=1 delims= " %%A in ("%~dp0lanhost.txt") do if not defined HOSTIP set "HOSTIP=%%A"
+if not defined HOSTIP if exist "C:\Games\lanhost.txt" for /f "usebackq eol=; tokens=1 delims= " %%A in ("C:\Games\lanhost.txt") do if not defined HOSTIP set "HOSTIP=%%A"
+if not defined HOSTIP set "HOSTIP=192.168.1.132"
+cd /d "%~dp0"
+if not exist "%~dp0main.exe" (
+    echo.
+    echo  Descent 3 is not installed correctly: main.exe is missing.
+    echo  Re-run GAMESYNC for this title.
+    ping -n 6 127.0.0.1 >nul
+    exit
+)
+call "%~dp0FLEETRES.BAT"
+echo  Joining Descent 3 on %HOSTIP% ...
+start "" "%~dp0main.exe" -launched -nointro -pilot SDF -directip +connect %HOSTIP% -Width %FR_W% -Height %FR_H%
+endlocal
+exit
+--- Descent3/Play Descent 3.bat (2760 B)
+@echo off
+call "%~dp0FLEETRES.BAT"
+
+cd /d "%~dp0"
+if not exist "%~dp0main.exe" (
+    echo.
+    echo  Descent 3 is not installed correctly: main.exe is missing.
+    echo  Re-run GAMESYNC for this title.
+    ping -n 6 127.0.0.1 >nul
+    exit
+)
+start "" "%~dp0main.exe" -launched -Width %FR_W% -Height %FR_H%
+
+exit
+################ Shogo
+--- launch.txt
+Play Shogo - direct engine.bat	Shogo - Mobile Armor Division	Shogo.exe
+Play Shogo.bat	Shogo - via launcher (fallback)	Shogo.exe
+--- Shogo/Play Shogo.bat (24835 B)
+@echo off
+setlocal enableextensions
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -setline "%~dp0autoexec.cfg" screenwidth `screenwidth` `%FR_W%`
+  "%~dp0FLEETRES.EXE" -setline "%~dp0autoexec.cfg" screenheight `screenheight` `%FR_H%`
+)
+
+cd /d "%~dp0"
+
+set "GTITLE=Shogo - Mobile Armor Division"
+set "IMAGE=%~dp0_disc\Shogo.iso"
+set "VOLID=SHOGO"
+set "MARKER=Data\SHOGO.REZ"
+set "GAME=%~dp0Shogo.exe"
+set "GAMEARGS="
+set "REQUIREDISC=1"
+set "ERRFILE=%~dp0mount-error.txt"
+if exist "%ERRFILE%" del "%ERRFILE%" >nul 2>&1
+
+if not exist "%GAME%" (
+    call :fail "The game executable is missing: %GAME%"
+    goto :theend
+)
+
+call :finddisc
+if defined DISCDRV (
+    echo [%GTITLE%] disc already present in %DISCDRV%: - not mounting.
+    goto :play
+)
+
+if not exist "%IMAGE%" (
+    call :fail "The disc image is missing from the game folder: %IMAGE% -- the staged tree is incomplete. Re-run GAMESYNC for this title."
+    goto :theend
+)
+
+call :finddt
+call :findwcd
+call :findnative
+if not defined DT if not defined WCD if not defined NATIVEMOUNT (
+    if "%REQUIREDISC%"=="1" (
+        call :fail "NO DISC MOUNTER IS INSTALLED on this machine. Looked for Daemon Tools (Program Files\D-Tools, DAEMON Tools, DAEMON Tools Lite; registry App Paths daemon.exe and DTLite.exe; HKLM\SOFTWARE\DT Soft), for WinCDEmu (Program Files\WinCDEmu batchmnt64.exe and batchmnt.exe; registry Uninstall\WinCDEmu InstallLocation), and for Windows' OWN Mount-DiskImage (Windows 8 and later, .iso only), then searched Program Files for both. Install one - this is an INSTALL problem, not a mount problem."
+        goto :theend
+    )
+    echo [%GTITLE%] no disc mounter on this box - starting anyway; this
+    echo             shortcut is marked as not needing the disc.
+    goto :play
+)
+if defined DT  echo [%GTITLE%] Daemon Tools: %DT%
+if defined WCD echo [%GTITLE%] WinCDEmu:     %WCD%
+
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDriveTypeAutoRun /t REG_DWORD /d 255 /f >nul 2>&1
+
+echo [%GTITLE%] mounting "%IMAGE%" ...
+if defined DT call :domount
+if defined DISCDRV goto :mounted
+
+if defined WCD (
+    echo [%GTITLE%] trying WinCDEmu ...
+    rem WinCDEmu's exit code IS meaningful (216 = wrong architecture, the bug
+    rem that once started Brood War against the SHOGO disc), so unlike Daemon
+    rem Tools this one is called directly and its code is checked.
+    "%WCD%" "%IMAGE%" >nul 2>&1
+    if errorlevel 1 echo [%GTITLE%] WinCDEmu returned %errorlevel% - wrong architecture?
+    call :waitdisc 12
+)
+if not defined DISCDRV if defined WCD2 (
+    echo [%GTITLE%] retrying with %WCD2% ...
+    "%WCD2%" "%IMAGE%" >nul 2>&1
+    call :waitdisc 12
+)
+if not defined DISCDRV if defined NATIVEMOUNT (
+    echo [%GTITLE%] trying Windows Mount-DiskImage ...
+    powershell -NoProfile -NonInteractive -Command "Mount-DiskImage -ImagePath '%IMAGE%' -ErrorAction SilentlyContinue | Out-Null" >nul 2>&1
+    call :waitdisc 12
+)
+if defined DISCDRV goto :mounted
+
+call :anydisc
+if defined ANYDRV (
+    echo.
+    echo   ============================================================
+    echo    %GTITLE%: THE MOUNT FAILED.
+    echo   ============================================================
+    echo    "%IMAGE%" did NOT mount. %ANYDRV%: has SOME disc in it, which may
+    echo    be a COMPLETELY DIFFERENT GAME's disc, and the game is being
+    echo    started against that. If it behaves oddly, this is why.
+    echo    This is a FAILURE that is being tolerated, not a success.
+    echo   ============================================================
+    echo.
+    > "%ERRFILE%" echo %GTITLE%: MOUNT FAILED - started against an unrelated disc
+    rem QUOTED DELIBERATELY. %IMAGE% is a disc-image path we do not choose,
+    rem and several carry a region tag - "System Shock 2 (USA).cue". This line
+    rem sits INSIDE an if( ) block, and cmd expands variables while PARSING the
+    rem block, so an unquoted ")" here closes the block early and the launcher
+    rem dies with "] was unexpected at this time" having started nothing. That
+    rem is the same defect that broke SoldierOfFortune2 on every box while the
+    rem matrix recorded it as running. Third occurrence of this character.
+    >>"%ERRFILE%" echo image="%IMAGE%"
+    >>"%ERRFILE%" echo fell back to whatever disc was in %ANYDRV%:
+    >>"%ERRFILE%" echo daemon=%DT%
+    >>"%ERRFILE%" echo wincdemu=%WCD%  fallback=%WCD2%
+    goto :play
+)
+
+if "%REQUIREDISC%"=="1" (
+    call :fail "A MOUNTER WAS FOUND BUT NO DRIVE APPEARED within about 30 seconds, and no other disc is in any optical drive either. This is a mount problem, not a missing-software problem. Mount the image by hand (Daemon Tools tray icon - Device 0 - Mount image, or double-click the image with WinCDEmu) and run the game."
+    goto :theend
+)
+echo [%GTITLE%] WARNING: a mounter was found but no drive appeared - starting
+echo             anyway. This title usually runs without the disc. If it asks
+echo             for the CD, mount the image by hand and try again.
+goto :play
+
+:mounted
+ping -n 4 127.0.0.1 >nul
+for %%K in (AutoRun.exe Previews.exe SETUP.EXE) do taskkill /f /im %%K >nul 2>&1
+goto :play
+
+:play
+if defined DISCDRV echo [%GTITLE%] disc is on %DISCDRV%:
+start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+goto :theend
+
+
+:domount
+set "DTKIND="
+echo %DT% | find /i "\D-Tools\" >nul && set "DTKIND=347"
+if not defined DTKIND echo %DT% | find /i "DTLite.exe" >nul && set "DTKIND=lite"
+if not defined DTKIND echo %DT% | find /i "\DAEMON Tools\" >nul && set "DTKIND=4x"
+if not defined DTKIND set "DTKIND=347"
+echo [%GTITLE%] Daemon Tools flavour: %DTKIND%
+if "%DTKIND%"=="347"  start "" /b "%DT%" -mount 0,"%IMAGE%"
+if "%DTKIND%"=="4x"   start "" /b "%DT%" -mount dt, 0, "%IMAGE%"
+if "%DTKIND%"=="lite" start "" /b "%DT%" -mount dt, 0, "%IMAGE%"
+call :waitdisc 14
+if not defined DISCDRV taskkill /f /im daemon.exe >nul 2>&1
+goto :eof
+
+:finddisc
+set "DISCDRV="
+for %%D in (D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
+    if not defined DISCDRV (
+        vol %%D: 2>nul | find /i "%VOLID%" >nul && set "DISCDRV=%%D"
+    )
+)
+if defined DISCDRV goto :eof
+for %%D in (D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
+    if not defined DISCDRV if exist "%%D:\%MARKER%" set "DISCDRV=%%D"
+)
+goto :eof
+
+:anydisc
+set "ANYDRV="
+for %%D in (D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
+    if not defined ANYDRV (
+        fsutil fsinfo drivetype %%D: 2>nul | find /i "CD-ROM" >nul && (
+            vol %%D: >nul 2>&1 && set "ANYDRV=%%D"
+        )
+    )
+)
+goto :eof
+
+:waitdisc
+set /a _tries=%1
+:waitloop
+call :finddisc
+if defined DISCDRV goto :eof
+set /a _tries=%_tries% - 1
+if %_tries% LEQ 0 goto :eof
+ping -n 3 127.0.0.1 >nul
+goto :waitloop
+
+:finddt
+set "DT="
+call :try "%ProgramFiles%\DAEMON Tools Lite\DTLite.exe"
+call :try "%ProgramFiles%\DAEMON Tools Lite\daemon.exe"
+call :try "%ProgramFiles%\DAEMON Tools\daemon.exe"
+call :try "%ProgramFiles%\D-Tools\daemon.exe"
+call :try "%ProgramFiles(x86)%\DAEMON Tools Lite\DTLite.exe"
+call :try "%ProgramFiles(x86)%\DAEMON Tools\daemon.exe"
+call :try "%ProgramFiles(x86)%\D-Tools\daemon.exe"
+call :try "%SystemDrive%\Program Files\D-Tools\daemon.exe"
+call :try "%SystemDrive%\Program Files\DAEMON Tools\daemon.exe"
+call :try "%SystemDrive%\Program Files\DAEMON Tools Lite\DTLite.exe"
+call :try "C:\Program Files\D-Tools\daemon.exe"
+call :try "C:\Program Files\DAEMON Tools\daemon.exe"
+call :try "C:\Program Files\DAEMON Tools Lite\DTLite.exe"
+if defined DT goto :eof
+for /f "tokens=2*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\daemon.exe" /ve 2^>nul ^| find "REG_"') do call :try "%%B"
+if defined DT goto :eof
+for /f "tokens=2*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\DTLite.exe" /ve 2^>nul ^| find "REG_"') do call :try "%%B"
+if defined DT goto :eof
+for /f "tokens=2*" %%A in ('reg query "HKLM\SOFTWARE\DT Soft\DAEMON Tools Lite" /v InstallPath 2^>nul ^| find "REG_"') do call :try "%%B\DTLite.exe"
+if defined DT goto :eof
+for /f "delims=" %%P in ('dir /b /s "%ProgramFiles%\daemon.exe" 2^>nul') do call :try "%%P"
+if defined DT goto :eof
+for /f "delims=" %%P in ('dir /b /s "%ProgramFiles%\DTLite.exe" 2^>nul') do call :try "%%P"
+goto :eof
+
+:try
+if defined DT goto :eof
+if exist %1 set "DT=%~1"
+goto :eof
+
+:findwcd
+set "WCD="
+set "WCD2="
+set "_W64="
+if defined PROCESSOR_ARCHITEW6432 set "_W64=1"
+if /i not "%PROCESSOR_ARCHITECTURE%"=="x86" set "_W64=1"
+if defined _W64 (
+    call :tryw  "%ProgramFiles%\WinCDEmu\batchmnt64.exe"
+    call :tryw  "%ProgramFiles(x86)%\WinCDEmu\batchmnt64.exe"
+    call :tryw2 "%ProgramFiles%\WinCDEmu\batchmnt.exe"
+    call :tryw2 "%ProgramFiles(x86)%\WinCDEmu\batchmnt.exe"
+) else (
+    call :tryw  "%ProgramFiles%\WinCDEmu\batchmnt.exe"
+    call :tryw  "%SystemDrive%\Program Files\WinCDEmu\batchmnt.exe"
+    call :tryw  "C:\Program Files\WinCDEmu\batchmnt.exe"
+    call :tryw2 "%ProgramFiles%\WinCDEmu\batchmnt64.exe"
+)
+if defined WCD goto :eof
+for /f "tokens=2*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinCDEmu" /v InstallLocation 2^>nul ^| find "REG_"') do call :tryw "%%B\batchmnt.exe"
+if defined WCD goto :eof
+for /f "delims=" %%P in ('dir /b /s "%ProgramFiles%\batchmnt.exe" 2^>nul') do call :tryw "%%P"
+goto :eof
+
+:tryw2
+if defined WCD2 goto :eof
+if exist %1 set "WCD2=%~1"
+goto :eof
+
+:tryw
+if defined WCD goto :eof
+if exist %1 set "WCD=%~1"
+goto :eof
+
+:findnative
+set "NATIVEMOUNT="
+echo %IMAGE% | find /i ".iso" >nul 2>&1 || goto :eof
+where powershell >nul 2>&1 || goto :eof
+set "NATIVEMOUNT=1"
+goto :eof
+
+:fail
+echo.
+echo   ============================================================
+echo    %GTITLE% could not start.
+echo   ============================================================
+echo    %~1
+echo   ============================================================
+echo.
+> "%ERRFILE%" echo %GTITLE% mount failure
+>>"%ERRFILE%" echo %~1
+>>"%ERRFILE%" echo image="%IMAGE%"
+>>"%ERRFILE%" echo game=%GAME%
+>>"%ERRFILE%" echo daemon=%DT%
+>>"%ERRFILE%" echo wincdemu=%WCD%
+>>"%ERRFILE%" echo dt_flavour=%DTKIND%
+ping -n 21 127.0.0.1 >nul
+goto :eof
+
+:theend
+endlocal

@@ -1,0 +1,3057 @@
+Event[0]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T12:00:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 2704 seconds.
+
+Event[1]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-28T11:14:57.436
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[2]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[3]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[4]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[5]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 11:13:39 AM on ?9/?28/?2026 was unexpected.
+
+Event[6]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-28T11:14:56.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?09?-?28T15:14:56.109999300Z.
+
+Event[7]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-27T12:00:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 70799 seconds.
+
+Event[8]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-27T01:00:16.567
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?27T05:00:16.567000000Z from ?2026?-?09?-?27T05:00:16.614652400Z.
+
+Event[9]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T16:20:01.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?09?-?26T20:20:01.109999300Z.
+
+Event[10]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T16:03:47.413
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?09?-?26T20:03:47.413016200Z.
+
+Event[11]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-26T16:03:47.303
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[12]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-26T16:20:05.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[13]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-26T16:20:05.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[14]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-26T16:20:05.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[15]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-26T16:03:42.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[16]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-09-26T16:03:42.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[17]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T15:40:51.917
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?26T19:40:51.917000000Z from ?2026?-?09?-?26T19:40:51.917000000Z.
+
+Event[18]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T15:40:51.917
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?26T19:40:51.917000000Z from ?2026?-?09?-?26T19:40:51.917274200Z.
+
+Event[19]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T15:40:51.917
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?26T19:40:51.917274200Z from ?2026?-?09?-?26T19:41:13.146028300Z.
+
+Event[20]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T15:40:57.000
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?26T19:40:57.000000000Z from ?2026?-?09?-?26T19:40:57.000000000Z.
+
+Event[21]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T15:40:57.000
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?26T19:40:57.000000000Z from ?2026?-?09?-?26T19:40:57.000000000Z.
+
+Event[22]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-26T15:40:57.000
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?09?-?26T19:40:57.000000000Z from ?2013?-?09?-?26T01:45:38.649877700Z.
+
+Event[23]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-26T15:40:57.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 25 seconds.
+
+Event[24]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2013-09-25T21:45:14.576
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[25]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[26]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[27]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[28]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 9:16:32 PM on ?9/?25/?2013 was unexpected.
+
+Event[29]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2013-09-25T21:45:13.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2013?-?09?-?26T01:45:13.109999300Z.
+
+Event[30]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2013-09-25T21:09:28.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2013?-?09?-?26T01:09:28.109999300Z.
+
+Event[31]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2013-09-24T05:12:20.943
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2013?-?09?-?24T09:12:20.943055800Z.
+
+Event[32]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2013-09-24T05:12:20.818
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[33]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[34]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[35]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[36]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-24T05:12:15.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[37]:
+  Log Name: System
+  Source: USER32
+  Date: 2013-09-24T05:12:15.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[38]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2013-09-24T04:43:40.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2013?-?09?-?24T08:43:40.125599300Z.
+
+Event[39]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-04T23:17:25.605
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?09?-?05T03:17:25.605270900Z.
+
+Event[40]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-04T23:17:25.480
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[41]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-24T04:43:44.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[42]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-24T04:43:44.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[43]:
+  Log Name: System
+  Source: EventLog
+  Date: 2013-09-24T04:43:44.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[44]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-04T23:17:20.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[45]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-09-04T23:17:20.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[46]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-04T12:00:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 2529 seconds.
+
+Event[47]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-04T11:17:51.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?09?-?04T15:17:51.125599300Z.
+
+Event[48]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-02T00:12:54.875
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?09?-?02T04:12:54.875347000Z.
+
+Event[49]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-02T00:12:54.656
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[50]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-04T11:17:55.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[51]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-04T11:17:55.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[52]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-04T11:17:55.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[53]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-02T00:12:49.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[54]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-09-02T00:12:49.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[55]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-01T12:00:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4886 seconds.
+
+Event[56]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-01T10:38:34.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?09?-?01T14:38:34.109999300Z.
+
+Event[57]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-01T06:41:06.540
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?09?-?01T10:41:06.540023900Z.
+
+Event[58]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-01T06:41:06.274
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[59]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-01T10:38:38.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[60]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-01T10:38:38.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[61]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-01T10:38:38.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[62]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-01T06:41:01.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[63]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-09-01T06:41:01.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[64]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-31T14:29:26.841
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[65]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T14:29:29.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[66]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T14:29:29.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[67]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T14:29:29.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[68]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T14:29:29.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 2:27:55 PM on ?8/?31/?2026 was unexpected.
+
+Event[69]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-31T14:29:25.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?31T18:29:25.109999300Z.
+
+Event[70]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T12:00:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 3731 seconds.
+
+Event[71]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-31T10:57:49.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?31T14:57:49.109999300Z.
+
+Event[72]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-31T10:57:28.206
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?31T14:57:28.206764300Z.
+
+Event[73]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-31T10:57:27.590
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[74]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T10:57:53.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[75]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T10:57:53.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[76]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T10:57:53.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[77]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T10:57:53.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 10:50:38 AM on ?8/?31/?2026 was unexpected.
+
+Event[78]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-31T00:21:28.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?31T04:21:28.109999300Z.
+
+Event[79]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-31T00:21:14.678
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?31T04:21:14.678217100Z.
+
+Event[80]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-31T00:21:14.459
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[81]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T00:21:32.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[82]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T00:21:32.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[83]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T00:21:32.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[84]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-31T00:21:09.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[85]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-31T00:21:07.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\shutdown.exe (ADMIN-PC) has initiated the restart of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x800000ff
+ Shutdown Type: restart
+ Comment: 
+
+Event[86]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-30T12:00:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 47314 seconds.
+
+Event[87]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-30T01:00:04.613
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?30T05:00:04.613000000Z from ?2026?-?08?-?30T05:00:04.613000000Z.
+
+Event[88]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-30T01:00:04.613
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?30T05:00:04.613000000Z from ?2026?-?08?-?30T05:00:04.613045800Z.
+
+Event[89]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-30T01:00:04.613
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?30T05:00:04.613045800Z from ?2026?-?08?-?30T05:00:16.276457400Z.
+
+Event[90]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-29T22:51:37.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?30T02:51:37.125599300Z.
+
+Event[91]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-29T22:51:23.798
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?30T02:51:23.798844400Z.
+
+Event[92]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-29T22:51:23.549
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[93]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T22:51:41.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[94]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T22:51:41.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[95]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T22:51:41.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[96]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T22:51:18.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[97]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-29T22:51:18.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the restart of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: restart
+ Comment: 
+
+Event[98]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-29T22:51:15.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process Explorer.EXE has initiated the restart of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: Other (Unplanned)
+ Reason Code: 0x0
+ Shutdown Type: restart
+ Comment: 
+
+Event[99]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T12:00:15.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 9976 seconds.
+
+Event[100]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-29T09:13:59.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?29T13:13:59.125599300Z.
+
+Event[101]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-28T23:39:47.927
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?29T03:39:47.927051400Z.
+
+Event[102]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-28T23:39:47.802
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[103]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T09:14:03.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[104]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T09:14:03.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[105]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-29T09:14:03.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[106]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T23:39:42.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[107]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-28T23:39:42.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[108]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-28T21:36:16.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?29T01:36:16.125599300Z.
+
+Event[109]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-28T20:09:01.949
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?29T00:09:01.949891100Z.
+
+Event[110]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-28T20:09:01.747
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[111]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T21:36:20.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[112]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T21:36:20.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[113]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T21:36:20.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[114]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T20:08:56.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[115]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-28T20:08:56.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[116]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-28T20:08:53.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process Explorer.EXE has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: Other (Unplanned)
+ Reason Code: 0x0
+ Shutdown Type: power off
+ Comment: 
+
+Event[117]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-28T19:43:48.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?28T23:43:48.125599300Z.
+
+Event[118]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-24T23:08:14.854
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?25T03:08:14.854219900Z.
+
+Event[119]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-24T23:08:14.729
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[120]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T19:43:52.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[121]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T19:43:52.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[122]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-28T19:43:52.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[123]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-24T23:08:09.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[124]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-24T23:08:09.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[125]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-24T12:00:59.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 20611 seconds.
+
+Event[126]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-24T06:24:07.300
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?24T10:24:07.300000000Z from ?2026?-?08?-?24T10:24:07.300000000Z.
+
+Event[127]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-24T06:24:07.300
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?24T10:24:07.300000000Z from ?2026?-?08?-?24T10:24:07.300334100Z.
+
+Event[128]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-24T06:24:07.300
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?24T10:24:07.300334100Z from ?2026?-?08?-?24T10:24:18.541938600Z.
+
+Event[129]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-24T06:17:39.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?24T10:17:39.109999300Z.
+
+Event[130]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-21T15:35:22.223
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?21T19:35:22.223268800Z.
+
+Event[131]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-21T15:35:22.067
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[132]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-24T06:21:02.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 203 seconds.
+
+Event[133]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-24T06:21:02.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[134]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-24T06:21:02.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[135]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-21T15:35:17.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[136]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-21T15:35:16.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[137]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-21T12:00:25.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 5341 seconds.
+
+Event[138]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-21T10:31:23.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?21T14:31:23.109999300Z.
+
+Event[139]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-21T00:08:19.061
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?21T04:08:19.061144800Z.
+
+Event[140]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-21T00:08:18.764
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[141]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-21T10:31:28.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[142]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-21T10:31:28.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[143]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-21T10:31:28.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[144]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-21T00:08:13.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[145]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-21T00:08:13.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[146]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-20T12:00:57.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 167386 seconds.
+
+Event[147]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-19T12:00:27.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 80956 seconds.
+
+Event[148]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-18T13:31:11.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?18T17:31:11.109999300Z.
+
+Event[149]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-18T13:30:35.845
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?18T17:30:35.845678000Z.
+
+Event[150]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-18T13:30:35.674
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[151]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T13:31:15.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[152]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T13:31:15.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[153]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T13:31:15.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[154]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T13:30:30.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[155]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-18T13:30:30.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[156]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T12:00:02.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 5461 seconds.
+
+Event[157]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-18T10:32:21.417
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?18T14:32:21.417000000Z from ?2026?-?08?-?18T14:32:21.417000000Z.
+
+Event[158]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-18T10:32:21.417
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?18T14:32:21.417000000Z from ?2026?-?08?-?18T14:32:21.417346900Z.
+
+Event[159]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-18T10:32:21.417
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Time
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+The system time has changed to ?2026?-?08?-?18T14:32:21.417346900Z from ?2026?-?08?-?18T14:32:39.623772300Z.
+
+Event[160]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-18T10:29:19.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?18T14:29:19.125599300Z.
+
+Event[161]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-15T00:49:38.332
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?15T04:49:38.332951800Z.
+
+Event[162]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-15T00:49:38.145
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[163]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T10:29:23.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 3 seconds.
+
+Event[164]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T10:29:23.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[165]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-18T10:29:23.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[166]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-15T00:49:33.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[167]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-15T00:49:32.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[168]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T12:00:47.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 13726 seconds.
+
+Event[169]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-14T08:12:01.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?14T12:12:01.125599300Z.
+
+Event[170]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-14T08:11:27.546
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?14T12:11:27.546417600Z.
+
+Event[171]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-14T08:11:27.452
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[172]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:12:05.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[173]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:12:05.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[174]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:12:05.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[175]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:11:22.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[176]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-14T08:11:22.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[177]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-14T08:11:17.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?14T12:11:17.109999300Z.
+
+Event[178]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-11T00:58:16.589
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?11T04:58:16.589640100Z.
+
+Event[179]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-11T00:58:16.464
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[180]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:11:21.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[181]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:11:21.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[182]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-14T08:11:21.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[183]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-11T00:58:11.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[184]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-11T00:58:10.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[185]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-11T00:31:31.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?11T04:31:31.125599300Z.
+
+Event[186]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-10T21:24:17.042
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?11T01:24:17.042429500Z.
+
+Event[187]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-10T21:24:16.948
+  Event ID: 109
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The kernel power manager has initiated a shutdown transition.
+
+Event[188]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-11T00:31:35.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[189]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-11T00:31:35.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[190]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-11T00:31:35.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[191]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-10T21:24:11.000
+  Event ID: 6006
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was stopped.
+
+Event[192]:
+  Log Name: System
+  Source: USER32
+  Date: 2026-08-10T21:24:11.000
+  Event ID: 1074
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+The process C:\Windows\system32\winlogon.exe (ADMIN-PC) has initiated the power off of computer ADMIN-PC on behalf of user admin-PC\admin for the following reason: No title for this reason could be found
+ Reason Code: 0x500ff
+ Shutdown Type: power off
+ Comment: 
+
+Event[193]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-10T20:19:52.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[194]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-10T20:19:52.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[195]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-08-10T20:19:52.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[196]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-08-10T20:19:49.638
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[197]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-10T20:19:48.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?11T00:19:48.125599300Z.
+
+Event[198]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-10T15:46:23.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?08?-?10T19:46:23.109999300Z.
+
+Event[199]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-08-09T22:20:19.219
+  Event ID: 13
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The operating system is shutting down at system time ?2026?-?08?-?10T02:20:19.219287900Z.
+

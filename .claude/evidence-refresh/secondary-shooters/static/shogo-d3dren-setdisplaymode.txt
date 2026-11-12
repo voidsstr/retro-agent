@@ -1,0 +1,24 @@
+# Shogo d3d.ren (LithTech 1.0): IDirectDraw SetDisplayMode through a register (mov ebx,[vtbl+0x54]; call ebx): w=[edx+0x194], h=[edx+0x198], bpp=[0x10045c54], refresh=0, flags=0 (eax=0 stored at [esp+0x10]/[esp+0x14]); failure branch -> 'SetDisplayMode failed.'
+   0x1001493f  mov    eax, dword ptr [0x10045ac8]
+   0x10014944  mov    edx, dword ptr [esp + 0x1ac]
+   0x1001494b  add    esp, -0x18
+   0x1001494e  mov    ecx, dword ptr [0x10045c54]
+   0x10014954  mov    ebx, dword ptr [eax]
+   0x10014956  mov    ebp, dword ptr [edx + 0x194]
+   0x1001495c  mov    edx, dword ptr [edx + 0x198]
+   0x10014962  mov    dword ptr [esp + 4], ebp
+   0x10014966  mov    ebx, dword ptr [ebx + 0x54]
+   0x10014969  mov    dword ptr [esp], eax
+   0x1001496c  mov    dword ptr [esp + 8], edx
+   0x10014970  xor    eax, eax
+   0x10014972  mov    dword ptr [esp + 0x10], eax
+   0x10014976  mov    dword ptr [esp + 0x14], eax
+   0x1001497a  mov    dword ptr [esp + 0xc], ecx
+   0x1001497e  call   ebx
+   0x10014980  test   eax, eax
+   0x10014982  jne    0x100153e8
+
+# Shogo tree, case-insensitive strings search for refresh|frequency|SetDisplayMode|ChangeDisplaySettings over every exe/dll/ren:
+Smackw32.dll: ChangeDisplaySettingsA|
+d3d.ren: SetDisplayMode failed.|
+soft.ren: SetDisplayMode failed.|

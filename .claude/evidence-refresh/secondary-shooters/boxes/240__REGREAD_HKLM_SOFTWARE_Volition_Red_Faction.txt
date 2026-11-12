@@ -1,0 +1,2 @@
+# 192.168.1.240  REGREAD HKLM SOFTWARE\Volition\Red Faction  status=0  2026-09-29 00:42:36
+{"root":"HKLM","path":"SOFTWARE\\Volition\\Red Faction","values":[{"name":"InstallPath","type":"REG_SZ","data":"C:\\Games\\RedFaction"},{"name":"Resolution Width","type":"REG_DWORD","data":1920},{"name":"Resolution Height","type":"REG_DWORD","data":1080},{"name":"Resolution Bit Depth","type":"REG_DWORD","data":32}],"subkeys":[]}

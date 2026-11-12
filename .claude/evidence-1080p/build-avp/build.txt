@@ -1,0 +1,4 @@
+AvP build -> /home/voidsstr/.retro-fleet/patch-out/avp
+  written 154 / 154, failures 0
+  menu asset: ffinfo.txt: graphics\Menus -> Tex37.FFL, which holds graphics\Menus\IntroFont.RIM (237402 B, IFF LIST); all 108 listed fast-files present
+  manifest: /home/voidsstr/.retro-fleet/patch-out/avp/manifest.json  complete=True

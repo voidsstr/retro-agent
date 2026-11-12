@@ -1,0 +1,131 @@
+SDL.dll (Quake3-TeamArena, md5 a828ce4eae3a55de4a29112067975abc, SDL 1.2.13)
+SDL_desktop_mode DEVMODE @0x68156cc0: dmPelsWidth +0x6c=0x68156d2c, dmPelsHeight +0x70=0x68156d30, dmDisplayFrequency +0x78=0x68156d38
+
+== DX5_VideoInit: EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS=-1, &SDL_desktop_mode)  -- the LIVE mode
+  6813786b: mov     eax, 0x68156cc0
+  68137870: mov     dword ptr [esp + 8], eax
+  68137874: mov     eax, 0xffffffff
+  68137879: mov     dword ptr [esp + 4], eax
+  6813787d: mov     dword ptr [esp], 0
+>>68137884: call    0x6813ea40
+  68137889: mov     eax, dword ptr [0x68156d2c]
+  6813788e: sub     esp, 0xc
+  68137891: mov     dword ptr [edi + 0x34], eax
+  68137894: mov     eax, dword ptr [0x68156d30]
+  68137899: mov     dword ptr [edi + 0x38], eax
+  6813789c: lea     esi, [esi]
+
+== DX5 SDL_OPENGL fullscreen path: frequency only when w<=desktop_w && h<=desktop_h, retry without it
+  681388be: mov     ecx, 0x9c
+  681388c3: xor     edx, edx
+  681388c5: lea     ebx, [ebp - 0x128]
+  681388cb: mov     dword ptr [esp + 8], ecx
+  681388cf: mov     dword ptr [esp + 4], edx
+  681388d3: mov     dword ptr [esp], ebx
+  681388d6: call    0x68140930
+  681388db: mov     eax, 0x9c
+  681388e0: mov     ecx, dword ptr [ebp + 0x10]
+  681388e3: mov     esi, dword ptr [ebp + 0x14]
+  681388e6: mov     word ptr [ebp - 0x104], ax
+  681388ed: mov     eax, dword ptr [edi + 4]
+  681388f0: cmp     dword ptr [0x68156d2c], ecx
+  681388f6: movzx   eax, byte ptr [eax + 4]
+  681388fa: mov     dword ptr [ebp - 0xbc], ecx
+  68138900: mov     dword ptr [ebp - 0xb8], esi
+  68138906: mov     dword ptr [ebp - 0xc0], eax
+  6813890c: jge     0x68138dd5
+  68138912: mov     eax, 0x1c0000
+  68138917: mov     dword ptr [ebp - 0x100], eax
+  6813891d: mov     eax, 4
+  68138922: mov     dword ptr [esp + 4], eax
+  68138926: mov     dword ptr [esp], ebx
+  68138929: call    0x6813e860
+  6813892e: sub     esp, 8
+  68138931: test    eax, eax
+  68138933: je      0x6813896d
+  68138935: mov     eax, dword ptr [ebp - 0x100]
+  6813893b: test    eax, 0x400000
+  68138940: je      0x68137fd4
+  68138946: and     eax, 0xffbfffff
+  6813894b: mov     dword ptr [ebp - 0x100], eax
+  68138951: mov     eax, 4
+  68138956: mov     dword ptr [esp + 4], eax
+  6813895a: mov     dword ptr [esp], ebx
+  6813895d: call    0x6813e860
+  68138962: sub     esp, 8
+  68138965: test    eax, eax
+  68138967: jne     0x68137fd4
+  6813896d: mov     edi, dword ptr [ebp - 0x19c]
+  68138dd5: cmp     dword ptr [0x68156d30], esi
+  68138ddb: jl      0x68138912
+  68138de1: mov     eax, dword ptr [0x68156d38]
+  68138de6: mov     dword ptr [ebp - 0xb0], eax
+  68138dec: mov     eax, 0x5c0000
+  68138df1: jmp     0x68138917
+
+== DIB driver fullscreen path (same rule), around 0x68134d5d
+  68134d21: and     ebx, 0xff35ffff
+  68134d27: or      ebx, 0x80000000
+  68134d2d: jmp     0x68134775
+  68134d32: mov     dword ptr [eax + 0xc], 1
+  68134d39: jmp     0x68134910
+  68134d3e: mov     esi, esi
+  68134d40: mov     eax, 0x9c
+  68134d45: lea     ecx, [ebp - 0xc8]
+  68134d4b: mov     dword ptr [esp + 8], eax
+  68134d4f: xor     eax, eax
+  68134d51: mov     dword ptr [esp + 4], eax
+  68134d55: mov     dword ptr [esp], ecx
+  68134d58: call    0x68140930
+  68134d5d: cmp     dword ptr [0x68156d2c], edi
+  68134d63: mov     eax, 0x9c
+  68134d68: mov     edx, dword ptr [ebp - 0xd4]
+  68134d6e: mov     word ptr [ebp - 0xa4], ax
+  68134d75: mov     eax, dword ptr [edx + 4]
+  68134d78: movzx   eax, byte ptr [eax + 4]
+  68134d7c: mov     dword ptr [ebp - 0x5c], edi
+  68134d7f: mov     dword ptr [ebp - 0x58], esi
+  68134d82: mov     dword ptr [ebp - 0x60], eax
+  68134d85: jl      0x68134d93
+  68134d87: cmp     dword ptr [0x68156d30], esi
+  68134d8d: jge     0x68134e55
+  68134d93: mov     eax, 0x1c0000
+  68134d98: mov     dword ptr [ebp - 0xa0], eax
+  68134d9e: lea     ecx, [ebp - 0xc8]
+  68134da4: mov     edi, 4
+  68134da9: mov     dword ptr [esp + 4], edi
+  68134dad: mov     dword ptr [esp], ecx
+  68134db0: call    0x6813e860
+  68134db5: sub     esp, 8
+  68134db8: test    eax, eax
+  68134dba: je      0x68134dfa
+  68134dbc: mov     eax, dword ptr [ebp - 0xa0]
+  68134dc2: test    eax, 0x400000
+  68134dc7: je      0x681346ca
+  68134dcd: and     eax, 0xffbfffff
+  68134dd2: mov     esi, 4
+  68134dd7: lea     edi, [ebp - 0xc8]
+  68134ddd: mov     dword ptr [ebp - 0xa0], eax
+  68134de3: mov     dword ptr [esp + 4], esi
+  68134de7: mov     dword ptr [esp], edi
+  68134dea: call    0x6813e860
+  68134def: sub     esp, 8
+  68134df2: test    eax, eax
+  68134df4: jne     0x681346ca
+  68134dfa: mov     eax, dword ptr [ebp - 0xd4]
+  68134e00: mov     ecx, 0x9c
+  68134e05: lea     edx, [ebp - 0xc8]
+  68134e0b: or      dword ptr [eax], 0x80000000
+  68134e11: mov     dword ptr [esp + 8], ecx
+  68134e15: mov     dword ptr [esp + 4], edx
+  68134e19: mov     dword ptr [esp], 0x68156d70
+  68134e20: call    0x68140950
+  68134e25: jmp     0x681346ca
+  68134e2a: mov     dword ptr [esp], 0
+  68134e31: xor     edi, edi
+  68134e33: mov     dword ptr [esp + 4], edi
+  68134e37: call    0x6813e860
+  68134e3c: sub     esp, 8
+  68134e3f: jmp     0x6813473c
+  68134e44: mov     edi, dword ptr [ebp - 0xe8]
+  68134e4a: mov     dword ptr [ebp - 0xec], edi

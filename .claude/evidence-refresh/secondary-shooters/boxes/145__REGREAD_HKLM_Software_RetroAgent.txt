@@ -1,0 +1,2 @@
+# 192.168.1.145  REGREAD HKLM Software\RetroAgent  status=0  2026-09-29 00:30:01
+{"root":"HKLM","path":"Software\\RetroAgent","values":[{"name":"Onboarded","type":"REG_DWORD","data":1},{"name":"LastUpdateVer","type":"REG_SZ","data":"1.91.0"},{"name":"HwPublished","type":"REG_SZ","data":"2026-09-28 23:46:09 ok"},{"name":"DriverUpdateBoot","type":"REG_SZ","data":"2026-09-28 23:45 0 installed, 1 device(s) looked at; store \\\\192.168.1.122\\files\\Files\\OS\\XPSP3-FLEET\\$OEM$\\$1\\D; Network Controller: no_candidate"}],"subkeys":["DriverFixes"]}

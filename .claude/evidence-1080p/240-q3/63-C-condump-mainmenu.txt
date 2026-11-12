@@ -1,0 +1,143 @@
+Hunk_Clear: reset the hunk ok
+...detecting CPU, found AMD w/ 3DNow!
+
+------- Input Initialization -------
+No window for DirectInput mouse init, delaying
+Joystick is not active.
+------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode -1: 1920 1080 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...95 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...ignoring GL_S3_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...WGL_3DFX_gamma_control not found
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+locked hardware.  ok
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0x7048060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: user-41ea3b3330
+IP: 192.168.1.240
+Working directory: C:\Games\Quake3-TeamArena
+Proceeding with delayed mouse init
+Initializing DirectInput...
+DirectInput initialized.
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 1 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump fleet240-c-menu.txt
+Dumped console text to fleet240-c-menu.txt.
+

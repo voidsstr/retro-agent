@@ -1,0 +1,12 @@
+{
+ "_ip": "192.168.1.195",
+ "_at": "2026-09-29 01:12:36",
+ "DIRLIST C:\\Windows\\System32\\3dfxv*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\Windows\\SysWOW64\\3dfxv*": {
+  "status": 0,
+  "text": "[]"
+ }
+}

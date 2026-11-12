@@ -1,0 +1,92 @@
+# GLQUAKE.EXE (Quake1, md5 bcf4049319feb518b8c915ac1cc8219b, 'Exe: 15:17:32 Nov  7 1997') VID_InitFullDIB enumeration loop
+# EnumDisplaySettingsA=[0xd585e8] ChangeDisplaySettingsA=[0xd58608] GetSystemMetrics=[0xd585d8]; nummodes=[0x8093d0]
+# filter: bpp>=15 (cmp 0xf), w<=10000, h<=10000, and nummodes < 30 (cmp 0x1e / jge = list full -> skip)
+  415840:	55                   	push   ebp
+  415841:	ff 15 e8 85 d5 00    	call   DWORD PTR ds:0xd585e8
+  415847:	89 44 24 14          	mov    DWORD PTR [esp+0x14],eax
+  41584b:	8b 84 24 84 00 00 00 	mov    eax,DWORD PTR [esp+0x84]
+  415852:	83 f8 0f             	cmp    eax,0xf
+  415855:	0f 82 91 01 00 00    	jb     0x4159ec
+  41585b:	8b 8c 24 88 00 00 00 	mov    ecx,DWORD PTR [esp+0x88]
+  415862:	b8 10 27 00 00       	mov    eax,0x2710
+  415867:	3b c8                	cmp    ecx,eax
+  415869:	0f 87 7d 01 00 00    	ja     0x4159ec
+  41586f:	39 84 24 8c 00 00 00 	cmp    DWORD PTR [esp+0x8c],eax
+  415876:	0f 87 70 01 00 00    	ja     0x4159ec
+  41587c:	a1 d0 93 80 00       	mov    eax,ds:0x8093d0
+  415881:	83 f8 1e             	cmp    eax,0x1e
+  415884:	0f 8d 67 01 00 00    	jge    0x4159f1
+  41588a:	8d 54 24 1c          	lea    edx,[esp+0x1c]
+
+# -current (string @0x450e20): GetSystemMetrics(SM_CXSCREEN/SM_CYSCREEN) -> modelist[1].width/height (0x808df0/0x808df4), vid_default [0x8096b0]=1, leavecurrentmode [0x8094a0]=1
+  415e38:	e9 a4 02 00 00       	jmp    0x4160e1
+  415e3d:	68 20 0e 45 00       	push   0x450e20
+  415e42:	e8 f9 0e ff ff       	call   0x406d40
+  415e47:	83 c4 04             	add    esp,0x4
+  415e4a:	85 c0                	test   eax,eax
+  415e4c:	74 27                	je     0x415e75
+  415e4e:	8b 35 d8 85 d5 00    	mov    esi,DWORD PTR ds:0xd585d8
+  415e54:	55                   	push   ebp
+  415e55:	ff d6                	call   esi
+  415e57:	57                   	push   edi
+  415e58:	a3 f0 8d 80 00       	mov    ds:0x808df0,eax
+  415e5d:	ff d6                	call   esi
+  415e5f:	a3 f4 8d 80 00       	mov    ds:0x808df4,eax
+  415e64:	89 3d b0 96 80 00    	mov    DWORD PTR ds:0x8096b0,edi
+  415e6a:	89 3d a0 94 80 00    	mov    DWORD PTR ds:0x8094a0,edi
+  415e70:	e9 6c 02 00 00       	jmp    0x4160e1
+
+# VID_SetFullDIBMode @0x414470: leavecurrentmode != 0 -> jumps past ChangeDisplaySettingsA(CDS_FULLSCREEN=4)
+  414470:	a1 a0 94 80 00       	mov    eax,ds:0x8094a0
+  414475:	83 ec 10             	sub    esp,0x10
+  414478:	85 c0                	test   eax,eax
+  41447a:	56                   	push   esi
+  41447b:	8b 74 24 18          	mov    esi,DWORD PTR [esp+0x18]
+  41447f:	57                   	push   edi
+  414480:	75 65                	jne    0x4144e7
+  414482:	8d 04 76             	lea    eax,[esi+esi*2]
+  414485:	6a 04                	push   0x4
+  414487:	68 d8 93 80 00       	push   0x8093d8
+  41448c:	c7 05 00 94 80 00 00 	mov    DWORD PTR ds:0x809400,0x1c0000
+  414493:	00 1c 00 
+  414496:	8d 04 86             	lea    eax,[esi+eax*4]
+  414499:	66 c7 05 fc 93 80 00 	mov    WORD PTR ds:0x8093fc,0x9c
+  4144a0:	9c 00 
+  4144a2:	c1 e0 02             	shl    eax,0x2
+  4144a5:	8b 88 d0 8d 80 00    	mov    ecx,DWORD PTR [eax+0x808dd0]
+  4144ab:	8b 90 bc 8d 80 00    	mov    edx,DWORD PTR [eax+0x808dbc]
+  4144b1:	89 0d 40 94 80 00    	mov    DWORD PTR ds:0x809440,ecx
+  4144b7:	8b 88 d4 8d 80 00    	mov    ecx,DWORD PTR [eax+0x808dd4]
+  4144bd:	8b 80 c0 8d 80 00    	mov    eax,DWORD PTR [eax+0x808dc0]
+  4144c3:	d3 e2                	shl    edx,cl
+  4144c5:	a3 48 94 80 00       	mov    ds:0x809448,eax
+  4144ca:	89 15 44 94 80 00    	mov    DWORD PTR ds:0x809444,edx
+  4144d0:	ff 15 08 86 d5 00    	call   DWORD PTR ds:0xd58608
+  4144d6:	85 c0                	test   eax,eax
+  4144d8:	74 0d                	je     0x4144e7
+  4144da:	68 18 09 45 00       	push   0x450918
+  4144df:	e8 1c 26 02 00       	call   0x436b00
+  4144e4:	83 c4 04             	add    esp,0x4
+  4144e7:	8d 0c 76             	lea    ecx,[esi+esi*2]
+  4144ea:	33 d2                	xor    edx,edx
+
+# -force (@0x450e10) adds the requested mode ONLY while nummodes < 30
+  415f2b:	8b 74 24 18          	mov    esi,DWORD PTR [esp+0x18]
+  415f2f:	68 10 0e 45 00       	push   0x450e10
+  415f34:	e8 07 0e ff ff       	call   0x406d40
+  415f39:	83 c4 04             	add    esp,0x4
+  415f3c:	85 c0                	test   eax,eax
+  415f3e:	0f 84 82 00 00 00    	je     0x415fc6
+  415f44:	a1 d0 93 80 00       	mov    eax,ds:0x8093d0
+  415f49:	83 f8 1e             	cmp    eax,0x1e
+
+# lookup failure -> Sys_Error('Specified video mode not available' @0x450dec)
+  4160bf:	89 6c 24 10          	mov    DWORD PTR [esp+0x10],ebp
+  4160c3:	85 ed                	test   ebp,ebp
+  4160c5:	0f 84 01 ff ff ff    	je     0x415fcc
+  4160cb:	85 ff                	test   edi,edi
+  4160cd:	75 0d                	jne    0x4160dc
+  4160cf:	68 ec 0d 45 00       	push   0x450dec
+  4160d4:	e8 27 0a 02 00       	call   0x436b00
+  4160d9:	83 c4 04             	add    esp,0x4
+  4160dc:	bf 01 00 00 00       	mov    edi,0x1

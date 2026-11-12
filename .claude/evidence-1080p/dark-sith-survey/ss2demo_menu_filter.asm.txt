@@ -1,0 +1,67 @@
+# System Shock 2 DEMO shock2.exe (unencrypted, 1999-07-21, ProductVersion 1.7) from Files/Games/Demos & Shareware/SystemShock2Demo.exe
+# the retail engine is SafeDisc-encrypted in SHOCK2.ICD; the demo is the same codebase (cam.cfg 1.17 1999/06/28 identical header)
+# filter: <=12 entries, depth match, w >= 0x280 (640), 0x1e0 (480) <= h <= 0x300 (768)
+005629d0: je 0x562aef
+005629d6: cmp ebx, 0xc
+005629d9: jge 0x562aef
+005629df: movsx eax, ax
+005629e2: mov ecx, dword ptr [esp + 0x18]
+005629e6: xor edx, edx
+005629e8: lea eax, [eax + eax*2]
+005629eb: shl eax, 2
+005629ee: mov dl, byte ptr [eax + 0x6a8b10]
+005629f4: cmp edx, ecx
+005629f6: jne 0x562ae8
+005629fc: cmp word ptr [eax + 0x6a8b0c], 0x280
+00562a05: jl 0x562ae8
+00562a0b: mov cx, word ptr [eax + 0x6a8b0e]
+00562a12: cmp cx, 0x1e0
+00562a17: jl 0x562ae8
+00562a1d: cmp cx, 0x300
+00562a22: jg 0x562ae8
+00562a28: movsx edx, word ptr [eax + 0x6a8b0e]
+00562a2f: xor ecx, ecx
+00562a31: mov cl, byte ptr [eax + 0x6a8b10]
+00562a37: movsx eax, word ptr [eax + 0x6a8b0c]
+00562a3e: push ecx
+00562a3f: push edx
+00562a40: push eax
+00562a41: lea ecx, [esp + 0x28]
+00562a45: push 0x69c890  ; "%dx%dx%d"
+00562a4a: push ecx
+00562a4b: call 0x60a440
+00562a50: lea eax, [ebx + 0x1bd]
+00562a56: add esp, 0x14
+00562a59: lea edx, [eax + eax*2]
+00562a5c: lea eax, [esp + 0x1c]
+00562a60: test eax, eax
+00562a62: lea edx, [ebp + edx*4]
+00562a66: je 0x562a78
+00562a68: lea edi, [esp + 0x1c]
+00562a6c: or ecx, 0xffffffff
+00562a6f: xor eax, eax
+00562a71: repne scasb al, byte ptr es:[edi]
+
+# grd lookup: 0x57 = 87 entries
+0059e2b0: push ebp
+0059e2b1: mov ebp, dword ptr [esp + 8]
+0059e2b5: push esi
+0059e2b6: mov esi, dword ptr [esp + 0x14]
+0059e2ba: push edi
+0059e2bb: mov edi, dword ptr [esp + 0x14]
+0059e2bf: xor eax, eax
+0059e2c1: mov ecx, 0x6a8b0e
+0059e2c6: movsx edx, word ptr [ecx - 2]
+0059e2ca: cmp edx, ebp
+0059e2cc: jne 0x59e2de
+0059e2ce: movsx edx, word ptr [ecx]
+0059e2d1: cmp edx, edi
+0059e2d3: jne 0x59e2de
+0059e2d5: xor edx, edx
+0059e2d7: mov dl, byte ptr [ecx + 2]
+0059e2da: cmp edx, esi
+0059e2dc: je 0x59e2ea
+0059e2de: inc eax
+0059e2df: add ecx, 0xc
+0059e2e2: cmp eax, 0x57
+0059e2e5: jl 0x59e2c6

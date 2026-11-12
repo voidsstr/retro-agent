@@ -1,0 +1,194 @@
+sof2mp.exe (SOF2MP GOLD V1.03) - why r_mode -1 cannot reach the renderer
+
+[1] R_Register: r_mode is registered through a 5-argument Cvar_Get with a
+    RANGE: Cvar_Get("r_mode", "3", 0x2021, 3.0f, 10.0f). Flag 0x2000 = range-checked.
+    r_customwidth/height/aspect are registered with min=max=0 and flags 0x21 (no range).
+    Pushes are right-to-left, so the first two pushes are max, then min.
+  004ba5ff: push    0x5599a4
+  004ba604: push    0x56cc14   ; "r_ignorehwgamma"
+  004ba609: mov     dword ptr [0x11a3620], eax
+  004ba60e: call    dword ptr [0x11a65c0]
+  004ba614: push    0x41200000   ; float 10
+  004ba619: push    0x40400000   ; float 3
+  004ba61e: push    0x2021
+  004ba623: push    0x5598e0
+  004ba628: push    0x56cc0c   ; "r_mode"
+  004ba62d: mov     dword ptr [0x11a3660], eax
+  004ba632: call    dword ptr [0x11a65c0]
+  004ba638: push    0
+  004ba63a: push    0
+  004ba63c: push    0x21
+  004ba63e: push    0x5598cc
+  004ba643: push    0x564ed8   ; "r_fullscreen"
+  004ba648: mov     dword ptr [0x11a6490], eax
+  004ba64d: call    dword ptr [0x11a65c0]
+  004ba653: push    0
+  004ba655: push    0
+  004ba657: push    0x21
+  004ba659: push    0x56cc04   ; "1600"
+  004ba65e: push    0x56cbf4   ; "r_customwidth"
+  004ba663: mov     dword ptr [0x11a64c0], eax
+  004ba668: call    dword ptr [0x11a65c0]
+  004ba66e: add     esp, 0x50
+  004ba671: push    0
+  004ba673: push    0
+  004ba675: push    0x21
+  004ba677: push    0x56cbec   ; "1024"
+  004ba67c: push    0x56cbdc   ; "r_customheight"
+  004ba681: mov     dword ptr [0x11a6498], eax
+  004ba686: call    dword ptr [0x11a65c0]
+  004ba68c: push    0
+  004ba68e: push    0
+  004ba690: push    0x21
+  004ba692: push    0x5598cc
+  004ba697: mov     dword ptr [0x11a6384], eax
+  004ba69c: push    0x56cbcc   ; "r_customaspect"
+  004ba6a1: call    dword ptr [0x11a65c0]
+
+    raw bytes at file offset 0xBA614: 68 00 00 20 41 68 00 00 40 40 68 21 20 00 00
+    = push 10.0f ; push 3.0f ; push 0x2021   (pattern occurs exactly once in the file)
+
+[2] Cvar_Get, existing-cvar path: if (flags & 0x2000) and value < min -> Cvar_Set2(name, "%g" of min, force);
+    if value > max -> set to max. So a -1 from the command line or any cfg becomes 3 = 640x480
+    at the moment the renderer registers r_mode, and 11 (856x480) becomes 10 (2048x1536).
+  0044b3b2: mov     eax, dword ptr [esi + 0x18]
+  0044b3b5: test    ah, 0x20
+  0044b3b8: je      0x44b4f6
+  0044b3be: fld     dword ptr [esi + 0x24]
+  0044b3c1: fcomp   dword ptr [esi + 0x10]
+  0044b3c4: fnstsw  ax
+  0044b3c6: test    ah, 5
+  0044b3c9: jp      0x44b3ff
+  0044b3cb: fld     dword ptr [esi + 0x10]
+  0044b3ce: sub     esp, 8
+  0044b3d1: fstp    qword ptr [esp]
+  0044b3d4: push    0x55fab4   ; "%g"
+  0044b3d9: lea     ecx, [esp + 0x1c]
+  0044b3dd: push    0x40
+  0044b3df: push    ecx
+  0044b3e0: call    0x45aba0
+  0044b3e5: push    1
+  0044b3e7: lea     edx, [esp + 0x28]
+  0044b3eb: push    edx
+  0044b3ec: push    edi
+  0044b3ed: call    0x44b6d0
+  0044b3f2: add     esp, 0x20
+  0044b3f5: pop     edi
+  0044b3f6: mov     eax, esi
+  0044b3f8: pop     esi
+  0044b3f9: pop     ebp
+  0044b3fa: pop     ebx
+  0044b3fb: add     esp, 0x40
+  0044b3fe: ret     
+  0044b3ff: fld     dword ptr [esi + 0x24]
+  0044b402: fcomp   dword ptr [esi + 0x14]
+  0044b405: fnstsw  ax
+  0044b407: test    ah, 0x41
+  0044b40a: jne     0x44b4f6
+  0044b410: fld     dword ptr [esi + 0x14]
+  0044b413: sub     esp, 8
+  0044b416: fstp    qword ptr [esp]
+  0044b419: push    0x55fab4   ; "%g"
+  0044b41e: lea     eax, [esp + 0x1c]
+  0044b422: push    0x40
+  0044b424: push    eax
+  0044b425: call    0x45aba0
+  0044b42a: push    1
+  0044b42c: lea     ecx, [esp + 0x28]
+  0044b430: push    ecx
+  0044b431: push    edi
+  0044b432: call    0x44b6d0
+  0044b437: add     esp, 0x20
+  0044b43a: pop     edi
+  0044b43b: mov     eax, esi
+  0044b43d: pop     esi
+  0044b43e: pop     ebp
+  0044b43f: pop     ebx
+  0044b440: add     esp, 0x40
+  0044b443: ret     
+
+[3] R_GetModeInfo DOES carry the mode == -1 branch (r_customwidth [0x11a6498]->integer,
+    r_customheight [0x11a6384]->integer, r_customaspect [0x11a3648]->value) - it is dead code,
+    because the clamp above means r_mode is never -1 when GLW_SetMode calls it.
+  004b98a0: mov     eax, dword ptr [esp + 0x10]
+  004b98a4: cmp     eax, -1
+  004b98a7: jge     0x4b98ac
+  004b98a9: xor     eax, eax
+  004b98ab: ret     
+  004b98ac: cmp     eax, dword ptr [0x56c418]
+  004b98b2: jl      0x4b98b7
+  004b98b4: xor     eax, eax
+  004b98b6: ret     
+  004b98b7: cmp     eax, -1
+  004b98ba: mov     edx, dword ptr [esp + 4]
+  004b98be: jne     0x4b98ec
+  004b98c0: mov     eax, dword ptr [0x11a6498]
+  004b98c5: mov     ecx, dword ptr [eax + 0x28]
+  004b98c8: mov     dword ptr [edx], ecx
+  004b98ca: mov     eax, dword ptr [0x11a6384]
+  004b98cf: mov     ecx, dword ptr [eax + 0x28]
+  004b98d2: mov     edx, dword ptr [esp + 8]
+  004b98d6: mov     dword ptr [edx], ecx
+  004b98d8: mov     eax, dword ptr [0x11a3648]
+  004b98dd: mov     ecx, dword ptr [eax + 0x24]
+  004b98e0: mov     edx, dword ptr [esp + 0xc]
+  004b98e4: mov     dword ptr [edx], ecx
+  004b98e6: mov     eax, 1
+  004b98eb: ret     
+  004b98ec: shl     eax, 4
+  004b98ef: add     eax, 0x56c358
+  004b98f4: mov     ecx, dword ptr [eax + 4]
+  004b98f7: mov     dword ptr [edx], ecx
+  004b98f9: mov     ecx, dword ptr [eax + 8]
+  004b98fc: mov     edx, dword ptr [esp + 8]
+  004b9900: mov     dword ptr [edx], ecx
+  004b9902: fild    dword ptr [eax + 4]
+  004b9905: fild    dword ptr [eax + 8]
+  004b9908: fmul    dword ptr [eax + 0xc]
+  004b990b: mov     eax, dword ptr [esp + 0xc]
+  004b990f: fdivp   st(1)
+  004b9911: fstp    dword ptr [eax]
+  004b9913: mov     eax, 1
+  004b9918: ret     
+
+[4] GLW_LoadOpenGL reads r_mode ([0x11a6490]) for the mode it asks for; on failure it retries mode 3.
+  004dee74: mov     edi, dword ptr [eax + 0x28]
+  004dee77: mov     ecx, dword ptr [0x11a3684]
+  004dee7d: mov     eax, dword ptr [ecx + 0x28]
+  004dee80: mov     edx, dword ptr [0x11a6490]
+  004dee86: mov     esi, dword ptr [edx + 0x28]
+  004dee89: push    edi
+  004dee8a: push    eax
+  004dee8b: push    esi
+  004dee8c: push    ebx
+  004dee8d: call    0x4def70
+  004dee92: add     esp, 0x10
+  004dee95: dec     eax
+  004dee96: je      0x4deeb2
+  004dee98: dec     eax
+  004dee99: jne     0x4def40
+  004dee9f: push    esi
+  004deea0: push    0x571494   ; "...WARNING: could not set the given mode (%d)"
+  004deea5: push    0
+  004deea7: call    dword ptr [0x11a65a0]
+  004deead: add     esp, 0xc
+  004deeb0: jmp     0x4deec2
+  004deeb2: push    0x571460   ; "...WARNING: fullscreen unavailable in this mode"
+  004deeb7: push    0
+  004deeb9: call    dword ptr [0x11a65a0]
+  004deebf: add     esp, 8
+  004deec2: mov     eax, dword ptr [0x11a62e4]
+  004deec7: test    eax, eax
+  004deec9: jne     0x4def0e
+  004deecb: mov     eax, dword ptr [0x11a3684]
+  004deed0: cmp     dword ptr [eax + 0x28], 0x10
+  004deed4: jne     0x4deee7
+  004deed6: cmp     edi, 1
+  004deed9: jne     0x4deee7
+  004deedb: mov     ecx, dword ptr [0x11a6490]
+  004deee1: cmp     dword ptr [ecx + 0x28], 3
+  004deee5: je      0x4def53
+  004deee7: push    1
+  004deee9: push    0x10
+  004deeeb: push    3
+  004deeed: push    ebx

@@ -1,0 +1,139 @@
+{
+ "box": "192.168.1.195 ADMIN-PC: Windows 7 build 7600 (shows \"not genuine\"), AMD Radeon HD 5450 (GL 4.5.13399), agent 1.90.2. No other session was using the box: it was at its screensaver, no game or installer was running, and no worktree or recent commit targets it.",
+ "reachable": true,
+ "panel": "HP 2511 (EDID HWP293E), digital LCD, native 1920x1080@60, EDID vmax 76 Hz, 55x31 cm. GAMERES target: wide 1920x1080, 4:3 1280x960, 60 Hz, fov 106, q3mode 6. The driver lists 20 modes including 1920x1080@60. The box's own FLEETRES.EXE output (%TEMP%\\fleetres.cmd) reads FR_W=1920 FR_H=1080 FR_HZ=60 FR_PANEL=LCD FR_EDID=1 FR_MON=HP 2511.",
+ "desktop": "Before: persisted 1920x1080@60 32bpp, live 1920x1080. It stayed at 1920x1080 for every launch, except for my deliberate ACCEPT test (00:25:47 to 00:27:53), when the game dropped the live mode to 640x480. After every quit and at the end: persisted 1920x1080@60 == live 1920x1080 (99-gameres-final.json; DISPLAYCFG 1920x1080x32@60).",
+ "lcd_1080p": true,
+ "tree_state": "These files on the box are md5-identical to the library: the 3 Play*.bat launchers, FLEETRES.BAT, FLEETGL.BAT, launch.txt and missionpack\\autoexec.cfg.\n\nbaseq3\\autoexec.cfg = library lines 1-29, which end with \"exec fleetres.cfg\", plus the retro-gameindex managed block (server1 = 192.168.1.132:27961 plus 15 internet servers). The favourites writer keeps the \"exec fleetres.cfg\" line (verified again at the end). missionpack\\autoexec.cfg gets no favourites.\n\nbaseq3\\fleetres.cfg and missionpack\\fleetres.cfg were written by GAMESYNC on 2026-09-04: r_mode -1, 1920x1080, customaspect 1, fullscreen 1, cg_fov 106, displayRefresh 60. Each launcher rewrote the same values. No launcher had run on this box since 09-04.\n\nPer-user %APPDATA%\\Quake3 (ioquake3 homepath): no autoexec.cfg or fleetres.cfg in baseq3\\ or missionpack\\, so nothing shadows the install tree. q3config.cfg in both folders already has r_mode -1 / 1920x1080, and it is exec'd before autoexec anyway. servercache.dat holds 0 favourites and 0 globals. Retail's homepath is the install dir, which had no q3config.cfg.\n\nStale items:\n- baseq3\\lan.cfg, not in the library (name Fleet246, F5-F8 binds) is still deployed.\n- Player names Fleet246 / bOOGHER are left over from earlier tests.\n- Non-staged installs C:\\Quake III Arena\\Quake3 (also gets favourites) and C:\\q3bench (skipped).\n\nLeft clean:\n- Restored and md5-verified identical to the pre-test copies: homepath baseq3\\q3config.cfg, missionpack\\q3config.cfg, missionpack\\q3history, servercache.dat, and both install fleetres.cfg files.\n- Deleted: baseq3\\q3history (created by my typing), every screenshot and condump I made, the q3config.cfg and baseq3\\screenshots\\ that retail created in the install dir, and both %TEMP% test .bat files.\n- The engine rewrote the q3key files; content is identical to the library (md5 27a72a7b).\n- %TEMP%\\fleetres.cmd is the staged launcher's own output from every launch; left as is.\n- The favourites job rewrote baseq3\\autoexec.cfg during the session. That is its normal work, not mine.",
+ "launchers": [
+  {
+   "launcher": "Play Quake III Arena.bat",
+   "exe": "ioquake3.x86.exe (ioq3 1.36, baseq3)",
+   "reached_in_game": true,
+   "fullscreen": true,
+   "resolution_observed": "1920x1080 fullscreen. Engine log: '...setting mode -1: 1920 1080' and 'MODE: -1, 1920 x 1080 fullscreen', again after the pure-server renderer restart. SDL_app window 0,0-1920x1080; engine JPEGs 1920x1080; live desktop 1920x1080.",
+   "how_in_game": "Started exactly as the shortcut does: EXEC cmd /c start \"\" /D \"C:\\Games\\Quake3-TeamArena\" \"Play Quake III Arena.bat\". Joined 192.168.1.132:27961 from the in-game browser: MULTIPLAYER, Servers: Favorites, row 1 'NSC Retro Fleet Arena (Q3A)', FIGHT (keyboard, fullscreen). No command-line deviation.",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/10-launch1-ioq3-baseq3.log",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/tree/baseq3-fleetres-after-launch1.cfg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/13-launch1-condump.txt",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/12-launch1-engine-shot-mainmenu.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/11-launch1-gdi-shot.png",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/18c-browser-fight-focus.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/20-launch1-ingame-F11.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/23-launch1-condump-ingame.txt"
+   ],
+   "notes": "On Win7, GDI SCREENSHOT 0 of the fullscreen game is all black (11-launch1-gdi-shot.png, extrema 0). The engine's own screenshotJPEG gives real 1920x1080 frames. Synthetic keyboard input does reach ioquake3 in exclusive fullscreen here. My first join attempt typed 'connect 192.168.1.132:27961' in the console, but UIKEY TEXT loses SHIFT under ioq3 1.36's default SDL 'directx' input. The ':' arrived as ';', so the client went to :27960 (OpenArena) and was refused with 'protocol 71 (yours is 68)' (17-launch1-typed-colon-lost-connected-27960-protocol71.jpg). That was an automation artifact, not a server fault. The console log also shows 'Unknown command \"this\"' from the staged autoexec comment."
+  },
+  {
+   "launcher": "Play Team Arena.bat",
+   "exe": "ioquake3.x86.exe +set fs_game missionpack",
+   "reached_in_game": true,
+   "fullscreen": true,
+   "resolution_observed": "1920x1080 fullscreen. 'MODE: -1, 1920 x 1080 fullscreen' on the shortcut launch, on the relaunch, and after the pure-server renderer restarts in game. SDL_app window 0,0-1920x1080; engine JPEGs 1920x1080; live desktop 1920x1080.",
+   "how_in_game": "Resolution was verified on the exact shortcut path, at the main menu (41-, 42-). To get in game I deviated: I quit and relaunched through a temporary %TEMP%\\q3ta195.bat (copy kept as q3ta195-temp-launcher.bat) that runs the launcher's exact command line with the same fleetres.cfg, plus '+set in_mouse -1'. That switches SDL input to windib, so UICLICK can drive the hover-only TA menus and ':' can be typed. Then I ran console 'connect 192.168.1.132:27962'.",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/40-launch2-ta.log",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/tree/missionpack-fleetres-after-launch2.cfg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/41-launch2-ta-condump.txt",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/42-launch2-ta-mainmenu.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/44-launch2b-ta-condump.txt",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/q3ta195-temp-launcher.bat",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/47-ta-ingame-F11.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/47b-ta-ingame-F11.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/48-ta-ingame-condump.txt"
+   ],
+   "notes": "The TA main menu shows MultiPlayer and Setup only on mouse hover. With the default DirectInput mouse, UICLICK cannot move the TA cursor at all (ta-nav/n03-afterclick). Under windib, UICLICK(960+dx, 540+dy) moves the cursor by (dx,dy) virtual units, and a second in-place click activates the item. The in_mouse change does not touch the video path: the log shows mode -1 1920x1080 either way. Typed console lines of 64 or more characters were truncated under the default input."
+  },
+  {
+   "launcher": "Play Quake III Arena - retail 1.32c.bat",
+   "exe": "quake3.exe (retail 1.32c)",
+   "reached_in_game": true,
+   "fullscreen": true,
+   "resolution_observed": "1920x1080 fullscreen at 60 Hz. Engine log: '...setting mode -1: 1920 1080 FS', '...calling CDS: ok', '...created window@0,0 (1920x1080)', 'MODE: -1, 1920 x 1080 fullscreen hz:60', again after joining the pure server. 'Quake 3: Arena' window 0,0-1920x1080; engine JPEGs 1920x1080.",
+   "how_in_game": "Started exactly as the shortcut does. Joined with console 'connect 192.168.1.132:27961'; retail's WM_CHAR keyboard keeps SHIFT. No command-line deviation.",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/51-launch3-retail.log",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/52-launch3-retail-condump.txt",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/53-launch3-retail-ingame-condump.txt",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/54-retail-ingame-F11.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/54b-retail-ingame-F11.jpg",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/55-retail-ingame-system-menu.jpg"
+   ],
+   "notes": "The server accepted protocol 68 through com_legacyprotocol ('UnnamedPlayer entered the game'). Retail's homepath is the install dir, so it created baseq3\\q3config.cfg and baseq3\\screenshots\\; both were removed afterwards. The favourites job rewrote baseq3\\autoexec.cfg 3 s after this launch started (box mtime 04:44:10 UTC), so it races with game start."
+  }
+ ],
+ "menus": [
+  {
+   "which": "ioquake3 1.36 (Play Quake III Arena.bat), baseq3, id 1.32 vm/ui.qvm from pak8.pk3. This is the default, vm_ui 2; the log says 'Loading vm file vm/ui.qvm', and the staged ioquake3 uix86.dll is NOT used.",
+   "lists_1920x1080": "no",
+   "shows_current_as": "640x480, while the frame is 1920x1080 at r_mode -1",
+   "apply_keeps_1080p": "no",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/25-baseq3-system-graphics-menu.jpg (1920x1080 frame showing 'Video Mode: 640x480', Fullscreen On)",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/videomode-cycle/videomode-cycle-montage.png and videomode-low-and-restored.png (whole list, no wrap: 320x240 400x300 512x384 640x480 800x600 960x720 1024x768 1152x864 1280x1024 1600x1200 2048x1536 '856x480 wide screen')",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/26b-accept-focus-small.png (only Texture Filter changed; Video Mode left at its displayed 640x480)",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/27-after-accept-condump.txt ('...setting mode 3: 640 480', 'MODE: 3, 640 x 480 fullscreen')",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/27-after-accept.jpg (engine frame 640x480) and 27-accept-test.log (window 0,0-640x480, DISPLAYCFG 640x480)",
+    "Static: pak8.pk3 vm/ui.qvm strings hold the 12 fixed modes and no r_availableModes or r_customwidth"
+   ]
+  },
+  {
+   "which": "retail quake3.exe 1.32c (retail launcher), baseq3, the same id 1.32 vm/ui.qvm",
+   "lists_1920x1080": "no",
+   "shows_current_as": "640x480, in game while rendering 1920x1080",
+   "apply_keeps_1080p": "no",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/55-retail-ingame-system-menu.jpg (in game, 1920x1080 frame, 'Video Mode: 640x480')",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/52-launch3-retail-condump.txt ('Loading vm file vm/ui.qvm.')",
+    "'no' is INFERRED: ACCEPT was not pressed under retail; it is the same UI module that dropped to 640x480 under ioquake3"
+   ]
+  },
+  {
+   "which": "ioquake3 1.36 + fs_game missionpack (Team Arena), missionpack pak3 vm/ui.qvm with ui/system.menu and ui/ingame_system.menu",
+   "lists_1920x1080": "no",
+   "shows_current_as": "blank: the Video Mode field is empty because -1 is not in its cvarFloatList",
+   "apply_keeps_1080p": "unknown",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/46-ta-system-videomode.jpg (blank Video Mode, Fullscreen Yes, Quality High Quality)",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/ta-nav/w10-w11-compare.png (one click on Video Mode jumps to 400*300 and Quality becomes Custom)",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/ta-nav/w12-quality-click-crop.png (choosing Quality 'High Quality' forces Video Mode 800*600)",
+    "Static: ui/system.menu line 140 and ui/ingame_system.menu line 237 cvarFloatList = the same 12 fixed modes. The Apply button only opens vid_restart_popmenu and runs vid_restart, so it keeps -1 ONLY if Video Mode and Quality were not touched. Not pressed."
+   ]
+  },
+  {
+   "which": "DIAGNOSTIC ONLY, not how the launcher runs: ioquake3 1.36 baseq3 with +set vm_ui 0, which loads the staged ioquake3 baseq3\\uix86.dll ('Sys_LoadDll(...uix86.dll): succeeded')",
+   "lists_1920x1080": "yes",
+   "shows_current_as": "1920x1080",
+   "apply_keeps_1080p": "yes",
+   "evidence": [
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/62-vmui0-ioq3-ui-graphics-menu.jpg (Video Mode: 1920x1080)",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/64-vmui0-after-accept-condump.txt (ACCEPT after changing Texture Filter: '...setting mode -1: 1920 1080')",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/67-vmui0-ingame-condump.txt (after joining the sv_pure 1 fleet server the engine reloads 'vm/ui.qvm', the id UI, so this helps only in the main menu)",
+    "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/q3-195/q3ui195-temp-launcher.bat"
+   ]
+  }
+ ],
+ "favourites_in_game": "Q3A baseq3 (ioquake3, id q3_ui): Servers: Favorites showed '16 of 16 Arena Servers'.\n- Row 1 was 'NSC RETRO FLEET AREN' at 192.168.1.132:27961, ping 1.\n- All 16 favourites answered (pings 1 to 180; 16-launch1-favorites.jpg, 16b-launch1-favorites-scrolled.jpg).\n- FIGHT on row 1 joined the server (18c-, 20-).\n- Local also lists both fleet servers, Q3A and Team Arena, at ping 1 (14-).\n\nTeam Arena: Source: Favorites is EMPTY (45-ta-favorites.jpg). Local lists 'NSC Retro Fleet Arena [Q3A]' and '[Team Arena]' at ping 1 (ta-nav/w03-joinserver.jpg). The TA UI keeps favourites in %APPDATA%\\Quake3\\servercache.dat, which holds 0 favourites before and after. The favourites job writes only 'seta server1..16' into baseq3\\autoexec.cfg and has no missionpack title.\n\nThe job is refreshing: it rewrote C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg in 9 of 10 passes between 23:54 and 00:44, each time with a new internet set. server1 stayed 192.168.1.132:27961, and 'exec fleetres.cfg' stayed intact above the managed block.",
+ "left_clean": true,
+ "problems": [
+  "baseq3 video menu (id 1.32 vm/ui.qvm). Both the ioquake3 and retail launchers use it, in the main menu and in game. Video Mode shows '640x480' while the game renders 1920x1080. Its fixed 12-entry list has no 1920x1080; the widest entry is '856x480 wide screen'. Pressing ACCEPT after changing ANY graphics option writes r_mode 3, and the game drops to 640x480 fullscreen (measured: '...setting mode 3: 640 480', game window 640x480). By design the next launch should restore 1920x1080 (fleetres.cfg plus the command line); not re-measured.",
+  "Team Arena video menu. At r_mode -1 the Video Mode field is blank, and the list has no 1920x1080. One click on it gives 400x300. The Quality preset 'High Quality' forces 800x600 (r_mode 4). So the menu is only safe for 1080p if Video Mode and Quality are never touched.",
+  "Team Arena favourites are empty. retro-gameindex writes Q3 favourites only as seta server1..16 into baseq3\\autoexec.cfg; its TITLES table maps quake3 and ioquake3 to baseq3 and has no missionpack entry. The TA UI reads favourites from %APPDATA%\\Quake3\\servercache.dat, which has 0 entries. The fleet TA server (27962) can only be reached through Local (LAN broadcast) or a typed address.",
+  "The favourites job's BUSY guard works per exe, not per file (scripts/gameindex/sync.py ~437-461). While ioquake3.x86.exe was running from C:\\Games\\Quake3-TeamArena, the job logged 'ioquake3 BUSY' and then 'quake3 wrote 16 servers' to the SAME baseq3\\autoexec.cfg (00:04-00:24). The write itself is harmless (Q3 rewrites q3config.cfg on exit, not autoexec.cfg), but the report contradicts itself. The file is also rewritten on almost every 5-minute pass. It is a STAGED library file, so the job and GAMESYNC both own it, and one write raced a game start (mtime 3 s after launch).",
+  "The staged autoexec.cfg (library line 4, in both baseq3 and missionpack) has a ';' inside a // comment ('...rewritten on exit; this is not.'). ioquake3 1.36 splits commands at ';' even inside comments, so every start logs 'Unknown command \"this\"'. The same mechanism affects scripts/gameindex/favorites.py:107: it writes internet server hostnames into '//' comments and strips only newlines. A public server name containing ';' would run arbitrary console commands on every fleet box at game start.",
+  "Cosmetic at 16:9. The id q3_ui menus are pillarboxed at 4:3, and in game the side bars fill with uncleared garbage (repeated console text). The TA UI and both HUDs are stretched horizontally.",
+  "Stale per-box state. baseq3\\lan.cfg, which is not in the library (name Fleet246, F5-F8 binds, from a LAN test when the box was .246), is still deployed; GAMESYNC never deletes. Player names are Fleet246 in baseq3 and bOOGHER in missionpack. A legacy, non-staged Q3 at C:\\Quake III Arena\\Quake3 also gets favourites written.",
+  "Automation traps; these do not affect players.\n- UIKEY TEXT into ioquake3 1.36's default SDL 'directx' input loses SHIFT: uppercase, ':' and '_' arrive unshifted.\n- A typed line of 64 or more characters was cut off.\n- Retail quake3.exe and ioquake3 run with +set in_mouse -1 (windib) type correctly.\n- TA's hover-only menus cannot be driven with the default DirectInput mouse.\n- EXEC 'cmd /c cd /d ... && start \"\" ioquake3.x86.exe ...' timed out and no game window appeared; a temporary .bat started with start /D worked.\n- In the ioquake3 in-game menus, the SETUP menu once closed unexpectedly; cause unknown. The same navigation worked under retail.",
+  "Incidents during my session, all resolved.\n- Keystrokes sent while no game window existed went to the desktop and opened an Explorer 'Search Results' window, which I closed. The helpers now check WINLIST before typing.\n- A chat line 'toggleconsole' was said on the fleet Q3A server.\n- slui.exe (Windows activation 'not genuine' notice) started by itself at 00:20:53 and later exited. I did not touch it."
+ ],
+ "fix_ideas": [
+  "Q3A menu; the launcher cannot reach the in-game menu, so the options are:\n(a) Launch ioquake3 with +set vm_ui 0, which uses the staged ioquake3 baseq3\\uix86.dll. Measured here: it lists and shows 1920x1080, and ACCEPT keeps it. But this only works in the main menu: joining the sv_pure 1 fleet server reloads id's vm/ui.qvm (measured).\n(b) To cover in game too, put a pure-listed pk3 on both quake3-server and the clients, carrying an r_availableModes-aware q3_ui ui.qvm built from ioquake3; or run the fleet server sv_pure 0. Both need testing, and retail 1.32c needs its own answer.\n(c) At minimum, document on the box/share: do not press ACCEPT in SETUP > SYSTEM on a 1080p box; relaunching restores 1920x1080.",
+  "Team Arena's menu is data-driven. A fleet pk3 in missionpack could override ui/system.menu and ui/ingame_system.menu to add a -1 entry labelled with the box's native mode, or drop the Video Mode and Quality controls. That pk3 must also be on q3ta-server's pure list. The Quality presets that force r_mode 3/4 are compiled into ui.qvm (UI_Update), so hiding 'Quality' is the only data-side fix for them.",
+  "Team Arena favourites: add a missionpack writer to retro-gameindex that accepts {missionpack} and points at 192.168.1.132:27962. The TA UI reads %APPDATA%\\Quake3\\servercache.dat; in ioq3 1.36 that is int numglobal, int numfav, int size, then 4096+128 records of 164 bytes (serverInfo_t). The alternative is to document that TA's Favorites is empty by design and the fleet server appears under Local.",
+  "Favourites job:\n- Key the BUSY guard by target path, or drop it for autoexec.cfg, which Q3 never rewrites.\n- Strip ';', '\"' and control characters from hostnames before writing them as Q3 cfg comments.\n- Write favourites to their own file, exec'd from the staged autoexec (e.g. baseq3\\fleetfav.cfg), so GAMESYNC and the job stop sharing a staged file.\n- Keep the server ordering stable so the file is not rewritten every pass.",
+  "Fix the staged autoexec.cfg line-4 comment in both baseq3 and missionpack (replace '; this is not.' with ' - this is not.') in the library or its generator, then push it with GAMESYNC.",
+  "Remove the stale baseq3\\lan.cfg from .195 (GAMESYNC never deletes it), and consider resetting the leftover player names.",
+  "For later verification phases on this box:\n- Use the engine's screenshotJPEG and condump; F11 is already bound.\n- Prefix console lines with '\\' when connected.\n- Keep typed lines under 60 characters.\n- Avoid shifted characters under ioquake3's default input, or relaunch with +set in_mouse -1.\n- Check WINLIST for the game window before sending any keys."
+ ]
+}

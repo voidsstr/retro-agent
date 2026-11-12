@@ -1,0 +1,33 @@
+GameData/Mss32.dll  A@0x3d9b8  AIL_set_timer_frequency(%ld,%lu)
+GameData/Mss32.dll  A@0x41390  CONN_DST_LFO_FREQUENCY   
+GameData/Mss32.dll  A@0x468a8  LFO Frequency                     
+GameData/Mss32.dll  A@0x46900  %.1f Hz
+GameData/Mss32.dll  A@0x46b16          WAVE: %d bytes, %d Hz %d-bit %s
+GameData/Mss32.dll  A@0x47856  QueryPerformanceFrequency
+GameData/Mss32.dll  A@0x4a8eb  _AIL_set_timer_frequency@8
+GameData/Mssds3dh.m3d  A@0x8740  _AIL_set_timer_frequency@8
+GameData/Msseax.m3d  A@0x92b8  _AIL_set_timer_frequency@8
+GameData/Msseax2.m3d  A@0xc83a  _AIL_set_timer_frequency@8
+GameData/Mssfast.m3d  A@0xa5b2  _AIL_set_timer_frequency@8
+GameData/OpenGL2D3D.dll  A@0x29a70  CD3duDeviceNode::RefreshCaps - D3DX only supports 16 bit or higher color depths.
+GameData/OpenGL2D3D.dll  A@0x29ac4  CD3duDeviceNode::RefreshCaps - Ran out of memory.
+GameData/SierraPt.dll  A@0x14f34  PhZ(
+GameData/T2Res.dll  A@0xabc9  *'ihhz
+GameData/T2Res.dll  A@0xb132  hz[GLn
+GameData/T2Res.dll  A@0x27cc2  "),FW^L`fI]eQfpRfnSelOahK_gLbkJ_eHZ`HY^I[^K\aGV\FSYCSY?OT>LP:FI3?A0;>0;@0:?/9>/:?+5<(3:*4:)25$,/$,."*-!(,
+GameData/T2Res.dll  A@0x31629  &&):QX:hz@dpASY5<?"!#
+GameData/T2Res.dll  A@0x33a38  !![gfXdd[hfZhgU``Q\[bhhz{{
+GameData/T2Res.dll  A@0x3ee8d  +\"4Q3<N28H:?O>HZ<BP!,@
+GameData/Tribes2.exe  A@0x2118eb  h,hz
+GameData/Tribes2.exe  A@0x211903  hDhz
+GameData/Tribes2.exe  A@0x21191b  h\hz
+GameData/Tribes2.exe  A@0x211933  hthz
+GameData/Tribes2.exe  A@0x349920  AL_ENV_ROOM_HIGH_FREQUENCY_IASIG
+GameData/Tribes2.exe  A@0x3499b0  AL_ENV_DECAY_HIGH_FREQUENCY_RATIO_IASIG
+GameData/Tribes2.exe  A@0x349a44  AL_ENV_HIGH_FREQUENCY_REFERENCE_IASIG
+GameData/Tribes2.exe  A@0x34b068  $pref::Audio::frequency
+GameData/Tribes2.exe  A@0x384a7c     %s, %d Mhz
+GameData/Tribes2.exe  A@0x398828  Refreshing server...
+GameData/Tribes2.exe  A@0x3b8e90  %d MHz
+GameData/Tribes2.exe  A@0x3d9e4c  QueryPerformanceFrequency
+GameData/TribesLogin.exe  A@0xd674  u-hz

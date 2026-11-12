@@ -1,0 +1,171 @@
+[23:47:32][MAIN ] handle_client: starting auth on socket 1496
+[23:47:32][PROTO] AUTH: success
+[23:47:32][MAIN ] Client authenticated
+[23:47:32][MAIN ] CMD: "GAMESYNC STATUS" (15 bytes)
+[23:47:32][MAIN ] Client disconnected
+[23:47:32][MAIN ] Connection from 192.168.1.196:60454
+[23:47:32][MAIN ] handle_client: starting auth on socket 1432
+[23:47:32][PROTO] AUTH: success
+[23:47:32][MAIN ] Client authenticated
+[23:47:32][MAIN ] CMD: "GAMESYNC LIBRARY" (16 bytes)
+[23:47:32][MAIN ] CMD: "GAMESYNC RESET" (14 bytes)
+[23:47:32][MAIN ] CMD: "GAMESYNC START" (14 bytes)
+[23:47:32][MAIN ] Client disconnected
+[23:47:32][GAMESYNC] library: \\192.168.1.122\files\Files\Games-Library
+[23:47:32][GAMESYNC] gate: profile e633518d4747e4f2 - AuthenticAMD 2400 MHz x1, 2047 MB RAM, gpu 1002:9515 512 MB (sm3.0), os winxp, 183082 MB free on C:
+[23:47:32][GAMESYNC] gate: published verdicts loaded - 52 verdict(s) (\\192.168.1.122\files\Files\Games-Library\_gamegate\e633518d4747e4f2.txt)
+[23:47:32][GAMERES] panel DELL P2312H LCD  native 1920x1080@60  persisted 1920x1080  modes 15  ->  target 1920x1080 (16:9), 4:3 1280x960, q2mode 8, q3mode 7, fov 106
+[23:47:32][GAMERES] refresh: best 60 Hz at 1920x1080, 75 Hz at 1280x960, 60 Hz at the desktop 1920x1080 (panel max 76 Hz); desktop is persisted at 60 Hz
+[23:47:35][MAIN ] Connection from 192.168.1.196:60468
+[23:47:35][MAIN ] handle_client: starting auth on socket 1728
+[23:47:35][PROTO] AUTH: success
+[23:47:35][MAIN ] Client authenticated
+[23:47:35][MAIN ] CMD: "PROCLIST" (8 bytes)
+[23:47:35][PROTO] frame_send: 1510 bytes
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\CounterStrike16\config\serverbrowser.vdf" (58 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\CounterStrike16\config\serverbrowser.vdf") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 52 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\CounterStrike16\config" (37 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\CounterStrike16") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\CounterStrike16\config") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\CounterStrike16\config\serverbrowser.vdf" (56 bytes)
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\CounterStrike16\config\serverbrowser.vdf") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 352 bytes to "C:\Games\CounterStrike16\config\serverbrowser.vdf"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\DeusEx\SYSTEM\DeusEx.ini" (42 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\DeusEx\SYSTEM\DeusEx.ini") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 6753 bytes
+[23:47:35][PROTO] frame_send: 6754 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\DeusEx\SYSTEM" (28 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\DeusEx") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\DeusEx\SYSTEM") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\DeusEx\SYSTEM\DeusEx.ini" (40 bytes)
+[23:47:35][PROTO] frame_recv: 6890 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\DeusEx\SYSTEM\DeusEx.ini") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 6890 bytes to "C:\Games\DeusEx\SYSTEM\DeusEx.ini"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg" (54 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 1521 bytes
+[23:47:35][PROTO] frame_send: 1522 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\Quake3-TeamArena\baseq3" (38 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\Quake3-TeamArena") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\Quake3-TeamArena\baseq3") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg" (52 bytes)
+[23:47:35][PROTO] frame_recv: 2654 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 2654 bytes to "C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 3407 bytes
+[23:47:35][PROTO] frame_send: 3408 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\Quake2Complete\baseq2" (36 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\Quake2Complete") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\Quake2Complete\baseq2") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\baseq2\autoexec.cfg" (50 bytes)
+[23:47:35][PROTO] frame_recv: 3689 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 3689 bytes to "C:\Games\Quake2Complete\baseq2\autoexec.cfg"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealGold\System\Unreal.ini") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 8765 bytes
+[23:47:35][PROTO] frame_send: 8766 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\UnrealGold\System" (32 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UnrealGold") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UnrealGold\System") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\UnrealGold\System\Unreal.ini" (44 bytes)
+[23:47:35][PROTO] frame_recv: 8908 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\UnrealGold\System\Unreal.ini") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 8908 bytes to "C:\Games\UnrealGold\System\Unreal.ini"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\UT2004\System\UT2004.ini" (42 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 19869 bytes
+[23:47:35][PROTO] frame_send: 19870 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\UT2004\System" (28 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UT2004") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UT2004\System") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\UT2004\System\UT2004.ini" (40 bytes)
+[23:47:35][PROTO] frame_recv: 19981 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 19981 bytes to "C:\Games\UT2004\System\UT2004.ini"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 18135 bytes
+[23:47:35][PROTO] frame_send: 18136 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\UnrealTournament436\System" (41 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UnrealTournament436") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UnrealTournament436\System") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\UnrealTournament436\System\UnrealTournament.ini" (63 bytes)
+[23:47:35][PROTO] frame_recv: 17743 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 17743 bytes to "C:\Games\UnrealTournament436\System\UnrealTournament.ini"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealTournament\System\UnrealTournament.ini" (62 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealTournament\System\UnrealTournament.ini") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 19675 bytes
+[23:47:35][PROTO] frame_send: 19676 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\UnrealTournament\System" (38 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UnrealTournament") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\UnrealTournament\System") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\UnrealTournament\System\UnrealTournament.ini" (60 bytes)
+[23:47:35][PROTO] frame_recv: 19338 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\UnrealTournament\System\UnrealTournament.ini") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 19338 bytes to "C:\Games\UnrealTournament\System\UnrealTournament.ini"
+[23:47:35][MAIN ] CMD: "DOWNLOAD C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg" (61 bytes)
+[23:47:35][FILE ] DOWNLOAD: CreateFileA("C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg") = OK
+[23:47:35][FILE ] DOWNLOAD: GetFileSize = 1423 bytes
+[23:47:35][PROTO] frame_send: 1424 bytes
+[23:47:35][MAIN ] CMD: "MKDIR C:\Games\ReturnToCastleWolfenstein\Main" (45 bytes)
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\ReturnToCastleWolfenstein") = 183
+[23:47:35][FILE ] MKDIR: CreateDirectoryA("C:\Games\ReturnToCastleWolfenstein\Main") final = OK
+[23:47:35][MAIN ] CMD: "UPLOAD C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg" (59 bytes)
+[23:47:35][PROTO] frame_recv: 1863 bytes
+[23:47:35][FILE ] UPLOAD: CreateFileA("C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg") = OK
+[23:47:35][FILE ] UPLOAD: Complete, 1863 bytes to "C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg"
+[23:47:35][MAIN ] Client disconnected
+[23:47:39][GAMESYNC] 52 title(s) (1 gated, not walked), 39589 file(s), 54188 MB to copy; C: has 183081 MB free
+[23:47:39][GAMESYNC] ==> Quake3-TeamArena (858 MB)
+[23:47:39][GAMESYNC]   0% | 0/54188 MB | 0.00 MB/s | Quake3-TeamArena | cgamex86.dll
+[23:47:40][GAMESYNC] Quake3-TeamArena: desktop shortcut -> Play Quake III Arena.bat (icon: C:\Games\Quake3-TeamArena\ioquake3.x86.exe)
+[23:47:40][GAMESYNC] Quake3-TeamArena: desktop shortcut -> Play Team Arena.bat (icon: C:\Games\Quake3-TeamArena\ioquake3.x86.exe)
+[23:47:40][GAMESYNC] Quake3-TeamArena: desktop shortcut -> Play Quake III Arena - retail 1.32c.bat (icon: C:\Games\Quake3-TeamArena\quake3.exe)
+[23:47:40][GAMESYNC] ==> UnrealTournament (998 MB)
+[23:47:40][GAMESYNC] UnrealTournament: merged install.reg via regedit - 4/4 value(s) verified
+[23:47:40][GAMERES] UnrealTournament - 2 value(s) set for 1920x1080
+[23:47:40][GAMESYNC] UnrealTournament: desktop shortcut -> Play Unreal Tournament.bat (icon: C:\Games\UnrealTournament\System\UnrealTournament.exe)
+[23:47:40][GAMESYNC] ==> RedneckRampage (877 MB)
+[23:47:40][GAMERES] RedneckRampage - 1 value(s) set for 1920x1080
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Play Redneck Rampage - Game.bat (icon: C:\Games\RedneckRampage\rampage.ico)
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Play Route 66.bat (icon: C:\Games\RedneckRampage\ROUTE66.ICO)
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Play Rides Again.bat (icon: C:\Games\RedneckRampage\AGAIN\BUBBA.ICO)
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Play Redneck Rampage.bat (icon: C:\Games\RedneckRampage\rampage.ico)
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Host Redneck Rampage - LAN.bat (icon: C:\Games\RedneckRampage\rampage.ico)
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Join Redneck Rampage - LAN.bat (icon: C:\Games\RedneckRampage\rampage.ico)
+[23:47:40][GAMESYNC] RedneckRampage: desktop shortcut -> Redneck Rampage Setup.bat (icon: C:\Games\RedneckRampage\rampage.ico)
+[23:47:40][GAMESYNC] ==> RedAlert2 (1888 MB)
+[23:47:40][GAMESYNC] RedAlert2: merged install.reg via regedit - 4/4 value(s) verified
+[23:47:40][GAMERES] RedAlert2 - 4 value(s) set for 1920x1080
+[23:47:40][GAMESYNC] RedAlert2: desktop shortcut -> Launch Red Alert 2.bat (icon: C:\Games\RedAlert2\RA2.ico)
+[23:47:40][GAMESYNC] RedAlert2: desktop shortcut -> Launch Yuri's Revenge.bat (icon: C:\Games\RedAlert2\RA2MD.ico)
+[23:47:40][GAMESYNC] ==> RedFaction (1615 MB)
+[23:47:40][GAMESYNC] RedFaction: merged install.reg via regedit - 7/7 value(s) verified
+[23:47:40][GAMESYNC] RedFaction: desktop shortcut -> Play Red Faction.bat (icon: C:\Games\RedFaction\RedFaction.exe)
+[23:47:40][GAMESYNC] ==> JediAcademy (1760 MB)
+[23:47:40][GAMESYNC] JediAcademy: desktop shortcut -> Play Jedi Academy.bat (icon: C:\Games\JediAcademy\jasp.exe)
+[23:47:40][GAMESYNC] JediAcademy: desktop shortcut -> Play Jedi Academy - Multiplayer.bat (icon: C:\Games\JediAcademy\jamp.exe)
+[23:47:40][GAMESYNC] ==> HalfLife1 (952 MB)

@@ -1,0 +1,26 @@
+# Replay of the boxes' captured favourites files (.claude/evidence-1080p/favourites/<ip>/, 2026-09-29 ~00:00)
+# through read-only copies of the live gameservers.db taken after each real service pass.
+# 'writes per pass' = files the writer would have uploaded (same_favourites False).
+# NB the DB's player counts come from the RUNNING (pre-change) code, which counts bots; after deploy
+# the humans-only count makes a one-time Q3 rewrite where a bot-only server was listed.
+passes: ['05:03:52', '05:23:52', '05:28:52', '05:33:47', '05:38:52', '05:43:52', '05:48:52']
+builder   writes per pass: [16, 7, 7, 0, 0, 0, 0]   (first pass 16, every later pass together 14, files 43)
+reviewed  writes per pass: [9, 7, 0, 0, 0, 0, 0]   (first pass 9, every later pass together 7, files 43)
+
+# Detail, .240 C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg
+== builder
+  05:03:52 WRITE  -[('172.104.253.108:20040', 'age 50.0 min', 'players 12'), ('172.233.19.61:20019', 'age 15.0 min', 'players 13')]  +[('212.83.165.57:27962', 'age 10.0', 'players 28'), ('88.214.57.222:27961', 'age 0.0', 'players 17')]
+  05:23:52 WRITE  -[('212.83.165.57:27962', 'age 30.0 min', 'players 28'), ('50.116.39.92:32025', 'age 15.0 min', 'players 12')]  +[('45.231.132.51:27300', 'age 0.0', 'players 12'), ('50.116.39.92:32022', 'age 10.0', 'players 12')]
+  05:28:52 WRITE  -[('50.116.39.92:32022', 'age 15.0 min', 'players 12')]  +[('65.109.238.95:27960', 'age 0.0', 'players 16')]
+  05:33:47 same
+  05:38:52 same
+  05:43:52 same
+  05:48:52 same
+== reviewed
+  05:03:52 same
+  05:23:52 WRITE  -[('172.104.253.108:20040', 'age pruned min', 'players None')]  +[('88.214.57.222:27961', 'age 0.0', 'players 17')]
+  05:28:52 same
+  05:33:47 same
+  05:38:52 same
+  05:43:52 same
+  05:48:52 same

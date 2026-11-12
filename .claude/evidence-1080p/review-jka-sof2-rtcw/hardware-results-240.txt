@@ -1,0 +1,22 @@
+Hardware results, 192.168.1.240 (XP SP3, "Radeon X1600 Series" per GL_RENDERER, DELL E2313H read by GAMERES tonight, desktop 1920x1080x32@60).
+All launches direct from C:\Games\<Title> with +set logfile 2; every config the runs touched was backed up first (240-before/) and restored after (240-after/ md5 check: all OK).
+Other agents were testing on the same box at the same time (Red Alert 2 appeared during R1 and R2, so those two screenshots show RA2; the engine logs are the evidence for them).
+
+R1  WolfMP.exe (Wolf 1.4-MP, retail GOG) +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080 +set r_fullscreen 1
+    -> "...setting mode -1: 1920 1080 FS", "MODE: -1, 1920 x 1080 fullscreen hz:60"; window 0,0-1920x1080     (240-R1-*/R1-rtcwconsole.log)
+R2  WolfSP.exe (Wolf 1.32, retail GOG), same args
+    -> "...setting mode -1: 1920 1080 FS", "MODE: -1, 1920 x 1080 fullscreen hz:60"                          (240-R2-*/R2-rtcwconsole.log)
+F1  WolfMP.exe with NO Main\wolfconfig_mp.cfg (= a freshly synced tree) and the launcher's own args (+set r_mode 7 +set r_fullscreen 1)
+    -> "setting mode 7: 1152 864 FS", then "Found high quality video and CPU", "execing highVidhighCPU.cfg", "r_mode will be changed upon restarting",
+       "setting mode 3: 640 480 FS"; window ends 640x480; the config it writes says r_mode "3", com_recommendedSet "1"   (240-F1-*)
+F2  WolfMP.exe, NO wolfconfig_mp.cfg, +set com_recommendedSet 1 +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080
+    -> "setting mode -1: 1920 1080 FS" and it stays there; no "Found ... quality" pass; screenshot = RTCW MP main menu at 1920x1080   (240-F2-*)
+S1  sof2mp.exe (SOF2MP GOLD V1.03, stock) +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080
+    -> "...setting mode 3: 640 480 FS", "MODE: 3, 640 x 480"; window 640x480                                   (240-S1-*)
+S2  the same binary with the r_mode minimum patched 3.0f -> -1.0f (temp copy C:\Games\SoldierOfFortune2\sof2mp_t1080.exe, deleted after), same args
+    -> "...setting mode -1: 1920 1080 FS", "MODE: -1, 1920 x 1080 fullscreen hz:60"; window 0,0-1920x1080; screenshot = SoF2 MP UI at 1920x1080 (240-S2-*)
+P1  SoF2 single player: staged launcher first (mount attempt), then SoF2.exe +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080
+    launcher run: DISPLAYCFG 1152x864 while SoF2.exe ran (r_mode 7); the DAEMON Tools mount FAILED (mount-error.txt: "MOUNT FAILED - started against an unrelated disc", F: = STARCRAFT, mounted at logon by the HKLM Run value StarCraftCD); the launcher's failure path taskkilled daemon.exe (restarted afterwards with its Run-key command line)
+    direct run: "...setting mode -1: 1920 1080 FS", "created window@0,0 (1920x1080)", "MODE: -1, 1920 x 1080 fullscreen hz:60",
+       then "^5Redetecting settings due to video card change" and a modal "New Video card detected" message box (first SP launch on this box)   (240-P1-*)
+Side effects that could not be undone byte-for-byte: RTCW's C:\Games\ReturnToCastleWolfenstein\servercache.dat was rewritten by the graceful exit in F1 (server-browser cache); SoF2 rewrote base\MP\sof2key at start with identical content.

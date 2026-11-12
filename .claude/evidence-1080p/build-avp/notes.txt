@@ -1,0 +1,52 @@
+AvP build phase (key "avp") - 2026-09-29, dev host, NO share write, NO box touched
+==================================================================================
+Tool:   .claude/worktrees/lcd1080-patches/provisioning/patches/avp/apply.py (+ files.tsv,
+        nakedavp-gold-md5.txt, make_table.py, README.md); tests/python/test_patch_avp.py
+Build:  ~/.retro-fleet/patch-out/avp  (154 files, 146,514,799 B incl. manifest.json)
+
+What was proven, and by what (raw output beside this file)
+------------------------------------------------------------
+tree-scan.json / tree-scan.txt   every one of the 561 staged files classified by raw
+                                 head and de-obfuscated head: exactly 154 obfuscated
+                                 (86 rif, 58 RFFL, ffinfo.txt, 8 bik, 1 smk)
+check-full-scan.txt              apply.py --check --full-scan: 154 original, 56 keep
+                                 match NakedAVP, 0 other obfuscated file in the tree
+scan-sensitivity.txt             negative path: with the 154 dropped from the table
+                                 the scan flags exactly those 154, nothing else
+build.txt, manifest.json         apply.py --build: 154/154 written, 145 equal the
+                                 NakedAVP md5, 9 FMVs pass the frame walks; menu asset
+                                 graphics\Menus -> Tex37.FFL holds IntroFont.RIM
+independent-verify.txt           coreutils md5sum of the build vs NakedAVP (145/145)
+                                 and the literal per-byte unshield loop on 3 real files
+fmv-decode.txt                   ffmpeg 7.0.2 (static, from the imageio-ffmpeg 0.6.0
+                                 wheel, scratch only) decodes EVERY frame of all 9
+                                 built FMVs with -xerror; decoded frame counts equal the
+                                 headers' (809/1000/953/236/728/451/110/440/642); the
+                                 staged originals cannot even be opened (exit 183)
+avp-exe-video-disasm.txt         capstone disassembly of avp.exe behind the 1080p notes
+pytest.txt                       tests/python/test_patch_avp.py
+
+avp.exe facts that decide the 1080p work (addresses in the disassembly file)
+----------------------------------------------------------------------------
+* MENUS always run 640x480 on the primary display: SelectMenuDisplayMode 0x491e90
+  stores 0x280/0x1e0 and opens DirectDraw with a NULL GUID (0x538580(0)).
+  The Options > Video choice is for GAMEPLAY only (SetGameVideoMode 0x4fada0).
+* Options > Video lists (device, mode) pairs; label "%dx%dx%d" (0x5596f4).
+  Devices: DirectDrawEnumerateExA flags 7 (0x559668); a device needs DDCAPS_3D and a
+  HAL D3D device (0x559310); max 4 devices. Modes: EnumDisplayModes dwFlags=0
+  (0x559629) kept when bpp>8, w>=512, h>=384 and the HAL's dwDeviceRenderBitDepth
+  has that depth (byte 0x85c569: 4=16bpp 2=24bpp 1=32bpp); cap 100.
+* Measured by another session (goldsrc-halo-review/probe_{123,145,195,240}.txt):
+  DirectDraw's "Primary Display Driver" (NULL GUID) enumerates 1920x1080x16 AND
+  1920x1080x32 on all four LCD boxes; accepted-mode counts 30-42, under the cap.
+* AvP_Video.cfg (working directory, "rb"/"wb", 32 bytes): GUID[16], DDGUIDIsSet,
+  W, H, BPP. The loader 0x559810 compares ONLY the 16 GUID bytes (primary = zeros,
+  because the NULL-GUID record is never written), then W/H/BPP. Device found + mode
+  not listed -> mode index stays -1 and 0x55999c copies W/H/BPP from dev+0x9d4 (the
+  tail of DDCAPS). Absent/unmatched device -> 640x480x16 (0x5598f8).
+* The only SetDisplayMode is IDirectDraw v1 (w,h,bpp) at 0x537511: no refresh
+  argument, Windows picks the mode's default refresh (for the refresh lane).
+
+Not done in this phase (by rule): --publish (implemented, exercised only against a
+synthetic tree with a fake sharewrite), any box test. --install-server is a no-op
+that prints NOT APPLICABLE.

@@ -1,0 +1,10 @@
+pak8.pk3 vm/ui.qvm (staged, extracted read-only):
+3e6b8fadb2a970c2b754e48e63a054d7  /home/voidsstr/.retro-fleet/patch-src/q3-baseq3-ui/ref/pak8-ui.qvm
+stock build from id GPL dbe4ddb + ioq3 83a77628 tools:
+3e6b8fadb2a970c2b754e48e63a054d7  /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/_build/stock/code/q3_ui/vm/ui.qvm
+cmp: IDENTICAL (byte for byte)
+
+patched build:
+b764efe7d8856bc5191e5df3b4349289  /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/_build/patched/code/q3_ui/vm/ui.qvm
+b764efe7d8856bc5191e5df3b4349289  /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/ui.qvm
+f737a9d51ed89c22d6b2be31cf8368d3  /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/baseq3/zz-fleetres-ui.pk3

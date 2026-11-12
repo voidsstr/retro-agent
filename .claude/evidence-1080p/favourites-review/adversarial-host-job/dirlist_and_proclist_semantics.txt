@@ -1,0 +1,10 @@
+# DIRLIST semantics on .240, 00:28:52 EDT
+DIRLIST C:\Games\NoSuchTitle_review_0029\baseq3 -> [] (status OK)
+DIRLIST C:\UnrealTournament\System\UnrealTournament.ini (a FILE, on .249) -> []
+
+# Win98 PROCLIST names are uppercase full paths (from .claude/evidence-icons/192.168.1.243/release/restartA.txt):
+PROCLIST ['C:\\WINDOWS\\SYSTEM\\KERNEL32.DLL', 'C:\\WINDOWS\\SYSTEM\\MSGSRV32.EXE', 'C:\\WINDOWS\\SYSTEM\\MPREXE.EXE', 'C:\\WINDOWS\\SYSTEM\\MSTASK.EXE', 'C:\\WINDOWS\\EXPLORER.EXE', 'C:\\WINDOWS\\TASKMON.EXE', 'C:\\WINDOWS\\SYSTEM\\SYSTRAY.EXE', 'C:\\RETRO_AGENT\\RETRO_AGENT.EXE', 'C:\\WINDOWS\\SYSTEM\\WINOA
+
+# sync.running_exes regex is case-sensitive:
+'{"name":"C:\\\\GAMES\\\\QUAKE2W~1\\\\QUAKE2.EXE"}' -> set()
+'{"name":"quake2.exe"}' -> {'quake2.exe'}

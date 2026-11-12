@@ -1,0 +1,13 @@
+# 2026-09-29T04:56:57-04:00 review: --check, --check --full-scan, two fresh --builds into scratch dirs, compared with the builder's ~/.retro-fleet/patch-out/avp
+AvP check - /mnt/retro-share/Files/Games-Library/AliensVsPredator
+  to de-obfuscate: 154  original=154  patched=0  UNEXPECTED=0  missing=0
+  must stay as-is: 56  match=56  WRONG/missing=0
+  RESULT: OK
+rc=0
+  whole-tree scan: 0 file(s) outside the table look obfuscated
+  RESULT: OK
+build2 vs build3 vs builder (154 md5 lines each):
+IDENTICAL
+make_table.py (read-only re-derivation):
+derived: {'deobfuscate': 154, 'deobfuscate_ref': 145, 'keep': 56} (expected {'deobfuscate': 154, 'deobfuscate_ref': 145, 'keep': 56})
+differences from the committed files.tsv: 0

@@ -1,0 +1,76 @@
+# UT2004 3369 GUI2K4.u / XInterface.u - decoded from the staged tree (/mnt/retro-share/Files/Games-Library/UT2004/System)
+
+## class UT2k4MainPage extends UT2K4GUIPage  (export 291, file offset 0x2e2a2) - defaultproperties that differ from the parent:
+    WinLeft = 0d
+    Core = 006a
+    Core = PageTabs
+    i_Background = PageBackground
+    i_bkChar = BkChar
+    i_bkScan = PageScanLine
+    HighScoreFile = b'UT2004HighScores\x00'
+    bPersistent = True
+    bRestorable = True
+    WinTop = 0.0
+    WinHeight = 1.0
+
+## class UT2K4SettingsPage extends UT2k4MainPage  (export 35, file offset 0x2358a) - defaultproperties that differ from the parent:
+    TextAlign = 0
+    bApplyImmediately = True
+    InvalidStats = b'Invalid Stats Info\x00'
+    t_Header = SettingHeader
+    t_Footer = SettingFooter
+    PanelClass = 071f475549324b342e5554324b345461625f44657461696c53657474696e6773001e47
+    PanelCaption = 0708446973706c61790006417564696f0007506c61796572000547616d650006496e70
+    PanelHint = 07450153656c65637420796f7572207265736f6c7574696f6e206f72206368616e6765
+
+=> UT2k4MainPage sets bPersistent=True (and bRestorable=True); UT2K4SettingsPage does not override it, so the Settings page INHERITS bPersistent=True.
+
+## UT2K4Tab_DetailSettings DisplayModes[17] defaults (tagged struct props at file offset 0x2489b):
+   320x240 512x384 640x480 800x500 800x600 1024x640 1024x768 1152x768 1152x864 1280x800 1280x854 1280x960 1280x1024 1600x1024 1600x1200 1680x1050 1920x1200   (no 1920x1080)
+   VideoResolution (co_Resolution) moComboBox: bReadOnly=True
+
+## XInterface.GUIController script text (staged XInterface.u):
+    {
+        // If it's persistent, try to find an instance in the PersistentStack.
+        if( NewMenuClass.default.bPersistent )
+        {
+            for( i=0;i<PersistentStack.Length;i++ )
+            {
+                if( PersistentStack[i].Class == NewMenuClass )
+                {
+                    NewMenu = PersistentStack[i];
+                    break;
+                }
+            }
+...
+protected event PushMenu( int Index, GUIPage NewMenu, optional string Param1, optional string Param2 )
+	if ( NewMenu == None )
+		log("Call to GUIController.PushMenu() with invalid NewMenu!!!");
+		return;
+	SetControllerStatus(true);
+	if ( Index >= 0 )
+		MenuStack[Index] = NewMenu;
+		ActivePage = NewMenu;
+	CloseOverlays();
+	ResetInput();
+	if (NewMenu.Controller == None)
+	    NewMenu.InitComponent(Self, None);
+	NewMenu.CheckResolution(false,Self);
+	// Pass along the event
+	NewMenu.Opened(NewMenu);
+...
+event Free() 			// This control is no longer needed
+	local int i;
+    for (i=0;i<Controls.Length;i++)
+    	Controls[i].Free();
+	Controls.Remove(0,Controls.Length);
+	Components.Remove(0,Components.Length);
+var()                           bool                    bPersistent;        // If set, page is saved across open/close/reopen.
+
+=> a persistent page is found again in PersistentStack on reopen; PushMenu only calls InitComponent when Controller==None, and GUIPage.Free() does nothing for a persistent page, so the co_Resolution list built at the FIRST open (table + the current mode via AddNewResolution) is kept for the whole session, level changes included.
+
+## raw tag bytes (name index + info byte; bit7 of the info byte is a bool's value)
+   UT2k4MainPage.bPersistent: at 0x2e369 bytes 7b 06 d3 -> True
+   UT2K4SettingsPage.bPersistent: not set (inherits)
+   UT2k4MainPage.bRestorable: at 0x2e36d bytes 4b 57 d3 -> True
+   UT2K4SettingsPage.bRestorable: not set (inherits)

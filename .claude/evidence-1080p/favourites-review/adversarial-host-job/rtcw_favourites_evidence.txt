@@ -1,0 +1,13 @@
+# RTCW engine favourites store on .240 (DOWNLOAD C:\Games\ReturnToCastleWolfenstein\servercache.dat, 00:29 EDT 09-29)
+size 470032 header (numglobal, nummplayer, numfavorite, size) = (0, 0, 0, 470016) entries 2304 x 204 B nonzero bytes after header 0
+file mtime (DIRLIST, UTC): 2026-09-01 18:22:18  -> 14:22 EDT 09-01
+journal: 2026-09-01T00:45:01 [192.168.1.240] wolfmp q3 wrote 1 servers (884e3d32c806e50b)  <- same hash as every pass today
+
+# UI string evidence (strings -a, staged library)
+Quake3-TeamArena/baseq3/uix86.dll: server%d=2 ArenaServers_LoadFavorites=1 addFavorite=0 ui_favoriteAddress=0
+Quake3-TeamArena/missionpack/uix86.dll: server%d=0 ArenaServers_LoadFavorites=0 addFavorite=1 ui_favoriteAddress=1
+ReturnToCastleWolfenstein/Main/ui_mp_x86.dll: server%d=0 ArenaServers_LoadFavorites=0 addFavorite=1 ui_favoriteAddress=1
+Quake3-TeamArena/quake3.exe: servercache.dat=1
+ReturnToCastleWolfenstein/WolfMP.exe: servercache.dat=1
+JediAcademy/jamp.exe: servercache.dat=1
+SoldierOfFortune2/sof2mp.exe: servercache.dat=1

@@ -1,0 +1,52 @@
+>>> WINLIST [status 0]
+{"windows":[{"hwnd":"000500DE","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1360},{"hwnd":"0001007E","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":1884}],"foreground":{"hwnd":"000500DE","pid":1360,"class":"ConsoleWindowClass","title":"Retro Remote Agent Version 1.91.0"}}
+>>> EXEC cmd /c start "" /D "C:\Games\Quake1" "C:\Games\Quake1\GLQUAKE.EXE" -current -conwidth 960 -conheight 540 +fov 106 [status 0]
+
+--- sleep 10
+>>> WINLIST [status 0]
+{"windows":[{"hwnd":"00220104","title":"GLQuake","class":"WinQuake","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":232},{"hwnd":"000500DE","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1360},{"hwnd":"0001007E","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":1884}],"foreground":{"hwnd":"00220104","pid":232,"class":"WinQuake","title":"GLQuake"}}
+>>> DISPLAYCFG get [status 0]
+{"width":1920,"height":1080,"bpp":32,"refresh":60}
+>>> SCREENSHOT -> /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-idtech12-doom3/123-glquake-current/01-gdi-attract.png (1920, 1080)
+>>> UIKEY F11 [status 0]
+OK
+--- sleep 2
+>>> DIRLIST C:\Games\Quake1\ID1 [status 0]
+[{"name":"autoexec.cfg","is_dir":false,"size":1124,"modified":"2026-09-25 00:57:07","hidden":false,"readonly":false},{"name":"glquake","is_dir":true,"size":0,"modified":"2026-08-31 04:10:18","hidden":false,"readonly":false},{"name":"PAK0.PAK","is_dir":false,"size":18689235,"modified":"2026-08-27 16:12:33","hidden":false,"readonly":false},{"name":"PAK1.PAK","is_dir":false,"size":34257856,"modified":"2026-08-27 16:12:35","hidden":false,"readonly":false},{"name":"quake00.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:03","hidden":false,"readonly":false},{"name":"quake01.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:24","hidden":false,"readonly":false},{"name":"quake02.tga","is_dir":false,"size":6220818,"modified":"2026-09-29 04:49:06","hidden":false,"readonly":false}]
+>>> UIKEY ESCAPE [status 0]
+OK
+--- sleep 1
+>>> UIKEY DOWN [status 0]
+OK
+>>> UIKEY DOWN [status 0]
+OK
+>>> UIKEY RETURN [status 0]
+OK
+--- sleep 1
+>>> UIKEY UP [status 0]
+OK
+>>> UIKEY RETURN [status 0]
+OK
+--- sleep 2
+>>> SCREENSHOT -> /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-idtech12-doom3/123-glquake-current/02-gdi-video-options.png (1920, 1080)
+>>> UIKEY F11 [status 0]
+OK
+--- sleep 2
+>>> DIRLIST C:\Games\Quake1\ID1 [status 0]
+[{"name":"autoexec.cfg","is_dir":false,"size":1124,"modified":"2026-09-25 00:57:07","hidden":false,"readonly":false},{"name":"glquake","is_dir":true,"size":0,"modified":"2026-08-31 04:10:18","hidden":false,"readonly":false},{"name":"PAK0.PAK","is_dir":false,"size":18689235,"modified":"2026-08-27 16:12:33","hidden":false,"readonly":false},{"name":"PAK1.PAK","is_dir":false,"size":34257856,"modified":"2026-08-27 16:12:35","hidden":false,"readonly":false},{"name":"quake00.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:03","hidden":false,"readonly":false},{"name":"quake01.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:24","hidden":false,"readonly":false},{"name":"quake02.tga","is_dir":false,"size":6220818,"modified":"2026-09-29 04:49:06","hidden":false,"readonly":false},{"name":"quake03.tga","is_dir":false,"size":6220818,"modified":"2026-09-29 04:49:14","hidden":false,"readonly":false}]
+>>> EXEC taskkill /f /im GLQUAKE.EXE [status 0]
+SUCCESS: The process "GLQUAKE.EXE" with PID 232 has been terminated.
+
+--- sleep 3
+>>> WINLIST [status 0]
+{"windows":[{"hwnd":"000500DE","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1360},{"hwnd":"0001007E","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":1884}],"foreground":{"hwnd":"000500DE","pid":1360,"class":"ConsoleWindowClass","title":"Retro Remote Agent Version 1.91.0"}}
+>>> DISPLAYCFG get [status 0]
+{"width":1920,"height":1080,"bpp":32,"refresh":60}
+>>> DOWNLOAD C:\Games\Quake1\ID1\quake02.tga [status 1] -> /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-idtech12-doom3/123-glquake-current/03-engine-F11-attract-quake02.tga (6220818 bytes)
+>>> DOWNLOAD C:\Games\Quake1\ID1\quake03.tga [status 1] -> /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-idtech12-doom3/123-glquake-current/04-engine-F11-videomodes-quake03.tga (6220818 bytes)
+>>> DELETE C:\Games\Quake1\ID1\quake02.tga [status 0]
+OK
+>>> DELETE C:\Games\Quake1\ID1\quake03.tga [status 0]
+OK
+>>> DIRLIST C:\Games\Quake1\ID1 [status 0]
+[{"name":"autoexec.cfg","is_dir":false,"size":1124,"modified":"2026-09-25 00:57:07","hidden":false,"readonly":false},{"name":"glquake","is_dir":true,"size":0,"modified":"2026-08-31 04:10:18","hidden":false,"readonly":false},{"name":"PAK0.PAK","is_dir":false,"size":18689235,"modified":"2026-08-27 16:12:33","hidden":false,"readonly":false},{"name":"PAK1.PAK","is_dir":false,"size":34257856,"modified":"2026-08-27 16:12:35","hidden":false,"readonly":false},{"name":"quake00.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:03","hidden":false,"readonly":false},{"name":"quake01.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:24","hidden":false,"readonly":false}]

@@ -1,0 +1,11 @@
+C:\retrogl.log on .124 (downloaded 2026-09-29 ~04:05 EDT, md5 9ad318c26eb2718fd6be79f6f64973ec): what OUR MesaFX ICD asked Glide for, per host exe
+  8  C:\Games\JediAcademy\jamp.exe                           1280x960   max 85 Hz -> GR_REFRESH enum 7
+  3  C:\Games\Quake3-TeamArena\ioquake3.x86.exe              1024x768   max 100 Hz -> GR_REFRESH enum 6
+  2  C:\Games\Quake3-TeamArena\ioquake3.x86.exe              1024x768   max 85 Hz -> GR_REFRESH enum 7
+ 22  C:\Games\Quake3-TeamArena\ioquake3.x86.exe              10x10      max 0 Hz -> GR_REFRESH enum 0
+  4  C:\Games\Quake3-TeamArena\ioquake3.x86.exe              1280x1024  max 85 Hz -> GR_REFRESH enum 7
+ 12  C:\Games\Quake3-TeamArena\ioquake3.x86.exe              1280x960   max 85 Hz -> GR_REFRESH enum 7
+  1  C:\Games\Quake3-TeamArena\ioquake3.x86.exe              1600x1200  max 85 Hz -> GR_REFRESH enum 7
+  3  C:\Games\ReturnToCastleWolfenstein\WolfMP.exe           1152x864   max 85 Hz -> GR_REFRESH enum 7
+ 14  C:\Games\SoldierOfFortune2\sof2mp.exe                   1152x864   max 85 Hz -> GR_REFRESH enum 7
+  6  C:\Games\SoldierOfFortune\SoF.exe                       1280x960   max 85 Hz -> GR_REFRESH enum 7

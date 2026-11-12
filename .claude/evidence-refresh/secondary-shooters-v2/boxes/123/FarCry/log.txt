@@ -1,0 +1,188 @@
+Log Started at Monday, August 31, 2026 10:36:05
+FileVersion: 1.4.0.1405
+ProductVersion: 1.4.0.1405
+
+--- CPU detection ---
+Number of system processors: 1
+Number of available processors: 1
+Processor 0:
+CPU: AuthenticAMD AMD Athlon(tm) 64 Processor 4000+
+Family: 15, Model: 7, Stepping: 1
+FPU: on-chip
+CPU Speed (estimated): 2403.046753 MHz
+MMX: present
+SSE: present
+3DNow!: present
+Serial number not present or disabled
+
+---------------------
+OS User name: 'Administrator'
+File System Initialization
+Stream Engine Initialization
+Script System Initialization
+Loading system configuration
+Lua cvar: (r_Driver,Direct3D9)
+Lua cvar: (r_Fullscreen,1)
+Lua cvar: (r_Width,1920)
+Lua cvar: (r_Height,1080)
+Lua cvar: (r_ColorBits,32)
+Lua cvar: (r_DepthBits,24)
+Setting sys_firstlaunch to 0
+Loading system configuration
+Opening pack file c:\games\farcry\fcdata\localized\english.pak
+Opening pack file c:\games\farcry\fcdata\localized\english1.pak
+Opening pack file c:\games\farcry\fcdata\localized\english2.pak
+Opening pack file c:\games\farcry\fcdata\ccgf_cache.pak
+Opening pack file c:\games\farcry\fcdata\effects.pak
+Opening pack file c:\games\farcry\fcdata\music.pak
+Opening pack file c:\games\farcry\fcdata\objects.pak
+Opening pack file c:\games\farcry\fcdata\objects1.pak
+Opening pack file c:\games\farcry\fcdata\objects2.pak
+Opening pack file c:\games\farcry\fcdata\scripts.pak
+Opening pack file c:\games\farcry\fcdata\shaders.pak
+Opening pack file c:\games\farcry\fcdata\sounds.pak
+Opening pack file c:\games\farcry\fcdata\sounds1.pak
+Opening pack file c:\games\farcry\fcdata\textures.pak
+Opening pack file c:\games\farcry\fcdata\textures1.pak
+Opening pack file c:\games\farcry\fcdata\textures2.pak
+Network initialization
+network hostname: nsc-b20c188e96d
+  ip:192.168.1.123
+Physics initialization
+MovieSystem initialization
+Renderer initialization
+System: INFO: DirectX 9.0c installed
+System: VideoCard Detected: ATI (Unknown)
+Direct3D9 driver is creating...
+Best-match display mode: 1920x1080x32 (Error=8)
+Creating D3D device (Adapter format: D3DFMT_X8R8G8B8, BackBuffer format: D3DFMT_A8R8G8B8, Depth format: D3DFMT_D24S8)
+D3D Adapter: Driver name: ati2dvag.dll
+D3D Adapter: Driver description: ATI Radeon HD 3850 AGP
+D3D Adapter: Driver version: 6.14.10.7267
+D3D Adapter: Driver GUID: D7B71EE2-D655-11CF-98682220A1C2CB35
+D3D Adapter: VendorId = 4098
+D3D Adapter: DeviceId = 38165
+D3D Adapter: SubSysId = 2627403
+D3D Adapter: Revision = 0
+D3D Detected: ATI video card
+D3D Driver: MaxTextureBlendStages   = 8
+D3D Driver: MaxSimultaneousTextures = 8
+  Using '8888' pixel texture format
+  Using 'Alpha8' pixel texture format
+  Using 'Alpha8Lum8' pixel texture format
+  Using 'V16U16' pixel texture format
+  Using 'Depth24' pixel texture format
+  Using 'BumpV8U8' pixel texture format
+  Using 'BumpQ8W8U8V8' pixel texture format
+  Using 'BumpX8L8U8V8' pixel texture format
+  Using '3Dc' pixel texture format
+  Using 'DXT1' pixel texture format
+  Using 'DXT3' pixel texture format
+  Using 'DXT5' pixel texture format
+D3D Driver: Supports trilinear texture filtering
+D3D Driver: Allowed projected textures with Env. bump mapping
+D3D Driver: Supports range-based fog
+D3D Driver: Supports eye-relative fog
+D3D Driver: Supports anisotropic filtering
+D3D Driver: Supports LOD biasing
+D3D Driver: Supports Z biasing
+D3D Driver: Supports scissor test
+D3D Driver: Supports stream offset
+D3D Driver: Supports non-power-of-2 textures
+D3D Driver: Supports D3DTOP_ADDSIGNED2X TextureOp
+D3D Driver: Supports D3DTOP_BUMPENVMAP TextureOp
+D3D Driver: Supports D3DTOP_BUMPENVMAPLUMINANCE TextureOp
+D3D Driver: Supports D3DTOP_DOTPRODUCT3 TextureOp
+D3D Driver: Supports D3DTOP_MODULATEALPHA_ADDCOLOR TextureOp
+D3D Driver: Supports D3DTOP_MODULATECOLOR_ADDALPHA TextureOp
+D3D Driver: Supports D3DTOP_ADD TextureOp
+D3D Driver: Supports MaxAnisotropy level 16
+D3D Driver: Supports Stencil shadows
+D3D Driver: Supports Two-Sided stencil
+D3D Driver: Textures (0x0)-(8192x8192), Max aspect 8192
+Apply TRILINEAR texture filtering
+ ****** D3D9 CryRender Stats ******
+ Driver description: ATI Radeon HD 3850 AGP
+ Full stats: HAL (pure hw vp): ATI Radeon HD 3850 AGP
+ Hardware acceleration: Yes
+ Full scene AA: Disabled
+ Projective EMBM: Enabled
+ Detail textures: Enabled
+ Z Buffer Locking: Enabled
+ Multitexturing: Supported (8 textures)
+ Use bumpmapping : Enabled (DOT3)
+ Use paletted textures : Disabled
+ Current Resolution: 1920x1080x32 Full Screen
+ Maximum Resolution: 1920x1080
+ Maximum Texture size: 8192x8192 (Max Aspect: 8192)
+ Texture filtering type: TRILINEAR
+ HDR Rendering: Disabled
+ MRT Rendering: Enabled
+ Occlusion queries: Supported
+ Geometry instancing: Supported
+ NormalMaps compression: 3Dc
+ Gamma control: Hardware
+ Vertex Shaders version 3.0
+ Pixel Shaders version 3.0
+ Use Hardware Shaders for ATI R420 GPU
+ Pixel shaders usage: PS1.1 only
+ Vertex shaders usage: VS1.1 only
+ Shadow maps type: Mixed Depth/2D maps
+ Stencil shadows type: Two sided
+ Lighting quality: High
+ *****************************************
+
+Init Shaders
+  7 Shader files found.
+
+  94 Shader files found.
+
+Construct Shader '<Default>'...ok
+Construct Shader 'ZBuffPass'...ok
+Construct Shader 'ShadowMap'...ok
+Compile System Shader 'StateNoCull'...ok
+Compile System Shader 'HDRProcess'...ok
+Compile System Shader 'SunFlares'...ok
+  2 Sun flares was parsed
+Compile System Shader 'LightStyles'...ok
+  34 Light styles was parsed
+Compile Glare Shader ...
+Compile System HW Shader 'CGVProgramms'...ok
+Compile System HW Shader 'CGPShaders'...ok
+Compile System Shader 'TemplFog'...ok
+Compile System Shader 'TemplVFog'...Fail.
+Compile System Shader 'TemplFog_FP'...ok
+Compile System Shader 'TemplFogCaustics'...ok
+Compile System Shader 'TemplVFogCaustics'...Fail.
+Compile System Shader 'TemplFogCaustics_FP'...ok
+Console initialization
+Time initialization
+Input initialization
+Initializing Direct Input
+Direct Input initialized (CryInputDLL)
+Initializing Keyboard
+Keyboard initialized
+Initializing mouse
+Mouse initialized
+Found 0 joystick devices
+Cannot find joystick device
+Cannot initialize joystick
+initializing Key/name Mapping
+Sound initialization
+------------------------------------------CRYSOUND VERSION=3.610000
+CRYSOUND Driver: Primary Sound Driver
+Total number of channels available: 308
+Set speaker mode stereo
+Font initialization
+AI initialization
+Entity system initialization
+Initializing Animation System
+CPU capabilities:  FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE-36 CLFSH MMX FXSR SSE SSE2 3DNow! ok
+Initializing 3D Engine
+Removing lights ...
+Deleting visareas ...
+Deleting terrain ...
+ObjManager shutdown ...
+Initializing Script Bindings
+Loading ...s\characters\pmodels\hero\hero_mp.ccg
+WARNING: Connectivity warning: there are 1 open edges (3550 closed, 2367 faces, 0 planes, 0 vertices)

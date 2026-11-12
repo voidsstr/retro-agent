@@ -1,0 +1,2 @@
+[status 0]
+{"windows":[{"hwnd":"000100D6","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":988},{"hwnd":"0001008C","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":660}],"foreground":{"hwnd":"000100D6","pid":988,"class":"ConsoleWindowClass","title":"Retro Remote Agent Version 1.91.0"}}

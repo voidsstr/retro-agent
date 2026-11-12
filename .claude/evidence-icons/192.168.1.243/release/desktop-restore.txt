@@ -1,0 +1,14 @@
+>> FILECOPY C:\retro-desktop-backup\Quake - Software Renderer.pif|C:\WINDOWS\Desktop\Quake - Software Renderer.pif | status 0
+{"status":"OK","bytes_copied":967,"source":"C:\\retro-desktop-backup\\Quake - Software Renderer.pif","dest":"C:\\WINDOWS\\Desktop\\Quake - Software Renderer.pif"}
+>> FILECOPY C:\retro-desktop-backup\Quake - 3dfx Voodoo.pif|C:\WINDOWS\Desktop\Quake - 3dfx Voodoo.pif | status 0
+{"status":"OK","bytes_copied":967,"source":"C:\\retro-desktop-backup\\Quake - 3dfx Voodoo.pif","dest":"C:\\WINDOWS\\Desktop\\Quake - 3dfx Voodoo.pif"}
+>> FILECOPY C:\retro-desktop-backup\Hexen II - Software Renderer.pif|C:\WINDOWS\Desktop\Hexen II - Software Renderer.pif | status 0
+{"status":"OK","bytes_copied":967,"source":"C:\\retro-desktop-backup\\Hexen II - Software Renderer.pif","dest":"C:\\WINDOWS\\Desktop\\Hexen II - Software Renderer.pif"}
+>> FILECOPY C:\retro-desktop-backup\Hexen II - 3dfx Voodoo.pif|C:\WINDOWS\Desktop\Hexen II - 3dfx Voodoo.pif | status 0
+{"status":"OK","bytes_copied":967,"source":"C:\\retro-desktop-backup\\Hexen II - 3dfx Voodoo.pif","dest":"C:\\WINDOWS\\Desktop\\Hexen II - 3dfx Voodoo.pif"}
+>> FILECOPY C:\retro-desktop-backup\Quake II.pif|C:\WINDOWS\Desktop\Quake II.pif | status 0
+{"status":"OK","bytes_copied":967,"source":"C:\\retro-desktop-backup\\Quake II.pif","dest":"C:\\WINDOWS\\Desktop\\Quake II.pif"}
+>> FILECOPY C:\retro-desktop-backup\Quake II - 3dfx Voodoo.pif|C:\WINDOWS\Desktop\Quake II - 3dfx Voodoo.pif | status 0
+{"status":"OK","bytes_copied":967,"source":"C:\\retro-desktop-backup\\Quake II - 3dfx Voodoo.pif","dest":"C:\\WINDOWS\\Desktop\\Quake II - 3dfx Voodoo.pif"}
+>> DIRLIST C:\WINDOWS\Desktop | status 0
+[{"name":"Online Services","is_dir":true,"size":0,"modified":"1980-07-21 18:55:46","hidden":false,"readonly":false},{"name":"Retro Agent.lnk","is_dir":false,"size":344,"modified":"2026-09-28 18:20:34","hidden":false,"readonly":false},{"name":"Retro Chat.lnk","is_dir":false,"size":375,"modified":"2026-09-28 16:20:10","hidden":false,"readonly":false},{"name":"Quake - Software Renderer.pif","is_dir":false,"size":967,"modified":"2026-09-28 18:26:40","hidden":false,"readonly":false},{"name":"Quake - 3dfx Voodoo.pif","is_dir":false,"size":967,"modified":"2026-09-28 18:26:40","hidden":false,"readonly":false},{"name":"Hexen II - Software Renderer.pif","is_dir":false,"size":967,"modified":"2026-09-28 18:26:42","hidden":false,"readonly":false},{"name":"Hexen II - 3dfx Voodoo.pif","is_dir":false,"size":967,"modified":"2026-09-28 18:26:42","hidden":false,"readonly":false},{"name":"Quake II.pif","is_dir":false,"size":967,"modified":"2026-09-28 18:26:42","hidden":false,"readonly":false},{"name":"Quake II - 3dfx Voodoo.pif","is_dir":false,"size":967,"modified":"2026-09-28 18:26:42","hidden":false,"readonly":false}]

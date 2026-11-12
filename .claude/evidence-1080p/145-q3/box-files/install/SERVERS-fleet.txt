@@ -1,0 +1,24 @@
+NSC Retro Fleet - servers on THIS network
+==========================================
+
+These run on the fleet host (192.168.1.132) and need no internet connection.
+
+  Quake III Arena
+    connect 192.168.1.132:27961
+
+  Quake III: Team Arena                                  <-- NEW 2026-08-31
+    connect 192.168.1.132:27962
+
+    systemd --user unit "q3ta-server" (ioq3ded, fs_game missionpack).
+    Start the game with "Play Team Arena" - it sets fs_game missionpack.
+    A baseq3 client cannot join this one, and a missionpack client cannot
+    join 27961; they are different game directories, not different maps.
+
+  OpenArena (Q3-compatible, free content)
+    connect 192.168.1.132:27960
+
+VERIFIED 2026-08-31: .123 and .240 both joined 27962 on mpteam1 and fragged
+each other; the scoreboard on both boxes listed both players.
+
+Public internet servers, where a list was curated, are in SERVERS-online.txt
+beside this file.

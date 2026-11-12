@@ -1,0 +1,8 @@
+2026-09-29 00:48:17 EDT launch4 (ioq3 baseq3 via temp bat + vm_ui 0)
+[{"hwnd": "000C01DE", "title": "ioquake3", "class": "SDL_app", "rect": {"left": 0, "top": 0, "right": 1920, "bottom": 1080}, "visible": true}]
+00:50:11 ACCEPT (vm_ui 0) pressed
+[{"hwnd": "000D01DE", "title": "ioquake3", "class": "SDL_app", "rect": {"left": 0, "top": 0, "right": 1920, "bottom": 1080}, "visible": true}]
+[status 0]
+{"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:51:32 FIGHT (vm_ui 0) pressed
+00:52:15 launch4 quit sent

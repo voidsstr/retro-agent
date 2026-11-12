@@ -1,0 +1,163 @@
+== 1. AmigaMerlin 3dfxOGL.dll on .124 (DOWNLOADed C:\WINDOWS\system32\3dfxOGL.dll, md5 8912a1388a15a8f6b3a75b6a1a344ee9 )
+   its only grSstWinOpen call passes refresh = 0 (GR_REFRESH_60Hz), set at function entry:
+    61fee940: push     ebp
+    61fee941: mov      ebp, esp
+    61fee943: push     esi
+    61fee944: push     ebx
+    61fee945: mov      esi, dword ptr [ebp + 8]
+    61fee948: mov      ebx, dword ptr [ebp + 0x14]
+    61fee94b: push     eax
+    61fee94c: push     eax
+    61fee94d: mov      eax, dword ptr [ebp + 0x10]
+    61fee950: push     eax
+    61fee951: mov      eax, dword ptr [ebp + 0xc]
+    61fee954: push     eax
+    61fee955: call     0x61fee880
+    61fee95a: add      esp, 0x10
+    61fee95d: cmp      eax, -1
+    61fee960: je       0x61fee980
+    61fee962: mov      dword ptr [ebp + 0x14], ebx
+    61fee965: mov      dword ptr [ebp + 0xc], eax
+    61fee968: mov      dword ptr [ebp + 0x10], 0
+   ...
+    61fef5f8: push     eax
+    61fef5f9: xor      eax, eax
+    61fef5fb: mov      al, byte ptr [ebp - 0x26d]
+    61fef601: push     eax
+    61fef602: mov      eax, dword ptr [ebp + 0x10]
+    61fef605: push     2
+    61fef607: push     1
+    61fef609: push     1
+    61fef60b: push     eax
+    61fef60c: mov      eax, dword ptr [ebp + 0xc]
+    61fef60f: push     eax
+    61fef610: mov      eax, dword ptr [ebp + 8]
+    61fef613: push     eax
+    61fef614: call     0x62067f38
+   (0x62067f38 = jmp [IAT _grSstWinOpen@28]; args: hWnd=[ebp+8], res=[ebp+0xc], refresh=[ebp+0x10]=0)
+
+== 2. DOOM3.exe 1.3 (md5 7cd77c22b38c223ef1047083e374875a ) machine-spec pass: r_mode per com_machineSpec
+    0041eb94: add      byte ptr [ebx + 0x6801], cl
+    0041eb9a: add      al, byte ptr [eax]
+    0041eb9c: push     5
+   --
+    0041ebaa: add      byte ptr [edx], ch
+    0041ebad: jmp      0x41f06a
+    0041ebb2: cmp      eax, 2
+   --
+    0041ed51: call     dword ptr [eax + 0x20]
+    0041ed54: push     0x20000
+    0041ed59: push     4
+   --
+    0041ed61: or       al, byte ptr [ebx]
+    0041ed63: add      byte ptr [eax], al
+    0041ed65: cmp      eax, 1
+   --
+    0041eebd: add      byte ptr [ebx + 0x6801], cl
+    0041eec3: add      al, byte ptr [eax]
+    0041eec5: push     3
+   --
+    0041f051: add      byte ptr [ebx + 0x6801], cl
+    0041f057: add      al, byte ptr [eax]
+    0041f059: push     3
+   --
+   => spec 3 -> r_mode 5, spec 2 -> r_mode 4, spec 1/0 -> r_mode 3 (0x74d420 = "r_mode")
+
+== 3. DOOM3.exe GLW_SetFullScreen after a failed CDS: "...trying next higher resolution:" then the first 32-bpp enumerated mode >= request
+    0050ba25: lodsd    eax, dword ptr [esi]
+    0050ba26: je       0x50ba28
+    0050ba28: add      esp, 8
+    0050ba2b: push     4
+    0050ba2d: lea      eax, [esp + 0xb0]
+    0050ba34: push     eax
+    0050ba35: call     edi
+    0050ba37: mov      esi, eax
+    0050ba39: test     esi, esi
+    0050ba3b: mov      eax, dword ptr [0x7cefa4]
+    0050ba40: je       0x50bb15
+    0050ba46: mov      edx, dword ptr [eax]
+    0050ba48: push     0x77422c
+    0050ba4d: push     eax
+    0050ba4e: call     dword ptr [edx + 0x40]
+    0050ba51: mov      ecx, esi
+    0050ba53: call     0x50b850
+    0050ba58: mov      eax, dword ptr [0x7cefa4]
+    0050ba5d: mov      ecx, dword ptr [eax]
+    0050ba5f: push     0x774208
+    0050ba64: push     eax
+    0050ba65: call     dword ptr [ecx + 0x40]
+    0050ba68: add      esp, 0x10
+    0050ba6b: lea      edx, [esp + 0x10]
+    0050ba6f: push     edx
+    0050ba70: xor      esi, esi
+    0050ba72: push     esi
+    0050ba73: push     esi
+    0050ba74: call     ebp
+    0050ba76: test     eax, eax
+    0050ba78: je       0x50bab3
+    0050ba7a: lea      ebx, [ebx]
+    0050ba80: mov      eax, dword ptr [esp + 0x14c]
+    0050ba87: cmp      dword ptr [esp + 0x7c], eax
+    0050ba8b: jl       0x50baa4
+    0050ba8d: mov      ecx, dword ptr [esp + 0x150]
+    0x774208 b'...trying next higher resolution:'
+    0x7741e8 b'\n...^3no high res mode found^0\n'
+    0x77422c b'^3failed^0, '
+
+== 4. DOOM3.exe R_InitOpenGL: GLimp_Init (0x50c260) failed -> safe mode: r_mode=3 ([0x7d3a14]), r_fullscreen=1 ([0x7d3a7c]), r_displayRefresh=0 ([0x7d3a48], ebx=0), r_multiSamples=0 ([0x7d39e0]); FatalError "Unable to initialize OpenGL" on the 2nd failure
+    004acd7f: lea      esi, [esp + 0x28]
+    004acd83: mov      edi, esp
+    004acd85: rep movsd dword ptr es:[edi], dword ptr [esi]
+    004acd87: call     0x50c260
+    004acd8c: add      esp, 0x14
+    004acd8f: test     al, al
+    004acd91: jne      0x4acde7
+    004acd93: cmp      ebp, 1
+    004acd96: jne      0x4acdab
+    004acd98: mov      eax, dword ptr [0x7cefa4]
+    004acd9d: mov      ecx, dword ptr [eax]
+    004acd9f: push     0x760c88
+    004acda4: push     eax
+    004acda5: call     dword ptr [ecx + 0x60]
+    004acda8: add      esp, 8
+    004acdab: mov      ecx, dword ptr [0x7d3a14]
+    004acdb1: mov      edx, dword ptr [ecx]
+    004acdb3: push     3
+    004acdb5: call     dword ptr [edx + 0xc]
+    004acdb8: mov      ecx, dword ptr [0x7d3a7c]
+    004acdbe: mov      eax, dword ptr [ecx]
+    004acdc0: push     1
+    004acdc2: call     dword ptr [eax + 0xc]
+    004acdc5: mov      ecx, dword ptr [0x7d3a48]
+    004acdcb: mov      edx, dword ptr [ecx]
+    004acdcd: push     ebx
+    004acdce: call     dword ptr [edx + 0xc]
+    004acdd1: mov      ecx, dword ptr [0x7d39e0]
+    004acdd7: mov      eax, dword ptr [ecx]
+    004acdd9: push     ebx
+    004acdda: call     dword ptr [eax + 0xc]
+    004acddd: inc      ebp
+    004acdde: cmp      ebp, 2
+    004acde1: jl       0x4acce0
+
+== 5. sof2mp.exe r_displayRefresh: Cvar_Get(..., CVAR_LATCH 0x20) then Cvar_CheckRange(cvar, 0, 200.0f, integral) - 75/85 are in range
+    004ba72c: sbb      al, byte ptr [ecx]
+    004ba72e: call     dword ptr [0x11a65c0]
+    004ba734: push     0
+    004ba736: push     0
+    004ba738: push     0x20
+    004ba73a: push     0x5599a4
+    004ba73f: push     0x56cb6c
+    004ba744: mov      dword ptr [0x11a64fc], eax
+    004ba749: call     dword ptr [0x11a65c0]
+    004ba74f: add      esp, 0x50
+    004ba752: push     1
+    004ba754: push     0x43480000
+    004ba759: push     0
+    004ba75b: push     eax
+    004ba75c: mov      dword ptr [0x11a6464], eax
+    004ba761: call     0x4bb170
+    004ba766: push     0
+    004ba768: push     0
+8912a1388a15a8f6b3a75b6a1a344ee9  /home/voidsstr/development/retro-agent/.claude/evidence-refresh/review-idtech-q3-ja-sof2-rtcw-d3/files/124_C_WINDOWS_system32_3dfxOGL.dll
+strings -a | grep -ic refresh in 3dfxOGL.dll: 0

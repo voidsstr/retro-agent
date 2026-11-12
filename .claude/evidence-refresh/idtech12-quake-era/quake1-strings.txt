@@ -1,0 +1,153 @@
+=== Quake1/GLQUAKE.EXE 435712 bcf4049319feb518b8c915ac1cc8219b
+3dfx
+GetVersion
+GetVersionExA
+glquake/
+GLQuake
+glquake/15to8.pal
+GL_VERSION: %s
+gl_ztrick
+Incompatible version.
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+Playing registered version.
+Playing shareware version.
+progs.dat has wrong version number (%i should be %i)
+  Quake version 1.09 by id Software
+QueryPerformanceFrequency
+r_norefresh
+Savegame is version %i, not %i
+Server returned version %i, not %i
+%s/glquake
+%s/glquake/15to8.pal
+%s has wrong version number (%i should be %i)
+svc_version
+timerefresh
+version
+version: %4.2f
+Version %4.2f
+VERSION %4.2f SERVER (%i CRC)
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+WinQuake
+WinQuake requires at least Win95 or NT 4.0
+You must have the registered version to use modified games
+=== Quake1/VOODOO/GLQUAKE.EXE 435712 bcf4049319feb518b8c915ac1cc8219b
+3dfx
+GetVersion
+GetVersionExA
+glquake/
+GLQuake
+glquake/15to8.pal
+GL_VERSION: %s
+gl_ztrick
+Incompatible version.
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+Playing registered version.
+Playing shareware version.
+progs.dat has wrong version number (%i should be %i)
+  Quake version 1.09 by id Software
+QueryPerformanceFrequency
+r_norefresh
+Savegame is version %i, not %i
+Server returned version %i, not %i
+%s/glquake
+%s/glquake/15to8.pal
+%s has wrong version number (%i should be %i)
+svc_version
+timerefresh
+version
+version: %4.2f
+Version %4.2f
+VERSION %4.2f SERVER (%i CRC)
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+WinQuake
+WinQuake requires at least Win95 or NT 4.0
+You must have the registered version to use modified games
+=== Quake1/WINQUAKE.EXE 553472 0b62b82dea48408f45369e1fab53eb0c
+ACCEL.DRV file is an older version!
+DDERR_NOVSYNCHW
+Driver file is an older version
+GetVersion
+GetVersionExA
+Incompatible version.
+Incorrect version for driver file
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+Playing registered version.
+Playing shareware version.
+progs.dat has wrong version number (%i should be %i)
+  Quake version 1.09 by id Software
+QueryPerformanceFrequency
+Savegame is version %i, not %i
+Server returned version %i, not %i
+%s has wrong version number (%i should be %i)
+Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
+svc_version
+timerefresh
+version
+Version 2.0 - Mar 18 1997
+version: %4.2f
+Version %4.2f
+VERSION %4.2f SERVER (%i CRC)
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+WinQuake
+(WinQuake) %4.2f
+WinQuake requires at least Win95 or NT 4.0
+You must have the registered version to use modified games
+=== Quake1/QUAKE.EXE 409600 e3e7fcc920610a5fa66c1dd030939fac
+CDAudio_Init: MSCDEX version 2.00 or later required.
+dsp version=%d.%d
+F,	hz<
+Incompatible version.
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+MSCDEX version 2.00 or later
+PhZ)
+Playing registered version.
+Playing shareware version.
+progs.dat has wrong version number (%i should be %i)
+Savegame is version %i, not %i
+Server returned version %i, not %i
+%s has wrong version number (%i should be %i)
+svc_version
+timerefresh
+tJhz
+version
+Version 2 SB startup
+Version 3 SB startup
+version: %4.2f
+Version %4.2f
+VERSION %4.2f SERVER (%i CRC)
+Version 4 SB startup
+_vid_default_mode
+_vid_default_mode_win
+vid_mode
+_vid_wait_override
+You must have the registered version to use modified games
+=== Quake1/VOODOO/OPENGL32.DLL 142848 332ee07bf420eae26476223be1cbab1d
+3Dfx Interactive Inc.
+3Dfx Interactive Voodoo Rush(tm)
+3Dfx Interactive Voodoo(tm)
+3DFX_set_global_palette
+3DFX_set_global_palette WGL_EXT_swap_control GL_EXT_paletted_texture GL_EXT_shared_texture_palette 
+3DFX_set_global_palette WGL_EXT_swap_control GL_EXT_paletted_texture GL_EXT_shared_texture_palette GL_SGIS_multitexture 
+GetVersion
+gl3DfxNullExt
+glide2x.dll
+_grGlideGetState@4
+_grGlideInit@0
+_grGlideSetState@4
+_grGlideShutdown@0
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+=== Quake1/QLAUNCH.EXE 314880 09c329ac9d2cfdb50b450f8144f4c62d
+GetProcessVersion
+GetVersion
+MPlayerVersion

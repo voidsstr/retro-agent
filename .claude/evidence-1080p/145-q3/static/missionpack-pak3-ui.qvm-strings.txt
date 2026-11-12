@@ -1,0 +1,30 @@
+# strings -a missionpack/pak3.pk3:vm/ui.qvm favourites-related
+1220:server16
+1221:server15
+1222:server14
+1223:server13
+1224:server12
+1225:server11
+1226:server10
+1227:server9
+1228:server8
+1229:server7
+1230:server6
+1231:server5
+1232:server4
+1233:server3
+1234:server2
+1235:server1
+1360:glCustom
+1364:ui_favoriteAddress
+1365:ui_favoriteName
+1366:createFavorite
+1367:deleteFavorite
+1368:Added favorite server %s
+1369:Favorite list full
+1370:Favorite already in list
+1373:addFavorite
+1460:r_mode
+1464:ui_glCustom
+1514:ui_netSource
+1651:Favorites

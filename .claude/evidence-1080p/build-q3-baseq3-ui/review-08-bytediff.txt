@@ -1,0 +1,5 @@
+literal pool: stock 21536 B, patched 21584 B (+48); common prefix 20917 B, common suffix 10 B; changed window stock [20917,21526) = ui_video's strings
+  window, stock  : [b'856x480 wide screen', b'2048x1536', b'1600x1200', b'1280x1024', b'1152x864', b'1024x768', b'960x720', b'800x600']
+  window, patched: [b'Vertex', b'Lightmap', b'Custom', b'Fastest', b'Fast', b'Normal', b'High Quality', b'32 bit', b'16 bit', b'Voodoo', b'Default', b'vid_restart\n']
+code: 77445 instructions outside ui_video compared, 5852 operands differ only by relocation, UNEXPLAINED 0
+data: 2831 words outside ui_video's data [0x2bc8,0x2d80): 2714 identical, 117 relocated pointers, UNEXPLAINED 0

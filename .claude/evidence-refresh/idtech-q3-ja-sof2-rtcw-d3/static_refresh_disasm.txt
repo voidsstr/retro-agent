@@ -1,0 +1,334 @@
+STATIC EVIDENCE - how each staged binary sets the fullscreen refresh (read from /mnt/retro-share, 2026-09-29)
+DEVMODE: dmFields at +0x28, dmDisplayFrequency at +0x78; DM_PELSWIDTH|DM_PELSHEIGHT=0x180000, |DM_BITSPERPEL=0x1c0000, |DM_DISPLAYFREQUENCY(0x400000)
+
+==== Quake3-TeamArena/quake3.exe  md5 b5cf3dd55e045aac6096ff97379d0cab  size 872448  -- Q3 1.32c: r_displayRefresh->integer (+0x20) -> dmDisplayFrequency, fields 0x580000; ENUM_CURRENT readback -> glConfig.displayFrequency
+-- r_displayRefresh -> DEVMODE:
+    00459ee7: mov      ecx, dword ptr [0xc59ba0]
+    00459eed: mov      word ptr [esp + 0x3c], 0x9c
+    00459ef4: mov      dword ptr [esp + 0x88], eax
+    00459efb: mov      dword ptr [esp + 0x40], 0x180000
+    00459f03: mov      eax, dword ptr [ecx + 0x20]
+    00459f06: test     eax, eax
+    00459f08: je       0x459f19
+    00459f0a: mov      dword ptr [esp + 0x90], eax
+    00459f11: mov      dword ptr [esp + 0x40], 0x580000
+    00459f19: test     esi, esi
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    0045a1ac: dec      ebx
+    0045a1ad: add      byte ptr [ebp - 0x74f38b40], al
+    0045a1b3: test     byte ptr [eax + edx*4], ah
+    0045a1b6: add      byte ptr [eax], al
+    0045a1b8: add      byte ptr [ebx + 0xc5c7f4], ah
+    0045a1be: mov      ecx, dword ptr [ebp + 0x10]
+    0045a1c1: pop      edi
+    0045a1c2: pop      esi
+    0045a1c3: mov      dword ptr [0xc5c7f8], ecx
+    0045a1c9: xor      eax, eax
+    0045a1cb: pop      ebx
+
+==== JediAcademy/jasp.exe  md5 1d55a7142e883dc4d54cfe87be987c66  size 1236992  -- JA SP 1.01
+-- r_displayRefresh -> DEVMODE:
+    0048b434: mov      eax, dword ptr [0xc98410]
+    0048b439: mov      word ptr [esp + 0x3c], 0x9c
+    0048b440: mov      dword ptr [esp + 0x88], ecx
+    0048b447: mov      dword ptr [esp + 0x40], 0x180000
+    0048b44f: mov      eax, dword ptr [eax + 0x20]
+    0048b452: test     eax, eax
+    0048b454: je       0x48b465
+    0048b456: mov      dword ptr [esp + 0x90], eax
+    0048b45d: mov      dword ptr [esp + 0x40], 0x580000
+    0048b465: mov      edi, dword ptr [ebp + 8]
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    0048b3ce: sbb      bl, dh
+    0048b3d0: stosd    dword ptr es:[edi], eax
+    0048b3d1: lea      eax, [esp + 0x18]
+    0048b3d5: push     eax
+    0048b3d6: push     -1
+    0048b3d8: push     0
+    0048b3da: mov      word ptr [esp + 0x48], 0x9c
+    0048b3e1: call     dword ptr [0x4f0270]
+    0048b3e7: test     eax, eax
+    0048b3e9: je       0x48b3f8
+    0048b3eb: mov      ecx, dword ptr [esp + 0x90]
+    0048b3f2: mov      dword ptr [0xc98484], ecx
+    0048b3f8: mov      edx, dword ptr [ebp + 0xc]
+    0048b3fb: mov      dword ptr [0xc98488], edx
+
+==== JediAcademy/jamp.exe  md5 896f5804934cf4c1d5750a0b82ea4c5e  size 1527808  -- JA MP 1.01
+-- r_displayRefresh -> DEVMODE:
+    004c5b96: mov      eax, dword ptr [0xfe311c]
+    004c5b9b: mov      word ptr [esp + 0x3c], 0x9c
+    004c5ba2: mov      dword ptr [esp + 0x88], ecx
+    004c5ba9: mov      dword ptr [esp + 0x40], 0x180000
+    004c5bb1: mov      eax, dword ptr [eax + 0x20]
+    004c5bb4: test     eax, eax
+    004c5bb6: je       0x4c5bc7
+    004c5bb8: mov      dword ptr [esp + 0x90], eax
+    004c5bbf: mov      dword ptr [esp + 0x40], 0x580000
+    004c5bc7: mov      edi, dword ptr [ebp + 8]
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    004c5e08: rep stosd dword ptr es:[edi], eax
+    004c5e0a: lea      ecx, [esp + 0x18]
+    004c5e0e: push     ecx
+    004c5e0f: push     -1
+    004c5e11: push     eax
+    004c5e12: mov      word ptr [esp + 0x48], 0x9c
+    004c5e19: call     dword ptr [0x53b23c]
+    004c5e1f: test     eax, eax
+    004c5e21: je       0x4c5e30
+    004c5e23: mov      edx, dword ptr [esp + 0x90]
+    004c5e2a: mov      dword ptr [0xfe3188], edx
+    004c5e30: mov      eax, dword ptr [ebp + 0xc]
+    004c5e33: pop      edi
+    004c5e34: pop      esi
+
+==== SoldierOfFortune2/SoF2.exe  md5 c0c873320da54b0d191041ba942ab28e  size 1064960  -- SoF2 Gold 1.03 SP (cvar integer at +0x60; prints "...display frequency = %d Hz")
+-- r_displayRefresh -> DEVMODE:
+    100b8c34: mov      eax, dword ptr [0x10799994]
+    100b8c39: mov      word ptr [esp + 0x3c], 0x94
+    100b8c40: mov      dword ptr [esp + 0x88], ecx
+    100b8c47: mov      dword ptr [esp + 0x40], 0x180000
+    100b8c4f: mov      eax, dword ptr [eax + 0x60]
+    100b8c52: test     eax, eax
+    100b8c54: je       0x100b8c65
+    100b8c56: mov      dword ptr [esp + 0x90], eax
+    100b8c5d: mov      dword ptr [esp + 0x40], 0x580000
+    100b8c65: test     ebx, ebx
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    100b8d94: lea      edi, [esp + 0x18]
+    100b8d98: rep stosd dword ptr es:[edi], eax
+    100b8d9a: lea      ecx, [esp + 0x18]
+    100b8d9e: push     ecx
+    100b8d9f: push     -1
+    100b8da1: push     eax
+    100b8da2: mov      word ptr [esp + 0x48], 0x94
+    100b8da9: call     dword ptr [0x100da1f8]
+    100b8daf: test     eax, eax
+    100b8db1: je       0x100b8dcd
+    100b8db3: mov      eax, dword ptr [esp + 0x90]
+    100b8dba: push     eax
+    100b8dbb: push     0x100f706c
+    100b8dc0: mov      dword ptr [0x1079a248], eax
+
+==== SoldierOfFortune2/sof2mp.exe  md5 0263922b67e3474f9e77e769f217f53a  size 1572917  -- SoF2 MP (cvar integer at +0x28)
+-- r_displayRefresh -> DEVMODE:
+    004df0d4: mov      ecx, dword ptr [0x11a6464]
+    004df0da: mov      word ptr [esp + 0x38], 0x94
+    004df0e1: mov      dword ptr [esp + 0x84], eax
+    004df0e8: mov      dword ptr [esp + 0x3c], 0x180000
+    004df0f0: mov      eax, dword ptr [ecx + 0x28]
+    004df0f3: test     eax, eax
+    004df0f5: je       0x4df106
+    004df0f7: mov      dword ptr [esp + 0x8c], eax
+    004df0fe: mov      dword ptr [esp + 0x3c], 0x580000
+    004df106: test     ebx, ebx
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    004df257: inc      esp
+    004df258: and      al, 0x44
+    004df25a: xchg     esp, eax
+    004df25b: add      bh, bh
+    004df25d: adc      eax, 0x54c288
+    004df262: test     eax, eax
+    004df264: je       0x4df272
+    004df266: mov      eax, dword ptr [esp + 0x8c]
+    004df26d: mov      dword ptr [0x11a6308], eax
+
+==== ReturnToCastleWolfenstein/WolfSP.exe  md5 dd1f541307ce485076628cadae3637fa  size 1282095  -- RTCW SP (GOG)
+-- r_displayRefresh -> DEVMODE:
+    00465434: mov      ecx, dword ptr [0x1184474]
+    0046543a: mov      word ptr [esp + 0x38], 0x94
+    00465441: mov      dword ptr [esp + 0x84], eax
+    00465448: mov      dword ptr [esp + 0x3c], 0x180000
+    00465450: mov      eax, dword ptr [ecx + 0x20]
+    00465453: test     eax, eax
+    00465455: je       0x465466
+    00465457: mov      dword ptr [esp + 0x8c], eax
+    0046545e: mov      dword ptr [esp + 0x3c], 0x580000
+    00465466: test     esi, esi
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    004655c9: dec      ebp
+    004655ca: add      byte ptr [ebp - 0x74f38b40], al
+    004655d0: test     byte ptr [esp + ecx*4], ah
+    004655d3: add      byte ptr [eax], al
+    004655d5: add      byte ptr [ebx + 0x1184390], ah
+    004655db: mov      ecx, dword ptr [esp + 0x14c]
+    004655e2: pop      edi
+    004655e3: pop      esi
+
+==== ReturnToCastleWolfenstein/WolfMP.exe  md5 6ad8aceea02dc1eef8af0c73331cddaf  size 1077310  -- RTCW MP 1.41
+-- r_displayRefresh -> DEVMODE:
+    00478c24: mov      ecx, dword ptr [0x1224304]
+    00478c2a: mov      word ptr [esp + 0x38], 0x94
+    00478c31: mov      dword ptr [esp + 0x84], eax
+    00478c38: mov      dword ptr [esp + 0x3c], 0x180000
+    00478c40: mov      eax, dword ptr [ecx + 0x20]
+    00478c43: test     eax, eax
+    00478c45: je       0x478c56
+    00478c47: mov      dword ptr [esp + 0x8c], eax
+    00478c4e: mov      dword ptr [esp + 0x3c], 0x580000
+    00478c56: test     esi, esi
+-- after the mode set + context: EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS=-1) -> glConfig.displayFrequency (printed by gfxinfo as 'hz:'):
+    00478db9: dec      esi
+    00478dba: add      byte ptr [ebp - 0x74f38b40], al
+    00478dc0: test     byte ptr [esp + ecx*4], ah
+    00478dc3: add      byte ptr [eax], al
+    00478dc5: add      byte ptr [ebx + 0x1224230], ah
+    00478dcb: mov      ecx, dword ptr [esp + 0x14c]
+    00478dd2: pop      edi
+    00478dd3: pop      esi
+
+==== Quake3-TeamArena/ioquake3.x86.exe md5 12f99bc0f9ba416ee477a4f13de8feaa ('ioq3 1.36', PE timestamp 0x49e1e114 = 2009-04-12)
+   string r_displayRefresh at ['0x52cbb6']
+   code references to the r_displayRefresh cvar_t* global 0x1d9f7c0: ['0x4d6c05'] (the ONLY one is the store after Cvar_Get - the value is never read)
+    004d6bc7: mov      dword ptr [esp], 0x52cbb6
+    004d6bce: mov      edx, 0x20
+    004d6bd3: mov      dword ptr [esp + 8], edx
+    004d6bd7: mov      dword ptr [0x1d9f3e0], eax
+    004d6bdc: mov      eax, 0x52c9e1
+    004d6be1: mov      dword ptr [esp + 4], eax
+    004d6be5: call     dword ptr [0x1da25d0]
+    004d6beb: mov      dword ptr [esp + 0xc], ebx
+    004d6bef: mov      ebx, 0x43480000
+    004d6bf4: mov      dword ptr [esp + 8], ebx
+    004d6bf8: mov      dword ptr [esp + 4], esi
+    004d6bfc: mov      esi, 0x220
+    004d6c01: mov      dword ptr [esp], eax
+    004d6c04: mov      dword ptr [0x1d9f7c0], eax
+    004d6c09: call     dword ptr [0x1da25d8]
+   imports ChangeDisplaySettingsA?  False ; imports SDL_SetVideoMode? True
+
+==== Quake3-TeamArena/SDL.dll md5 a828ce4eae3a55de4a29112067975abc  SDL_Linked_Version bytes [1, 2, 13] (= SDL 1.2.13)
+-- live desktop mode captured at video init: EnumDisplaySettings(NULL, 0xffffffff=ENUM_CURRENT_SETTINGS, &SDL_desktop_mode@0x68156cc0)
+    68137870: mov      dword ptr [esp + 8], eax
+    68137874: mov      eax, 0xffffffff
+    68137879: mov      dword ptr [esp + 4], eax
+    6813787d: mov      dword ptr [esp], 0
+    68137884: call     0x6813ea40
+    68137889: mov      eax, dword ptr [0x68156d2c]
+    6813788e: sub      esp, 0xc
+    68137891: mov      dword ptr [edi + 0x34], eax
+-- DX5 (default for ioq3 1.36: SDL_VIDEODRIVER=directx) OpenGL fullscreen CDS: frequency = desktop's only when w<=desk_w && h<=desk_h; retried without it on failure
+    681388be: mov      ecx, 0x9c
+    681388c3: xor      edx, edx
+    681388c5: lea      ebx, [ebp - 0x128]
+    681388cb: mov      dword ptr [esp + 8], ecx
+    681388cf: mov      dword ptr [esp + 4], edx
+    681388d3: mov      dword ptr [esp], ebx
+    681388d6: call     0x68140930
+    681388db: mov      eax, 0x9c
+    681388e0: mov      ecx, dword ptr [ebp + 0x10]
+    681388e3: mov      esi, dword ptr [ebp + 0x14]
+    681388e6: mov      word ptr [ebp - 0x104], ax
+    681388ed: mov      eax, dword ptr [edi + 4]
+    681388f0: cmp      dword ptr [0x68156d2c], ecx
+    681388f6: movzx    eax, byte ptr [eax + 4]
+    681388fa: mov      dword ptr [ebp - 0xbc], ecx
+    68138900: mov      dword ptr [ebp - 0xb8], esi
+    68138906: mov      dword ptr [ebp - 0xc0], eax
+    6813890c: jge      0x68138dd5
+    68138912: mov      eax, 0x1c0000
+    68138917: mov      dword ptr [ebp - 0x100], eax
+    6813891d: mov      eax, 4
+    68138922: mov      dword ptr [esp + 4], eax
+    68138926: mov      dword ptr [esp], ebx
+    68138929: call     0x6813e860
+    6813892e: sub      esp, 8
+    68138931: test     eax, eax
+    68138933: je       0x6813896d
+    68138935: mov      eax, dword ptr [ebp - 0x100]
+    6813893b: test     eax, 0x400000
+    68138940: je       0x68137fd4
+    68138946: and      eax, 0xffbfffff
+    6813894b: mov      dword ptr [ebp - 0x100], eax
+    68138951: mov      eax, 4
+    68138956: mov      dword ptr [esp + 4], eax
+    6813895a: mov      dword ptr [esp], ebx
+    6813895d: call     0x6813e860
+    68138962: sub      esp, 8
+    68138965: test     eax, eax
+    68138967: jne      0x68137fd4
+    6813896d: mov      edi, dword ptr [ebp - 0x19c]
+    68138973: mov      eax, 0x9c
+    68138978: or       dword ptr [edi], 0x80000000
+    6813897e: mov      dword ptr [esp + 8], eax
+    68138982: mov      dword ptr [esp + 4], ebx
+    68138986: mov      dword ptr [esp], 0x68156d70
+    6813898d: call     0x68140950
+    68138dd5: cmp      dword ptr [0x68156d30], esi
+    68138ddb: jl       0x68138912
+    68138de1: mov      eax, dword ptr [0x68156d38]
+    68138de6: mov      dword ptr [ebp - 0xb0], eax
+    68138dec: mov      eax, 0x5c0000
+    68138df1: jmp      0x68138917
+
+==== Doom3/DOOM3.exe md5 7cd77c22b38c223ef1047083e374875a (1.3)
+   idCVar r_displayRefresh @0x7d3a1c: ['0x74b05c', '0x7613c0', '0x74b1f4', '0x76138c', '0x5012', '0x0', '0x43480000', '0x0', '0x0', '0x0', '0x0', '0x7d3a1c', '0x0'] -> name 0x7613c0, default '0', flags 0x5012 = INTEGER|RENDERER|STATIC|NOCHEAT (no CVAR_ARCHIVE 0x20000), max 200.0
+-- R_InitOpenGL: parms.displayHz = r_displayRefresh.internalVar->integerValue; GLimp_Init(parms) @0x50c260
+    004acd59: mov      edx, dword ptr [0x7d3a48]
+    004acd5f: mov      eax, dword ptr [edx + 0x24]
+    004acd62: mov      byte ptr [esp + 0x1c], cl
+    004acd66: mov      ecx, dword ptr [0x7d39e0]
+    004acd6c: mov      edx, dword ptr [ecx + 0x24]
+    004acd6f: sub      esp, 0x14
+    004acd72: mov      dword ptr [esp + 0x34], eax
+    004acd76: mov      dword ptr [esp + 0x38], edx
+    004acd7a: mov      ecx, 5
+    004acd7f: lea      esi, [esp + 0x28]
+    004acd83: mov      edi, esp
+    004acd85: rep movsd dword ptr es:[edi], dword ptr [esi]
+    004acd87: call     0x50c260
+-- GLW_SetFullScreen @0x50b910: validates displayHz against EnumDisplaySettings (w>=,h>=,32bpp,freq==) else prints '...%dhz is unsupported at %dx%d' and zeroes it
+    0050b940: mov      ecx, dword ptr [esp + 0x7c]
+    0050b944: cmp      ecx, dword ptr [esp + 0x14c]
+    0050b94b: jl       0x50b973
+    0050b94d: mov      edx, dword ptr [esp + 0x80]
+    0050b954: cmp      edx, dword ptr [esp + 0x150]
+    0050b95b: jl       0x50b973
+    0050b95d: cmp      dword ptr [esp + 0x78], 0x20
+    0050b962: jne      0x50b973
+    0050b964: test     esi, esi
+    0050b966: mov      bl, 1
+    0050b968: je       0x50b9b0
+    0050b96a: cmp      dword ptr [esp + 0x88], esi
+    0050b971: je       0x50b9b0
+    0050b973: lea      eax, [esp + 0x10]
+    0050b977: push     eax
+    0050b978: inc      edi
+    0050b979: push     edi
+    0050b97a: push     0
+    0050b97c: call     ebp
+    0050b97e: test     eax, eax
+    0050b980: jne      0x50b940
+    0050b982: test     bl, bl
+    0050b984: je       0x50bad3
+    0050b98a: mov      edx, dword ptr [esp + 0x150]
+    0050b991: mov      eax, dword ptr [0x7cefa4]
+    0050b996: mov      ecx, dword ptr [eax]
+    0050b998: push     edx
+    0050b999: mov      edx, dword ptr [esp + 0x150]
+    0050b9a0: push     edx
+    0050b9a1: push     esi
+    0050b9a2: push     0x774250
+    0050b9a7: push     eax
+    0050b9a8: call     dword ptr [ecx + 0x40]
+    0050b9ab: add      esp, 0x14
+    0050b9ae: xor      esi, esi
+    0050b9b0: xor      eax, eax
+-- then dmFields 0x1c0000 (+0x400000 when displayHz != 0), CDS_FULLSCREEN:
+    0050b9e8: mov      dword ptr [esp + 0x114], 0x20
+    0050b9f3: mov      dword ptr [esp + 0xd4], 0x1c0000
+    0050b9fe: je       0x50ba12
+    0050ba00: mov      dword ptr [esp + 0x124], esi
+    0050ba07: mov      dword ptr [esp + 0xd4], 0x5c0000
+    0050ba12: mov      eax, dword ptr [0x7cefa4]
+    0050ba17: mov      edx, dword ptr [eax]
+    0050ba19: push     0x77423c
+    0050ba1e: push     eax
+    0050ba1f: call     dword ptr [edx + 0x40]
+    0050ba22: mov      edi, dword ptr [0x74ad60]
+    0050ba28: add      esp, 8
+    0050ba2b: push     4
+    0050ba2d: lea      eax, [esp + 0xb0]
+    0050ba34: push     eax
+    0050ba35: call     edi
+   glConfig.displayFrequency @0x138b42c code refs: ['0x4ac724'] (read by GfxInfo only - never written, so Doom 3 prints hz:N/A)

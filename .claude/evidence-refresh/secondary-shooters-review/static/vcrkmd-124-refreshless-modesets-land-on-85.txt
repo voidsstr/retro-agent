@@ -1,0 +1,58 @@
+# MEASURED on .124 (V5 6000, vcr-kmd), 2026-09-28 ~07:08-07:15 EDT (evidence committed in 6434268): refresh-less DirectDraw/D3D mode sets of real titles land on 85 Hz, NOT the lowest listed rate.
+# vcr-kmd/display/vcrdd.c pick_refresh(): 'hz 0/1 means "default": the lowest'. The lowest listed at 640x480x16 is 60 (vcr_timings; mode 75 = 640x480x16@60 appears in other logs) and at 1280x960 it is 60 (vcr_modes.c:42).
+# DrvEnablePDEV logs the mode AFTER pick_mode(), and it is @85 every time => XP handed vcrdd a concrete >=85 Hz DEVMODE; the 0/1 'lowest' branch was never taken.
+# Desktop was 1280x1024x32@85 (mode 163) before and after each game. Mapping by uptime (ring window starts 339.6 s; boot ~07:03:00):
+#   345.2 s  640x480x16@85  Thief Gold (t0 07:08:57)
+#   464.4 s  1280x960x32@85 then 464.8 s 640x480x32@85  Thief II NewDark (t0 07:10:55)
+#   582.8 s  640x480x16@85  Rainbow Six (t0 07:12:54)
+#   680.2 s  1280x960x16@85 UT2004 (t0 07:13:59; its log: 'Enter SetRes: 1280x960', 16-bit back buffer, startup 31.7 s after 07:13:56)
+# UT2004 is the clean case: DesiredRefreshRate=60 + OverrideDesktopRefreshRate=False => D3DDrv.dll wanted=0 => pp.FullScreen_RefreshRateInHz=0 (0x10011a2d) = D3DPRESENT_RATE_DEFAULT.
+# (d3dprobe's own D3D8 RATE_DEFAULT runs at 07:04 fall before the ring window; only their host-side plan lines survive.)
+
+## titles sweep t0 (d3d32_titles_sweep.json):
+   07:05:06 Hidden and Dangerous Deluxe PASS
+   07:06:46 Jedi Knight - Dark Forces II PASS
+   07:07:51 Jedi Knight - Mysteries of the Sith PASS
+   07:08:57 Thief Gold CHECK: had to be forced closed
+   07:10:55 Thief II - The Metal Age CHECK: error window: Error; dialog: Error; had to be forced 
+   07:12:54 Tom Clancy's Rainbow Six CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX 
+   07:13:59 Unreal Tournament 2004 CHECK: error window: Critical Error; dialog: Critical Error
+
+## vcr-kmd flight recorder (d3d32_end_vcrlog.txt):
+  8442   339.606s   dd inf DD_ENABLE_PDEV     00000500 00000400 00000020 00000055  DrvEnablePDEV mode 163
+  8445   339.622s   mp inf MODESET_BEGIN      00000500 00000400 00000020 00000055  mode 163: 1280x1024x32@85
+  8556   345.075s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  8563   345.168s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  8567   345.200s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  8570   345.200s   dd inf DD_ENABLE_PDEV     00000280 000001e0 00000010 00000055  DrvEnablePDEV mode 78
+  8573   345.231s   mp inf MODESET_BEGIN      00000280 000001e0 00000010 00000055  mode 78: 640x480x16@85
+  8626   455.877s   dd inf DD_ENABLE_PDEV     00000500 00000400 00000020 00000055  DrvEnablePDEV mode 163
+  8629   455.924s   mp inf MODESET_BEGIN      00000500 00000400 00000020 00000055  mode 163: 1280x1024x32@85
+  8768   464.365s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  8773   464.368s   dd inf DD_ENABLE_PDEV     00000500 000003c0 00000020 00000055  DrvEnablePDEV mode 160
+  8776   464.391s   mp inf MODESET_BEGIN      00000500 000003c0 00000020 00000055  mode 160: 1280x960x32@85
+  8843   464.591s   dd inf DD_ENABLE_PDEV     00000500 00000400 00000020 00000055  DrvEnablePDEV mode 163
+  8846   464.608s   mp inf MODESET_BEGIN      00000500 00000400 00000020 00000055  mode 163: 1280x1024x32@85
+  8910   464.753s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  8913   464.755s   dd inf DD_ENABLE_PDEV     00000280 000001e0 00000020 00000055  DrvEnablePDEV mode 148
+  8916   464.779s   mp inf MODESET_BEGIN      00000280 000001e0 00000020 00000055  mode 148: 640x480x32@85
+  8983   574.548s   dd inf DD_ENABLE_PDEV     00000500 00000400 00000020 00000055  DrvEnablePDEV mode 163
+  8986   574.565s   mp inf MODESET_BEGIN      00000500 00000400 00000020 00000055  mode 163: 1280x1024x32@85
+  9096   582.798s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  9099   582.814s   dd inf DD_ENABLE_PDEV     00000280 000001e0 00000010 00000055  DrvEnablePDEV mode 78
+  9102   582.845s   mp inf MODESET_BEGIN      00000280 000001e0 00000010 00000055  mode 78: 640x480x16@85
+  9167   641.861s   dd inf DD_ENABLE_PDEV     00000500 00000400 00000020 00000055  DrvEnablePDEV mode 163
+  9170   641.876s   mp inf MODESET_BEGIN      00000500 00000400 00000020 00000055  mode 163: 1280x1024x32@85
+  9288   680.149s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+  9291   680.165s   dd inf DD_ENABLE_PDEV     00000500 000003c0 00000010 00000055  DrvEnablePDEV mode 90
+  9294   680.226s   mp inf MODESET_BEGIN      00000500 000003c0 00000010 00000055  mode 90: 1280x960x16@85
+  9358   681.765s   dd inf DD_ENABLE_PDEV     00000500 00000400 00000020 00000055  DrvEnablePDEV mode 163
+  9361   682.055s   mp inf MODESET_BEGIN      00000500 00000400 00000020 00000055  mode 163: 1280x1024x32@85
+
+## UT2004.log on .124:
+Log: Log file open, 09/28/26 07:13:56
+Log: Enter SetRes: 1280x960 Fullscreen 1
+Log: Using back-buffer format 23(16-bit)
+Log: Creating device
+Log: Startup time: 31.693000 seconds
+Critical: CreateTexture failed(D3DERR_INVALIDCALL).

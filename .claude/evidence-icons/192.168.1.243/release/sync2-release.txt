@@ -1,0 +1,14 @@
+RESET OK marker cleared
+START OK started
+14:36:56 done 100 complete - 4 title(s) done 4 / 52 skip 19 gated 29 fail 0 stall 0 0 -1 
+14:37:04 sizing 0 sizing WarcraftII (41 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 DESK ['Hexen II - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Quake - Software Renderer.pif', 'Quake II - 3dfx Voodoo.pif', 'Quake II.pif', 'Retro Agent.lnk', 'Retro Chat.lnk'] BACKUP 13
+14:37:05 sizing 0 sizing RainbowSix (47 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 DESK ['Hexen II - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Quake - Software Renderer.pif', 'Quake II - 3dfx Voodoo.pif', 'Quake II.pif', 'Retro Agent.lnk', 'Retro Chat.lnk'] BACKUP 13
+14:37:06 sizing 0 sizing RainbowSix (47 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 DESK ['Hexen II - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Quake - Software Renderer.pif', 'Quake II - 3dfx Voodoo.pif', 'Quake II.pif', 'Retro Agent.lnk', 'Retro Chat.lnk'] BACKUP 13
+14:37:07 sizing 0 sizing RainbowSix (47 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 DESK ['Hexen II - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Quake - Software Renderer.pif', 'Quake II - 3dfx Voodoo.pif', 'Quake II.pif', 'Retro Agent.lnk', 'Retro Chat.lnk'] BACKUP 13
+14:37:08 sizing 0 sizing RainbowSix (47 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 DESK ['Hexen II - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Quake - Software Renderer.pif', 'Quake II - 3dfx Voodoo.pif', 'Quake II.pif', 'Retro Agent.lnk', 'Retro Chat.lnk'] BACKUP 13
+14:37:09 sizing 0 sizing RainbowSix (47 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 DESK ['Hexen II - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Quake - Software Renderer.pif', 'Quake II - 3dfx Voodoo.pif', 'Quake II.pif', 'Retro Agent.lnk', 'Retro Chat.lnk'] BACKUP 13
+14:37:10 sizing 0 sizing Daggerfall (49 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 
+14:37:11 sizing 0 sizing Quake2Win9x (52 of 52) done 0 / 0 skip 0 gated 0 fail 0 stall 0 0 -1 
+14:37:12 copying 5 copying HexenII done 2 / 52 skip 13 gated 16 fail 0 stall 0 0 -1 
+14:37:21 done 100 complete - 4 title(s) done 4 / 52 skip 19 gated 29 fail 0 stall 0 0 -1 
+FINAL {"state": "done", "percent": 100, "titles_done": 4, "titles_total": 52, "titles_skipped": 19, "titles_gated": 29, "mb_done": 382, "mb_total": 382, "mbps": 0.0, "current_title": "Quake2Win9x", "current_file": "launch.txt", "failed_files": 0, "failed_file": "", "elapsed_s": 32, "provisioned": true, "files_written": 2, "shortcuts_changed": 12, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": false, "message": "complete - 4 title(s)"}

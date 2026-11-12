@@ -1,0 +1,238 @@
+Engine read-back lines (ENUM_CURRENT_SETTINGS after the mode set), from files DOWNLOADed 2026-09-29 ~04:00-04:10 EDT (boxes/files) and the 1080p lane's evidence:
+124_C_Games_JediAcademy_base_qconsole.log:1:logfile opened on Mon Sep 28 10:37:08 2026
+124_C_Games_JediAcademy_base_qconsole.log:11:...setting mode -1: 1280 960 FS
+124_C_Games_JediAcademy_base_qconsole.log:13:...calling CDS: ok
+124_C_Games_JediAcademy_base_qconsole.log:43:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.77]
+124_C_Games_JediAcademy_base_qconsole.log:50:MODE: -1, 1280 x 960 fullscreen hz:75
+124_C_Games_JediAcademy_base_qconsole.log:66:Display refresh set to 85
+240_C_Games_JediAcademy_base_qconsole.log:16:...setting mode -1: 1920 1080 FS
+240_C_Games_JediAcademy_base_qconsole.log:18:...calling CDS: ok
+240_C_Games_JediAcademy_base_qconsole.log:45:GL_RENDERER: RADEON X800 Series
+240_C_Games_JediAcademy_base_qconsole.log:52:MODE: -1, 1920 x 1080 fullscreen hz:60
+240_C_Documents_and_Settings_User_Application_Data_Quake3_baseq3_qconsole.log:1:logfile opened on Sat Aug 29 21:12:14 2026
+240_C_Documents_and_Settings_User_Application_Data_Quake3_baseq3_qconsole.log:12:...setting mode -1: 1920 1080
+240_C_Documents_and_Settings_User_Application_Data_Quake3_baseq3_qconsole.log:15:GL_RENDERER: RADEON 9800 XT
+240_C_Documents_and_Settings_User_Application_Data_Quake3_baseq3_qconsole.log:25:GL_RENDERER: RADEON 9800 XT
+240_C_Documents_and_Settings_User_Application_Data_Quake3_baseq3_qconsole.log:32:MODE: -1, 1920 x 1080 fullscreen hz:N/A
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:1:logfile opened on Mon Sep 28 11:28:46 2026
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:20:...setting mode 7: 1152 864 FS
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:22:...calling CDS: ok
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:44:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.78]
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:51:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:190:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.78]
+124_C_Games_SoldierOfFortune2_base_MP_qconsole.log:197:MODE: 7, 1152 x 864 fullscreen hz:75
+195_C_Games_SoldierOfFortune2_base_MP_qconsole.log:1:logfile opened on Sun Aug 30 00:05:28 2026
+195_C_Games_SoldierOfFortune2_base_MP_qconsole.log:20:...setting mode 3: 640 480 W
+195_C_Games_SoldierOfFortune2_base_MP_qconsole.log:44:GL_RENDERER: AMD Radeon HD 5450
+195_C_Games_SoldierOfFortune2_base_MP_qconsole.log:51:MODE: 3, 640 x 480 windowed hz:60
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1:logfile opened on Mon Sep 28 06:40:39 2026
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:21:...setting mode 7: 1152 864 FS
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:23:...calling CDS: ok
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:44:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:51:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:143:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:150:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:293:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:300:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:551:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:558:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:675:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:682:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:861:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:868:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1047:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1054:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1234:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1241:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1420:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1427:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1544:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1551:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1740:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1747:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1926:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:1933:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:2050:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log:2057:MODE: 7, 1152 x 864 fullscreen hz:75
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:1:logfile opened on Mon Sep 28 00:30:56 2026
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:18:...setting mode -1: 1024 768 FS
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:20:...calling CDS: ok
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:40:GL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:47:MODE: -1, 1024 x 768 fullscreen hz:75
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:144:GL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)
+124_C_Games_Quake3-TeamArena_baseq3_qconsole.log:151:MODE: -1, 1024 x 768 fullscreen hz:75
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1:logfile opened on Mon Sep 28 06:38:21 2026
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:12:...setting mode -1: 1280 960
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:15:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:25:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:32:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:83:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:90:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:152:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:159:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:196:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:203:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:270:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:277:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:314:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:321:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:388:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:395:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:432:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:439:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:506:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:513:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:550:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:557:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:624:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:631:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:668:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:675:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:746:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:753:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:790:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:797:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:864:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:871:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:908:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:915:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:982:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:989:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1026:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1033:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1100:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1107:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1144:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1151:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1218:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1225:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1262:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1269:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1336:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1343:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1380:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1387:MODE: -1, 1280 x 960 fullscreen hz:N/A
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1458:GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+124_C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log:1465:MODE: -1, 1280 x 960 fullscreen hz:N/A
+145_C_Documents_and_Settings_voidsstr_Application_Data_Quake3_baseq3_qconsole.log:1:logfile opened on Sat Aug 29 23:03:29 2026
+145_C_Documents_and_Settings_voidsstr_Application_Data_Quake3_baseq3_qconsole.log:13:...setting mode 6: 1024 768
+145_C_Documents_and_Settings_voidsstr_Application_Data_Quake3_baseq3_qconsole.log:16:GL_RENDERER: GeForce 8400GS/PCIe/SSE2
+145_C_Documents_and_Settings_voidsstr_Application_Data_Quake3_baseq3_qconsole.log:26:GL_RENDERER: GeForce 8400GS/PCIe/SSE2
+145_C_Documents_and_Settings_voidsstr_Application_Data_Quake3_baseq3_qconsole.log:32:MODE: 6, 1024 x 768 fullscreen hz:N/A
+
+evidence-1080p/review-jka-sof2-rtcw/240-P1-sof2sp-custom1080/P1-qconsole.log:22:...setting mode -1: 1920 1080 FS
+evidence-1080p/review-jka-sof2-rtcw/240-P1-sof2sp-custom1080/P1-qconsole.log:24:...calling CDS: ok
+evidence-1080p/review-jka-sof2-rtcw/240-P1-sof2sp-custom1080/P1-qconsole.log:35:...display frequency = 60 Hz
+evidence-1080p/review-jka-sof2-rtcw/240-P1-sof2sp-custom1080/P1-qconsole.log:66:MODE: -1, 1920 x 1080 fullscreen hz:60
+evidence-1080p/145-q3/t3-retail-132c/qconsole.log:17:...setting mode -1: 1920 1080 FS
+evidence-1080p/145-q3/t3-retail-132c/qconsole.log:19:...calling CDS: ok
+evidence-1080p/145-q3/t3-retail-132c/qconsole.log:46:MODE: -1, 1920 x 1080 fullscreen hz:60
+evidence-1080p/145-q3/t3-retail-132c/qconsole.log:157:MODE: -1, 1920 x 1080 fullscreen hz:60
+evidence-1080p/145-q3/t3-retail-132c/qconsole.log:257:MODE: -1, 1920 x 1080 fullscreen hz:60
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:21:...setting mode 7: 1152 864 FS
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:23:...calling CDS: ok
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:51:MODE: 7, 1152 x 864 fullscreen hz:60
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:91:execing highVidhighCPU.cfg
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:112:...setting mode 3: 640 480 FS
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:114:...calling CDS: ok
+evidence-1080p/review-jka-sof2-rtcw/240-F1-rtcw-mp-firstrun-launcherargs/F1-rtcwconsole.log:141:MODE: 3, 640 x 480 fullscreen hz:60
+
+fleetres.cfg r_displayRefresh as deployed (boxes/files/*fleetres.cfg):
+123_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+123_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_mode "-1"
+123_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_customwidth "1920"
+123_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_displayRefresh "60"
+123_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+123_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_mode "-1"
+123_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_customwidth "1920"
+123_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_displayRefresh "60"
+145_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+145_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+145_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_mode "7"
+145_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_displayRefresh "60"
+124_C_Games_JediAcademy_base_fleetres.cfg:// written by the launcher at every start - do not edit
+124_C_Games_JediAcademy_base_fleetres.cfg:seta r_mode "-1"
+124_C_Games_JediAcademy_base_fleetres.cfg:seta r_customwidth "1280"
+124_C_Games_JediAcademy_base_fleetres.cfg:seta r_displayRefresh "85"
+123_C_Games_JediAcademy_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+123_C_Games_JediAcademy_base_fleetres.cfg:seta r_mode "-1"
+123_C_Games_JediAcademy_base_fleetres.cfg:seta r_customwidth "1920"
+123_C_Games_JediAcademy_base_fleetres.cfg:seta r_displayRefresh "60"
+145_C_Games_SoldierOfFortune2_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+145_C_Games_SoldierOfFortune2_base_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+145_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_mode "7"
+145_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_displayRefresh "60"
+145_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+145_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_mode "-1"
+145_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_customwidth "1920"
+145_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_displayRefresh "60"
+195_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+195_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_mode "-1"
+195_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_customwidth "1920"
+195_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_displayRefresh "60"
+240_C_Games_SoldierOfFortune2_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+240_C_Games_SoldierOfFortune2_base_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+240_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_mode "7"
+240_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_displayRefresh "60"
+124_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// written by the launcher at every start - do not edit
+124_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_mode "7"
+124_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_displayRefresh "85"
+240_C_Games_JediAcademy_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+240_C_Games_JediAcademy_base_fleetres.cfg:seta r_mode "-1"
+240_C_Games_JediAcademy_base_fleetres.cfg:seta r_customwidth "1920"
+240_C_Games_JediAcademy_base_fleetres.cfg:seta r_displayRefresh "60"
+124_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:// written by the launcher at every start - do not edit
+124_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_mode "-1"
+124_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_customwidth "1280"
+124_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_displayRefresh "85"
+195_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+195_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+195_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_mode "6"
+195_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_displayRefresh "60"
+124_C_Games_SoldierOfFortune2_base_fleetres.cfg:// written by the launcher at every start - do not edit
+124_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_mode "7"
+124_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_displayRefresh "85"
+145_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+145_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_mode "-1"
+145_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_customwidth "1920"
+145_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_displayRefresh "60"
+240_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+240_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_mode "-1"
+240_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_customwidth "1920"
+240_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_displayRefresh "60"
+240_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+240_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+240_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_mode "7"
+240_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_displayRefresh "60"
+145_C_Games_JediAcademy_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+145_C_Games_JediAcademy_base_fleetres.cfg:seta r_mode "-1"
+145_C_Games_JediAcademy_base_fleetres.cfg:seta r_customwidth "1920"
+145_C_Games_JediAcademy_base_fleetres.cfg:seta r_displayRefresh "60"
+240_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+240_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_mode "-1"
+240_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_customwidth "1920"
+240_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_displayRefresh "60"
+124_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:// written by the launcher at every start - do not edit
+124_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_mode "-1"
+124_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_customwidth "1280"
+124_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg:seta r_displayRefresh "85"
+195_C_Games_SoldierOfFortune2_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+195_C_Games_SoldierOfFortune2_base_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+195_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_mode "6"
+195_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_displayRefresh "60"
+123_C_Games_SoldierOfFortune2_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+123_C_Games_SoldierOfFortune2_base_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+123_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_mode "7"
+123_C_Games_SoldierOfFortune2_base_fleetres.cfg:seta r_displayRefresh "60"
+195_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+195_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_mode "-1"
+195_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_customwidth "1920"
+195_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg:seta r_displayRefresh "60"
+195_C_Games_JediAcademy_base_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+195_C_Games_JediAcademy_base_fleetres.cfg:seta r_mode "-1"
+195_C_Games_JediAcademy_base_fleetres.cfg:seta r_customwidth "1920"
+195_C_Games_JediAcademy_base_fleetres.cfg:seta r_displayRefresh "60"
+123_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// written by GAMESYNC for this box's monitor - do not edit
+123_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,
+123_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_mode "7"
+123_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg:seta r_displayRefresh "60"

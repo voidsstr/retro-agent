@@ -1,0 +1,11 @@
+# SoldierOfFortune base/pak0.pak menus/m_video.rmf (Resolution list -> menu_mode)
+27:<text "^MENU_VIDEO_VIDEO_SETTINGS^" tip "^MENU_GENERIC_APPLY_CHANGES^">
+32:<list "640x480,800x600,960x720,1024x768,1152x864,1280x960,1600x1200" match "3,4,5,6,7,8,9" atext "^MENU_VIDEO_RESOLUTION^ : " cvar menu_mode key mouse1 "set menu_settings_changed 1"><hbr>
+58:<text "^MENU_VIDEO_APPLY_CHANGES^" key mouse1 "menuoff;exec menus/applyvid.cfg;vid_restart;menu main;menu video" border 16 1 gray regular><br>
+59:<text "^MENU_VIDEO_APPLY_DEFAULTS^" key mouse1 "menuoff;exec default_video.cfg;vid_restart;menu main;menu video" border 16 1 gray regular><br>
+
+# menus/applyvid.cfg (menu_mode -> gl_mode)
+13:set gl_mode $menu_mode
+
+# default_video.cfg
+37:set gl_mode						3

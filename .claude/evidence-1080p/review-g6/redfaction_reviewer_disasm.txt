@@ -1,0 +1,94 @@
+Red Faction rf.exe md5 0ba3b15d64a702333a4d9a0815f782b7 - reviewer re-check 2026-09-29
+A) Registry root: NULL section -> HKCU (ebp=0x80000001) + base path built at 0x52b570 as 'Software\' + 'Volition' + '\' + 'Red Faction'; only a section string beginning 'hkey' selects another root.
+0052b2a0: sub      esp, 0x100
+0052b2a6: push     ebx
+0052b2a7: mov      ebx, dword ptr [esp + 0x10c]
+0052b2ae: push     ebp
+0052b2af: push     esi
+0052b2b0: test     ebx, ebx
+0052b2b2: push     edi
+0052b2b3: mov      ebp, 0x80000001
+0052b2b8: je       0x52b39e
+0052b2be: push     4
+0052b39e: mov      edi, 0x1b58950
+0052b3a3: or       ecx, 0xffffffff
+0052b3a6: xor      eax, eax
+0052b3a8: repne scasb al, byte ptr es:[edi]
+0052b3aa: not      ecx
+0052b3ac: sub      edi, ecx
+0052b3ae: mov      eax, ebp
+0052b3b0: mov      edx, ecx
+0052b3b2: mov      esi, edi
+0052b3b4: mov      edi, dword ptr [esp + 0x114]
+0052b3bb: shr      ecx, 2
+0052b3be: rep movsd dword ptr es:[edi], dword ptr [esi]
+0052b3c0: mov      ecx, edx
+0052b3c2: and      ecx, 3
+0052b3c5: rep movsb byte ptr es:[edi], byte ptr [esi]
+0052b3c7: pop      edi
+0052b3c8: pop      esi
+0052b3c9: pop      ebp
+0052b3ca: pop      ebx
+0052b3cb: add      esp, 0x100
+0052b3d1: ret      
+
+B) In-game resolution getter 0x4b1650 and setter 0x4b15d0: NO call/jmp/imm32 reference anywhere (dead code). Setter's table @0x5a1298 = [640, 480, 800, 600, 1024, 768, 1280, 1024]
+   xref 4b15d0: []  xref 4b1650: []
+
+C) HUD block selector 0x4377f0 is called from HUD init 0x437a4a with the real width; keyed on WIDTH ONLY (640/800/1024/1280). Width 1280 loads the #1280x1024 block even at 1280x960. Any other width leaves 0x637628 untouched; 0x637628 lies past .data's raw data (raw-backed to 0x5b0000) = zero BSS. Consumers read x/y from 0x637628+8*n (0x437f5a, 0x439f81).
+004377f0: mov      eax, dword ptr [esp + 4]
+004377f4: push     esi
+004377f5: cmp      eax, 0x400
+004377fa: push     edi
+004377fb: jg       0x437849
+004377fd: je       0x437835
+004377ff: cmp      eax, 0x280
+00437804: je       0x437821
+00437806: cmp      eax, 0x320
+0043780b: jne      0x437861
+0043780d: mov      ecx, 0x60
+00437812: mov      esi, 0x637310
+00437817: mov      edi, 0x637628
+0043781c: rep movsd dword ptr es:[edi], dword ptr [esi]
+0043781e: pop      edi
+0043781f: pop      esi
+00437820: ret      
+00437821: mov      ecx, 0x60
+00437826: mov      esi, 0x6377a8
+0043782b: mov      edi, 0x637628
+00437830: rep movsd dword ptr es:[edi], dword ptr [esi]
+00437832: pop      edi
+00437833: pop      esi
+00437834: ret      
+00437835: mov      ecx, 0x60
+0043783a: mov      esi, 0x637170
+0043783f: mov      edi, 0x637628
+00437844: rep movsd dword ptr es:[edi], dword ptr [esi]
+00437846: pop      edi
+00437847: pop      esi
+00437848: ret      
+00437849: cmp      eax, 0x500
+0043784e: jne      0x437861
+00437850: mov      ecx, 0x60
+00437855: mov      esi, 0x6374a0
+0043785a: mov      edi, 0x637628
+0043785f: rep movsd dword ptr es:[edi], dword ptr [esi]
+00437861: pop      edi
+00437862: pop      esi
+00437863: ret      
+00439f7b: mov      ecx, dword ptr [0x1775624]
+00439f81: mov      edx, dword ptr [0x63762c]
+00439f87: mov      eax, dword ptr [0x637628]
+00439f8c: push     ecx
+00439f8d: mov      ecx, dword ptr [esp + 0x28]
+00439f91: push     edx
+00439f92: push     eax
+00439f93: mov      edx, dword ptr [ecx*4 + 0x638fe4]
+00439f9a: push     edx
+00439f9b: call     0x50c9e0
+
+D) strings.tbl (tables.vpp): the comment '// As in texture resolution.' precedes #997 'Resolution:' AND #998 'Name cannot be blank.' AND #999 'Invalid Name' - a copy-paste artifact, not evidence.
+
+E) Vendor launcher RedFaction.exe table @0x4ad5d0 = [640, 480, 800, 600, 1024, 768, 1280, 1024] (4 entries; loop 0x401187)
+
+F) Version: install.reg says 'build 177 / v1.20'; the main menu string 'Version %d.%02d' (0x4b2fb0) takes its minor from 0x7d9738, which has no writer (only one read reference) -> the menu shows 'Version 1.00' regardless; it cannot confirm or refute 1.20.

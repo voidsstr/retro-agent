@@ -1,0 +1,26 @@
+34,45c34,45
+< seta server3 "144.33.25.201:27960"        //   /// PUBZAO
+< seta server4 "155.138.197.166:2024"        //      22RETRO|FFA
+< seta server5 "172.104.253.108:20040"        // *A51* FFA
+< seta server6 "172.233.19.61:20019"        // *A51* FFA
+< seta server7 "185.183.162.207:27112"        // TOP-CLAN.ru*FREEZE*
+< seta server8 "198.74.54.53:2020"        //   77Q3RETRO.COM|CTF
+< seta server9 "204.93.96.19:27960"        // {CROM} CTF
+< seta server10 "207.148.22.206:27960"        // WarServeR CTF - New Jersey
+< seta server11 "217.155.181.75:27961"        // Alpina CTF
+< seta server12 "45.32.237.139:27960"        // ! Freon !
+< seta server13 "5.178.110.76:27960"        // kull Server Kalhozn
+< seta server14 "50.116.39.92:32025"        // *A51* FFA
+---
+> seta server3 "136.244.97.162:27963"        // WarServeR FFA - Amsterdam
+> seta server4 "155.138.197.166:2020"        //      22RETRO|FFA
+> seta server5 "185.183.162.207:27112"        // TOP-CLAN.ru*FREEZE*
+> seta server6 "198.74.54.53:2020"        //   77Q3RETRO.COM|CTF
+> seta server7 "204.93.96.19:27960"        // {CROM} CTF
+> seta server8 "207.148.22.206:27960"        // WarServeR CTF - New Jersey
+> seta server9 "217.155.181.75:27961"        // Alpina CTF
+> seta server10 "45.231.132.51:27400"        //     44GENESIS FRZ
+> seta server11 "45.32.237.139:27960"        // ! Freon !
+> seta server12 "5.178.110.76:27960"        // kull Server Kalhozn
+> seta server13 "50.116.39.92:32024"        // *A51* FFA
+> seta server14 "51.38.148.31:27950"        // Freeze Tag

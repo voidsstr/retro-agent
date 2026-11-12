@@ -1,0 +1,423 @@
+[21:45:45][FILE ] DIRLIST: entry: UWeb.itt (122 bytes)
+[21:45:45][FILE ] DIRLIST: entry: UWeb.kot (232 bytes)
+[21:45:45][FILE ] DIRLIST: entry: UWeb.u (35219 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vehicles.det (290 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vehicles.est (234 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vehicles.frt (224 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vehicles.itt (228 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vehicles.kot (354 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vehicles.u (88554 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Vorbis.dll (135168 bytes)
+[21:45:45][FILE ] DIRLIST: entry: VorbisFile.dll (17920 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.det (2475 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.dll (417792 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.est (2355 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.frt (2337 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.int (2398 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.itt (2466 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Window.kot (3692 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.det (709 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.dll (839680 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.est (702 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.frt (683 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.int (701 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.itt (730 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WinDrv.kot (1178 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XAdmin.det (2942 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XAdmin.est (2805 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XAdmin.frt (2825 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XAdmin.int (2415 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XAdmin.itt (2843 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xAdmin.kot (7066 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XAdmin.u (83092 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xaplayersL3.upl (2306 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XDemoMaps.det (1385 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XDemoMaps.est (1371 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XDemoMaps.frt (1268 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XDemoMaps.itt (1294 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XDemoMaps.kot (1280 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XEffects.u (4569397 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.det (23283 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.dll (65536 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.est (22731 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.frt (21942 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.int (21508 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.itt (23145 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.kot (34740 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame.u (943405 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XGame_rc.u (2478952 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.det (56346 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.dll (524288 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.est (55655 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.frt (53331 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.int (51911 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.itt (56035 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.kot (91414 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XInterface.u (1999988 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XMaps.det (9775 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XMaps.est (9885 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XMaps.frt (8919 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XMaps.int (8784 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XMaps.itt (9458 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XMaps.kot (9394 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xPickups.det (448 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xPickups.est (374 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xPickups.frt (378 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xPickups.int (449 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xPickups.itt (481 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPickups.kot (718 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPickups.u (18753 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPickups_rc.u (107586 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPlayers.det (28779 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPlayers.est (28923 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPlayers.frt (28229 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPlayers.int (27406 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPlayers.itt (28545 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XPlayers.kot (30452 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xplayers2.det (5550 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xplayers2.est (4994 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xplayersL1.upl (40585 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xplayersL2.upl (12589 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xVoting.det (12516 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xVoting.est (12620 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xVoting.frt (11867 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xVoting.int (11299 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xVoting.itt (12554 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xVoting.kot (16786 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XVoting.u (404816 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeaponList.kot (4718 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.det (22079 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.est (21652 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.frt (19874 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.int (20148 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.itt (22434 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.kot (24870 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons.u (665037 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWeapons_rc.u (539391 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xWebAdmin.det (8099 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xWebAdmin.est (7826 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xWebAdmin.frt (7455 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xWebAdmin.int (7015 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xWebAdmin.itt (7764 bytes)
+[21:45:45][FILE ] DIRLIST: entry: XWebAdmin.kot (8626 bytes)
+[21:45:45][FILE ] DIRLIST: entry: xWebAdmin.u (288545 bytes)
+[21:45:45][PROTO] frame_send: 126954 bytes
+[21:45:45][MAIN ] CMD: "DOWNLOAD C:\Games\UT2004\System\UT2004.log" (42 bytes)
+[21:45:45][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.log") = OK
+[21:45:45][FILE ] DOWNLOAD: GetFileSize = 0 bytes
+[21:45:45][MAIN ] CMD: "DIRLIST C:\Games\DeusEx\SYSTEM" (30 bytes)
+[21:45:45][FILE ] DIRLIST: FindFirstFileA("C:\Games\DeusEx\SYSTEM\*")
+[21:45:45][FILE ] DIRLIST: entry: CONSYS.DLL (135168 bytes)
+[21:45:45][FILE ] DIRLIST: entry: CONSYS.U (94794 bytes)
+[21:45:45][FILE ] DIRLIST: entry: CORE.DLL (790528 bytes)
+[21:45:45][FILE ] DIRLIST: entry: CORE.INT (3282 bytes)
+[21:45:45][FILE ] DIRLIST: entry: CORE.U (60531 bytes)
+[21:45:45][FILE ] DIRLIST: entry: D3DDRV.DLL (212992 bytes)
+[21:45:45][FILE ] DIRLIST: entry: D3DDRV.INT (374 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEFAULT.INI (6752 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEFUSER.INI (5941 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEX.DLL (245760 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEX.EXE (253952 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEX.INI (6890 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEX.INT (113023 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEX.log (4096 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEX.U (5386972 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExCharacters.u (27310840 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioAIBarks.u (14756574 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioEndGame.u (1329928 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioHK_Shared.u (31697212 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioIntro.u (730907 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission00.u (5151373 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission01.u (12444736 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission02.u (17804434 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission03.u (20125905 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission04.u (14758230 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission05.u (6553799 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission08.u (7618539 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission09.u (6665875 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission10.u (20437859 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission11.u (8928313 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission12.u (7396547 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission14.u (4068239 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioMission15.u (8454459 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConAudioNYShared.u (2375589 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConText.u (3945489 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExConversations.u (2292 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExDeco.u (9840776 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExItems.u (5829328 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExSounds.u (17596150 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExText.dll (49152 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DeusExText.u (371251 bytes)
+[21:45:45][FILE ] DIRLIST: entry: DEUSEXUI.U (27378034 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Editor.dll (1253376 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Editor.int (3403 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Editor.u (98657 bytes)
+[21:45:45][FILE ] DIRLIST: entry: ENGINE.DLL (1732608 bytes)
+[21:45:45][FILE ] DIRLIST: entry: ENGINE.INT (4993 bytes)
+[21:45:45][FILE ] DIRLIST: entry: ENGINE.U (1406778 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Extension.dll (675840 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Extension.u (368327 bytes)
+[21:45:45][FILE ] DIRLIST: entry: FIRE.DLL (106496 bytes)
+[21:45:45][FILE ] DIRLIST: entry: FIRE.U (14926 bytes)
+[21:45:45][FILE ] DIRLIST: entry: GALAXY.DLL (360448 bytes)
+[21:45:45][FILE ] DIRLIST: entry: GALAXY.INT (273 bytes)
+[21:45:45][FILE ] DIRLIST: entry: GAMEINFO.DAT (32 bytes)
+[21:45:45][FILE ] DIRLIST: entry: GLIDEDRV.DLL (86016 bytes)
+[21:45:45][FILE ] DIRLIST: entry: GLIDEDRV.INT (451 bytes)
+[21:45:45][FILE ] DIRLIST: entry: IPDRV.DLL (184320 bytes)
+[21:45:45][FILE ] DIRLIST: entry: IPDRV.INT (1153 bytes)
+[21:45:45][FILE ] DIRLIST: entry: IPDRV.U (19849 bytes)
+[21:45:45][FILE ] DIRLIST: entry: IPSERVER.INT (301 bytes)
+[21:45:45][FILE ] DIRLIST: entry: IPSERVER.U (29321 bytes)
+[21:45:45][FILE ] DIRLIST: entry: License.det (6528 bytes)
+[21:45:45][FILE ] DIRLIST: entry: license.frt (6 bytes)
+[21:45:45][FILE ] DIRLIST: entry: LICENSE.INT (4597 bytes)
+[21:45:45][FILE ] DIRLIST: entry: MANIFEST.INI (9324 bytes)
+[21:45:45][FILE ] DIRLIST: entry: MANIFEST.INT (967 bytes)
+[21:45:45][FILE ] DIRLIST: entry: METALDRV.DLL (53248 bytes)
+[21:45:45][FILE ] DIRLIST: entry: METALDRV.INT (455 bytes)
+[21:45:45][FILE ] DIRLIST: entry: MPCharacters.u (1200984 bytes)
+[21:45:45][FILE ] DIRLIST: entry: MSVCRT.DLL (277776 bytes)
+[21:45:45][FILE ] DIRLIST: entry: OpenGlDrv.dll (110592 bytes)
+[21:45:45][FILE ] DIRLIST: entry: OpenGlDrv.ini (1160 bytes)
+[21:45:45][FILE ] DIRLIST: entry: OpenGlDrv.int (596 bytes)
+[21:45:45][FILE ] DIRLIST: entry: RENDER.DLL (233472 bytes)
+[21:45:45][FILE ] DIRLIST: entry: Running.ini (0 bytes)
+[21:45:45][FILE ] DIRLIST: entry: SETUP.EXE (299008 bytes)
+[21:45:45][FILE ] DIRLIST: entry: SETUP.INT (7594 bytes)
+[21:45:45][FILE ] DIRLIST: entry: SGLDRV.DLL (94208 bytes)
+[21:45:45][FILE ] DIRLIST: entry: SGLDRV.INT (451 bytes)
+[21:45:45][FILE ] DIRLIST: entry: SOFTDRV.DLL (393216 bytes)
+[21:45:45][FILE ] DIRLIST: entry: SOFTDRV.INT (329 bytes)
+[21:45:45][FILE ] DIRLIST: entry: STARTUP.INT (4239 bytes)
+[21:45:45][FILE ] DIRLIST: entry: UBrowser.u (325317 bytes)
+[21:45:45][FILE ] DIRLIST: entry: USER.INI (5941 bytes)
+[21:45:45][FILE ] DIRLIST: entry: UWindow.u (644206 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WINDOW.DLL (397312 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WINDOW.INT (2095 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WINDRV.DLL (159744 bytes)
+[21:45:45][FILE ] DIRLIST: entry: WINDRV.INT (681 bytes)
+[21:45:45][PROTO] frame_send: 10702 bytes
+[21:45:45][MAIN ] CMD: "DOWNLOAD C:\Games\DeusEx\SYSTEM\DeusEx.log" (42 bytes)
+[21:45:45][FILE ] DOWNLOAD: CreateFileA("C:\Games\DeusEx\SYSTEM\DeusEx.log") = OK
+[21:45:45][FILE ] DOWNLOAD: GetFileSize = 4096 bytes
+[21:45:45][PROTO] frame_send: 4097 bytes
+[21:45:45][MAIN ] Client disconnected
+[21:45:46][MAIN ] console: 1360 line(s) were not shown on the console while it was not accepting output (all are in this log; 6778 since start)
+[21:45:48][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:45:48][INPUT] WINLIST: found 4 visible windows
+[21:45:51][MAIN ] Connection from 192.168.1.132:33186
+[21:45:51][MAIN ] handle_client: starting auth on socket 1464
+[21:45:51][PROTO] AUTH: success
+[21:45:51][MAIN ] Client authenticated
+[21:45:51][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+[21:45:51][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+[21:45:51][MAIN ] Client disconnected
+[21:45:52][MAIN ] Connection from 192.168.1.132:33194
+[21:45:52][MAIN ] handle_client: starting auth on socket 1380
+[21:45:52][PROTO] AUTH: success
+[21:45:52][MAIN ] Client authenticated
+[21:45:52][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:45:52][PROTO] frame_send: 2095 bytes
+[21:45:52][MAIN ] Client disconnected
+[21:45:53][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:45:53][INPUT] WINLIST: found 4 visible windows
+[21:45:55][MAIN ] Connection from 192.168.1.132:39850
+[21:45:55][MAIN ] handle_client: starting auth on socket 768
+[21:45:55][PROTO] AUTH: success
+[21:45:55][MAIN ] Client authenticated
+[21:45:55][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:45:55][PROTO] frame_send: 2095 bytes
+[21:45:55][MAIN ] Client disconnected
+[21:45:58][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:45:58][INPUT] WINLIST: found 4 visible windows
+[21:46:03][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:46:03][INPUT] WINLIST: found 4 visible windows
+[21:46:08][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:46:08][INPUT] WINLIST: found 4 visible windows
+[21:46:08][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:46:08][INPUT] WINLIST: found 4 visible windows
+[21:46:08][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+[21:46:08][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+[21:46:08][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[21:46:08][PROTO] frame_send: 6220855 bytes
+[21:46:11][MAIN ] CMD: "EXEC taskkill /im "sof2mp_t1080.exe"" (36 bytes)
+[21:46:11][EXEC ] EXEC: cmdline="cmd.exe /c taskkill /im "sof2mp_t1080.exe""
+[21:46:11][EXEC ] CreateProcessA OK, PID=3252
+[21:46:13][EXEC ] Process 3252 exited: code=0, output=76 bytes, 1922ms elapsed
+[21:46:19][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:46:19][PROTO] frame_send: 2097 bytes
+[21:46:19][MAIN ] CMD: "EXEC taskkill /f /im "sof2mp_t1080.exe"" (39 bytes)
+[21:46:19][EXEC ] EXEC: cmdline="cmd.exe /c taskkill /f /im "sof2mp_t1080.exe""
+[21:46:19][EXEC ] CreateProcessA OK, PID=3512
+[21:46:19][EXEC ] Process 3512 exited: code=0, output=76 bytes, 110ms elapsed
+[21:46:23][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:46:23][PROTO] frame_send: 2028 bytes
+[21:46:23][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+[21:46:23][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+[21:46:23][MAIN ] Client disconnected
+[21:46:24][MAIN ] CMD: "PING" (4 bytes)
+[21:46:29][MAIN ] Connection from 192.168.1.132:40858
+[21:46:29][MAIN ] handle_client: starting auth on socket 1140
+[21:46:29][PROTO] AUTH: success
+[21:46:29][MAIN ] Client authenticated
+[21:46:29][MAIN ] CMD: "DOWNLOAD C:\Games\SoldierOfFortune2\base\MP\qconsole.log" (56 bytes)
+[21:46:29][FILE ] DOWNLOAD: CreateFileA("C:\Games\SoldierOfFortune2\base\MP\qconsole.log") = OK
+[21:46:29][FILE ] DOWNLOAD: GetFileSize = 7612 bytes
+[21:46:29][PROTO] frame_send: 7613 bytes
+[21:46:29][MAIN ] Client disconnected
+[21:46:29][MAIN ] Connection from 192.168.1.132:40866
+[21:46:29][MAIN ] handle_client: starting auth on socket 1388
+[21:46:29][PROTO] AUTH: success
+[21:46:29][MAIN ] Client authenticated
+[21:46:29][MAIN ] CMD: "DELETE C:\Games\SoldierOfFortune2\sof2mp_t1080.exe" (50 bytes)
+[21:46:29][FILE ] DELETE: DeleteFileA("C:\Games\SoldierOfFortune2\sof2mp_t1080.exe") = OK
+[21:46:29][MAIN ] CMD: "DELETE C:\Games\SoldierOfFortune2\base\MP\qconsole.log" (54 bytes)
+[21:46:29][FILE ] DELETE: DeleteFileA("C:\Games\SoldierOfFortune2\base\MP\qconsole.log") = OK
+[21:46:29][MAIN ] CMD: "UPLOAD C:\Games\SoldierOfFortune2\base\MP\sof2mp.cfg" (52 bytes)
+[21:46:29][PROTO] frame_recv: 9387 bytes
+[21:46:29][FILE ] UPLOAD: CreateFileA("C:\Games\SoldierOfFortune2\base\MP\sof2mp.cfg") = OK
+[21:46:29][FILE ] UPLOAD: Complete, 9387 bytes to "C:\Games\SoldierOfFortune2\base\MP\sof2mp.cfg"
+[21:46:29][MAIN ] CMD: "DOWNLOAD C:\Games\SoldierOfFortune2\base\MP\sof2mp.cfg" (54 bytes)
+[21:46:29][FILE ] DOWNLOAD: CreateFileA("C:\Games\SoldierOfFortune2\base\MP\sof2mp.cfg") = OK
+[21:46:29][FILE ] DOWNLOAD: GetFileSize = 9387 bytes
+[21:46:29][PROTO] frame_send: 9388 bytes
+[21:46:29][MAIN ] CMD: "DIRLIST C:\Games\SoldierOfFortune2" (34 bytes)
+[21:46:29][FILE ] DIRLIST: FindFirstFileA("C:\Games\SoldierOfFortune2\*")
+[21:46:29][FILE ] DIRLIST: entry: base (0 bytes, dir)
+[21:46:29][FILE ] DIRLIST: entry: cgamex86.dll (802816 bytes)
+[21:46:29][FILE ] DIRLIST: entry: Docs (0 bytes, dir)
+[21:46:29][FILE ] DIRLIST: entry: EaxMan.dll (94208 bytes)
+[21:46:29][FILE ] DIRLIST: entry: Extras (0 bytes, dir)
+[21:46:29][FILE ] DIRLIST: entry: ffx86.dll (143360 bytes)
+[21:46:29][FILE ] DIRLIST: entry: FLEETRES.BAT (4117 bytes)
+[21:46:29][FILE ] DIRLIST: entry: FLEETRES.EXE (30208 bytes)
+[21:46:29][FILE ] DIRLIST: entry: gamex86.dll (2285568 bytes)
+[21:46:29][FILE ] DIRLIST: entry: IFC22.dll (200704 bytes)
+[21:46:29][FILE ] DIRLIST: entry: install.reg (1352 bytes)
+[21:46:29][FILE ] DIRLIST: entry: launch.txt (877 bytes)
+[21:46:29][FILE ] DIRLIST: entry: Menusx86.dll (241664 bytes)
+[21:46:29][FILE ] DIRLIST: entry: ossupport.dll (135168 bytes)
+[21:46:29][FILE ] DIRLIST: entry: ossupport.txt (316 bytes)
+[21:46:29][FILE ] DIRLIST: entry: PB (0 bytes, dir)
+[21:46:29][FILE ] DIRLIST: entry: pcp.exe (45056 bytes)
+[21:46:29][FILE ] DIRLIST: entry: Play Soldier of Fortune II - Multiplayer.bat (5406 bytes)
+[21:46:29][FILE ] DIRLIST: entry: Play Soldier of Fortune II.bat (25332 bytes)
+[21:46:29][FILE ] DIRLIST: entry: README-FLEET.txt (5617 bytes)
+[21:46:29][FILE ] DIRLIST: entry: requires.json (941 bytes)
+[21:46:29][FILE ] DIRLIST: entry: servercache.dat (506896 bytes)
+[21:46:29][FILE ] DIRLIST: entry: SERVERS-fleet.txt (1145 bytes)
+[21:46:29][FILE ] DIRLIST: entry: snd_alx86.dll (204800 bytes)
+[21:46:29][FILE ] DIRLIST: entry: snd_dsx86.dll (188416 bytes)
+[21:46:29][FILE ] DIRLIST: entry: SoF2.exe (1064960 bytes)
+[21:46:29][FILE ] DIRLIST: entry: sof2key (135 bytes)
+[21:46:29][FILE ] DIRLIST: entry: sof2mp.exe (1572917 bytes)
+[21:46:29][FILE ] DIRLIST: entry: _disc (0 bytes, dir)
+[21:46:29][PROTO] frame_send: 3371 bytes
+[21:46:29][MAIN ] Client disconnected
+[21:46:31][GAMEINDEX] scan complete (changed): 48 game(s), hash=58c28ae4, 296ms
+[21:46:40][MAIN ] Connection from 192.168.1.132:57058
+[21:46:40][MAIN ] handle_client: starting auth on socket 1388
+[21:46:40][PROTO] AUTH: success
+[21:46:40][MAIN ] Client authenticated
+[21:46:40][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:46:40][PROTO] frame_send: 2028 bytes
+[21:46:40][MAIN ] Client disconnected
+[21:46:45][MAIN ] Connection from 192.168.1.132:54408
+[21:46:45][MAIN ] handle_client: starting auth on socket 1376
+[21:46:45][PROTO] AUTH: success
+[21:46:45][MAIN ] Client authenticated
+[21:46:45][MAIN ] CMD: "DELETE C:\Games\ReturnToCastleWolfenstein\Main\wolfconfig_mp.cfg" (64 bytes)
+[21:46:45][FILE ] DELETE: DeleteFileA("C:\Games\ReturnToCastleWolfenstein\Main\wolfconfig_mp.cfg") = OK
+[21:46:45][MAIN ] CMD: "DIRLIST C:\Games\ReturnToCastleWolfenstein\Main" (47 bytes)
+[21:46:45][FILE ] DIRLIST: FindFirstFileA("C:\Games\ReturnToCastleWolfenstein\Main\*")
+[21:46:45][FILE ] DIRLIST: entry: autoexec.cfg (1863 bytes)
+[21:46:45][FILE ] DIRLIST: entry: cgame_mp_x86.dll (589824 bytes)
+[21:46:45][FILE ] DIRLIST: entry: fleetres.cfg (246 bytes)
+[21:46:45][FILE ] DIRLIST: entry: hunkusage.dat (812 bytes)
+[21:46:45][FILE ] DIRLIST: entry: lan.cfg (157 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_bin.pk3 (760207 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pak0.pk3 (63211149 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pak1.pk3 (4449596 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pak2.pk3 (1118 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pak3.pk3 (159762 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pak4.pk3 (7799 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pak5.pk3 (167075 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps0.pk3 (3485134 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps1.pk3 (3765933 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps2.pk3 (7408542 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps3.pk3 (10780146 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps4.pk3 (24171802 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps5.pk3 (20024689 bytes)
+[21:46:45][FILE ] DIRLIST: entry: mp_pakmaps6.pk3 (10080181 bytes)
+[21:46:45][FILE ] DIRLIST: entry: pak0.pk3 (315823656 bytes)
+[21:46:45][FILE ] DIRLIST: entry: qagame_mp_x86.dll (700416 bytes)
+[21:46:45][FILE ] DIRLIST: entry: scripts (0 bytes, dir)
+[21:46:45][FILE ] DIRLIST: entry: sp_pak1.pk3 (293887431 bytes)
+[21:46:45][FILE ] DIRLIST: entry: sp_pak2.pk3 (11026123 bytes)
+[21:46:45][FILE ] DIRLIST: entry: sp_pak3.pk3 (152544 bytes)
+[21:46:45][FILE ] DIRLIST: entry: sp_pak4.pk3 (15532040 bytes)
+[21:46:45][FILE ] DIRLIST: entry: ui_mp_x86.dll (245760 bytes)
+[21:46:45][FILE ] DIRLIST: entry: wolfconfig.cfg (5950 bytes)
+[21:46:45][PROTO] frame_send: 3315 bytes
+[21:46:45][MAIN ] Client disconnected
+[21:46:45][MAIN ] Connection from 192.168.1.132:54414
+[21:46:45][MAIN ] handle_client: starting auth on socket 784
+[21:46:45][PROTO] AUTH: success
+[21:46:45][MAIN ] Client authenticated
+[21:46:45][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:46:45][PROTO] frame_send: 2028 bytes
+[21:46:45][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:46:45][INPUT] WINLIST: found 3 visible windows
+[21:46:45][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+[21:46:45][DISPLAY] Current: 1920x1080 32bpp 60Hz (dmFields=0x007E00A0)
+[21:46:45][MAIN ] CMD: "EXEC cmd /c start "" /D "C:\Games\ReturnToCastleWolfenstein" "C:\Games\ReturnToC"... (157 bytes)
+[21:46:45][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "" /D "C:\Games\ReturnToCastleWolfenstein" "C:\Games\ReturnToCastleWolfenstein\WolfMP.exe" +set logfile 2 +set r_mode 7 +set r_fullscreen 1"
+[21:46:45][EXEC ] CreateProcessA OK, PID=3780
+[21:46:45][EXEC ] Process 3780 exited: code=0, output=0 bytes, 63ms elapsed
+[21:46:46][MAIN ] Connection from 192.168.1.132:54420
+[21:46:46][MAIN ] handle_client: starting auth on socket 1328
+[21:46:46][PROTO] AUTH: success
+[21:46:46][MAIN ] Client authenticated
+[21:46:46][MAIN ] CMD: "PING" (4 bytes)
+[21:46:46][MAIN ] Client disconnected
+[21:46:50][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:46:51][INPUT] WINLIST: found 3 visible windows
+[21:46:56][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:46:56][INPUT] WINLIST: found 4 visible windows
+[21:47:01][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:01][INPUT] WINLIST: found 4 visible windows
+[21:47:04][MAIN ] Connection from 192.168.1.132:60664
+[21:47:04][MAIN ] handle_client: starting auth on socket 1244
+[21:47:04][PROTO] AUTH: success
+[21:47:04][MAIN ] Client authenticated
+[21:47:04][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:04][INPUT] WINLIST: found 4 visible windows
+[21:47:04][MAIN ] Client disconnected
+[21:47:06][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:06][INPUT] WINLIST: found 4 visible windows
+[21:47:11][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:11][INPUT] WINLIST: found 4 visible windows
+[21:47:16][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:16][INPUT] WINLIST: found 4 visible windows
+[21:47:21][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:21][INPUT] WINLIST: found 4 visible windows
+[21:47:21][MAIN ] CMD: "WINLIST" (7 bytes)
+[21:47:21][INPUT] WINLIST: found 4 visible windows
+[21:47:21][MAIN ] CMD: "DISPLAYCFG get" (14 bytes)
+[21:47:21][DISPLAY] Current: 640x480 32bpp 60Hz (dmFields=0x007E00A0)
+[21:47:21][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[21:47:21][PROTO] frame_send: 921655 bytes
+[21:47:22][MAIN ] CMD: "EXEC taskkill /im "WolfMP.exe"" (30 bytes)
+[21:47:22][EXEC ] EXEC: cmdline="cmd.exe /c taskkill /im "WolfMP.exe""
+[21:47:22][EXEC ] CreateProcessA OK, PID=856
+[21:47:22][EXEC ] Process 856 exited: code=0, output=70 bytes, 438ms elapsed
+[21:47:22][MAIN ] Connection from 192.168.1.132:39004
+[21:47:22][MAIN ] handle_client: starting auth on socket 1452
+[21:47:22][MAIN ] Auth failed, closing connection
+[21:47:24][MAIN ] Connection from 192.168.1.132:39006
+[21:47:24][MAIN ] handle_client: starting auth on socket 1244
+[21:47:24][PROTO] AUTH: success
+[21:47:24][MAIN ] Client authenticated
+[21:47:24][MAIN ] CMD: "GAMEINDEX HASH" (14 bytes)
+[21:47:24][MAIN ] Client disconnected

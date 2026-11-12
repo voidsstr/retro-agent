@@ -1,0 +1,1753 @@
+{
+ "key": "avp",
+ "status": "ready",
+ "summary": "The build is done and verified: 154/154 files decode correctly and --check passes. Nothing was written to the share and no box was touched.\n\nThe reviewer's conclusion holds. 154 files in Games-Library/AliensVsPredator are still InstallShield-5 obfuscated (plain[i] = ror8(c[i]^0xD5,2) - (i % 0x47), seed 0 per file): 86 .rif, fastfile/Tex1-58.FFL, fastfile/ffinfo.txt, 8 .bik and FMVs/IntroSound.smk.\n\nChecks run in this phase:\n- apply.py --check: all 154 inputs match their pinned md5 and size. The 56 files that must stay as staged (Snd*.FFL, common.ffl, *.dat, language.txt) still match NakedAVP.\n- --check --full-scan: no other file in the tree is obfuscated. Negative control: with the 154 dropped from the table, the scan flags exactly those 154 and nothing else.\n- --build: writes all 154 de-obfuscated files to ~/.retro-fleet/patch-out/avp with manifest.json.\n  - 145 of them equal the independent NakedAVP Gold md5 list, re-checked with coreutils md5sum and the literal per-byte loop.\n  - The 9 FMVs pass a structural walk of every frame. A real decoder (ffmpeg 7.0.2) also decodes every frame of all 9, and the decoded counts equal the header counts; the staged originals cannot even be opened.\n- The asset every LCD box logged as missing now resolves: ffinfo.txt maps graphics\\Menus to Tex37.FFL, which holds graphics\\Menus\\IntroFont.RIM as a whole IFF chunk. All 108 fast-files that ffinfo.txt lists are present.\n\navp.exe disassembly findings that shape the 1080p work:\n- The menus always run at 640x480 on the primary display (SelectMenuDisplayMode 0x491e90). The Options > Video choice applies only to gameplay.\n- That list is built from DirectDraw EnumDisplayModes (flags 0) plus a check of which colour depths the D3D card can render. An earlier session's DirectDraw probes on .123, .145, .195 and .240 show 1920x1080 at both 16 and 32 bpp. So after this data fix, 1920x1080 should be selectable in game with no launcher change; nobody has seen that list on the fleet yet.\n- AvP_Video.cfg is 32 bytes: GUID[16], DDGUIDIsSet, W, H, BPP. All-zero GUID bytes select the primary display.\n- Trap: if the cfg names the right card but a mode the game did not list, the mode index stays -1 and the game reads W/H/BPP from garbage memory. Any per-box writer must confirm the mode through DirectDraw first.\n\nFiles: provisioning/patches/avp/{apply.py, files.tsv, nakedavp-gold-md5.txt, make_table.py, README.md} and tests/python/test_patch_avp.py, all untracked in the worktree and not committed.",
+ "files_created": [
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/avp/apply.py",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/avp/files.tsv",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/avp/nakedavp-gold-md5.txt",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/avp/make_table.py",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/provisioning/patches/avp/README.md",
+  "/home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/tests/python/test_patch_avp.py",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/notes.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/tree-scan.json",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/tree-scan.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/check.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/check-full-scan.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/scan-sensitivity.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/build.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/manifest.json",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/independent-verify.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/fmv-decode.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/avp-exe-video-disasm.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/pytest.txt",
+  "/home/voidsstr/development/retro-agent/.claude/evidence-1080p/build-avp/nakedavp_README.md",
+  "/home/voidsstr/.retro-fleet/patch-out/avp/manifest.json",
+  "/home/voidsstr/.retro-fleet/patch-out/avp-video/AvP_Video-1920x1080x32.cfg",
+  "/home/voidsstr/.retro-fleet/patch-out/avp-video/AvP_Video-1920x1080x16.cfg"
+ ],
+ "outputs": [
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/alien.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/alien.rif",
+   "md5": "4267d305ad3f18e6683f86b4eb755665",
+   "size": 97184
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/alien_hud.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/alien_hud.RIF",
+   "md5": "ff6b892af4665c81082e24a43903e987",
+   "size": 118060
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/Disk.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/Disk.RIF",
+   "md5": "fe9a1f4e5caab35e38aabdbbb445aabc",
+   "size": 4932
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/DROPSHIP.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/DROPSHIP.RIF",
+   "md5": "4f8ad8e9a4c43e2216ad2bc0dbe29ea5",
+   "size": 79908
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpc_civvie.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpc_civvie.RIF",
+   "md5": "5d06ea82a096558d70069c8a48830ec0",
+   "size": 1902200
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpc_xenoborg.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpc_xenoborg.RIF",
+   "md5": "92ab2760ff7abf2a4fdb691c8cfb8222",
+   "size": 313836
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcalien.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpcalien.rif",
+   "md5": "1867c90c8f3101eaea42294b8da70f2d",
+   "size": 701260
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpchugger.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpchugger.rif",
+   "md5": "b12d7b171ffb4c8699416543010663d0",
+   "size": 193100
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcmarine.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpcmarine.RIF",
+   "md5": "a220b5822b58b6c8f9a6d26a4774289e",
+   "size": 2630360
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcpred_alien.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpcpred_alien.RIF",
+   "md5": "85ae382e13c7f438d32bb971f21dedf0",
+   "size": 780976
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcpredator.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpcpredator.rif",
+   "md5": "31ab741eba3fbc9c72a801bc68901847",
+   "size": 2019432
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcpretorian.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/hnpcpretorian.rif",
+   "md5": "4221affbcd0a132a87fc1ed3528f9abb",
+   "size": 556756
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/marine.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/marine.rif",
+   "md5": "906b7ad1522ee507f3ae635db174bd2e",
+   "size": 114916
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/marwep.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/marwep.rif",
+   "md5": "709e70ece003374fba61640dcb73ed9f",
+   "size": 785864
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/Mdisk.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/Mdisk.RIF",
+   "md5": "bf5313faefed4f5ee5876bf811b3e16d",
+   "size": 4236
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/multip.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/multip.rif",
+   "md5": "0f47112c36bdcc7ce2d36d9f65ae264b",
+   "size": 140912
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/pred ship fury.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/pred ship fury.RIF",
+   "md5": "514f1a7248db2315081c36e40a5cf041",
+   "size": 41056
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/pred ship ob.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/pred ship ob.rif",
+   "md5": "5c50c6a1b9b651c5b9bdf66fa1b2f955",
+   "size": 184232
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/pred_hud.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/pred_hud.RIF",
+   "md5": "2207090cd22a96afec84ed01ef72ea05",
+   "size": 357344
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/predator.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/predator.rif",
+   "md5": "735c0f33db055322ebf95363acc69119",
+   "size": 99012
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/queen.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/queen.RIF",
+   "md5": "1800cd24226db14b36549b06175fb6e5",
+   "size": 542400
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/sentry.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/sentry.RIF",
+   "md5": "16d2efb5095fec300dd60698ff445fb2",
+   "size": 7820
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/Tongue.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_huds/Tongue.RIF",
+   "md5": "c09dbf413ea107bccce9b3b917a5d800",
+   "size": 14408
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/als-dm-coop.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/als-dm-coop.rif",
+   "md5": "8777d7f7bbfe7a87cc37e9b766be8bba",
+   "size": 568548
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Als-dm.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Als-dm.RIF",
+   "md5": "1a4fdffafb4678b8d0ca2537cc4ae689",
+   "size": 495216
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Area52.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Area52.RIF",
+   "md5": "b52af8fa3ec154a83ca8fbe71fa9a59d",
+   "size": 2201056
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Base.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Base.RIF",
+   "md5": "a054573e82728d0656eea4757f1077d3",
+   "size": 376732
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Battle.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Battle.RIF",
+   "md5": "107a3fb48ebdb000ae652f4a6d0a9c72",
+   "size": 240996
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Breakout.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Breakout.RIF",
+   "md5": "b94444bbc581d8aaf398ad07fdc425d3",
+   "size": 1534840
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Breakout_P.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Breakout_P.rif",
+   "md5": "18d9dc2d979a99c410ddbd4ddf785b78",
+   "size": 971280
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Caverns.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Caverns.RIF",
+   "md5": "b761218c32e4f210aee42b7d40acde2c",
+   "size": 1203500
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Caverns_A.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Caverns_A.RIF",
+   "md5": "3bf4871492c958c1915615b292390181",
+   "size": 778864
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/co-op_meat_factory.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/co-op_meat_factory.rif",
+   "md5": "fe6e7cb73750f18f0bfee097b229b6a4",
+   "size": 488572
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/colony_c.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/colony_c.rif",
+   "md5": "2dc68e92a8cf2c47a47dd8ff827e5abd",
+   "size": 418688
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Compound.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Compound.RIF",
+   "md5": "b954a582c4976cbab95859d31fd210f7",
+   "size": 610736
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Compoundcoop.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Compoundcoop.RIF",
+   "md5": "02c770a1e88533d7156fac9cbaa7f624",
+   "size": 610556
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Derelict.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Derelict.RIF",
+   "md5": "aa1a029da32eeffd3e30bb1291e6ad5d",
+   "size": 1485812
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Derelict_A.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Derelict_A.RIF",
+   "md5": "917cb15d9ffe404630544b0e41444316",
+   "size": 1424152
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/E3demo.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/E3demo.RIF",
+   "md5": "e102b1def6220aff18e57b0b9f6f6731",
+   "size": 843584
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/E3demoSP.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/E3demoSP.rif",
+   "md5": "6720212a41d0c7e51b7e3c03fbc32e84",
+   "size": 639016
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/elevator.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/elevator.rif",
+   "md5": "ec7b75ca1730c8db5f239900c7c41fa3",
+   "size": 679064
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/elevator_co-op.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/elevator_co-op.rif",
+   "md5": "28403b2be75c24744aa3d0c3c3422fd7",
+   "size": 688712
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Escape.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Escape.RIF",
+   "md5": "e0919deb6a55778f65ff9b2ef0068944",
+   "size": 1445664
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/escape_p.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/escape_p.rif",
+   "md5": "9e1fb4bcb05f2c640a95ba0ad494233b",
+   "size": 1493980
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Fall.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Fall.RIF",
+   "md5": "a3d7902cdf78253d742818153241248c",
+   "size": 1867520
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Fall_m.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Fall_m.RIF",
+   "md5": "d7af5d070fedb847ded66206c475546e",
+   "size": 1954156
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Furyall.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Furyall.RIF",
+   "md5": "09c0510003892184d760b278c1da9476",
+   "size": 1375168
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/furyall_a.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/furyall_a.rif",
+   "md5": "4b9bb88e60a115136bcf66c4a56be2cb",
+   "size": 1100128
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Genshd1.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Genshd1.RIF",
+   "md5": "38865339152458110bee6c0e87b5d509",
+   "size": 1429976
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hadleyshope.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/hadleyshope.rif",
+   "md5": "773c69733b063cff7da53d53e8de443a",
+   "size": 890196
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hadleyshope_coop.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/hadleyshope_coop.rif",
+   "md5": "d95a1981e3ea6187160ae6c5ca6dffe8",
+   "size": 887708
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Hangar.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Hangar.RIF",
+   "md5": "46f27e38c2f1e39f5b8af85d25f97d21",
+   "size": 347400
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hive.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/hive.RIF",
+   "md5": "aff965e71897a2efa2919096559a1f29",
+   "size": 422540
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hive_c.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/hive_c.RIF",
+   "md5": "861a90530bb903bbd4daa1b25c484bed",
+   "size": 431484
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Invasion.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Invasion.RIF",
+   "md5": "2355ae72ef68960d881a2df1f7cdfbb5",
+   "size": 1988464
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Invasion_A.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Invasion_A.RIF",
+   "md5": "e57cd3ba63064229b2b11a2f83014089",
+   "size": 2154900
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Invasion_P.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Invasion_P.RIF",
+   "md5": "13372362090e5e52d40fae53bcb221a0",
+   "size": 1960284
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Jockey.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Jockey.RIF",
+   "md5": "a2942f0c76ca13ff05e72e059f4e8511",
+   "size": 926640
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/jockeycoop.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/jockeycoop.RIF",
+   "md5": "eb1064bdbfff5befba0148bd9136f263",
+   "size": 1008868
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/kens-co-op.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/kens-co-op.RIF",
+   "md5": "55d8ff72d70c9d416509df7c5eca7ba6",
+   "size": 556736
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Lab14.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Lab14.rif",
+   "md5": "283b3b88adfa848b8d6bfbb21bd50013",
+   "size": 616416
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Lab14coop.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Lab14coop.rif",
+   "md5": "7a391b85893f457c833643ce65970742",
+   "size": 600144
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Leadworks.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Leadworks.rif",
+   "md5": "2bb1a602ae00ff843f8cd671a3412b5b",
+   "size": 581344
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Leadworks_coop.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Leadworks_coop.rif",
+   "md5": "896bf46cd67a7c2a68f99ae5824c43ea",
+   "size": 584312
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Lockdown4.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Lockdown4.rif",
+   "md5": "ae6ff47adeb2fc7969591bc2e278ce93",
+   "size": 1078048
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/meat_factory.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/meat_factory.rif",
+   "md5": "90078c255d306961836b7bf3a6ce026e",
+   "size": 504752
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Nost03.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Nost03.RIF",
+   "md5": "b6c20145b51e9abc46939b1ea55aa986",
+   "size": 1858376
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Nost03_M.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Nost03_M.rif",
+   "md5": "2cc94c22cb23cd02c708a4c076ec324a",
+   "size": 2247540
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/nostromo.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/nostromo.rif",
+   "md5": "ee84b908593ebf05558b074a87611645",
+   "size": 623200
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/nostromo_coop.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/nostromo_coop.rif",
+   "md5": "af556b4a5cf6c66695bdb07e6823d984",
+   "size": 653136
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/odobenus.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/odobenus.rif",
+   "md5": "33fcb7fd8879c1a3af030830eb3540a3",
+   "size": 1463964
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/office.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/office.rif",
+   "md5": "8d70b915a2e0c276481dfda1c265f9f0",
+   "size": 942484
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Stat101.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Stat101.RIF",
+   "md5": "fe44c96e2f3a031f3a4374da4df445a5",
+   "size": 1247872
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Stat101_M.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Stat101_M.rif",
+   "md5": "205089ea581f03cc56d251ca31fc2df8",
+   "size": 1341740
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Statue.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Statue.RIF",
+   "md5": "ff47b9db187211920994f1dcd5ed5599",
+   "size": 867456
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/SUBWAY.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/SUBWAY.rif",
+   "md5": "620ea0cc73f516ed8adecbdff6f789ed",
+   "size": 853900
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/SUBWAYcoop.rif",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/SUBWAYcoop.rif",
+   "md5": "63e4ef8b8f1a93b1c461b34350c8d217",
+   "size": 696696
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Sulaco.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Sulaco.RIF",
+   "md5": "d401b6f78170161623893d97ff59b53a",
+   "size": 1867316
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Sulaco_a.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Sulaco_a.RIF",
+   "md5": "c4fd18fd7e27b734318c2a2e5e4475c3",
+   "size": 1788520
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Sulaco_p.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Sulaco_p.RIF",
+   "md5": "4d794c520a0ffbc597514d1b9eaf4593",
+   "size": 1878588
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Temple.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Temple.RIF",
+   "md5": "1302a03fb0dba9b45c76e55ea89683fe",
+   "size": 2424472
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Temple_M.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Temple_M.RIF",
+   "md5": "b7a024ffd6f2b50b93338ba84996093d",
+   "size": 2304820
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Temple_p.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Temple_p.RIF",
+   "md5": "8e4fe32448e5dbb9b0b571d126b81fba",
+   "size": 2288936
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Trapped.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Trapped.RIF",
+   "md5": "a5ceca52bd19098daa02fe8138ed29a4",
+   "size": 275728
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Vaults.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Vaults.RIF",
+   "md5": "ef7d4e3fd13fc5b4294e58033d582c65",
+   "size": 2646784
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Vaults_M.RIF",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/avp_rifs/Vaults_M.RIF",
+   "md5": "ac4b4bdae7f6dd2e8e4a2be9e38a0092",
+   "size": 2247304
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/ffinfo.txt",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/ffinfo.txt",
+   "md5": "8011119b8456329457f0872037b22243",
+   "size": 3819
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex1.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex1.FFL",
+   "md5": "d9ecc8666917d167fc0f151287d3546a",
+   "size": 375580
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex10.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex10.FFL",
+   "md5": "519858b7d238a587a85652192ec2468d",
+   "size": 553596
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex11.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex11.FFL",
+   "md5": "c49461369e40c098ecb706ce7ae59495",
+   "size": 569572
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex12.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex12.FFL",
+   "md5": "117311a6e1c96fa8e6834071ec10c2c6",
+   "size": 519940
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex13.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex13.FFL",
+   "md5": "b8d2ce2970349d1e03c80a691f00b4c2",
+   "size": 378872
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex14.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex14.FFL",
+   "md5": "c67da430a9d2949dabbfecc8efac5d33",
+   "size": 532292
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex15.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex15.FFL",
+   "md5": "b4c10dfec3c73002ce2b0a38666fc171",
+   "size": 501348
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex16.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex16.FFL",
+   "md5": "0411c98c2db4c8bd9d67925b4924dbb3",
+   "size": 361560
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex17.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex17.FFL",
+   "md5": "2a1de9941e80dcdd6d252575189f26a8",
+   "size": 255040
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex18.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex18.FFL",
+   "md5": "15fbbc0ce657e597b960349930d2c2c8",
+   "size": 688240
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex19.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex19.FFL",
+   "md5": "4881d6cc9ee0adcd50b3392bab88523a",
+   "size": 344512
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex2.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex2.FFL",
+   "md5": "655c23f494879ea826b6dadcd2669d1d",
+   "size": 102136
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex20.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex20.FFL",
+   "md5": "7602a80deb49813c96e7e9c6804ba27d",
+   "size": 242320
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex21.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex21.FFL",
+   "md5": "e4eb4c0f3269939a8d9c6cca413e95f0",
+   "size": 17000
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex22.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex22.FFL",
+   "md5": "ae0caf7209f457312c5333338cc7021c",
+   "size": 492692
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex23.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex23.FFL",
+   "md5": "058930e377fa413fb5dcd2018d2ddee7",
+   "size": 242784
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex24.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex24.FFL",
+   "md5": "a611dbc06035aefd1e38b6eaac80fab9",
+   "size": 1490984
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex25.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex25.FFL",
+   "md5": "196b5eca90fcf921d18697ceec96565a",
+   "size": 550072
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex26.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex26.FFL",
+   "md5": "b5bd750e210e7c82bc4c7010401df70a",
+   "size": 305700
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex27.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex27.FFL",
+   "md5": "85cb0b4a083be8f87ab04fa76dbc6478",
+   "size": 327228
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex28.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex28.FFL",
+   "md5": "ec1949224ea3a2c104c9908d89c5f8f1",
+   "size": 513432
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex29.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex29.FFL",
+   "md5": "45abffc0107966677adfdd89cba9e18e",
+   "size": 533956
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex3.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex3.FFL",
+   "md5": "feee0e06c91c88ca0f96aeaf1a724301",
+   "size": 473452
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex30.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex30.FFL",
+   "md5": "61d983086a4e5ad2e1d1685cb9b47aa2",
+   "size": 516908
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex31.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex31.FFL",
+   "md5": "80ecacc0282f6d917befd8328ee60272",
+   "size": 121116
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex32.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex32.FFL",
+   "md5": "21d2777d86e6a6ce0fb3f12c74cc978f",
+   "size": 509568
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex33.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex33.FFL",
+   "md5": "5490df39f625c7d2f2d837645bc91822",
+   "size": 62356
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex34.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex34.FFL",
+   "md5": "c14eb4ce768a7cae4e474016320e09da",
+   "size": 84460
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex35.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex35.FFL",
+   "md5": "28074571a4fc9804e612244775d6aefc",
+   "size": 118356
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex36.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex36.FFL",
+   "md5": "788fadfef9603d1ba3ccb8c74f5ddaf9",
+   "size": 100028
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex37.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex37.FFL",
+   "md5": "53fa29efc83880c9e56f26ab727b1c6e",
+   "size": 1249444
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex38.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex38.FFL",
+   "md5": "58c6103dd399bab9fd1554aa848916aa",
+   "size": 250172
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex39.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex39.FFL",
+   "md5": "91cb7a34c64620c74cd2c3dcb8f02bb6",
+   "size": 224932
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex4.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex4.FFL",
+   "md5": "b0e9dbca444b38ddd5570ee94847071a",
+   "size": 515416
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex40.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex40.FFL",
+   "md5": "77a28d333b39b33f08d87a5963b17aa9",
+   "size": 254076
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex41.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex41.FFL",
+   "md5": "778644485c113c023a638ab70789983d",
+   "size": 260148
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex42.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex42.FFL",
+   "md5": "83b442ff98786f2cb033462dc2ef56f7",
+   "size": 260236
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex43.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex43.FFL",
+   "md5": "9fe624873f73f55a7af95ea6ecc804f6",
+   "size": 289564
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex44.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex44.FFL",
+   "md5": "188cca218e1dc4f43ebacbf7ee1cce47",
+   "size": 255764
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex45.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex45.FFL",
+   "md5": "8994489ef0c9fb825663ae603149c94b",
+   "size": 189180
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex46.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex46.FFL",
+   "md5": "7b8a28452f37f9630b47c1d13cfa48d5",
+   "size": 268820
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex47.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex47.FFL",
+   "md5": "bd1a5f16278e8c204d653521726aee18",
+   "size": 190748
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex48.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex48.FFL",
+   "md5": "6456a8731e32824759a09860a0edf76a",
+   "size": 309456
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex49.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex49.FFL",
+   "md5": "dbcb3bfeaaf85212b2ad27528f3697a2",
+   "size": 86456
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex5.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex5.FFL",
+   "md5": "77de24b3fd5d2904806d2adefe398d1e",
+   "size": 259444
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex50.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex50.FFL",
+   "md5": "c396dd292505f01b264c398dd64bec16",
+   "size": 66756
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex51.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex51.FFL",
+   "md5": "655d729709ade2c7d10afeef349a441d",
+   "size": 34596
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex52.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex52.FFL",
+   "md5": "7a6644197c44767ef920ee880f5b9631",
+   "size": 81772
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex53.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex53.FFL",
+   "md5": "7db4a4a3643eea4ad03b5b7532a0da28",
+   "size": 86540
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex54.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex54.FFL",
+   "md5": "1cafa7df826f33138eb535c249681106",
+   "size": 34600
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex55.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex55.FFL",
+   "md5": "ee6473804edb88692ac8d1e34782228d",
+   "size": 121048
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex56.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex56.FFL",
+   "md5": "6a5504d9dc663a96ea6fc81426f827b5",
+   "size": 17308
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex57.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex57.FFL",
+   "md5": "a76b1a4f582e57933f9107f25fab43ed",
+   "size": 86480
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex58.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex58.FFL",
+   "md5": "e9c4c5f233a71a39432765f084cd4c26",
+   "size": 17316
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex6.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex6.FFL",
+   "md5": "ffad911262fe7e8e6744e288aa3e62d9",
+   "size": 484344
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex7.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex7.FFL",
+   "md5": "a1ee192c4a44d5bdb6dc1fe290c9fa77",
+   "size": 495972
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex8.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex8.FFL",
+   "md5": "69c927deb5448b63a9c11186e8c29d3b",
+   "size": 155392
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex9.FFL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/fastfile/Tex9.FFL",
+   "md5": "156b6dcdc3b92a9d6c0cfdfbc2421b10",
+   "size": 336332
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/AlienIntro.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/AlienIntro.bik",
+   "md5": "42a20b829a25ea9e8989768f122ad4b4",
+   "size": 5568016
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/AlienOutro.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/AlienOutro.bik",
+   "md5": "1ca21b87a0ef0543f49afa765cbfd885",
+   "size": 5970272
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/IntroSound.smk",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/IntroSound.smk",
+   "md5": "a58981cd16fdee74005c5e0fa0c11e47",
+   "size": 9158612
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/logos.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/logos.bik",
+   "md5": "eec9102af437d8563d8a5eb01e4bbbb8",
+   "size": 2040596
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/MarineIntro.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/MarineIntro.bik",
+   "md5": "00aa752c1fdb0adeeb5f4e3fad29e09f",
+   "size": 4511444
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/MarineOutro.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/MarineOutro.bik",
+   "md5": "60d1a31bfb1905e41e8905dccaf3fadb",
+   "size": 6212832
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/Menubackground.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/Menubackground.bik",
+   "md5": "0a501a3836cd1fa4a60a039604a756e3",
+   "size": 1834040
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/PredatorIntro.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/PredatorIntro.bik",
+   "md5": "34c6d412d67e81422ee5d2e92f063635",
+   "size": 3908428
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/PredatorOutro.bik",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/avp/FMVs/PredatorOutro.bik",
+   "md5": "68b525dadf1b9312807365dc0d4eca80",
+   "size": 3794564
+  }
+ ],
+ "originals": [
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/alien.rif",
+   "md5": "7cebbe1fce8699d9c356832662cdff39",
+   "size": 97184
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/alien_hud.RIF",
+   "md5": "1f5f081d6057b3110516a63a79308c0e",
+   "size": 118060
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/Disk.RIF",
+   "md5": "76c0c318849a2bb05ae73a9f27604743",
+   "size": 4932
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/DROPSHIP.RIF",
+   "md5": "c61dbfaf9cc259300ca9ccc84cbcc027",
+   "size": 79908
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpc_civvie.RIF",
+   "md5": "b859066acb8b00e837d6e0dd981c20c8",
+   "size": 1902200
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpc_xenoborg.RIF",
+   "md5": "022d641c805c000d1aaca5f9681e74c8",
+   "size": 313836
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcalien.rif",
+   "md5": "d595783e4dbe796fc64e1f818036a733",
+   "size": 701260
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpchugger.rif",
+   "md5": "7987afed9987b0971c9e6cf5ade66289",
+   "size": 193100
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcmarine.RIF",
+   "md5": "7101685f3c56c4f1f91ca5d9b8fff5a4",
+   "size": 2630360
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcpred_alien.RIF",
+   "md5": "ee0b88e23e681bc80ee63178f499a856",
+   "size": 780976
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcpredator.rif",
+   "md5": "cb26790f1d19ac4baf2e3d5baefff35c",
+   "size": 2019432
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/hnpcpretorian.rif",
+   "md5": "b66777c2852495e7ee1e62288bd71c30",
+   "size": 556756
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/marine.rif",
+   "md5": "52375d987cfe1c0c6f68fa64dbd64588",
+   "size": 114916
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/marwep.rif",
+   "md5": "9b4497d42fb418cfa9d3394df3cec339",
+   "size": 785864
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/Mdisk.RIF",
+   "md5": "0954efc8cb81a02d170c7b66bb5df054",
+   "size": 4236
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/multip.rif",
+   "md5": "486965e3b3780837ac2e2baef09398db",
+   "size": 140912
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/pred ship fury.RIF",
+   "md5": "04c6b7d853b222021f01c8b48fecefa3",
+   "size": 41056
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/pred ship ob.rif",
+   "md5": "3955423477673effc335f92c852cf04a",
+   "size": 184232
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/pred_hud.RIF",
+   "md5": "2cfc2e55e2b2c10b16b1f4db51ac1643",
+   "size": 357344
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/predator.rif",
+   "md5": "ba6493cf72fe3a9b42750cb7a6cec2ca",
+   "size": 99012
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/queen.RIF",
+   "md5": "1c5106a65a27fb959c08c1287e487de8",
+   "size": 542400
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/sentry.RIF",
+   "md5": "da5b7264f54b7d53bfc7f1a07b4f71cd",
+   "size": 7820
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_huds/Tongue.RIF",
+   "md5": "2881484c44236dfd6380bb8c0fd9748a",
+   "size": 14408
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/als-dm-coop.rif",
+   "md5": "fb8eab7ac5d6dd297c0b12959107cf0f",
+   "size": 568548
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Als-dm.RIF",
+   "md5": "efe97f195f0ce535fbcb25a667aa9367",
+   "size": 495216
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Area52.RIF",
+   "md5": "018e86809aee9d476f5d6d59da08b1f0",
+   "size": 2201056
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Base.RIF",
+   "md5": "f48f1c44ccd93e911bb8bd5f0eb30bb0",
+   "size": 376732
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Battle.RIF",
+   "md5": "b93683e1aa525f6d799e09140159da2b",
+   "size": 240996
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Breakout.RIF",
+   "md5": "8e916de9400b113aafcfb3f20d888e05",
+   "size": 1534840
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Breakout_P.rif",
+   "md5": "272d26f7bf7c368106be177db552c5d3",
+   "size": 971280
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Caverns.RIF",
+   "md5": "08db13677ed605782c4d6b25a9508cca",
+   "size": 1203500
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Caverns_A.RIF",
+   "md5": "8721dd57b941e86c8e2f66498fd73e81",
+   "size": 778864
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/co-op_meat_factory.rif",
+   "md5": "c3b9f97a46f2790f31b062f4078609c7",
+   "size": 488572
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/colony_c.rif",
+   "md5": "f23445d0eee04b467759bf0cd9c472fb",
+   "size": 418688
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Compound.RIF",
+   "md5": "39d563beaa8a9e97eb2e702753dcb1f8",
+   "size": 610736
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Compoundcoop.RIF",
+   "md5": "9230980a140a87aa7337e9d7da52bc12",
+   "size": 610556
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Derelict.RIF",
+   "md5": "79a51e5466ef49d70cb54af844cab059",
+   "size": 1485812
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Derelict_A.RIF",
+   "md5": "c10ec5c367bb4ee7152de6bfb0133333",
+   "size": 1424152
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/E3demo.RIF",
+   "md5": "d4ffa3b5c5afd063dd198b3057513de4",
+   "size": 843584
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/E3demoSP.rif",
+   "md5": "68a6bcedae0a15731424efbe4295a531",
+   "size": 639016
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/elevator.rif",
+   "md5": "35fc4abc99fa7d90372c2a09edb9d994",
+   "size": 679064
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/elevator_co-op.rif",
+   "md5": "5eb26bd32cad19c9efd787554b118124",
+   "size": 688712
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Escape.RIF",
+   "md5": "5e4bd457a69ddefa929a8552fb9b9592",
+   "size": 1445664
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/escape_p.rif",
+   "md5": "41631b83bbbb6238b97c1edf700a326e",
+   "size": 1493980
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Fall.RIF",
+   "md5": "6a8698c994748d504037c7d4a065b672",
+   "size": 1867520
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Fall_m.RIF",
+   "md5": "a471d13ca25c83d127489f85a55e7f2f",
+   "size": 1954156
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Furyall.RIF",
+   "md5": "88b676c93d2f8b5e4f923a20a25352cd",
+   "size": 1375168
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/furyall_a.rif",
+   "md5": "0b0d203c6ad8d34cb5d925181e587d46",
+   "size": 1100128
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Genshd1.RIF",
+   "md5": "3c82106087592568128ee4d2feca036c",
+   "size": 1429976
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hadleyshope.rif",
+   "md5": "842d6eee4415099a7b60938f89a318c2",
+   "size": 890196
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hadleyshope_coop.rif",
+   "md5": "f20d55b236f33923a2bb2a01577fd291",
+   "size": 887708
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Hangar.RIF",
+   "md5": "f355dd95aba90ff3c0ee043952187a91",
+   "size": 347400
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hive.RIF",
+   "md5": "4b6625f152894931acf80755a5f45ade",
+   "size": 422540
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/hive_c.RIF",
+   "md5": "23c5c98cf7e01207fc560dc38709ce33",
+   "size": 431484
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Invasion.RIF",
+   "md5": "c54f2b4ccdd2c4514221453b10b51088",
+   "size": 1988464
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Invasion_A.RIF",
+   "md5": "762ff20bf851de781156ed6579858f66",
+   "size": 2154900
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Invasion_P.RIF",
+   "md5": "97e92041ac8ca2a772f76adb3e332705",
+   "size": 1960284
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Jockey.RIF",
+   "md5": "387adb79372463b11d2fbde10d176ed6",
+   "size": 926640
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/jockeycoop.RIF",
+   "md5": "7dc677bc85af711cb4d9924ccbce2b51",
+   "size": 1008868
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/kens-co-op.RIF",
+   "md5": "40f4dd829ec6c6203103ff51afbf9097",
+   "size": 556736
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Lab14.rif",
+   "md5": "c1d975c2762e00a2db4a65d9ef05aae4",
+   "size": 616416
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Lab14coop.rif",
+   "md5": "570e5179132e6b818be0666499352c67",
+   "size": 600144
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Leadworks.rif",
+   "md5": "27b68a53dc18a889b0a64cbe40e537af",
+   "size": 581344
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Leadworks_coop.rif",
+   "md5": "7b5719e9d25b29bb193b975dcf0b5c93",
+   "size": 584312
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Lockdown4.rif",
+   "md5": "700ae61e848a8de33215060759f9a512",
+   "size": 1078048
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/meat_factory.rif",
+   "md5": "0626209ac56f16a26290b617251630c2",
+   "size": 504752
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Nost03.RIF",
+   "md5": "0727832363b5c5479e16ca17a3cbacd3",
+   "size": 1858376
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Nost03_M.rif",
+   "md5": "97707deebfb411c33327e21b2e715803",
+   "size": 2247540
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/nostromo.rif",
+   "md5": "319d27dd78863261dd39a35ad86b5241",
+   "size": 623200
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/nostromo_coop.rif",
+   "md5": "394c3ef91e27b668dd8408e34ebc0dee",
+   "size": 653136
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/odobenus.rif",
+   "md5": "8036f10b55b83823b038ae18dd3d3600",
+   "size": 1463964
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/office.rif",
+   "md5": "7db638b2a7a7fb392571b1b691f17f43",
+   "size": 942484
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Stat101.RIF",
+   "md5": "196febfe19f1edeee2f56ca4b9c66e52",
+   "size": 1247872
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Stat101_M.rif",
+   "md5": "b7235968da8bfebcf5a66c07b24392ad",
+   "size": 1341740
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Statue.RIF",
+   "md5": "8bbc015e1d49fba708823fcedd91266a",
+   "size": 867456
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/SUBWAY.rif",
+   "md5": "2cb3ed8979f39cd351c85077dd085106",
+   "size": 853900
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/SUBWAYcoop.rif",
+   "md5": "b7d76e2696617ac2ccf4c5f907255047",
+   "size": 696696
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Sulaco.RIF",
+   "md5": "aca2c5b239c1d47234a326b9438a00b4",
+   "size": 1867316
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Sulaco_a.RIF",
+   "md5": "cc36f505de0aacc237887984f8e1c580",
+   "size": 1788520
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Sulaco_p.RIF",
+   "md5": "ab8f468aedf6e7a3119f9c026fca9712",
+   "size": 1878588
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Temple.RIF",
+   "md5": "d0865f170b75640dc1c3303931914ea9",
+   "size": 2424472
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Temple_M.RIF",
+   "md5": "d2a5efae4be2a028047d8853164f5354",
+   "size": 2304820
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Temple_p.RIF",
+   "md5": "ac167fd25bb64798509c9179757c2cfa",
+   "size": 2288936
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Trapped.RIF",
+   "md5": "3af39d616f15b63fc05026e883d887a2",
+   "size": 275728
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Vaults.RIF",
+   "md5": "7748b8513c663957fc61c49e3cb659d3",
+   "size": 2646784
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/avp_rifs/Vaults_M.RIF",
+   "md5": "7e35f2e2b470fe9abc07ff6d6c2a97c0",
+   "size": 2247304
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/ffinfo.txt",
+   "md5": "f7dec5b50965cf93b30bbb699760f923",
+   "size": 3819
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex1.FFL",
+   "md5": "643eda32d33393cdde7e64ce1bd4c9f8",
+   "size": 375580
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex10.FFL",
+   "md5": "1886c6d61384e2c2865c4b38c32ab87b",
+   "size": 553596
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex11.FFL",
+   "md5": "8557797e2352e5292350da77c397afc1",
+   "size": 569572
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex12.FFL",
+   "md5": "73f135c9694a9582fe7a3ebc6a9688a3",
+   "size": 519940
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex13.FFL",
+   "md5": "2f382dd7578267672cb1308449b4f3b5",
+   "size": 378872
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex14.FFL",
+   "md5": "4dbfb99b2168c4749197378cd6c4d6b7",
+   "size": 532292
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex15.FFL",
+   "md5": "f1f3f518f56545724e792b8f1a02fd71",
+   "size": 501348
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex16.FFL",
+   "md5": "6c043f4571561e40720771f5d84e019c",
+   "size": 361560
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex17.FFL",
+   "md5": "1585e50ff8be5dffad9226db4b184de4",
+   "size": 255040
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex18.FFL",
+   "md5": "1d0bc70c946409932bbb2196908d9575",
+   "size": 688240
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex19.FFL",
+   "md5": "0856e15d9cbc9b7be3186d4b65333832",
+   "size": 344512
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex2.FFL",
+   "md5": "a38ad7db695320421093c867ad649280",
+   "size": 102136
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex20.FFL",
+   "md5": "898b6c2e8db5c8337b47c6d90c35f637",
+   "size": 242320
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex21.FFL",
+   "md5": "01c43c9eb5d6fe7706701f978bc7904a",
+   "size": 17000
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex22.FFL",
+   "md5": "d7507e051cc9ab43b82c1cdf77e9ee50",
+   "size": 492692
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex23.FFL",
+   "md5": "66ff916b3a2baf21369032df8692aea1",
+   "size": 242784
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex24.FFL",
+   "md5": "ee31c3fbaa3859a1a5ac80fae105b6d9",
+   "size": 1490984
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex25.FFL",
+   "md5": "82f2d99a23fb20af358c5ec06da9c0d8",
+   "size": 550072
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex26.FFL",
+   "md5": "9bed6a35757081409588f96cc7d1f67a",
+   "size": 305700
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex27.FFL",
+   "md5": "888824af84bf6dccb2456f45e787ed03",
+   "size": 327228
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex28.FFL",
+   "md5": "55a6ff01a2a82697fb050533bfbe18a9",
+   "size": 513432
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex29.FFL",
+   "md5": "d630c444c2536bea1ca547a9bc191377",
+   "size": 533956
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex3.FFL",
+   "md5": "38a5c351d8174a09f3015ded85e30b61",
+   "size": 473452
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex30.FFL",
+   "md5": "46c53fd6eb3299ab9f5dafb93db305a7",
+   "size": 516908
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex31.FFL",
+   "md5": "d5b72740edd435f8069d48ec85e769ab",
+   "size": 121116
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex32.FFL",
+   "md5": "6d4a7a49419a5de4f9f601e3c48a772c",
+   "size": 509568
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex33.FFL",
+   "md5": "f579d28f3398676ca1356cc18591bb0e",
+   "size": 62356
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex34.FFL",
+   "md5": "f81dba159d12ed44cabf2b60d4843614",
+   "size": 84460
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex35.FFL",
+   "md5": "ce196e307a29fd520530a955f72cc5bb",
+   "size": 118356
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex36.FFL",
+   "md5": "0d4bd56a430a38824b1c240bb5acd6cf",
+   "size": 100028
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex37.FFL",
+   "md5": "b7bafa4267f27c64c4c922ce8ae4f8e9",
+   "size": 1249444
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex38.FFL",
+   "md5": "4927fe849946231b8239f4fddbe1974d",
+   "size": 250172
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex39.FFL",
+   "md5": "4ddad00183c5e38e80a517ab97727e2f",
+   "size": 224932
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex4.FFL",
+   "md5": "b859001ea5c8fa95240639e9219391f7",
+   "size": 515416
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex40.FFL",
+   "md5": "4adf18521fc0bd666e031ddcb29aea1b",
+   "size": 254076
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex41.FFL",
+   "md5": "d0e37c8a46a522386c93f3360787bc63",
+   "size": 260148
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex42.FFL",
+   "md5": "bab046dd0d72af99db8e6e1ab67a422c",
+   "size": 260236
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex43.FFL",
+   "md5": "dec56e58540f587793651865399d5fad",
+   "size": 289564
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex44.FFL",
+   "md5": "c8736506708ed07a9436014a794c51dc",
+   "size": 255764
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex45.FFL",
+   "md5": "fd2c17937d8b515920d6556bad4c3fcd",
+   "size": 189180
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex46.FFL",
+   "md5": "4b69316520907d735d804a66c075fd7b",
+   "size": 268820
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex47.FFL",
+   "md5": "138164a0450fd89b610c51e16d230ed5",
+   "size": 190748
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex48.FFL",
+   "md5": "1ab5a011b585473f3d42e09e92f9eb1b",
+   "size": 309456
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex49.FFL",
+   "md5": "2db541b90e8a9b4dc231c1fa804a2f7c",
+   "size": 86456
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex5.FFL",
+   "md5": "d62c0ea21b7465e2602bed053136f714",
+   "size": 259444
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex50.FFL",
+   "md5": "3a96b5b87cfc5005b0550e4216498349",
+   "size": 66756
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex51.FFL",
+   "md5": "77861b65fcea8c5e4f38438387c78e64",
+   "size": 34596
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex52.FFL",
+   "md5": "1b4daa47d47e4a1bf66ccf79edc1584e",
+   "size": 81772
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex53.FFL",
+   "md5": "308db05465284596a6882ee6c4188c29",
+   "size": 86540
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex54.FFL",
+   "md5": "1cb686c962ec3c269525ef0a9d4bffda",
+   "size": 34600
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex55.FFL",
+   "md5": "ed4301b169810d30b9809a0f22eaba99",
+   "size": 121048
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex56.FFL",
+   "md5": "db402125d226e047c57858b88ec05fd8",
+   "size": 17308
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex57.FFL",
+   "md5": "5260dfa4742906dddbe70f10a189a9e4",
+   "size": 86480
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex58.FFL",
+   "md5": "dc547c19f8283844271dbcaa93cd3f7b",
+   "size": 17316
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex6.FFL",
+   "md5": "be0fd8414ca9ec803f81f565db7e4795",
+   "size": 484344
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex7.FFL",
+   "md5": "49b2d485f565baa3814841e2678414da",
+   "size": 495972
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex8.FFL",
+   "md5": "c82e7eb802e8dd1d0cca7c844e2deb8b",
+   "size": 155392
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/fastfile/Tex9.FFL",
+   "md5": "dba0219147af7b415248c64194c4c0eb",
+   "size": 336332
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/AlienIntro.bik",
+   "md5": "6cbc230c5ee2263f6dc2a5624b5addf3",
+   "size": 5568016
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/AlienOutro.bik",
+   "md5": "80caf43c3494e7c1e31834380030b169",
+   "size": 5970272
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/IntroSound.smk",
+   "md5": "3351b7df88293207d90a754e45fc1a77",
+   "size": 9158612
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/logos.bik",
+   "md5": "f0c24630f450a6322fa0befded09f6fb",
+   "size": 2040596
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/MarineIntro.bik",
+   "md5": "9fa57274595828460dc5cacc38f5fa6e",
+   "size": 4511444
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/MarineOutro.bik",
+   "md5": "5d46d2702ffbccb953858e8706dfce1c",
+   "size": 6212832
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/Menubackground.bik",
+   "md5": "6e361b96d6387b55edfa909692c8270b",
+   "size": 1834040
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/PredatorIntro.bik",
+   "md5": "fff920151ff8ed4addc57a96e0f1927b",
+   "size": 3908428
+  },
+  {
+   "share_path": "Files/Games-Library/AliensVsPredator/FMVs/PredatorOutro.bik",
+   "md5": "2651a624f5eea9695321b76525e7bc9d",
+   "size": 3794564
+  }
+ ],
+ "launcher_changes_needed": [
+  "NOT NEEDED for 'selectable in game'. Once the data is published, Options > Video lists every mode avp.exe keeps from DirectDraw. The earlier goldsrc-halo-review probes (.claude/evidence-1080p/goldsrc-halo-review/probe_{123,145,195,240}.txt) show DirectDraw's NULL-GUID 'Primary Display Driver' offering 1920x1080x16 and 1920x1080x32 on all four LCD boxes. The changes below only make 1080p the default gameplay mode per box. The menus always run at 640x480 whatever is done (SelectMenuDisplayMode 0x491e90).",
+  "provisioning/fleetres/fleetres.c - new verb 'FLEETRES.EXE -avpvideo <file> <w> <h>', mirroring avp.exe exactly:\n(1) refuse w<512 or h<384;\n(2) LoadLibraryA(\"ddraw.dll\") and GetProcAddress \"DirectDrawCreate\" (no static ddraw import), then DirectDrawCreate(NULL,&dd,NULL). This is the primary display, which an all-zero GUID in AvP_Video.cfg selects;\n(3) IDirectDraw_EnumDisplayModes(dd, 0, NULL, &ctx, cb) with dwFlags=0, as at avp.exe 0x559629. Collect dwWidth, dwHeight and ddpfPixelFormat.dwRGBBitCount;\n(4) IDirectDraw_QueryInterface(dd, IID_IDirect3D {3BBA0080-2421-11CF-A31A-00AA00B93356}, the v1 interface avp.exe uses at 0x559599), then EnumDevices. Take the first device whose HW D3DDEVICEDESC.dcmColorModel != 0 (0x559310) and read its dwDeviceRenderBitDepth (offset 0x9c; DDBD_16=0x400, DDBD_32=0x100). If there is no such device, write nothing;\n(5) bpp = 32 if (w,h,32) is enumerated and DDBD_32 is set; else 16 if (w,h,16) and DDBD_16; else none;\n(6) if none: when <file> exists, has an all-zero GUID and names a W/H/BPP that is not in that filtered list, DeleteFileA it, because avp.exe 0x559810 would otherwise keep mode index -1 and read W/H/BPP from the DDCAPS tail. Print 'AvP_Video.cfg: WxH not offered - game default 640x480x16' and exit 0;\n(7) else build 32 bytes: 16 x 00, le32 0, le32 w, le32 h, le32 bpp (example 1920x1080x32 = 00*16 00000000 80070000 38040000 20000000; reference encoder apply.avp_video_cfg()). If the file already holds exactly these bytes, print unchanged. Otherwise write it CREATE_ALWAYS, read it back, memcmp, and exit 1 on mismatch;\n(8) keep the mingw, no-SSE, pure-Win32 build.",
+  "scripts/fleet/stage-fleetres.py - add AliensVsPredator: stage FLEETRES.EXE + FLEETRES.BAT into Games-Library/AliensVsPredator and generate 'Play Aliens vs Predator.bat' (CRLF, no parentheses anywhere) containing exactly these lines, in this order:\n@echo off\nrem Generated by stage-fleetres.py. AvP Gold reads its GAMEPLAY mode from AvP_Video.cfg (32 bytes, binary); its menus always run 640x480.\ncall \"%~dp0FLEETRES.BAT\"\nif exist \"%~dp0FLEETRES.EXE\" \"%~dp0FLEETRES.EXE\" -avpvideo \"%~dp0AvP_Video.cfg\" %FR_W% %FR_H%\ncd /d \"%~dp0\"\nstart \"\" \"%~dp0avp.exe\"\nexit\nThe cd /d matters: avp.exe opens AvP_Video.cfg and fastfile\\ffinfo.txt relative to the working directory.",
+  "Games-Library/AliensVsPredator/launch.txt: replace 'avp.exe<TAB>Aliens vs Predator<TAB>avp.exe' with 'Play Aliens vs Predator.bat<TAB>Aliens vs Predator<TAB>avp.exe' (CRLF). The icon stays avp.exe.",
+  "agent/shared/gameres.h: add NO AliensVsPredator rule. The file is binary, no GR_OP can write it, and the launcher rewrites it at every start; a second writer would fight it. install.reg sets only 'Source Path'. tests/python/test_gameres_mirror.py needs no change.",
+  "Never stage AvP_Video.cfg or User_Profiles\\ in the library: the game writes both into its own directory, per box. validate-staged-library.py could fail a title tree that contains either.",
+  "Docs and DB after the hardware test:\n- provisioning/fleetres/PER-TITLE-STATUS.md, AvP row: 'not staged, CLOSED as BLOCKED' is wrong.\n- Games-Library/AliensVsPredator/README-FLEET.txt: 'THE STAGED TREE IS BYTE-COMPLETE' and 'THE FAULT IS ON THE BOX' are wrong. That was a size-only comparison, and the tree was obfuscated. Its size changes, so publishing it is safe.\n- Compat DB rows 'runs, d3d 640x480': re-record them from the fullscreen test.",
+  "For the refresh lane (fact from the exe): avp.exe's only mode switch is IDirectDraw v1 SetDisplayMode(w,h,bpp) at 0x537511. It passes no refresh argument, so Windows picks its default refresh for that mode. For the LCD gameplay mode that is the persisted desktop mode (1920x1080x32)."
+ ],
+ "tests": "python3 -m pytest -q tests/python/test_patch_avp.py: 71 passed in about 2 s. The share was mounted, so the 2 share-side tests ran as well. Separately, _need_share() was confirmed to raise 'SKIPPED LOUDLY ...' when the library is absent.\n\nWhat the tests pin:\n- The fast table-driven transform equals the literal unshield loop (7 lengths x 5 seeds), and obfuscate() is its exact inverse.\n- Staged heads decode to 'RFFL', 'REBCRIF1', 'Graphics\\Common;', 'BIKf' and 'SMK2'. A plain Snd2.FFL is destroyed by the transform, which is why it must never be in the table.\n- Table counts: 154 = avp_huds 23 + avp_rifs 63 + fastfile 59 + FMVs 9, plus 56 keep. The table agrees with the independent NakedAVP list: 145 patched and 56 kept, covering all 201 exactly once. It contains no Snd, common.ffl, .dat, shape_rifs, sound-set or message*.smk rows. Every recorded raw head decodes to its row's format.\n- publish_order puts ffinfo.txt last.\n- Synthetic RFFL, Bink and Smacker structure checks catch broken files.\n- The AvP_Video.cfg byte layout, and refusal of 320x200 and 8/15-bpp modes.\n- On a synthetic share tree:\n  - --build reproduces every file and resolves IntroFont.RIM. It refuses a changed input and accepts a part-published share.\n  - --check accepts original and patched files, notes a part-way publish, and fails when a keep file changes. --full-scan flags a missed obfuscated file.\n  - --publish (fake sharewrite runner) backs up before each put, flips ffinfo.txt last, is idempotent, stops at the first failure, never overwrites a different backup, and refuses an incomplete build. --dry-run writes nothing.\n- --install-server is not applicable.\n- On the real share: the 65 table files up to 256 KiB are in the original or patched state, and Tex37.FFL/ffinfo.txt resolve the menu font.\n\nTool runs against the share:\n- apply.py --check: 154 original, 56 keep match, OK. With --full-scan: 0 other obfuscated files.\n- Scan sensitivity: with the 154 removed from the table, it flags exactly those 154.\n- apply.py --build: 154/154 written, complete=True, the rebuild is md5-identical, and the menu-asset check passes.\n- make_table.py re-derivation: 0 differences from files.tsv.\n- Independent coreutils md5sum: 145/145 equal NakedAVP.\n- ffmpeg 7.0.2 with -xerror decodes every frame of all 9 FMVs; the staged originals exit 183.\n- pyflakes on all three .py files is clean.",
+ "risks": [
+  "Every patched file keeps its size. The publish must stamp fresh write times, because GAMESYNC resumes on size AND mtime. sharewrite.py checks for a stamp within 15 min per file. Do not use any path that backdates mtimes; this NAS has stamped smbclient writes 'Oct 2007' before.",
+  "The publish is about 141 MB: 154 puts plus 154 backup puts to _patches/AliensVsPredator/originals-2026-09-29, each one an smbclient session with a read-back. A run that stops part-way leaves a mixed tree. The ordering (ffinfo.txt last) keeps the game failing exactly as today until the last file lands, and a re-run skips files that are already patched.",
+  "Boxes do not pick this up by themselves. On a provisioned box the boot-time GAMESYNC is idle, so every box needs GAMESYNC RESET + START after the publish, or no box ever receives the fix.",
+  "The game has never run past the assertion on this fleet. Blockers nobody has seen may appear once the data is fixed: Win7 (.195) DirectDraw/D3D behaviour, whether DirectInput accepts synthetic keys, timing on multi-core CPUs, and the first-run user-profile screen. None of this is verified.",
+  "Whether 1080p appears in Options > Video also depends on the HAL device's dwDeviceRenderBitDepth including 32 (and 16). The DirectDraw mode lists were measured on all four boxes; the D3D render-depth caps were not.",
+  "The menus are 640x480 by design (hard-coded in avp.exe). Only gameplay can be 1920x1080. How the engine handles a 16:9 aspect has not been evaluated; the picture is likely stretched.",
+  "An AvP_Video.cfg that names the primary display but a mode the game did not list makes avp.exe select mode index -1 and read W/H/BPP from garbage. The proposed FLEETRES verb must enforce the DirectDraw + D3D checks. Never stage a fixed AvP_Video.cfg.",
+  "The 9 FMVs have no published reference md5. They are proven by a structural walk of every frame and a full ffmpeg decode, not by an external hash.",
+  "GDI capture of exclusive-fullscreen AvP was recorded black on .133, so the hardware proof may have to come from LOGFILE.TXT, DISPLAYCFG and a person at the screen rather than a screenshot.",
+  "Games-Library/AliensVsPredator/README-FLEET.txt still says the tree is byte-complete and the fault is on the box. It stays misleading until someone corrects it."
+ ],
+ "hw_verification_plan": "Preconditions:\n- 'apply.py --publish' has run.\n- 'apply.py --check' reports patched=154, UNEXPECTED=0 and keep 56 matched.\n- 'python3 scripts/validate-staged-library.py' reports 0 FAIL.\n\nProof box: .145 (XP, GeForce 8400GS), then .123 (XP, HD 3850), .240 (XP) and .195 (Win7).\n\n1. Purge. Run EXEC taskkill /f /im \"avp.exe\", then EXEC cmd /c rd /s /q \"C:\\Games\\AliensVsPredator\". Delete the desktop 'Aliens vs Predator.lnk'. Confirm with DIRLIST that the directory is gone. This also removes User_Profiles and any AvP_Video.cfg.\n2. Redeploy. Run GAMESYNC RESET, then GAMESYNC START, and poll GAMESYNC STATUS until done. Pass only if failed_files==0, titles_done==titles_total, and titles_total equals the library's title count for that box profile.\n3. Spot-check the files on the box with DOWNLOAD (not EXEC type):\n   - fastfile\\ffinfo.txt: md5 8011119b8456329457f0872037b22243, starts 'Graphics\\Common;Tex1.FFL'.\n   - fastfile\\Tex37.FFL: md5 53fa29efc83880c9e56f26ab727b1c6e.\n   - FMVs\\logos.bik: md5 eec9102af437d8563d8a5eb01e4bbbb8.\n4. Launch. Use the current shortcut target (EXEC cmd /c start \"\" /D \"C:\\Games\\AliensVsPredator\" \"avp.exe\"), or 'Play Aliens vs Predator.bat' once the launcher exists. Wait 30-45 s while the logos.bik intro plays. UIKEY ESCAPE skips FMVs.\n5. While it runs, DISPLAYCFG get must read 640x480. That is the designed menu mode, and it proves AvP holds exclusive fullscreen.\n6. Close it with taskkill /f /im \"avp.exe\" and DOWNLOAD C:\\Games\\AliensVsPredator\\LOGFILE.TXT.\n   - PASS: 'Loaded FastFile:' lines, no 'ASSERTION FAILED', and no 'IntroFont.rim ... not found'.\n   - Also confirm that DISPLAYCFG get shows the desktop back at 1920x1080 and WINLIST shows no leftover window.\n7. Menu path, keyboard only: arrow keys, RETURN and ESCAPE. docs/lan-multiplayer-status.md lists AvP among relative-mouse menus, so do not use UICLICK. No one has verified that DirectInput accepts synthetic keys; if it does not, a person at the keyboard is needed once.\n   - First run: the profile screen. Create one with UIKEY TEXT:FLEET, then RETURN.\n   - Main menu > Options > Video (or Display) Options. Step the mode entry with LEFT/RIGHT. It cycles (device, mode) pairs labelled '%dx%dx%d', so it will pass through two devices: 'Primary Display Driver' and the named card.\n   - The pass condition is '1920x1080x32' (or x16) appearing on the first device. Select it and back out so the game saves.\n   - GDI capture may be black. If SCREENSHOT is black, read the result another way: after exiting, DOWNLOAD AvP_Video.cfg must be exactly 32 bytes, 00*16 00000000 80070000 38040000 20000000.\n8. Start any level (for example Marine > Training/first mission). DISPLAYCFG get during gameplay must read 1920x1080. That is the fullscreen 1080p proof. Exit, and confirm the desktop is restored to 1920x1080.\n9. Optional, before the FLEETRES verb exists: UPLOAD ~/.retro-fleet/patch-out/avp-video/AvP_Video-1920x1080x32.cfg as C:\\Games\\AliensVsPredator\\AvP_Video.cfg. Do this ONLY on a box whose DirectDraw probe lists 1920x1080x32; all four LCD boxes do. Then launch straight into a level and check DISPLAYCFG.\n10. Must NOT change:\n   - avp.exe (md5 91bb8e752f42d35f594fc06feabd49cf) and the other plain files: Snd*.FFL, common.ffl, *.dat, shape_rifs, MPlayer, MPConfig. These stay byte-identical, so DirectPlay LAN behaviour and the MPlayer front end are untouched.\n   - Every box must end up with the same patched data, or level .rif files differ between LAN peers. Push the title to every box that has it.\n   - Music stays silent without disc 2 (redbook audio). That is expected and not a regression.\n11. Then push to every other box: purge + GAMESYNC as above.",
+ "server_installs": [],
+ "review_notes": "Agrees with the reviewer on every count: 154 obfuscated files (145 NakedAVP-verified plus 9 FMVs), 56 as-is, and the same transform with seed 0.\n\nAdded in this phase:\n- A real-decoder proof for the FMVs (ffmpeg decodes every frame; the staged originals do not open), in place of magic-only.\n- A structure check on every Tex*.FFL: each packed file is a whole IFF chunk.\n- An offline proof that the exact asset the boxes logged as missing now resolves: IntroFont.RIM in Tex37.FFL via ffinfo.txt.\n- A negative test showing the whole-tree scan really catches a missed file.\n\nRefinements to the reviewer's AvP_Video.cfg note:\n- The loader matches ONLY the 16 GUID bytes, so the flag word is not compared.\n- The zero GUID is the portable choice. A 'real' GUID would select the second record, which is the same card by its own per-machine GUID.\n- The -1 mode-index hazard is new.\n- The menus are always 640x480, so 1080p applies to gameplay only.\n- The depth filter queries IDirect3D v1 {3BBA0080-...}, not IDirect3D3.\n\nRule compliance:\n- --publish was never run against the share. It was exercised only on a tmp tree with a fake runner.\n- --install-server was invoked once by hand and in a unit test. It is a no-op that prints NOT APPLICABLE.\n- Nothing was committed, no share write was made, and no box was touched.\n\nTools used from the scratchpad only, nothing installed system-wide: ffmpeg from the imageio-ffmpeg 0.6.0 wheel, and pyflakes.\n\nThe NakedAVP reference list is now in the repo as nakedavp-gold-md5.txt, because the reviewer's copy lived only in the session scratchpad. The same content is also in evidence-1080p/build-avp/nakedavp_README.md.\n\nmanifest.json (md5 8191440652a8b5f36bd43d35a7cf182c) is the authoritative output list. The outputs/originals arrays above were machine-checked against it."
+}

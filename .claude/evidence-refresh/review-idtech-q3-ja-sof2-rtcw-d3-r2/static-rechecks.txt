@@ -1,0 +1,216 @@
+# Independent static re-checks, 2026-09-29 (reviewer). Staged binaries from /mnt/retro-share/Files/Games-Library (read-only mount).
+## md5
+b5cf3dd55e045aac6096ff97379d0cab  Quake3-TeamArena/quake3.exe
+12f99bc0f9ba416ee477a4f13de8feaa  Quake3-TeamArena/ioquake3.x86.exe
+a828ce4eae3a55de4a29112067975abc  Quake3-TeamArena/SDL.dll
+1d55a7142e883dc4d54cfe87be987c66  JediAcademy/jasp.exe
+896f5804934cf4c1d5750a0b82ea4c5e  JediAcademy/jamp.exe
+c0c873320da54b0d191041ba942ab28e  SoldierOfFortune2/SoF2.exe
+0263922b67e3474f9e77e769f217f53a  SoldierOfFortune2/sof2mp.exe
+dd1f541307ce485076628cadae3637fa  ReturnToCastleWolfenstein/WolfSP.exe
+6ad8aceea02dc1eef8af0c73331cddaf  ReturnToCastleWolfenstein/WolfMP.exe
+7cd77c22b38c223ef1047083e374875a  Doom3/DOOM3.exe
+
+## case-insensitive strings (strings -a | grep -i displayrefresh|refresh set|display frequency|next higher|hz is unsupported)
+-- Quake3-TeamArena/quake3.exe
+  bc78c r_displayRefresh
+  c1c28 ...trying next higher resolution:
+  cd918 EnumDisplaySettingsA
+  cd930 ChangeDisplaySettingsA
+-- Quake3-TeamArena/ioquake3.x86.exe
+ 12b9b6 r_displayRefresh
+-- Quake3-TeamArena/SDL.dll
+  4f56e ChangeDisplaySettingsA
+  4f652 EnumDisplaySettingsA
+-- JediAcademy/jasp.exe
+ 10a6b4 ...trying next higher resolution:
+ 10db3c r_displayRefresh
+ 10dfb0 Display refresh set to %d
+ 11fbee ChangeDisplaySettingsA
+ 11fc08 EnumDisplaySettingsA
+-- JediAcademy/jamp.exe
+ 153a3c ...trying next higher resolution:
+ 156f4c r_displayRefresh
+ 157214 Display refresh set to %d
+ 16940a ChangeDisplaySettingsA
+ 169424 EnumDisplaySettingsA
+-- SoldierOfFortune2/SoF2.exe
+  e0062 EnumDisplaySettingsA
+  e007a ChangeDisplaySettingsA
+  f0a14 r_displayRefresh
+  f6fcc ...trying next higher resolution:
+  f706c ...display frequency = %d Hz
+-- SoldierOfFortune2/sof2mp.exe
+ 158064 EnumDisplaySettingsA
+ 15807c ChangeDisplaySettingsA
+ 16cb6c r_displayRefresh
+ 17151c ...trying next higher resolution:
+-- ReturnToCastleWolfenstein/WolfSP.exe
+  dae1e EnumDisplaySettingsA
+  dae36 ChangeDisplaySettingsA
+  ed53c r_displayRefresh
+  f4ec8 ...trying next higher resolution:
+-- ReturnToCastleWolfenstein/WolfMP.exe
+  e3d74 EnumDisplaySettingsA
+  e3d8c ChangeDisplaySettingsA
+  f43d8 r_displayRefresh
+  fbaf8 ...trying next higher resolution:
+-- Doom3/DOOM3.exe
+ 3613c0 r_displayRefresh
+ 374208 ...trying next higher resolution:
+ 374250 ...^3%dhz is unsupported at %dx%d^0
+ 3cb80a ChangeDisplaySettingsA
+ 3cb824 EnumDisplaySettingsA
+
+## SDL.dll env-var strings (no refresh lever)
+SDL_AUDIO_CHANNELS
+SDL_AUDIODRIVER
+SDL_AUDIO_FORMAT
+SDL_AUDIO_FREQUENCY
+SDL_AUDIO_SAMPLES
+SDL_DISKAUDIODELAY
+SDL_DISKAUDIOFILE
+SDL_VIDEO_ALLOW_SCREENSAVER
+SDL_VIDEO_CENTERED
+SDL_VIDEODRIVER
+SDL_VIDEO_WINDOW_POS
+SDL_VIDEO_YUV_DIRECT
+SDL_VIDEO_YUV_HWACCEL
+SDL_WINDOWID
+
+## r_displayRefresh global: WHOLE-FILE 4-byte search (all sections, not only code)
+-- Quake3-TeamArena/ioquake3.x86.exe
+string b'r_displayRefresh' at 0x52cbb6
+ refs to string (whole file): [('0x4d6bca', '.text')]
+  near 0x4d6bca global 0x1d9f7c0
+  ALL refs (whole file, any section) to global 0x1d9f7c0 : [('0x4d6c05', '.text')]
+-- SoldierOfFortune2/SoF2.exe
+string b'r_displayRefresh' at 0x100f0a14
+ refs to string (whole file): [('0x10090c5e', '.text')]
+  near 0x10090c5e global 0x10799994
+  ALL refs (whole file, any section) to global 0x10799994 : [('0x10090c76', '.text'), ('0x100b8c35', '.text')]
+-- SoldierOfFortune2/sof2mp.exe
+string b'r_displayRefresh' at 0x56cb6c
+ refs to string (whole file): [('0x4ba740', '.text')]
+  near 0x4ba740 global 0x11a6464
+  ALL refs (whole file, any section) to global 0x11a6464 : [('0x4ba75d', '.text'), ('0x4df0d6', '.text')]
+-- ReturnToCastleWolfenstein/WolfSP.exe
+string b'r_displayRefresh' at 0x4ed53c
+ refs to string (whole file): [('0x446e57', '.text')]
+  near 0x446e57 global 0x1184474
+  ALL refs (whole file, any section) to global 0x1184474 : [('0x446e71', '.text'), ('0x465436', '.text')]
+-- ReturnToCastleWolfenstein/WolfMP.exe
+string b'r_displayRefresh' at 0x4f43d8
+ refs to string (whole file): [('0x45ac0a', '.text')]
+  near 0x45ac0a global 0x1224304
+  ALL refs (whole file, any section) to global 0x1224304 : [('0x45ac1d', '.text'), ('0x478c26', '.text')]
+-- Quake3-TeamArena/quake3.exe 0xc59ba0 whole-file refs: ['0x445178', '0x459ee9']
+-- JediAcademy/jasp.exe 0xc98410 whole-file refs: ['0x469487', '0x469aff', '0x48b435']
+-- JediAcademy/jamp.exe 0xfe311c whole-file refs: ['0x4a1fa0', '0x4a236f', '0x4c5b97']
+-- Doom3/DOOM3.exe 0x138b42c whole-file refs: ['0x4ac724']
+-- Doom3/DOOM3.exe 0x7d3a48 whole-file refs: ['0x4acd5b', '0x4acdc7', '0x4ad82d']
+-- DOOM3 idCVar @0x7d3a1c: name b'r_displayRefresh' default b'0' flags 0x5012 min 0.0 max 200.0
+
+## ioquake3 registration window (store at 0x4d6c04 is the only reference to 0x1d9f7c0)
+004d6bc7: mov      dword ptr [esp], 0x52cbb6
+004d6bce: mov      edx, 0x20
+004d6bd3: mov      dword ptr [esp + 8], edx
+004d6bd7: mov      dword ptr [0x1d9f3e0], eax
+004d6bdc: mov      eax, 0x52c9e1
+004d6be1: mov      dword ptr [esp + 4], eax
+004d6be5: call     dword ptr [0x1da25d0]
+004d6beb: mov      dword ptr [esp + 0xc], ebx
+004d6bef: mov      ebx, 0x43480000
+004d6bf4: mov      dword ptr [esp + 8], ebx
+004d6bf8: mov      dword ptr [esp + 4], esi
+004d6bfc: mov      esi, 0x220
+
+## SDL 1.2.13 (bytes at 0x68141000 = 01 02 0d): DX5 GL fullscreen CDS path + desktop-rate branch
+681388be: mov      ecx, 0x9c
+681388c3: xor      edx, edx
+681388c5: lea      ebx, [ebp - 0x128]
+681388cb: mov      dword ptr [esp + 8], ecx
+681388cf: mov      dword ptr [esp + 4], edx
+681388d3: mov      dword ptr [esp], ebx
+681388d6: call     0x68140930
+681388db: mov      eax, 0x9c
+681388e0: mov      ecx, dword ptr [ebp + 0x10]
+681388e3: mov      esi, dword ptr [ebp + 0x14]
+681388e6: mov      word ptr [ebp - 0x104], ax
+681388ed: mov      eax, dword ptr [edi + 4]
+681388f0: cmp      dword ptr [0x68156d2c], ecx
+681388f6: movzx    eax, byte ptr [eax + 4]
+681388fa: mov      dword ptr [ebp - 0xbc], ecx
+68138900: mov      dword ptr [ebp - 0xb8], esi
+68138906: mov      dword ptr [ebp - 0xc0], eax
+6813890c: jge      0x68138dd5
+68138912: mov      eax, 0x1c0000
+68138917: mov      dword ptr [ebp - 0x100], eax
+6813891d: mov      eax, 4
+68138922: mov      dword ptr [esp + 4], eax
+68138926: mov      dword ptr [esp], ebx
+68138929: call     0x6813e860
+6813892e: sub      esp, 8
+68138931: test     eax, eax
+68138933: je       0x6813896d
+68138935: mov      eax, dword ptr [ebp - 0x100]
+6813893b: test     eax, 0x400000
+68138940: je       0x68137fd4
+68138946: and      eax, 0xffbfffff
+6813894b: mov      dword ptr [ebp - 0x100], eax
+68138951: mov      eax, 4
+68138956: mov      dword ptr [esp + 4], eax
+68138dd5: cmp      dword ptr [0x68156d30], esi
+68138ddb: jl       0x68138912
+68138de1: mov      eax, dword ptr [0x68156d38]
+68138de6: mov      dword ptr [ebp - 0xb0], eax
+68138dec: mov      eax, 0x5c0000
+68138df1: jmp      0x68138917
+
+## SoF2.exe SP: '...display frequency = %d Hz' is an ENUM_CURRENT_SETTINGS read AFTER CDS ok + window (0x100b8d57), i.e. a measurement, not the cvar
+100b8d86: mov      byte ptr [0x10840a94], 1
+100b8d8d: xor      eax, eax
+100b8d8f: mov      ecx, 0x25
+100b8d94: lea      edi, [esp + 0x18]
+100b8d98: rep stosd dword ptr es:[edi], eax
+100b8d9a: lea      ecx, [esp + 0x18]
+100b8d9e: push     ecx
+100b8d9f: push     -1
+100b8da1: push     eax
+100b8da2: mov      word ptr [esp + 0x48], 0x94
+100b8da9: call     dword ptr [0x100da1f8]
+100b8daf: test     eax, eax
+100b8db1: je       0x100b8dcd
+100b8db3: mov      eax, dword ptr [esp + 0x90]
+100b8dba: push     eax
+100b8dbb: push     0x100f706c
+100b8dc0: mov      dword ptr [0x1079a248], eax
+100b8dc5: call     0x100341a0
+100b8dca: add      esp, 8
+100b8dcd: mov      dl, byte ptr [esp + 0x950]
+100b8dd4: pop      edi
+100b8dd5: pop      esi
+
+## jasp.exe: the ENUM_CURRENT read at 0x48b3e1 is the TAIL of GLW_SetMode (fullscreen branch starts 0x48b40a and rejoins), so 'MODE: .. hz:N' is read after the context/Glide open
+0048b3d1: lea      eax, [esp + 0x18]
+0048b3d5: push     eax
+0048b3d6: push     -1
+0048b3d8: push     0
+0048b3da: mov      word ptr [esp + 0x48], 0x9c
+0048b3e1: call     dword ptr [0x4f0270]
+0048b3e7: test     eax, eax
+0048b3e9: je       0x48b3f8
+0048b3eb: mov      ecx, dword ptr [esp + 0x90]
+0048b3f2: mov      dword ptr [0xc98484], ecx
+0048b3f8: mov      edx, dword ptr [ebp + 0xc]
+0048b3fb: mov      dword ptr [0xc98488], edx
+0048b401: xor      eax, eax
+0048b403: pop      edi
+0048b404: pop      esi
+0048b405: pop      ebx
+0048b406: mov      esp, ebp
+0048b408: pop      ebp
+0048b409: ret      
+0048b40a: mov      eax, dword ptr [ebp + 0xc]
+0048b40d: test     eax, eax
+0048b40f: je       0x48b383

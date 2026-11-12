@@ -1,0 +1,3736 @@
+diff --git a/scripts/gameindex/README.md b/scripts/gameindex/README.md
+index f0d2097..7aae1e7 100644
+--- a/scripts/gameindex/README.md
++++ b/scripts/gameindex/README.md
+@@ -24,8 +24,10 @@ minutes. Each pass:
+    hash differs** from the DB.
+ 3. Refreshes the live-server table for the engines the fleet actually has
+    installed, then pins our own servers on `.132`.
+-4. Renders each game's favourites file, hashes it, and uploads it **only when
+-   that hash differs** from what we last wrote to that box.
++4. Renders each favourites **file** the box's games read, and uploads it
++   **only when the game would see a difference** from what the box already
++   holds (`favorites.same_favourites`). Titles that share a file (Quake III's
++   `quake3` and `ioquake3`) are one file and one decision.
+ 
+ Steps 2 and 4 are what "refresh only if there are changes" means in practice.
+ Without them every pass would rewrite every config on every machine every five
+@@ -39,13 +41,21 @@ looked" are different facts and must not look the same in the log.
+ 
+ | engine | server discovery | favourites writer |
+ |---|---|---|
+-| `q3` (Q3A, ioquake3, OpenArena) | **yes** — ioquake3 + quake3arena + dpmaster, ~575 alive | **yes** — `baseq3\autoexec.cfg`, `seta server1..16` |
++| `q3` (Q3A, ioquake3, OpenArena) | **yes** — ioquake3 + quake3arena + dpmaster, ~575 alive; only servers with **people** on them count (a ping-0 player line is a bot) | **yes** — `baseq3\autoexec.cfg`, `seta server1..16` |
++| `q3cache` (Quake III: **Team Arena**) | the `q3` table, filtered to gamename `missionpack` for internet servers too | **yes** — `%APPDATA%\Quake3\servercache.dat`, the ENGINE's favourites list (ioquake3 1.36 layout, binary) |
+ | `q2` | best-effort — `master.q2servers.com` has not answered from here | **yes** — `baseq2\autoexec.cfg`, `set adr0..8` |
+-| `unreal` (UT99 469e **and** 436, Unreal Gold, Deus Ex) | **seeded** — GameSpy is dead, so a curated address list, every entry probed; 17 of 18 alive | **yes** — `System\<Game>.ini`, `[UBrowser.UBrowserFavoritesFact]` |
++| `unreal` (UT99 469e **and** 436, Unreal Gold) | **seeded** — GameSpy is dead, so a curated address list, every entry probed; 17 of 18 alive | **yes** — `System\<Game>.ini`, `[UBrowser.UBrowserFavoritesFact]` |
+ | `ut2k4` (UT2004) | no — no live master and no seed list; ours on `.132` is pinned directly | **yes** — `System\UT2004.ini`, `[XInterface.ExtendedConsole]` |
+ | `goldsrc` (CS 1.6, TFC, DoD, TS) | no — every `*.steampowered.com` master hostname fails DNS from this host; the A2S **probe** is wired and verifies our own | **yes** — `config\serverbrowser.vdf`, `filters > favorites` |
+ | `qw` (QuakeWorld, ezQuake) | **yes** — quakeworld.nu, ~540 alive | no — classic QW has no favourites store; ezQuake's differs per build |
+-| `t2`, `rtcw`, `nq` | no | no |
++| `t2`, `rtcw`, `nq` | no | no — RTCW's browser keeps the ENGINE's list (`servercache.dat`), not `server1..16`; Tribes 2 has a prefs store nobody has verified joinable without its master |
++
++**Deus Ex and RTCW are not written, on purpose (2026-09-29).** Both used to be
++reported "wrote"/"unchanged" every pass for a file no screen of theirs reads:
++Deus Ex's join menus never open `UBrowserFavoritesFact`, and RTCW's
++multiplayer UI (Team Arena's lineage) has no `server%d` at all - its
++`servercache.dat` read `favourites=0` after sessions whose config carried
++`server1`. Their reasons are in `favorites.UNWRITABLE`.
+ 
+ Local servers on `.132` are pinned into the top slots for **every** engine,
+ including ones with no internet discovery — so a box always has something
+@@ -81,11 +91,14 @@ favourites list that could not work:
+ - **The agent reports a game's directory as the one the EXE was in**, which for
+   every Unreal-engine title is `System\` — so appending `System` again gave
+   `...\System\System\UnrealTournament.ini`, a path that cannot exist.
+-- **Unreal Gold and Deus Ex are the same engine as UT99 and a different game.**
+-  They were about to be handed a list of UT99 servers.
+-- **The staged Half-Life tree is WON protocol 46; every fleet GoldSrc server
+-  answers protocol 48.** Half-Life is box-to-box LAN only here, so listing our
+-  servers in it would be a favourites list of dead entries.
++- **Unreal Gold is the same engine as UT99 and a different game.** It was
++  about to be handed a list of UT99 servers. (So was Deus Ex - which, it
++  turned out, has no favourites screen at all.)
++- **The staged Half-Life tree is WON protocol 45; every fleet GoldSrc server
++  answers protocol 48.** Its hw.dll compares the server's protocol with 45
++  (`cmp eax,2Dh`), so listing our servers in it would be a favourites list of
++  dead entries. (The CounterStrike16 tree's HLDM IS protocol 48 - see
++  `favorites.UNWRITABLE["halflife"]` for why it is still not written.)
+ 
+ Every staged title is therefore either written or listed in
+ `favorites.UNWRITABLE` **with a reason in its own words** — Red Alert 2 and
+@@ -116,26 +129,59 @@ does.
+   applies to the seeded list, which we also curate — but *not* to a master's
+   output, where we have no reliable mod taxonomy and a permissive list beats a
+   silently emptied one.
+-- **Select by liveliness, render in a stable order.** Ordering the file by
+-  player count means it changes whenever anyone joins a server anywhere in the
+-  world, so the applied-hash check never matches and every box is rewritten
+-  every five minutes — the exact cost this design exists to avoid. Measured on
+-  `.171`: two passes ninety seconds apart rewrote Quake III and both UT99
+-  trees purely from reordering. Ranking is now on bucketed player counts
+-  (fours) and pings (25ms), tie-broken on the address. Quake III still changes
+-  most passes — with ~575 live servers and 16 slots the membership genuinely
+-  moves, by about one server per pass — but UT99, CS 1.6, Quake II and UT2004
+-  now sit unchanged.
+-- **Never write while the game is running.** Quake III rewrites `q3config.cfg`
+-  on exit and UT rewrites its ini on exit, both from memory, so a write landing
+-  mid-session is at best thrown away and at worst reverts what the player just
+-  set. Each pass asks `PROCLIST` once and skips any title whose exe is up.
+-- **Update, never create — except autoexec.cfg.** The absence of
+-  `config\serverbrowser.vdf` is the cheapest possible evidence that a build
+-  does not use that browser (a WON Half-Life at `C:\Sierra\Half-Life` has no
+-  `revSrvBrowser` at all), and an `.ini` containing nothing but a favourites
+-  section would be worse than none. `autoexec.cfg` is the opposite case: not
+-  existing is its normal state, so the Quake writers create it.
++- **Select by liveliness, render in a stable order - and a settled box says
++  "unchanged".** Ordering the file by player count meant it changed whenever
++  anyone joined a server anywhere in the world (measured on `.171`: two passes
++  ninety seconds apart rewrote Quake III and both UT99 trees purely from
++  reordering). Until 2026-09-29 every pass still wrote 7-17 files and never 0:
++  the Q3 cut reshuffled on bucket crossings and same-host port flips, UT99
++  flipped between two seeds on one host, and CS re-saving its vdf with its own
++  tabs looked like a revert. Now:
++  - **incumbents stay** - a server the box already lists keeps its place while
++    it is alive and eligible; the ranking only fills vacancies
++    (`db.best_servers(incumbent=...)`);
++  - **slots are stable** - a kept server keeps its exact `serverN`/`adrN`
++    slot or its place in the list, so one server leaving changes one line;
++  - **"unchanged" means the GAME would see nothing new** - the same servers
++    and every non-favourite line identical; order, labels, whitespace and a
++    `lastplayed` the game stamped are not differences
++    (`favorites.same_favourites`);
++  - **curated seeds are never deduped by host** - `85.214.243.170:7777` and
++    `:9000` are two servers, and the "ping" that picked one was a 2.5 s read
++    timeout (the round trip is now timed to the FIRST reply).
++  A file somebody else reverted (GAMESYNC copying the library's copy back) is
++  still a real difference and is repaired on the next pass.
++- **A label is never trusted.** Quake II/III split a config line at every `;`
++  outside double quotes - inside a `//` comment too - so a public server named
++  `x; quit` in a favourites comment would have run `quit` on every fleet box
++  at every start. `favorites.clean_label` removes `;`, `"` and every control
++  character, and a file already holding such a line is always rewritten.
++- **Never write while the game is running - decided per FILE.** Quake III
++  rewrites `q3config.cfg` on exit and UT rewrites its ini on exit, both from
++  memory, so a write landing mid-session is at best thrown away and at worst
++  reverts what the player just set. Each pass asks `PROCLIST` once
++  (case-insensitively - Win98 names are upper-case paths) and a file is BUSY
++  if the exe of ANY title that reads it is up; the log names the file. Team
++  Arena's `servercache.dat` is busy while any Quake III client runs, and
++  PROCLIST is asked again right before it is uploaded.
++- **Not while GAMESYNC is copying either.** A sync copies the library's files
++  back over ours seconds later; a box whose `GAMESYNC STATUS` says `sizing` or
++  `copying` is deferred to the next pass.
++- **Update, never create — except autoexec.cfg, and never a folder.** The
++  absence of `config\serverbrowser.vdf` is the cheapest possible evidence that
++  a build does not use that browser (a WON Half-Life at `C:\Sierra\Half-Life`
++  has no `revSrvBrowser` at all), and an `.ini` containing nothing but a
++  favourites section would be worse than none. `autoexec.cfg` is the opposite
++  case: not existing is its normal state, so the Quake writers create it - but
++  only in a folder that positively exists. The agent's `DIRLIST` answers `[]`
++  for a folder that does not exist, so an empty listing is checked one level
++  up; there is no `MKDIR` any more (it planted favourites-only `baseq3\` trees
++  in Jedi Academy, SoF2 and MOHAA).
++- **Not from a stale index.** A box whose re-index failed this pass is not
++  written: the rows are keyed by IP, and an IP DHCP moved can carry another
++  machine's paths.
++- **Bytes are bytes.** Files are read and written as latin-1, so a byte
++  >= 0x80 in a game's config survives the merge instead of becoming `?`.
+ - **Nothing is written into a benchmark harness.** `C:\q3bench` is a real
+   Quake III install whose whole value is that nothing changes underneath it.
+ - **Probe, never trust the master.** Of ~900 Q3 addresses about 580 answer.
+@@ -144,6 +190,33 @@ does.
+   yields the header and an empty dict, which reported "0 alive of 400" for
+   servers that all answered.
+ 
++## Team Arena: the engine's own favourites file
++
++Team Arena's UI never reads `server1..16` (measured on `.123`, `.195`, `.240`:
++Favorites empty with them set). Its Favorites tab is the ENGINE's list, loaded
++from `<fs_homepath>\servercache.dat` when the UI starts and saved over it when
++the UI shuts down - for ioquake3 1.36 on Windows, `%APPDATA%\Quake3\servercache.dat`,
++one file for every mod. `sync.push_servercache` writes it:
++
++- **derived, not indexed** - Team Arena is the `missionpack\` folder beside an
++  `ioquake3` install, so the `missionpack` title is derived from those rows;
++- **the path comes from the box** - `REGREAD HKCU ...\Shell Folders AppData`
++  (agent-internal, the user the games run as); nothing is created if
++  `%APPDATA%\Quake3` does not exist;
++- **layout proven, not assumed** - `int numglobal, int numfav, int size
++  (692736)`, then 4096 global + 128 favourite `serverInfo_t` of 164 bytes
++  (`netadr_t` 32 bytes, port in network order), checked against the ioq3
++  source at the 1.36 release point AND the staged `ioquake3.x86.exe`'s own
++  `LAN_LoadCachedServers`/`CL_SetServerInfo`/`NET_CompareAdr`; a file in any
++  other layout is refused, never rewritten;
++- **only ours is ever removed** - an entry we add carries a mark in
++  `netadr_t.ip6`, a field the engine never reads for an IPv4 address and
++  copies verbatim when it saves; the player's own favourites and the 4096
++  cached internet servers are carried through byte for byte;
++- **never while any Quake III client runs**, PROCLIST asked again right before
++  the upload, and the upload **read back** - anything but an exact match is
++  `FAILED`, not `wrote`.
++
+ ## A service, not a timer
+ 
+ It used to be a `oneshot` behind `retro-gameindex.timer`. That met the
+@@ -189,4 +262,7 @@ python3 scripts/gameindex/sync.py --ip 192.168.1.240 --force
+ DB: `~/.retro-fleet/gameservers.db` (override with `RETRO_GAMEINDEX_DB`).
+ Tests: `tests/python/test_gameindex.py`, `test_gameindex_favorites.py` (the
+ non-Quake writers and the per-title policy), `test_gameindex_no_clobber.py`,
+-`test_gameindex_staged_library.py` and `test_gameindex_status.py`.
++`test_gameindex_staged_library.py`, `test_gameindex_status.py` and
++`test_patch_favourites.py` (labels vs. the Q3 command splitter, Team Arena's
++servercache.dat against the staged binary, BUSY per file, the settled-box
++contract, and every UNWRITABLE reason checked against the staged library).
+diff --git a/scripts/gameindex/db.py b/scripts/gameindex/db.py
+index 2bfe99b..0fde5df 100644
+--- a/scripts/gameindex/db.py
++++ b/scripts/gameindex/db.py
+@@ -211,12 +211,24 @@ def prune_servers(con, older_than_s=3600):
+ 
+ 
+ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
+-                 local_only=False):
++                 local_only=False, strict_accepts=False, incumbent=None):
+     """Live servers for an engine, our own first, then busiest-and-closest.
+ 
+     `accepts`, when given, is the set of gamenames the asking TITLE can
+     actually join. It is applied to every server WE CURATED -- our own on .132
+-    and the seeded ones -- and not to a master's output.
++    and the seeded ones -- and not to a master's output, unless
++    `strict_accepts`: then an internet server must NAME one of those games
++    too. Team Arena is why that exists - its game module reports
++    "missionpack", and a Team Arena client cannot join a baseq3 server, so
++    the permissive rule would hand it a list it can join none of.
++
++    `incumbent`, when given, is a predicate true for a server that is ALREADY
++    in the favourites file on the box. Those are kept ahead of the ranking
++    while they are still alive and eligible; the ranking only fills vacancies.
++    Without it, with ~575 live Quake III servers and 16 slots, a server
++    crossing a player bucket anywhere in the world reshuffled the cut and
++    every box was rewritten on every pass - a steady state that never said
++    "unchanged".
+ 
+     The line is drawn at "did we choose this address". For our own servers and
+     a hand-kept seed list we know exactly what is running, so handing a
+@@ -238,7 +250,12 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
+     eight ports of the same server and would otherwise eat every favourite
+     slot -- that is a lesson from the Q3 recipe, not a hypothetical. Applying
+     it to OUR servers was a bug: they all live on .132, so a box was given one
+-    of them and never the rest.
++    of them and never the rest. Applying it to the CURATED SEEDS was the same
++    bug again (2026-09-29): the UT99 seed list names 85.214.243.170:7777 and
++    :9000 on purpose - two different servers - so only one could survive, and
++    which one was decided by a "ping" that is really a 2.5 s read timeout.
++    UT99's favourites flipped between the two on every other pass on every
++    box. Seeds are chosen by hand; each one is its own server.
+     """
+     cutoff = time.strftime("%Y-%m-%d %H:%M:%S",
+                            time.localtime(time.time() - fresh_s))
+@@ -265,23 +282,44 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
+         "      AND (source='seed' OR players > 0)))"
+         " ORDER BY is_local DESC, (players/4) DESC, (ping_ms/25) ASC, addr ASC",
+         (engine, cutoff)).fetchall()
+-    out, seen_hosts = [], set()
++    eligible = []
+     for r in rows:
+         if local_only and not r["is_local"]:
+             continue
+         curated = bool(r["is_local"]) or (r["source"] or "") == "seed"
++        gamename = (r["gamename"] or "").strip().lower()
+         if accepts and curated:
+-            gamename = (r["gamename"] or "").strip().lower()
+             if gamename and gamename not in accepts:
+                 continue
+-        if not r["is_local"]:
++        elif accepts and strict_accepts and gamename not in accepts:
++            continue
++        eligible.append(r)
++
++    out, seen_hosts, taken = [], set(), set()
++
++    def take(r):
++        if len(out) >= limit or r["addr"] in taken:
++            return
++        if not (r["is_local"] or (r["source"] or "") == "seed"):
+             host = r["addr"].rsplit(":", 1)[0]
+             if host in seen_hosts:
+-                continue
++                return
+             seen_hosts.add(host)
+         out.append(r)
+-        if len(out) >= limit:
+-            break
++        taken.add(r["addr"])
++
++    # Ours first (the ORDER BY puts them there), then whatever the box
++    # already lists and is still eligible, then the ranking for what is left.
++    for r in eligible:
++        if r["is_local"]:
++            take(r)
++    if incumbent is not None:
++        for r in eligible:
++            if not r["is_local"] and incumbent(r):
++                take(r)
++    for r in eligible:
++        if not r["is_local"]:
++            take(r)
+ 
+     # SELECT by liveliness, but RENDER in a stable order.
+     #
+diff --git a/scripts/gameindex/favorites.py b/scripts/gameindex/favorites.py
+index c7671d4..645452f 100644
+--- a/scripts/gameindex/favorites.py
++++ b/scripts/gameindex/favorites.py
+@@ -1,8 +1,9 @@
+ r"""favorites.py — turn a live server list into the file a game actually reads.
+ 
+ One writer per engine. A writer returns the exact bytes to place at an exact
+-path on the box, plus a content hash; sync.py compares that hash against what
+-it last wrote and skips the machine entirely when nothing changed.
++path on the box, plus a content hash; sync.py compares what it would write
++with what the box already holds and leaves the file alone when the GAME would
++see no difference.
+ 
+ Two rules learned the hard way and encoded here (fleetbook recipe
+ `populate-quake-iii-arena-favorites-fleet-wide-with-live-inte`):
+@@ -25,10 +26,15 @@ None of this was assumed from the Quake pattern; every mechanism below was
+ read out of the game's own files in the staged library
+ (``\\192.168.1.122\files\Files\Games-Library``):
+ 
+-  * **Quake III** - ``<dir>\baseq3\autoexec.cfg``, ``seta server1..16``.
++  * **Quake III** (baseq3's id q3_ui) - ``<dir>\baseq3\autoexec.cfg``,
++    ``seta server1..16``.
++  * **Quake III: Team Arena** - NOT the cvars. Team Arena's UI keeps its
++    Favorites in the ENGINE's list, which ioquake3 1.36 saves to
++    ``%APPDATA%\Quake3\servercache.dat`` (see the servercache section at the
++    bottom; the layout is proven from the staged binary itself).
+   * **Quake II** - ``<dir>\baseq2\autoexec.cfg``, ``set adr0..8``.
+-  * **Unreal engine 1** (UT99, Unreal Gold, Deus Ex) - the UBrowser package's
+-    own bytecode carries the format as a comment::
++  * **Unreal engine 1** (UT99, Unreal Gold) - the UBrowser package's own
++    bytecode carries the format as a comment::
+ 
+         class UBrowserFavoritesFact extends UBrowserServerListFactory;
+         var config int FavoriteCount;
+@@ -39,6 +45,8 @@ read out of the game's own files in the staged library
+     is the **query port**, not the game port - ``Query()`` calls
+     ``FoundServer(ParseOption(..,1), Int(ParseOption(..,2)), ...)``. Each game
+     keeps it in its OWN ini, which is why the target is chosen per title.
++    (Deus Ex ships UBrowser.u too but never opens its favourites - see
++    UNWRITABLE["deusex"].)
+   * **UT2004** - ``XInterface.u`` declares
+     ``struct ServerFavorite { int ServerID; string IP; int Port; int QueryPort;
+     string ServerName; }`` and ``var() protected config array<ServerFavorite>
+@@ -61,18 +69,89 @@ read out of the game's own files in the staged library
+ Two engine-level facts that the *engine* alone cannot express, so titles are
+ keyed individually below: Soldier of Fortune II and Jedi Academy are Quake III
+ engine but their game directory is ``base``, not ``baseq3``; and the staged
+-Half-Life tree is WON protocol 46 while every fleet GoldSrc server answers
++Half-Life tree is WON protocol 45 while every fleet GoldSrc server answers
+ protocol 48, so Half-Life must not be pointed at them.
++
++A settled box reports "unchanged"
++---------------------------------
++Three things used to rewrite a file on every pass while nothing a player could
++see had changed, and each one is now handled here rather than trusted away:
++
++  * **Order.** A server that is already in the file keeps its slot
++    (`_assign_slots`) or its place in the list (`_stable_sequence`); only a
++    vacancy is filled. One server leaving no longer renumbers fifteen lines.
++  * **Labels and whitespace.** `same_favourites` compares what the GAME ends
++    up with - the servers, and every line that is not ours - so a hostname
++    that changed its colour codes, or revSrvBrowser re-saving the vdf with
++    its own tabs and a real `lastplayed`, is not a reason to write.
++  * **Membership.** sync.py passes the servers already in the file to
++    db.best_servers as incumbents; one stays while it is still alive and
++    eligible, and only vacancies are filled from the ranking.
++
++A label is never trusted
++------------------------
++A server's hostname is chosen by whoever runs that server. Quake II and III
++split a config line into commands at every `;` that is outside double quotes -
++INSIDE A `//` COMMENT TOO (measured: the staged autoexec's own comment "...on
++exit; this is not." prints `Unknown command "this"` at every start). The Q3
++and Q2 writers put the hostname in a comment, so one public server named
++`x; quit` would have run `quit` - or anything else - on every fleet box at
++every start. `clean_label` removes that, and `same_favourites` refuses to call
++a file with such a line in it "unchanged".
+ """
+ import hashlib
+ import re
++import struct
++import unicodedata
++from collections import namedtuple
+ 
+ BEGIN = "// --- BEGIN retro-fleet favorites (managed, do not edit) ---"
+ END = "// --- END retro-fleet favorites ---"
+ 
+ 
+ def content_hash(text):
+-    return hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()[:16]
++    data = text if isinstance(text, (bytes, bytearray)) else \
++        str(text).encode("utf-8", "replace")
++    return hashlib.sha256(bytes(data)).hexdigest()[:16]
++
++
++# --- label hygiene -----------------------------------------------------------
++#
++# Every label reaches a file some game parses. Control characters are never
++# wanted anywhere (a NUL or a newline in an ini value or a vdf string ends or
++# splits it), and for the Quake family `;` and `"` are COMMAND SYNTAX even in
++# a comment - see the module docstring. `'` is inert to both Cbufs and their
++# tokenizers, so a double quote becomes one rather than vanishing.
++
++_QUAKE_SYNTAX = {";": " ", '"': "'"}
++
++
++def clean_label(text, limit=60, quake=False):
++    """A server's own name, made safe to write where a game will read it."""
++    out = []
++    for ch in str(text or ""):
++        if unicodedata.category(ch).startswith("C"):
++            out.append(" ")                 # Cc/Cf/...: controls, NUL, DEL
++        elif quake and ch in _QUAKE_SYNTAX:
++            out.append(_QUAKE_SYNTAX[ch])
++        else:
++            out.append(ch)
++    return " ".join("".join(out).split())[:limit].rstrip()
++
++
++def _label_is_clean(text, quake=False):
++    for ch in str(text or ""):
++        if unicodedata.category(ch).startswith("C"):
++            return False
++        if quake and ch in _QUAKE_SYNTAX:
++            return False
++    return True
++
++
++# What may sit between the quotes of `seta serverN "..."`. An address from a
++# master is a dotted quad; ours may be a hostname if RETRO_FLEET_HOST says so.
++# Nothing else - no quote, no `;`, no space - ever reaches a Quake config.
++_ADDR_OK = re.compile(r"^[A-Za-z0-9.\-]+:\d{1,5}$")
+ 
+ 
+ def _strip_block(existing, seta_re):
+@@ -95,44 +174,125 @@ def _strip_block(existing, seta_re):
+     return "\n".join(out)
+ 
+ 
++# --- stable ordering ---------------------------------------------------------
++
++def _assign_slots(servers, current, numbers, keyfn):
++    """slot -> server, keeping every server that already HAS a slot in it.
++
++    `current` is slot -> identity, read from the file on the box. A server
++    that is still wanted keeps its exact slot; a new one takes the lowest
++    free slot. So one server leaving changes one line, not every line after
++    it - which is what used to make a Q3 favourites file look rewritten from
++    top to bottom whenever a single internet server emptied.
++    """
++    want = {}
++    for s in servers:
++        want.setdefault(keyfn(s), s)
++    out, used = {}, set()
++    for n in numbers:
++        k = current.get(n)
++        if k and k in want and k not in used:
++            out[n] = want[k]
++            used.add(k)
++    free = [n for n in numbers if n not in out]
++    for k, s in want.items():
++        if k in used or not free:
++            continue
++        out[free.pop(0)] = s
++        used.add(k)
++    return out
++
++
++def _stable_sequence(servers, current, keyfn):
++    """The list order for engines whose favourites are a packed array.
++
++    Servers already in the file keep their relative order; new ones follow.
++    A gap is not allowed here (UBrowser would query an empty entry), so this
++    is the order-preserving counterpart of `_assign_slots`.
++    """
++    want = {}
++    for s in servers:
++        want.setdefault(keyfn(s), s)
++    out, used = [], set()
++    for k in current:
++        if k in want and k not in used:
++            out.append(want[k])
++            used.add(k)
++    out += [s for k, s in want.items() if k not in used]
++    return out
++
++
+ # --- Quake III family --------------------------------------------------------
+ 
+ _Q3_SETA = re.compile(r"^seta\s+server\d+\s", re.IGNORECASE)
++# Quake II's address book is adr0..adr8, set from the console or a config.
++_Q2_SETA = re.compile(r"^set\s+adr\d+\s", re.IGNORECASE)
+ 
++# A favourite line exactly as our writer produces it: the slot, the quoted
++# value, and whatever follows the closing quote.
++_QUAKE_LINE = {
++    "q3": re.compile(r'^\s*seta\s+server(\d+)\s+"([^"]*)"(.*)$', re.IGNORECASE),
++    "q2": re.compile(r'^\s*set\s+adr(\d+)\s+"([^"]*)"(.*)$', re.IGNORECASE),
++}
++# ...and any other spelling of one, which a game still executes.
++_QUAKE_LOOSE = {
++    "q3": re.compile(r"^\s*seta\s+server(\d+)\s+(\S+)", re.IGNORECASE),
++    "q2": re.compile(r"^\s*set\s+adr(\d+)\s+(\S+)", re.IGNORECASE),
++}
++_QUAKE_FIRST_SLOT = {"q3": 1, "q2": 0}      # server1..16, adr0..8
++_QUAKE_FORMAT = {"q3": ('seta server%d "%s"        // %s', 'seta server%d ""'),
++                 "q2": ('set adr%d "%s"        // %s', 'set adr%d ""')}
+ 
+-def q3_favorites(servers, existing="", slots=16):
+-    """Q3 favourites are cvars server1..server16, written as seta serverN "ip:port"."""
+-    body = [BEGIN]
+-    for i, s in enumerate(servers[:slots], start=1):
+-        label = (s["hostname"] or s["addr"]).replace("\n", " ")[:60]
+-        body.append(f'seta server{i} "{s["addr"]}"        // {label}')
+-    # Blank any slot we are not using, or a stale address from a previous run
+-    # keeps showing up in the in-game favourites list forever.
+-    for i in range(len(servers[:slots]) + 1, slots + 1):
+-        body.append(f'seta server{i} ""')
+-    body.append(END)
+-    kept = _strip_block(existing, _Q3_SETA)
+-    text = (kept + "\n\n" if kept.strip() else "") + "\n".join(body) + "\n"
+-    return text
+ 
++def quake_values(engine, text):
++    """slot -> value: what each favourite cvar ends up as when the file runs.
+ 
+-# --- Quake II ----------------------------------------------------------------
+-# Q2's address book is adr0..adr8, set from the console or a config.
+-_Q2_SETA = re.compile(r"^set\s+adr\d+\s", re.IGNORECASE)
++    Config lines execute top to bottom, so a later `seta server3` beats an
++    earlier one wherever it sits - inside our block or not.
++    """
++    strict, loose = _QUAKE_LINE[engine], _QUAKE_LOOSE[engine]
++    out = {}
++    for line in (text or "").splitlines():
++        m = strict.match(line)
++        if m:
++            out[int(m.group(1))] = m.group(2).strip()
++            continue
++        m = loose.match(line)
++        if m:
++            out[int(m.group(1))] = m.group(2).strip().strip('"')
++    return out
+ 
+ 
+-def q2_favorites(servers, existing="", slots=9):
++def _quake_favorites(engine, servers, existing, slots):
++    first = _QUAKE_FIRST_SLOT[engine]
++    numbers = list(range(first, first + slots))
++    line_fmt, blank_fmt = _QUAKE_FORMAT[engine]
++    usable = [s for s in servers if _ADDR_OK.match(str(_field(s, "addr")))]
++    assigned = _assign_slots(usable, quake_values(engine, existing), numbers,
++                             lambda s: str(_field(s, "addr")))
+     body = [BEGIN]
+-    for i, s in enumerate(servers[:slots]):
+-        label = (s["hostname"] or s["addr"]).replace("\n", " ")[:60]
+-        body.append(f'set adr{i} "{s["addr"]}"        // {label}')
+-    for i in range(len(servers[:slots]), slots):
+-        body.append(f'set adr{i} ""')
++    for n in numbers:
++        s = assigned.get(n)
++        if s is None:
++            # Blank any slot we are not using, or a stale address from a
++            # previous run keeps showing up in the in-game list forever.
++            body.append(blank_fmt % n)
++            continue
++        addr = str(_field(s, "addr"))
++        label = clean_label(_field(s, "hostname") or addr, 60, quake=True) or addr
++        body.append(line_fmt % (n, addr, label))
+     body.append(END)
+-    kept = _strip_block(existing, _Q2_SETA)
++    kept = _strip_block(existing, _Q3_SETA if engine == "q3" else _Q2_SETA)
+     return (kept + "\n\n" if kept.strip() else "") + "\n".join(body) + "\n"
+ 
+ 
++def q3_favorites(servers, existing="", slots=16):
++    """Q3 favourites are cvars server1..server16, written as seta serverN "ip:port"."""
++    return _quake_favorites("q3", servers, existing, slots)
++
++
++def q2_favorites(servers, existing="", slots=9):
++    return _quake_favorites("q2", servers, existing, slots)
+ 
+ 
+ # --- row helpers -------------------------------------------------------------
+@@ -153,8 +313,7 @@ def _field(row, name, default=""):
+ 
+ 
+ def _label(row, limit=60):
+-    text = str(_field(row, "hostname") or _field(row, "addr"))
+-    return " ".join(text.split())[:limit]
++    return clean_label(_field(row, "hostname") or _field(row, "addr"), limit)
+ 
+ 
+ def _split_addr(row):
+@@ -186,6 +345,18 @@ def _query_port(row):
+ _SECTION_RE = re.compile(r"^\s*\[(?P<name>[^\]]+)\]\s*$")
+ 
+ 
++def _ini_walk(text, section):
++    """(in_section, line) for every line of an ini."""
++    inside = False
++    for line in (text or "").splitlines():
++        m = _SECTION_RE.match(line)
++        if m:
++            inside = m.group("name").strip().lower() == section.lower()
++            yield None, line
++            continue
++        yield inside, line
++
++
+ def _ini_replace_keys(existing, section, own_re, body):
+     """Replace only the keys we own inside ONE ini section.
+ 
+@@ -226,7 +397,7 @@ def _ini_replace_keys(existing, section, own_re, body):
+     return "\n".join(out) + "\n"
+ 
+ 
+-# --- Unreal engine 1: UT99, Unreal Gold, Deus Ex -----------------------------
++# --- Unreal engine 1: UT99, Unreal Gold --------------------------------------
+ #
+ # [UBrowser.UBrowserFavoritesFact]
+ # FavoriteCount=1
+@@ -237,11 +408,65 @@ def _ini_replace_keys(existing, section, own_re, body):
+ # SaveFavorites() writes `HostName\IP\QueryPort\bKeepDescription`.
+ 
+ _UNREAL_OWN = re.compile(r"^(FavoriteCount|Favorites\[\d+\])\s*=", re.IGNORECASE)
++_UNREAL_FAV = re.compile(r"^\s*Favorites\[(\d+)\]\s*=(.*)$", re.IGNORECASE)
++_UNREAL_COUNT = re.compile(r"^\s*FavoriteCount\s*=\s*(.*?)\s*$", re.IGNORECASE)
+ UNREAL_SECTION = "UBrowser.UBrowserFavoritesFact"
+ 
+ 
++def _unreal_raw(text):
++    """(FavoriteCount or None, {index: raw value}, clean) of the section.
++
++    UE1's config reader takes the FIRST occurrence of a key, so that is what
++    is recorded; a duplicate makes the file one we did not write (not clean).
++    """
++    count, favs, clean, sections = None, {}, True, 0
++    for inside, line in _ini_walk(text, UNREAL_SECTION):
++        if inside is None:
++            sections += _SECTION_RE.match(line).group("name").strip().lower() \
++                == UNREAL_SECTION.lower()
++            continue
++        if not inside:
++            continue
++        m = _UNREAL_COUNT.match(line)
++        if m:
++            if count is not None:
++                clean = False
++                continue
++            try:
++                count = int(m.group(1))
++            except ValueError:
++                count, clean = 0, False
++            continue
++        m = _UNREAL_FAV.match(line)
++        if m:
++            i = int(m.group(1))
++            if i in favs:
++                clean = False
++            else:
++                favs[i] = m.group(2)
++    if sections != 1 or count is None:
++        clean = False
++    return count, favs, clean
++
++
++def _unreal_entries(text):
++    """(host, query port) of each favourite UBrowser will query, in order."""
++    count, favs, _ = _unreal_raw(text)
++    out = []
++    for i in range(max(0, min(count or 0, 100))):
++        parts = (favs.get(i) or "").split("\\")
++        if len(parts) >= 3:
++            out.append((parts[1].strip(), parts[2].strip()))
++    return out
++
++
++def _unreal_key(row):
++    return (_split_addr(row)[0], str(_query_port(row)))
++
++
+ def unreal_favorites(servers, existing="", slots=16):
+-    picked = servers[:slots]
++    picked = _stable_sequence(servers[:slots], _unreal_entries(existing),
++                              _unreal_key)
+     body = ["FavoriteCount=%d" % len(picked)]
+     for i, s in enumerate(picked):
+         host = _split_addr(s)[0]
+@@ -268,6 +493,9 @@ def unreal_favorites(servers, existing="", slots=16):
+ # which UT2004.ini names as the Console class.
+ 
+ _UT2K4_OWN = re.compile(r"^Favorites\s*=", re.IGNORECASE)
++_UT2K4_FAV = re.compile(
++    r'^\s*Favorites\s*=\s*\(ServerID=(-?\d+),IP="([^"]*)",Port=(\d+),'
++    r'QueryPort=(\d+),ServerName="([^"]*)"\)\s*$', re.IGNORECASE)
+ UT2K4_SECTION = "XInterface.ExtendedConsole"
+ 
+ 
+@@ -311,18 +539,30 @@ def _ut2k4_query_port(row):
+     return _split_addr(row)[1] + 1
+ 
+ 
++def _ut2k4_entries(text):
++    """(ip, port, query port) of each favourite, in array order."""
++    out = []
++    for inside, line in _ini_walk(text, UT2K4_SECTION):
++        if inside:
++            m = _UT2K4_FAV.match(line)
++            if m:
++                out.append((m.group(2), m.group(3), m.group(4)))
++    return out
++
++
+ def ut2k4_favorites(servers, existing="", slots=16):
++    picked = _stable_sequence(
++        servers[:slots], [(ip, port) for ip, port, _ in _ut2k4_entries(existing)],
++        lambda s: (_split_addr(s)[0], str(_split_addr(s)[1])))
+     body = []
+-    for i, s in enumerate(servers[:slots]):
++    for i, s in enumerate(picked):
+         host, port = _split_addr(s)
+         name = _label(s).replace('"', "'")
+         body.append('Favorites=(ServerID=%d,IP="%s",Port=%d,QueryPort=%d,'
+                     'ServerName="%s")'
+                     % (i, host, port, _ut2k4_query_port(s), name))
+-    if not body:
+-        # An empty array config is expressed by writing no lines at all; the
+-        # dropped ones are already gone, which is how a favourite is removed.
+-        body = []
++    # An empty array config is expressed by writing no lines at all; the
++    # dropped ones are already gone, which is how a favourite is removed.
+     return _ini_replace_keys(existing, UT2K4_SECTION, _UT2K4_OWN, body)
+ 
+ 
+@@ -400,6 +640,13 @@ def _vdf_parse(text):
+     return doc
+ 
+ 
++# revSrvBrowser.dll's per-key template: `"name"\t\t`, `"address"\t`,
++# `"lastplayed"\t`, `"appID"\t\t`. A length rule alone gave "address" two tabs,
++# so every time CS saved the file the next pass saw a difference that was only
++# whitespace and rewrote it.
++_VDF_GAP = {"address": "\t", "lastplayed": "\t", "name": "\t\t", "appid": "\t\t"}
++
++
+ def _vdf_dump(doc, depth=0):
+     """Serialise back out in revSrvBrowser.dll's own layout."""
+     pad = "\t" * depth
+@@ -412,11 +659,39 @@ def _vdf_dump(doc, depth=0):
+             lines.append("%s}" % pad)
+             lines.append("")
+         else:
+-            gap = "\t\t" if len(key) < 8 else "\t"
++            gap = _VDF_GAP.get(key.lower(), "\t\t" if len(key) < 8 else "\t")
+             lines.append('%s"%s"%s"%s"' % (pad, key, gap, val))
+     return lines
+ 
+ 
++def _vdf_get(entry, name):
++    for k, v in entry:
++        if k.lower() == name.lower() and not isinstance(v, list):
++            return v
++    return None
++
++
++def _goldsrc_favourite_entries(doc):
++    """The raw entries of filters > favorites, in file order."""
++    for key, val in doc:
++        if key.lower() == "filters" and isinstance(val, list):
++            for k2, v2 in val:
++                if k2.lower() == "favorites" and isinstance(v2, list):
++                    return [e for _, e in v2 if isinstance(e, list)]
++    return []
++
++
++def _goldsrc_entries(text):
++    """(address, appID) of each favourite, in order. [] if unparseable."""
++    try:
++        doc = _vdf_parse(text) if (text or "").strip() else []
++    except _VdfError:
++        return []
++    return [((_vdf_get(e, "address") or "").strip(),
++             (_vdf_get(e, "appID") or "").strip())
++            for e in _goldsrc_favourite_entries(doc)]
++
++
+ # Steam application ids, as the browser records them next to each favourite.
+ GOLDSRC_APPID = {"cs16": 10, "halflife": 70, "tfc": 20, "dod": 30,
+                  "dmc": 40, "ts": 70}
+@@ -430,14 +705,25 @@ def goldsrc_favorites(servers, existing="", slots=16, appid=10):
+             "goldsrc: %s is not VDF we can parse back (%s) - refusing to "
+             "rewrite it" % ("config\\serverbrowser.vdf", exc))
+ 
++    picked = _stable_sequence(servers[:slots],
++                              [a for a, _ in _goldsrc_entries(existing)],
++                              lambda s: str(_field(s, "addr")))
++    # When the game has stamped a favourite it kept, the stamp survives a
++    # rewrite: it is the player's record of having played there, not ours.
++    played = {}
++    for e in _goldsrc_favourite_entries(doc):
++        a, lp = _vdf_get(e, "address"), _vdf_get(e, "lastplayed")
++        if a and lp and lp.strip().isdigit():
++            played.setdefault(a.strip(), lp.strip())
+     entries = []
+-    for i, s in enumerate(servers[:slots]):
++    for i, s in enumerate(picked):
++        addr = str(_field(s, "addr"))
+         entries.append((str(i), [
+             ("name", _label(s, 120).replace('"', "'")),
+-            ("address", str(_field(s, "addr"))),
+-            # A real timestamp here would change the file's hash every pass and
+-            # rewrite every box every five minutes for no reason.
+-            ("lastplayed", "0"),
++            ("address", addr),
++            # Never a clock reading of OURS: that would change the file every
++            # pass and rewrite every box every five minutes for no reason.
++            ("lastplayed", played.get(addr, "0")),
+             ("appID", str(appid)),
+         ]))
+ 
+@@ -495,6 +781,11 @@ WRITERS = {
+                   filename="UT2004.ini", slots=16, supported=True),
+     "goldsrc": dict(fn=goldsrc_favorites, subdir="config",
+                     filename="serverbrowser.vdf", slots=16, supported=True),
++    # Team Arena's favourites: a BINARY file in the player's profile, written
++    # by sync.push_servercache with the sc_* functions at the bottom of this
++    # module. `binary` keeps it out of the text pipeline.
++    "q3cache": dict(fn=None, subdir="", filename="servercache.dat", slots=16,
++                    supported=True, binary=True),
+     # Deliberately not implemented. Each needs a per-build answer we have not
+     # verified on the fleet's actual installs, and writing a guess into a
+     # game's config is worse than leaving it alone.
+@@ -518,15 +809,17 @@ WRITERS = {
+ #     a favourites file that could never have had any effect.
+ #   * Counter-Strike, The Specialists and Half-Life are all hl.exe. A CS
+ #     client pointed at the Specialists server gets a mod mismatch, and the
+-#     staged Half-Life tree is WON protocol 46 while every fleet GoldSrc
++#     staged Half-Life tree is WON protocol 45 while every fleet GoldSrc
+ #     server answers protocol 48 - it cannot join them at all.
+-#   * UT99, Unreal Gold and Deus Ex share one favourites mechanism but each
+-#     keeps it in its own ini.
++#   * UT99 and Unreal Gold share one favourites mechanism but each keeps it in
++#     its own ini.
+ #
+ # `accepts` filters OUR OWN servers by the gamename they report, so a title is
+ # never given an address it cannot actually join. It is not applied to
+-# internet servers: we know exactly what runs on .132, and we have no reliable
+-# mod taxonomy for the rest of the world.
++# internet servers unless `strict_accepts` says so: we know exactly what runs
++# on .132, and for most titles we have no reliable mod taxonomy for the rest of
++# the world. (Team Arena is the exception - its game module reports
++# "missionpack", and a Team Arena client cannot join a baseq3 server.)
+ #
+ # A title absent from this table is reported unsupported WITH a reason rather
+ # than written with a guess.
+@@ -534,18 +827,19 @@ TITLES = {
+     "quake3":    dict(engine="q3", subdir="baseq3", accepts={"baseq3"}),
+     "ioquake3":  dict(engine="q3", subdir="baseq3", accepts={"baseq3"}),
+     "openarena": dict(engine="q3", subdir="baseoa", accepts={"baseoa"}),
+-    # Return to Castle Wolfenstein. The agent indexes it as `wolfmp` with
+-    # engine `rtcw`, but the FAVOURITES mechanism is plain Quake III: the
+-    # staged Main\ui_mp_x86.dll carries `server1`..`server16`, `addFavorite`
+-    # and `ui_favoriteAddress`, so q3_favorites writes it verbatim into
+-    # Main\autoexec.cfg. `accepts={"main"}` is what stops an RTCW box being
+-    # handed the Q3A, OpenArena, Team Arena, Jedi Academy or SoF2 addresses,
+-    # all of which are engine `q3` on the same IP.
+-    # `local_only` because RTCW is a Quake III ENGINE but a DIFFERENT GAME.
+-    # Without it the permissive master rule handed a WolfMP client sixteen
+-    # live Quake III Arena servers, every one of which refuses it on connect.
+-    "wolfmp":    dict(engine="q3", subdir="Main", accepts={"main"},
+-                      local_only=True),
++    # Quake III: Team Arena. The agent never reports this key: Team Arena is
++    # the missionpack\ directory beside an ioquake3 install, so sync.py
++    # derives it from every `ioquake3` row whose directory has one
++    # (`derived_from`, `requires_subdir`). Its favourites are NOT cvars - the
++    # Team Arena UI never reads server1..16 (measured on .123/.195/.240:
++    # Favorites empty with them set) - but the ENGINE's favourites list,
++    # which ioquake3 1.36 keeps in %APPDATA%\Quake3\servercache.dat, shared by
++    # every mod. `servers_from` is the engine bucket the server table files
++    # Team Arena servers under.
++    "missionpack": dict(engine="q3cache", servers_from="q3", subdir="",
++                        filename="servercache.dat", accepts={"missionpack"},
++                        strict_accepts=True, derived_from=("ioquake3",),
++                        requires_subdir="missionpack"),
+     "quake2":    dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
+     "q2pro":     dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
+     "yquake2":   dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
+@@ -559,8 +853,6 @@ TITLES = {
+                       filename="UnrealTournament.ini", accepts={"ut"}),
+     "unreal":    dict(engine="unreal", subdir="System", create=False,
+                       filename="Unreal.ini", accepts={"unreal"}),
+-    "deusex":    dict(engine="unreal", subdir="System", create=False,
+-                      filename="DeusEx.ini", accepts={"deusex"}),
+     "ut2004":    dict(engine="ut2k4", subdir="System", create=False,
+                       filename="UT2004.ini", accepts={"ut2004"}),
+     "ut2003":    dict(engine="ut2k4", subdir="System", create=False,
+@@ -588,7 +880,37 @@ TITLES = {
+ #     none at all.
+ #
+ # autoexec.cfg is the opposite case - the Quake writers create it on purpose,
+-# because not existing is its normal state.
++# because not existing is its normal state. Even then only the FILE is
++# created: its folder (baseq3, baseq2) must already exist. A folder that is not
++# there means the title is not installed there, and making one is how
++# favourites-only baseq3\ trees appeared inside Jedi Academy and SoF2.
++
++# Every Quake III client that reads or rewrites %APPDATA%\Quake3 - the file
++# Team Arena's favourites live in is shared by all of them, so ANY of these
++# running makes servercache.dat busy, whichever mod it is in.
++Q3_FAMILY_EXES = frozenset({"quake3.exe", "ioquake3.exe", "ioquake3.x86.exe",
++                            "ioquake3-smp.x86.exe", "ioquake3_smp.x86.exe"})
++
++# Why a running game makes its favourites file off limits - per FILE KIND, so
++# the log says the true reason for the file it names.
++_BUSY_WHY = {
++    "q3": "it execs this file as it starts, so a write can land mid-launch",
++    "q2": "it execs this file as it starts, so a write can land mid-launch",
++    "unreal": "it rewrites this ini from memory on exit, so a write now would "
++              "be lost or would revert what the player just set",
++    "ut2k4": "it rewrites this ini from memory on exit, so a write now would "
++             "be lost or would revert what the player just set",
++    "goldsrc": "revSrvBrowser rewrites ServerBrowser.vdf on exit, so a write "
++               "now would be lost",
++    "q3cache": "Team Arena's UI rewrites servercache.dat from memory when it "
++               "shuts down, so a write now would be lost - or would lose a "
++               "favourite the player just added",
++}
++
++
++def busy_why(engine):
++    return _BUSY_WHY.get(engine, "it may rewrite this file on exit")
++
+ 
+ # Directories a favourites file has no business being written into.
+ # The benchmark harnesses are a real copy of Quake III whose whole value is
+@@ -600,7 +922,11 @@ SKIP_DIRS = re.compile(r"(^|[\\/])(q3bench|[^\\/]*bench(mark)?s?)([\\/]|$)",
+ # Titles we can DETECT and deliberately do not write, each with the reason.
+ # This is the difference between "the favourites agent does not cover this"
+ # and "the favourites agent has nothing it could honestly put there", which
+-# are answers to different questions.
++# are answers to different questions. Every reason here was re-checked on
++# 2026-09-29 against the staged library and the fleet's game servers; a reason
++# that stops being true (a server appears, a mounter is installed) must be
++# rewritten in the same change, or this table starts telling people to give up
++# on things that work.
+ UNWRITABLE = {
+     "sam":
+         "there ARE fleet Serious Sam servers now (ssam-tfe-server :25600 and "
+@@ -609,25 +935,38 @@ UNWRITABLE = {
+         "there is nothing on disk to write. The LAN tab finds them by "
+         "broadcast; a direct join is Join Game -> type the address",
+     "halflife":
+-        "the staged Half-Life tree is WON protocol 46 and every fleet GoldSrc "
+-        "server answers protocol 48 - it could not join them, so listing them "
+-        "would be a favourites list of dead entries. Half-Life is box-to-box "
+-        "LAN only here",
++        "two trees report this key. The WON Half-Life tree (HalfLife1, hl.exe "
++        "1.0.1.4) speaks protocol 45 - its hw.dll compares the server's "
++        "protocol with 45 (cmp eax,2Dh) and refuses anything else - and every "
++        "fleet GoldSrc server answers protocol 48, so listing them there would "
++        "be a list of dead entries. The Half-Life DM mod inside the "
++        "CounterStrike16 tree IS protocol 48 and does join hldm-server "
++        "(192.168.1.132:27020, two boxes verified 2026-08-31, 'Play Half-Life "
++        "Deathmatch.bat'), but that tree has ONE config\\serverbrowser.vdf "
++        "shared with Counter-Strike and nobody has verified that revSrvBrowser "
++        "keeps an appID 70 entry apart from CS's, so nothing is written for it "
++        "either: use the launcher or `connect 192.168.1.132:27020`",
+     "sof2":
+-        "there IS a fleet SoF2 server now (sof2-server, 192.168.1.132:20100, "
+-        "verified two-box 2026-08-31) but no favourites writer here is "
+-        "verified for this engine: SoF2 keeps its multiplayer config in "
+-        "base\\MP, not base, and nobody has confirmed on hardware which cvars "
+-        "its browser reads. Writing a guess into a staged config is worse "
+-        "than this sentence. Join it from the console: "
+-        "connect 192.168.1.132:20100. NB its Quake III lineage still does NOT "
+-        "mean it can join a Quake III server",
+-    "jka":  "there IS a fleet Jedi Academy server now (jka-server, "
+-            "192.168.1.132:29070, OpenJK, protocol 26). Nothing is written "
+-            "because the staged jamp.exe cannot get past its own CD check "
+-            "(\"Disk 1 not in drive\") on a box with no disc, so a favourites "
+-            "entry would point a client that cannot start at a server that is "
+-            "up. See JediAcademy/README-FLEET.txt in the staged library",
++        "there IS a fleet SoF2 server (sof2-server, 192.168.1.132:20100, "
++        "verified two-box 2026-08-31) but SoF2's browser keeps its favourites "
++        "in the ENGINE's list - sof2mp.exe names servercache.dat and the "
++        "staged tree carries base\\servercache.dat - not in cvars a config "
++        "could set, and that file is a binary struct dump whose layout nobody "
++        "has verified for sof2mp.exe. Writing a guess into it is worse than "
++        "this sentence. Join it from the console: connect "
++        "192.168.1.132:20100. NB its Quake III lineage still does NOT mean it "
++        "can join a Quake III server",
++    "jka":  "there IS a fleet Jedi Academy server (jka-server, "
++            "192.168.1.132:29070, OpenJK, protocol 26) and the staged tree CAN "
++            "join it now: the launcher mounts the staged disc image, and .143 "
++            "and .246 joined it together on 2026-08-31 (JediAcademy/"
++            "README-FLEET.txt; only a box with no disc mounter is gated off). "
++            "Nothing is written because JKA's browser keeps favourites in the "
++            "ENGINE's list - jamp.exe names servercache.dat, and its UI has "
++            "addFavorite and no server%d cvars - a binary struct dump whose "
++            "layout is unverified for jamp.exe. Join from the console: "
++            "connect 192.168.1.132:29070 (the menus are relative-mouse; run "
++            "windowed to type)",
+     "jk2":  "no Jedi Knight II server on the fleet and no live JK2 master",
+     "et":   "no Enemy Territory server on the fleet and no live ET master",
+     "mohaa":
+@@ -642,8 +981,61 @@ UNWRITABLE = {
+     "quakeworld": "classic QW keeps no favourites; the fleet server is reached "
+                   "from the console with `connect 192.168.1.132:27502`",
+     "ezquake": "ezQuake's favourites file differs per build; unverified here",
+-    "tribes2": "TribesNext encrypts the info response and Tribes 2 keeps no "
+-               "favourites file we have verified",
++    # Return to Castle Wolfenstein multiplayer. This key HAD a writer - seta
++    # server1..16 into Main\autoexec.cfg - and every pass reported it written.
++    # It never reached the game (below), so it is here now instead.
++    "wolfmp":
++        "RTCW multiplayer's browser keeps its Favorites in the ENGINE's list, "
++        "saved to <install>\\servercache.dat: the staged Main\\ui_mp_x86.dll "
++        "is Team Arena's UI lineage (addFavorite, createFavorite, "
++        "ui_favoriteAddress) and has no 'server%d' anywhere - the server1..16 "
++        "cvars it registers are never read. Proven on the boxes: "
++        "servercache.dat held favourites=0 after sessions whose config "
++        "carried server1=192.168.1.132:27963, so the autoexec writer this key "
++        "used to have was a false success. That file's layout is unverified "
++        "for WolfMP.exe, so nothing is written. Join the fleet server "
++        "(rtcw-server, 192.168.1.132:27963) from the console: connect "
++        "192.168.1.132:27963 (the menus are relative-mouse), or from the LAN "
++        "tab - the Q3-engine LAN scan covers ports 27960-27963",
++    # Deus Ex HAD a writer too ([UBrowser.UBrowserFavoritesFact] in
++    # DeusEx.ini), reported "unchanged" on every pass, and read by nothing.
++    "deusex":
++        "Deus Ex has no favourites screen: its join menus are "
++        "MenuScreenJoinInternet (DeusExGSpyLink to the dead GameSpy master) "
++        "and MenuScreenJoinLan (DeusExLocalLink broadcast), and no class in "
++        "DEUSEX.U references UBrowserFavoritesFact - so the favourites block "
++        "this key used to write into DeusEx.ini had no reader. Join the fleet "
++        "server (deusex-server, 192.168.1.132:7790) by typing it into the join "
++        "screen's IP Address box, or `open 192.168.1.132:7790` at the console",
++    "tribes2":
++        "Tribes 2 DOES keep favourites - $pref::ServerBrowser::Favorite[N] = "
++        "name TAB address, from GameGui.cs in scripts.vl2 - but no writer is "
++        "built: nobody has verified on hardware that a favourite is queried "
++        "and joinable without the TribesNext master (which also encrypts the "
++        "info response), and Torque rewrites its prefs from memory when the "
++        "game exits. The fleet server is tribes2-server (docker), "
++        "192.168.1.132:28000",
++    "farcry":
++        "Far Cry keeps favourites (Profiles\\server\\fav_server.cfg, "
++        "UI.PageMultiplayer.FavServers[n] = \"ip:port\", FCData\\Scripts.pak) "
++        "but joining from its list goes through the Ubi.com client first: "
++        "PrepareToJoin returns unless UBIGameServers[ip] exists, and only the "
++        "dead Ubisoft master fills that. No writer until a box shows a "
++        "favourite can actually be joined. The fleet server is farcry-server "
++        "on 192.168.1.132, UDP 49001",
++    "doom3":
++        "DOOM 3 has no favourites UI - 'favorit' is in neither DOOM3.exe nor "
++        "any main or multiplayer menu in the staged paks (case-insensitive) - "
++        "so there is nothing to write. The fleet server (doom3-server, "
++        "192.168.1.132:27666) is joined from the console: "
++        "connect 192.168.1.132:27666",
++    "bf1942":
++        "Battlefield 1942 does keep favourites (BF1942.exe names "
++        "ServerListFavorites.dat and has AddFavorite/RemFavorite; the file's "
++        "format is unverified) but there is no fleet BF1942 server to put in "
++        "it: LAN games are box to box - 'Host Battlefield 1942 - LAN' on one "
++        "machine, 'Join Battlefield 1942 - LAN' on the others (the host's "
++        "address comes from C:\\Games\\lanhost.txt or a prompt)",
+     # LAN-only titles. These are staged for multiplayer and it WORKS, but the
+     # mechanism is a broadcast or a typed-in address, so there is no list for
+     # this agent to populate. Saying so is the useful answer.
+@@ -655,8 +1047,12 @@ UNWRITABLE = {
+     "descent": "Descent 1 is DOSBox IPX; the tunnel is `ipxnet connect <ip>` "
+                "in the conf, not a favourites file",
+     "descent2": "Descent 2 is DOSBox/IPX, same as Descent 1",
+-    "descent3": "Descent 3 is TCP/IP native but joins by typed address; its "
+-                "tracker is long dead and there is no fleet D3 server",
++    "descent3": "Descent 3 keeps no favourites store - 'favorit' is in none of "
++                "its binaries or connection modules (online\\*.d3c, "
++                "case-insensitive) - and PXO, its tracker, is long dead. The "
++                "fleet server (descent3-server, 192.168.1.132:2092) is joined "
++                "by the staged 'Join Descent 3 - LAN.bat', which uses that "
++                "address unless lanhost.txt names another",
+     "redfaction": "Red Faction's tracker is dead; LAN games are found by "
+                   "broadcast, with no favourites file",
+     "shogo":   "there IS a fleet Shogo server now (shogo-server, "
+@@ -675,6 +1071,14 @@ UNWRITABLE = {
+                "the staged Host/Join launchers work and the joiner's Search "
+                "lists the host. There is no fleet Hexen II server to list "
+                "either - uhexen2's h2ded refuses the staged retail 1.03 data",
++    "heretic": "Heretic is a DOS Doom-engine game: network play is IPX, serial "
++               "or modem, set up before launch - there is no server browser, "
++               "nothing on disk that holds favourites, and no Heretic server "
++               "on the fleet",
++    "hexen":   "Hexen is a DOS Doom-engine game: network play is IPX, serial "
++               "or modem, set up before launch - there is no server browser, "
++               "nothing on disk that holds favourites, and no Hexen server on "
++               "the fleet",
+     "hd":      "Hidden & Dangerous joins by typed address; no fleet server",
+     "jk":      "Jedi Knight: Dark Forces II is DirectPlay LAN - no server list "
+                "and no dedicated server on any platform. Verified two-box "
+@@ -701,24 +1105,34 @@ UNWRITABLE = {
+                "favourites for",
+     "sshock":  "System Shock 1 is single-player - there is no multiplayer "
+                "to have favourites for",
+-    "hl2":     "no Half-Life 2 / Source server on the fleet",
++    "hl2":     "the fleet's Source server (css-server, 192.168.1.132:27025, "
++               "Counter-Strike: Source) is for a modern Steam client on the "
++               "LAN - scripts/game-servers/gameservers.py records that no "
++               "fleet box can join it (a CS:S client needs Steam, which no "
++               "longer runs on XP, Vista or 7) - and no favourites writer has "
++               "been verified for any Source build here, so nothing is written",
+     "diablo2": "Diablo II LAN is UDP broadcast; battle.net is not ours",
+     "wolfsp":  "the RtCW single-player executable. WolfSP.exe has no server "
+                "browser and no multiplayer at all; the fleet's RTCW server "
+                "(rtcw-server, 192.168.1.132:27963, since 2026-09-01) is for "
+-               "`wolfmp`, which is indexed separately and IS written",
++               "`wolfmp`, which has its own answer",
+ }
+ 
+ 
+ def engines_for_keys(keys):
+-    """The engines these installed titles need server lists for.
++    """The server-table engines these installed titles need lists for.
+ 
+-    The agent reports Deus Ex (and a few others) with engine "-", because from
+-    the box's point of view it has no server browser worth naming. The host
+-    knows better, and this is what stops a box whose only Unreal-engine title
+-    is Deus Ex from never having any Unreal servers fetched for it.
++    The agent reports some titles with engine "-", because from the box's
++    point of view they have no server browser worth naming. The host knows
++    better, and this is what makes sure the server table covers every engine
++    a writer will ask it about.
+     """
+-    return sorted({TITLES[k]["engine"] for k in keys if k in TITLES})
++    out = set()
++    for k in keys:
++        t = TITLES.get(k)
++        if t is not None:
++            out.add(t.get("servers_from", t["engine"]))
++    return sorted(out)
+ 
+ 
+ def writer_for(engine):
+@@ -746,6 +1160,9 @@ def policy_for(key, engine=""):
+     out["slots"] = spec["slots"]
+     out.setdefault("filename", spec["filename"])
+     out.setdefault("create", True)
++    out.setdefault("servers_from", t["engine"])
++    out.setdefault("strict_accepts", False)
++    out.setdefault("local_only", False)
+     return out
+ 
+ 
+@@ -772,7 +1189,7 @@ def dropped_lines(engine, existing, text):
+     inside the markers, or matching the engine's favourite-line pattern.
+     """
+     spec = writer_for(engine)
+-    if not spec.get("supported") or engine in _STRUCTURAL:
++    if not spec.get("supported") or engine in _STRUCTURAL or spec.get("binary"):
+         return []
+     seta_re = _SETA_RE.get(engine)
+     have = set(text.splitlines())
+@@ -806,6 +1223,9 @@ def render(engine, servers, existing="", key=None):
+     spec = writer_for(engine)
+     if not spec.get("supported"):
+         return None, spec.get("why", "unsupported")
++    if spec.get("binary"):
++        return None, "%s is a binary store - sync.push_servercache writes it" \
++            % spec.get("filename", engine)
+     kwargs = {}
+     if engine == "goldsrc":
+         kwargs["appid"] = GOLDSRC_APPID.get(key or "", 10)
+@@ -820,6 +1240,18 @@ def render(engine, servers, existing="", key=None):
+     return text, content_hash(text)
+ 
+ 
++def _strip_favourites(doc):
++    out = []
++    for k, v in doc:
++        if isinstance(v, list):
++            out.append((k.lower(),
++                        _strip_favourites([(a, b) for a, b in v
++                                           if a.lower() != "favorites"])))
++        else:
++            out.append((k.lower(), v))
++    return out
++
++
+ def _assert_structure_kept(engine, existing, text):
+     """For a whole-document writer, prove nothing but `favorites` moved.
+ 
+@@ -834,18 +1266,7 @@ def _assert_structure_kept(engine, existing, text):
+     except _VdfError as exc:
+         raise WouldClobber("%s: could not verify the rewrite (%s)" % (engine, exc))
+ 
+-    def strip_favorites(doc):
+-        out = []
+-        for k, v in doc:
+-            if isinstance(v, list):
+-                out.append((k.lower(),
+-                            strip_favorites([(a, b) for a, b in v
+-                                             if a.lower() != "favorites"])))
+-            else:
+-                out.append((k.lower(), v))
+-        return out
+-
+-    if strip_favorites(before) != strip_favorites(after):
++    if _strip_favourites(before) != _strip_favourites(after):
+         raise WouldClobber(
+             "%s: the rewrite changed something outside the favourites block" % engine)
+ 
+@@ -855,16 +1276,18 @@ def target_path(engine, game_dir, key=None):
+ 
+     Per TITLE, not per engine: Soldier of Fortune II is a Quake III engine
+     game whose directory is `base`, and every Unreal-engine game keeps its
+-    favourites in an ini named after itself.
++    favourites in an ini named after itself. None for a binary store that
++    does not live under the game at all (Team Arena's servercache.dat is in
++    the player's profile - sync.push_servercache resolves it on the box).
+     """
+     pol = policy_for(key, engine) if key is not None else None
+     if pol is not None:
+-        if not pol.get("supported"):
++        if not pol.get("supported") or writer_for(pol["engine"]).get("binary"):
+             return None
+         subdir, filename = pol["subdir"], pol["filename"]
+     else:
+         spec = writer_for(engine)
+-        if not spec.get("supported"):
++        if not spec.get("supported") or spec.get("binary"):
+             return None
+         subdir, filename = spec["subdir"], spec["filename"]
+     d = game_dir.rstrip("\\/")
+@@ -876,3 +1299,361 @@ def target_path(engine, game_dir, key=None):
+         # ...\System\System\UnrealTournament.ini, a path that cannot exist.
+         return f"{d}\\{filename}"
+     return f"{d}\\{subdir}\\{filename}" if subdir else f"{d}\\{filename}"
++
++
++# --- a settled box reports "unchanged" ---------------------------------------
++#
++# `identity` is how a server is recognised in a file of each kind - the thing
++# that must match for a favourite already on the box to count as "the same
++# server". Unreal engine 1 records the QUERY port, so that is its identity.
++
++def identity(engine, row):
++    host, port = _split_addr(row)
++    if engine == "unreal":
++        return "%s:%d" % (host, _query_port(row))
++    return "%s:%d" % (host, port)
++
++
++def incumbents(engine, existing):
++    """The identities of the favourites the file on the box already holds."""
++    if not existing:
++        return set()
++    if engine in _QUAKE_LINE:
++        return {v for v in quake_values(engine, existing).values() if v}
++    if engine == "unreal":
++        return {"%s:%s" % (h, q) for h, q in _unreal_entries(existing)}
++    if engine == "ut2k4":
++        return {"%s:%s" % (ip, port) for ip, port, _ in _ut2k4_entries(existing)}
++    if engine == "goldsrc":
++        return {a for a, _ in _goldsrc_entries(existing) if a}
++    return set()
++
++
++View = namedtuple("View", "rest entries extra clean")
++
++
++def _quake_view(engine, text):
++    """What the GAME gets from a Quake config: the final favourite values, the
++    lines that are not favourites, and whether every favourite line is one
++    our writer could have produced (quoted address, clean comment, inside
++    exactly one BEGIN/END block)."""
++    strict, loose = _QUAKE_LINE[engine], _QUAKE_LOOSE[engine]
++    final, rest, clean, inside = {}, [], True, False
++    begins = ends = 0
++    for line in text.splitlines():
++        s = line.strip()
++        if s == BEGIN:
++            begins += 1
++            inside, clean = True, clean and not inside
++            continue
++        if s == END:
++            ends += 1
++            clean = clean and inside
++            inside = False
++            continue
++        m = strict.match(line)
++        if m:
++            slot, value, tail = int(m.group(1)), m.group(2).strip(), m.group(3)
++            final[slot] = value
++            comment = tail.strip()
++            if not inside or (value and not _ADDR_OK.match(value)):
++                clean = False
++            elif comment and not (comment.startswith("//") and
++                                  _label_is_clean(comment[2:], quake=True)):
++                clean = False
++            continue
++        m = loose.match(line)
++        if m:
++            final[int(m.group(1))] = m.group(2).strip().strip('"')
++            clean = False                  # a favourite in a shape we never write
++            continue
++        if inside:
++            if s:
++                clean = False              # something foreign inside our block
++            continue
++        rest.append(line.rstrip())
++    while rest and not rest[-1]:
++        rest.pop()
++    if begins != 1 or ends != 1 or inside:
++        clean = False
++    entries = tuple(sorted(v for v in final.values() if v))
++    return View(tuple(rest), entries, frozenset(final), clean)
++
++
++def _unreal_view(text):
++    count, favs, clean = _unreal_raw(text)
++    if count is not None and not 0 <= count <= 100:
++        # UBrowserFavoritesFact declares Favorites[100]; anything else is a
++        # file we did not write, and not one to reason about entry by entry.
++        count, clean = max(0, min(count, 100)), False
++    rest = []
++    for inside, line in _ini_walk(text, UNREAL_SECTION):
++        if inside and _UNREAL_OWN.match(line.strip()):
++            continue
++        rest.append(line.rstrip())
++    while rest and not rest[-1]:
++        rest.pop()
++    entries = []
++    for i in range(max(0, count or 0)):
++        raw = favs.get(i)
++        parts = (raw or "").split("\\")
++        if raw is None or len(parts) != 4 or not _label_is_clean(raw):
++            clean = False
++            continue
++        entries.append((parts[1].strip(), parts[2].strip()))
++    return View(tuple(rest), tuple(sorted(entries)), None, clean)
++
++
++def _ut2k4_view(text):
++    rest, entries, clean, sections = [], [], True, 0
++    for inside, line in _ini_walk(text, UT2K4_SECTION):
++        if inside is None:
++            sections += _SECTION_RE.match(line).group("name").strip().lower() \
++                == UT2K4_SECTION.lower()
++        if inside and _UT2K4_OWN.match(line.strip()):
++            m = _UT2K4_FAV.match(line)
++            if not m or not _label_is_clean(m.group(5)):
++                clean = False
++                continue
++            entries.append((m.group(2), m.group(3), m.group(4)))
++            continue
++        rest.append(line.rstrip())
++    while rest and not rest[-1]:
++        rest.pop()
++    if sections != 1:
++        clean = False
++    return View(tuple(rest), tuple(sorted(entries)), None, clean)
++
++
++def _goldsrc_view(text):
++    doc = _vdf_parse(text)                # raises: not a file we can reason about
++    clean, entries = True, []
++    for e in _goldsrc_favourite_entries(doc):
++        addr, appid = _vdf_get(e, "address"), _vdf_get(e, "appID")
++        if addr is None or appid is None or \
++                not all(_label_is_clean(v) for _, v in e if not isinstance(v, list)):
++            clean = False
++            continue
++        entries.append((addr.strip(), appid.strip()))
++    return View(repr(_strip_favourites(doc)), tuple(sorted(entries)), None, clean)
++
++
++_VIEWS = {"q3": lambda t: _quake_view("q3", t),
++          "q2": lambda t: _quake_view("q2", t),
++          "unreal": _unreal_view, "ut2k4": _ut2k4_view, "goldsrc": _goldsrc_view}
++
++
++def same_favourites(engine, existing, text):
++    """Would writing `text` over `existing` change anything the GAME sees?
++
++    False means "write it". True when the two are line-for-line the same, or
++    when they hold the same servers and every line that is not a favourite is
++    identical, and the file on the box is one our writer could have produced.
++    Order, labels, whitespace and a `lastplayed` the game stamped itself are
++    not differences worth an upload - they were what rewrote files on every
++    pass while nothing a player could see had changed.
++
++    The `clean` requirement is what keeps this from hiding a real problem:
++    an unsafe label (a `;` in a Quake comment), a favourite written in some
++    other shape, or a file with two of our blocks is always rewritten.
++    """
++    if (existing or "").splitlines() == text.splitlines():
++        return True
++    view = _VIEWS.get(engine)
++    if view is None or not (existing or "").strip():
++        return False
++    try:
++        a, b = view(existing), view(text)
++    except (_VdfError, ValueError):
++        return False
++    return (a.clean and b.clean and a.rest == b.rest
++            and a.entries == b.entries and a.extra == b.extra)
++
++
++# --- Quake III: Team Arena -- ioquake3 1.36's servercache.dat -----------------
++#
++# Team Arena's UI (missionpack) never reads the server1..16 cvars. Its Favorites
++# tab is the ENGINE's favourites list: _UI_Init calls trap_LAN_LoadCachedServers
++# and _UI_Shutdown trap_LAN_SaveCachedServers (ioq3 code/ui/ui_main.c), and the
++# engine keeps the list in <fs_homepath>\servercache.dat - for ioquake3 1.36 on
++# Windows that is %APPDATA%\Quake3\servercache.dat, one file for every mod.
++#
++# The layout was PROVEN, not assumed, against both the ioq3 source at the 1.36
++# release point and the staged ioquake3.x86.exe itself (md5 12f99bc0...; see
++# .claude/evidence-1080p/build-favourites/servercache-layout-verification.txt):
++#
++#   int numglobalservers; int numfavoriteservers; int size (== 692736)
++#   serverInfo_t globalServers[4096]; serverInfo_t favoriteServers[128]
++#
++#   serverInfo_t (164 bytes)          netadr_t (32 bytes)
++#     +0   netadr_t adr                 +0  int   type   (NA_IP == 4)
++#     +32  char hostName[32]            +4  byte  ip[4]
++#     +64  char mapName[32]             +8  byte  ip6[16]
++#     +96  char game[32]                +24 u16   port   (network order)
++#     +128 int netType, gameType,       +28 u32   scope_id
++#          clients, maxClients,
++#          minPing, maxPing, ping       LAN_LoadCachedServers: cmp size,0xa9200
++#     +156 qboolean visible             then 0xa4000 + 0x5200 bytes;
++#     +160 int punkbuster               CL_SetServerInfo: hostName +0x20 ...
++#
++# Nothing checks numglobal/numfav on load, so this code refuses any file whose
++# counts are out of range rather than hand the engine an out-of-bounds read.
++#
++# WHICH ENTRIES ARE OURS: an entry we add carries SC_MARK in netadr_t.ip6. For
++# an NA_IP address that field is never read - NET_CompareAdr compares type, the
++# four ip bytes and the port only (disassembled: `cmp ecx,4` -> repz cmpsb of 4
++# bytes), and the engine itself leaves stack garbage there when a player adds a
++# favourite (LAN_AddServer's netadr_t is uninitialised). The game copies the
++# whole struct when it saves, so the mark survives the game's own rewrite and
++# a favourite the PLAYER added (no mark) is never removed by this code.
++
++SC_GLOBAL = 4096                       # MAX_GLOBAL_SERVERS
++SC_OTHER = 128                         # MAX_OTHER_SERVERS (the favourites)
++SC_REC = 164                           # sizeof(serverInfo_t)
++SC_SIZE = (SC_GLOBAL + SC_OTHER) * SC_REC      # 692736, the header's size field
++SC_LEN = 12 + SC_SIZE                          # 692748, the whole file
++SC_FAV_OFF = 12 + SC_GLOBAL * SC_REC           # 671756
++SC_NA_IP = 4
++SC_MARK = b"retro-fleet-fav\x00"
++assert len(SC_MARK) == 16
++
++_IPV4 = re.compile(r"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}):(\d{1,5})$")
++
++
++class ServerCacheError(ValueError):
++    """The file is not ioquake3 1.36's servercache.dat - do not touch it."""
++
++
++def sc_parse(data):
++    """(numglobal, [favourite records]) of a servercache.dat, or raise."""
++    if len(data) != SC_LEN:
++        raise ServerCacheError("%d bytes, expected %d" % (len(data), SC_LEN))
++    nglobal, nfav, size = struct.unpack_from("<iii", data, 0)
++    if size != SC_SIZE:
++        raise ServerCacheError("size field %d, expected %d" % (size, SC_SIZE))
++    if not 0 <= nglobal <= SC_GLOBAL:
++        raise ServerCacheError("numglobalservers %d out of range" % nglobal)
++    if not 0 <= nfav <= SC_OTHER:
++        raise ServerCacheError("numfavoriteservers %d out of range" % nfav)
++    favs = [bytes(data[SC_FAV_OFF + i * SC_REC:SC_FAV_OFF + (i + 1) * SC_REC])
++            for i in range(nfav)]
++    return nglobal, favs
++
++
++def sc_addr(rec):
++    """'a.b.c.d:port' for an NA_IP favourite, else None."""
++    if struct.unpack_from("<i", rec, 0)[0] != SC_NA_IP:
++        return None
++    port = struct.unpack_from(">H", rec, 24)[0]
++    return "%d.%d.%d.%d:%d" % (rec[4], rec[5], rec[6], rec[7], port)
++
++
++def sc_is_ours(rec):
++    return sc_addr(rec) is not None and bytes(rec[8:24]) == SC_MARK
++
++
++def sc_hostname(rec):
++    return bytes(rec[32:64]).split(b"\0", 1)[0].decode("latin-1")
++
++
++def sc_record(addr, label):
++    """One favourite exactly as LAN_AddServer makes it on a zeroed slot -
++    address, hostName and visible=qtrue, everything else zero - plus our mark."""
++    m = _IPV4.match(str(addr))
++    if not m or any(int(x) > 255 for x in m.groups()[:4]) or \
++            not 0 < int(m.group(5)) < 65536:
++        raise ValueError("not an IPv4 address with a port: %r" % (addr,))
++    rec = bytearray(SC_REC)
++    struct.pack_into("<i", rec, 0, SC_NA_IP)
++    rec[4:8] = bytes(int(x) for x in m.groups()[:4])
++    rec[8:24] = SC_MARK
++    struct.pack_into(">H", rec, 24, int(m.group(5)))
++    name = clean_label(label, 31).encode("latin-1", "replace")[:31]
++    rec[32:32 + len(name)] = name
++    struct.pack_into("<i", rec, 156, 1)            # visible = qtrue
++    return bytes(rec)
++
++
++def sc_our_addresses(data):
++    """Addresses of the favourites WE put in this file (marked)."""
++    if not data:
++        return set()
++    try:
++        _, favs = sc_parse(data)
++    except ServerCacheError:
++        return set()
++    return {sc_addr(r) for r in favs if sc_is_ours(r)}
++
++
++def sc_merge(existing, servers):
++    """Put `servers` into the favourites of a servercache.dat, touching nothing else.
++
++    `existing` is the file's bytes, or None when there is no file yet. Returns
++    (new bytes, summary) - new is None when the file already says exactly
++    this, which is what "unchanged" means here: the same entries, ours marked,
++    in the same order. hostName and the ping fields are the GAME's to update,
++    so they are never a reason to write.
++
++    Preserved byte for byte: the header's numglobalservers, all 4096 global
++    records, and every favourite we did not add. Ours that are no longer
++    wanted are removed; wanted ones not yet present are appended (the player's
++    entries keep their places). A server the player already added by hand
++    counts as present - it is not duplicated and not marked.
++    """
++    if existing is None:
++        nglobal, favs = 0, []
++        globals_blob = bytes(SC_GLOBAL * SC_REC)
++    else:
++        nglobal, favs = sc_parse(existing)
++        globals_blob = bytes(existing[12:SC_FAV_OFF])
++
++    wanted, skipped = [], []
++    for s in servers:
++        addr = str(_field(s, "addr"))
++        m = _IPV4.match(addr)
++        # The engine stores four address BYTES; a hostname or a malformed
++        # address has no representation here and is reported, not guessed.
++        if not m or any(int(x) > 255 for x in m.groups()[:4]) or \
++                not 0 < int(m.group(5)) < 65536:
++            skipped.append(addr)
++            continue
++        if addr not in [a for a, _ in wanted]:
++            wanted.append((addr, _field(s, "hostname") or addr))
++    want_addrs = {a for a, _ in wanted}
++
++    kept, present, dropped = [], set(), []
++    for rec in favs:
++        a = sc_addr(rec)
++        if sc_is_ours(rec) and (a not in want_addrs or a in present):
++            dropped.append(a)
++            continue
++        kept.append(rec)
++        if a:
++            present.add(a)
++    added, full = [], []
++    for addr, label in wanted:
++        if addr in present:
++            continue
++        if len(kept) >= SC_OTHER:
++            full.append(addr)
++            continue
++        kept.append(sc_record(addr, label))
++        present.add(addr)
++        added.append(addr)
++
++    ours = [sc_addr(r) for r in kept if sc_is_ours(r)]
++    summary = {
++        "favourites": [sc_addr(r) or "(non-IPv4)" for r in kept],
++        "ours": ours, "added": added, "dropped": dropped, "full": full,
++        "skipped": skipped, "theirs": len(kept) - len(ours),
++        "numglobal": nglobal,
++        "hash": content_hash("|".join(
++            "%s%s" % ("*" if sc_is_ours(r) else "", sc_addr(r) or r[:32].hex())
++            for r in kept)),
++    }
++    if existing is not None and not added and not dropped:
++        return None, summary
++    fav_blob = b"".join(kept) + bytes(SC_REC * (SC_OTHER - len(kept)))
++    new = struct.pack("<iii", nglobal, len(kept), SC_SIZE) + globals_blob + fav_blob
++    assert len(new) == SC_LEN
++    return new, summary
+diff --git a/scripts/gameindex/masters.py b/scripts/gameindex/masters.py
+index a58aff1..ea682c7 100644
+--- a/scripts/gameindex/masters.py
++++ b/scripts/gameindex/masters.py
+@@ -29,20 +29,29 @@ PROBE_WORKERS = 96
+ # --- low-level UDP -----------------------------------------------------------
+ 
+ def _udp(host, port, payload, timeout=DEFAULT_TIMEOUT, reads=1):
+-    """Send one datagram, collect up to `reads` replies. Returns (data, rtt_ms)."""
++    """Send one datagram, collect up to `reads` replies. Returns (data, rtt_ms).
++
++    The round trip is timed to the FIRST reply. It used to be timed to the end
++    of the read loop, so every GameSpy probe (reads=3, most answer in one
++    datagram) reported ~2.5 s - the second read's timeout - as its "ping", and
++    the 25 ms ranking bands between two such servers were decided by jitter.
++    """
+     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+     s.settimeout(timeout)
+     t0 = time.time()
++    first = None
+     chunks = []
+     try:
+         s.sendto(payload, (host, port))
+         for _ in range(reads):
+             chunks.append(s.recv(65535))
++            if first is None:
++                first = time.time()
+     except (socket.timeout, OSError):
+         pass
+     finally:
+         s.close()
+-    rtt = int((time.time() - t0) * 1000)
++    rtt = int(((first if first is not None else time.time()) - t0) * 1000)
+     return b"".join(chunks), rtt
+ 
+ 
+@@ -65,15 +74,42 @@ def _split_status(data):
+     answered. Find the first line that actually carries a backslash instead,
+     and count the non-empty lines after it as players.
+     """
++    info, lines = _split_status_lines(data)
++    return info, len(lines)
++
++
++def _split_status_lines(data):
++    """(info dict, [player lines]) - the same parse, keeping the lines."""
+     text = data[4:].decode("latin-1", "replace") if len(data) > 4 else ""
+     lines = text.split("\n")
+     for idx, line in enumerate(lines):
+         if "\\" in line:
+             info = _infostring(line)
+             if info:
+-                players = len([l for l in lines[idx + 1:] if l.strip()])
+-                return info, players
+-    return {}, 0
++                return info, [l for l in lines[idx + 1:] if l.strip()]
++    return {}, []
++
++
++# A Quake II/III status player line: `<score> <ping> "<name>"`.
++_PLAYER_LINE = re.compile(r'^\s*-?\d+\s+(-?\d+)\s')
++
++
++def _humans(lines):
++    """How many of these player lines are people.
++
++    CLAUDE.md, "Bots are not players": on the Quake family a player line with
++    ping 0 is a bot - ioq3's SV_CalcPings sets a bot's ping to 0 and never
++    measures it. Counting every line made "busiest servers" mean "most bots":
++    at 00:45 on 2026-09-29, 8 of the 15 internet Q3 favourites were bot-only
++    (every line ping 0, stock bot names). A line that is not in this shape is
++    not counted either way - an unknown is not a person.
++    """
++    n = 0
++    for line in lines:
++        m = _PLAYER_LINE.match(line)
++        if m and int(m.group(1)) > 0:
++            n += 1
++    return n
+ 
+ 
+ # --- Quake III family (q3, rtcw, et, mohaa, openarena) -----------------------
+@@ -118,15 +154,18 @@ def _q3_probe(addr):
+     if not data:
+         return None
+     # Count player LINES rather than trusting a cvar: several builds publish
+-    # no player count at all, and the whole point is "servers with people on".
+-    info, players = _split_status(data)
++    # no player count at all, and the whole point is "servers with people on"
++    # - so only the lines that are PEOPLE (ping > 0) count; see _humans.
++    info, lines = _split_status_lines(data)
+     if not info:
+         return None
++    humans = _humans(lines)
+     return {
+         "addr": addr,
+         "hostname": re.sub(r"\^.", "", info.get("sv_hostname", ""))[:120],
+         "map": info.get("mapname", ""),
+-        "players": players,
++        "players": humans,
++        "bots": len(lines) - humans,
+         "maxplayers": int(info.get("sv_maxclients", "0") or 0),
+         "ping_ms": rtt,
+         "gamename": info.get("gamename", ""),
+@@ -194,14 +233,16 @@ def _q2_probe(addr):
+     data, rtt = _udp(host, int(port), b"\xff\xff\xff\xffstatus\n")
+     if not data:
+         return None
+-    info, players = _split_status(data)
++    info, lines = _split_status_lines(data)
+     if not info:
+         return None
++    humans = _humans(lines)             # Q2 lines are `score ping "name"` too
+     return {
+         "addr": addr,
+         "hostname": info.get("hostname", "")[:120],
+         "map": info.get("mapname", ""),
+-        "players": players,
++        "players": humans,
++        "bots": len(lines) - humans,
+         "maxplayers": int(info.get("maxclients", "0") or 0),
+         "ping_ms": rtt,
+         "gamename": info.get("gamename", "baseq2"),
+diff --git a/scripts/gameindex/sync.py b/scripts/gameindex/sync.py
+index f2c1150..c4f89ef 100644
+--- a/scripts/gameindex/sync.py
++++ b/scripts/gameindex/sync.py
+@@ -8,9 +8,9 @@
+      if there are changes".
+   3. Refresh the live-server table for every engine the fleet actually has
+      installed. Pin our own servers on .132 first.
+-  4. For each installed game with a writer, render the favourites file, hash
+-     it, and push it ONLY if the hash differs from what we last wrote to that
+-     box. A no-op cycle touches nothing.
++  4. For each FILE the box's installed games read favourites from, render
++     it and push it ONLY if the game would see a difference from what the box
++     already holds. A no-op cycle touches nothing, and says "unchanged".
+ 
+ Everything it decides NOT to do is logged with a reason. A silent skip and a
+ successful write must never look the same in the log.
+@@ -21,6 +21,7 @@ successful write must never look the same in the log.
+ """
+ import argparse
+ import asyncio
++import errno
+ import json
+ import logging
+ import os
+@@ -112,7 +113,8 @@ LOCAL_SERVERS = [
+          name="NSC Retro Fleet Arena - Unreal Gold"),
+     # Deus Ex. Same UE1 GameSpy shape as Unreal/UT99 and the same +1 query
+     # port; gamename "deusex" is what keeps a UT99 or Unreal Gold box from
+-    # being handed it.
++    # being handed it. Probed and reported, but no favourites file is written
++    # for it: Deus Ex has no screen that reads one (favorites.UNWRITABLE).
+     dict(engine="unreal", port=7790, query_port=7791, gamename="deusex",
+          name="NSC Retro Fleet Arena - Deus Ex"),
+     # Serious Sam. TFE and TSE are DIFFERENT GAMES with different gamenames
+@@ -261,6 +263,23 @@ def probe_local_servers(con):
+     return pinned, down
+ 
+ 
++def host_holds_address(addr):
++    """True if this host holds `addr`, False if it positively does not, None
++    if the question cannot be asked (a hostname that does not resolve, no
++    sockets). Binding a UDP socket to it is the kernel's own answer."""
++    try:
++        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
++    except OSError:
++        return None
++    try:
++        s.bind((addr, 0))
++        return True
++    except OSError as exc:
++        return False if exc.errno == errno.EADDRNOTAVAIL else None
++    finally:
++        s.close()
++
++
+ def refresh_servers(con, engines, max_probe=900):
+     notes = {}
+     for engine in engines:
+@@ -275,16 +294,41 @@ def refresh_servers(con, engines, max_probe=900):
+ 
+ # --- step 4: push favourites -------------------------------------------------
+ 
+-async def read_existing(conn, path):
+-    """Read the file we are about to merge into.
++async def _listing(conn, path, dirs_only=False):
++    """Lower-cased names in one directory, or (None, why) if we cannot tell."""
++    try:
++        listing = await conn.command_text(f"DIRLIST {path}", timeout=30)
++    except Exception as exc:  # noqa: BLE001
++        return None, f"DIRLIST also failed: {type(exc).__name__}"
++    try:
++        entries = json.loads(listing)
++        items = entries.get("entries", entries) if isinstance(entries, dict) \
++            else entries
++        names = set()
++        for e in items:
++            if isinstance(e, dict):
++                if dirs_only and e.get("is_dir") is False:
++                    continue
++                names.add(str(e.get("name", "")).lower())
++            else:
++                names.add(str(e).lower())
++        return names, ""
++    except Exception:  # noqa: BLE001
++        # A listing we cannot parse is not evidence of absence.
++        return None, "DIRLIST unparseable"
+ 
+-    Returns (text, state, why) where state is one of:
++
++async def _read_file(conn, path):
++    """Read a file we are about to merge into, as exact bytes.
++
++    Returns (bytes, state, why) where state is one of:
+ 
+         "read"        we have the exact bytes; merge into them
+-        "missing"     the file genuinely is not there; safe to create
++        "missing"     the file is not there and its folder IS; safe to create
++        "no-parent"   the folder itself is not there; create NOTHING
+         "unreadable"  we could not tell; the caller MUST NOT write
+ 
+-    Three things make this fussier than it looks, all learned by getting it
++    Four things make this fussier than it looks, all learned by getting it
+     wrong:
+ 
+     * **DOWNLOAD, not `EXEC cmd /c type`.** The shell path went through
+@@ -298,53 +342,71 @@ async def read_existing(conn, path):
+       intact on another -- the hardest possible shape to debug.
+     * **Existence is decided by a directory listing, not by error prose.** The
+       previous version matched "cannot find" against the *file's own content*.
+-      Only a positive listing of the parent directory lets us say "missing"
+-      and create the file; anything else is "unreadable" and we leave it alone.
++      Only a positive listing lets us say "missing" and create the file;
++      anything else is "unreadable" and we leave it alone.
++    * **DIRLIST answers `[]` - success, no error - for a folder that does not
++      exist**, exactly as it does for an empty one (agent/src/files.c sends an
++      empty array when FindFirstFileA fails). Reading that as "the folder is
++      there and the file is not" is how favourites-only baseq3 folders were
++      created inside Jedi Academy, SoF2 and MOHAA. So an empty listing sends us
++      one level up, and the folder has to appear there by name.
+     """
+     try:
+         raw = await conn.command_binary(f"DOWNLOAD {path}", timeout=60)
+-        return raw.decode("ascii", "replace"), "read", ""
++        return bytes(raw), "read", ""
+     except Exception as exc:  # noqa: BLE001
+         first_error = f"{type(exc).__name__}: {exc}"[:120]
+ 
+     # The read failed. It is only safe to create the file if we can positively
+-    # confirm it is absent, so ask the directory.
++    # confirm it is absent AND that its folder is present, so ask.
+     parent, _, fname = path.rpartition("\\")
+-    try:
+-        listing = await conn.command_text(f"DIRLIST {parent}", timeout=30)
+-    except Exception as exc:  # noqa: BLE001
+-        return "", "unreadable", f"{first_error}; DIRLIST also failed: " \
+-                                 f"{type(exc).__name__}"
+-    try:
+-        entries = json.loads(listing)
+-        names = entries.get("entries", entries) if isinstance(entries, dict) \
+-            else entries
+-        present = any(
+-            (e.get("name") if isinstance(e, dict) else str(e)).lower()
+-            == fname.lower() for e in names)
+-    except Exception:  # noqa: BLE001
+-        # A listing we cannot parse is not evidence of absence.
+-        return "", "unreadable", f"{first_error}; DIRLIST unparseable"
+-
+-    if present:
++    names, why = await _listing(conn, parent)
++    if names is None:
++        return b"", "unreadable", f"{first_error}; {why}"
++    if fname.lower() in names:
+         # It is there and we still could not read it. Do not touch it.
+-        return "", "unreadable", f"{first_error}; the file exists"
+-    return "", "missing", ""
++        return b"", "unreadable", f"{first_error}; the file exists"
++    if names:
++        return b"", "missing", ""          # the folder listed things: it exists
++    grand, _, pname = parent.rpartition("\\")
++    if not grand:
++        return b"", "missing", ""          # the drive root itself
++    gnames, gwhy = await _listing(conn, grand, dirs_only=True)
++    if gnames is None:
++        return b"", "unreadable", f"{first_error}; {gwhy}"
++    if pname.lower() in gnames:
++        return b"", "missing", ""          # an empty folder, positively there
++    return b"", "no-parent", f"{parent} does not exist"
++
++
++async def read_existing(conn, path):
++    """The text of the file we are about to merge into: (text, state, why).
+ 
++    Decoded as latin-1, which maps every byte to one character and back, so a
++    byte >= 0x80 anywhere in a game's config survives our merge unchanged. It
++    used to be ascii/'replace', which silently turned any such byte into '?'
++    on the next write - and then saw its own '?' as a difference to "fix" on
++    every pass after.
++    """
++    raw, state, why = await _read_file(conn, path)
++    return raw.decode("latin-1"), state, why
+ 
+ 
+ async def running_exes(conn):
+     """Lowercased basenames of every process on the box.
+ 
+-    Used to skip a title that is running. Q3 rewrites q3config.cfg on exit and
+-    UT rewrites UnrealTournament.ini on exit, both from memory -- so a write
+-    made while the game is up is at best thrown away, and at worst reverts
+-    whatever the player changed in that session. The five-minute pass has no
+-    business landing in the middle of a game.
++    Used to skip a file whose game is running. Q3 rewrites q3config.cfg on
++    exit and UT rewrites UnrealTournament.ini on exit, both from memory -- so
++    a write made while the game is up is at best thrown away, and at worst
++    reverts whatever the player changed in that session. The five-minute pass
++    has no business landing in the middle of a game.
+ 
+     Parsed by pulling every *.exe out of the reply rather than by walking the
+     JSON: PROCLIST's exact shape is the agent's business, and a fleet running
+     several agent versions must not turn a schema change into a lost guard.
++    CASE-INSENSITIVELY: Win98's PROCLIST names are upper-case full paths
++    (C:\\WINDOWS\\EXPLORER.EXE), and a pattern that only knew `.exe` found
++    nothing there, so on .243 this guard could never fire.
+     """
+     try:
+         raw = await conn.command_text("PROCLIST", timeout=30)
+@@ -353,7 +415,32 @@ async def running_exes(conn):
+         # write anything at all because one command failed would be worse. Say
+         # so by returning None, and let the caller decide.
+         return None
+-    return {m.lower() for m in re.findall(r'[^"\\/:*?<>|]+\.exe', raw)}
++    return {m.lower() for m in re.findall(r'[^"\\/:*?<>|]+\.exe', raw,
++                                          re.IGNORECASE)}
++
++
++# GAMESYNC STATUS reports idle, sizing, copying, done, failed or skipped; the
++# first two are a sync in flight (scripts/fleet/autodeploy.py BUSY).
++GAMESYNC_BUSY = ("sizing", "copying")
++
++
++async def gamesync_busy(conn):
++    """GAMESYNC's state when it is copying on this box, else None.
++
++    A favourites file is a staged file with our block added, so its size and
++    mtime differ from the library's and GAMESYNC copies the staged one back
++    over it. Measured on .123 at 23:47 on 2026-09-28: all nine files written
++    at 23:47:35 were overwritten by a sync that started at 23:47:39. Writing
++    while it runs is work thrown away within seconds; the next pass does it
++    properly. An agent that cannot answer (older build, busy) is not a reason
++    to stop - it simply is not known to be syncing.
++    """
++    try:
++        st = json.loads(await conn.command_text("GAMESYNC STATUS", timeout=25))
++    except Exception:  # noqa: BLE001
++        return None
++    state = str(st.get("state", "")).lower() if isinstance(st, dict) else ""
++    return state if state in GAMESYNC_BUSY else None
+ 
+ 
+ _NT_VERSION = re.compile(r"Win(\d+)\.(\d+)")
+@@ -388,8 +475,76 @@ async def unmanaged_modern_host(c, greeting):
+             "treated as a modern host (the fleet has no Windows 8 boxes)")
+ 
+ 
++def _exe_name(g):
++    return str(g["exe"] or "").replace("/", "\\").rsplit("\\", 1)[-1].lower()
++
++
++def plan_targets(games):
++    """Group a box's indexed titles by the FILE each would write.
++
++    Returns (targets, skips). `skips` are per-title results for titles with
++    nothing to write; each target is one file with every title that reads it:
++
++        {path, engine, pol, keys, dirs, exes}
++
++    Per FILE, because that is what a write is. The staged Quake III tree ships
++    quake3.exe and ioquake3.x86.exe, so `quake3` and `ioquake3` are both
++    indexed in one directory and both mean baseq3\\autoexec.cfg. The old
++    per-title loop checked each title's OWN exe for BUSY: with ioquake3
++    running it logged "ioquake3 BUSY - not attempted" and then let `quake3`
++    (not running) write the same file on the same pass - on .123, .145, .195
++    and .240, every pass the 1080p testers had ioquake3 up. One file, one
++    decision, and the exes of every title that uses it are what can make it
++    busy. Paths compare case-insensitively: they are Windows paths.
++    """
++    skips, groups, order = [], {}, []
++    for g in games:
++        key, gdir, reported = g["game_key"], g["dir"], g["engine"]
++        pol = favorites.policy_for(key, reported)
++        if not pol.get("supported"):
++            skips.append((key, reported, f"skipped: {pol.get('why')}"))
++            continue
++        engine = pol["engine"]
++        if favorites.writer_for(engine).get("binary"):
++            continue           # a store outside the tree: push_servercache
++        if favorites.SKIP_DIRS.search(gdir):
++            skips.append((key, engine,
++                          f"skipped: {gdir} is a benchmark harness - "
++                          f"nothing of ours goes in there"))
++            continue
++        path = favorites.target_path(engine, gdir, key)
++        if not path:
++            skips.append((key, engine, "skipped: no file to write for this title"))
++            continue
++        norm = path.replace("/", "\\").lower()
++        t = groups.get(norm)
++        if t is None:
++            t = groups[norm] = dict(path=path, engine=engine, pol=pol,
++                                    keys=[], dirs=[], exes=set())
++            order.append(norm)
++        elif t["engine"] != engine:
++            skips.append((key, engine,
++                          f"skipped: {path} is also {t['keys'][0]}'s "
++                          f"{t['engine']} file - two writers for one file"))
++            continue
++        t["keys"].append(key)
++        t["dirs"].append(gdir)
++        if _exe_name(g):
++            t["exes"].add(_exe_name(g))
++    return [groups[n] for n in order], skips
++
++
++def _record(con, ip, t, h, detail, force=False):
++    """Note what a file now holds, against every title that reads it."""
++    for key, gdir in zip(t["keys"], t["dirs"]):
++        if force or db.applied_hash(con, ip, key, gdir) != h:
++            db.record_applied(con, ip, key, gdir, h, detail)
++    con.commit()
++
++
+ async def push_favorites(con, ip, dry_run=False):
+-    """Write each installed game's favourites file, but only when it changed."""
++    """Write each favourites FILE the box's games read, but only when the game
++    would see a difference."""
+     results = []
+     games = db.games_for(con, ip=ip)
+     if not games:
+@@ -400,77 +555,45 @@ async def push_favorites(con, ip, dry_run=False):
+         if why:
+             results.append(("*", "-", f"skipped: {why}"))
+             return
++        sync_state = await gamesync_busy(c)
++        if sync_state:
++            results.append(("*", "-",
++                            f"BUSY: GAMESYNC is {sync_state} on this box - it "
++                            f"copies the staged files back over ours; deferred "
++                            f"to the next pass"))
++            return
+         running = await running_exes(c)
+-        # Two keys can name one file: the staged Quake III tree ships both
+-        # quake3.exe and ioquake3.x86.exe, so `quake3` and `ioquake3` are both
+-        # detected in the same directory and both resolve to
+-        # baseq3\autoexec.cfg. Writing it twice per pass is pure waste.
+-        done_paths = {}
+-        for g in games:
+-            key, gdir = g["game_key"], g["dir"]
+-            # The TITLE decides, not the engine the agent reported. An agent
+-            # says "-" for Deus Ex because that box has no server browser it
+-            # can name; the host knows Deus Ex is Unreal engine and where its
+-            # favourites live. Doing this here rather than in gameindex.c
+-            # keeps a favourites change off the critical path of a fleet-wide
+-            # agent republish.
+-            pol = favorites.policy_for(key, g["engine"])
+-            if not pol.get("supported"):
+-                results.append((key, g["engine"], f"skipped: {pol.get('why')}"))
+-                continue
+-            engine = pol["engine"]
+-
+-            if favorites.SKIP_DIRS.search(gdir):
+-                results.append((key, engine,
+-                                f"skipped: {gdir} is a benchmark harness - "
+-                                f"nothing of ours goes in there"))
+-                continue
+-
+-            servers = db.best_servers(con, engine, limit=pol["slots"],
+-                                      accepts=pol.get("accepts"),
+-                                      local_only=pol.get("local_only", False))
+-            if not servers:
+-                results.append((key, engine, "skipped: no live servers known"))
++        targets, skips = plan_targets(games)
++        results.extend(skips)
++        for t in targets:
++            path, engine, pol = t["path"], t["engine"], t["pol"]
++            keys = "+".join(t["keys"])
++            src = pol["servers_from"]
++            pick = dict(limit=pol["slots"], accepts=pol.get("accepts"),
++                        local_only=pol["local_only"],
++                        strict_accepts=pol["strict_accepts"])
++            if not db.best_servers(con, src, **pick):
++                results.append((keys, engine,
++                                f"skipped: no live servers known for {path}"))
+                 continue
+ 
+             # Checked HERE, after we know there is something to write.
+-            # Reporting BUSY for a title that had nothing to write anyway
++            # Reporting BUSY for a file that had nothing to write anyway
+             # inflates the retry list with work that will never happen -- and
+             # the whole point of the bucket is that it means "come back".
+             #
+             # BUSY, not "skipped": this one needs the next pass, a title with
+             # no writer does not. The prefix is what run_once buckets on, so
+             # the two can never be read as the same outcome.
+-            exe = str(g["exe"] or "").rsplit("\\", 1)[-1].lower()
+-            if running is not None and exe and exe in running:
+-                results.append((key, engine,
+-                                f"BUSY: {exe} is running - not attempted. It "
+-                                f"rewrites this file on exit, so our write "
+-                                f"would be lost or would revert what the "
+-                                f"player just set; retry next pass"))
++            busy = sorted(t["exes"] & running) if running else []
++            if busy:
++                results.append((keys, engine,
++                                f"BUSY: {path}: {busy[0]} is running - not "
++                                f"attempted; {favorites.busy_why(engine)}; "
++                                f"retry next pass"))
+                 continue
+ 
+-            path = favorites.target_path(engine, gdir, key)
+-            if path in done_paths:
+-                other, other_hash = done_paths[path]
+-                db.record_applied(con, ip, key, gdir, other_hash,
+-                                  f"same file as {other}")
+-                con.commit()
+-                results.append((key, engine,
+-                                f"unchanged (same file as {other} this pass)"))
+-                continue
+             existing, state, why = await read_existing(c, path)
+-            if state == "missing" and not pol.get("create", True):
+-                # Not an error, and not something to fix by creating it. The
+-                # file's ABSENCE is the evidence: this build does not use this
+-                # mechanism (a WON Half-Life has no revSrvBrowser and so no
+-                # config\serverbrowser.vdf), and an ini holding nothing but a
+-                # favourites section would be worse than no ini at all.
+-                results.append((key, engine,
+-                                f"skipped: {path} does not exist, and this "
+-                                f"title's favourites file is one we update, "
+-                                f"never create"))
+-                continue
+             if state == "unreadable":
+                 # NEVER write when we could not read. Merging against an empty
+                 # string would silently replace whatever is there with only our
+@@ -478,23 +601,50 @@ async def push_favorites(con, ip, dry_run=False):
+                 # and r_mode vanished from one box while surviving on another
+                 # (2026-08-29). "The file is not there" and "I could not read
+                 # the file" mean opposite things and must never collapse.
+-                results.append((key, engine,
++                results.append((keys, engine,
+                                 f"skipped: cannot read {path} ({why}) — "
+                                 f"refusing to write, it would clobber the file"))
+                 continue
++            if state == "no-parent":
++                # The title is not installed where the index says (purged, or
++                # an index older than the box's current tree). Creating the
++                # folder would plant a favourites-only skeleton of it.
++                results.append((keys, engine,
++                                f"skipped: {why} - the title is not installed "
++                                f"there, and nothing is ever created above "
++                                f"its own folder"))
++                continue
++            if state == "missing" and not pol["create"]:
++                # Not an error, and not something to fix by creating it. The
++                # file's ABSENCE is the evidence: this build does not use this
++                # mechanism (a WON Half-Life has no revSrvBrowser and so no
++                # config\serverbrowser.vdf), and an ini holding nothing but a
++                # favourites section would be worse than no ini at all.
++                results.append((keys, engine,
++                                f"skipped: {path} does not exist, and this "
++                                f"title's favourites file is one we update, "
++                                f"never create"))
++                continue
+ 
++            # What the box already lists stays while it is still eligible;
++            # only vacancies are filled from the ranking (db.best_servers).
++            listed = favorites.incumbents(engine, existing)
++            servers = db.best_servers(
++                con, src, **pick,
++                incumbent=lambda r, e=engine, s=listed: favorites.identity(e, r) in s)
+             try:
+-                text, h = favorites.render(engine, servers, existing, key=key)
++                text, h = favorites.render(engine, servers, existing,
++                                           key=t["keys"][0])
+             except favorites.WouldClobber as exc:
+                 # The merge itself found it would lose somebody's settings.
+                 # Leave the file alone and make the reason loud.
+-                log.error("[%s] %s %s: %s", ip, key, path, exc)
+-                results.append((key, engine, f"FAILED would clobber: {exc}"))
++                log.error("[%s] %s %s: %s", ip, keys, path, exc)
++                results.append((keys, engine, f"FAILED would clobber: {exc}"))
+                 continue
+             if text is None:
+-                results.append((key, engine, f"skipped: {h}"))
++                results.append((keys, engine, f"skipped: {h}"))
+                 continue
+-            done_paths[path] = (key, h)
++
+             # Compare against WHAT IS ON THE BOX, not against what we last
+             # meant to put there.
+             #
+@@ -509,35 +659,41 @@ async def push_favorites(con, ip, dry_run=False):
+             # being wrong, and invisible because the reverted state and the
+             # never-written state look identical from here.
+             #
+-            # We already hold the current bytes from read_existing, so the
+-            # honest test is free. applied_hash stays for the status wall.
+-            if text.splitlines() == existing.splitlines():
+-                results.append((key, engine, f"unchanged ({h})"))
+-                if db.applied_hash(con, ip, key, gdir) != h:
+-                    db.record_applied(con, ip, key, gdir, h,
+-                                      f"{len(servers)} servers -> {path}")
+-                    con.commit()
++            # And compare what the GAME would see (favorites.same_favourites):
++            # the same servers in another order, a label that changed its
++            # colour codes, the tabs revSrvBrowser saves with - none of those
++            # is a reason to write, and each used to rewrite files on every
++            # pass so that a settled box never once said "unchanged".
++            if favorites.same_favourites(engine, existing, text):
++                on_box = h if existing.splitlines() == text.splitlines() \
++                    else favorites.content_hash(existing)
++                results.append((keys, engine, f"unchanged: {path} ({on_box})"))
++                _record(con, ip, t, on_box, f"{len(servers)} servers -> {path}")
+                 continue
+             if dry_run:
+-                results.append((key, engine,
++                results.append((keys, engine,
+                                 f"WOULD write {len(servers)} servers -> {path}"))
+                 continue
+ 
+             # Upload rather than echo: the favourites block contains quotes and
+             # backslashes, and Win98's command.com treats < > in echo as
+-            # redirects. UPLOAD carries exact bytes.
+-            payload = text.replace("\n", "\r\n").encode("ascii", "replace")
+-            await c.send_command(f"MKDIR {path.rsplit(chr(92), 1)[0]}")
++            # redirects. UPLOAD carries exact bytes - latin-1, so every byte
++            # read in goes back out as itself. No MKDIR: "missing" above means
++            # the folder was positively seen, so it is already there.
++            payload = text.replace("\n", "\r\n").encode("latin-1", "replace")
+             st, resp = await c.send_command(f"UPLOAD {path}",
+                                             binary_payload=payload)
+             if st == 0xFF:
+-                results.append((key, engine,
+-                                f"FAILED {resp[:60].decode('ascii', 'replace')}"))
++                results.append((keys, engine,
++                                f"FAILED {path}: "
++                                f"{resp[:60].decode('ascii', 'replace')}"))
+                 continue
+-            db.record_applied(con, ip, key, gdir, h,
+-                              f"{len(servers)} servers -> {path}")
+-            con.commit()
+-            results.append((key, engine, f"wrote {len(servers)} servers ({h})"))
++            _record(con, ip, t, h, f"{len(servers)} servers -> {path}", force=True)
++            results.append((keys, engine,
++                            f"wrote {len(servers)} servers -> {path} ({h})"))
++
++        results.extend(await push_servercache(c, con, ip, games, running,
++                                              dry_run))
+ 
+     try:
+         await _agent(ip, work, timeout=30.0)
+@@ -546,6 +702,198 @@ async def push_favorites(con, ip, dry_run=False):
+     return results
+ 
+ 
++# --- Team Arena: ioquake3's servercache.dat ----------------------------------
++
++_SHELL_FOLDERS = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
++
++
++async def box_appdata(conn):
++    """%APPDATA% of the user the agent runs as - which is the user the games
++    run as: the agent starts from the Run key at the console logon, and the
++    desktop shortcuts start the games in that same session. ioquake3 1.36's
++    homepath is SHGetFolderPath(CSIDL_APPDATA) + "\\Quake3", and Shell
++    Folders\\AppData is where Windows records that path, already expanded
++    (C:\\Documents and Settings\\<user>\\Application Data on XP,
++    C:\\Users\\<user>\\AppData\\Roaming on 7). REGREAD runs inside the agent -
++    no child process - which is what a Win9x agent needs too."""
++    try:
++        st, data = await conn.send_command(
++            f'REGREAD HKCU "{_SHELL_FOLDERS}" AppData', timeout=30)
++    except Exception as exc:  # noqa: BLE001
++        return None, f"REGREAD failed: {type(exc).__name__}"
++    text = bytes(data).decode("latin-1")
++    if st == 0xFF:
++        return None, f"REGREAD: {text[:80]}"
++    try:
++        doc = json.loads(text)
++    except ValueError:
++        return None, "REGREAD answered no AppData value"
++    val = doc.get("value") if isinstance(doc, dict) else None
++    path = str(val.get("data", "")) if isinstance(val, dict) else ""
++    if not re.match(r"^[A-Za-z]:\\", path):
++        return None, f"AppData reads {path!r}"
++    if any(not 32 <= ord(ch) < 127 for ch in path):
++        # Agent commands travel as ASCII; a path this protocol cannot spell
++        # is one it cannot write to, and guessing an 8.3 name is not an answer.
++        return None, f"AppData {path!r} is not plain ASCII"
++    return path.rstrip("\\"), ""
++
++
++async def _has_subdir(conn, path, sub):
++    names, why = await _listing(conn, path, dirs_only=True)
++    if names is None:
++        return None, why
++    return sub.lower() in names, ""
++
++
++def _record_one(con, ip, key, where, h, detail, force=False):
++    if force or db.applied_hash(con, ip, key, where) != h:
++        db.record_applied(con, ip, key, where, h, detail)
++        con.commit()
++
++
++async def push_servercache(c, con, ip, games, running, dry_run=False):
++    """Team Arena's favourites: ioquake3 1.36's %APPDATA%\\Quake3\\servercache.dat.
++
++    Team Arena's UI never reads server1..16 - on .123, .195 and .240 its
++    Favorites tab was EMPTY with them set - because its favourites are the
++    ENGINE's list, loaded from this file when the UI starts and saved over it
++    when the UI shuts down. The file belongs to every mod the player runs and
++    also caches the internet server list, so:
++
++      * it is written only when NO Quake III client is running - any mod may
++        be about to save its in-memory copy over ours - and PROCLIST is asked
++        again immediately before the upload;
++      * the header's global count, all 4096 global records and every
++        favourite the PLAYER added are carried through byte for byte
++        (favorites.sc_merge); only entries carrying our mark are ever removed;
++      * the upload is read back and compared, and anything but an exact match
++        is reported as FAILED, not as written.
++
++    Team Arena is not an indexed title: it is the missionpack\\ folder beside
++    an ioquake3 install, so it is derived from the box's `ioquake3` rows.
++    """
++    key = "missionpack"
++    pol = favorites.policy_for(key)
++    if not pol.get("supported"):
++        return []
++    engine = pol["engine"]
++    rows = [g for g in games if g["game_key"] in pol["derived_from"]]
++    if not rows:
++        return []
++    usable = [g for g in rows if not favorites.SKIP_DIRS.search(g["dir"])]
++    if not usable:
++        return [(key, engine, "skipped: the only ioquake3 install here is a "
++                              "benchmark harness - nothing of ours goes near it")]
++    found, errors = [], []
++    for g in usable:
++        has, why = await _has_subdir(c, g["dir"], pol["requires_subdir"])
++        if has:
++            found.append(g["dir"])
++        elif has is None:
++            errors.append(f"{g['dir']}: {why}")
++    if not found:
++        if errors:
++            return [(key, engine, "skipped: cannot tell whether Team Arena is "
++                                  "installed (%s)" % errors[0])]
++        return [(key, engine, "skipped: no %s folder beside ioquake3 in %s - "
++                              "Team Arena is not installed"
++                 % (pol["requires_subdir"], ", ".join(g["dir"] for g in usable)))]
++
++    src = pol["servers_from"]
++    pick = dict(limit=pol["slots"], accepts=pol.get("accepts"),
++                local_only=pol["local_only"], strict_accepts=pol["strict_accepts"])
++    if not db.best_servers(con, src, **pick):
++        return [(key, engine, "skipped: no live Team Arena servers known")]
++
++    appdata, why = await box_appdata(c)
++    if not appdata:
++        return [(key, engine, f"skipped: cannot resolve %APPDATA% ({why}) - "
++                              f"ioquake3 keeps servercache.dat there")]
++    home = appdata + "\\Quake3"
++    path = home + "\\servercache.dat"
++
++    exes = set(favorites.Q3_FAMILY_EXES) | {_exe_name(g) for g in rows if _exe_name(g)}
++    if running is None:
++        return [(key, engine, f"BUSY: {path}: cannot tell whether a Quake III "
++                              f"client is running (PROCLIST failed) - not "
++                              f"writing a file the game saves over on exit; "
++                              f"retry next pass")]
++    busy = sorted(exes & running)
++    if busy:
++        return [(key, engine, f"BUSY: {path}: {busy[0]} is running - not "
++                              f"attempted; {favorites.busy_why(engine)}; "
++                              f"retry next pass")]
++
++    data, state, why = await _read_file(c, path)
++    if state == "unreadable":
++        return [(key, engine, f"skipped: cannot read {path} ({why}) — refusing "
++                              f"to write, it would clobber the player's lists")]
++    if state == "no-parent":
++        return [(key, engine, f"skipped: {home} does not exist - ioquake3 has "
++                              f"never run as this user here, so there is "
++                              f"nothing to seed yet (the next pass after its "
++                              f"first start will)")]
++    existing = data if state == "read" else None
++
++    ours = favorites.sc_our_addresses(existing)
++    servers = db.best_servers(
++        con, src, **pick,
++        incumbent=lambda r: favorites.identity(engine, r) in ours)
++    try:
++        new, summary = favorites.sc_merge(existing, servers)
++    except favorites.ServerCacheError as exc:
++        log.error("[%s] %s %s: %s", ip, key, path, exc)
++        return [(key, engine, f"FAILED would clobber: {path} is not ioquake3 "
++                              f"1.36's servercache.dat ({exc}) - refusing to "
++                              f"write")]
++    h = summary["hash"]
++    n = len(summary["ours"])
++    detail = f"{n} servers -> {path}"
++    if new is None:
++        _record_one(con, ip, key, home, h, detail)
++        return [(key, engine, f"unchanged: {path} ({h}) - ours: "
++                              f"{', '.join(summary['ours']) or 'none'}")]
++    if dry_run:
++        return [(key, engine, f"WOULD write {n} servers -> {path} "
++                              f"(+{len(summary['added'])} "
++                              f"-{len(summary['dropped'])})")]
++
++    # PROCLIST was read before this box's other files were written; a game
++    # started since would load a file that is half ours. Ask again - it costs
++    # one command, only on a pass that actually writes.
++    again = await running_exes(c)
++    if again is None or exes & again:
++        return [(key, engine, f"BUSY: {path}: a Quake III client started while "
++                              f"this pass was deciding - not attempted; retry "
++                              f"next pass")]
++    st, resp = await c.send_command(f"UPLOAD {path}", binary_payload=new)
++    if st == 0xFF:
++        msg = bytes(resp[:80]).decode("ascii", "replace")
++        if existing is not None and msg.startswith("Write failed"):
++            # The agent truncated the file and then could not finish writing
++            # it. Put the player's own bytes back rather than leave them a
++            # file the game will reject.
++            st2, _ = await c.send_command(f"UPLOAD {path}",
++                                          binary_payload=existing)
++            msg += "; original restored" if st2 != 0xFF else \
++                "; RESTORING THE ORIGINAL ALSO FAILED - the file may be truncated"
++        return [(key, engine, f"FAILED {path}: {msg}")]
++    try:
++        back = await c.command_binary(f"DOWNLOAD {path}", timeout=60)
++    except Exception as exc:  # noqa: BLE001
++        return [(key, engine, f"FAILED {path}: written but not read back "
++                              f"({type(exc).__name__}) - not recorded")]
++    if bytes(back) != new:
++        return [(key, engine, f"FAILED {path}: read back {len(back)} bytes that "
++                              f"are not the {len(new)} written - something else "
++                              f"wrote it; not recorded")]
++    _record_one(con, ip, key, home, h, detail, force=True)
++    return [(key, engine, f"wrote {n} servers -> {path} ({h}); kept "
++                          f"{summary['theirs']} of the player's own favourites "
++                          f"and {summary['numglobal']} cached internet servers")]
++
++
+ # --- one pass ----------------------------------------------------------------
+ 
+ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
+@@ -562,12 +910,14 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
+              "none (the fleet is powered on demand - this is normal)")
+ 
+     report["phase"] = "indexing machines"
++    unindexed = {}
+     for ip in ips:
+         changed, n, note = await refresh_machine(con, ip, force=force)
+         report["machines"].append({"ip": ip, "changed": bool(changed),
+                                    "games": n, "note": note})
+         if note.startswith("ERROR"):
+             report["errors"].append(f"{ip}: {note}")
++            unindexed[ip] = note
+         log.info("[%s] %s", ip, note)
+ 
+     engines = sorted(set(db.engines_in_use(con))
+@@ -592,6 +942,18 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
+     if down:
+         report["errors"].append("our own servers did not answer: "
+                                 + ", ".join(down))
++    fatal = None
++    if down and len(down) == len(LOCAL_SERVERS) and \
++            host_holds_address(ME) is False:
++        # Every one of our servers silent AND this host not holding the
++        # address they are pinned at: every favourite this pass writes points
++        # at nothing. 09-26 to 09-28 this ran for ~56 hours with ok:true and a
++        # green mark on the wall, because only a probe error was recorded.
++        fatal = (f"this host does not hold {ME} - every fleet favourite "
++                 f"points at an address nothing answers on (see "
++                 f"docs/host-issues-log.md)")
++        report["errors"].insert(0, fatal)
++        log.error("%s", fatal)
+     pruned = db.prune_servers(con)
+     con.commit()
+     if pruned:
+@@ -599,7 +961,17 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
+ 
+     report["phase"] = "writing favourites"
+     for ip in ips:
+-        for key, engine, note in await push_favorites(con, ip, dry_run=dry_run):
++        if ip in unindexed:
++            # The index in the DB is keyed by IP. If this pass could not ask
++            # the box what it has, the rows may be an older tree - or another
++            # machine's, when DHCP moved an address (ADMIN-PC went .246 ->
++            # .195) - and a write would plant that machine's paths here.
++            results = [("*", "-", "skipped: re-indexing this box failed this "
++                                  "pass (%s) - not writing from an index that "
++                                  "may be stale" % unindexed[ip][:80])]
++        else:
++            results = await push_favorites(con, ip, dry_run=dry_run)
++        for key, engine, note in results:
+             # Bucket by what actually happened. "wrote 0" and "we never looked"
+             # must not collapse into the same number on the wall.
+             if note.startswith("wrote") or note.startswith("WOULD"):
+@@ -620,15 +992,15 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
+             log.info("[%s] %-11s %-8s %s", ip, key, engine, note)
+ 
+     if report["writes"]["busy"]:
+-        log.info("NOT ATTEMPTED on %d title(s) - a game was running. These "
+-                 "need the next pass; they are not 'unchanged'.",
++        log.info("NOT ATTEMPTED on %d file(s) - a game or a sync was running. "
++                 "These need the next pass; they are not 'unchanged'.",
+                  report["writes"]["busy"])
+     report["servers"] = status.summarize_servers(con)
+     report["favorites"] = status.summarize_favorites(con)
+     report["duration_sec"] = round(time.time() - t0, 1)
+     report["ts"] = time.time()
+     report["phase"] = "idle"
+-    report["ok"] = True
++    report["ok"] = fatal is None
+     log.info("pass complete in %.1fs", time.time() - t0)
+     con.close()
+     return report
+diff --git a/tests/python/test_gameindex_favorites.py b/tests/python/test_gameindex_favorites.py
+index 59eaeaf..bb2c40a 100644
+--- a/tests/python/test_gameindex_favorites.py
++++ b/tests/python/test_gameindex_favorites.py
+@@ -282,7 +282,10 @@ def test_each_unreal_engine_game_gets_its_own_ini():
+            for k in ("ut99", "unreal", "deusex")}
+     assert got["ut99"].endswith("UnrealTournament.ini")
+     assert got["unreal"].endswith("Unreal.ini")
+-    assert got["deusex"].endswith("DeusEx.ini")
++    # Deus Ex ships UBrowser.u but no screen of its own ever opens the
++    # favourites factory (2026-09-29): nothing reads DeusEx.ini's favourites,
++    # so there is no file to name at all - see test_patch_favourites.py.
++    assert got["deusex"] is None
+ 
+ 
+ def test_the_two_ut99_trees_resolve_to_their_own_files():
+@@ -306,9 +309,12 @@ def test_a_quake3_engine_game_whose_data_dir_is_not_baseq3_is_not_written():
+ # --- the per-title policy ----------------------------------------------------
+ 
+ def test_half_life_is_not_pointed_at_servers_it_cannot_join():
++    # 45, not 46 as this said until 2026-09-29: the staged WON hw.dll compares
++    # the server's protocol with 45 (`cmp eax,2Dh` before "CL_Parse_Version:
++    # Server is protocol %i instead of %i"), and hl.exe is 1.0.1.4.
+     pol = favorites.policy_for("halflife", "goldsrc")
+     assert not pol["supported"]
+-    assert "46" in pol["why"] and "48" in pol["why"], (
++    assert "45" in pol["why"] and "48" in pol["why"], (
+         "the reason must name the protocol mismatch, or the next person "
+         "'fixes' this by adding a writer")
+ 
+@@ -318,7 +324,7 @@ def test_a_file_we_only_update_is_never_created():
+     # does not use that browser -- a WON Half-Life at C:\Sierra\Half-Life has
+     # no revSrvBrowser at all. Same for an .ini holding only a favourites
+     # section.
+-    for key in ("cs16", "ut99", "ut2004", "deusex"):
++    for key in ("cs16", "ut99", "ut2004", "unreal"):
+         assert favorites.policy_for(key)["create"] is False, key
+     # autoexec.cfg is the opposite: not existing is its normal state.
+     for key in ("quake3", "quake2"):
+@@ -362,11 +368,15 @@ def test_the_reasons_are_reasons_and_not_placeholders():
+ 
+ 
+ def test_engines_for_keys_finds_what_the_agent_calls_nothing():
+-    # The agent reports Deus Ex with engine "-", so without this the pass
+-    # never fetches Unreal servers for a box whose only Unreal title is Deus
+-    # Ex.
+-    assert "unreal" in favorites.engines_for_keys(["deusex"])
++    # The engine a writer needs servers for comes from the TITLE, not from
++    # what the agent reported. Deus Ex was the example here (the agent calls
++    # it "-") until 2026-09-29, when it turned out no Deus Ex screen reads
++    # favourites at all - so it now needs no servers either.
++    assert favorites.engines_for_keys(["ut99"]) == ["unreal"]
++    assert favorites.engines_for_keys(["deusex"]) == []
+     assert favorites.engines_for_keys(["starcraft"]) == []
++    # Team Arena's store is binary, but the servers come from the q3 bucket.
++    assert favorites.engines_for_keys(["missionpack"]) == ["q3"]
+ 
+ 
+ # --- server selection --------------------------------------------------------
+diff --git a/tests/python/test_patch_favourites.py b/tests/python/test_patch_favourites.py
+new file mode 100644
+index 0000000..0df539e
+--- /dev/null
++++ b/tests/python/test_patch_favourites.py
+@@ -0,0 +1,1160 @@
++r"""The favourites agent's 2026-09-29 fixes (scripts/gameindex), one section each.
++
++Everything here runs on the dev host with no box: a fake agent (FakeBox) holds
++an in-memory filesystem, a process list and a registry answer, and the real
++push_favorites() runs against it. Share-dependent checks read the staged
++library through /mnt/retro-share and SKIP LOUDLY when it is not mounted.
++
++  1. Labels.  A public server's hostname went into a Quake `//` comment with
++     only newlines stripped. Quake II/III split a config line at `;` outside
++     quotes EVEN INSIDE A COMMENT, so `x; quit` would have run `quit` on every
++     fleet box at every start. Proven here against a transcription of
++     ioq3 1.36's Cbuf_Execute.
++  2. Team Arena.  Its Favorites tab reads the ENGINE's list, saved in
++     %APPDATA%\Quake3\servercache.dat by ioquake3 1.36 - never server1..16.
++     The layout is pinned to the staged ioquake3.x86.exe itself.
++  3. BUSY per FILE.  quake3 and ioquake3 share baseq3\autoexec.cfg; with
++     ioquake3 running the old loop said "ioquake3 BUSY" and then let "quake3"
++     write the same file. And Win98's upper-case PROCLIST never matched.
++  4. A settled box says "unchanged".  Same servers in another order, other
++     labels, CS re-saving its vdf with its own tabs, UT99 seeds sharing a host,
++     and a ranking that reshuffled the cut every pass all rewrote files while
++     nothing a player could see had changed.
++  5. Skip reasons that were no longer true, and two writers (RTCW, Deus Ex)
++     that reported success for files no game reads.
++
++Run: python3 -m pytest -q tests/python/test_patch_favourites.py
++"""
++import asyncio
++import hashlib
++import json
++import os
++import pathlib
++import re
++import socket
++import struct
++import sys
++import threading
++
++import pytest
++
++REPO = pathlib.Path(__file__).resolve().parent.parent.parent
++sys.path.insert(0, str(REPO / "scripts" / "gameindex"))
++sys.path.insert(0, str(REPO))
++sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
++
++import db          # noqa: E402
++import favorites   # noqa: E402
++import masters     # noqa: E402
++import sync        # noqa: E402
++
++LIBRARY = pathlib.Path("/mnt/retro-share/Files/Games-Library")
++ME = "192.168.1.132"
++
++
++def need_share():
++    if not LIBRARY.is_dir():
++        pytest.skip("SKIPPED LOUDLY: /mnt/retro-share/Files/Games-Library is not "
++                    "mounted - this check reads the staged library and did NOT run")
++
++
++# --- fixtures ----------------------------------------------------------------
++
++@pytest.fixture()
++def con(tmp_path):
++    c = db.connect(str(tmp_path / "t.db"))
++    yield c
++    c.close()
++
++
++def srow(addr, gamename="baseq3", name=None, players=4, local=0,
++         source="q3master", ping=30, query_port=0):
++    return {"addr": addr, "hostname": name if name is not None else f"srv {addr}",
++            "map": "", "players": players, "maxplayers": 16, "ping_ms": ping,
++            "gamename": gamename, "passworded": 0, "is_local": local,
++            "source": source, "query_port": query_port}
++
++
++def local_q3(con):
++    db.upsert_servers(con, "q3", [
++        srow(f"{ME}:27961", "baseq3", "NSC Retro Fleet Arena (Q3A)", 0, 1, "local"),
++        srow(f"{ME}:27962", "missionpack", "NSC Retro Fleet Arena (Team Arena)",
++             0, 1, "local"),
++        srow(f"{ME}:27960", "baseoa", "NSC Retro Fleet Arena (OA)", 0, 1, "local")])
++
++
++class FakeBox:
++    """An in-memory retro agent answering the commands push_favorites sends."""
++
++    def __init__(self, files=None, dirs=(), procs=(), gamesync="idle",
++                 appdata=r"C:\Documents and Settings\Administrator\Application Data",
++                 greeting="RETRO BOX Win5.1", proclist_fails=False):
++        self.files = {}
++        self.dirs = set()
++        for d in dirs:
++            self.mkdirs(d)
++        for p, data in (files or {}).items():
++            self.put(p, data)
++        self.procs = list(procs)
++        self.gamesync = gamesync
++        self.appdata = appdata
++        self.greeting = greeting
++        self.proclist_fails = proclist_fails
++        self.sent = []
++
++    # filesystem helpers (Windows: case-insensitive, backslashes)
++    @staticmethod
++    def _k(p):
++        return p.replace("/", "\\").rstrip("\\").lower()
++
++    def mkdirs(self, d):
++        parts = d.replace("/", "\\").rstrip("\\").split("\\")
++        for i in range(1, len(parts) + 1):
++            self.dirs.add(self._k("\\".join(parts[:i])))
++
++    def put(self, path, data):
++        if isinstance(data, str):
++            data = data.encode("latin-1")
++        self.mkdirs(path.rsplit("\\", 1)[0])
++        self.files[self._k(path)] = (path.rsplit("\\", 1)[1], bytes(data))
++
++    def get(self, path):
++        f = self.files.get(self._k(path))
++        return None if f is None else f[1]
++
++    def uploads(self):
++        return [c for c in self.sent if c.startswith("UPLOAD ")]
++
++    # the protocol surface sync.py uses
++    async def send_command(self, cmd, binary_payload=None, timeout=60):
++        self.sent.append(cmd)
++        verb, _, arg = cmd.partition(" ")
++        if verb == "DOWNLOAD":
++            data = self.get(arg)
++            return (1, data) if data is not None else \
++                (0xFF, b"Cannot open file: error 2")
++        if verb == "UPLOAD":
++            if self._k(arg.rsplit("\\", 1)[0]) not in self.dirs:
++                return 0xFF, b"Cannot create file: error 3"
++            self.put(arg, binary_payload)
++            return 0, b"OK"
++        if verb == "MKDIR":
++            self.mkdirs(arg)
++            return 0, b"OK"
++        if verb == "DIRLIST":
++            d = self._k(arg)
++            out = []
++            if d in self.dirs:
++                for sub in sorted(self.dirs):
++                    if sub.rsplit("\\", 1)[0] == d and sub != d:
++                        out.append({"name": sub.rsplit("\\", 1)[1], "is_dir": True})
++                for k, (name, data) in sorted(self.files.items()):
++                    if k.rsplit("\\", 1)[0] == d:
++                        out.append({"name": name, "is_dir": False,
++                                    "size": len(data)})
++            return 0, json.dumps(out).encode()   # [] for a missing dir, like files.c
++        if verb == "PROCLIST":
++            if self.proclist_fails:
++                return 0xFF, b"PROCLIST failed"
++            return 0, json.dumps([{"pid": i + 8, "name": n}
++                                  for i, n in enumerate(self.procs)]).encode()
++        if verb == "GAMESYNC":
++            return 0, json.dumps({"state": self.gamesync}).encode()
++        if verb == "REGREAD":
++            if self.appdata is None:
++                return 0xFF, b"Cannot open key: error 2"
++            return 0, json.dumps({"root": "HKCU", "path": "x", "value": {
++                "name": "AppData", "type": "REG_SZ", "data": self.appdata}}).encode()
++        if verb == "HWPROFILE":
++            return 0, b"{}"
++        return 0xFF, b"Unknown command"
++
++    async def command_text(self, cmd, timeout=30):
++        st, data = await self.send_command(cmd, timeout=timeout)
++        if st == 0xFF:
++            raise RuntimeError(data.decode("latin-1"))
++        return data.decode("latin-1")
++
++    async def command_binary(self, cmd, timeout=60):
++        st, data = await self.send_command(cmd, timeout=timeout)
++        if st == 0xFF:
++            raise RuntimeError(data.decode("latin-1"))
++        return data
++
++
++def push(con, box, monkeypatch, ip="10.9.9.9", dry_run=False):
++    async def fake_agent(_ip, fn, timeout=20.0):
++        return await fn(box, box.greeting)
++    monkeypatch.setattr(sync, "_agent", fake_agent)
++    return asyncio.run(sync.push_favorites(con, ip, dry_run=dry_run))
++
++
++def notes(results):
++    return [n for _, _, n in results]
++
++
++Q3DIR = r"C:\Games\Quake3-TeamArena"
++Q3CFG = Q3DIR + r"\baseq3\autoexec.cfg"
++STAGED_AUTOEXEC = ('// Fleet autoexec.cfg\nseta r_colorbits "32"\n'
++                   'seta com_maxfps "125"\nexec fleetres.cfg\n')
++
++
++def index_q3(con, ip="10.9.9.9", d=Q3DIR, gamedir_case=None):
++    db.replace_games(con, ip, [
++        {"key": "quake3", "dir": gamedir_case or d, "engine": "q3",
++         "exe": d + r"\quake3.exe"},
++        {"key": "ioquake3", "dir": d, "engine": "q3",
++         "exe": d + r"\ioquake3.x86.exe"}])
++    con.commit()
++
++
++# =============================================================================
++# 1. labels
++# =============================================================================
++
++def cbuf_commands(text):
++    """Cbuf_Execute's splitter, transcribed from ioq3 1.36 code/qcommon/cmd.c
++    (identical in id's 1.32): a command ends at `;` when the double quotes
++    seen so far are even, or at `\n`/`\r`. There is no notion of a comment -
++    `//` only matters later, to the tokenizer, inside ONE command."""
++    out, cur, quotes = [], [], 0
++    for ch in text:
++        if ch == '"':
++            quotes += 1
++        if (not quotes & 1 and ch == ";") or ch in "\r\n":
++            out.append("".join(cur))
++            cur, quotes = [], 0
++            continue
++        cur.append(ch)
++    out.append("".join(cur))
++    return [c for c in out if c.strip()]
++
++
++EVIL = [
++    "x; quit",
++    'a" ; rcon_password pwned ; "b',
++    "line one\nbind MOUSE1 quit",
++    "carriage\rvid_restart",
++    "nul\x00byte; exec autoexec",
++    "tab\tand\x7fdel;disconnect",
++]
++
++
++@pytest.mark.parametrize("engine,key", [("q3", "quake3"), ("q2", "quake2")])
++def test_no_hostname_can_add_a_command_to_a_quake_config(engine, key):
++    """Every command the engine would run out of our block is ONE favourite
++    assignment - whatever the server calls itself."""
++    servers = [srow(f"10.0.0.{i + 1}:27960", name=n) for i, n in enumerate(EVIL)]
++    text, _ = favorites.render(engine, servers, "", key=key)
++    cmds = cbuf_commands(text)
++    want = "seta server" if engine == "q3" else "set adr"
++    for c in cmds:
++        s = c.strip()
++        assert s.startswith(want) or s.startswith("//"), \
++            f"the engine would execute {s!r} from our file"
++    assert sum(1 for c in cmds if c.strip().startswith(want)) == \
++        (16 if engine == "q3" else 9)
++    assert all(len(line) < 1023 for line in text.splitlines()), \
++        "Cbuf copies at most MAX_CMD_LINE-1 bytes; the rest would start a new command"
++
++
++def test_the_old_writer_really_was_injectable():
++    """The shape this guards against, measured the way the engine splits it:
++    the pre-fix label rule (strip newlines only) leaves a live `quit`."""
++    old_line = 'seta server1 "1.2.3.4:27960"        // ' + \
++        "x; quit".replace("\n", " ")[:60]
++    assert "quit" in [c.strip() for c in cbuf_commands(old_line)]
++
++
++def test_clean_label_rules():
++    assert favorites.clean_label("a;b", quake=True) == "a b"
++    assert favorites.clean_label('say "hi"', quake=True) == "say 'hi'"
++    assert favorites.clean_label("x\ny\rz\x00w\x7fv") == "x y z w v"
++    assert favorites.clean_label("a;b") == "a;b", "only Quake comments care about ;"
++    assert favorites.clean_label("  many    spaces  ") == "many spaces"
++    assert len(favorites.clean_label("X" * 400)) == 60
++
++
++def test_an_unsafe_label_already_on_a_box_is_never_called_unchanged():
++    """If a dangerous line is ALREADY in a box's file (an older writer put it
++    there), `same_favourites` must not bless it just because the servers
++    match - it is rewritten, which is what removes it."""
++    servers = [srow("1.2.3.4:27960", name="evil; quit")]
++    clean, _ = favorites.render("q3", servers, STAGED_AUTOEXEC, key="quake3")
++    assert "// evil quit" in clean, "the ; became a space"
++    dirty = clean.replace("// evil quit", "// evil; quit")
++    assert "// evil; quit" in dirty
++    assert not favorites.same_favourites("q3", dirty, clean)
++    assert favorites.same_favourites("q3", clean, clean)
++
++
++@pytest.mark.parametrize("engine,key", [("unreal", "ut99"), ("ut2k4", "ut2004"),
++                                        ("goldsrc", "cs16")])
++def test_control_characters_never_reach_any_writer(engine, key):
++    r = srow("10.1.1.1:7777", "ut", name="bad\x00name\r\nnext\x1b[31m",
++             query_port=7778)
++    existing = '"filters"\n{\n\t"favorites"\n\t{\n\t}\n}\n' if engine == "goldsrc" \
++        else ("[UBrowser.UBrowserFavoritesFact]\nFavoriteCount=0\n" if engine == "unreal"
++              else "[XInterface.ExtendedConsole]\n")
++    text, _ = favorites.render(engine, [r], existing, key=key)
++    assert not any(ch in text for ch in "\x00\r\x1b"), text
++
++
++# =============================================================================
++# 2. Team Arena - ioquake3 1.36's servercache.dat
++# =============================================================================
++
++def test_the_layout_constants():
++    assert favorites.SC_REC == 164                 # sizeof(serverInfo_t)
++    assert favorites.SC_SIZE == 692736 == 0xA9200   # the header's size field
++    assert favorites.SC_LEN == 692748
++    assert favorites.SC_GLOBAL * favorites.SC_REC == 0xA4000
++    assert favorites.SC_OTHER * favorites.SC_REC == 0x5200
++    assert favorites.SC_FAV_OFF == 12 + 0xA4000
++    assert favorites.SC_NA_IP == 4
++    assert len(favorites.SC_MARK) == 16
++
++
++def test_the_captured_empty_file_is_what_the_fixtures_build():
++    """The servercache.dat downloaded from .123/.145/.195/.240 on 2026-09-28
++    (md5 1d9ecd77ad96baa12e160cf4ec596787: counts 0, size 692736, all zero)
++    is byte-for-byte the empty file this test builds."""
++    assert hashlib.md5(empty_cache()).hexdigest() == \
++        "1d9ecd77ad96baa12e160cf4ec596787"
++
++
++def empty_cache(nglobal=0):
++    return struct.pack("<iii", nglobal, 0, favorites.SC_SIZE) + \
++        bytes(favorites.SC_SIZE)
++
++
++def with_favourites(base, recs, nglobal=None):
++    b = bytearray(base)
++    if nglobal is not None:
++        struct.pack_into("<i", b, 0, nglobal)
++    struct.pack_into("<i", b, 4, len(recs))
++    for i, r in enumerate(recs):
++        off = favorites.SC_FAV_OFF + i * favorites.SC_REC
++        b[off:off + favorites.SC_REC] = r
++    return bytes(b)
++
++
++def player_added(addr, name):
++    """A favourite as the TA UI's addFavorite leaves it: LAN_AddServer with an
++    uninitialised netadr_t, so ip6/scope_id hold stack garbage."""
++    r = bytearray(favorites.sc_record(addr, name))
++    r[8:24] = bytes(range(0xA0, 0xB0))            # not our mark
++    struct.pack_into("<I", r, 28, 0xDEADBEEF)
++    return bytes(r)
++
++
++def lan_load_cached_servers(data):
++    """ioq3 1.36 LAN_LoadCachedServers + NET_AdrToStringwPort, transcribed.
++    Returns the favourites list exactly as the engine would hold it, or [] if
++    it would reject the file (size mismatch -> counts reset)."""
++    nglobal, nfav, size = struct.unpack_from("<iii", data, 0)
++    if size != 692736:
++        return []
++    out = []
++    for i in range(nfav):
++        r = data[favorites.SC_FAV_OFF + i * 164:favorites.SC_FAV_OFF + (i + 1) * 164]
++        typ = struct.unpack_from("<i", r, 0)[0]
++        port = struct.unpack_from(">H", r, 24)[0]          # ntohs(adr.port)
++        addr = "%d.%d.%d.%d:%d" % (r[4], r[5], r[6], r[7], port) if typ == 4 \
++            else None
++        host = r[32:64].split(b"\0", 1)[0].decode("latin-1")
++        visible = struct.unpack_from("<i", r, 156)[0]
++        out.append((addr, host, visible))
++    return out
++
++
++def net_compare_adr(a, b):
++    """NET_CompareAdr for NA_IP, as disassembled from the staged binary: the
++    type, the four ip bytes and the port - never ip6."""
++    return a[0:4] == b[0:4] and a[4:8] == b[4:8] and a[24:26] == b[24:26]
++
++
++TA = [srow(f"{ME}:27962", "missionpack", "NSC Retro Fleet Arena (Team Arena)",
++           0, 1, "local")]
++
++
++def test_a_record_is_what_lan_addserver_makes():
++    r = favorites.sc_record(f"{ME}:27962", "NSC Retro Fleet Arena (Team Arena)")
++    assert len(r) == 164
++    assert struct.unpack_from("<i", r, 0)[0] == 4                # NA_IP
++    assert r[4:8] == bytes([192, 168, 1, 132])
++    assert r[8:24] == favorites.SC_MARK
++    assert r[24:26] == bytes([0x6D, 0x3A]), "27962 in NETWORK order (BigShort)"
++    assert struct.unpack_from("<I", r, 28)[0] == 0                # scope_id
++    assert r[32:64].split(b"\0")[0] == b"NSC Retro Fleet Arena (Team Arena"[:31]
++    assert r[63] == 0, "hostName[32] keeps its NUL"
++    assert struct.unpack_from("<i", r, 156)[0] == 1               # visible
++    assert set(r[64:156]) == {0} and set(r[160:164]) == {0}
++
++
++def test_a_new_file_loads_in_the_engine_with_the_fleet_server_first():
++    new, summary = favorites.sc_merge(None, TA)
++    assert len(new) == favorites.SC_LEN
++    # hostName[32]: 31 characters and the NUL, as Q_strncpyz leaves it.
++    assert lan_load_cached_servers(new) == \
++        [(f"{ME}:27962", "NSC Retro Fleet Arena (Team Are", 1)]
++    assert summary["ours"] == [f"{ME}:27962"]
++    assert struct.unpack_from("<iii", new, 0) == (0, 1, 692736)
++
++
++def test_the_global_list_and_the_players_favourites_survive_byte_for_byte():
++    base = bytearray(empty_cache())
++    for i in range(3 * 164):                       # three cached internet servers
++        base[12 + i] = (i * 31 + 7) & 0xFF
++    theirs = player_added("5.6.7.8:27960", "my own server")
++    existing = with_favourites(bytes(base), [theirs], nglobal=3)
++    new, summary = favorites.sc_merge(existing, TA)
++    assert new[12:favorites.SC_FAV_OFF] == existing[12:favorites.SC_FAV_OFF], \
++        "4096 global records untouched"
++    assert struct.unpack_from("<i", new, 0)[0] == 3, "numglobalservers kept"
++    loaded = lan_load_cached_servers(new)
++    assert [a for a, _, _ in loaded] == ["5.6.7.8:27960", f"{ME}:27962"], \
++        "the player's entry keeps its place; ours is appended"
++    off = favorites.SC_FAV_OFF
++    assert new[off:off + 164] == theirs, "their record is not rewritten"
++    assert summary["theirs"] == 1
++
++
++def test_a_second_pass_is_unchanged_even_after_the_game_updates_our_entry():
++    first, _ = favorites.sc_merge(None, TA)
++    again, _ = favorites.sc_merge(first, TA)
++    assert again is None, "the same list twice is 'unchanged'"
++    # The game pings the favourite and CL_SetServerInfo rewrites its info.
++    b = bytearray(first)
++    off = favorites.SC_FAV_OFF
++    b[off + 32:off + 64] = b"NSC Retro Fleet Arena ^1(TA)".ljust(32, b"\0")
++    b[off + 64:off + 72] = b"mpteam1\0"
++    struct.pack_into("<i", b, off + 136, 3)       # clients
++    struct.pack_into("<i", b, off + 152, 1)       # ping
++    assert favorites.sc_merge(bytes(b), TA)[0] is None, \
++        "hostName/map/ping are the game's to update, never a reason to write"
++
++
++def test_only_our_marked_entries_are_ever_removed():
++    stale_ours = favorites.sc_record("9.9.9.9:27960", "gone")
++    theirs = player_added("5.6.7.8:27960", "mine")
++    ours_now = favorites.sc_record(f"{ME}:27962", "fleet")
++    existing = with_favourites(empty_cache(), [stale_ours, theirs, ours_now])
++    new, summary = favorites.sc_merge(existing, TA)
++    assert [a for a, _, _ in lan_load_cached_servers(new)] == \
++        ["5.6.7.8:27960", f"{ME}:27962"]
++    assert summary["dropped"] == ["9.9.9.9:27960"]
++    # ...and the slot the list no longer uses is zeroed, not left stale.
++    off = favorites.SC_FAV_OFF + 2 * 164
++    assert set(new[off:off + 164]) == {0}
++
++
++def test_a_favourite_the_player_already_added_is_not_duplicated():
++    theirs = player_added(f"{ME}:27962", "added by hand")
++    existing = with_favourites(empty_cache(), [theirs])
++    new, summary = favorites.sc_merge(existing, TA)
++    assert new is None, "present already - nothing to write"
++    assert summary["ours"] == [] and summary["theirs"] == 1
++    assert net_compare_adr(theirs, favorites.sc_record(f"{ME}:27962", "x")), \
++        "the engine's own dedupe sees ours and theirs as the same address"
++
++
++def test_the_player_deleting_ours_brings_it_back_and_keeps_their_order():
++    a = player_added("5.6.7.8:27960", "a")
++    b = player_added("6.7.8.9:27960", "b")
++    new, _ = favorites.sc_merge(with_favourites(empty_cache(), [a, b]), TA)
++    assert [x for x, _, _ in lan_load_cached_servers(new)] == \
++        ["5.6.7.8:27960", "6.7.8.9:27960", f"{ME}:27962"]
++
++
++def test_a_full_list_is_reported_not_forced():
++    full = [player_added("10.0.%d.%d:27960" % (i // 250, i % 250 + 1), "p")
++            for i in range(128)]
++    new, summary = favorites.sc_merge(with_favourites(empty_cache(), full), TA)
++    assert new is None
++    assert summary["full"] == [f"{ME}:27962"]
++
++
++@pytest.mark.parametrize("mutate,why", [
++    (lambda b: b[:-1], "bytes"),
++    (lambda b: b + b"\0", "bytes"),
++    (lambda b: struct.pack("<iii", 0, 0, 642048) + b[12:], "size field"),
++    (lambda b: struct.pack("<iii", 0, 129, 692736) + b[12:], "numfavoriteservers"),
++    (lambda b: struct.pack("<iii", -1, 0, 692736) + b[12:], "numglobalservers"),
++    (lambda b: struct.pack("<iii", 4097, 0, 692736) + b[12:], "numglobalservers"),
++])
++def test_a_file_that_is_not_the_136_layout_is_refused(mutate, why):
++    """LAN_LoadCachedServers checks only the size field and never bounds the
++    counts; a file we do not understand is left exactly as it is."""
++    with pytest.raises(favorites.ServerCacheError) as e:
++        favorites.sc_merge(mutate(empty_cache()), TA)
++    assert why in str(e.value)
++
++
++def test_a_hostname_address_is_skipped_not_guessed():
++    new, summary = favorites.sc_merge(None, [srow("myhost:27962", "missionpack",
++                                                  local=1, source="local")])
++    assert summary["skipped"] == ["myhost:27962"] and summary["ours"] == []
++
++
++def test_the_staged_binary_is_the_layout_this_code_writes():
++    """Pin the writer to the ioquake3.x86.exe the fleet actually runs: its own
++    LAN_LoadCachedServers compares the size field with 0xA9200 and reads
++    0xA4000 + 0x5200 bytes, and CL_SetServerInfo stores hostName at +0x20 and
++    ping at +0x98 (disassembled 2026-09-29; the evidence file is
++    .claude/evidence-1080p/build-favourites/servercache-layout-verification.txt).
++    A different build restaged there must fail this, not silently get
++    favourites in a layout it does not read."""
++    need_share()
++    exe = LIBRARY / "Quake3-TeamArena" / "ioquake3.x86.exe"
++    data = exe.read_bytes()
++    assert hashlib.md5(data).hexdigest() == "12f99bc0f9ba416ee477a4f13de8feaa", (
++        "the staged ioquake3.x86.exe is not the build whose servercache.dat "
++        "layout was verified - re-verify favorites.SC_* against it first")
++    assert b"servercache.dat\x00" in data
++    # cmp DWORD PTR [ebp-0x8],0xa9200
++    assert bytes.fromhex("817df800920a00") in data
++    # mov edx,0xa4000 ... mov ecx,0x5200 (the two array reads)
++    assert bytes.fromhex("ba00400a00") in data and bytes.fromhex("b900520000") in data
++    # CL_SetServerInfo: lea edx,[ebx+0x20] (hostName) / mov [ebx+0x98],esi (ping)
++    assert bytes.fromhex("8d5320") in data and bytes.fromhex("89b398000000") in data
++
++
++def ta_box(files=None, procs=(), with_missionpack=True, appdata_exists=True,
++           **kw):
++    home = r"C:\Documents and Settings\Administrator\Application Data"
++    dirs = [Q3DIR + r"\baseq3"]
++    if with_missionpack:
++        dirs.append(Q3DIR + r"\missionpack")
++    if appdata_exists:
++        dirs.append(home + r"\Quake3\baseq3")
++    else:
++        dirs.append(home)
++    f = {Q3CFG: STAGED_AUTOEXEC}
++    f.update(files or {})
++    return FakeBox(files=f, dirs=dirs, procs=procs, appdata=home, **kw), \
++        home + r"\Quake3\servercache.dat"
++
++
++def ta_notes(results):
++    return [n for k, _, n in results if k == "missionpack"]
++
++
++def test_push_seeds_team_arena_and_reads_it_back(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box(files={
++        r"C:\Documents and Settings\Administrator\Application Data\Quake3"
++        r"\servercache.dat": empty_cache()})
++    res = push(con, box, monkeypatch)
++    n = ta_notes(res)
++    assert n and n[0].startswith("wrote 1 servers -> " + path), n
++    assert [a for a, _, _ in lan_load_cached_servers(box.get(path))] == \
++        [f"{ME}:27962"]
++    assert box.sent.count(f"DOWNLOAD {path}") == 2, "read, then read back"
++    # A second pass on the settled box writes nothing.
++    box.sent.clear()
++    n2 = ta_notes(push(con, box, monkeypatch))
++    assert n2[0].startswith("unchanged: " + path), n2
++    assert not [c for c in box.uploads() if "servercache" in c]
++
++
++def test_team_arena_gets_only_team_arena_servers(con, monkeypatch):
++    """A Team Arena client cannot join a baseq3 server, so unlike baseq3 the
++    internet rows are filtered by gamename too (strict_accepts)."""
++    local_q3(con)
++    db.upsert_servers(con, "q3", [
++        srow("8.8.8.8:27960", "baseq3", players=20),
++        srow("7.7.7.7:27960", "missionpack", "Kr3m TA", players=2)])
++    got = [r["addr"] for r in db.best_servers(
++        con, "q3", accepts={"missionpack"}, strict_accepts=True)]
++    assert got == [f"{ME}:27962", "7.7.7.7:27960"]
++    # baseq3 keeps the permissive rule for the internet.
++    base = [r["addr"] for r in db.best_servers(con, "q3", accepts={"baseq3"})]
++    assert "8.8.8.8:27960" in base and f"{ME}:27962" not in base
++
++
++@pytest.mark.parametrize("proc", ["ioquake3.x86.exe", "QUAKE3.EXE",
++                                  "ioquake3.exe"])
++def test_servercache_is_busy_while_any_quake3_client_runs(con, monkeypatch, proc):
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box(procs=["explorer.exe", proc])
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith(f"BUSY: {path}: {proc.lower()} is running"), n
++    assert "servercache" not in " ".join(box.uploads())
++
++
++def test_servercache_is_not_written_when_proclist_cannot_answer(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box(proclist_fails=True)
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("BUSY: ") and "PROCLIST failed" in n[0], n
++    assert box.get(path) is None
++
++
++def test_a_game_started_mid_pass_stops_the_write(con, monkeypatch):
++    """PROCLIST is asked again right before the upload."""
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box()
++    calls = {"n": 0}
++    orig = box.send_command
++
++    async def racing(cmd, binary_payload=None, timeout=60):
++        if cmd == "PROCLIST":
++            calls["n"] += 1
++            if calls["n"] >= 2:
++                box.procs = ["ioquake3.x86.exe"]
++        return await orig(cmd, binary_payload, timeout)
++    box.send_command = racing
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("BUSY: ") and "started while" in n[0], n
++    assert box.get(path) is None
++
++
++def test_no_missionpack_folder_means_no_team_arena(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box(with_missionpack=False)
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("skipped: no missionpack folder"), n
++    assert box.get(path) is None
++
++
++def test_an_ioquake3_that_never_ran_is_not_seeded(con, monkeypatch):
++    """No %APPDATA%\\Quake3 -> nothing is created; the folder is ioquake3's."""
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box(appdata_exists=False)
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("skipped: ") and "does not exist" in n[0], n
++    assert not [c for c in box.sent if c.startswith("MKDIR")]
++    assert box.get(path) is None
++
++
++def test_a_missing_file_in_an_existing_homepath_is_created(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box()          # Quake3\baseq3 exists, no servercache.dat
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("wrote 1 servers"), n
++    assert lan_load_cached_servers(box.get(path))[0][0] == f"{ME}:27962"
++
++
++def test_a_read_back_mismatch_is_a_failure_not_a_write(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    box, path = ta_box()
++    orig = box.send_command
++
++    async def tampering(cmd, binary_payload=None, timeout=60):
++        st, data = await orig(cmd, binary_payload, timeout)
++        if cmd.startswith("DOWNLOAD") and "servercache" in cmd and st == 1:
++            return st, data[:-1] + b"\x01"
++        return st, data
++    box.send_command = tampering
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("FAILED ") and "read back" in n[0], n
++    assert db.applied_hash(con, "10.9.9.9", "missionpack",
++                           path.rsplit("\\", 1)[0]) is None, "not recorded"
++
++
++def test_an_unknown_layout_on_the_box_is_left_alone(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    retail = struct.pack("<iii", 0, 0, 4224 * 152) + bytes(4224 * 152)
++    box, path = ta_box(files={
++        r"C:\Documents and Settings\Administrator\Application Data\Quake3"
++        r"\servercache.dat": retail})
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith("FAILED would clobber") and "1.36" in n[0], n
++    assert box.get(path) == retail
++
++
++def test_team_arena_policy_is_declared():
++    pol = favorites.policy_for("missionpack")
++    assert pol["supported"] and pol["engine"] == "q3cache"
++    assert pol["accepts"] == {"missionpack"} and pol["strict_accepts"]
++    assert pol["servers_from"] == "q3"
++    assert pol["derived_from"] == ("ioquake3",)
++    assert favorites.target_path("q3cache", Q3DIR, "missionpack") is None, \
++        "it lives in the profile, not the tree"
++
++
++# =============================================================================
++# 3. BUSY per FILE, case-insensitively
++# =============================================================================
++
++def test_titles_sharing_a_file_are_planned_as_one_target():
++    games = [{"game_key": "quake3", "dir": r"C:\GAMES\Quake3-TeamArena",
++              "engine": "q3", "exe": r"C:\GAMES\Quake3-TeamArena\quake3.exe"},
++             {"game_key": "ioquake3", "dir": r"C:\Games\Quake3-TeamArena",
++              "engine": "q3", "exe": r"C:\Games\Quake3-TeamArena\IOQUAKE3.X86.EXE"},
++             {"game_key": "ut99", "dir": r"C:\Games\UnrealTournament\System",
++              "engine": "unreal", "exe": r"C:\Games\UnrealTournament\System\UnrealTournament.exe"},
++             {"game_key": "starcraft", "dir": r"C:\Games\StarCraft",
++              "engine": "-", "exe": r"C:\Games\StarCraft\StarCraft.exe"}]
++    targets, skips = sync.plan_targets(games)
++    q3 = [t for t in targets if t["engine"] == "q3"]
++    assert len(q3) == 1, "one file, one decision - paths compare case-insensitively"
++    assert q3[0]["keys"] == ["quake3", "ioquake3"]
++    assert q3[0]["exes"] == {"quake3.exe", "ioquake3.x86.exe"}
++    assert [k for k, _, _ in skips] == ["starcraft"]
++
++
++def test_a_running_sibling_title_makes_the_shared_file_busy(con, monkeypatch):
++    """The 00:04-00:24 journal on .123/.145/.195/.240: 'ioquake3 BUSY' then
++    'quake3 wrote 16 servers' to the SAME file. Now the file is BUSY once."""
++    local_q3(con)
++    index_q3(con)
++    box = FakeBox(files={Q3CFG: STAGED_AUTOEXEC}, dirs=[Q3DIR + r"\baseq3"],
++                  procs=["ioquake3.x86.exe"], appdata=None)
++    res = push(con, box, monkeypatch)
++    q3 = [(k, n) for k, e, n in res if e == "q3"]
++    assert q3 == [("ioquake3+quake3",
++                   f"BUSY: {Q3CFG}: ioquake3.x86.exe is running - not attempted; "
++                   f"it execs this file as it starts, so a write can land "
++                   f"mid-launch; retry next pass")], q3
++    assert f"UPLOAD {Q3CFG}" not in box.sent
++
++
++def test_win98_upper_case_proclist_is_matched():
++    """.243's PROCLIST: upper-case full paths. `\\.exe` alone matched none."""
++    raw = json.dumps([{"pid": 1, "name": r"C:\WINDOWS\EXPLORER.EXE"},
++                      {"pid": 2, "name": r"C:\GAMES\QUAKE2WIN9X\QUAKE2.EXE"},
++                      {"pid": 3, "name": "Descent 3.exe"}])
++
++    class C:
++        async def command_text(self, cmd, timeout=30):
++            return raw
++    got = asyncio.run(sync.running_exes(C()))
++    assert {"explorer.exe", "quake2.exe", "descent 3.exe"} <= got
++
++
++def test_busy_reasons_name_the_file_kind():
++    assert "execs this file" in favorites.busy_why("q3")
++    assert "rewrites this ini" in favorites.busy_why("unreal")
++    assert "ServerBrowser.vdf" in favorites.busy_why("goldsrc")
++    assert "servercache.dat" in favorites.busy_why("q3cache")
++
++
++def test_a_box_mid_gamesync_is_deferred_whole(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    box = FakeBox(files={Q3CFG: STAGED_AUTOEXEC}, dirs=[Q3DIR + r"\baseq3"],
++                  gamesync="copying")
++    res = push(con, box, monkeypatch)
++    assert notes(res) == ["BUSY: GAMESYNC is copying on this box - it copies "
++                          "the staged files back over ours; deferred to the "
++                          "next pass"]
++    assert not box.uploads()
++
++
++# =============================================================================
++# FAV-2: nothing is created above a title's own folder
++# =============================================================================
++
++def test_dirlist_of_a_missing_folder_is_not_evidence_the_folder_exists():
++    """files.c answers [] for a folder that does not exist. The old code read
++    that as "folder there, file missing" and MKDIR'd a phantom tree."""
++    box = FakeBox(dirs=[r"C:\Games\JediAcademy\base"])
++    text, state, why = asyncio.run(sync.read_existing(
++        box, r"C:\Games\JediAcademy\baseq3\autoexec.cfg"))
++    assert state == "no-parent" and "baseq3 does not exist" in why
++
++
++def test_an_empty_folder_that_exists_is_still_missing_not_absent():
++    box = FakeBox(dirs=[r"C:\Games\Q\baseq3"])
++    assert asyncio.run(sync.read_existing(
++        box, r"C:\Games\Q\baseq3\autoexec.cfg"))[1] == "missing"
++
++
++def test_push_never_mkdirs_and_skips_a_purged_title(con, monkeypatch):
++    db.upsert_servers(con, "q3", [srow(f"{ME}:27961", "baseq3", local=1,
++                                       source="local")])
++    db.replace_games(con, "10.9.9.9", [{"key": "quake3", "dir": r"C:\Games\Purged",
++                                        "engine": "q3", "exe": "quake3.exe"}])
++    box = FakeBox(dirs=[r"C:\Games"], appdata=None)
++    res = push(con, box, monkeypatch)
++    assert any("does not exist" in n and "nothing is ever created" in n
++               for n in notes(res)), notes(res)
++    assert not [c for c in box.sent if c.startswith(("MKDIR", "UPLOAD"))]
++    src = (REPO / "scripts" / "gameindex" / "sync.py").read_text()
++    assert 'send_command(f"MKDIR' not in src, "MKDIR is back in the push"
++
++
++# =============================================================================
++# 4. a settled box says "unchanged"
++# =============================================================================
++
++def test_the_same_servers_in_another_order_and_other_labels_is_unchanged():
++    a = [srow("1.1.1.1:27960", name="one"), srow("2.2.2.2:27960", name="two")]
++    b = [srow("2.2.2.2:27960", name="TWO ^1renamed"), srow("1.1.1.1:27960", name="1")]
++    ta_, _ = favorites.render("q3", a, STAGED_AUTOEXEC, key="quake3")
++    tb, _ = favorites.render("q3", b, "", key="quake3")
++    tb = STAGED_AUTOEXEC.rstrip("\n") + "\n\n" + tb
++    assert ta_ != tb
++    assert favorites.same_favourites("q3", ta_, tb)
++
++
++def test_a_different_server_is_still_a_change():
++    a = [srow("1.1.1.1:27960")]
++    b = [srow("3.3.3.3:27960")]
++    ta_, _ = favorites.render("q3", a, STAGED_AUTOEXEC, key="quake3")
++    tb, _ = favorites.render("q3", b, STAGED_AUTOEXEC, key="quake3")
++    assert not favorites.same_favourites("q3", ta_, tb)
++
++
++def test_a_foreign_line_change_is_still_a_change():
++    a = [srow("1.1.1.1:27960")]
++    ta_, _ = favorites.render("q3", a, STAGED_AUTOEXEC, key="quake3")
++    tb = ta_.replace('seta com_maxfps "125"', 'seta com_maxfps "90"')
++    assert not favorites.same_favourites("q3", ta_, tb)
++
++
++def test_one_server_leaving_changes_one_line_not_every_line_after_it():
++    """The 09-29 00:04 -> 00:28 diff on .240: server3..server14 all rewritten
++    because one server changed and the list was renumbered."""
++    servers = [srow(f"10.0.0.{i}:27960") for i in range(1, 16)]
++    first, _ = favorites.render("q3", servers, STAGED_AUTOEXEC, key="quake3")
++    changed = [s for s in servers if s["addr"] != "10.0.0.3:27960"] + \
++        [srow("10.0.0.99:27960")]
++    second, _ = favorites.render("q3", changed, first, key="quake3")
++    diff = [(x, y) for x, y in zip(first.splitlines(), second.splitlines()) if x != y]
++    assert len(diff) == 1 and "10.0.0.3:27960" in diff[0][0] \
++        and "10.0.0.99:27960" in diff[0][1], diff
++
++
++def test_unreal_keeps_the_existing_order_of_what_it_keeps():
++    s1 = srow("1.1.1.1:7777", "ut", source="seed", query_port=7778)
++    s2 = srow("2.2.2.2:7777", "ut", source="seed", query_port=7778)
++    s3 = srow("3.3.3.3:7777", "ut", source="seed", query_port=7778)
++    base = "[UBrowser.UBrowserFavoritesFact]\nFavoriteCount=0\nFavorites[0]=\n"
++    first, _ = favorites.render("unreal", [s2, s1], base, key="ut99")
++    assert first.index("2.2.2.2") < first.index("1.1.1.1")
++    second, _ = favorites.render("unreal", [s1, s2, s3], first, key="ut99")
++    assert second.index("2.2.2.2") < second.index("1.1.1.1") < second.index("3.3.3.3")
++
++
++def test_cs_resaving_its_own_vdf_is_not_a_change():
++    """revSrvBrowser writes `"address"` with ONE tab and a real lastplayed. The
++    old writer used two tabs and "0", so every CS exit meant a rewrite."""
++    cs = [srow(f"{ME}:27015", "cstrike", "NSC CS", local=1, source="local")]
++    empty = '"filters"\n{\n\t"favorites"\n\t{\n\t}\n\n\t"history"\n\t{\n\t}\n\n}\n'
++    ours, _ = favorites.render("goldsrc", cs, empty, key="cs16")
++    assert '\t\t\t"address"\t"192.168.1.132:27015"' in ours, \
++        "one tab, as the DLL's own template"
++    resaved = ours.replace('"lastplayed"\t"0"', '"lastplayed"\t"1759123456"') \
++        .replace('"NSC CS"', '"NSC Retro Fleet Arena (CS 1.6)"')
++    again, _ = favorites.render("goldsrc", cs, resaved, key="cs16")
++    assert favorites.same_favourites("goldsrc", resaved, again)
++
++
++def test_a_rewrite_keeps_the_lastplayed_the_game_recorded():
++    """When the vdf must change (a server was added), a favourite the player
++    has used keeps its stamp instead of being reset to 0."""
++    cs = [srow(f"{ME}:27015", "cstrike", "NSC CS", local=1, source="local")]
++    empty = '"filters"\n{\n\t"favorites"\n\t{\n\t}\n\n\t"history"\n\t{\n\t}\n\n}\n'
++    ours, _ = favorites.render("goldsrc", cs, empty, key="cs16")
++    played = ours.replace('"lastplayed"\t"0"', '"lastplayed"\t"1759123456"')
++    more = cs + [srow(f"{ME}:27016", "cstrike", "NSC CS no-blood", local=1,
++                      source="local")]
++    text, _ = favorites.render("goldsrc", more, played, key="cs16")
++    assert not favorites.same_favourites("goldsrc", played, text)
++    assert '"lastplayed"\t"1759123456"' in text and text.count('"lastplayed"\t"0"') == 1
++    # and it is still stable: rendering over its own output is a no-op
++    again, _ = favorites.render("goldsrc", more, text, key="cs16")
++    assert again.splitlines() == text.splitlines()
++
++
++def test_seeds_on_one_host_are_both_kept(con):
++    """85.214.243.170:7777 and :9000 are two curated servers. Deduping them by
++    host kept one, chosen by a 2.5 s read timeout - UT99 flipped every pass."""
++    db.upsert_servers(con, "unreal", [
++        srow("85.214.243.170:7777", "ut", "Monsterhunt World", 0, 0, "seed",
++             ping=2633, query_port=7778),
++        srow("85.214.243.170:9000", "ut", "Monsterhunt Tank World", 0, 0, "seed",
++             ping=2659, query_port=9001)])
++    got = {r["addr"] for r in db.best_servers(con, "unreal", limit=24)}
++    assert got == {"85.214.243.170:7777", "85.214.243.170:9000"}
++
++
++def test_the_ut99_render_no_longer_flips_with_the_ping_bands(con):
++    renders = set()
++    for pings in ((2633, 2659), (2659, 2633), (2699, 2601)):
++        db.upsert_servers(con, "unreal", [
++            srow("85.214.243.170:7777", "ut", "World", 0, 0, "seed",
++                 ping=pings[0], query_port=7778),
++            srow("85.214.243.170:9000", "ut", "Tank", 0, 0, "seed",
++                 ping=pings[1], query_port=9001)])
++        servers = db.best_servers(con, "unreal", limit=24, accepts={"ut"})
++        renders.add(favorites.render("unreal", servers, "", key="ut99")[0])
++    assert len(renders) == 1
++
++
++def test_an_incumbent_stays_ahead_of_a_busier_newcomer(con):
++    db.upsert_servers(con, "q3", [srow("1.1.1.1:27960", players=1),
++                                  srow("2.2.2.2:27960", players=30)])
++    assert [r["addr"] for r in db.best_servers(con, "q3", limit=1)] == \
++        ["2.2.2.2:27960"]
++    inc = [r["addr"] for r in db.best_servers(
++        con, "q3", limit=1, incumbent=lambda r: r["addr"] == "1.1.1.1:27960")]
++    assert inc == ["1.1.1.1:27960"], "the box keeps what it lists while it lives"
++
++
++def test_an_incumbent_that_emptied_or_died_is_replaced(con):
++    db.upsert_servers(con, "q3", [srow("1.1.1.1:27960", players=0),
++                                  srow("2.2.2.2:27960", players=5)])
++    got = [r["addr"] for r in db.best_servers(
++        con, "q3", limit=1, incumbent=lambda r: r["addr"] == "1.1.1.1:27960")]
++    assert got == ["2.2.2.2:27960"]
++
++
++def test_an_incumbent_port_holds_its_host_against_a_sibling_port(con):
++    """155.138.197.166 runs 2020..2027; the pick flipped 2024<->2020 on
++    player jitter. The port the box lists holds the host."""
++    db.upsert_servers(con, "q3", [srow("155.138.197.166:2020", players=20),
++                                  srow("155.138.197.166:2024", players=4)])
++    got = [r["addr"] for r in db.best_servers(
++        con, "q3", incumbent=lambda r: r["addr"] == "155.138.197.166:2024")]
++    assert got == ["155.138.197.166:2024"]
++
++
++def test_settled_box_end_to_end_reports_unchanged(con, monkeypatch):
++    """Pass 1 writes; the ranking then reshuffles and the labels change; pass 2
++    must say "unchanged" for every file and upload nothing."""
++    local_q3(con)
++    db.upsert_servers(con, "q3", [srow(f"10.0.0.{i}:27960", players=4 + i)
++                                  for i in range(1, 25)])
++    index_q3(con)
++    box = FakeBox(files={Q3CFG: STAGED_AUTOEXEC}, dirs=[Q3DIR + r"\baseq3"],
++                  appdata=None)
++    first = push(con, box, monkeypatch)
++    assert any(n.startswith("wrote 16 servers") for n in notes(first)), notes(first)
++    # the world moves: new busiest servers, renamed ones, reversed ranking
++    db.upsert_servers(con, "q3", [srow(f"10.0.0.{i}:27960", name=f"renamed {i}",
++                                       players=40 - i) for i in range(1, 25)] +
++                      [srow(f"10.0.1.{i}:27960", players=60) for i in range(1, 5)])
++    box.sent.clear()
++    second = push(con, box, monkeypatch)
++    q3 = [n for k, e, n in second if e == "q3"]
++    assert q3 and q3[0].startswith(f"unchanged: {Q3CFG}"), q3
++    assert not box.uploads()
++
++
++def test_a_reverted_file_is_still_repaired(con, monkeypatch):
++    """GAMESYNC copying the staged file back is a REAL difference."""
++    local_q3(con)
++    index_q3(con)
++    box = FakeBox(files={Q3CFG: STAGED_AUTOEXEC}, dirs=[Q3DIR + r"\baseq3"],
++                  appdata=None)
++    push(con, box, monkeypatch)
++    box.put(Q3CFG, STAGED_AUTOEXEC)             # GAMESYNC restored the library copy
++    res = push(con, box, monkeypatch)
++    assert any(n.startswith("wrote") for k, e, n in res if e == "q3")
++    assert "192.168.1.132:27961" in box.get(Q3CFG).decode("latin-1")
++
++
++# --- humans, not bots; and a ping that is a ping -----------------------------
++
++def test_bots_are_not_players():
++    lines = ['12 0 "Sarge"', '5 0 "Major"', '9 48 "a person"', '0 999 "joining"']
++    assert masters._humans(lines) == 2
++
++
++def test_the_q3_probe_counts_humans(monkeypatch):
++    reply = (b"\xff\xff\xff\xffstatusResponse\n"
++             b"\\sv_hostname\\bots r us\\mapname\\q3dm17\\sv_maxclients\\16\n"
++             b'3 0 "Sarge"\n4 0 "Doom"\n7 0 "Hunter"\n')
++    monkeypatch.setattr(masters, "_udp", lambda *a, **k: (reply, 40))
++    row = masters._q3_probe("1.2.3.4:27960")
++    assert row["players"] == 0 and row["bots"] == 3
++    reply2 = reply + b'2 57 "human"\n'
++    monkeypatch.setattr(masters, "_udp", lambda *a, **k: (reply2, 40))
++    assert masters._q3_probe("1.2.3.4:27960")["players"] == 1
++
++
++def test_the_rtt_is_the_first_reply_not_the_last_timeout():
++    srv = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
++    srv.bind(("127.0.0.1", 0))
++    port = srv.getsockname()[1]
++
++    def answer_once():
++        data, addr = srv.recvfrom(100)
++        srv.sendto(b"\\hostname\\x\\final\\", addr)
++    t = threading.Thread(target=answer_once, daemon=True)
++    t.start()
++    data, rtt = masters._udp("127.0.0.1", port, b"\\status\\", timeout=0.6, reads=3)
++    srv.close()
++    assert data and rtt < 300, f"rtt {rtt} ms is the second read's timeout"
++
++
++# --- bytes >= 0x80 survive the merge -----------------------------------------
++
++def test_a_high_byte_in_a_config_survives_a_merge(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    staged = STAGED_AUTOEXEC.encode("latin-1") + b"// Caf\xe9 \xbb\n"
++    box = FakeBox(files={Q3CFG: staged}, dirs=[Q3DIR + r"\baseq3"], appdata=None)
++    push(con, box, monkeypatch)
++    out = box.get(Q3CFG)
++    assert b"// Caf\xe9 \xbb" in out, "latin-1 in, latin-1 out - never '?'"
++    box.sent.clear()
++    res = push(con, box, monkeypatch)
++    assert [n for k, e, n in res if e == "q3"][0].startswith("unchanged")
++
++
++# --- a stale index is not written from; a lost address fails the pass --------
++
++def test_a_box_that_could_not_be_reindexed_is_not_written(con, tmp_path, monkeypatch):
++    monkeypatch.setattr(db, "DB_PATH", str(tmp_path / "t.db"))
++    monkeypatch.setattr(sync, "live_agents", lambda: ["10.9.9.9"])
++
++    async def refresh(_con, ip, force=False):
++        return False, None, "ERROR ConnectionRefusedError: [Errno 111] refused"
++    monkeypatch.setattr(sync, "refresh_machine", refresh)
++    monkeypatch.setattr(sync, "refresh_servers", lambda c, e: {})
++    monkeypatch.setattr(sync, "probe_local_servers", lambda c: (20, []))
++    called = []
++
++    async def must_not(*a, **k):
++        called.append(a)
++        return []
++    monkeypatch.setattr(sync, "push_favorites", must_not)
++    report = asyncio.run(sync.run_once())
++    assert not called
++    assert report["writes"]["skipped"] == 1 and report["ok"] is True
++
++
++def test_every_local_server_silent_on_an_address_we_do_not_hold_fails_the_pass(
++        tmp_path, monkeypatch):
++    monkeypatch.setattr(db, "DB_PATH", str(tmp_path / "t.db"))
++    monkeypatch.setattr(sync, "ME", "192.0.2.77")        # TEST-NET-1: never ours
++    monkeypatch.setattr(sync, "live_agents", lambda: [])
++    monkeypatch.setattr(sync, "refresh_servers", lambda c, e: {})
++    monkeypatch.setattr(sync, "probe_local_servers",
++                        lambda c: (len(sync.LOCAL_SERVERS),
++                                   ["q3:%d" % i for i in range(len(sync.LOCAL_SERVERS))]))
++    report = asyncio.run(sync.run_once())
++    assert report["ok"] is False
++    assert "does not hold 192.0.2.77" in report["errors"][0]
++
++
++def test_host_holds_address():
++    assert sync.host_holds_address("127.0.0.1") is True
++    assert sync.host_holds_address("192.0.2.77") is False
++
++
++# =============================================================================
++# 5. reasons that are true, and writers that reached nothing
++# =============================================================================
++
++@pytest.mark.parametrize("key,addr", [
++    ("jka", "192.168.1.132:29070"), ("descent3", "192.168.1.132:2092"),
++    ("tribes2", "192.168.1.132:28000"), ("hl2", "192.168.1.132:27025"),
++    ("wolfmp", "192.168.1.132:27963"), ("deusex", "192.168.1.132:7790"),
++    ("doom3", "192.168.1.132:27666"), ("halflife", "192.168.1.132:27020"),
++    ("sof2", "192.168.1.132:20100")])
++def test_a_title_with_a_fleet_server_is_never_told_there_is_none(key, addr):
++    why = favorites.policy_for(key)["why"]
++    assert addr in why, key
++    assert not re.search(r"no fleet [\w ]*server|there is no fleet", why, re.I), \
++        f"{key}: a reason still denies a server that exists"
++
++
++def test_the_jka_reason_is_no_longer_the_cd_check():
++    why = favorites.UNWRITABLE["jka"]
++    assert "cannot get past" not in why and "Disk 1" not in why
++    assert "servercache.dat" in why and "disc image" in why
++
++
++def test_rtcw_and_deus_ex_are_no_longer_reported_as_written():
++    """Both wrote a file every pass that no screen of theirs reads."""
++    for key, mechanism in (("wolfmp", "servercache.dat"),
++                           ("deusex", "UBrowserFavoritesFact")):
++        pol = favorites.policy_for(key)
++        assert not pol["supported"], key
++        assert mechanism in pol["why"], key
++        assert key not in favorites.TITLES
++
++
++def test_tribes2_is_not_said_to_have_no_favourites():
++    why = favorites.UNWRITABLE["tribes2"]
++    assert "$pref::ServerBrowser::Favorite" in why
++    assert "keeps no favourites file" not in why
++
++
++@pytest.mark.parametrize("key", ["bf1942", "heretic", "hexen", "doom3", "farcry"])
++def test_titles_that_fell_through_now_have_an_answer(key):
++    why = favorites.policy_for(key)["why"]
++    assert "no verified favourites mechanism" not in why
++    assert len(why) > 60
++
++
++def _library_keys():
++    """Every GAMEINDEX key the agent would detect in each staged title, by
++    walking the tree the way gameindex.c does (exe names, case-insensitive,
++    a moddir for hl.exe)."""
++    from test_gameindex_staged_library import signature_rows
++    sigs = signature_rows()
++    by_exe = {}
++    for r in sigs:
++        by_exe.setdefault(r["exe"].lower(), []).append(r)
++    found = {}
++    for title in sorted(p for p in LIBRARY.iterdir()
++                        if p.is_dir() and not p.name.startswith("_")):
++        keys = set()
++        for root, dirs, files in os.walk(title):
++            # gameindex.c walks C:\Games at depth 0 and stops descending at
++            # GI_MAX_DEPTH 3: a title's own folder is depth 1, so it sees
++            # exes down to <title>\<a>\<b>\ and no deeper. Mirror that.
++            depth = len(pathlib.Path(root).relative_to(title).parts)
++            if depth >= 2:
++                dirs[:] = []
++            lower_dirs = {d.lower() for d in dirs}
++            for f in files:
++                for r in by_exe.get(f.lower(), []):
++                    if r["moddir"] is None or r["moddir"].lower() in lower_dirs:
++                        keys.add(r["key"])
++        found[title.name] = keys
++    return found
++
++
++def test_every_key_detected_in_the_staged_library_has_an_explicit_answer():
++    """Built from the LIBRARY, not a hand-kept list: the 33-title list missed
++    19 of 52 titles, BF1942 among them, and so never noticed it falling
++    through to the generic reason."""
++    need_share()
++    found = _library_keys()
++    assert len(found) >= 40, f"only {len(found)} titles - is the share complete?"
++    unanswered = sorted(
++        f"{title}: {key}" for title, keys in found.items() for key in keys
++        if "no verified favourites mechanism" in
++        (favorites.policy_for(key).get("why") or ""))
++    assert not unanswered, "detected but never looked at: " + ", ".join(unanswered)
++    undetected = sorted(t for t, k in found.items() if not k)
++    print("staged titles GAMEINDEX cannot see (no signature): "
++          + ", ".join(undetected))
++
++
++def test_the_staged_wolfmp_ui_really_has_no_server_format():
++    """The evidence behind moving wolfmp: its multiplayer UI never formats
++    server%d, and names the engine favourites verbs instead."""
++    need_share()
++    dll = (LIBRARY / "ReturnToCastleWolfenstein" / "Main" / "ui_mp_x86.dll").read_bytes()
++    assert b"server%d" not in dll
++    assert b"addFavorite" in dll and b"createFavorite" in dll
++    assert b"servercache.dat" in \
++        (LIBRARY / "ReturnToCastleWolfenstein" / "WolfMP.exe").read_bytes()
++
++
++def test_the_staged_won_half_life_is_protocol_45():
++    need_share()
++    hw = (LIBRARY / "HalfLife1" / "hw.dll").read_bytes()
++    s = b"CL_Parse_Version: Server is protocol %i instead of %i"
++    i = hw.find(s)
++    assert i > 0
++    # the push of that string's address follows `cmp eax,2Dh; je; push 2Dh`
++    assert bytes.fromhex("83f82d74106a2d50") in hw

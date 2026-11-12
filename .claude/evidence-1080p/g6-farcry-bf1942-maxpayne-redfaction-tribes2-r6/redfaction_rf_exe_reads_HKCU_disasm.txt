@@ -1,0 +1,268 @@
+Red Faction 1.20 (build.ver=0xB1=177) rf.exe md5 0ba3b15d64a702333a4d9a0815f782b7
+Disassembled read-only from the staged tree 2026-09-29 (capstone). The fleet writes HKLM; rf.exe reads HKCU.
+
+== config registration: f(section=NULL, name, &var, default); Resolution Width default 0x280, Height 0x1e0
+004b1480: push     0x10
+004b1482: push     0x7d9498
+004b1487: push     0x5a14f4  "Resolution Bit Depth"
+004b148c: push     0
+004b148e: mov      dword ptr [0x7d938c], 1
+004b1498: call     0x52b7d0
+004b149d: push     0x280
+004b14a2: push     0x7d9444
+004b14a7: push     0x5a150c  "Resolution Width"
+004b14ac: push     0
+004b14ae: call     0x52b7d0
+004b14b3: push     0x1e0
+004b14b8: push     0x7d9344
+004b14bd: push     0x5a1520  "Resolution Height"
+004b14c2: push     0
+004b14c4: call     0x52b7d0
+004b14c9: push     -1
+004b14cb: push     0x5a127c
+004b14d0: push     0x5a1534  "Resolution Backbuffer Format"
+004b14d5: push     0
+004b14d7: call     0x52b7d0
+004b14dc: add      esp, 0x40
+004b14df: push     0
+004b14e1: push     0x7d94b4
+004b14e6: push     0x5a1554  "Selected Video Card"
+004b14eb: push     0
+004b14ed: call     0x52b7d0
+004b14f2: add      esp, 0x10
+004b14f5: ret      
+004b14f6: nop      
+004b14f7: nop      
+004b14f8: nop      
+004b14f9: nop      
+004b14fa: nop      
+004b14fb: nop      
+004b14fc: nop      
+004b14fd: nop      
+004b14fe: nop      
+004b14ff: nop      
+
+== 0x52b4a0 registry read: root+path from 0x52b2a0, RegOpenKeyExA(root, path), RegQueryValueExA
+0052b4a0: sub      esp, 0x504
+0052b4a6: mov      ecx, dword ptr [esp + 0x514]
+0052b4ad: push     esi
+0052b4ae: mov      esi, dword ptr [esp + 0x514]
+0052b4b5: mov      edx, ecx
+0052b4b7: push     edi
+0052b4b8: xor      eax, eax
+0052b4ba: mov      edi, esi
+0052b4bc: mov      dword ptr [esp + 8], 0
+0052b4c4: shr      ecx, 2
+0052b4c7: rep stosd dword ptr es:[edi], eax
+0052b4c9: mov      ecx, edx
+0052b4cb: and      ecx, 3
+0052b4ce: rep stosb byte ptr es:[edi], al
+0052b4d0: mov      eax, dword ptr [esp + 0x510]
+0052b4d7: lea      ecx, [esp + 0x10c]
+0052b4de: push     eax
+0052b4df: push     ecx
+0052b4e0: or       edi, 0xffffffff
+0052b4e3: call     0x52b2a0
+0052b4e8: add      esp, 8
+0052b4eb: lea      edx, [esp + 8]
+0052b4ef: lea      ecx, [esp + 0x10c]
+0052b4f6: push     edx
+0052b4f7: push     1
+0052b4f9: push     0
+0052b4fb: push     ecx
+0052b4fc: push     eax
+0052b4fd: call     dword ptr [0x589004]   ; RegOpenKeyExA
+0052b503: test     eax, eax
+0052b505: je       0x52b523
+0052b507: lea      edx, [esp + 0x10c]
+0052b50e: push     edx
+0052b50f: push     0x5a6d3c
+0052b514: lea      eax, [esp + 0x14]
+0052b518: push     eax
+0052b519: call     0x5736a0
+0052b51e: add      esp, 0xc
+0052b521: jmp      0x52b551
+0052b523: mov      edx, dword ptr [esp + 8]
+0052b527: lea      ecx, [esp + 0x51c]
+0052b52e: push     ecx
+0052b52f: push     esi
+0052b530: mov      esi, dword ptr [esp + 0x51c]
+0052b537: push     0
+0052b539: push     0
+0052b53b: push     esi
+0052b53c: push     edx
+0052b53d: call     dword ptr [0x589014]   ; RegQueryValueExA
+0052b543: test     eax, eax
+0052b545: je       0x52b54f
+0052b547: push     esi
+0052b548: push     0x5a6d60
+0052b54d: jmp      0x52b514
+0052b54f: xor      edi, edi
+0052b551: mov      eax, dword ptr [esp + 8]
+0052b555: test     eax, eax
+0052b557: je       0x52b560
+0052b559: push     eax
+0052b55a: call     dword ptr [0x589008]   ; RegCloseKey
+0052b560: mov      eax, edi
+0052b562: pop      edi
+0052b563: pop      esi
+0052b564: add      esp, 0x504
+0052b56a: ret      
+
+== 0x52b2a0 root selection: ebp=0x80000001 (HKEY_CURRENT_USER); section==NULL -> base path 'Software\Volition\Red Faction', return HKCU
+0052b2a0: sub      esp, 0x100
+0052b2a6: push     ebx
+0052b2a7: mov      ebx, dword ptr [esp + 0x10c]
+0052b2ae: push     ebp
+0052b2af: push     esi
+0052b2b0: test     ebx, ebx
+0052b2b2: push     edi
+0052b2b3: mov      ebp, 0x80000001
+0052b2b8: je       0x52b39e
+0052b2be: push     4
+0052b2c0: push     0x5a6ca8  "hkey"
+0052b2c5: push     ebx
+0052b2c6: call     0x582620
+0052b2cb: add      esp, 0xc
+0052b2ce: test     eax, eax
+0052b2d0: jne      0x52b32f
+0052b2d2: mov      ecx, 0x40
+0052b2d7: lea      edi, [esp + 0x10]
+0052b2db: rep stosd dword ptr es:[edi], eax
+0052b2dd: mov      al, byte ptr [ebx]
+0052b2df: .byte    0x8b
+...
+0052b39e: mov      edi, 0x1b58950
+0052b3a3: or       ecx, 0xffffffff
+0052b3a6: xor      eax, eax
+0052b3a8: repne scasb al, byte ptr es:[edi]
+0052b3aa: not      ecx
+0052b3ac: sub      edi, ecx
+0052b3ae: mov      eax, ebp
+0052b3b0: mov      edx, ecx
+0052b3b2: mov      esi, edi
+0052b3b4: mov      edi, dword ptr [esp + 0x114]
+0052b3bb: shr      ecx, 2
+0052b3be: rep movsd dword ptr es:[edi], dword ptr [esi]
+0052b3c0: mov      ecx, edx
+0052b3c2: and      ecx, 3
+0052b3c5: rep movsb byte ptr es:[edi], byte ptr [esi]
+0052b3c7: pop      edi
+0052b3c8: pop      esi
+0052b3c9: pop      ebp
+0052b3ca: pop      ebx
+0052b3cb: add      esp, 0x100
+0052b3d1: ret      
+
+== HUD coordinate block selector: only widths 640/800/1024/1280 load a block; any other width (1920) leaves the zeroed BSS block at 0x637628
+004377f0: mov      eax, dword ptr [esp + 4]
+004377f4: push     esi
+004377f5: cmp      eax, 0x400
+004377fa: push     edi
+004377fb: jg       0x437849
+004377fd: je       0x437835
+004377ff: cmp      eax, 0x280
+00437804: je       0x437821
+00437806: cmp      eax, 0x320
+0043780b: jne      0x437861
+0043780d: mov      ecx, 0x60
+00437812: mov      esi, 0x637310
+00437817: mov      edi, 0x637628
+0043781c: rep movsd dword ptr es:[edi], dword ptr [esi]
+0043781e: pop      edi
+0043781f: pop      esi
+00437820: ret      
+00437821: mov      ecx, 0x60
+00437826: mov      esi, 0x6377a8
+0043782b: mov      edi, 0x637628
+00437830: rep movsd dword ptr es:[edi], dword ptr [esi]
+00437832: pop      edi
+00437833: pop      esi
+00437834: ret      
+00437835: mov      ecx, 0x60
+0043783a: mov      esi, 0x637170
+0043783f: mov      edi, 0x637628
+00437844: rep movsd dword ptr es:[edi], dword ptr [esi]
+00437846: pop      edi
+00437847: pop      esi
+00437848: ret      
+00437849: cmp      eax, 0x500
+0043784e: jne      0x437861
+00437850: mov      ecx, 0x60
+00437855: mov      esi, 0x6374a0
+0043785a: mov      edi, 0x637628
+0043785f: rep movsd dword ptr es:[edi], dword ptr [esi]
+00437861: pop      edi
+00437862: pop      esi
+00437863: ret      
+
+== RedFaction.exe (launcher) Setup->Video: modes accepted only if they equal the fixed table at 0x4ad5d0 {640x480,800x600,1024x768,1280x1024}
+00401185: xor      ecx, ecx
+00401187: mov      esi, 0x4ad5d4
+0040118c: mov      eax, dword ptr [esp + 0x18]
+00401190: cmp      eax, dword ptr [esi - 4]
+00401193: jne      0x4011ec
+00401195: mov      eax, dword ptr [esp + 0x1c]
+00401199: cmp      eax, dword ptr [esi]
+0040119b: jne      0x4011ec
+0040119d: cmp      edx, 0x15
+004011a0: je       0x4011d8
+004011a2: cmp      edx, 0x16
+004011a5: je       0x4011d8
+004011a7: cmp      edx, 0x17
+004011aa: jne      0x4011b8
+004011ac: lea      eax, [edi + ecx]
+004011af: mov      dword ptr [eax*4 + 0x4c95e0], edx
+004011b6: jmp      0x4011ec
+004011b8: cmp      edx, 0x18
+004011bb: je       0x4011c2
+004011bd: cmp      edx, 0x19
+004011c0: jne      0x4011ec
+004011c2: lea      eax, [edi + ecx]
+004011c5: cmp      dword ptr [eax*4 + 0x4c95e0], 0
+004011cd: jge      0x4011ec
+004011cf: mov      dword ptr [eax*4 + 0x4c95e0], edx
+004011d6: jmp      0x4011ec
+004011d8: lea      eax, [edi + ecx]
+004011db: cmp      dword ptr [eax*4 + 0x4c95f0], 0
+004011e3: jge      0x4011ec
+004011e5: mov      dword ptr [eax*4 + 0x4c95f0], edx
+004011ec: add      esi, 8
+004011ef: inc      ecx
+004011f0: .byte    0x81
+004011f1: .byte    0xfe
+004011f2: hlt      
+004011f3: aad      0x4a
+
+== rf.exe dead code: set-resolution-by-index over the same 4-entry table at 0x5a1298 (no caller, no pointer reference found)
+004b15d0: mov      ecx, dword ptr [esp + 4]
+004b15d4: mov      edx, dword ptr [0x7d9444]
+004b15da: mov      eax, dword ptr [ecx*8 + 0x5a1298]
+004b15e1: cmp      eax, edx
+004b15e3: jne      0x4b15f8
+004b15e5: mov      edx, dword ptr [ecx*8 + 0x5a129c]
+004b15ec: push     esi
+004b15ed: mov      esi, dword ptr [0x7d9344]
+004b15f3: cmp      edx, esi
+004b15f5: pop      esi
+004b15f6: je       0x4b1640
+004b15f8: mov      edx, dword ptr [0x7d9498]
+004b15fe: mov      ecx, dword ptr [ecx*8 + 0x5a129c]
+004b1605: push     edx
+004b1606: push     ecx
+004b1607: push     eax
+004b1608: mov      dword ptr [0x7d9444], eax
+004b160d: mov      dword ptr [0x7d9344], ecx
+004b1613: call     0x50dac0
+004b1618: add      esp, 0xc
+004b161b: test     al, al
+004b161d: je       0x4b1640
+004b161f: mov      eax, dword ptr [0x7d9344]
+004b1624: mov      ecx, dword ptr [0x7d9444]
+004b162a: push     eax
+004b162b: push     ecx
+004b162c: call     0x51da00
+004b1631: mov      edx, dword ptr [0x7d9444]
+004b1637: push     edx
+004b1638: call     0x4377f0
+004b163d: add      esp, 0xc

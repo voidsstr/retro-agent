@@ -1,0 +1,5 @@
+Soldier of Fortune II: Gold - single player: MOUNT FAILED - started against an unrelated disc
+image="C:\Games\SoldierOfFortune2\_disc\sofii_1.iso"
+fell back to whatever disc was in F:
+daemon=C:\Program Files\D-Tools\daemon.exe
+wincdemu=  fallback=

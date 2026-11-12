@@ -1,0 +1,34 @@
+{
+ "_ip": "192.168.1.243",
+ "_started": "2026-09-29 04:43:05 EDT",
+ "_greeting": "OK N5R5L9 Win4.10",
+ "DIRLIST C:\\WINDOWS\\SYSTEM\\GLIDE*": {
+  "status": 0,
+  "text": "[{\"name\":\"GLIDE2X.DLL\",\"is_dir\":false,\"size\":226304,\"modified\":\"1980-01-04 05:10:48\",\"hidden\":false,\"readonly\":false},{\"name\":\"GLIDE3X.DLL\",\"is_dir\":false,\"size\":256512,\"modified\":\"1980-01-04 05:10:54\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "REGREAD HKLM Software\\3Dfx Interactive\\Voodoo2\\PropPage": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\3Dfx Interactive\\\\Voodoo2\\\\PropPage\",\"values\":[{\"name\":\"ErrorFlag\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"FBRam\",\"type\":\"REG_DWORD\",\"data\":4194304},{\"name\":\"RealFBIRev\",\"type\":\"REG_DWORD\",\"data\":260},{\"name\":\"Texelfx\",\"type\":\"REG_DWORD\",\"data\":2},{\"name\":\"Pixelfx\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"TMURev\",\"type\":\"REG_DWORD\",\"data\":4},{\"name\":\"TMUMem\",\"type\":\"REG_DWORD\",\"data\":4194304},{\"name\":\"LastHardware\",\"type\":\"REG_SZ\",\"data\":\"33\"}],\"subkeys\":[]}"
+ },
+ "REGREAD HKLM Software\\3Dfx Interactive\\Voodoo2\\D3D": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\3Dfx Interactive\\\\Voodoo2\\\\D3D\",\"values\":[{\"name\":\"(Default)\",\"type\":\"REG_SZ\",\"data\":\"\"},{\"name\":\"SSTV2_ANTIALIAS\",\"type\":\"REG_SZ\",\"data\":\"0\"},{\"name\":\"SSTV2_RGAMMA\",\"type\":\"REG_SZ\",\"data\":\"1.30\"},{\"name\":\"SSTV2_GGAMMA\",\"type\":\"REG_SZ\",\"data\":\"1.30\"},{\"name\":\"SSTV2_BGAMMA\",\"type\":\"REG_SZ\",\"data\":\"1.30\"}],\"subkeys\":[]}"
+ },
+ "REGREAD HKLM System\\CurrentControlSet\\Services\\Class\\Display\\0000\\DEFAULT": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"System\\\\CurrentControlSet\\\\Services\\\\Class\\\\Display\\\\0000\\\\DEFAULT\",\"values\":[{\"name\":\"Mode\",\"type\":\"REG_SZ\",\"data\":\"8,640,480\"},{\"name\":\"drv\",\"type\":\"REG_SZ\",\"data\":\"cirrusmm.drv\"},{\"name\":\"vdd\",\"type\":\"REG_SZ\",\"data\":\"*vdd,*vflatd\"},{\"name\":\"minivdd\",\"type\":\"REG_SZ\",\"data\":\"cirrus.vxd\"},{\"name\":\"RefreshRate\",\"type\":\"REG_SZ\",\"data\":\"75\"},{\"name\":\"PCIRebalance\",\"type\":\"REG_SZ\",\"data\":\"1\"},{\"name\":\"drv2\",\"type\":\"REG_SZ\",\"data\":\"cirrusmm.drv\"},{\"name\":\"CHIPID\",\"type\":\"REG_BINARY\",\"data\":\"00 00 02 00 00 00\"}],\"subkeys\":[]}"
+ },
+ "DIRLIST E:\\GAMES\\Quake1\\VOODOO": {
+  "status": 0,
+  "text": "[{\"name\":\"GLQUAKE.EXE\",\"is_dir\":false,\"size\":435712,\"modified\":\"2026-09-25 00:57:06\",\"hidden\":false,\"readonly\":false},{\"name\":\"OPENGL32.DLL\",\"is_dir\":false,\"size\":142848,\"modified\":\"2026-09-25 00:57:06\",\"hidden\":false,\"readonly\":false},{\"name\":\"DESKFIX9.EXE\",\"is_dir\":false,\"size\":4608,\"modified\":\"2026-09-25 00:57:06\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST D:\\GAMES\\QUAKEPRP": {
+  "status": 0,
+  "text": "[{\"name\":\"CWSDPMI.EXE\",\"is_dir\":false,\"size\":25920,\"modified\":\"2026-09-27 10:44:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"GENVXD.DLL\",\"is_dir\":false,\"size\":17408,\"modified\":\"2026-09-27 10:44:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"ID1\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-28 06:51:50\",\"hidden\":false,\"readonly\":false},{\"name\":\"MANUAL.TXT\",\"is_dir\":false,\"size\":44326,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"MGENVXD.VXD\",\"is_dir\":false,\"size\":9883,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"PDIPX.COM\",\"is_dir\":false,\"size\":26511,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"Q95.BAT\",\"is_dir\":false,\"size\":65,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"QLAUNCH.EXE\",\"is_dir\":false,\"size\":314880,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"QUAKE.EXE\",\"is_dir\":false,\"size\":396288,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"QUAKEUDP.DLL\",\"is_dir\":false,\"size\":32256,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"DOSGAME.TXT\",\"is_dir\":false,\"size\":19,\"modified\":\"2026-09-27 10:44:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"FILL.OK\",\"is_dir\":false,\"size\":13,\"modified\":\"2026-09-28 06:58:12\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST D:\\GAMES\\QUAKEPRP\\ID1": {
+  "status": 0,
+  "text": "[{\"name\":\"CONFIG.CFG\",\"is_dir\":false,\"size\":3188,\"modified\":\"2026-09-27 10:44:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"PAK0.PAK\",\"is_dir\":false,\"size\":18276119,\"modified\":\"2026-09-27 10:44:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"PAK1.PAK\",\"is_dir\":false,\"size\":34257856,\"modified\":\"2026-09-27 10:44:38\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "_finished": "2026-09-29 04:43:05 EDT"
+}

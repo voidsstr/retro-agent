@@ -1,0 +1,18 @@
+Bin/Engine.dll  A@0x133c3e  QueryPerformanceFrequency
+Bin/Engine.dll  A@0x15cc9c  persistent user INDEX gfx_iRefreshRate;
+Bin/Engine.dll  A@0x15cec8  user void RefreshTextures(void);
+Bin/Engine.dll  A@0x162390  persistent user FLOAT ser_tmSyncCheckFrequency;
+Bin/Entities.dll  A@0x13c621  ?GetAttackMoveFrequency@CEnemyBase@@UAEMM@Z
+Bin/Entities.dll  A@0x1570f0  m_fMoveFrequency = %g
+Bin/Entities.dll  A@0x157f6c  Shake frequency Y
+Bin/Entities.dll  A@0x157f94  Shake frequency B
+Bin/Entities.dll  A@0x157fbc  Shake frequency Z
+Bin/Entities.dll  A@0x15afe0  Watcher frequency
+Bin/Entities.dll  A@0x15b010  Move frequency
+Bin/Entities.dll  A@0x1632ec  user INDEX cht_bRefresh;
+Bin/Game.dll  A@0x25d18  refresh
+Bin/Game.dll  A@0x25d20  cht_bRefresh
+Bin/SeriousSam.exe  A@0x2f868  RefreshTextures();
+Bin/SeriousSam.exe  A@0x31d5c  ETRSFREQUENCY
+Bin/SeriousSam.exe  A@0x31f30  ETRSREFRESH LIST
+Bin/SeriousSam.exe  A@0x31f44  ETRSrefresh the list of servers

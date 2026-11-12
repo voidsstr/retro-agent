@@ -1,0 +1,34 @@
+{
+ "_ip": "192.168.1.124",
+ "_at": "2026-09-29 04:10:55 EDT",
+ "DOWNLOAD C:\\Games\\Quake3-TeamArena\\V56KBENCH.BAT": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/124_C_Games_Quake3-TeamArena_V56KBENCH.BAT",
+  "bytes": 470,
+  "md5": "ea7d5c5dcb071f265ecc2c573400cff8"
+ },
+ "DOWNLOAD C:\\Games\\Quake3-TeamArena\\LANCHECK.BAT": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/124_C_Games_Quake3-TeamArena_LANCHECK.BAT",
+  "bytes": 245,
+  "md5": "d93431c90b7a7bac391fa5eb23a5e699"
+ },
+ "DOWNLOAD C:\\Games\\ReturnToCastleWolfenstein\\V56KBENCH.BAT": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/124_C_Games_ReturnToCastleWolfenstein_V56KBENCH.BAT",
+  "bytes": 574,
+  "md5": "414ad4845cf56f0ce4efa64b4d646951"
+ },
+ "DOWNLOAD C:\\Games\\JediAcademy\\LANCHECK.BAT": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/124_C_Games_JediAcademy_LANCHECK.BAT",
+  "bytes": 232,
+  "md5": "fb7db0119e2c3b392bf7af3731cb157f"
+ },
+ "DOWNLOAD C:\\Games\\JediAcademy\\GAMMAJA.BAT": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/124_C_Games_JediAcademy_GAMMAJA.BAT",
+  "bytes": 202,
+  "md5": "91422b733b6ab5c5621a3aeb2a0b39d4"
+ }
+}

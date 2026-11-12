@@ -1,0 +1,561 @@
+# 2026-09-29 04:24:53
+EXECW 90 -list -tag vmlist
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe -list -tag vmlist)
+[     15 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[     15 ms] live      : 640x480x24 @60 Hz
+[     15 ms] persisted : 640x480x24 @60 Hz
+[     15 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[     15 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[     15 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[     15 ms]   640x480x4 @ 60 72 75 85
+[     15 ms]   800x600x4 @ 56 60 72 75
+[     15 ms]   640x480x8 @ 60 72 75 85
+[     15 ms]   800x600x8 @ 56 60 72 75 85
+[     15 ms]   1024x768x8 @ 43 60 70 72 75 85
+[     15 ms]   1152x864x8 @ 70 75
+[     15 ms]   1280x1024x8 @ 43 60 72 75
+[     15 ms]   640x480x16 @ 60 72 75 85
+[     15 ms]   800x600x16 @ 56 60 72 75 85
+[     15 ms]   1024x768x16 @ 43 60 70 75 85
+[     15 ms]   1280x1024x16 @ 43
+[     15 ms]   640x480x24 @ 60 72 75 85
+[     15 ms]   800x600x24 @ 56 60 72 75 85
+[     15 ms]   1024x768x24 @ 43 60 70 75 85
+[     15 ms] === LIST: no switch. Timing the desktop's own scanout
+[     15 ms] RESULT test=LIST step=desktop req=640x480x24@60 now=640x480x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=none
+[     15 ms] exit 0 (switches made: 0)
+
+# 2026-09-29 04:26:53
+EXECW 90 -list -tag vmlist2
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe -list -tag vmlist2)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : 0x0x0@0 first call, 0x0x0@0 after the live mode (the writers' reading - used), 0x0x0@0 after enumerating
+[      0 ms] live      : 640x480x24 @60 Hz
+[      0 ms] persisted : 640x480x24 @60 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] === LIST: no switch. Timing the desktop's own scanout
+[      0 ms] RESULT test=LIST step=desktop req=640x480x24@60 now=640x480x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=none
+[      0 ms] exit 0 (switches made: 0)
+
+# 2026-09-29 04:27:20
+EXECW 90 -list -tag vmlist3
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe -list -tag vmlist3)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 0x0x0@0  (empty: the writers see NO persisted rate here)
+[      0 ms] live      : 640x480x24 @60 Hz
+[      0 ms] persisted : 640x480x24 @60 Hz (ENUM_REGISTRY_SETTINGS failed - using live)
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] === LIST: no switch. Timing the desktop's own scanout
+[     15 ms] RESULT test=LIST step=desktop req=640x480x24@60 now=640x480x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=none
+[     15 ms] exit 0 (switches made: 0)
+
+# 2026-09-29 04:27:49
+EXECW 300 640 480 24 -a -b 75 -pace 5 -hold 2 -tag vmab
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 640 480 24 -a -b 75 -pace 5 -hold 2 -tag vmab)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 0x0x0@0  (empty: the writers see NO persisted rate here)
+[      0 ms] live      : 640x480x24 @60 Hz
+[      0 ms] persisted : 640x480x24 @60 Hz (ENUM_REGISTRY_SETTINGS failed - using live)
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 640x480x24 tests A B  pre-rate B=75 CB=0  switches<=5  pace 5 s  hold 2 s  budget 137 s
+[      0 ms] === TEST A: ChangeDisplaySettings 640x480x24, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[      0 ms] SWITCH 1: A: no-rate request
+[     15 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[     15 ms] RESULT test=A step=norate req=640x480x24@0 now=640x480x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[   5015 ms] SWITCH 2: A: restore (give-back)
+[   5015 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[   5015 ms] restore: VERIFIED 640x480x24@60 (persisted 640x480x24@60)
+[   5015 ms] === TEST B: pre-switch 640x480x24@75 (CDS_FULLSCREEN), then the NO-rate request again - does a game's request keep the pre-switched rate?
+[  10015 ms] SWITCH 3: B1: at-rate pre-switch
+[  10125 ms] B1: ChangeDisplaySettings(@75) -> 0 (SUCCESSFUL)
+[  10140 ms] RESULT test=B step=prerate req=640x480x24@75 now=640x480x24 eds_hz=75 caps_hz=75 dd_freq=75 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[  15140 ms] SWITCH 4: B2: the game's no-rate request
+[  15265 ms] B2: ChangeDisplaySettings(no rate) -> 0 (SUCCESSFUL)
+[  15281 ms] RESULT test=B step=norate_after_prerate req=640x480x24@0 now=640x480x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[  15281 ms] B VERDICT: DID NOT KEEP - pre-switch asked 75 Hz and landed on 75 Hz, the no-rate request then landed on 60 Hz (0 = unmeasured)
+[  20265 ms] SWITCH 5: B: restore (give-back)
+[  20265 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[  20265 ms] restore: VERIFIED 640x480x24@60 (persisted 640x480x24@60)
+[  20265 ms] final: the screen is at its persisted mode 640x480x24@60
+[  20265 ms] exit 0 (switches made: 5)
+
+# 2026-09-29 04:29:33
+EXECW 90 -list -tag vmlist4
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe -list -tag vmlist4)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1024x768x24@60
+[      0 ms] live      : 1024x768x24 @60 Hz
+[      0 ms] persisted : 1024x768x24 @60 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] === LIST: no switch. Timing the desktop's own scanout
+[     16 ms] RESULT test=LIST step=desktop req=1024x768x24@60 now=1024x768x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=none
+[     16 ms] exit 0 (switches made: 0)
+
+# 2026-09-29 04:29:49
+EXECW 300 800 600 24 -a -pace 5 -hold 2 -tag vm800a
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 800 600 24 -a -pace 5 -hold 2 -tag vm800a)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1024x768x24@60
+[      0 ms] live      : 1024x768x24 @60 Hz
+[      0 ms] persisted : 1024x768x24 @60 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 800x600x24 tests A  pre-rate B=0 CB=0  switches<=2  pace 5 s  hold 2 s  budget 104 s
+[      0 ms] === TEST A: ChangeDisplaySettings 800x600x24, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[      0 ms] SWITCH 1: A: no-rate request
+[    500 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[    500 ms] RESULT test=A step=norate req=800x600x24@0 now=800x600x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[   5500 ms] SWITCH 2: A: restore (give-back)
+[   5844 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[   5844 ms] restore: VERIFIED 1024x768x24@60 (persisted 1024x768x24@60)
+[   5844 ms] final: the screen is at its persisted mode 1024x768x24@60
+[   5844 ms] exit 0 (switches made: 2)
+
+# 2026-09-29 04:30:15
+EXECW 300 1024 768 24 -a -b 85 -pace 5 -hold 2 -tag vm1024ab
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 24 -a -b 85 -pace 5 -hold 2 -tag vm1024ab)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1024x768x24@60
+[      0 ms] live      : 1024x768x24 @60 Hz
+[      0 ms] persisted : 1024x768x24 @60 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x24 tests A B  pre-rate B=85 CB=0  switches<=5  pace 5 s  hold 2 s  budget 137 s
+[      0 ms] === TEST A: ChangeDisplaySettings 1024x768x24, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[   4937 ms] SWITCH 1: A: no-rate request
+[   4937 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[   4937 ms] RESULT test=A step=norate req=1024x768x24@0 now=1024x768x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[   9937 ms] SWITCH 2: A: restore (give-back)
+[   9937 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[   9937 ms] restore: VERIFIED 1024x768x24@60 (persisted 1024x768x24@60)
+[   9937 ms] === TEST B: pre-switch 1024x768x24@85 (CDS_FULLSCREEN), then the NO-rate request again - does a game's request keep the pre-switched rate?
+[  14937 ms] SWITCH 3: B1: at-rate pre-switch
+[  15390 ms] B1: ChangeDisplaySettings(@85) -> 0 (SUCCESSFUL)
+[  15390 ms] RESULT test=B step=prerate req=1024x768x24@85 now=1024x768x24 eds_hz=85 caps_hz=85 dd_freq=85 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[  20390 ms] SWITCH 4: B2: the game's no-rate request
+[  20750 ms] B2: ChangeDisplaySettings(no rate) -> 0 (SUCCESSFUL)
+[  20750 ms] RESULT test=B step=norate_after_prerate req=1024x768x24@0 now=1024x768x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[  20750 ms] B VERDICT: DID NOT KEEP - pre-switch asked 85 Hz and landed on 85 Hz, the no-rate request then landed on 60 Hz (0 = unmeasured)
+[  25750 ms] SWITCH 5: B: restore (give-back)
+[  25750 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[  25750 ms] restore: VERIFIED 1024x768x24@60 (persisted 1024x768x24@60)
+[  25750 ms] final: the screen is at its persisted mode 1024x768x24@60
+[  25750 ms] exit 0 (switches made: 5)
+
+# 2026-09-29 04:30:36
+EXECW 300 800 600 24 -a -pace 5 -hold 2 -tag vm800reg75
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 800 600 24 -a -pace 5 -hold 2 -tag vm800reg75)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1024x768x24@75
+[      0 ms] live      : 1024x768x24 @75 Hz
+[      0 ms] persisted : 1024x768x24 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 800x600x24 tests A  pre-rate B=0 CB=0  switches<=2  pace 5 s  hold 2 s  budget 104 s
+[      0 ms] === TEST A: ChangeDisplaySettings 800x600x24, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[      0 ms] SWITCH 1: A: no-rate request
+[    422 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[    438 ms] RESULT test=A step=norate req=800x600x24@0 now=800x600x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[   5438 ms] SWITCH 2: A: restore (give-back)
+[   5703 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[   5703 ms] restore: VERIFIED 1024x768x24@75 (persisted 1024x768x24@75)
+[   5703 ms] final: the screen is at its persisted mode 1024x768x24@75
+[   5703 ms] exit 0 (switches made: 2)
+
+# 2026-09-29 04:30:47
+EXECW 300 1024 768 24 -a -pace 5 -hold 2 -tag vm1024reg75
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 24 -a -pace 5 -hold 2 -tag vm1024reg75)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1024x768x24@75
+[      0 ms] live      : 1024x768x24 @75 Hz
+[      0 ms] persisted : 1024x768x24 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x24 tests A  pre-rate B=0 CB=0  switches<=2  pace 5 s  hold 2 s  budget 104 s
+[      0 ms] === TEST A: ChangeDisplaySettings 1024x768x24, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[   4906 ms] SWITCH 1: A: no-rate request
+[   5500 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[   5500 ms] RESULT test=A step=norate req=1024x768x24@0 now=1024x768x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[  10500 ms] SWITCH 2: A: restore (give-back)
+[  10640 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[  10640 ms] restore: VERIFIED 1024x768x24@75 (persisted 1024x768x24@75)
+[  10640 ms] final: the screen is at its persisted mode 1024x768x24@75
+[  10640 ms] exit 0 (switches made: 2)
+
+# 2026-09-29 04:31:10
+EXECW 300 1152 864 8 -a -pace 5 -hold 2 -tag vm1152no60
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1152 864 8 -a -pace 5 -hold 2 -tag vm1152no60)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1152x864x8 tests A  pre-rate B=0 CB=0  switches<=2  pace 5 s  hold 2 s  budget 104 s
+[      0 ms] === TEST A: ChangeDisplaySettings 1152x864x8, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[      0 ms] SWITCH 1: A: no-rate request
+[    312 ms] A: ChangeDisplaySettings -> -1 (FAILED)
+[    312 ms] RESULT test=A step=norate req=1152x864x8@0 now=1280x1024x8 eds_hz=75 caps_hz=75 dd_freq=75 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=FAILED
+[   2312 ms] A: restore: the request failed and the screen is still at its persisted mode - no restore needed
+[   2312 ms] final: the screen is at its persisted mode 1280x1024x8@75
+[   2312 ms] exit 4 (switches made: 1)
+
+# 2026-09-29 04:34:03
+EXECW 60 1600 1200 8 -a -dry -tag vmref
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1600 1200 8 -a -dry -tag vmref)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1600x1200x8 tests A  pre-rate B=0 CB=0  switches<=2  pace 6 s  hold 4 s  budget 116 s
+[      0 ms] REFUSED: mode not in the driver's list - nothing was switched
+[      0 ms] exit 2 (switches made: 0)
+
+# 2026-09-29 04:34:04
+EXECW 60 1024 768 16 -a -nobpp -tag vmref
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 16 -a -nobpp -tag vmref)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x16 tests A  pre-rate B=0 CB=0  switches<=2  pace 6 s  hold 4 s  budget 116 s
+[      0 ms] REFUSED: -nobpp needs BPP = the persisted depth (the OS keeps that depth, so any other BPP checks the wrong mode) - nothing was switched
+[      0 ms] exit 2 (switches made: 0)
+
+# 2026-09-29 04:34:04
+EXECW 60 1024 768 8 -b 77 -tag vmref
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 8 -b 77 -tag vmref)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x8 tests B  pre-rate B=0 CB=0  switches<=3  pace 6 s  hold 4 s  budget 130 s
+[      0 ms] REFUSED: rate not listed by the driver for that exact mode - nothing was switched
+[      0 ms] exit 2 (switches made: 0)
+
+# 2026-09-29 04:34:04
+EXECW 60 1024 768 8 -b max -tag vmref
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 8 -b max -tag vmref)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x8 tests B  pre-rate B=0 CB=0  switches<=3  pace 6 s  hold 4 s  budget 130 s
+[      0 ms] REFUSED: 'max' needs a ceiling: no EDID and no -maxhz - nothing was switched
+[      0 ms] exit 2 (switches made: 0)
+
+# 2026-09-29 04:34:04
+EXECW 60 1024 768 8 -a -b 75 -c -cb 75 -d -tag vmref
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 8 -a -b 75 -c -cb 75 -d -tag vmref)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x8 tests A B C CB D  pre-rate B=0 CB=0  switches<=15  pace 6 s  hold 4 s  budget 298 s
+[      0 ms] REFUSED: plan exceeds the per-run switch limit - nothing was switched
+[      0 ms] exit 2 (switches made: 0)
+
+# 2026-09-29 04:34:04
+EXECW 60 1024 768 8 -a -b 75 -dry -tag vmref
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 1024 768 8 -a -b 75 -dry -tag vmref)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 1024x768x8 tests A B  pre-rate B=75 CB=0  switches<=5  pace 6 s  hold 4 s  budget 158 s
+[      0 ms] DRY RUN: every request passed its checks; nothing was switched
+[      0 ms] exit 0 (switches made: 0)
+
+# 2026-09-29 04:35:02
+EXECW 300 800 600 24 -a -pace 5 -hold 2 -tag vmfrrA
+status 0
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\modetest.exe 800 600 24 -a -pace 5 -hold 2 -tag vmfrrA)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] PLAN: 800x600x24 tests A  pre-rate B=0 CB=0  switches<=2  pace 5 s  hold 2 s  budget 104 s
+[      0 ms] === TEST A: ChangeDisplaySettings 800x600x24, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[      0 ms] SWITCH 1: A: no-rate request
+[    375 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[    375 ms] RESULT test=A step=norate req=800x600x24@0 now=800x600x24 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[   5375 ms] SWITCH 2: A: restore (give-back)
+[   5594 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[   5594 ms] restore: VERIFIED 1280x1024x8@75 (persisted 1280x1024x8@75)
+[   5594 ms] final: the screen is at its persisted mode 1280x1024x8@75
+[   5594 ms] exit 0 (switches made: 2)
+

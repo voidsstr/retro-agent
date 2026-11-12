@@ -1,0 +1,7 @@
+14:40:44 >> WINLIST 0 {"windows":[{"hwnd":"000001F8","title":"START C:\\RETRO_AGENT\\retro_agent.exe","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"00000B60","title":"Retro Remote Agent Version 1.90.0","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"0000016C","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1024,"bottom":768},"visible":true}]}
+14:40:44 >> LAUNCH C:\RETRO_AGENT\HANDOFF9.EXE take C:\RETRO_AGENT\RA190.EXE 0 {"pid":4294714795,"command":"C:\\RETRO_AGENT\\HANDOFF9.EXE take C:\\RETRO_AGENT\\RA190.EXE"}
+HANDOFF.TXT: [52086597 ms] handoff9x 1.0
+[52086656 ms] take C:\RETRO_AGENT\RA190.EXE: waiting for the agent's mutex to free - send RESTART now
+[52086694 ms] mutex seen held by the running agent
+
+14:40:47 >> RESTART 0 OK restarting

@@ -1,0 +1,805 @@
+--- a/JediAcademy/base/assets1.pk3!ui/setup.menu
++++ b/JediAcademy/base/zz_fleet_video.pk3!ui/setup.menu
+@@ -1008,7 +1008,7 @@
+ 			action 
+ 			{
+ 				play			"sound/interface/button1.wav" ; 
+-				uiScript 		update "ui_r_glCustom" ;
++				uiScript 		update "ui_r_glCustom" ; setcvar ui_r_mode "-1" ;
+ 				setcvar			ui_r_modified	1 ;
+ 				show			applyChanges
+ 			}
+@@ -1022,7 +1022,7 @@
+ 			group				video
+       			type				ITEM_TYPE_MULTI
+ 			text				@MENUS_VIDEO_MODE
+-			cvarFloatList			{  @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
++			cvarFloatList			{  @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 @MENUS_CUSTOM -1 }
+ 			cvar				"ui_r_mode"
+ 
+ 			rect				260 216 340 14
+@@ -1052,6 +1052,64 @@
+ 				show			applyChanges
+ 			}
+ 		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customwidth"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	490 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			text	"x"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	517 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customheight"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	526 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
+ 
+ 		itemDef 
+ 		{	
+
+--- a/JediAcademy/base/assets1.pk3!ui/ingamesetup.menu
++++ b/JediAcademy/base/zz_fleet_video.pk3!ui/ingamesetup.menu
+@@ -999,7 +999,7 @@
+ 			action 
+ 			{
+ 				play			"sound/interface/button1.wav" ; 
+-				uiScript 		update "ui_r_glCustom" ;
++				uiScript 		update "ui_r_glCustom" ; setcvar ui_r_mode "-1" ;
+ 				setcvar			ui_r_modified	1 ;
+ 				show			applyChanges
+ 			}
+@@ -1012,7 +1012,7 @@
+ 			group				video
+       			type				ITEM_TYPE_MULTI
+ 			text				@MENUS_VIDEO_MODE
+-			cvarFloatList			{ @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
++			cvarFloatList			{ @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 @MENUS_CUSTOM -1 }
+ 			cvar				"ui_r_mode"
+ 
+ 			rect				260 216 340 14
+@@ -1042,6 +1042,64 @@
+ 				show			applyChanges
+ 			}
+ 		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customwidth"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	490 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			text	"x"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	517 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customheight"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	526 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
+ 
+ 		itemDef 
+ 		{	
+
+--- a/JediAcademy/base/assets3.pk3!ui/jamp/setup.menu
++++ b/JediAcademy/base/zz_fleet_video.pk3!ui/jamp/setup.menu
+@@ -1049,7 +1049,7 @@
+ 			action 
+ 			{ 
+ 				play			"sound/interface/button1.wav" ; 
+-				uiScript 		update "ui_r_glCustom" ;
++				uiScript 		update "ui_r_glCustom" ; setcvar ui_r_mode "-1" ;
+ 				setcvar			ui_r_modified	1 ;
+ 				show			applyChanges
+ 			}
+@@ -1062,7 +1062,7 @@
+ 			group				video
+       			type				ITEM_TYPE_MULTI
+ 			text				@MENUS_VIDEO_MODE
+-			cvarFloatList			{  @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
++			cvarFloatList			{  @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 @MENUS_CUSTOM -1 }
+ 			cvar				"ui_r_mode"
+ 			rect				260 216 340 14
+ 			textalign			ITEM_ALIGN_RIGHT
+@@ -1090,6 +1090,64 @@
+ 				show			applyChanges
+ 			}
+ 		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customwidth"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	490 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	1
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			text	"x"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	517 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	1
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customheight"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	526 216 0 14
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	1
++			decoration
++		}
++
+ 
+ 		itemDef 
+ 		{	
+
+--- a/JediAcademy/base/assets1.pk3!ui/jamp/ingame_setup.menu
++++ b/JediAcademy/base/zz_fleet_video.pk3!ui/jamp/ingame_setup.menu
+@@ -618,7 +618,7 @@
+ 			action 
+ 			{ 
+ 				play			"sound/interface/button1"
+-				uiScript 		update "ui_r_glCustom"
++				uiScript 		update "ui_r_glCustom" ; setcvar ui_r_mode "-1"
+ 				setcvar			ui_r_modified	1
+ 				show			applyChanges
+ 			}
+@@ -630,7 +630,7 @@
+ 			group				video
+       		type				ITEM_TYPE_MULTI
+ 			text				@MENUS_VIDEO_MODE
+-			cvarFloatList		{  @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
++			cvarFloatList		{  @MENUS_640_X_480 3 @MENUS_800_X_600 4  @MENUS_1024_X_768 6 @MENUS_1152_X_864 7  @MENUS_1280_X_1024 8  @MENUS_1600_X_1200 9  @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 @MENUS_CUSTOM -1 }
+ 			cvar				"ui_r_mode"
+ 
+ 			rect				220 83 300 20
+@@ -660,6 +660,64 @@
+ 				show			applyChanges
+ 			}
+ 		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customwidth"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	441 83 0 20
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			text	"x"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	468 83 0 20
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	video_mode
++			group	video
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customheight"
++			cvarTest	"ui_r_mode"
++			showCvar	{ "-1" }
++			rect	477 83 0 20
++			textalignx	0
++			font	4
++			textscale	1
++			forecolor	.615 .615 .956 1
++			textaligny	0
++			visible	0
++			decoration
++		}
++
+ 
+ 		itemDef 
+ 		{	
+
+--- a/SoldierOfFortune2/base/update101.pk3!ui/setup_display.menu
++++ b/SoldierOfFortune2/base/zz_fleet_video.pk3!ui/setup_display.menu
+@@ -47,7 +47,7 @@
+ 			action 
+ 			{ 
+ 				play "sound/misc/menus/select.wav" ; 
+-				uiScript update "ui_glCustom" 
++				uiScript update "ui_glCustom" ; setcvar r_mode "-1" 
+ 			}
+ 			mouseEnter 
+ 			{ 
+@@ -176,6 +176,7 @@
+ 				"1152*864" 7 
+ 				"1280*1024" 8 
+ 				"1600*1200" 9 
++				"Custom" -1
+ 			}
+ 			action 
+ 			{ 
+@@ -194,6 +195,61 @@
+ 				setitemcolor videomode_multi backcolor 0 0 0 0
+ 			}
+ 		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	videomode_multi
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customwidth"
++			cvarTest	"r_mode"
++			showCvar	{ "-1" }
++			rect	243 79 0 15
++			textalignx	0
++			textfont	"hud"
++			textscale	.43
++			forecolor	.12 .14 .08 1
++			textaligny	0
++			visible	1
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	videomode_multi
++			type	ITEM_TYPE_TEXT
++			text	"x"
++			cvarTest	"r_mode"
++			showCvar	{ "-1" }
++			rect	284 79 0 15
++			textalignx	0
++			textfont	"hud"
++			textscale	.43
++			forecolor	.12 .14 .08 1
++			textaligny	0
++			visible	1
++			decoration
++		}
++
++		itemDef
++		{
++			// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++			name	videomode_multi
++			type	ITEM_TYPE_TEXT
++			cvar	"r_customheight"
++			cvarTest	"r_mode"
++			showCvar	{ "-1" }
++			rect	297 79 0 15
++			textalignx	0
++			textfont	"hud"
++			textscale	.43
++			forecolor	.12 .14 .08 1
++			textaligny	0
++			visible	1
++			decoration
++		}
++
+ 
+ 		itemDef 
+ 		{
+
+--- a/SoldierOfFortune2/base/therest.pk3!menus/m_video.rmf
++++ b/SoldierOfFortune2/base/zz_fleet_video.pk3!menus/m_video.rmf
+@@ -30,7 +30,7 @@
+ 
+ <font type medium tint clickable atint reversed>
+ <list "&MENU_VIDEO_VIDMODES&" atext "&MENU_VIDEO_RESOLUTION& : " 
+-cvar menu_mode match "3,4,6,7,8,9" key mouse1 "set menu_settings_changed 1" key mouse2 "set menu_settings_changed 1" btint clickable tip "&MENU_VIDEO_RES_WARN&"><hbr>
++cvar menu_mode match "3,4,6,7,8,9,-1" key mouse1 "set menu_settings_changed 1" key mouse2 "set menu_settings_changed 1" btint clickable tip "&MENU_VIDEO_RES_WARN&"><hbr>
+ 
+ <list "&MENU_VIDEO_NOYES&" atext "&MENU_VIDEO_FULLSCREEN& : " 
+ cvar menu_fullscreen key mouse1 "set menu_settings_changed 1" key mouse2 "set menu_settings_changed 1" btint clickable><hbr>
+
+--- a/SoldierOfFortune2/base/update101.pk3!Strip/menu_video.sp
++++ b/SoldierOfFortune2/base/zz_fleet_video.pk3!Strip/menu_video.sp
+@@ -270,7 +270,7 @@
+ {
+    REFERENCE VIDMODES
+    NOTES "29 Mar 02"
+-   TEXT_LANGUAGE1 "640x480,800x600,1024x768,1152x864,1280x1024,1600x1200"
++   TEXT_LANGUAGE1 "640x480,800x600,1024x768,1152x864,1280x1024,1600x1200,Custom"
+ }
+ INDEX 22
+ {
+
+--- a/ReturnToCastleWolfenstein/Main/sp_pak3.pk3!ui/system.menu
++++ b/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3!ui/system.menu
+@@ -136,7 +136,7 @@
+ 	backcolor 1 1 1 .07         
+    	forecolor 1 1 1 1
+    	visible 0 
+-	action { uiScript update "ui_glCustom" }
++	action { uiScript update "ui_glCustom" ; setcvar r_mode "-1" }
+ 	}
+ 
+ 
+@@ -161,7 +161,7 @@
+ 		visible 0
+ 		action {
+ 			setcvar ui_glCustom 0;	// go back to regular selection group
+-			uiScript update "ui_glCustom" }
++			uiScript update "ui_glCustom" ; setcvar r_mode "-1" }
+ 		}
+ 
+ 
+@@ -190,7 +190,7 @@
+    		type ITEM_TYPE_MULTI	
+ 		text "Video Mode:"
+ 		cvar "r_mode"
+-		cvarFloatList {  "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
++		cvarFloatList {  "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 "Custom" -1 }
+ //		"320*240" 0 "400*300" 1 "512*384" 2
+ 		rect 82 85 290 12
+       	textalign ITEM_ALIGN_RIGHT
+@@ -203,6 +203,61 @@
+       	visible 0 
+ 		action { uiScript glCustom }
+ 	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customwidth"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	276 85 0 12
++		textalignx	0
++		textscale	.22
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		text	"x"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	303 85 0 12
++		textalignx	0
++		textscale	.22
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customheight"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	313 85 0 12
++		textalignx	0
++		textscale	.22
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
+ 
+ 	itemDef {
+    		name graphics
+
+--- a/ReturnToCastleWolfenstein/Main/sp_pak3.pk3!ui/ingame_system.menu
++++ b/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3!ui/ingame_system.menu
+@@ -111,7 +111,7 @@
+    		forecolor 1 1 1 1
+    		visible 0 
+ 		action {
+-			 uiScript update "ui_glCustom" }
++			 uiScript update "ui_glCustom" ; setcvar r_mode "-1" }
+     		}
+ 
+ 
+@@ -135,7 +135,7 @@
+ 		visible 0
+ 		action {
+ 			setcvar ui_glCustom 0;	// 'recommended'
+-			uiScript update "ui_glCustom" }
++			uiScript update "ui_glCustom" ; setcvar r_mode "-1" }
+ 		}
+ 
+ 	itemDef {
+@@ -162,7 +162,7 @@
+ 		type ITEM_TYPE_MULTI
+ 		text "Video Mode:"
+ 		cvar "r_mode"
+-		cvarFloatList {  "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
++		cvarFloatList {  "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 "Custom" -1 }
+ //		"320x240" 0 "400x300" 1 "512x384" 2
+ 		rect 82 85 290 12
+       	textalign ITEM_ALIGN_RIGHT
+@@ -175,6 +175,61 @@
+       	visible 0 
+ 		action { uiScript glCustom }
+     		}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customwidth"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	278 85 0 12
++		textalignx	0
++		textscale	.23
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		text	"x"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	307 85 0 12
++		textalignx	0
++		textscale	.23
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customheight"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	316 85 0 12
++		textalignx	0
++		textscale	.23
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
+ 
+ 	itemDef {
+ 		name graphics
+
+--- a/ReturnToCastleWolfenstein/Main/mp_pak1.pk3!ui_mp/system.menu
++++ b/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3!ui_mp/system.menu
+@@ -118,7 +118,7 @@
+    		forecolor 1 1 1 1
+    		visible 0 
+ //		decoration
+-		action { uiScript update "ui_glCustom" }
++		action { uiScript update "ui_glCustom" ; setcvar r_mode "-1" }
+ 		mouseenter	{ show floater_message }
+ 		mouseexit	{ hide floater_message }	
+ 	}
+@@ -174,7 +174,7 @@
+    		type ITEM_TYPE_MULTI	
+ 		text "Video Mode:"
+ 		cvar "r_mode"
+-		cvarFloatList { "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
++		cvarFloatList { "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 "Custom" -1 }
+ 		rect 99 75 256 12
+       	textalign ITEM_ALIGN_RIGHT
+       	textalignx 128
+@@ -189,6 +189,64 @@
+ 		mouseenter	{ show floater_message }
+ 		mouseexit	{ hide floater_message }	
+ 	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customwidth"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	285 75 0 12
++		textalignx	0
++		textfont	UI_FONT_NORMAL
++		textscale	.25
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		text	"x"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	316 75 0 12
++		textalignx	0
++		textfont	UI_FONT_NORMAL
++		textscale	.25
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customheight"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	326 75 0 12
++		textalignx	0
++		textfont	UI_FONT_NORMAL
++		textscale	.25
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
+ 
+ 	itemDef {
+    		name graphics
+
+--- a/ReturnToCastleWolfenstein/Main/mp_pak1.pk3!ui_mp/ingame_system.menu
++++ b/ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3!ui_mp/ingame_system.menu
+@@ -101,7 +101,7 @@
+ 		backcolor 1 1 1 .07         
+    		forecolor 1 1 1 1
+    		visible 0 
+-		action { uiScript update "ui_glCustom" }
++		action { uiScript update "ui_glCustom" ; setcvar r_mode "-1" }
+     		}
+ 
+ 	itemDef {
+@@ -149,7 +149,7 @@
+ 		type ITEM_TYPE_MULTI
+ 		text "Video Mode:"
+ 		cvar "r_mode"
+-		cvarFloatList { "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
++		cvarFloatList { "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 "Custom" -1 }
+ 		rect 99 75 256 12
+       	textalign ITEM_ALIGN_RIGHT
+       	textalignx 128
+@@ -162,6 +162,64 @@
+       	visible 0 
+ 		action { uiScript glCustom }
+     		}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customwidth"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	285 75 0 12
++		textalignx	0
++		textfont	UI_FONT_NORMAL
++		textscale	.25
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		text	"x"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	316 75 0 12
++		textalignx	0
++		textfont	UI_FONT_NORMAL
++		textscale	.25
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
++	itemDef
++	{
++		// fleet: the size r_mode -1 means on THIS box (FLEETRES)
++		name	graphics
++		group	grpSystem
++		type	ITEM_TYPE_TEXT
++		cvar	"r_customheight"
++		cvarTest	"r_mode"
++		showCvar	{ "-1" }
++		rect	326 75 0 12
++		textalignx	0
++		textfont	UI_FONT_NORMAL
++		textscale	.25
++		forecolor	1 1 1 1
++		textaligny	10
++		visible	0
++		decoration
++	}
++
+ 
+ 	itemDef {
+ 		name graphics

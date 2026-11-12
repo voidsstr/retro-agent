@@ -1,0 +1,998 @@
+Event[0]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-General
+  Date: 2026-09-28T11:14:56.562
+  Event ID: 12
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The operating system started at system time ?2026?-?09?-?28T15:14:56.109999300Z.
+
+Event[1]:
+  Log Name: System
+  Source: Microsoft-Windows-FilterManager
+  Date: 2026-09-28T11:14:56.749
+  Event ID: 6
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+File System Filter 'FileInfo' (6.1, ?2009?-?07?-?13T19:21:51.000000000Z) has successfully loaded and registered with Filter Manager.
+
+Event[2]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6008
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The previous system shutdown at 11:13:39 AM on ?9/?28/?2026 was unexpected.
+
+Event[3]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6009
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Microsoft (R) Windows (R) 6.01. 7600  Multiprocessor Free.
+
+Event[4]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6005
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Event log service was started.
+
+Event[5]:
+  Log Name: System
+  Source: EventLog
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 6013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The system uptime is 4 seconds.
+
+Event[6]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Power
+  Date: 2026-09-28T11:14:57.436
+  Event ID: 41
+  Task: N/A
+  Level: Critical
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The system has rebooted without cleanly shutting down first. This error could be caused if the system stopped responding, crashed, or lost power unexpectedly.
+
+Event[7]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 0 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[8]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 1 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[9]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 2 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[10]:
+  Log Name: System
+  Source: Microsoft-Windows-Kernel-Processor-Power
+  Date: 2026-09-28T11:14:58.247
+  Event ID: 26
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Processor 3 in group 0 exposes the following:
+
+3 idle state(s)
+9 performance state(s)
+8 throttle state(s)
+
+Event[11]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.041
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Plug and Play service entered the running state.
+
+Event[12]:
+  Log Name: System
+  Source: Microsoft-Windows-UserPnp
+  Date: 2026-09-28T11:15:00.041
+  Event ID: 20010
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+One or more of the Plug and Play service's subsystems has changed state. 
+
+PlugPlay install subsystem enabled: 'true' 
+PlugPlay caching subsystem enabled: 'true' 
+
+
+Event[13]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.072
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Power service entered the running state.
+
+Event[14]:
+  Log Name: System
+  Source: Microsoft-Windows-FilterManager
+  Date: 2026-09-28T11:15:00.072
+  Event ID: 6
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+File System Filter 'luafv' (6.1, ?2009?-?07?-?13T19:15:44.000000000Z) has successfully loaded and registered with Filter Manager.
+
+Event[15]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.072
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The DCOM Server Process Launcher service entered the running state.
+
+Event[16]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.088
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The RPC Endpoint Mapper service entered the running state.
+
+Event[17]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.088
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Remote Procedure Call (RPC) service entered the running state.
+
+Event[18]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.134
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The AMD External Events Utility service entered the running state.
+
+Event[19]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.166
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Event Log service entered the running state.
+
+Event[20]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.181
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Multimedia Class Scheduler service entered the running state.
+
+Event[21]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.197
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio Endpoint Builder service entered the running state.
+
+Event[22]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.228
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Audio service entered the running state.
+
+Event[23]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.244
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Themes service entered the running state.
+
+Event[24]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.244
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Group Policy Client service entered the running state.
+
+Event[25]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.244
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The User Profile Service service entered the running state.
+
+Event[26]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.259
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Offline Files service entered the running state.
+
+Event[27]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.259
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The COM+ Event System service entered the running state.
+
+Event[28]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.259
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The System Event Notification Service service entered the running state.
+
+Event[29]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.259
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager Session Manager service entered the running state.
+
+Event[30]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.259
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Security Accounts Manager service entered the running state.
+
+Event[31]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.275
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Driver Foundation - User-mode Driver Framework service entered the running state.
+
+Event[32]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.290
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The TCP/IP NetBIOS Helper service entered the running state.
+
+Event[33]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.290
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Network Store Interface Service service entered the running state.
+
+Event[34]:
+  Log Name: System
+  Source: Microsoft-Windows-Dhcp-Client
+  Date: 2026-09-28T11:15:00.290
+  Event ID: 50036
+  Task: Service State Event
+  Level: Information
+  Opcode: ServiceStart
+  Keyword: N/A
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+DHCPv4 client service is started
+
+Event[35]:
+  Log Name: System
+  Source: Microsoft-Windows-DHCPv6-Client
+  Date: 2026-09-28T11:15:00.290
+  Event ID: 51046
+  Task: Service State Event
+  Level: Information
+  Opcode: ServiceStart
+  Keyword: N/A
+  User: S-1-5-19
+  User Name: NT AUTHORITY\LOCAL SERVICE
+  Computer: admin-PC
+  Description: 
+DHCPv6 client service is started
+
+Event[36]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.290
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The DHCP Client service entered the running state.
+
+Event[37]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.306
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The DNS Client service entered the running state.
+
+Event[38]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.306
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Shell Hardware Detection service entered the running state.
+
+Event[39]:
+  Log Name: System
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-09-28T11:15:00.431
+  Event ID: 7001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+User Logon Notification for Customer Experience Improvement Program
+
+Event[40]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.431
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Task Scheduler service entered the running state.
+
+Event[41]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.446
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Print Spooler service entered the running state.
+
+Event[42]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.540
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Base Filtering Engine service entered the running state.
+
+Event[43]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.556
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Firewall service entered the running state.
+
+Event[44]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.556
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Workstation service entered the running state.
+
+Event[45]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.556
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Cryptographic Services service entered the running state.
+
+Event[46]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.571
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Diagnostic Policy Service service entered the running state.
+
+Event[47]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.571
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IKE and AuthIP IPsec Keying Modules service entered the running state.
+
+Event[48]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.571
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The NAS PM Service service entered the running state.
+
+Event[49]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.587
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Network Location Awareness service entered the running state.
+
+Event[50]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.587
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Superfetch service entered the running state.
+
+Event[51]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.587
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Management Instrumentation service entered the running state.
+
+Event[52]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.587
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Distributed Link Tracking Client service entered the running state.
+
+Event[53]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.587
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IP Helper service entered the running state.
+
+Event[54]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.868
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Server service entered the running state.
+
+Event[55]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.868
+  Event ID: 7026
+  Task: N/A
+  Level: Error
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The following boot-start or system-start driver(s) failed to load: 
+cdrom
+
+Event[56]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.883
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Network List Service service entered the running state.
+
+Event[57]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.883
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Portable Device Enumerator Service service entered the running state.
+
+Event[58]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.899
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Computer Browser service entered the running state.
+
+Event[59]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.899
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service entered the running state.
+
+Event[60]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.899
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Diagnostic Service Host service entered the running state.
+
+Event[61]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.899
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Diagnostic System Host service entered the running state.
+
+Event[62]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:00.992
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The IPsec Policy Agent service entered the running state.
+
+Event[63]:
+  Log Name: System
+  Source: e1cexpress
+  Date: 2026-09-28T11:15:01.460
+  Event ID: 32
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Intel(R) 82579LM Gigabit Network Connection
+ Network link has been established at 1Gbps full duplex.
+
+
+Event[64]:
+  Log Name: System
+  Source: Service Control Manager
+  Date: 2026-09-28T11:15:02.162
+  Event ID: 7036
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The WinHTTP Web Proxy Auto-Discovery Service service entered the running state.
+

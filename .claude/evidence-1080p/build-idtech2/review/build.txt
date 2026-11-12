@@ -1,0 +1,9 @@
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/Quake2Complete/quake2.exe  md5 d4fe128806b9ac7899c8ac6e4d6c367d  362496 B
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/sin.exe  md5 55d69eb8584e633b16445adb126f8d47  667648 B
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/SoldierOfFortune/SoF.exe  md5 b4ed42272887b16a8ecdb92c919a507d  2052096 B
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/base/menus/main.mnu  md5 886cdbf4cee22fc649b43aa0f42867e4  90780 B
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/2015/menus/main.mnu  md5 dce920d214d1e1aa0445578066c2eaeb  112320 B
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/ctf/menus/main.mnu  md5 e639508cdb2d45e0068f9af25cf3f0dd  91704 B
+wrote /home/voidsstr/.retro-fleet/patch-out/idtech2/SoldierOfFortune/base/pak2.pak  md5 d2d96ee679c039596c35c3fe9404ef41  3156 B
+manifest /home/voidsstr/.retro-fleet/patch-out/idtech2/manifest.json
+build rc=0

@@ -1,0 +1,19 @@
+# read-only checks run 2026-09-29 ~00:15 EDT
+## python3 scripts/fleet/stage-fleetres.py --check (tail)
+FAIL Thief2/Play Thief 2.bat: the ND_DX6 block is stale
+
+0 staged, 213 already current, 1 failures
+## staged FLEETRES payload md5 (repo build vs each title)
+bb180f3bb47a674b905ce36582acb4d6  provisioning/fleetres/FLEETRES.EXE
+bb180f3bb47a674b905ce36582acb4d6  /mnt/retro-share/Files/Games-Library/RedAlert2/FLEETRES.EXE
+bb180f3bb47a674b905ce36582acb4d6  /mnt/retro-share/Files/Games-Library/TiberianSun/FLEETRES.EXE
+bb180f3bb47a674b905ce36582acb4d6  /mnt/retro-share/Files/Games-Library/WarcraftOrcsAndHumans/FLEETRES.EXE
+bb180f3bb47a674b905ce36582acb4d6  /mnt/retro-share/Files/Games-Library/MasterOfOrionII/FLEETRES.EXE
+bb180f3bb47a674b905ce36582acb4d6  /mnt/retro-share/Files/Games-Library/Postal/FLEETRES.EXE
+## python3 scripts/validate-staged-library.py --json: problems for the seven titles
+titles 52 deployable True problems total 0 for these titles []
+## Postal per-user dir: %APPDATA% listing on the LCD boxes (agent DIRLIST of the PARENT, case-insensitive match for 'scissor'/'postal')
+192.168.1.145 C:\Documents and Settings\voidsstr\Application Data entries: 6 [] ['desktop.ini', 'Identities', 'Microsoft', 'Microsoft Game Studios', 'NVIDIA', 'Quake3']
+192.168.1.123 C:\Documents and Settings\Administrator\Application Data entries: 5 [] ['desktop.ini', 'Identities', 'Microsoft', 'Microsoft Game Studios', 'Quake3']
+192.168.1.195 C:\Users\admin\AppData\Roaming entries: 8 [] ['AMD', 'ATI', 'Identities', 'Media Center Programs', 'Microsoft', 'Microsoft Game Studios', 'NASNavigator2', 'Quake3']
+## C:\Games on the LCD boxes contains all seven titles (agent DIRLIST): see console log of pull.py in the report

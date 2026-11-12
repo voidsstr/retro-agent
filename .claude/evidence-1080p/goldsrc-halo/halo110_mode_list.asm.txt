@@ -1,0 +1,291 @@
+# Halo PC 1.10 (Halo/halo.exe 2,822,144 B, md5 b7aa8f68829a33a9f0b87ec81425f5db, FileVersion 01.00.10.0621, PE stamp 2014-05-13)
+# -vidmode parse 0x5168c0: defaults 800x600@60 (0x320,0x258,0x3c), sscanf '%d,%d,%d'
+005168c0 <.text+0x1158c0>:
+  5168c0:	83 ec 10             	sub    esp,0x10
+  5168c3:	53                   	push   ebx
+  5168c4:	55                   	push   ebp
+  5168c5:	8b 6c 24 1c          	mov    ebp,DWORD PTR [esp+0x1c]
+  5168c9:	57                   	push   edi
+  5168ca:	68 74 b1 66 00       	push   0x66b174
+  5168cf:	8d 7c 24 10          	lea    edi,[esp+0x10]
+  5168d3:	32 db                	xor    bl,bl
+  5168d5:	c7 44 24 18 20 03 00 	mov    DWORD PTR [esp+0x18],0x320
+  5168dc:	00 
+  5168dd:	c7 44 24 1c 58 02 00 	mov    DWORD PTR [esp+0x1c],0x258
+  5168e4:	00 
+  5168e5:	c7 44 24 14 3c 00 00 	mov    DWORD PTR [esp+0x14],0x3c
+  5168ec:	00 
+  5168ed:	e8 6e be 02 00       	call   0x542760
+  5168f2:	83 c4 04             	add    esp,0x4
+  5168f5:	84 c0                	test   al,al
+  5168f7:	74 62                	je     0x51695b
+  5168f9:	8b 44 24 0c          	mov    eax,DWORD PTR [esp+0xc]
+  5168fd:	85 c0                	test   eax,eax
+  5168ff:	74 5a                	je     0x51695b
+  516901:	8d 4c 24 10          	lea    ecx,[esp+0x10]
+  516905:	51                   	push   ecx
+  516906:	8d 54 24 1c          	lea    edx,[esp+0x1c]
+  51690a:	52                   	push   edx
+  51690b:	8d 4c 24 1c          	lea    ecx,[esp+0x1c]
+  51690f:	51                   	push   ecx
+  516910:	68 7c ed 66 00       	push   0x66ed7c
+  516915:	50                   	push   eax
+  516916:	e8 57 fc 10 00       	call   0x626572
+  51691b:	83 c4 14             	add    esp,0x14
+  51691e:	83 e8 02             	sub    eax,0x2
+  516921:	74 11                	je     0x516934
+  516923:	48                   	dec    eax
+  516924:	75 35                	jne    0x51695b
+  516926:	8b 44 24 24          	mov    eax,DWORD PTR [esp+0x24]
+  51692a:	85 c0                	test   eax,eax
+  51692c:	74 06                	je     0x516934
+  51692e:	8b 54 24 10          	mov    edx,DWORD PTR [esp+0x10]
+  516932:	89 10                	mov    DWORD PTR [eax],edx
+  516934:	85 f6                	test   esi,esi
+  516936:	74 06                	je     0x51693e
+  516938:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  51693c:	89 06                	mov    DWORD PTR [esi],eax
+  51693e:	85 ed                	test   ebp,ebp
+  516940:	74 07                	je     0x516949
+  516942:	8b 4c 24 18          	mov    ecx,DWORD PTR [esp+0x18]
+  516946:	89 4d 00             	mov    DWORD PTR [ebp+0x0],ecx
+  516949:	a0 b0 d1 71 00       	mov    al,ds:0x71d1b0
+  51694e:	84 c0                	test   al,al
+  516950:	75 07                	jne    0x516959
+  516952:	c6 05 6d d1 71 00 01 	mov    BYTE PTR ds:0x71d16d,0x1
+  516959:	b3 01                	mov    bl,0x1
+  51695b:	68 70 ed 66 00       	push   0x66ed70
+  516960:	8d 7c 24 10          	lea    edi,[esp+0x10]
+  516964:	e8 f7 bd 02 00       	call   0x542760
+  516969:	83 c4 04             	add    esp,0x4
+  51696c:	84 c0                	test   al,al
+  51696e:	74 23                	je     0x516993
+  516970:	8b 44 24 0c          	mov    eax,DWORD PTR [esp+0xc]
+  516974:	85 c0                	test   eax,eax
+  516976:	74 0b                	je     0x516983
+  516978:	50                   	push   eax
+  516979:	e8 a8 ef 10 00       	call   0x625926
+  51697e:	83 c4 04             	add    esp,0x4
+  516981:	eb 02                	jmp    0x516985
+  516983:	33 c0                	xor    eax,eax
+  516985:	8b 4c 24 24          	mov    ecx,DWORD PTR [esp+0x24]
+  516989:	85 c9                	test   ecx,ecx
+  51698b:	74 02                	je     0x51698f
+  51698d:	89 01                	mov    DWORD PTR [ecx],eax
+  51698f:	b3 01                	mov    bl,0x1
+  516991:	eb 04                	jmp    0x516997
+  516993:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  516997:	8a 0d b0 d1 71 00    	mov    cl,BYTE PTR ds:0x71d1b0
+  51699d:	84 c9                	test   cl,cl
+  51699f:	75 12                	jne    0x5169b3
+  5169a1:	85 c0                	test   eax,eax
+  5169a3:	75 07                	jne    0x5169ac
+  5169a5:	c6 05 70 d1 71 00 01 	mov    BYTE PTR ds:0x71d170,0x1
+  5169ac:	c6 05 b0 d1 71 00 01 	mov    BYTE PTR ds:0x71d1b0,0x1
+  5169b3:	5f                   	pop    edi
+  5169b4:	5d                   	pop    ebp
+  5169b5:	8a c3                	mov    al,bl
+  5169b7:	5b                   	pop    ebx
+  5169b8:	83 c4 10             	add    esp,0x10
+  5169bb:	c3                   	ret
+
+# In-game Video Setup mode list 0x4baba0 (built when the menu opens; caller 0x4baf20 -> 0x4bad40 -> 0x4baba0):
+#   IDirect3D9::GetAdapterModeCount/EnumAdapterModes (vtbl+0x18/+0x1c) for D3DFMT_X8R8G8B8 (22), iterated from the LAST index down;
+#   if config.txt MaximumResolution is the default 0x1000 (or -vidmode given): VRAM<=32MB -> w<=1024, <=64MB -> w<=1280, <=128MB -> w<=1600, >128MB no cap;
+#   windowed (or no device yet): w<desktop and h<desktop; always 640<=w<=4800, 480<=h<=3600, refresh<=120; drops 720x480/720x576/848x480/848x576
+004baba0 <.text+0xb9ba0>:
+  4baba0:	a1 78 d1 71 00       	mov    eax,ds:0x71d178
+  4baba5:	83 ec 20             	sub    esp,0x20
+  4baba8:	85 c0                	test   eax,eax
+  4babaa:	0f 84 8a 01 00 00    	je     0x4bad3a
+  4babb0:	57                   	push   edi
+  4babb1:	8d 44 24 14          	lea    eax,[esp+0x14]
+  4babb5:	50                   	push   eax
+  4babb6:	ff 15 18 a4 63 00    	call   DWORD PTR ds:0x63a418
+  4babbc:	50                   	push   eax
+  4babbd:	ff 15 14 a4 63 00    	call   DWORD PTR ds:0x63a414
+  4babc3:	8b 15 80 d1 71 00    	mov    edx,DWORD PTR ds:0x71d180
+  4babc9:	a1 78 d1 71 00       	mov    eax,ds:0x71d178
+  4babce:	8b 08                	mov    ecx,DWORD PTR [eax]
+  4babd0:	53                   	push   ebx
+  4babd1:	52                   	push   edx
+  4babd2:	50                   	push   eax
+  4babd3:	ff 51 18             	call   DWORD PTR [ecx+0x18]
+  4babd6:	8b f8                	mov    edi,eax
+  4babd8:	85 ff                	test   edi,edi
+  4babda:	0f 84 59 01 00 00    	je     0x4bad39
+  4babe0:	56                   	push   esi
+  4babe1:	a1 78 d1 71 00       	mov    eax,ds:0x71d178
+  4babe6:	8b 08                	mov    ecx,DWORD PTR [eax]
+  4babe8:	8d 54 24 08          	lea    edx,[esp+0x8]
+  4babec:	52                   	push   edx
+  4babed:	8b 15 80 d1 71 00    	mov    edx,DWORD PTR ds:0x71d180
+  4babf3:	4f                   	dec    edi
+  4babf4:	57                   	push   edi
+  4babf5:	53                   	push   ebx
+  4babf6:	52                   	push   edx
+  4babf7:	50                   	push   eax
+  4babf8:	ff 51 1c             	call   DWORD PTR [ecx+0x1c]
+  4babfb:	85 c0                	test   eax,eax
+  4babfd:	0f 8c 2d 01 00 00    	jl     0x4bad30
+  4bac03:	81 3d 3c fe 69 00 00 	cmp    DWORD PTR ds:0x69fe3c,0x1000
+  4bac0a:	10 00 00 
+  4bac0d:	0f 84 be 00 00 00    	je     0x4bacd1
+  4bac13:	a1 94 1e 72 00       	mov    eax,ds:0x721e94
+  4bac18:	33 f6                	xor    esi,esi
+  4bac1a:	85 c0                	test   eax,eax
+  4bac1c:	7e 2f                	jle    0x4bac4d
+  4bac1e:	8b ff                	mov    edi,edi
+  4bac20:	a1 90 1e 72 00       	mov    eax,ds:0x721e90
+  4bac25:	8b 04 b0             	mov    eax,DWORD PTR [eax+esi*4]
+  4bac28:	80 38 2d             	cmp    BYTE PTR [eax],0x2d
+  4bac2b:	75 16                	jne    0x4bac43
+  4bac2d:	50                   	push   eax
+  4bac2e:	68 74 b1 66 00       	push   0x66b174
+  4bac33:	e8 53 e1 16 00       	call   0x628d8b
+  4bac38:	83 c4 08             	add    esp,0x8
+  4bac3b:	85 c0                	test   eax,eax
+  4bac3d:	0f 84 8e 00 00 00    	je     0x4bacd1
+  4bac43:	a1 94 1e 72 00       	mov    eax,ds:0x721e94
+  4bac48:	46                   	inc    esi
+  4bac49:	3b f0                	cmp    esi,eax
+  4bac4b:	7c d3                	jl     0x4bac20
+  4bac4d:	8b 4c 24 08          	mov    ecx,DWORD PTR [esp+0x8]
+  4bac51:	a0 6c d1 71 00       	mov    al,ds:0x71d16c
+  4bac56:	84 c0                	test   al,al
+  4bac58:	8b 44 24 0c          	mov    eax,DWORD PTR [esp+0xc]
+  4bac5c:	74 0a                	je     0x4bac68
+  4bac5e:	8b 15 74 d1 71 00    	mov    edx,DWORD PTR ds:0x71d174
+  4bac64:	85 d2                	test   edx,edx
+  4bac66:	75 14                	jne    0x4bac7c
+  4bac68:	3b 4c 24 20          	cmp    ecx,DWORD PTR [esp+0x20]
+  4bac6c:	0f 83 be 00 00 00    	jae    0x4bad30
+  4bac72:	3b 44 24 24          	cmp    eax,DWORD PTR [esp+0x24]
+  4bac76:	0f 83 b4 00 00 00    	jae    0x4bad30
+  4bac7c:	3b 0d 3c fe 69 00    	cmp    ecx,DWORD PTR ds:0x69fe3c
+  4bac82:	0f 87 a8 00 00 00    	ja     0x4bad30
+  4bac88:	81 f9 80 02 00 00    	cmp    ecx,0x280
+  4bac8e:	0f 82 9c 00 00 00    	jb     0x4bad30
+  4bac94:	3d e0 01 00 00       	cmp    eax,0x1e0
+  4bac99:	0f 82 91 00 00 00    	jb     0x4bad30
+  4bac9f:	81 f9 c0 12 00 00    	cmp    ecx,0x12c0
+  4baca5:	0f 87 85 00 00 00    	ja     0x4bad30
+  4bacab:	3d 10 0e 00 00       	cmp    eax,0xe10
+  4bacb0:	77 7e                	ja     0x4bad30
+  4bacb2:	8b 54 24 10          	mov    edx,DWORD PTR [esp+0x10]
+  4bacb6:	83 fa 78             	cmp    edx,0x78
+  4bacb9:	77 75                	ja     0x4bad30
+  4bacbb:	81 f9 d0 02 00 00    	cmp    ecx,0x2d0
+  4bacc1:	75 4d                	jne    0x4bad10
+  4bacc3:	3d 40 02 00 00       	cmp    eax,0x240
+  4bacc8:	74 66                	je     0x4bad30
+  4bacca:	3d e0 01 00 00       	cmp    eax,0x1e0
+  4baccf:	eb 53                	jmp    0x4bad24
+  4bacd1:	a1 b0 2b 72 00       	mov    eax,ds:0x722bb0
+  4bacd6:	3d 00 00 00 02       	cmp    eax,0x2000000
+  4bacdb:	8b 4c 24 08          	mov    ecx,DWORD PTR [esp+0x8]
+  4bacdf:	77 08                	ja     0x4bace9
+  4bace1:	81 f9 00 04 00 00    	cmp    ecx,0x400
+  4bace7:	77 47                	ja     0x4bad30
+  4bace9:	3d 00 00 00 04       	cmp    eax,0x4000000
+  4bacee:	77 08                	ja     0x4bacf8
+  4bacf0:	81 f9 00 05 00 00    	cmp    ecx,0x500
+  4bacf6:	77 38                	ja     0x4bad30
+  4bacf8:	3d 00 00 00 08       	cmp    eax,0x8000000
+  4bacfd:	0f 87 4e ff ff ff    	ja     0x4bac51
+  4bad03:	81 f9 40 06 00 00    	cmp    ecx,0x640
+  4bad09:	77 25                	ja     0x4bad30
+  4bad0b:	e9 41 ff ff ff       	jmp    0x4bac51
+  4bad10:	81 f9 50 03 00 00    	cmp    ecx,0x350
+  4bad16:	75 0e                	jne    0x4bad26
+  4bad18:	3d e0 01 00 00       	cmp    eax,0x1e0
+  4bad1d:	74 11                	je     0x4bad30
+  4bad1f:	3d 40 02 00 00       	cmp    eax,0x240
+  4bad24:	74 0a                	je     0x4bad30
+  4bad26:	52                   	push   edx
+  4bad27:	51                   	push   ecx
+  4bad28:	e8 93 00 00 00       	call   0x4badc0
+  4bad2d:	83 c4 08             	add    esp,0x8
+  4bad30:	85 ff                	test   edi,edi
+  4bad32:	0f 85 a9 fe ff ff    	jne    0x4babe1
+  4bad38:	5e                   	pop    esi
+  4bad39:	5f                   	pop    edi
+  4bad3a:	83 c4 20             	add    esp,0x20
+  4bad3d:	c3                   	ret
+
+# AddMode 0x4badc0: dedupe by (w,h); at most 0x20 (32) resolutions, 8 refresh rates each
+004badc0 <.text+0xb9dc0>:
+  4badc0:	8b 15 cc 96 71 00    	mov    edx,DWORD PTR ds:0x7196cc
+  4badc6:	53                   	push   ebx
+  4badc7:	55                   	push   ebp
+  4badc8:	8b 6c 24 0c          	mov    ebp,DWORD PTR [esp+0xc]
+  4badcc:	56                   	push   esi
+  4badcd:	57                   	push   edi
+  4badce:	8b d8                	mov    ebx,eax
+  4badd0:	83 cf ff             	or     edi,0xffffffff
+  4badd3:	33 c0                	xor    eax,eax
+  4badd5:	85 d2                	test   edx,edx
+  4badd7:	7e 1c                	jle    0x4badf5
+  4badd9:	b9 94 66 6b 00       	mov    ecx,0x6b6694
+  4badde:	8b ff                	mov    edi,edi
+  4bade0:	39 69 fc             	cmp    DWORD PTR [ecx-0x4],ebp
+  4bade3:	75 04                	jne    0x4bade9
+  4bade5:	39 19                	cmp    DWORD PTR [ecx],ebx
+  4bade7:	74 0a                	je     0x4badf3
+  4bade9:	40                   	inc    eax
+  4badea:	83 c1 4c             	add    ecx,0x4c
+  4baded:	3b c2                	cmp    eax,edx
+  4badef:	7c ef                	jl     0x4bade0
+  4badf1:	eb 02                	jmp    0x4badf5
+  4badf3:	8b f8                	mov    edi,eax
+  4badf5:	83 ff ff             	cmp    edi,0xffffffff
+  4badf8:	75 0e                	jne    0x4bae08
+  4badfa:	83 fa 20             	cmp    edx,0x20
+  4badfd:	7d 79                	jge    0x4bae78
+  4badff:	8b fa                	mov    edi,edx
+  4bae01:	42                   	inc    edx
+  4bae02:	89 15 cc 96 71 00    	mov    DWORD PTR ds:0x7196cc,edx
+  4bae08:	8b f7                	mov    esi,edi
+  4bae0a:	6b f6 4c             	imul   esi,esi,0x4c
+  4bae0d:	53                   	push   ebx
+  4bae0e:	55                   	push   ebp
+  4bae0f:	68 64 b1 66 00       	push   0x66b164
+  4bae14:	8d 96 98 66 6b 00    	lea    edx,[esi+0x6b6698]
+  4bae1a:	89 ae 90 66 6b 00    	mov    DWORD PTR [esi+0x6b6690],ebp
+  4bae20:	89 9e 94 66 6b 00    	mov    DWORD PTR [esi+0x6b6694],ebx
+  4bae26:	e8 05 cb 09 00       	call   0x557930
+  4bae2b:	8b 96 b8 66 6b 00    	mov    edx,DWORD PTR [esi+0x6b66b8]
+  4bae31:	33 c0                	xor    eax,eax
+  4bae33:	83 c4 0c             	add    esp,0xc
+  4bae36:	3b d0                	cmp    edx,eax
+  4bae38:	66 89 86 b6 66 6b 00 	mov    WORD PTR [esi+0x6b66b6],ax
+  4bae3f:	76 1c                	jbe    0x4bae5d
+  4bae41:	8d 8e bc 66 6b 00    	lea    ecx,[esi+0x6b66bc]
+  4bae47:	8b 19                	mov    ebx,DWORD PTR [ecx]
+  4bae49:	3b 5c 24 18          	cmp    ebx,DWORD PTR [esp+0x18]
+  4bae4d:	74 29                	je     0x4bae78
+  4bae4f:	8b 9e b8 66 6b 00    	mov    ebx,DWORD PTR [esi+0x6b66b8]
+  4bae55:	40                   	inc    eax
+  4bae56:	83 c1 04             	add    ecx,0x4
+  4bae59:	3b c3                	cmp    eax,ebx
+  4bae5b:	72 ea                	jb     0x4bae47
+  4bae5d:	83 fa 08             	cmp    edx,0x8
+  4bae60:	73 16                	jae    0x4bae78
+  4bae62:	8b 44 24 18          	mov    eax,DWORD PTR [esp+0x18]
+  4bae66:	6b ff 13             	imul   edi,edi,0x13
+  4bae69:	03 fa                	add    edi,edx
+  4bae6b:	89 04 bd bc 66 6b 00 	mov    DWORD PTR [edi*4+0x6b66bc],eax
+  4bae72:	ff 86 b8 66 6b 00    	inc    DWORD PTR [esi+0x6b66b8]
+  4bae78:	5f                   	pop    edi
+  4bae79:	5e                   	pop    esi
+  4bae7a:	5d                   	pop    ebp
+  4bae7b:	5b                   	pop    ebx
+  4bae7c:	c3                   	ret
+
+# config.txt: MaximumResolution appears only in the header comment (grep -a -i -n):
+11:// MaximumResolution           - Limits maximum resolution of card to width specified ie: MaximumResolution = 800.
+
+# 1080-line KSML overlay files staged: 
+./CONTENT/1080log.ksml
+./CONTENT/1080editbox.ksml
+./CONTENT/GALLERY/editbox1080.png

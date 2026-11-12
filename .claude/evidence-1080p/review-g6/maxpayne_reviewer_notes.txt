@@ -1,0 +1,29 @@
+Max Payne - Games/Windows XP/Max_Payne_Fixes.zip vs staged retail modules - reviewer re-check 2026-09-29
+PE subsystem: d3d8.dll 6.0 (link 2020-05-16), scripts/MaxPayne.WidescreenFix.asi 6.0, dsound.dll 5.1 (IndirectSound), MaxPayne.exe 4.0 (no-CD, link 2002-01-17), e2mfc.dll 4.0, e2_d3d8_driver_mfc.dll 4.0
+e2_d3d8_driver_mfc.dll edits: DllMain (entry 0x10055a17) branches redirected to caves 0x10061b9c/0x10061bc0 = run-once guards on 0x10088ffc/0x10088ff8, plus .reloc rebuild. NOTHING in the EnumAdapterModes loop (0x10027660-0x10027a40).
+10055a26: test     esi, esi
+10055a28: jne      0x10055a33
+10055a2a: jmp      0x10061b9c
+10055a2f: nop      
+10055a30: nop      
+10055a31: jmp      0x10055a59
+10055a33: cmp      esi, 1
+10055a36: je       0x10055a3d
+10055a38: cmp      esi, 2
+10055a3b: jne      0x10055a5f
+10055a3d: jmp      0x10061bc0
+10061b9c: cmp      dword ptr [0x10088ffc], 1
+10061ba3: mov      dword ptr [0x10088ffc], 1
+10061bad: je       0x10055a5b
+10061bb3: cmp      dword ptr [0x100883a0], 0
+10061bba: jmp      0x10055a31
+10061bbf: int3     
+10061bc0: cmp      dword ptr [0x10088ff8], 1
+10061bc7: mov      dword ptr [0x10088ff8], 1
+10061bd1: jne      0x10055aaa
+10061bd7: mov      eax, dword ptr [0x100884f8]
+10061bdc: jmp      0x10055a42
+e2mfc.dll edits: 0x1002e0d8/0x1002e5b1 jump to cave 0x10048b54 that calls a loaded plugin's PE entry point (DLL_PROCESS_ATTACH) - a plugin-loading tweak, not a mode-list change.
+=> README-FLEET.txt's '(e2mfc.dll and e2_d3d8_driver_mfc.dll) are hex-edited Remedy render modules that unlock extra resolutions' is NOT supported by the bytes; the surveyor's reading is.
+Retail e2_d3d8_driver_mfc.dll mode loop: per EnumAdapterModes entry, IDirect3D8::CheckDeviceType (vtbl+0x24) and CheckDeviceFormat (+0x28) must pass, then P_DriverCaps::linkMode - no size/aspect test.
+In-game VIDEO page (x_english.ras plaintext #defines): GCID_TEXTUREMIPMAP 'Texture Sharpness', GCID_GAMMACONTROL 'Brightness' - nothing else.

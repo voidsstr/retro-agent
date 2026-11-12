@@ -1,0 +1,120 @@
+references to the -16/-24/-32bpp global [0x4e1f30]:
+   00413a5f  mov    eax, dword ptr [0x4e1f30]
+   00413bab  mov    dword ptr [0x4e1f30], 0x10
+   00413bc1  mov    dword ptr [0x4e1f30], 0x18
+   00413bdf  mov    dword ptr [0x4e1f30], 0x20
+   00413c51  mov    edx, dword ptr [0x4e1f30]
+   00413e09  mov    edx, dword ptr [0x4e1f30]
+
+function 0x4139f0 (called per static w,h pair from 0x413bfa):
+   004139f0  push   esi
+   004139f1  mov    esi, dword ptr [esp + 8]
+   004139f5  push   edi
+   004139f6  mov    edi, dword ptr [esp + 0x10]
+   004139fa  push   edi
+   004139fb  push   esi
+   004139fc  call   0x4139a0
+   00413a01  imul   esi, edi
+   00413a04  mov    ecx, dword ptr [0x4e1f14]
+   00413a0a  add    esp, 8
+   00413a0d  lea    eax, [eax + esi*4]
+   00413a10  sub    ecx, eax
+   00413a12  xor    eax, eax
+   00413a14  cmp    ecx, 0x800000
+   00413a1a  pop    edi
+   00413a1b  setge  al
+   00413a1e  pop    esi
+   00413a1f  ret    
+
+-- around 413c30:
+   00413c30  outsb  dx, byte ptr [esi]
+   00413c31  dec    esi
+   00413c32  add    byte ptr [ebx + 0x4e6e3488], cl
+   00413c38  add    byte ptr [ecx - 0x73], dl
+   00413c3b  nop    
+   00413c3c  pop    esp
+   00413c3d  outsb  dx, byte ptr [esi]
+   00413c3e  dec    esi
+   00413c3f  add    byte ptr [eax - 0x48], ch
+   00413c42  out    dx, eax
+   00413c43  dec    esp
+   00413c44  add    byte ptr [edx - 0x18], dl
+   00413c47  mov    dh, 0xd4
+   00413c49  push   es
+   00413c4a  add    byte ptr [ebx + 0x4ea8c80d], cl
+   00413c50  add    byte ptr [ebx + 0x4e1f3015], cl
+   00413c56  add    byte ptr [ebx + 0x48d10c4], al
+   00413c5c  dec    ecx
+   00413c5d  lea    eax, [eax + eax*4]
+   00413c60  lea    eax, [eax + eax*4]
+   00413c63  shl    eax, 2
+   00413c66  mov    dword ptr [eax + 0x4e6e3c], ecx
+   00413c6c  mov    dword ptr [eax + 0x4e6e44], edi
+   00413c72  mov    dword ptr [eax + 0x4e6e48], ebx
+   00413c78  mov    dword ptr [eax + 0x4e6e4c], edi
+   00413c7e  inc    ecx
+   00413c7f  mov    dword ptr [eax + 0x4e6e54], edi
+   00413c85  mov    dword ptr [eax + 0x4e6e50], edx
+   00413c8b  .byte  0x89
+   00413c8c  .byte  0x0d
+   00413c8d  .byte  0xc8
+   00413c8e  test   al, 0x4e
+
+-- around 413df0:
+   00413df0  or     eax, dword ptr [ecx - 0x7f]
+   00413df3  ret    0x12c
+   00413df6  add    byte ptr [eax], al
+   00413df8  cmp    ecx, eax
+   00413dfa  jl     0x413dd0
+   00413dfc  cmp    ecx, eax
+   00413dfe  jne    0x413e09
+   00413e00  mov    ecx, ebp
+   00413e02  inc    ecx
+   00413e03  neg    ecx
+   00413e05  sbb    ecx, ecx
+   00413e07  and    ecx, ebp
+   00413e09  mov    edx, dword ptr [0x4e1f30]
+   00413e0f  mov    dword ptr [0x4e3188], ebx
+   00413e15  mov    dword ptr [0x4e318c], esi
+   00413e1b  mov    dword ptr [0x4e3190], edx
+   00413e21  mov    dword ptr [0x4e6e10], ecx
+   00413e27  mov    dword ptr [0x4e3184], ecx
+   00413e2d  pop    ebp
+   00413e2e  pop    edi
+   00413e2f  pop    esi
+   00413e30  pop    ebx
+   00413e31  add    esp, 8
+   00413e34  ret    
+   00413e35  nop    
+   00413e36  nop    
+   00413e37  nop    
+   00413e38  nop    
+   00413e39  nop    
+   00413e3a  nop    
+   00413e3b  nop    
+   00413e3c  nop    
+   00413e3d  nop    
+   00413e3e  nop    
+   00413e3f  nop    
+   00413e40  mov    eax, dword ptr [0x4e1f34]
+   00413e45  push   eax
+   00413e46  call   dword ptr [0x4e1b34]
+   00413e4c  .byte  0xa1
+   00413e4d  les    eax, ptr [esi]
+   00413e4f  dec    ebp
+
+-- aligned at 0x413c51 (the bpp global goes into mode-table field +0x1c = 0x4e6e50, which sub_4640d0 passes to the CDS as dmBitsPerPel):
+   00413c51  mov    edx, dword ptr [0x4e1f30]
+   00413c57  add    esp, 0x10
+   00413c5a  lea    eax, [ecx + ecx*2]
+   00413c5d  lea    eax, [eax + eax*4]
+   00413c60  lea    eax, [eax + eax*4]
+   00413c63  shl    eax, 2
+   00413c66  mov    dword ptr [eax + 0x4e6e3c], ecx
+   00413c6c  mov    dword ptr [eax + 0x4e6e44], edi
+   00413c72  mov    dword ptr [eax + 0x4e6e48], ebx
+   00413c78  mov    dword ptr [eax + 0x4e6e4c], edi
+   00413c7e  inc    ecx
+   00413c7f  mov    dword ptr [eax + 0x4e6e54], edi
+   00413c85  mov    dword ptr [eax + 0x4e6e50], edx
+   00413c8b  mov    dword ptr [0x4ea8c8], ecx

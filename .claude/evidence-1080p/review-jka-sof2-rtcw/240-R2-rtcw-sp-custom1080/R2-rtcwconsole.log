@@ -1,0 +1,183 @@
+logfile opened on Mon Sep 28 21:48:49 2026
+
+...detecting CPU, found AMD w/ 3DNow!
+Bypassing CD checks
+----- Client Initialization -----
+Cmd_AddCommand: map_restart already defined
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode -1: 1920 1080 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...95 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...using GL_EXT_texture_compression_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...WGL_3DFX_gamma_control not found
+...GL_ATI_pn_triangles not found
+...ignoring GL_EXT_texture_filter_anisotropic
+...GL_NV_fog_distance not found
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3 GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+picmip2: 2
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+ATI truform: disabled
+NV distance fog: disabled
+Initializing Shaders
+...loading 'scripts/ai.shader'
+...loading 'scripts/alpha.shader'
+...loading 'scripts/blacksmokeanim.shader'
+...loading 'scripts/blacksmokeanimb.shader'
+...loading 'scripts/characters.shader'
+...loading 'scripts/clipboard.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/cursorhints.shader'
+...loading 'scripts/decals.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/expblue.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/fijets.shader'
+...loading 'scripts/firest.shader'
+...loading 'scripts/flamethrower.shader'
+...loading 'scripts/funnel.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/heat.shader'
+...loading 'scripts/lights.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/maxx.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/metal.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/netest.shader'
+...loading 'scripts/oldwolf.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/particle.shader'
+...loading 'scripts/q3view.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/signs.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/solo.shader'
+...loading 'scripts/surfaces.shader'
+...loading 'scripts/terrain.shader'
+...loading 'scripts/test.shader'
+...loading 'scripts/twiltb.shader'
+...loading 'scripts/twiltb2.shader'
+...loading 'scripts/ui.shader'
+...loading 'scripts/ui_hud.shader'
+...loading 'scripts/ui_notebook.shader'
+...loading 'scripts/ui_wolf.shader'
+...loading 'scripts/viewflames.shader'
+...loading 'scripts/walls.shader'
+...loading 'scripts/z_light.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+locked hardware.  ok
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0xab68060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Parsing menu file:ui/main.menu
+r_rmse of 0.000000 has saved 12kb
+Parsing menu file:ui/setup.menu
+Parsing menu file:ui/controls.menu
+Parsing menu file:ui/cdkey.menu
+Parsing menu file:ui/system.menu
+Parsing menu file:ui/options.menu
+Parsing menu file:ui/credit.menu
+r_rmse of 0.000000 has saved 204kb
+r_rmse of 0.000000 has saved 252kb
+r_rmse of 0.000000 has saved 264kb
+Parsing menu file:ui/connect.menu
+Parsing menu file:ui/quit.menu
+Parsing menu file:ui/vid_restart.menu
+Parsing menu file:ui/snd_restart.menu
+Parsing menu file:ui/rec_restart.menu
+Parsing menu file:ui/default.menu
+Parsing menu file:ui/error.menu
+Parsing menu file:ui/serverinfo.menu
+Parsing menu file:ui/quitcredit.menu
+Parsing menu file:ui/resetscore.menu
+Parsing menu file:ui/buy_pop.menu
+Parsing menu file:ui/multiplayer_pop.menu
+Parsing menu file:ui/play.menu
+Parsing menu file:ui/load.menu
+Parsing menu file:ui/mods.menu
+Parsing menu file:ui/briefing.menu
+UI menu load time = 749 milli seconds
+Parsing menu file:ui/ingame.menu
+Parsing menu file:ui/ingame_controls.menu
+Parsing menu file:ui/ingame_options.menu
+Parsing menu file:ui/ingame_system.menu
+Parsing menu file:ui/ingame_leave.menu
+Parsing menu file:ui/ingame_player.menu
+Parsing menu file:ui/ingame_load.menu
+Parsing menu file:ui/ingame_save.menu
+Parsing menu file:ui/in_vid_restart.menu
+Parsing menu file:ui/in_snd_restart.menu
+Parsing menu file:ui/in_rec_restart.menu
+Parsing menu file:ui/notebook.menu
+Parsing menu file:ui/clipboard.menu
+Parsing menu file:ui/bookz.menu
+Parsing menu file:ui/bookv.menu
+Parsing menu file:ui/bookp.menu
+Parsing menu file:ui/pregame.menu
+Parsing menu file:ui/test.menu
+Parsing menu file:ui/ingame_help.menu
+UI menu load time = 1256 milli seconds
+--- Common Initialization Complete ---
+Working directory: C:\Games\ReturnToCastleWolfenstein
+----- CL_Shutdown -----
+RE_Shutdown( 1 )
+Shutting down OpenGL subsystem
+...wglMakeCurrent( NULL, NULL ): success
+...deleting GL context: success
+...releasing DC: failed
+...resetting display
+...shutting down QGL
+...unloading OpenGL DLL
+-----------------------

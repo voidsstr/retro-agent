@@ -1,0 +1,10 @@
+# WHITEBEAST (.249, UNMANAGED) - read-only DIRLIST/DOWNLOAD 00:35 EDT 09-29
+C:\Games\CounterStrike16\config\serverbrowser.vdf 352 B modified 2026-09-24 14:36:22 UTC (= journal 10:36:22 EDT 'cs16 goldsrc wrote 2 servers (0bcee3ca5f172322)')
+8:			"address"		"192.168.1.132:27015"
+16:			"address"		"192.168.1.132:27016"
+C:\UnrealTournament\System\UnrealTournament.ini:
+4364:[UBrowser.UBrowserFavoritesFact]
+4365-FavoriteCount=15
+4366-Favorites[0]=NSC Retro Fleet Arena (UT99)\192.168.1.132\7798\False
+favorites_state rows for .249: cs16 C:\Games\CounterStrike16 applied 2026-09-24 10:36:21; ut99 C:\UnrealTournament\System applied 2026-09-24 10:26:20 (15 servers)
+every pass now: '[192.168.1.249] * - skipped: modern Windows host - its agent reports it is not managed'

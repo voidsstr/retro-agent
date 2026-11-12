@@ -1,0 +1,19 @@
+glideprobe: res=640x480 refresh=60Hz aa=-1 dll=glide3x.dll noopen=1 nowindow=0
+env SSTH3_SLI_AA_CONFIGURATION=(unset)
+resolution code 0x7, refresh code 0x0
+step: LoadLibrary(glide3x.dll)
+loaded: C:\WINDOWS\system32\glide3x.dll
+exports: version=00000000 init=6fc825f0 shutdown=6fc97bd0 select=6fc82790 get=6fc81430 getstring=6fc81cb0
+exports: winopen=6fca4da0 winclose=6fca29d0 bufclear=6fc93bf0 bufswap=6fc967a0
+step: grGlideInit()
+  grGlideInit returned
+GR_NUM_BOARDS = 1
+step: grSstSelect(0)
+  grSstSelect returned
+GR_NUM_FB (chips in use) = 4
+GR_HARDWARE: Voodoo5 6000 (tm)
+GR_RENDERER: Glide
+GR_VERSION: 3.10.00.40404
+--noopen: stopping before grSstWinOpen (the call that touches the board)
+grGlideShutdown returned
+RESULT: probe-ok-noopen

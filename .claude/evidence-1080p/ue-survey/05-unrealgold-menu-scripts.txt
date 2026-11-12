@@ -1,0 +1,110 @@
+# /mnt/retro-share/Files/Games-Library/UnrealGold/System/UMenu.u (226b) - script text of UMenuVideoClientWindow (combo filled verbatim from GetRes, SetEditable(False))
+	DynamicLightsCheck = UWindowCheckbox(CreateControl(class'UWindowCheckbox', CenterPos, ControlOffset, CenterWidth, 1));
+	DynamicLightsCheck.bChecked = bool(GetPlayerOwner().ConsoleCommand("get ini:Engine.Engine.ViewportManager NoDynamicLights"));
+	DynamicLightsCheck.bChecked = !DynamicLightsCheck.bChecked;
+	DynamicLightsCheck.SetText(DynamicLightsText);
+	DynamicLightsCheck.SetHelpText(DynamicLightsHelp);
+	DynamicLightsCheck.SetFont(F_Normal);
+	DynamicLightsCheck.Align = TA_Left;
+	ControlOffset += 25;
+	LoadAvailableSettings();
+function AfterCreate()
+	Super.AfterCreate();
+	DesiredWidth = 220;
+	DesiredHeight = ControlOffset;
+function LoadAvailableSettings()
+	local float Brightness;
+	local int P;
+	local string CurrentDepth;
+	local string ParseString;
+	bInitialized = False;
+	// Load available video drivers and current video driver here.
+	ResolutionCombo.Clear();
+	ParseString = GetPlayerOwner().ConsoleCommand("GetRes");
+	P = InStr(ParseString, " ");
+	while (P != -1) 
+		ResolutionCombo.AddItem(Left(ParseString, P));
+		ParseString = Mid(ParseString, P+1);
+		P = InStr(ParseString, " ");
+	ResolutionCombo.AddItem(ParseString);
+	ResolutionCombo.SetValue(GetPlayerOwner().ConsoleCommand("GetCurrentRes"));
+	ColorDepthCombo.Clear();
+	ParseString = GetPlayerOwner().ConsoleCommand("GetColorDepths");
+	P = InStr(ParseString, " ");
+	while (P != -1) 
+		ColorDepthCombo.AddItem(Left(ParseString, P)@BitsText, Left(ParseString, P));
+		ParseString = Mid(ParseString, P+1);
+		P = InStr(ParseString, " ");
+	ColorDepthCombo.AddItem(ParseString@BitsText, ParseString);
+	CurrentDepth = GetPlayerOwner().ConsoleCommand("GetCurrentColorDepth");
+	ColorDepthCombo.SetValue(CurrentDepth@BitsText, CurrentDepth);
+	GuiSkinCombo.SetSelectedIndex(Max(GuiSkinCombo.FindItemIndex2(Root.LookAndFeelClass, True), 0));
+	OldTextureDetail = Max(0, TextureDetailCombo.FindItemIndex2(GetPlayerOwner().ConsoleCommand("get ini:Engine.Engine.ViewportManager TextureDetail")));
+	TextureDetailCombo.SetSelectedIndex(OldTextureDetail);
+	OldSkinDetail = Max(0, SkinDetailCombo.FindItemIndex2(GetPlayerOwner().ConsoleCommand("get ini:Engine.Engine.ViewportManager SkinDetail")));
+	SkinDetailCombo.SetSelectedIndex(OldSkinDetail);
+	Brightness = int(float(GetPlayerOwner().ConsoleCommand("get ini:Engine.Engine.ViewportManager Brightness")) * 10);
+	BrightnessSlider.SetValue(Brightness);
+	MouseSlider.SetValue(Root.Console.MouseScale * 100);
+	ScaleCombo.SetSelectedIndex(Max(ScaleCombo.FindItemIndex2(string(int(Root.GUIScale*10))), 0));
+	bInitialized = True;
+function ResolutionChanged(float W, float H)
+	Super.ResolutionChanged(H, H);
+	if(GetPlayerOwner().ConsoleCommand("GetCurrentRes") != ResolutionCombo.GetValue())
+		LoadAvailableSettings();
+function BeforePaint(Canvas C, float X, float Y)
+	local int ControlWidth, ControlLeft, ControlRight;
+	local int CenterWidth, CenterPos;
+
+# console chain: Unreal.ini Console=UPak.UPakConsole; UPak.u 'class UPakConsole expands UnrealConsole'; UMenu.u 'class UnrealConsole extends WindowConsole'; UWindow.WindowConsole.KeyEvent IK_Escape -> LaunchUWindow (Unreal.ini [UMenu.UnrealConsole] RootWindow=UMenu.UMenuRootWindow)
+var UWindowConsoleWindow ConsoleWindow;
+function ResetUWindow()
+	if(Root != None)
+		Root.Close();
+	Root = None;
+	bCreatedRoot = False;
+	ConsoleWindow = None;
+	bShowConsole = False;
+	CloseUWindow();
+event bool KeyEvent( EInputKey Key, EInputAction Action, FLOAT Delta )
+	local byte k;
+	k = Key;
+	switch(Action)
+	case IST_Press:
+		switch(k)
+		case EInputKey.IK_Escape:
+			if (bLocked)
+				return true;
+			bQuickKeyEnable = False;
+			LaunchUWindow();
+			return true;
+		case ConsoleKey:
+			if (bLocked)
+				return true;
+			bQuickKeyEnable = True;
+
+# classic UnrealShare.UnrealVideoMenu (not reached from Esc here) keeps var string Resolutions[16]
+	DrawHelpPanel(Canvas, StartY + MenuLength * Spacing, HelpPanelX);
+function GetAvailableRes()
+	local int p,i;
+	local string ParseString;
+	AvailableRes = PlayerOwner.ConsoleCommand("GetRes");
+	resNum = 0;
+	ParseString = AvailableRes;
+	p = InStr(ParseString, " ");
+	while ( (ResNum < ArrayCount(Resolutions)) && (p != -1) ) 
+		Resolutions[ResNum] = Left(ParseString, p);
+		ParseString = Right(ParseString, Len(ParseString) - p - 1);
+		p = InStr(ParseString, " ");
+		ResNum++;
+	Resolutions[ResNum] = ParseString;
+	for ( i=ResNum+1; i< ArrayCount(Resolutions); i++ )
+		Resolutions[i] = "";
+	CurrentRes = PlayerOwner.ConsoleCommand("GetCurrentRes");
+	MenuValues[3] = CurrentRes;
+	for ( i=0; i< ResNum+1; i++ )
+		if ( MenuValues[3] ~= Resolutions[i] )
+			ResNum = i;
+			return;
+	ResNum = 0;
+	MenuValues[3] = Resolutions[0];

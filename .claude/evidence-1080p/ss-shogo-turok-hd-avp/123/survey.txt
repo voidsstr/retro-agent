@@ -1,0 +1,21 @@
+greeting: OK NSC-B20C188E96D Win5.1
+GAMERES status 0 len 692
+DIRLIST SeriousSamFirstEncounter status 0 len 4134
+DOWNLOAD SeriousSamFirstEncounter\Scripts\Game_startup.ini status 1 len 276
+DOWNLOAD SeriousSamFirstEncounter\Scripts\PersistentSymbols.ini status 1 len 34
+DOWNLOAD SeriousSamFirstEncounter\SeriousSam.log status 255 len 25
+DIRLIST SeriousSamSecondEncounter status 0 len 4591
+DOWNLOAD SeriousSamSecondEncounter\Scripts\Game_startup.ini status 1 len 276
+DOWNLOAD SeriousSamSecondEncounter\Scripts\PersistentSymbols.ini status 1 len 34
+DOWNLOAD SeriousSamSecondEncounter\SeriousSam.log status 255 len 25
+DIRLIST Shogo status 0 len 7384
+DOWNLOAD Shogo\autoexec.cfg status 1 len 5382
+DIRLIST Turok2 status 0 len 3384
+DOWNLOAD Turok2\Data\config.ned status 1 len 822
+DIRLIST HiddenAndDangerous status 0 len 1753
+DIRLIST AliensVsPredator status 0 len 3257
+DOWNLOAD AliensVsPredator\LOGFILE.TXT status 1 len 37409
+DOWNLOAD AliensVsPredator\AvP_Video.cfg status 255 len 25
+DOWNLOAD AliensVsPredator\launch.txt status 1 len 36
+REGREAD HD status 0: b'{"root":"HKLM","path":"Software\\\\Lonely Cat Games\\\\Hidden and Dangerous Deluxe\\\\Config","values":[{"name":"Fullscreen","type":"REG_DWORD","data":1},{"name":"Display width","type":"REG_DWORD","data":1920},{"name":"Display height","type":"REG_DWORD","data":1080},{"name":"Display bitdepth","type":"REG_DWORD","data":32}],"subkeys":[]}'
+DISPLAYCFG status 0: b'{"width":1920,"height":1080,"bpp":32,"refresh":60}'

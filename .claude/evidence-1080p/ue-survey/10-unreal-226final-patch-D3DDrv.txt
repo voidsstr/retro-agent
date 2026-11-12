@@ -1,0 +1,6 @@
+# /mnt/retro-share/Files/Game Updates/unreal-patch-226-final.exe (19,226,589 B, not applied to the staged tree) embeds whole binaries; carved D3DDrv.dll at patcher offset 0x11cdced:
+# md5 7984caa1280d74fcb6c32bfa9d1522cb (staged 226b D3DDrv md5 f924e209e7bc23b90b6f0360174683d3) - same GetRes: 16-bpp filter + 'cmp edi,0x10' cap, so the 226 Final patch does NOT lift the menu limit
+[wide] string at file 0x2ac3c VA 0x1002ac3c
+   ref at VA 0x10006433
+      10006472: cmp dword ptr [edx + eax + 0x54], 0x10
+      100064f5: cmp edi, 0x10

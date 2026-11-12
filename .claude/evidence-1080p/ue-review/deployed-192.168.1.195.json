@@ -1,0 +1,267 @@
+{
+ "games": [
+  "AliensVsPredator",
+  "BF1942",
+  "Carmageddon1",
+  "Carmageddon2",
+  "CounterStrike16",
+  "Daggerfall",
+  "Descent1",
+  "Descent2",
+  "Descent3",
+  "DeusEx",
+  "Doom3",
+  "FarCry",
+  "HalfLife1",
+  "Halo",
+  "Halo2",
+  "HexenII",
+  "HiddenAndDangerous",
+  "JediAcademy",
+  "JediKnightDF2",
+  "JediKnightMotS",
+  "lanhost.txt",
+  "MasterOfOrionII",
+  "MaxPayne",
+  "Postal",
+  "Quake1",
+  "Quake2Complete",
+  "Quake3-TeamArena",
+  "RainbowSix",
+  "RedAlert2",
+  "RedFaction",
+  "RedneckRampage",
+  "ReturnToCastleWolfenstein",
+  "SeriousSamFirstEncounter",
+  "SeriousSamSecondEncounter",
+  "ShadowWarrior",
+  "Shogo",
+  "SiNGold",
+  "SoldierOfFortune",
+  "SoldierOfFortune2",
+  "StarCraft",
+  "SystemShock2",
+  "Thief2",
+  "ThiefGold",
+  "TiberianSun",
+  "Tribes2",
+  "Turok2",
+  "UnrealGold",
+  "UnrealTournament",
+  "UnrealTournament436",
+  "UT2004",
+  "WarcraftII",
+  "WarcraftOrcsAndHumans"
+ ],
+ "C:\\Games\\UnrealGold\\System\\Unreal.ini": 8908,
+ "C:\\Games\\UnrealGold\\System\\User.ini": 5528,
+ "UnrealGold drv": [
+  [
+   "D3DDrv.dll",
+   208896,
+   "2026-08-27 16:09:21"
+  ],
+  [
+   "GlideDrv.dll",
+   86016,
+   "2026-08-27 16:09:22"
+  ],
+  [
+   "IpDrv.dll",
+   176128,
+   "2026-08-27 16:09:22"
+  ],
+  [
+   "MeTaLDrv.dll",
+   57414,
+   "2026-08-27 16:09:22"
+  ],
+  [
+   "OpenGlDrv.dll",
+   102400,
+   "2026-08-27 16:09:22"
+  ],
+  [
+   "SoftDrv.dll",
+   389120,
+   "2026-08-27 16:09:22"
+  ],
+  [
+   "WinDrv.dll",
+   147456,
+   "2026-08-27 16:09:24"
+  ]
+ ],
+ "C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini": 19338,
+ "UnrealTournament drv": [
+  [
+   "D3D9Drv.dll",
+   346720,
+   "2026-08-28 23:29:57"
+  ],
+  [
+   "D3DDrv.dll",
+   201312,
+   "2026-08-28 23:29:57"
+  ],
+  [
+   "GlideDrv.dll",
+   81920,
+   "2026-08-27 04:19:16"
+  ],
+  [
+   "IpDrv.dll",
+   281184,
+   "2026-08-28 23:29:59"
+  ],
+  [
+   "MeTaLDrv.dll",
+   57344,
+   "2026-08-27 04:19:16"
+  ],
+  [
+   "OpenGlDrv.dll",
+   397920,
+   "2026-08-28 23:30:01"
+  ],
+  [
+   "SGLDrv.dll",
+   94208,
+   "2026-08-27 04:19:17"
+  ],
+  [
+   "SoftDrv.dll",
+   280160,
+   "2026-08-28 23:30:01"
+  ],
+  [
+   "WinDrv.dll",
+   243808,
+   "2026-08-28 23:30:03"
+  ]
+ ],
+ "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini": 17743,
+ "UnrealTournament436 drv": [
+  [
+   "D3DDrv.dll",
+   217088,
+   "2026-08-11 16:52:58"
+  ],
+  [
+   "GlideDrv.dll",
+   81920,
+   "2026-08-11 16:52:58"
+  ],
+  [
+   "IpDrv.dll",
+   233472,
+   "2026-08-11 16:52:58"
+  ],
+  [
+   "MeTaLDrv.dll",
+   57344,
+   "2026-08-11 16:52:58"
+  ],
+  [
+   "OpenGlDrv.dll",
+   102400,
+   "2026-08-11 16:52:59"
+  ],
+  [
+   "SGLDrv.dll",
+   94208,
+   "2026-08-11 16:52:59"
+  ],
+  [
+   "SoftDrv.dll",
+   389120,
+   "2026-08-11 16:52:59"
+  ],
+  [
+   "WinDrv.dll",
+   122880,
+   "2026-08-11 16:52:59"
+  ]
+ ],
+ "C:\\Games\\UT2004\\System\\UT2004.ini": 19972,
+ "UT2004 drv": [
+  [
+   "D3DDrv.dll",
+   503808,
+   "2026-08-29 19:03:37"
+  ],
+  [
+   "IpDrv.dll",
+   229376,
+   "2026-08-29 19:03:32"
+  ],
+  [
+   "OpenGLDrv.dll",
+   245760,
+   "2026-08-29 19:04:03"
+  ],
+  [
+   "PixoDrv.dll",
+   147456,
+   "2026-08-29 19:03:55"
+  ],
+  [
+   "Running.ini",
+   0,
+   "2026-08-31 14:51:26"
+  ],
+  [
+   "WinDrv.dll",
+   839680,
+   "2026-08-29 19:00:48"
+  ]
+ ],
+ "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini": 6890,
+ "DeusEx drv": [
+  [
+   "D3DDRV.DLL",
+   212992,
+   "2001-01-30 21:00:26"
+  ],
+  [
+   "GLIDEDRV.DLL",
+   86016,
+   "2001-03-15 22:48:44"
+  ],
+  [
+   "IPDRV.DLL",
+   184320,
+   "2001-03-15 22:48:44"
+  ],
+  [
+   "METALDRV.DLL",
+   53248,
+   "2001-01-30 21:00:34"
+  ],
+  [
+   "OpenGlDrv.dll",
+   110592,
+   "2001-01-30 21:00:34"
+  ],
+  [
+   "Running.ini",
+   0,
+   "2026-08-31 14:35:51"
+  ],
+  [
+   "SGLDRV.DLL",
+   94208,
+   "2001-03-15 22:48:48"
+  ],
+  [
+   "SOFTDRV.DLL",
+   393216,
+   "2001-01-30 21:05:48"
+  ],
+  [
+   "WINDRV.DLL",
+   159744,
+   "2001-03-15 22:48:50"
+  ]
+ ]
+}

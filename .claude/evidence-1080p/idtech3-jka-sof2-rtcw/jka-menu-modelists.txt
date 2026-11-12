@@ -1,0 +1,23 @@
+Jedi Academy (retail 1.01) - every menu that edits the video mode (ui_r_mode -> r_mode on Apply)
+assets1.pk3 : ui/ingamesetup.menu
+    cvarFloatList { @MENUS_640_X_480 3 @MENUS_800_X_600 4 @MENUS_1024_X_768 6 @MENUS_1152_X_864 7 @MENUS_1280_X_1024 8 @MENUS_1600_X_1200 9 @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
+assets1.pk3 : ui/jamp/ingame_setup.menu
+    cvarFloatList { @MENUS_640_X_480 3 @MENUS_800_X_600 4 @MENUS_1024_X_768 6 @MENUS_1152_X_864 7 @MENUS_1280_X_1024 8 @MENUS_1600_X_1200 9 @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
+assets1.pk3 : ui/jamp/setup.menu
+    cvarFloatList { @MENUS_640_X_480 3 @MENUS_800_X_600 4 @MENUS_1024_X_768 6 @MENUS_1152_X_864 7 @MENUS_1280_X_1024 8 @MENUS_1600_X_1200 9 @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
+assets1.pk3 : ui/setup.menu
+    cvarFloatList { @MENUS_640_X_480 3 @MENUS_800_X_600 4 @MENUS_1024_X_768 6 @MENUS_1152_X_864 7 @MENUS_1280_X_1024 8 @MENUS_1600_X_1200 9 @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
+assets3.pk3 : ui/jamp/setup.menu
+    cvarFloatList { @MENUS_640_X_480 3 @MENUS_800_X_600 4 @MENUS_1024_X_768 6 @MENUS_1152_X_864 7 @MENUS_1280_X_1024 8 @MENUS_1600_X_1200 9 @MENUS_2048_X_1536 10 @MENUS_2400_X_600 12 }
+
+labels (assets0.pk3 strings/English/MENUS.str):
+    @MENUS_CUSTOM = "Custom"
+    @MENUS_640_X_480 = "640 X 480"
+    @MENUS_800_X_600 = "800 X 600"
+    @MENUS_960_X_720 = "960 X 720"
+    @MENUS_1024_X_768 = "1024 X 768"
+    @MENUS_1152_X_864 = "1152 X 864"
+    @MENUS_1280_X_1024 = "1280 X 1024"
+    @MENUS_1600_X_1200 = "1600 X 1200"
+    @MENUS_2048_X_1536 = "2048 X 1536"
+    @MENUS_2400_X_600 = "2400 X 600(surround)"

@@ -1,0 +1,20 @@
+Quake1  Play Quake.bat      -cap 1280 960 -> GLQUAKE -width FR_W43 -height FR_H43
+   .123  -> 800x600                (FR_W/H 1280x720, FR_W43/H43 800x600, FR_Q2MODE 4; GAMERES q2mode 8)
+   .145  -> 800x600                (FR_W/H 1280x720, FR_W43/H43 800x600, FR_Q2MODE 4; GAMERES q2mode 8)
+   .195  -> 800x600                (FR_W/H 1280x720, FR_W43/H43 800x600, FR_Q2MODE 4; GAMERES q2mode 8)
+   .240  -> 800x600                (FR_W/H 1280x720, FR_W43/H43 800x600, FR_Q2MODE 4; GAMERES q2mode 8)
+HexenII Play/Host/Join .bat -cap 1024 768 -> glh2 -width FR_W -height FR_H
+   .123  -> 848x480                (FR_W/H 848x480, FR_W43/H43 640x480, FR_Q2MODE 3; GAMERES q2mode 8)
+   .145  -> 1024x768               (FR_W/H 1024x768, FR_W43/H43 1024x768, FR_Q2MODE 6; GAMERES q2mode 8)
+   .195  -> 1024x768               (FR_W/H 1024x768, FR_W43/H43 1024x768, FR_Q2MODE 6; GAMERES q2mode 8)
+   .240  -> 848x480                (FR_W/H 848x480, FR_W43/H43 640x480, FR_Q2MODE 3; GAMERES q2mode 8)
+Quake2Complete / SiNGold / SoF (no cap)  -> gl_mode FR_Q2MODE
+   .123  -> gl_mode 8 = 1280x960   (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+   .145  -> gl_mode 8 = 1280x960   (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+   .195  -> gl_mode 8 = 1280x960   (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+   .240  -> gl_mode 8 = 1280x960   (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+Doom3 (no cap)                           -> r_customWidth/Height FR_W/FR_H
+   .123  -> 1920x1080              (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+   .145  -> 1920x1080              (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+   .195  -> 1920x1080              (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)
+   .240  -> 1920x1080              (FR_W/H 1920x1080, FR_W43/H43 1280x960, FR_Q2MODE 8; GAMERES q2mode 8)

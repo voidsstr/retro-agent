@@ -1,0 +1,8 @@
+ue1: no fleet game server needs a change.
+  - D3DDrv.dll is a client renderer; dedicated servers (ucc server) never load it.
+  - DEUSEX.U: deusex-server (/home/voidsstr/deusex-server/System/DEUSEX.U) carries the
+    identical ORIGINAL (md5 d343da03a6d311ee412dfae4b52ff975). The patched client copy keeps
+    the package GUID 6bcadecaffb7b34e92b50c1f8eccec21 and its one generation (21422 exports,
+    12872 names), which is all UE1's package map compares at join. The edited function is
+    menu code that only runs on the client. Leave the server's copy alone.
+Nothing to restart.

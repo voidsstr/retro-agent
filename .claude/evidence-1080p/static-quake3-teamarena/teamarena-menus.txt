@@ -1,0 +1,165 @@
+# Team Arena menu data - extracted verbatim (CR stripped) from the staged paks
+# /mnt/retro-share/Files/Games-Library/Quake3-TeamArena/missionpack/pak3.pk3 ui/menus.txt  (1.32 point release; loaded at the main menu, ui_menuFiles default)
+// menu defs
+// 
+{	
+	loadMenu { "ui/main.menu" }
+ 	loadMenu { "ui/joinserver.menu" }
+ 	loadMenu { "ui/filter.menu" }
+	loadMenu { "ui/punkbuster.menu" }
+ 	loadMenu { "ui/player.menu" }
+ 	loadMenu { "ui/setup.menu" }
+ 	loadMenu { "ui/fight.menu" }
+ 	loadMenu { "ui/skirmish.menu" }
+ 	loadMenu { "ui/createserver.menu" }
+	loadMenu { "ui/controls.menu" }
+	loadMenu { "ui/cdkey.menu" }
+	loadMenu { "ui/system.menu" }
+	loadMenu { "ui/options.menu" }
+	loadMenu { "ui/help.menu" }
+	loadMenu { "ui/ordershelp.menu" }
+ 	loadMenu { "ui/mod.menu" }
+	loadMenu { "ui/demo.menu" }
+	loadMenu { "ui/cinematicmenu.menu" }
+	loadMenu { "ui/credit.menu" }
+	loadMenu { "ui/demo_quit.menu" }
+	loadMenu { "ui/connect.menu" }
+	loadMenu { "ui/powerup.menu" } 
+	loadMenu { "ui/password.menu" }
+	loadMenu { "ui/quake3.menu" }
+	loadMenu { "ui/quit.menu" }
+	loadMenu { "ui/vid_restart.menu" }
+	loadMenu { "ui/default.menu" }
+	loadMenu { "ui/addfilter.menu" }
+	loadMenu { "ui/error.menu" }
+	loadMenu { "ui/serverinfo.menu" }
+	loadMenu { "ui/findplayer.menu" }
+	loadMenu { "ui/endofgame.menu" }
+	loadMenu { "ui/quitcredit.menu" }
+	loadMenu { "ui/resetscore.menu" }
+	loadMenu { "ui/createfavorite.menu" }
+}
+
+# /mnt/retro-share/Files/Games-Library/Quake3-TeamArena/missionpack/pak0.pk3 ui/ingame.txt  (in-game menus; pak1-pak3 do not replace it)
+// menu defs
+// 
+{	
+ 	loadMenu { "ui/ingame.menu" }
+	loadMenu { "ui/ingame_vote.menu" }
+	loadMenu { "ui/ingame_about.menu" }
+	loadMenu { "ui/ingame_controls.menu" }
+	loadMenu { "ui/ingame_join.menu" }
+	loadMenu { "ui/ingame_options.menu" }
+	loadMenu { "ui/ingame_system.menu" }
+	loadMenu { "ui/ingame_leave.menu" }
+	loadMenu { "ui/ingame_player.menu" }
+	loadMenu { "ui/ingame_addbot.menu" }
+	loadMenu { "ui/ingame_callvote.menu" }
+	loadMenu { "ui/ingame_orders.menu" }
+}
+
+# which pak supplies each file (pak3 replaces only createserver/joinserver/filter/punkbuster/menus.txt):
+## missionpack/pak0.pk3
+      487  2000-11-30 14:43   ui/ingame.txt
+    12623  2000-11-30 14:43   ui/ingame_system.menu
+     1144  2000-11-30 14:43   ui/menus.txt
+    14259  2000-11-30 14:43   ui/system.menu
+   272040  2000-12-04 11:12   vm/ui.qvm
+## missionpack/pak1.pk3
+   276280  2001-08-20 16:04   vm/ui.qvm
+## missionpack/pak2.pk3
+   276280  2001-12-11 09:58   vm/ui.qvm
+## missionpack/pak3.pk3
+     1174  2002-09-30 17:28   ui/menus.txt
+   279320  2002-09-30 17:28   vm/ui.qvm
+
+# ui/system.menu (pak0) lines 134-150 - MAIN MENU Setup > System > Graphics
+	itemDef {
+   		name graphics
+		group grpSystem
+   		type ITEM_TYPE_MULTI	
+		text "Video Mode:"
+		cvar "r_mode"
+		cvarFloatList { "320*240" 0 "400*300" 1 "512*384" 2 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*1024" 8 "1600*1200" 9 "2048*1536" 10 "856*480 Wide Screen" 11 }
+		rect 99 117 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 20
+		textscale .333        
+      		forecolor 1 1 1 1
+      		visible 0 
+		action { uiScript glCustom }
+	}
+
+
+# ui/ingame_system.menu (pak0) lines 231-247 - IN-GAME ESC > System > Graphics
+	itemDef {
+      		name graphics
+			group grpSystem
+      		type ITEM_TYPE_MULTI
+		text "Video Mode:"
+		cvar "r_mode"
+		cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+		rect 0 110 256 20
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 133
+      		textaligny 17
+		textscale .25        
+      		forecolor 1 1 1 1
+      		visible 0 
+			action { uiScript glCustom }
+    		}
+
+
+# ui/system.menu Apply (opens vid_restart_popmenu -> exec vid_restart; touches no r_mode)
+itemDef {
+	name graphics
+	text "Apply"
+	type 1
+	group grpSystem
+	textscale .3
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 181 357 100 26
+	textalign 1
+	textalignx 50
+	textaligny 20
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { play "sound/misc/kcaction.wav" ; 
+	open vid_restart_popmenu }
+	mouseEnter { setitemcolor graphics backcolor .1 .37 .1 1 } 
+	mouseExit { setitemcolor graphics backcolor .37 .1 .1 1 } 
+		}
+
+# ui/ingame_system.menu Apply
+itemDef {
+	name graphics
+	text "Apply"
+	type 1
+	textscale .25
+	group grpsystem
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 101 295 75 20
+	textalign 1
+	textalignx 37
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 0
+	action { exec "vid_restart" }
+	mouseEnter { setcolor backcolor .1 .37 .1 1 }
+      	mouseExit { setcolor backcolor .37 .1 .1 1 }
+	}
+
+# strings in the two Team Arena UI modules - neither reads r_availableModes (case-insensitive grep):
+## missionpack/uix86.dll (ioq3 1.36 build of code/ui):
+r_mode
+trap_R_ModelBounds
+## missionpack/pak3.pk3!vm/ui.qvm (id TA 1.32):
+r_mode
+hideCvar
+showCvar
+cvarTest

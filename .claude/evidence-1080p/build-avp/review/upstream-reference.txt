@@ -1,0 +1,4 @@
+# 2026-09-29T04:56:33-04:00 upstream NakedAVP README re-fetched
+curl https://raw.githubusercontent.com/atsb/NakedAVP/master/README.md -> md5 62b32d3355c382e6c6ae13fa07b235d3, 201 MD5 lines
+builder's evidence copy md5 62b32d3355c382e6c6ae13fa07b235d3
+provisioning/patches/avp/nakedavp-gold-md5.txt: all 201 MD5 lines IDENTICAL to upstream

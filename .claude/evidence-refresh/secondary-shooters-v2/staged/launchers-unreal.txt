@@ -1,0 +1,432 @@
+################ UnrealGold
+--- launch.txt
+Play Unreal Gold.bat	Unreal Gold	System\Unreal.ico
+Host Unreal Gold LAN.bat	Unreal Gold - Host LAN Server	System\Unreal.ico
+--- UnrealGold/Host Unreal Gold LAN.bat (2831 B)
+@echo off
+rem ==========================================================================
+rem  Unreal Gold - HOST a LAN deathmatch (DEDICATED SERVER)
+rem
+rem  VERIFIED 2026-08-31: this exact form was run on .143 and a client on .246
+rem  joined it over the LAN. The server console printed
+rem      Open MyLevel 08/31/26 00:47:50 192.168.1.246:56341
+rem      Level server received: HELLO REVISION=0 MINVER=224 VER=226
+rem      Join succeeded! Player1
+rem  and the client's scoreboard read "Another Unreal Server / DeathMatch /
+rem  DMDeck16". Proof: lan-proof/unreal-rts/unrealgold-SERVER-143-*.png.
+rem
+rem  Unlike Deus Ex's headless host, THIS ONE DRAWS A CONSOLE WINDOW, because
+rem  UCC.exe is a console program. That window IS the evidence: it names every
+rem  player that joins. Do not hide it.
+rem
+rem  Ports: game 7777/udp, GameSpy query 7778/udp (game port + 1), LAN beacon
+rem  7775/udp. The beacon is what puts this server in another box's in-game
+rem  LAN browser, so nothing has to be typed on the joining machine.
+rem
+rem  A CLIENT CAN ALSO JOIN BY TYPING, which is the route that does not depend
+rem  on the browser opening: press the console key and enter
+rem      open <this machine's IP>:7777
+rem  Passing the address on the COMMAND LINE does not work - UE1 appends
+rem  [URL] Map (Index.unr) to it, the browse fails, and the game drops silently
+rem  to the intro map with nothing in the log to say why. Measured twice.
+rem
+rem  THIS IS NOT A HOST-SIDE SERVICE. Unreal 226 has no Linux build, so this
+rem  server can only run on a fleet box. The OldUnreal 227k Linux server does
+rem  run on the dev host, but a 226 client cannot join it: the 227 packages are
+rem  a later generation and the client aborts with
+rem      Warning: Failed to load 'UnrealI': Package 'UnrealI' version mismatch
+rem  even though the server advertises mingamever\224. See FINDINGS.md.
+rem
+rem  Change the map by editing the line below. Deathmatch maps in this tree:
+rem  DmAriza DmCurse DmDeathFan DmDeck16 DmElsinore DmFith DmHealPod DmMorbias
+rem  DmRadikus DmTundra.
+rem ==========================================================================
+cd /d "%~dp0System"
+
+rem UE1 writes Running.ini on start and deletes it on a clean exit. A killed
+rem server leaves it behind and the NEXT start opens a "Recovery Mode" dialog
+rem instead of the server - the same trap Deus Ex and UT hit.
+if exist "Running.ini" del /f /q "Running.ini" >nul 2>&1
+
+echo.
+echo  Starting the Unreal Gold LAN server on this machine.
+echo  Players join port 7777 - it should also appear in their in-game LAN
+echo  browser by itself. This machine's addresses:
+ipconfig | findstr /i "IPv4 Address"
+echo.
+start "UnrealGold LAN Server" "UCC.exe" server DmDeck16.unr?game=UnrealShare.DeathMatchGame -port=7777
+exit
+--- UnrealGold/Play Unreal Gold.bat (2933 B)
+@echo off
+rem Unreal Gold - fleet launcher.
+rem
+rem The del is preventative, not a fix for a problem this title has today:
+rem Unreal Gold is the one UE1 title on the fleet with NO stale Running.ini,
+rem which is exactly why it was the control that proved the mechanism - it goes
+rem straight into the game while UT and Deus Ex met "Recovery Mode" (box-240).
+rem UE1 creates System\Running.ini on start and deletes it on a clean exit, so
+rem the moment anyone taskkills this game - which every screenshot test does -
+rem it would join them. GAMESYNC cannot undo that afterwards: gs_copy_file only
+rem adds and overwrites, never deletes.
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+rem ---- per-box RENDER DEVICE (see stage-fleetres.py) --------------
+if "%FR_GLIDE%"=="1" (
+  if exist "%~dp0System\glide2x.dll" move /y "%~dp0System\glide2x.dll" "%~dp0System\glide2x.dll.nglide" >nul
+) else (
+  if not exist "%~dp0System\glide2x.dll" if exist "%~dp0System\glide2x.dll.nglide" move /y "%~dp0System\glide2x.dll.nglide" "%~dp0System\glide2x.dll" >nul
+)
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" Engine.Engine GameRenderDevice %FR_UE1DEV%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" Engine.Engine WindowedRenderDevice %FR_UE1DEV%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" Engine.Engine RenderDevice %FR_UE1DEV%
+)
+set UE1G2W=640
+set UE1G2H=480
+if %FR_W43% GEQ 800 if %FR_H43% GEQ 600 set UE1G2W=800
+if %FR_W43% GEQ 800 if %FR_H43% GEQ 600 set UE1G2H=600
+if %FR_W43% GEQ 1024 if %FR_H43% GEQ 768 set UE1G2W=1024
+if %FR_W43% GEQ 1024 if %FR_H43% GEQ 768 set UE1G2H=768
+if %FR_W43% GEQ 1600 if %FR_H43% GEQ 1200 set UE1G2W=1600
+if %FR_W43% GEQ 1600 if %FR_H43% GEQ 1200 set UE1G2H=1200
+if /i "%FR_UE1DEV%"=="GlideDrv.GlideRenderDevice" if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" WinDrv.WindowsClient FullscreenViewportX %UE1G2W%
+if /i "%FR_UE1DEV%"=="GlideDrv.GlideRenderDevice" if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -ini "%~dp0System\Unreal.ini" WinDrv.WindowsClient FullscreenViewportY %UE1G2H%
+
+cd /d "%~dp0System"
+if exist "Running.ini" del /q "Running.ini"
+start "" "Unreal.exe"
+
+rem Close this console. A .bat that ends at "start" leaves its window open for
+rem the life of the game, and after a dozen launches box-145 had SIXTEEN of
+rem them stacked on the desktop - which actively corrupted testing, because a
+rem screenshot then showed a cluttered desktop and you could not tell "the
+rem game is fullscreen and GDI cannot see it" from "the game never started".
+exit
+################ UnrealTournament
+--- launch.txt
+Play Unreal Tournament.bat	Unreal Tournament	System\UnrealTournament.exe
+--- UnrealTournament/Play Unreal Tournament.bat (2683 B)
+@echo off
+rem Unreal Tournament (OldUnreal 469e) - fleet launcher.
+rem
+rem The del is the point. UE1 creates System\Running.ini when it starts and
+rem deletes it on a CLEAN exit; finding it at startup is what raises
+rem "Unreal Tournament Recovery Mode - the previous time UT was run it was not
+rem shut down properly". Every time any of us taskkills UT after a screenshot,
+rem and every real crash, leaves that file behind - so from then on the box
+rem greets the user with a dialog instead of the game. Deleting it here makes
+rem the title resilient to how it is actually used, not just to how it was
+rem staged. (The stale Running.ini was also removed from the staged tree.)
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+cd /d "%~dp0System"
+if exist "Running.ini" del /q "Running.ini"
+
+rem --------------------------------------------------------------------------
+rem  GAMESYNC CANNOT DELETE, so the launcher does it.
+rem  magick.exe was a 39 MB ImageMagick 7 binary left in System\ on 2026-08-28
+rem  by whoever generated this tree's icons. Nothing launched it - no .bat, no
+rem  .ini, no repo script named it - and it is PE SUBSYSTEM 6.0, i.e. Vista and
+rem  later, so XP's loader refuses it before a single instruction runs. It was
+rem  therefore 39 MB of unloadable dead weight shipped to every box. It is gone
+rem  from the library now, but removing a file from the staged tree does NOT
+rem  remove it from a machine that already synced it, so this deletes it here.
+rem  Same mechanism as the Running.ini line above and Tiberian Sun's
+rem  GAME-cncnet-candidate.exe. Found by the pe-subsystem check added to
+rem  scripts/validate-staged-library.py on 2026-08-30.
+rem --------------------------------------------------------------------------
+if exist "magick.exe" del /f /q "magick.exe" >nul 2>&1
+if exist "magick-NOTICE.txt" del /f /q "magick-NOTICE.txt" >nul 2>&1
+
+start "" "UnrealTournament.exe"
+
+rem Close this console. A .bat that ends at "start" leaves its window open for
+rem the life of the game, and after a dozen launches box-145 had SIXTEEN of
+rem them stacked on the desktop - which actively corrupted testing, because a
+rem screenshot then showed a cluttered desktop and you could not tell "the
+rem game is fullscreen and GDI cannot see it" from "the game never started".
+exit
+################ UnrealTournament436
+--- launch.txt
+Play Unreal Tournament 436.bat	Unreal Tournament 436	System\UnrealTournament.exe
+Join fleet UT99 server - 436.bat	UT99 436 - Join Fleet Server	System\UnrealTournament.exe
+Play Unreal Tournament 436 - Voodoo.bat	Unreal Tournament - 3dfx Voodoo	System\UnrealTournament.exe
+#
+# BOTH VERIFIED ON HARDWARE 2026-08-29 on .143 (Athlon K75 - no SSE at all),
+# from a GAMESYNC deploy of this staged tree, not a hand-built copy.
+#
+# WHY THIS TITLE EXISTS ALONGSIDE UnrealTournament/ - read before "tidying" it.
+# UT99 469e requires SSE2 and dies with 0xC000001D STATUS_ILLEGAL_INSTRUCTION on
+# THREE fleet boxes: .124, .133 and .143. This tree is retail 436, which carries
+# no SSE2 at all, and it JOINS THE SAME 469e SERVER - the join is a version
+# handshake with a floor of 432. Server log, from the verified run:
+#   Accepted / HELLO REVISION=0 MINVER=400 VER=436 / JOIN / Join succeeded
+# The 469e tree is unchanged and stays the default everywhere it runs.
+#
+# NO PARENTHESES IN EITHER FILENAME, deliberately. A .bat whose name contains
+# ( or ) cannot be launched through the agent: the quoting is lost by the time
+# cmd parses it. Desktop shortcuts are unaffected, so the file looks perfectly
+# good to a person double-clicking it and only breaks automation.
+#
+# THE ICON FIELD IS EXPLICIT ON PURPOSE, and it has to be for the second line:
+# no heuristic could tell two launchers apart when both reach the same exe.
+--- UnrealTournament436/Join fleet UT99 server - 436.bat (2132 B)
+@echo off
+rem Unreal Tournament 436 - join the fleet UT99 server directly.
+rem
+rem VERIFIED ON HARDWARE 2026-08-29 (.143): this exact command form joined
+rem 192.168.1.132:7797 first time. Server log: Accepted / HELLO REVISION=0
+rem MINVER=400 VER=436 / JOIN / Login / Possessed PlayerPawn / Join succeeded,
+rem and the client rendered live play on DM-Tempest at ping 11.
+rem
+rem *** THE COMMAND FORM MATTERS. USE unreal:// - DO NOT "SIMPLIFY" IT. ***
+rem Passing a bare "192.168.1.132:7797" as an argument produced NO PROCESS AT
+rem ALL on that box - no window, no log write, no screenshot, not even an error
+rem dialog, which reads exactly like the game never being launched. The
+rem unreal:// URL scheme in a .bat on the box is the form that was proven.
+rem
+rem HONEST SCOPE, because two things differed between those two attempts: the
+rem URL scheme AND the launch route (a .bat run on the box, versus the agent
+rem issuing `start` remotely). Nobody has isolated which one mattered, so this
+rem file does not claim the bare form is broken - only that THIS form works and
+rem is therefore the one that ships. If you ever need to know which variable it
+rem was, change one at a time.
+rem
+rem Running.ini is deleted here for the same reason as the ordinary launcher:
+rem UE1 writes it while running and removes it on a clean exit, so any taskkill
+rem after a screenshot leaves one behind and the NEXT launch meets "Unreal
+rem Tournament Recovery Mode" instead of the game. GAMESYNC can never remove it.
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+cd /d "%~dp0System"
+if exist "Running.ini" del /q "Running.ini"
+start "" "UnrealTournament.exe" unreal://192.168.1.132:7797
+
+rem Close this console - see the note in "Play Unreal Tournament 436.bat".
+exit
+--- UnrealTournament436/Play Unreal Tournament 436.bat (1981 B)
+@echo off
+rem Unreal Tournament - RETAIL 436 - fleet launcher for the PRE-SSE2 boxes.
+rem
+rem This is NOT a downgrade of the fleet. The 469e tree in
+rem Games-Library\UnrealTournament\ is unchanged and is still the default on
+rem every box that can run it. This tree exists for .124, .133 and .143, whose
+rem CPUs cannot execute the 469e binary at all, and it joins THE SAME server.
+rem
+rem The del is the point, and it is the same one the 469e launcher makes. UE1
+rem creates System\Running.ini when it starts and deletes it on a CLEAN exit;
+rem finding it at startup is what raises "Unreal Tournament Recovery Mode - the
+rem previous time UT was run it was not shut down properly". Every taskkill
+rem after a screenshot, and every real crash, leaves that file behind - so from
+rem then on the box greets the user with a dialog instead of the game. The
+rem share's own 436 media ships a stale one; it was removed when this tree was
+rem staged, but GAMESYNC never deletes, so a box that ever acquired one keeps it
+rem until something removes it. This line is that something.
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UnrealTournament.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+cd /d "%~dp0System"
+if exist "Running.ini" del /q "Running.ini"
+start "" "UnrealTournament.exe"
+
+rem Close this console. A .bat that ends at "start" leaves its window open for
+rem the life of the game, and after a dozen launches one box had SIXTEEN of
+rem them stacked on the desktop - which actively corrupted testing, because a
+rem screenshot then showed a cluttered desktop and you could not tell "the game
+rem is fullscreen and GDI cannot see it" from "the game never started".
+exit
+--- UnrealTournament436/Play Unreal Tournament 436 - Voodoo.bat (1534 B)
+@echo off
+rem Unreal Tournament 436 - 3dfx Voodoo launcher, rendering through Glide.
+rem RUNS UNDER BOTH SHELLS: Win98 COMMAND.COM and XP cmd.exe - so no %~dp0,
+rem no cd /d, no start "title", no blocks. The desktop shortcut starts in
+rem this folder.
+rem
+rem For a box whose 3D card is a Voodoo 1/2 behind a 2D chip - .243, a
+rem Pentium 166 with a Voodoo 2 - so UT renders through GlideDrv on the
+rem Voodoo, not OpenGL on the 2D chip. System\Voodoo.ini is
+rem UnrealTournament.ini with GameRenderDevice=GlideDrv, 640x480x16
+rem fullscreen and lighter detail for a slow CPU; INI= leaves the fleet
+rem ini alone for every other box and launcher.
+rem
+rem Agents older than 1.84.0 ignore the glide requirement in requires.json,
+rem so this launcher checks for Glide itself.
+if not exist System\UnrealTournament.exe goto notree
+if exist %windir%\SYSTEM32\GLIDE2X.DLL goto glide
+if exist %windir%\SYSTEM\GLIDE2X.DLL goto glide
+echo.
+echo  No 3dfx Glide driver is installed on this machine.
+echo  This shortcut is for a 3dfx Voodoo card.
+echo.
+pause
+goto end
+:glide
+cd System
+rem UE1 leaves Running.ini behind after a crash or a kill, and finding it
+rem raises the Recovery Mode dialog instead of the game.
+if exist Running.ini del Running.ini
+start /w UnrealTournament.exe INI=Voodoo.ini
+cd ..
+rem A fullscreen Glide game can leave the 2D desktop unpainted on exit.
+if exist DESKFIX9.EXE DESKFIX9.EXE
+goto end
+:notree
+echo System\UnrealTournament.exe is missing - the tree is incomplete.
+pause
+:end
+################ UT2004
+--- launch.txt
+Play UT2004.bat	Unreal Tournament 2004	System\UT2004.exe
+Join fleet UT2004 server.bat	UT2004 - Join the fleet server	System\UT2004.exe
+--- UT2004/Join fleet UT2004 server.bat (1703 B)
+@echo off
+rem Connect straight to the fleet's own UT2004 server. No master server and no
+rem internet needed - this is a direct connect on the LAN.
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UT2004.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UT2004.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UT2004.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+rem A UNIQUE PLAYER NAME, generated on the box. Two things depend on it:
+rem   * UT2004 refuses to go online quietly while the name is still the
+rem     stock "Player" - it raises "You have not fully configured your
+rem     internet play options" on EVERY launch, which stops an unattended
+rem     box dead at a modal dialog.
+rem   * a LAN scoreboard of several boxes all called "Player" identifies
+rem     nobody.
+rem It CANNOT be a staged constant for exactly the reason the Westwood
+rem Serial cannot be - one library, many machines - so it is written here
+rem from %COMPUTERNAME% at launch.
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\User.ini" DefaultPlayer Name %COMPUTERNAME%
+)
+
+cd /d "%~dp0System"
+start "" "UT2004.exe" "192.168.1.132:7777"
+
+rem Close this console. A .bat that ends at "start" leaves its window open for
+rem the life of the game, and after a dozen launches box-145 had SIXTEEN of
+rem them stacked on the desktop - which actively corrupted testing, because a
+rem screenshot then showed a cluttered desktop and you could not tell "the
+rem game is fullscreen and GDI cannot see it" from "the game never started".
+exit
+--- UT2004/Play UT2004.bat (1739 B)
+@echo off
+rem Unreal Tournament 2004 (ECE, build 3369) - fleet launcher.
+rem A desktop shortcut carries no arguments (gamesync.c never calls
+rem SetArguments), so anything that needs a switch lives here.
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UT2004.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UT2004.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\UT2004.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+rem A UNIQUE PLAYER NAME, generated on the box. Two things depend on it:
+rem   * UT2004 refuses to go online quietly while the name is still the
+rem     stock "Player" - it raises "You have not fully configured your
+rem     internet play options" on EVERY launch, which stops an unattended
+rem     box dead at a modal dialog.
+rem   * a LAN scoreboard of several boxes all called "Player" identifies
+rem     nobody.
+rem It CANNOT be a staged constant for exactly the reason the Westwood
+rem Serial cannot be - one library, many machines - so it is written here
+rem from %COMPUTERNAME% at launch.
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0System\User.ini" DefaultPlayer Name %COMPUTERNAME%
+)
+
+cd /d "%~dp0System"
+start "" "UT2004.exe"
+
+rem Close this console. A .bat that ends at "start" leaves its window open for
+rem the life of the game, and after a dozen launches box-145 had SIXTEEN of
+rem them stacked on the desktop - which actively corrupted testing, because a
+rem screenshot then showed a cluttered desktop and you could not tell "the
+rem game is fullscreen and GDI cannot see it" from "the game never started".
+exit
+################ DeusEx
+--- launch.txt
+Play Deus Ex.bat	Deus Ex	HELP\DEUSEX.ICO
+Host Deus Ex Multiplayer.bat	Deus Ex - Host Multiplayer Server	HELP\DEUSEX.ICO
+--- DeusEx/Host Deus Ex Multiplayer.bat (3206 B)
+@echo off
+rem ==========================================================================
+rem  Deus Ex - HOST a multiplayer game (DEDICATED SERVER)
+rem
+rem  THIS EXACT FORM IS PROVEN, and proven OFF-BOX rather than by reading a
+rem  screen - which matters, because this server runs HEADLESS and draws no
+rem  window at all. Two independent boxes confirmed it:
+rem    * netstat -an on the host shows  UDP 0.0.0.0:7790  listening
+rem    * a GameSpy query to <host>:7791 answers
+rem        \gamename\deusex \mapname\DXMP_Cathedral
+rem        \gametype\DeusExMPGame \maxplayers\16 \gamemode\openplaying
+rem  NOTE THE QUERY PORT IS THE GAME PORT + 1 (7790 -> 7791). Probing 7776/7777
+rem  times out and would read as "no server at all".
+rem
+rem  THREE THINGS THE FIRST ATTEMPTS GOT WRONG - do not reintroduce them:
+rem    1. THE GAME CLASS IS DeusEx.DeusExMPGame. There is no "MPGame" class;
+rem       SYSTEM\DEUSEX.INT declares [DeusExMPGame] and [DeathMatchGame]. A UE1
+rem       engine that cannot resolve the class falls back to its LocalMap, which
+rem       is exactly the "URL ignored, fell through to the intro" symptom.
+rem    2. THE MAP EXTENSION IS .dx  ([URL] MapExt=dx in DEUSEX.INI), not .unr.
+rem    3. THE PROTOCOL IS deusex AND THE PORT IS 7790 - not unreal:// and not
+rem       UT99's 7777.
+rem
+rem  There is NO ucc.exe in this tree, so the dedicated server is DeusEx.exe
+rem  itself rather than the ucc pattern UT99 uses.
+rem
+rem  *** THIS SHORTCUT IS NOW VERIFIED, not just the command form. ***
+rem  Run from a clean staged tree on .123, netstat -an shows UDP 0.0.0.0:7790
+rem  listening with no game window - exactly as predicted. Until that test the
+rem  file carried a caveat separating "the command form is proven" from "this
+rem  .bat has been run", because those are different claims and only the first
+rem  had evidence. Both have it now.
+rem
+rem  Maps: DXMP_Area51Bunker DXMP_CMD DXMP_Cathedral DXMP_Silo DXMP_Smuggler
+rem  Change the map by editing the line below.
+rem ==========================================================================
+call "%~dp0FLEETRES.BAT"
+if exist "%~dp0FLEETRES.EXE" (
+  "%~dp0FLEETRES.EXE" -ini "%~dp0SYSTEM\DeusEx.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0SYSTEM\DeusEx.ini" WinDrv.WindowsClient FullscreenViewportY %FR_H%
+  "%~dp0FLEETRES.EXE" -ini "%~dp0SYSTEM\DeusEx.ini" WinDrv.WindowsClient StartupFullscreen True
+)
+
+cd /d "%~dp0"
+
+rem Running.ini bites Deus Ex exactly as it bit Unreal Tournament: a killed
+rem process leaves it behind and the next start opens a "Deus Ex Recovery Mode"
+rem dialog instead of the game. That silently invalidated one of the test
+rem attempts. ANY direct-exe launch must clear it first - including this one.
+if exist "%~dp0System\Running.ini" del /f /q "%~dp0System\Running.ini" >nul 2>&1
+
+echo.
+echo  Starting the Deus Ex dedicated server. It runs HEADLESS - no window will
+echo  appear. That is correct, not a failure.
+echo  Players join this machine's address on port 7790.
+ipconfig | findstr /i "IPv4 Address"
+echo.
+start "" "%~dp0System\DeusEx.exe" DXMP_Cathedral.dx?game=DeusEx.DeusExMPGame -server
+exit

@@ -1,0 +1,42 @@
+# 2026-09-29T04:57:33-04:00 review: independent capstone reads of the staged avp.exe (md5 91bb8e752f42d35f594fc06feabd49cf)
+IID at 0x5f8460 = {9C59509A-39BD-11D1-8C4A-00C04FD930C5}  QI at 0x55944d (GetDeviceIdentifier at vtbl+0x6c)
+IID at 0x5f84f0 = {3BBA0080-2421-11CF-A31A-00AA00B93356}  QI at 0x559599 then EnumDevices at vtbl+0x10
+  {9C59509A-39BD-11D1-8C4A-00C04FD930C5} = IID_IDirectDraw4; {3BBA0080-2421-11CF-A31A-00AA00B93356} = IID_IDirect3D (v1)
+string 0x5dea58 b'after MinimizeAllImages'
+string 0x5dea70 b'after MinimizeAllDDGraphics'
+string 0x5dea8c b'after ReleaseDirect3DNotDDOrImages'
+string 0x5deab0 b'after finiObjectsExceptDD'
+string 0x5deacc b'after ChangeDirectDrawObject'
+string 0x5deaec b'after GenerateDirectDrawSurface'
+## SelectMenuDisplayMode tail: 640 (ebp=0x280 set at 0x491ed5) and 480 into the mode globals 0x819bd0/0x819bd4
+## 491ed0
+  00491ed0: mov      eax, 0x5deab0
+  00491ed5: mov      ebp, 0x280
+  00491eda: call     0x457458
+  00491edf: call     0x537f28
+  00491ee4: xor      eax, eax
+  00491ee6: xor      edx, edx
+  00491ee8: call     0x538580
+  00491eed: mov      eax, dword ptr [0x75a348]
+  00491ef2: mov      dword ptr [0x75a358], edx
+  00491ef8: mov      dword ptr [0x82082c], edx
+  00491efe: mov      dword ptr [0x75a350], edx
+  00491f04: mov      dword ptr [0x82084c], esi
+  00491f0a: mov      dword ptr [0x820840], edi
+  00491f10: mov      dword ptr [0x819bd0], ebp
+  00491f16: mov      dword ptr [0x820838], eax
+  00491f1b: mov      eax, 0x1e0
+  00491f20: mov      dword ptr [0x819bdc], edi
+  00491f26: mov      dword ptr [0x819bd4], eax
+## the SetDisplayMode call the builder cited (0x537511) - a byte search for every call [reg+0x54] whose preceding 8 instructions load the DirectDraw object [0x852c20] finds exactly this one site: IDirectDraw v1 vtbl+0x54 with (this, w=[0x819bd0], h=[0x819bd4], bpp=[0x852c4c]) - no refresh argument
+  005374ef: mov    ebp, dword ptr [0x852c4c]
+  005374f5: push   ebp
+  005374f6: mov    edx, dword ptr [0x819bd4]
+  005374fc: push   edx
+  005374fd: mov    ebx, dword ptr [0x819bd0]
+  00537503: mov    eax, dword ptr [0x852c20]
+  00537508: push   ebx
+  00537509: mov    ecx, dword ptr [eax]
+  0053750b: push   eax
+  0053750c: mov    ebx, 0x5f1333
+  00537511: call   dword ptr [ecx + 0x54]

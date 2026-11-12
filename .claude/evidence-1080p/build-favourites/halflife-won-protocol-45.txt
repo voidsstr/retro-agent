@@ -1,0 +1,7 @@
+WON Half-Life (staged HalfLife1) client protocol, verified 2026-09-29
+hl.exe version string:
+1.0.1.4
+374a87fd6175a6a9541656bc959bc822  hw.dll
+hw.dll CL_Parse_Version: bytes before the push of 'CL_Parse_Version: Server is protocol %i instead of %i' (file off 0x12c7d):
+9090909090909090909090e86bc6000083f82d74106a2d506898c50d10e809e10200
+decoded: e8 rel32 (call) ; 83 f8 2d = cmp eax,0x2d (45) ; 74 10 = je ; 6a 2d = push 0x2d ; 50 = push eax ; 68 <str> = push offset

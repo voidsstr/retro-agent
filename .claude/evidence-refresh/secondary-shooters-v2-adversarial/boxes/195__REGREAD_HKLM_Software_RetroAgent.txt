@@ -1,0 +1,2 @@
+# 192.168.1.195  REGREAD HKLM Software\RetroAgent  status=0  2026-09-29 04:41:35
+{"root":"HKLM","path":"Software\\RetroAgent","values":[{"name":"LastUpdateVer","type":"REG_SZ","data":"1.90.2"},{"name":"HwPublished","type":"REG_SZ","data":"2026-09-28 23:39:41 ok"},{"name":"ClockFixed","type":"REG_SZ","data":"from 2013-09-26 01:45:38 to 2026-09-26 19:40:57 UTC via http://192.168.1.122/"}],"subkeys":[]}

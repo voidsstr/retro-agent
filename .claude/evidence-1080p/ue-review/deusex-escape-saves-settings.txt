@@ -1,0 +1,57 @@
+# Deus Ex 1112fm DEUSEX.U (staged, md5 d343da03a6d311ee412dfae4b52ff975): Escape on Settings > Display SAVES, it does not cancel
+
+## MenuUIWindow.VirtualKeyPressed (script text) - MenuScreenDisplay inherits it via MenuUIScreenWindow (which only adds Left/Right cycling):
+// ChildRequestedReconfiguration()
+// ----------------------------------------------------------------------
+function bool ChildRequestedReconfiguration(window child)
+	return False;
+// ----------------------------------------------------------------------
+// VirtualKeyPressed()
+// Called when a key is pressed; provides a virtual key value
+// ----------------------------------------------------------------------
+event bool VirtualKeyPressed(EInputKey key, bool bRepeat)
+	local bool bKeyHandled;
+	bKeyHandled = True;
+	Super.VirtualKeyPressed(key, bRepeat);
+	if ( IsKeyDown( IK_Alt ) || IsKeyDown( IK_Shift ) || IsKeyDown( IK_Ctrl ))
+		return False;
+	switch( key ) 
+		// Hide the screen if the Escape key is pressed
+		// Temp: Also if the Return key is pressed
+		case IK_Escape:
+			if (bEscapeSavesSettings)
+			{
+				SaveSettings();
+				root.PopWindow();
+			}
+			else
+			{
+				CancelScreen();
+			}
+			break;
+		// Enter is the same as clicking OK
+		case IK_Enter:
+			SaveSettings();
+			root.PopWindow();
+
+## DeusExRootWindow.VirtualKeyPressed (only reached when the menu does not handle the key): Ctrl+F9 -> ConsoleCommand("SHOT") works in UI screens
+	Super.VirtualKeyPressed(key, bRepeat);
+	// Check for Ctrl-F9, which is a hard-coded key to take a screenshot
+	if ( IsKeyDown( IK_Ctrl ) && ( key == IK_F9 ))
+		parentPawn.ConsoleCommand("SHOT");			
+		return True;
+
+## class chain: MenuScreenDisplay expands MenuUIScreenWindow; MenuUIScreenWindow extends MenuUIWindow; bEscapeSavesSettings is declared in MenuUIWindow
+## MenuScreenDisplay choices: [1] MenuChoice_FullScreen [2] MenuChoice_RenderDevice [3] MenuChoice_Resolution [4] MenuChoice_TextureColorBits ... Title='Display Settings'
+
+## bEscapeSavesSettings default-property tags (UE1 bool: bit7 of the info byte is the value; d3=True, 53=False)
+   MenuUIWindow: file offset 0x6908d bytes 7c 1f d3 00 -> True
+   MenuUIScreenWindow: not set -> inherits
+   MenuScreenDisplay: not set -> inherits
+   MenuScreenLoadGame: file offset 0x7f93f bytes 7c 1f 53 00 -> False
+   MenuScreenNewGame: file offset 0x84508 bytes 7c 1f 53 00 -> False
+
+=> MenuUIWindow defaults bEscapeSavesSettings=True; only Load Game / New Game turn it off. The Display Settings screen
+   therefore runs SaveSettings() on Escape exactly as on Enter/OK, and MenuChoice_Resolution.SaveSetting() issues
+   'SetRes <enumText[GetValue()]>' whenever that differs from GetCurrentRes. Where 1920x1080 is not in the list,
+   LoadSetting() left the choice on entry 0 = the first token >= 640 wide: 640x480 on .195, 640x400 on .240 (probe-195/240.txt).

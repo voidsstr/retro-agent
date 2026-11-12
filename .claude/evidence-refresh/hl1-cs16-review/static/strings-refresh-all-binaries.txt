@@ -1,0 +1,229 @@
+=== CounterStrike16/cstrike/dlls/mp.dll (30501d8318d426bed3f630dd37ed4f01)
+decalfrequency
+frequency
+m_flNextFreq
+m_flNextFreqInterval
+m_frequency
+mp_ghostfrequency
+QueryPerformanceFrequency
+=== CounterStrike16/cstrike/dlls/zbotcz.dll (b23185bea98fe01f86e85da1c4f75dce)
+decalfrequency
+frequency
+m_flNextFreq
+m_flNextFreqInterval
+m_frequency
+mp_ghostfrequency
+=== CounterStrike16/dbg.dll (99b5e21dfa5e26e9e1ebbbd7a44a6a66)
+QueryPerformanceFrequency
+=== CounterStrike16/gldrv/3dfxgl.dll (d3d7c67f2004431488d03b801804c601)
+QueryPerformanceFrequency
+=== CounterStrike16/hltv.exe (3e6e841c6a326c1bbb39185f045cbb11)
+QueryPerformanceFrequency
+=== CounterStrike16/hw.dll (4903e8e80f2a00d3ab2886f0f209a6d6)
+ChangeDisplaySettingsA
+-freq
+QueryPerformanceFrequency
+r_glowshellfreq
+r_norefresh
+timerefresh
+=== CounterStrike16/mss32.dll (f520185e02e8a5d85860669176bc4adc)
+_AIL_set_timer_frequency@8
+AIL_set_timer_frequency(%ld,%lu)
+CONN_DST_LFO_FREQUENCY   
+LFO Frequency                     
+(Partial #1) TVF CUTOFF FREQ
+(Partial #2) TVF CUTOFF FREQ
+(Partial #3) TVF CUTOFF FREQ
+(Partial #4) TVF CUTOFF FREQ
+QueryPerformanceFrequency
+        WAVE: %d bytes, %d Hz %d-bit %s
+=== CounterStrike16/platform/Friends/friendsui.dll (a931992ce15c9697f42a3c28219b210d)
+.?AVCFriendsRefreshLoginDialog@@
+CFriendsRefreshLoginDialog
+Friends/FriendsRefreshLoginDialog.res
+#Friends_RefreshLogin
+#Friends_RefreshLogin_Title
+#Friends_SignIn_RefreshPassword
+RefreshLogin
+RefreshLoginDialog
+RefreshLoginSuccess
+SteamRefreshLogin
+SteamRefreshLogin() failure : %s
+=== CounterStrike16/platform/Friends/TrackerUI.dll (5c88c4efb2c1cd662e90d5fad984b427)
+Refresh
+=== CounterStrike16/platform/Servers/serverbrowser.dll (82db5fec08b49d03f2b758d8f59d696e)
+refresh
+Refresh
+RefreshButton
+RefreshQuickButton
+RefreshServer
+#ServerBrowser_Refresh
+#ServerBrowser_RefreshAll
+#ServerBrowser_RefreshingServerList
+#ServerBrowser_RefreshQuick
+#ServerBrowser_RefreshServer
+#ServerBrowser_StopRefreshingList
+stoprefresh
+=== CounterStrike16/revSrvBrowser.dll (fa7cce61ae63b4af02ffde70eaf6c0ba)
+CSteamMatchMakingServers::IsRefreshing %d
+CSteamMatchMakingServers::IsRefreshing ret=%d
+CSteamMatchMakingServers::Refresh
+CSteamMatchMakingServers::RefreshQuery %d
+CSteamMatchMakingServers::RefreshServer %d %d
+QueryPerformanceFrequency
+=== CounterStrike16/steamclient.dll (3681b36899ba9c8e6c27b16ab54b8e8c)
+CSteamMatchMakingServers001::IsRefreshing
+CSteamMatchMakingServers001::RefreshQuery
+CSteamMatchMakingServers001::RefreshServer
+CSteamMatchMakingServers::IsRefreshing
+CSteamMatchMakingServers::RefreshQuery
+CSteamMatchMakingServers::RefreshServer
+=== CounterStrike16/Steam.dll (94d9e620da6bd5fe5a4d20aebb15ec6d)
+SteamRefreshAccountInfo
+SteamRefreshAccountInfoEx
+SteamRefreshLogin
+SteamRefreshMinimumFootprintFiles
+=== CounterStrike16/steam/steamclient.dll (6bca1965a1bc9681940b5f172ba7d47b)
+8Assertion Failed: 0 != sm_nPerformanceFrequency
+.?AVCAPIGSJobRefreshItemCache@@
+.?AVCAPIJobRefreshItemCache@@
+.?AVIServerRefreshResponse@@
+k_EMsgAISRefreshContentDescription
+k_EMsgAMRefreshGuestPasses
+k_EMsgFBSForceRefresh
+k_EMsgISRefresh
+m_RefreshList
+QueryPerformanceFrequency
+RefreshSteam2Login
+=== CounterStrike16/steam/Steam.dll (b4366ceda39b272baff2e6e1278177f0)
+Associating pre-existing CAccount for user '%s' to client %d, refreshing login
+.?AVCRefreshAccountInfoCommand@?A0x82d8e8aa@@
+.?AVCRefreshLoginCommand@?A0x82d8e8aa@@
+.?AVCRefreshMinimumFootprintCommand@?A0x82d8e8aa@@
+MinFootprintAutoRefresh
+QueryPerformanceFrequency
+RefreshAccountInfo
+Refreshing login for '
+RefreshLogin
+RefreshMinimumFootprint
+SteamRefreshAccountInfo
+SteamRefreshAccountInfo2
+SteamRefreshAccountInfoEx
+SteamRefreshLogin
+SteamRefreshMinimumFootprint
+SteamRefreshMinimumFootprintFiles
+User '%s' already set for client %d, refreshing login
+=== CounterStrike16/steam/tier0_s.dll (4973c48b7f95f8fdaad3b50915359efe)
+QueryPerformanceFrequency
+=== CounterStrike16/sw.dll (05c1e82726cd5ab6518864f77947527c)
+QueryPerformanceFrequency
+r_glowshellfreq
+timerefresh
+=== CounterStrike16/swds.dll (7f78d251057def0678f58171f52d56f1)
+QueryPerformanceFrequency
+r_glowshellfreq
+timerefresh
+=== CounterStrike16/tier0.dll (e1afe9b5c74dd7726d5250f5cbef020a)
+QueryPerformanceFrequency
+=== CounterStrike16/tier0_s.dll (de10fc8fded8e07cc85ff645efbfe80a)
+QueryPerformanceFrequency
+=== CounterStrike16/valve/cl_dlls/gameui.dll (8d7d7d90e7a12480224bd1f8e29358a8)
+.?AVCRefreshSteamLogin@@
+CRefreshSteamLogin
+#GameUI_RefreshLogin
+QueryPerformanceFrequency
+RefreshSteamLogin
+Resource/RefreshLogin.res
+=== CounterStrike16/valve/dlls/hl.dll (0860cff7de1e059b672cfaca6d3bb186)
+Can't Refresh Route!!
+decalfrequency
+frequency
+m_frequency
+=== CounterStrike16/vgui2.dll (547a53f3dff2be47838cdfee75194d98)
+QueryPerformanceFrequency
+=== CounterStrike16/vgui.dll (d44ee82601ae62ede3e224269a0bbf53)
+ChangeDisplaySettingsA
+=== HalfLife1/bshift/dlls/hl.dll (6a35ef4d7173bf0b231cb60b24984016)
+Can't Refresh Route!!
+decalfrequency
+frequency
+m_frequency
+=== HalfLife1/dmc/cl_dlls/client.dll (f74f16e2dde687e60b871267b79a68a2)
+Press 'Refresh' to search for servers...
+Refresh
+=== HalfLife1/dmc/dlls/dmc.dll (621dcf8d4f9fa1b6b63cd5a13309987c)
+decalfrequency
+frequency
+m_frequency
+=== HalfLife1/gearbox/cl_dlls/client.dll (7d79a0790eed7c018f55d9f91dd2202f)
+Press 'Refresh' to search for servers...
+Refresh
+=== HalfLife1/gearbox/dlls/opfor.dll (9fa0f763e7824a19b96edbbae52cb2eb)
+bodysparkfrequency
+Can't Refresh Route!!
+decalfrequency
+frequency
+lightningfrequency
+mBodySparkFrequency
+m_frequency
+mLightningFrequency
+mTipSparkFrequency
+sparkfrequency
+=== HalfLife1/hl.exe (77cce9925d2a039ae38b679b1225e944)
+.?AVCRefreshDlg@@
+ChangeDisplaySettingsA
+%d x %d %d hz
+IDC_BTN_REFRESH
+IDS_BTN_REFRESH
+QueryPerformanceFrequency
+REFRESH_BG_COLOR
+Refresh	Ctrl+R
+&Refresh list
+Refresh Servers
+REFRESH_TEXT_COLOR
+REFRESH_TITLE_COLOR
+=== HalfLife1/hl_res.dll (d3e06809c3943354627584eb9c3c40f3)
+&Refresh
+Refreshing servers...
+&Refresh list
+Refresh selected serverWYou cannot connect to a server running custom game %s until you install the custom game#Could not open %s on remote machine
+=== HalfLife1/hw.dll (374a87fd6175a6a9541656bc959bc822)
+QueryPerformanceFrequency
+r_glowshellfreq
+r_norefresh
+timerefresh
+=== HalfLife1/Mss32.dll (f520185e02e8a5d85860669176bc4adc)
+_AIL_set_timer_frequency@8
+AIL_set_timer_frequency(%ld,%lu)
+CONN_DST_LFO_FREQUENCY   
+LFO Frequency                     
+(Partial #1) TVF CUTOFF FREQ
+(Partial #2) TVF CUTOFF FREQ
+(Partial #3) TVF CUTOFF FREQ
+(Partial #4) TVF CUTOFF FREQ
+QueryPerformanceFrequency
+        WAVE: %d bytes, %d Hz %d-bit %s
+=== HalfLife1/sw.dll (8dca902ec1e31441adf5fde45c90b378)
+QueryPerformanceFrequency
+r_glowshellfreq
+timerefresh
+=== HalfLife1/tfc/cl_dlls/client.dll (98d782587ed36f30eef290f8f5447840)
+.?AVRefreshHandler@?%U:\hl1\release\dev\goldsrc\cl_dll\vgui_ServerBrowser.cpp1860617272@@
+Press 'Refresh' to search for servers...
+Refresh
+=== HalfLife1/tfc/dlls/tfc.dll (362f8bb17f71a27cad73c01bee29ad60)
+Can't Refresh Route!!
+decalfrequency
+frequency
+m_frequency
+=== HalfLife1/valve/cl_dlls/client.dll (94771622f79efc9d3170e3f71ea893d0)
+.?AVRefreshHandler@?%U:\hl1\release\dev\goldsrc\cl_dll\vgui_ServerBrowser.cpp3203217634@@
+Press 'Refresh' to search for servers...
+Refresh
+=== HalfLife1/valve/dlls/hl.dll (ca0c037e7ef305da44337fa1abe4899b)
+Can't Refresh Route!!
+decalfrequency
+frequency
+m_frequency
+=== HalfLife1/vgui.dll (ab2f53789783766a03e0cad6d442f106)
+ChangeDisplaySettingsA

@@ -1,0 +1,74 @@
+----------- Cpu info -----------
+Processor : AMD 
+Type      : Original OEM processor
+Speed     : 1533 MHz
+Name      : AMD Athlon(tm) XP 2400+
+MMX instructions supported
+3DNow! instructions supported
+RDTSC instruction supported
+--------------------------------
+256MB of physical memory
+Winsock Initialized
+Hostname: nsc-c543575f526
+   REMOTE IP #1: 192.168.1.124
+Console initialized.
+------- Loading ref_gl.dll -------
+ref_gl version: GL 0.01
+Initializing OpenGL display
+...setting mode 8: 1280 960 FS
+...attempting fullscreen
+...using desktop display depth of 32
+...calling CDS: ok
+...registering window class: ok
+GL_PFD: color(32-bits) Z(24-bit)
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+...allowing CDS
+...enabling WGL_EXT_swap_control
+...using GL_ARB_multitexture (2 TMUs)
+...using GL_S3_s3tc
+------------------------------------
+Setting Default Sound support
+------- Loading defsnd.dll -------
+
+------- sound initialization -------
+Initializing DirectSound
+Creating DS buffers
+...using secondary sound buffer
+   2 channel(s)
+   16 bits/sample
+   22050 bytes/sec
+dsound init succeeded
+sound sampling rate: 22050
+------------------------------------
+CDAudio_Init: MCI_OPEN failed (266)
+
+joystick not found -- no valid joysticks (a5)
+
+
+------- Force Feedback Initialization -------
+Creating feedback device:
+...no feedback devices found
+execing autoexec.cfg
+Unknown command "an"
+execing fleetres.cfg
+
+====== Soldier of Fortune Initialized ======
+
+execing lancheck.cfg
+------- Server Initialization -------
+-------------------------------------
+loopback: client_connect
+************************************************************
+ERROR: Please insert the SOF CD and try again.
+************************************************************
+Wrote ./user/scrnshot/sof08.tga
+Wrote ./user/scrnshot/sof09.tga
+Wrote ./user/scrnshot/sof10.tga
+Wrote ./user/scrnshot/sof11.tga
+Server disconnected
+Wrote configuration to ./user/config.cfg.
+R_Shutdown() - Shutting down

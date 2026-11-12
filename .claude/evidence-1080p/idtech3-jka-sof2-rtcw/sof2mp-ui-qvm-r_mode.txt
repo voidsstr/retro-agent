@@ -1,0 +1,8 @@
+base/update103.pk3 vm/sof2mp_ui.qvm (SoF2 MP UI, 1.03)
+the only 'r_mode' string sits in the graphics-preset block of the string table:
+   GL_LINEAR_MIPMAP_LINEAR | r_texturemode | cg_shadows | r_inGameVideo | r_fastSky | r_texturebits | r_mode | r_picmip | r_fullScreen | ui_glCustom | r_subdivisions | r_lodbias | r_stencilbits | r_depthbits | r_colorbits
+OP_CONST <r_mode> occurrences in the code segment (byte offsets): [31168, 31426, 31684, 31921, 42446, 42924]
+=> most likely the ui_glCustom quality presets (four near-identical hits = four presets),
+   i.e. picking a graphics preset in the menu rewrites r_mode, as RTCW's UI does. The two
+   other hits are unidentified. INFERENCE from string placement only - the QVM was not
+   disassembled, so whether the UI also registers r_mode with its own range is UNKNOWN.

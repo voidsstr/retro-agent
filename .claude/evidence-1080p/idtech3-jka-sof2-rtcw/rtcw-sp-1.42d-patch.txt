@@ -1,0 +1,29 @@
+Knightmare's unofficial RTCW SP 1.42d, already on the share:
+  /mnt/retro-share/Files/Game Updates/RTCW/rtcw-sp-1.42d-win32-bin.zip
+  md5=482be194a3ebf4d0c1eb9ca664834838
+
+       2455  2016-07-06  1.42d_Changes.txt
+     620544  2015-10-20  cgamex86.dll
+          0  2014-11-07  Main/
+      66821  2016-03-01  Main/sp_pak4.pk3
+       1538  2015-11-19  Patch 1.42d readme.txt
+    1265664  2013-10-21  qagamex86.dll
+     268288  2015-10-20  uix86.dll
+    1433600  2015-11-28  WolfSP.exe
+
+WolfSP.exe 1.42d: SubsystemVersion 5.0, linker 9.0, imports ['WINMM.dll', 'WSOCK32.dll', 'KERNEL32.dll', 'USER32.dll', 'GDI32.dll', 'ADVAPI32.dll', 'SHELL32.dll', 'ole32.dll']
+mode table: Mode  0: 320x240 | Mode  1: 400x300 | Mode  2: 512x384 | Mode  3: 640x480 | Mode  4: 800x600 | Mode  5: 960x720 | Mode  6: 1024x768 | Mode  7: 1152x864 | Mode  8: 1280x960 | Mode  9: 1280x1024 | Mode 10: 1400x1050 | Mode 11: 1600x1200 | Mode 12: 1920x1440 | Mode 13: 2048x1536 | Mode 14: 800x480 (wide) | Mode 15: 856x480 (wide) | Mode 16: 1024x600 (wide) | Mode 17: 1280x720 (wide) | Mode 18: 1280x768 (wide) | Mode 19: 1280x800 (wide) | Mode 20: 1360x768 (wide) | Mode 21: 1366x768 (wide) | Mode 22: 1440x900 (wide) | Mode 23: 1600x900 (wide) | Mode 24: 1600x1024 (wide) | Mode 25: 1680x1050 (wide) | Mode 26: 1920x1080 (wide) | Mode 27: 1920x1200 (wide) | Mode 28: 2560x1080 (ultra-wide) | Mode 29: 2560x1440 (wide) | Mode 30: 2560x1600 (wide) | Mode 31: 3200x1800 (wide) | Mode 32: 3440x1440 (ultra-wide) | Mode 33: 3840x2160 (wide) | Mode 34: 3840x2400 (wide) | Mode 35: 5120x2880 (wide)
+
+1.42d ui/system.menu:
+    cvar "r_mode" cvarFloatList { "Custom" -1 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*960" 8 "1280*1024" 9 "1400*1050" 10 "1600*1200" 11 "1920*1440" 12 "2048*1536" 13 "800*480 WS" 14 "856*480 WS" 15 "1024*600 WS" 16 "1280*720 WS" 17 "1280*768 WS" 18 "1280*800 WS" 19 "1360*768 WS" 20 "1366*768 WS" 21 "1440*900 WS" 22 "1600*900 WS" 23 "1600*1024 WS" 24 "1680*1050 WS" 25 "1920*1080 WS" 26 "1920*1200 WS" 27 "2560*1080 UWS" 28 "2560*1440 WS" 29 "2560*1600 WS" 30 "3200*1800 WS" 31 "3440x1440 UWS" 32 "3840*2160 WS" 33 "3840*2400 WS" 34 "5120*2880 WS" 35}
+    custom fields: ['r_customwidth', 'r_customheight']
+
+1.42d ui/ingame_system.menu:
+    cvar "r_mode" cvarFloatList { "Custom" -1 "640*480" 3 "800*600" 4 "960*720" 5 "1024*768" 6 "1152*864" 7 "1280*960" 8 "1280*1024" 9 "1400*1050" 10 "1600*1200" 11 "1920*1440" 12 "2048*1536" 13 "800*480 WS" 14 "856*480 WS" 15 "1024*600 WS" 16 "1280*720 WS" 17 "1280*768 WS" 18 "1280*800 WS" 19 "1360*768 WS" 20 "1366*768 WS" 21 "1440*900 WS" 22 "1600*900 WS" 23 "1600*1024 WS" 24 "1680*1050 WS" 25 "1920*1080 WS" 26 "1920*1200 WS" 27 "2560*1080 UWS" 28 "2560*1440 WS" 29 "2560*1600 WS" 30 "3200*1800 WS" 31 "3440x1440 UWS" 32 "3840*2160 WS" 33 "3840*2400 WS" 34 "5120*2880 WS" 35}
+    custom fields: ['r_customwidth', 'r_customheight']
+
+NAME COLLISION: the patch ships Main/sp_pak4.pk3 (66821 bytes: ui/*.menu + maps/*.ai/script).
+The staged tree already has a DIFFERENT Main/sp_pak4.pk3:
+  /mnt/retro-share/Files/Games-Library/ReturnToCastleWolfenstein/Main/sp_pak4.pk3  15532040 bytes md5=4223cc6588594ec0ceee186f0e73a6e9, 21 entries, e.g. ['maps/crypt1.bsp', 'maps/dam.bsp', 'maps/end.bsp']
+Extracting the patch as its readme says would REPLACE those map updates. Stage it under a
+name that sorts after sp_pak4.pk3 instead (e.g. sp_pak4b.pk3 / sp_pak5.pk3).

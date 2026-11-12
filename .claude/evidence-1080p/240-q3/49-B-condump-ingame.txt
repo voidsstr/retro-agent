@@ -1,0 +1,420 @@
+GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression
+GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine
+GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two
+GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object
+GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color
+GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax
+GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias
+GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle
+GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array
+GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection
+GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod
+GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 646744 bytes of code
+ui loaded in 2427712 bytes on the hunk
+Loaded team Crusaders with team icon ui/assets/crusaders.
+Loaded team Intruders with team icon ui/assets/intruders.
+Loaded team Pagans with team icon ui/assets/pagans.
+Loaded team Stroggs with team icon ui/assets/stroggs.
+Loaded team The Fallen with team icon ui/assets/thefallen.
+Loaded James character James.
+Loaded Janet character Janet.
+Loaded Janet character Callisto.
+Loaded Janet character Gammy.
+Loaded James character Gaunt.
+Loaded James character Khan.
+Loaded Janet character Megan.
+Loaded James character Morgan.
+Loaded James character Neptune.
+Loaded Janet character Ursula.
+Loaded James character Flayer.
+Loaded character alias Darkangel using character ai Janet.
+Loaded character alias Bradamante using character ai Megan.
+Loaded character alias Lionheart using character ai Morgan.
+Loaded character alias Furioso using character ai Neptune.
+Loaded character alias Aria using character ai Ursula.
+Loaded character alias Callisto using character ai Callisto.
+Loaded character alias Deadeye using character ai Gaunt.
+Loaded character alias WarLokk using character ai James.
+Loaded character alias Khan using character ai Khan.
+Loaded character alias Gargouille using character ai Gammy.
+Loaded character alias Enforcer using character ai Callisto.
+Loaded character alias Icarus using character ai Flayer.
+Loaded character alias Gammy using character ai Gammy.
+Loaded character alias Gladiator using character ai Megan.
+Loaded character alias Paracyte using character ai Neptune.
+Loaded character alias Gaunt using character ai Gaunt.
+Loaded character alias Punisher using character ai Khan.
+Loaded character alias November using character ai Janet.
+Loaded character alias Morgan using character ai Morgan.
+Loaded character alias Whyrlwynd using character ai Ursla.
+Loaded character alias Sinister using character ai Callisto.
+Loaded character alias Ursula using character ai Ursula.
+Loaded character alias Abominator using character ai James.
+Loaded character alias Stalker using character ai Morgan.
+Loaded character alias Neptune using character ai Neptune.
+Parsing menu file:ui/main.menu
+Parsing menu file:ui/joinserver.menu
+Parsing menu file:ui/filter.menu
+Parsing menu file:ui/punkbuster.menu
+Parsing menu file:ui/player.menu
+Parsing menu file:ui/setup.menu
+Parsing menu file:ui/fight.menu
+Parsing menu file:ui/skirmish.menu
+Parsing menu file:ui/createserver.menu
+Parsing menu file:ui/controls.menu
+Parsing menu file:ui/cdkey.menu
+Parsing menu file:ui/system.menu
+Parsing menu file:ui/options.menu
+Parsing menu file:ui/help.menu
+Parsing menu file:ui/ordershelp.menu
+Parsing menu file:ui/mod.menu
+Parsing menu file:ui/demo.menu
+Parsing menu file:ui/cinematicmenu.menu
+Parsing menu file:ui/credit.menu
+Parsing menu file:ui/demo_quit.menu
+Parsing menu file:ui/connect.menu
+Parsing menu file:ui/powerup.menu
+Parsing menu file:ui/password.menu
+Parsing menu file:ui/quake3.menu
+Parsing menu file:ui/quit.menu
+Parsing menu file:ui/vid_restart.menu
+Parsing menu file:ui/default.menu
+Parsing menu file:ui/addfilter.menu
+Parsing menu file:ui/error.menu
+Parsing menu file:ui/serverinfo.menu
+Parsing menu file:ui/findplayer.menu
+Parsing menu file:ui/endofgame.menu
+Parsing menu file:ui/quitcredit.menu
+Parsing menu file:ui/resetscore.menu
+Parsing menu file:ui/createfavorite.menu
+UI menu load time = 461 milli seconds
+Parsing menu file:ui/ingame.menu
+Parsing menu file:ui/ingame_vote.menu
+Parsing menu file:ui/ingame_about.menu
+Parsing menu file:ui/ingame_controls.menu
+Parsing menu file:ui/ingame_join.menu
+Parsing menu file:ui/ingame_options.menu
+Parsing menu file:ui/ingame_system.menu
+Parsing menu file:ui/ingame_leave.menu
+Parsing menu file:ui/ingame_player.menu
+Parsing menu file:ui/ingame_addbot.menu
+Parsing menu file:ui/ingame_callvote.menu
+Parsing menu file:ui/ingame_orders.menu
+UI menu load time = 78 milli seconds
+45 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 1167926 bytes of code
+cgame loaded in 8983968 bytes on the hunk
+ERROR: Could not open "sound/voices/male2/tt_01.wav"
+WARNING: Using default sound for sound/voices/male2/tt_01.wav
+voice chat memory size = 0
+stitched 0 LoD cracks
+...loaded 12603 faces, 412 meshes, 163 trisurfs, 277 flares
+UI menu load time = 44 milli seconds
+CL_InitCGame:  7.93 seconds
+202 msec to draw all images
+Com_TouchMemory: 0 msec
+KIlled you entered the game
+----- FS_Startup -----
+Current search path:
+C:\Documents and Settings\User\Application Data\Quake3/missionpack
+C:\Games\Quake3-TeamArena\missionpack\pak3.pk3 (12 files)
+C:\Games\Quake3-TeamArena\missionpack\pak2.pk3 (4 files)
+C:\Games\Quake3-TeamArena\missionpack\pak1.pk3 (8 files)
+C:\Games\Quake3-TeamArena\missionpack\pak0.pk3 (3264 files)
+C:\Games\Quake3-TeamArena/missionpack
+C:\Documents and Settings\User\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: video/mpteam1.roq
+handle 2: music\fla_mp05.wav
+----------------------
+22083 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture
+GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow
+GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel
+GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects
+GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow
+GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression
+GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine
+GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two
+GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object
+GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color
+GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax
+GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias
+GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle
+GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array
+GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection
+GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod
+GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 646744 bytes of code
+ui loaded in 2427712 bytes on the hunk
+Loaded team Crusaders with team icon ui/assets/crusaders.
+Loaded team Intruders with team icon ui/assets/intruders.
+Loaded team Pagans with team icon ui/assets/pagans.
+Loaded team Stroggs with team icon ui/assets/stroggs.
+Loaded team The Fallen with team icon ui/assets/thefallen.
+Loaded James character James.
+Loaded Janet character Janet.
+Loaded Janet character Callisto.
+Loaded Janet character Gammy.
+Loaded James character Gaunt.
+Loaded James character Khan.
+Loaded Janet character Megan.
+Loaded James character Morgan.
+Loaded James character Neptune.
+Loaded Janet character Ursula.
+Loaded James character Flayer.
+Loaded character alias Darkangel using character ai Janet.
+Loaded character alias Bradamante using character ai Megan.
+Loaded character alias Lionheart using character ai Morgan.
+Loaded character alias Furioso using character ai Neptune.
+Loaded character alias Aria using character ai Ursula.
+Loaded character alias Callisto using character ai Callisto.
+Loaded character alias Deadeye using character ai Gaunt.
+Loaded character alias WarLokk using character ai James.
+Loaded character alias Khan using character ai Khan.
+Loaded character alias Gargouille using character ai Gammy.
+Loaded character alias Enforcer using character ai Callisto.
+Loaded character alias Icarus using character ai Flayer.
+Loaded character alias Gammy using character ai Gammy.
+Loaded character alias Gladiator using character ai Megan.
+Loaded character alias Paracyte using character ai Neptune.
+Loaded character alias Gaunt using character ai Gaunt.
+Loaded character alias Punisher using character ai Khan.
+Loaded character alias November using character ai Janet.
+Loaded character alias Morgan using character ai Morgan.
+Loaded character alias Whyrlwynd using character ai Ursla.
+Loaded character alias Sinister using character ai Callisto.
+Loaded character alias Ursula using character ai Ursula.
+Loaded character alias Abominator using character ai James.
+Loaded character alias Stalker using character ai Morgan.
+Loaded character alias Neptune using character ai Neptune.
+Parsing menu file:ui/main.menu
+Parsing menu file:ui/joinserver.menu
+Parsing menu file:ui/filter.menu
+Parsing menu file:ui/punkbuster.menu
+Parsing menu file:ui/player.menu
+Parsing menu file:ui/setup.menu
+Parsing menu file:ui/fight.menu
+Parsing menu file:ui/skirmish.menu
+Parsing menu file:ui/createserver.menu
+Parsing menu file:ui/controls.menu
+Parsing menu file:ui/cdkey.menu
+Parsing menu file:ui/system.menu
+Parsing menu file:ui/options.menu
+Parsing menu file:ui/help.menu
+Parsing menu file:ui/ordershelp.menu
+Parsing menu file:ui/mod.menu
+Parsing menu file:ui/demo.menu
+Parsing menu file:ui/cinematicmenu.menu
+Parsing menu file:ui/credit.menu
+Parsing menu file:ui/demo_quit.menu
+Parsing menu file:ui/connect.menu
+Parsing menu file:ui/powerup.menu
+Parsing menu file:ui/password.menu
+Parsing menu file:ui/quake3.menu
+Parsing menu file:ui/quit.menu
+Parsing menu file:ui/vid_restart.menu
+Parsing menu file:ui/default.menu
+Parsing menu file:ui/addfilter.menu
+Parsing menu file:ui/error.menu
+Parsing menu file:ui/serverinfo.menu
+Parsing menu file:ui/findplayer.menu
+Parsing menu file:ui/endofgame.menu
+Parsing menu file:ui/quitcredit.menu
+Parsing menu file:ui/resetscore.menu
+Parsing menu file:ui/createfavorite.menu
+UI menu load time = 460 milli seconds
+Parsing menu file:ui/ingame.menu
+Parsing menu file:ui/ingame_vote.menu
+Parsing menu file:ui/ingame_about.menu
+Parsing menu file:ui/ingame_controls.menu
+Parsing menu file:ui/ingame_join.menu
+Parsing menu file:ui/ingame_options.menu
+Parsing menu file:ui/ingame_system.menu
+Parsing menu file:ui/ingame_leave.menu
+Parsing menu file:ui/ingame_player.menu
+Parsing menu file:ui/ingame_addbot.menu
+Parsing menu file:ui/ingame_callvote.menu
+Parsing menu file:ui/ingame_orders.menu
+UI menu load time = 77 milli seconds
+45 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 1167926 bytes of code
+cgame loaded in 8983968 bytes on the hunk
+voice chat memory size = 0
+stitched 0 LoD cracks
+...loaded 6810 faces, 172 meshes, 280 trisurfs, 42 flares
+UI menu load time = 43 milli seconds
+CL_InitCGame:  3.57 seconds
+170 msec to draw all images
+Com_TouchMemory: 0 msec
+KIlled you entered the game
+]/clientinfo
+--------- Client Information ---------
+state: 8
+Server: 192.168.1.132:27962
+User info settings:
+cg_smoothClients    0
+cg_scorePlums       1
+rate                3000
+snaps               20
+model               sarge
+headmodel           sarge
+team_model          James
+team_headmodel      *Neptune
+g_redTeam           Stroggs
+g_blueTeam          Pagans
+color1              5
+color2              5
+handicap            100
+sex                 male
+cl_anonymous        0
+cg_predictItems     1
+cl_voip             0
+name                KIlled you
+teamtask            0
+cl_guid             D9A5397E4F221C3EF8E1CD0581A417CB
+ui_singlePlayerActive0
+teamoverlay         1
+--------------------------------------
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture
+GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow
+GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel
+GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects
+GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow
+GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression
+GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine
+GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two
+GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object
+GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color
+GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax
+GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias
+GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle
+GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array
+GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection
+GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod
+GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 1 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump fleet240-b-game.txt
+Dumped console text to fleet240-b-game.txt.
+

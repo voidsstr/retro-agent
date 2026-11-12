@@ -1,0 +1,4 @@
+FAIL Thief2/Play Thief 2.bat: the ND_DX6 block is stale
+
+0 staged, 213 already current, 1 failures
+exit=1

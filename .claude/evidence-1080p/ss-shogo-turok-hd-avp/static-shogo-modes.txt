@@ -1,0 +1,121 @@
+# raw tool output - Shogo (LithTech 1.0, patch 2.2 era)
+## d3d.ren (1999-03-09) exports and GetSupportedModes -> IDirectDraw2::EnumDisplayModes(0,NULL,NULL,cb)
+[b'FreeModeList', b'GetSupportedModes', b'RenderDLLSetup']
+1000fb10: b810fa0010               mov eax, 0x1000fa10
+1000fb15: 33d2                     xor edx, edx
+1000fb17: 8b4c2414                 mov ecx, dword ptr [esp + 0x14]
+1000fb1b: 892d905a0410             mov dword ptr [0x10045a90], ebp
+1000fb21: 50                       push eax
+1000fb22: 52                       push edx
+1000fb23: 52                       push edx
+1000fb24: 52                       push edx
+1000fb25: 51                       push ecx
+1000fb26: 8b09                     mov ecx, dword ptr [ecx]
+1000fb28: 8b4920                   mov ecx, dword ptr [ecx + 0x20]
+1000fb2b: ffd1                     call ecx
+1000fb2d: 8b442414                 mov eax, dword ptr [esp + 0x14]
+1000fb31: 50                       push eax
+1000fb32: 8b00                     mov eax, dword ptr [eax]
+1000fb34: 8b4008                   mov eax, dword ptr [eax + 8]
+1000fb37: ffd0                     call eax
+## EnumDisplayModes callback: keeps every mode whose dwRGBBitCount (+0x54) == 16; no size filter; w->+0x194 h->+0x198 bpp->+0x19c
+1000fa10: 56                       push esi
+1000fa11: 55                       push ebp
+1000fa12: 53                       push ebx
+1000fa13: 8b6c2410                 mov ebp, dword ptr [esp + 0x10]
+1000fa17: 83ec10                   sub esp, 0x10
+1000fa1a: 837d5410                 cmp dword ptr [ebp + 0x54], 0x10
+1000fa1e: 0f857a000000             jne 0x1000fa9e
+1000fa24: c70424a4010000           mov dword ptr [esp], 0x1a4
+1000fa2b: e860470200               call 0x10034190
+1000fa30: 8bd8                     mov ebx, eax
+1000fa32: 85db                     test ebx, ebx
+1000fa34: 7468                     je 0x1000fa9e
+1000fa36: c60301                   mov byte ptr [ebx], 1
+1000fa39: a1905a0410               mov eax, dword ptr [0x10045a90]
+1000fa3e: 83c024                   add eax, 0x24
+1000fa41: be63000000               mov esi, 0x63
+1000fa46: 8d93c9000000             lea edx, [ebx + 0xc9]
+1000fa4c: 83c40c                   add esp, 0xc
+1000fa4f: 56                       push esi
+1000fa50: 50                       push eax
+1000fa51: 52                       push edx
+1000fa52: e809480200               call 0x10034260
+1000fa57: a1905a0410               mov eax, dword ptr [0x10045a90]
+1000fa5c: 83c40c                   add esp, 0xc
+1000fa5f: 56                       push esi
+1000fa60: 0588000000               add eax, 0x88
+1000fa65: 8d932d010000             lea edx, [ebx + 0x12d]
+1000fa6b: 50                       push eax
+1000fa6c: 52                       push edx
+1000fa6d: e8ee470200               call 0x10034260
+1000fa72: 8b450c                   mov eax, dword ptr [ebp + 0xc]
+1000fa75: 898394010000             mov dword ptr [ebx + 0x194], eax
+1000fa7b: 8b4508                   mov eax, dword ptr [ebp + 8]
+1000fa7e: 898398010000             mov dword ptr [ebx + 0x198], eax
+1000fa84: 8b6d54                   mov ebp, dword ptr [ebp + 0x54]
+1000fa87: 89ab9c010000             mov dword ptr [ebx + 0x19c], ebp
+1000fa8d: a1945a0410               mov eax, dword ptr [0x10045a94]
+1000fa92: 8983a0010000             mov dword ptr [ebx + 0x1a0], eax
+1000fa98: 891d945a0410             mov dword ptr [0x10045a94], ebx
+1000fa9e: 83c410                   add esp, 0x10
+1000faa1: b801000000               mov eax, 1
+1000faa6: 5b                       pop ebx
+1000faa7: 5d                       pop ebp
+1000faa8: 5e                       pop esi
+1000faa9: c20800                   ret 8
+## CShell.dll v3 carved from SHOGOP3.REZ @0x2bca8 (1999-03-09): renderer/device/resolution list builder - no width/height filter
+10003470: 81ecbc000000             sub esp, 0xbc
+10003476: 56                       push esi
+10003477: 8bf1                     mov esi, ecx
+10003479: 8b4e04                   mov ecx, dword ptr [esi + 4]
+1000347c: 85c9                     test ecx, ecx
+1000347e: 0f8431040000             je 0x100038b5
+10003484: 8b4608                   mov eax, dword ptr [esi + 8]
+10003487: 85c0                     test eax, eax
+10003489: 0f8426040000             je 0x100038b5
+1000348f: 83c008                   add eax, 8
+10003492: 85c0                     test eax, eax
+10003494: 0f841b040000             je 0x100038b5
+1000349a: ff5140                   call dword ptr [ecx + 0x40]
+1000349d: 85c0                     test eax, eax
+1000349f: 0f8410040000             je 0x100038b5
+100034a5: 53                       push ebx
+100034a6: 55                       push ebp
+100034a7: 57                       push edi
+100034a8: 8bf8                     mov edi, eax
+100034aa: 8b8604020000             mov eax, dword ptr [esi + 0x204]
+10003546: 8b4500                   mov eax, dword ptr [ebp]
+10003549: c644241201               mov byte ptr [esp + 0x12], 1
+1000354e: 8bc8                     mov ecx, eax
+10003550: c1e104                   shl ecx, 4
+10003553: 40                       inc eax
+10003554: 8d4c2904                 lea ecx, [ecx + ebp + 4]
+10003558: 894500                   mov dword ptr [ebp], eax
+1000355b: 8b9794010000             mov edx, dword ptr [edi + 0x194]
+10003561: 8911                     mov dword ptr [ecx], edx
+10003563: 8b8798010000             mov eax, dword ptr [edi + 0x198]
+10003569: 894104                   mov dword ptr [ecx + 4], eax
+1000356c: 8b442418                 mov eax, dword ptr [esp + 0x18]
+10003570: 8b0b                     mov ecx, dword ptr [ebx]
+1000372b: 8d7d0c                   lea edi, [ebp + 0xc]
+1000372e: 8b57fc                   mov edx, dword ptr [edi - 4]
+10003731: 8b47f8                   mov eax, dword ptr [edi - 8]
+10003734: 52                       push edx
+10003735: 50                       push eax
+10003736: 8d4c2438                 lea ecx, [esp + 0x38]
+1000373a: 68d4f00610               push 0x1006f0d4
+1000373f: 51                       push ecx
+10003740: e85b5e0500               call 0x100595a0
+10003745: 8b442424                 mov eax, dword ptr [esp + 0x24]
+## UTF-16 menu strings in SHOGOP3.REZ
+ADVANCED DISPLAY
+DISPLAY MODE
+DISPLAY OPTIONS
+renderer
+resolution
+## staged autoexec.cfg video lines
+21:"screendepth" "16"
+23:"RenderDll" "d3d.ren"
+43:"screenheight" "480"
+44:"screenwidth" "640"

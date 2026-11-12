@@ -1,0 +1,250 @@
+====================================================================================================
+PE SoldierOfFortune/SoF.exe imagebase 0x20000000
+import slots: {'0x2017f174': 'KERNEL32.dll!GetProcAddress', '0x2017f178': 'KERNEL32.dll!LoadLibraryA'}
+----------------------------------------------------------------------------------------------------
+SITE 0x200597cd  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x200597c0 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2005983f  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x200597c0 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059872  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2005989f  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x200598cc  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x200598f9  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059926  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059953  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059980  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x200599ad  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x200599da  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059a07  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059a34  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059a61  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059a8e  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059abb  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059ae8  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059b15  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059b42  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059b6f  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059b9c  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059bc9  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059c2e  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059c64  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x20059c81  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x20059866 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006b7d6  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x2006b7c8 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006b811  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x2006b7c8 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006b84f  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x2006b7c8 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006b877  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2006b99e  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x2006b990 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006b9d9  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x2006b990 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006ba1b  KERNEL32.dll!LoadLibraryA  (mov edi,[slot] @0x2006b990 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2006ba5c  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2006cc25  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2006cd20  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x20133e16  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x20133e24  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bbe6  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bbf5  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc02  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc0f  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc1c  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc29  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc36  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc43  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc50  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc5d  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc6a  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc77  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc84  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc91  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bc9e  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcab  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcb8  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcc5  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcd2  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcdf  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcec  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bcf9  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd06  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd13  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd20  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd2d  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd3a  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd47  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd54  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd61  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd6e  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd7b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd8b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bd9b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bdab  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bdbb  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bdcb  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bddb  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bdeb  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014bdfb  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014be0b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014be1b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014be2b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014be3b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014be4b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014be5b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x2014bbd6 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2014c082  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2014c095  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2014ca0a  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2014ca24  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2014ca75  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2014ca8f  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x201562cc  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2015e68b  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x2015e6a3  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x2015e697 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2015e6b4  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x2015e697 then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x2015e6c1  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x2015e697 then call esi)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x20002339: test ebx, 0x400000   | next: je 0x20002349
+   0x20002e07: test esi, 0x400000   | next: je 0x20002e3c
+   0x20003487: and edi, 0x400000   | next: mov dword ptr [esp + 0x18], edi
+   0x20003d49: mov dword ptr [0x201f3d44], 0x400001   | next: mov dword ptr [0x201f3d48], 0
+   0x20003e29: mov dword ptr [0x201f3d44], 0x400015   | next: mov dword ptr [0x201f3d48], 0
+   0x20007957: and eax, 0xfeff01   | next: add eax, 0xff0000ff
+   0x20007c67: and eax, 0xfeff01   | next: add eax, 0xff0000ff
+   0x2000a86b: test dword ptr [esi], 0x400000   | next: je 0x2000a8dd
+   0x200169ed: and eax, 0xfeff01   | next: add eax, 0xff0000ff
+   0x20017162: and esi, 0xfeff01   | next: add esi, 0xff0000ff
+   0x200171e4: and esi, 0xfeff01   | next: add esi, 0xff0000ff
+   0x2001ea58: test ebx, 0xff0000   | next: je 0x2001ea68
+   0x2001ebf8: test ebx, 0xff0000   | next: je 0x2001ecb9
+   0x2001ef16: or ebx, 0x400000   | next: mov dword ptr [esp + 0x1c], ebx
+   0x20031e0f: or edx, 0x400000   | next: add esp, 0x2c
+   0x20031f29: test dword ptr [edi + 0x54], 0x400000   | next: je 0x20032005
+   0x20032026: test dword ptr [eax + 0x54], 0x400000   | next: fst dword ptr [esp + 8]
+   0x20032129: test dword ptr [eax + 0x54], 0x400000   | next: je 0x2003221f
+   0x20047577: or edi, 0x400000   | next: mov dword ptr [esi + 0x54], edi
+   0x20056915: test eax, 0xfc0000   | next: je 0x200569e1
+   0x2005697e: test eax, 0x400000   | next: je 0x2005698d
+   0x20056a52: test eax, 0x400000   | next: je 0x20056a61
+   0x2005ef4e: or ebx, 0x400000   | next: mov dword ptr [esp + 0x10], ebx
+   0x2005f3d2: test ebx, 0x400000   | next: je 0x2005f3ec
+   0x2005f81a: test dword ptr [ebp + 0x34], 0x400000   | next: je 0x2005fb53
+   0x2005f959: test dword ptr [ebp + 0x34], 0x400000   | next: jne 0x2005f9a1
+   0x2005f9e4: and eax, 0x400000   | next: je 0x2005fa3f
+   0x2006b00b: sub esi, 0x500000   | next: cmp esi, 0x3200000
+   0x2006c1c9: cmp eax, 0x4434f0   | next: jge 0x2006c1dd
+   0x2006c1df: cmp eax, 0x49b330   | next: setle cl
+   0x2006c78a: and ecx, 0xff0000   | next: cmp ecx, 0x360000
+   0x2006c7f5: and ecx, 0xff0000   | next: cmp ecx, 0x360000
+   0x20112b58: mov edx, 0x4a756c   | next: inc eax
+   0x20112b6c: mov edx, 0x464542   | next: cmp ecx, edx
+   0x20112b7b: cmp ecx, 0x415052   | next: je 0x20112bc7
+   0x20112b83: cmp ecx, 0x415547   | next: je 0x20112bbb
+   0x20112b8b: cmp ecx, 0x417072   | next: je 0x20112bc7
+   0x20112b93: cmp ecx, 0x417567   | next: je 0x20112bbb
+   0x20112b9b: cmp ecx, 0x444543   | next: je 0x20112baf
+   0x20112ba3: cmp ecx, 0x446563   | next: jne 0x20112e57
+   0x20112bd3: sub ecx, 0x466562   | next: je 0x20112c04
+   0x20112c1c: mov edx, 0x4e4f56   | next: cmp ecx, edx
+   0x20112c27: sub ecx, 0x4a756e   | next: je 0x20112c5f
+   0x20112c68: cmp ecx, 0x4e6f76   | next: je 0x20112ca6
+   0x20112c70: cmp ecx, 0x4f4354   | next: je 0x20112c9d
+   0x20112c78: cmp ecx, 0x4f6374   | next: je 0x20112c9d
+   0x20112c80: cmp ecx, 0x534550   | next: je 0x20112c94
+   0x20112c88: cmp ecx, 0x536570   | next: jne 0x20112e57
+   0x201342ea: and esi, 0xff00ff   | next: or eax, esi
+   0x20150d63: test edx, 0xff0000   | next: je 0x20150d77
+   0x20151c73: test eax, 0xff0000   | next: je 0x20151c8d
+   0x2015206d: test eax, 0xff0000   | next: je 0x2015207e
+   0x2015210e: test edx, 0xff0000   | next: je 0x20152128
+   0x20153d98: and ecx, 0xff0000   | next: and edx, 0xff0000
+   0x20153d9e: and edx, 0xff0000   | next: cmp edx, ecx
+   0x2015531f: test eax, 0xff0000   | next: je 0x20155334
+   0x20155388: test edx, 0xff0000   | next: je 0x201553a2

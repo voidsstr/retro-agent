@@ -1,0 +1,12 @@
+{
+ "_ip": "192.168.1.123",
+ "_at": "2026-09-29 03:59:46 EDT",
+ "DIRLIST C:\\Documents and Settings\\Administrator\\Application Data\\Quake3\\baseq3": {
+  "status": 0,
+  "text": "[{\"name\":\"games.log\",\"is_dir\":false,\"size\":0,\"modified\":\"2026-08-30 03:28:27\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3config.cfg\",\"is_dir\":false,\"size\":7467,\"modified\":\"2026-09-29 04:37:54\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3history\",\"is_dir\":false,\"size\":19,\"modified\":\"2026-09-29 04:37:54\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3key\",\"is_dir\":false,\"size\":167,\"modified\":\"2026-09-29 04:36:40\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Documents and Settings\\Administrator\\Application Data\\Quake3\\missionpack": {
+  "status": 0,
+  "text": "[{\"name\":\"q3config.cfg\",\"is_dir\":false,\"size\":8853,\"modified\":\"2026-09-29 04:32:22\",\"hidden\":false,\"readonly\":false},{\"name\":\"q3key\",\"is_dir\":false,\"size\":167,\"modified\":\"2026-09-29 04:24:00\",\"hidden\":false,\"readonly\":false}]"
+ }
+}

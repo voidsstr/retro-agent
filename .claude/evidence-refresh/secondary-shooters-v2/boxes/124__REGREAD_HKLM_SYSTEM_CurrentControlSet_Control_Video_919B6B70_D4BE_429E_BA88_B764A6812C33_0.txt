@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKLM SYSTEM\CurrentControlSet\Control\Video\{919B6B70-D4BE-429E-BA88-B764A6812C33}\0000\DEFAULT  status=0  2026-09-29 03:58:59
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Control\\Video\\{919B6B70-D4BE-429E-BA88-B764A6812C33}\\0000\\DEFAULT","values":[{"name":"Localisation","type":"REG_SZ","data":"Special Settings"}],"subkeys":["Cursor","VRAM Optimization"]}

@@ -1,0 +1,15 @@
+displaycfg before {"width":1920,"height":1080,"bpp":32,"refresh":60}
+launch: cmd /c start "" /D "C:\Games\SoldierOfFortune2" "C:\Games\SoldierOfFortune2\sof2mp_t1080.exe" +set logfile 2 +set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080 +set r_fullscreen 1
+exec rc 0 
+t=5s windows: [('SoF2 MP', 'SoF2 MP', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+t=10s windows: [('SoF2 MP', 'SoF2 MP', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+t=15s windows: [('SoF2 MP', 'SoF2 MP', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+t=20s windows: [('SoF2 MP', 'SoF2 MP', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+t=25s windows: [('SoF2 MP', 'SoF2 MP', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+t=30s windows: [('SoF2 MP', 'SoF2 MP', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+displaycfg during {"width":1920,"height":1080,"bpp":32,"refresh":60}
+screenshot (1920, 1080)
+taskkill SUCCESS: The process "sof2mp_t1080.exe" with PID 4028 has been terminated.
+taskkill /f SUCCESS: The process "sof2mp_t1080.exe" with PID 4028 has been terminated.
+games after kill []
+displaycfg after {"width":1920,"height":1080,"bpp":32,"refresh":60}

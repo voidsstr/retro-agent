@@ -1,0 +1,40 @@
+# gamegate v1 profile=e633518d4747e4f2 host=NSC-B20C188E96D generated=2026-09-28T13:13:11
+# AMD Athlon(tm) 64 Processor 4000+ 2402 MHz x1, 2047 MB RAM, ATI Radeon HD 3850 AGP (1002:9515, 512 MB, sm3.0), Windows XP
+run	Doom3	-	meets requirements [rule]
+run	HexenII	-	meets requirements [rule]
+run	Quake1	-	meets requirements [rule]
+run	Quake2Complete	-	meets requirements [rule]
+no	Quake2Win9x	os	OS too new for this title (have winxp, max win9x) [rule]
+run	SiNGold	-	meets requirements [rule]
+run	SoldierOfFortune	-	meets requirements [rule]
+
+# gamegate v1 profile=bb7a13d03d67b0b4 host=DELL generated=2026-09-28T13:13:11
+# Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz 3093 MHz x4, 3316 MB RAM, NVIDIA GeForce 8400GS (10DE:10C3, 512 MB, sm3.0), Windows XP
+run	Doom3	-	meets requirements [rule]
+run	HexenII	-	meets requirements [rule]
+run	Quake1	-	meets requirements [rule]
+run	Quake2Complete	-	meets requirements [rule]
+no	Quake2Win9x	os	OS too new for this title (have winxp, max win9x) [rule]
+run	SiNGold	-	meets requirements [rule]
+run	SoldierOfFortune	-	meets requirements [rule]
+
+# gamegate v1 profile=7cf5bd34eefa68a7 host=ADMIN-PC generated=2026-09-28T13:13:11
+# Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz 3093 MHz x4, 3317 MB RAM, AMD Radeon HD 5450 (1002:68F9, 512 MB, sm3.0), Windows 7
+run	Doom3	-	meets requirements [rule]
+run	HexenII	-	meets requirements [rule]
+run	Quake1	-	meets requirements [rule]
+run	Quake2Complete	-	meets requirements [rule]
+no	Quake2Win9x	os	OS too new for this title (have win7, max win9x) [rule]
+run	SiNGold	-	meets requirements [rule]
+run	SoldierOfFortune	-	meets requirements [rule]
+
+# gamegate v1 profile=cab829af7a354f22 host=USER-41EA3B3330 generated=2026-09-28T13:13:11
+# AMD Athlon(tm) 64 Processor 3300+ 2403 MHz x1, 1022 MB RAM, RADEON X800 Series (1002:4A4B, 256 MB, sm2.0), Windows XP
+no	Doom3	disk	not enough free disk (have 1490 MB, needs 1600) [rule]
+run	HexenII	-	meets requirements [rule]
+run	Quake1	-	meets requirements [rule]
+run	Quake2Complete	-	meets requirements [rule]
+no	Quake2Win9x	os	OS too new for this title (have winxp, max win9x) [rule]
+run	SiNGold	-	meets requirements [rule]
+run	SoldierOfFortune	-	meets requirements [rule]
+

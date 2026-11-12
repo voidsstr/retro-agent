@@ -1,0 +1,284 @@
+# WON Half-Life 1.1.0.8 hl.exe md5 77cce9925d2a039ae38b679b1225e944 - EngineType from registry, then -d3d=3, -gl/-opengl=2, -soft/-software=1 (0x423c4c..0x423cd8)
+  00423c4c  push     1
+  00423c4e  push     0x4cfdf8
+  00423c53  push     0x4cfe04
+  00423c58  mov      ecx, dword ptr [ebp - 0x38]
+  00423c5b  call     0x4a1230
+  00423c60  mov      dword ptr [0x4ea8cc], eax
+  00423c65  push     0
+  00423c67  push     0x4cfe10
+  00423c6c  call     0x421a28
+  00423c71  add      esp, 8
+  00423c74  test     eax, eax
+  00423c76  je       0x423c82
+  00423c78  mov      dword ptr [0x4ea8cc], 3
+  00423c82  push     0
+  00423c84  push     0x4cfe18
+  00423c89  call     0x421a28
+  00423c8e  add      esp, 8
+  00423c91  test     eax, eax
+  00423c93  jne      0x423ca8
+  00423c95  push     0
+  00423c97  push     0x4cfe1c
+  00423c9c  call     0x421a28
+  00423ca1  add      esp, 8
+  00423ca4  test     eax, eax
+  00423ca6  je       0x423cb2
+  00423ca8  mov      dword ptr [0x4ea8cc], 2
+  00423cb2  push     0
+  00423cb4  push     0x4cfe24
+  00423cb9  call     0x421a28
+  00423cbe  add      esp, 8
+  00423cc1  test     eax, eax
+  00423cc3  jne      0x423cd8
+  00423cc5  push     0
+  00423cc7  push     0x4cfe2c
+  00423ccc  call     0x421a28
+  00423cd1  add      esp, 8
+  00423cd4  test     eax, eax
+  00423cd6  je       0x423ce2
+  00423cd8  mov      dword ptr [0x4ea8cc], 1
+  00423ce2  .byte    0x83
+  00423ce3  .byte    0x3d
+
+# renderer -> DirectDraw object: type 2 (OpenGL) releases it (0x408560), types 1/3 create it (0x408420)
+  0040e824  mov      eax, dword ptr [0x4ea8cc]
+  0040e829  dec      eax
+  0040e82a  je       0x40e84b
+  0040e82c  dec      eax
+  0040e82d  je       0x40e83c
+  0040e82f  dec      eax
+  0040e830  jne      0x40e865
+  0040e832  cmp      dword ptr [0x4e1a20], ebp
+  0040e838  jne      0x40e865
+  0040e83a  jmp      0x40e85b
+  0040e83c  cmp      dword ptr [0x4e1a20], ebp
+  0040e842  je       0x40e865
+  0040e844  call     0x408560
+  0040e849  jmp      0x40e865
+  0040e84b  cmp      dword ptr [0x4e1a20], ebp
+  0040e851  jne      0x40e865
+  0040e853  cmp      dword ptr [0x4e6e18], ebp
+  0040e859  jne      0x40e865
+  0040e85b  push     ebp
+  0040e85c  push     esi
+  0040e85d  call     0x408420
+  0040e862  add      esp, 8
+  0040e865  .byte    0x89
+
+# game-mode dispatcher: DirectDraw object present -> 0x408690 (IDirectDraw v1 SetDisplayMode w,h,bpp - no refresh arg); else 0x4640d0 -> 0x464070
+  004641cc  mov      eax, dword ptr [0x4e1a20]
+  004641d1  test     eax, eax
+  004641d3  je       0x464205
+  004641d5  mov      ecx, dword ptr [0x4e6e04]
+  004641db  mov      eax, dword ptr [0x4e6e10]
+  004641e0  xor      edx, edx
+  004641e2  test     ecx, ecx
+  004641e4  sete     dl
+  004641e7  push     edx
+  004641e8  push     eax
+  004641e9  call     0x408690
+  004641ee  add      esp, 8
+  004641f1  test     eax, eax
+  004641f3  jne      0x464205
+  004641f5  push     0x8e
+  004641fa  push     eax
+  004641fb  call     0x466b90
+  00464200  add      esp, 8
+  00464203  jmp      0x464214
+  00464205  mov      ecx, dword ptr [0x4e6e10]
+  0046420b  push     ecx
+  0046420c  call     0x4640d0
+  00464211  add      esp, 4
+
+# 0x4640d0: passes table w (+0x0), h (+0x4), bpp (+0x1c) only - the table's refresh (+0x24) is never passed
+  004640d0  mov      eax, dword ptr [esp + 4]
+  004640d4  lea      eax, [eax + eax*2]
+  004640d7  lea      eax, [eax + eax*4]
+  004640da  lea      eax, [eax + eax*4]
+  004640dd  shl      eax, 2
+  004640e0  mov      ecx, dword ptr [eax + 0x4e6e50]
+  004640e6  mov      edx, dword ptr [eax + 0x4e6e38]
+  004640ec  mov      eax, dword ptr [eax + 0x4e6e34]
+  004640f2  push     ecx
+  004640f3  push     edx
+  004640f4  push     eax
+  004640f5  call     0x464070
+  004640fa  add      esp, 0xc
+  004640fd  ret      
+
+# 0x464070: the only DEVMODE-building ChangeDisplaySettingsA call: dmFields=0x1C0000 (no DM_DISPLAYFREQUENCY 0x400000), flags 4=CDS_FULLSCREEN
+  00464070  sub      esp, 0x94
+  00464076  push     edi
+  00464077  mov      edx, dword ptr [esp + 0xa4]
+  0046407e  mov      ecx, 0x25
+  00464083  xor      eax, eax
+  00464085  lea      edi, [esp + 4]
+  00464089  push     4
+  0046408b  rep stosd dword ptr es:[edi], eax
+  0046408d  mov      eax, dword ptr [esp + 0xa0]
+  00464094  mov      ecx, dword ptr [esp + 0xa4]
+  0046409b  mov      dword ptr [esp + 0x74], eax
+  0046409f  lea      eax, [esp + 8]
+  004640a3  push     eax
+  004640a4  mov      word ptr [esp + 0x30], 0x94
+  004640ab  mov      dword ptr [esp + 0x7c], ecx
+  004640af  mov      dword ptr [esp + 0x34], 0x1c0000
+  004640b7  mov      dword ptr [esp + 0x74], edx
+  004640bb  call     dword ptr [0x4ac42c]
+  004640c1  neg      eax
+  004640c3  sbb      eax, eax
+  004640c5  pop      edi
+  004640c6  inc      eax
+  004640c7  add      esp, 0x94
+  004640cd  ret      
+
+# the video-mode dialog prints the refresh it never applies: '%d x %d %d hz' (0x4d2874) from table +0x24
+  0046d067  mov      ecx, dword ptr [esp + 0x1c]
+  0046d06b  cmp      dword ptr [ebx - 4], ecx
+  0046d06e  jne      0x46d141
+  0046d074  mov      edx, dword ptr [ebx + 0x24]
+  0046d077  mov      eax, dword ptr [ebx + 4]
+  0046d07a  mov      ecx, dword ptr [ebx]
+  0046d07c  push     edx
+  0046d07d  push     eax
+  0046d07e  push     ecx
+  0046d07f  lea      edx, [esp + 0x2c]
+  0046d083  push     0x4d2874
+  0046d088  push     edx
+  0046d089  call     0x481101
+  0046d08e  .byte    0x8b
+
+# CS 1.6 build 4554 hw.dll md5 4903e8e80f2a00d3ab2886f0f209a6d6 - CVideoMode_OpenGL vtable 0x1e4a5f0 slot16=0x1dc75c0 (restore CDS(NULL,0)), slot17=0x1dc75f0 (fullscreen set, -freq)
+  01dc75c0  mov      eax, dword ptr [ecx]
+  01dc75c2  call     dword ptr [eax + 0x1c]
+  01dc75c5  test     al, al
+  01dc75c7  jne      0x1dc75e7
+  01dc75c9  push     0
+  01dc75cb  push     0
+  01dc75cd  call     dword ptr [0x1e483c4]
+  01dc75d3  mov      ecx, dword ptr [0x1e8d504]
+  01dc75d9  push     6
+  01dc75db  mov      edx, dword ptr [ecx]
+  01dc75dd  call     dword ptr [edx + 0x14]
+  01dc75e0  push     eax
+  01dc75e1  call     dword ptr [0x1e48438]
+  01dc75e7  ret      
+  01dc75f0  sub      esp, 0x94
+  01dc75f6  push     esi
+  01dc75f7  mov      esi, ecx
+  01dc75f9  mov      eax, dword ptr [esi]
+  01dc75fb  call     dword ptr [eax + 0x1c]
+  01dc75fe  test     al, al
+  01dc7600  jne      0x1dc768a
+  01dc7606  mov      edx, dword ptr [esi]
+  01dc7608  mov      ecx, esi
+  01dc760a  call     dword ptr [edx + 0x10]
+  01dc760d  mov      edx, eax
+  01dc760f  test     edx, edx
+  01dc7611  je       0x1dc768a
+  01dc7613  push     edi
+  01dc7614  mov      ecx, 0x25
+  01dc7619  xor      eax, eax
+  01dc761b  lea      edi, [esp + 8]
+  01dc761f  rep stosd dword ptr es:[edi], eax
+  01dc7621  mov      word ptr [esp + 0x2c], 0x94
+  01dc7628  mov      eax, dword ptr [edx]
+  01dc762a  mov      dword ptr [esp + 0x74], eax
+  01dc762e  mov      ecx, dword ptr [edx + 4]
+  01dc7631  mov      dword ptr [esp + 0x78], ecx
+  01dc7635  mov      dword ptr [esp + 0x30], 0x1c0000
+  01dc763d  mov      edx, dword ptr [edx + 8]
+  01dc7640  push     0x1e8cb0c
+  01dc7645  mov      dword ptr [esp + 0x74], edx
+  01dc7649  call     0x1d383e0
+  01dc764e  add      esp, 4
+  01dc7651  test     eax, eax
+  01dc7653  pop      edi
+  01dc7654  je       0x1dc767d
+  01dc7656  mov      ecx, dword ptr [0x2cd36e8]
+  01dc765c  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01dc7660  push     edx
+  01dc7661  call     0x1e2e266
+  01dc7666  mov      dword ptr [esp + 0x80], eax
+  01dc766d  mov      eax, dword ptr [esp + 0x30]
+  01dc7671  add      esp, 4
+  01dc7674  or       eax, 0x400000
+  01dc7679  mov      dword ptr [esp + 0x2c], eax
+  01dc767d  lea      eax, [esp + 4]
+  01dc7681  push     4
+  01dc7683  push     eax
+  01dc7684  call     dword ptr [0x1e483c4]
+  01dc768a  pop      esi
+  01dc768b  add      esp, 0x94
+  01dc7691  ret      
+
+# renderer choice: -d3d -> D3D; else -gl -> OpenGL; else registry EngineD3D (so -gl beats a stale EngineD3D=1)
+  01dc7a89  mov      ecx, dword ptr [0x1e82cc0]
+  01dc7a8f  push     esi
+  01dc7a90  push     0x1e8cb70
+  01dc7a95  mov      dword ptr [0x23833c0], esi
+  01dc7a9b  mov      edx, dword ptr [ecx]
+  01dc7a9d  call     dword ptr [edx + 8]
+  01dc7aa0  test     eax, eax
+  01dc7aa2  push     0x1e8cb7c
+  01dc7aa7  setne    byte ptr [esp + 0xf]
+  01dc7aac  call     0x1d383e0
+  01dc7ab1  add      esp, 4
+  01dc7ab4  test     eax, eax
+  01dc7ab6  jne      0x1dc7ad1
+  01dc7ab8  push     0x1e8cb84
+  01dc7abd  call     0x1d383e0
+  01dc7ac2  add      esp, 4
+  01dc7ac5  test     eax, eax
+  01dc7ac7  jne      0x1dc7b25
+  01dc7ac9  mov      al, byte ptr [esp + 0xb]
+  01dc7acd  test     al, al
+  01dc7acf  je       0x1dc7b25
+  01dc7ad1  test     bl, bl
+  01dc7ad3  mov      dword ptr [0x23833c0], 1
+  01dc7add  je       0x1dc7b02
+  01dc7adf  push     0x1bc
+  01dc7ae4  call     0x1e2cee0
+  01dc7ae9  add      esp, 4
+  01dc7aec  cmp      eax, esi
+  01dc7aee  je       0x1dc7b4d
+  01dc7af0  mov      ecx, eax
+  01dc7af2  call     0x1dc7980
+  01dc7af7  pop      esi
+  01dc7af8  mov      dword ptr [0x2448678], eax
+  01dc7afd  pop      ebx
+  01dc7afe  add      esp, 8
+  01dc7b01  ret      
+  01dc7b02  push     0x1e4
+  01dc7b07  call     0x1e2cee0
+  01dc7b0c  add      esp, 4
+  01dc7b0f  cmp      eax, esi
+  01dc7b11  je       0x1dc7b4d
+  01dc7b13  mov      ecx, eax
+  01dc7b15  call     0x1dc76a0
+  01dc7b1a  pop      esi
+  01dc7b1b  mov      dword ptr [0x2448678], eax
+  01dc7b20  pop      ebx
+  01dc7b21  add      esp, 8
+  01dc7b24  ret      
+
+# D3D-wrapper -freq read (not used by the staged launchers, which pass -gl)
+  01d7bb86  mov      eax, dword ptr [esp + 0x18]
+  01d7bb8a  push     eax
+  01d7bb8b  mov      edx, dword ptr [eax]
+  01d7bb8d  call     dword ptr [edx + 8]
+  01d7bb90  push     0x1e7e434
+  01d7bb95  mov      dword ptr [esp + 0xe0], 0x3f800000
+  01d7bba0  mov      dword ptr [esp + 0xe4], 0x41200000
+  01d7bbab  call     0x1d383e0
+  01d7bbb0  add      esp, 4
+  01d7bbb3  cmp      eax, ebp
+  01d7bbb5  je       0x1d7bbd1
+  01d7bbb7  mov      ecx, dword ptr [0x2cd36e8]
+  01d7bbbd  mov      edx, dword ptr [ecx + eax*4 + 4]
+  01d7bbc1  push     edx
+  01d7bbc2  call     0x1e2e266
+  01d7bbc7  add      esp, 4
+  01d7bbca  mov      dword ptr [esp + 0xa4], eax
+  01d7bbd1  mov      eax, dword ptr [0x2398340]

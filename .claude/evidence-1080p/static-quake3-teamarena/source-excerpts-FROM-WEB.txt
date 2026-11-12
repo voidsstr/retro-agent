@@ -1,0 +1,705 @@
+# SOURCE EXCERPTS - FROM THE WEB, NOT FROM THE STAGED BINARIES.
+# Fetched 2026-09-29 from https://raw.githubusercontent.com/ioquake/ioq3/<sha>/<path>.
+# The 1.36-era SHAs are the last commit to each file before the staged build date
+# (ioquake3.x86.exe says 'ioq3 1.36' / 'Apr 12 2009'). Every behaviour quoted here that
+# matters was cross-checked against the staged binaries in ui-vm-selection-disasm.txt.
+
+=== code/q3_ui/ui_video.c (id's GPL 1.32b release; its resolution table and 'Video Mode:' strings match pak8's ui.qvm exactly - see ui-vm-selection-disasm.txt): SetMenuItems maps r_mode<0 to index 3 (640x480)  (github.com/ioquake/ioq3 @ 5b755058f5, lines 632,638)
+static void GraphicsOptions_SetMenuItems( void )
+{
+	s_graphicsoptions.mode.curvalue = trap_Cvar_VariableValue( "r_mode" );
+	if ( s_graphicsoptions.mode.curvalue < 0 )
+	{
+		s_graphicsoptions.mode.curvalue = 3;
+	}
+
+=== code/q3_ui/ui_video.c (id 1.32b): ApplyChanges writes r_mode = list index UNCONDITIONALLY  (github.com/ioquake/ioq3 @ 5b755058f5, lines 483,487)
+	trap_Cvar_SetValue( "r_picmip", 3 - s_graphicsoptions.tq.curvalue );
+	trap_Cvar_SetValue( "r_allowExtensions", s_graphicsoptions.allow_extensions.curvalue );
+	trap_Cvar_SetValue( "r_mode", s_graphicsoptions.mode.curvalue );
+	trap_Cvar_SetValue( "r_fullscreen", s_graphicsoptions.fs.curvalue );
+	trap_Cvar_Set( "r_glDriver", ( char * ) s_drivers[s_graphicsoptions.driver.curvalue] );
+
+=== code/q3_ui/ui_video.c (id 1.32b): the hardcoded list  (github.com/ioquake/ioq3 @ 5b755058f5, lines 762,777)
+	static const char *resolutions[] = 
+	{
+		"320x240",
+		"400x300",
+		"512x384",
+		"640x480",
+		"800x600",
+		"960x720",
+		"1024x768",
+		"1152x864",
+		"1280x1024",
+		"1600x1200",
+		"2048x1536",
+		"856x480 wide screen",
+		0
+	};
+
+=== code/q3_ui/ui_video.c (ioq3 1.36 era = baseq3/uix86.dll): builtin + detected tables  (github.com/ioquake/ioq3 @ 53fc214d00, lines 321,342)
+static const char *builtinResolutions[ ] =
+{
+	"320x240",
+	"400x300",
+	"512x384",
+	"640x480",
+	"800x600",
+	"960x720",
+	"1024x768",
+	"1152x864",
+	"1280x1024",
+	"1600x1200",
+	"2048x1536",
+	"856x480 wide screen",
+	NULL
+};
+
+static char resbuf[ MAX_STRING_CHARS ];
+static const char* detectedResolutions[ 32 ];
+
+static const char** resolutions = builtinResolutions;
+static qboolean resolutionsDetected = qfalse;
+
+=== code/q3_ui/ui_video.c (ioq3 1.36 era): ApplyChanges - a detected non-builtin mode becomes r_mode -1 + r_customwidth/height  (github.com/ioquake/ioq3 @ 53fc214d00, lines 555,578)
+	if( resolutionsDetected )
+	{
+		// search for builtin mode that matches the detected mode
+		int mode;
+		if ( s_graphicsoptions.mode.curvalue == -1
+			|| s_graphicsoptions.mode.curvalue >= sizeof(detectedResolutions)/sizeof(detectedResolutions[0]) )
+			s_graphicsoptions.mode.curvalue = 0;
+
+		mode = GraphicsOptions_FindBuiltinResolution( s_graphicsoptions.mode.curvalue );
+		if( mode == -1 )
+		{
+			char w[ 16 ], h[ 16 ];
+			Q_strncpyz( w, detectedResolutions[ s_graphicsoptions.mode.curvalue ], sizeof( w ) );
+			*strchr( w, 'x' ) = 0;
+			Q_strncpyz( h,
+					strchr( detectedResolutions[ s_graphicsoptions.mode.curvalue ], 'x' ) + 1, sizeof( h ) );
+			trap_Cvar_Set( "r_customwidth", w );
+			trap_Cvar_Set( "r_customheight", h );
+		}
+
+		trap_Cvar_SetValue( "r_mode", mode );
+	}
+	else
+		trap_Cvar_SetValue( "r_mode", s_graphicsoptions.mode.curvalue );
+
+=== code/q3_ui/ui_video.c (ioq3 1.36 era): SetMenuItems - r_mode -1 is matched back to its WxH entry  (github.com/ioquake/ioq3 @ 53fc214d00, lines 710,742)
+*/
+static void GraphicsOptions_SetMenuItems( void )
+{
+	s_graphicsoptions.mode.curvalue =
+		GraphicsOptions_FindDetectedResolution( trap_Cvar_VariableValue( "r_mode" ) );
+
+	if ( s_graphicsoptions.mode.curvalue < 0 )
+	{
+		if( resolutionsDetected )
+		{
+			int i;
+			char buf[MAX_STRING_CHARS];
+			trap_Cvar_VariableStringBuffer("r_customwidth", buf, sizeof(buf)-2);
+			buf[strlen(buf)+1] = 0;
+			buf[strlen(buf)] = 'x';
+			trap_Cvar_VariableStringBuffer("r_customheight", buf+strlen(buf), sizeof(buf)-strlen(buf));
+
+			for(i = 0; detectedResolutions[i]; ++i)
+			{
+				if(!strcmp(buf, detectedResolutions[i]))
+				{
+					s_graphicsoptions.mode.curvalue = i;
+					break;
+				}
+			}
+			if ( s_graphicsoptions.mode.curvalue < 0 )
+				s_graphicsoptions.mode.curvalue = 0;
+		}
+		else
+		{
+			s_graphicsoptions.mode.curvalue = 3;
+		}
+	}
+
+=== code/q3_ui/ui_video.c (ioq3 1.36 era): MenuInit reads r_availableModes (max 31 entries)  (github.com/ioquake/ioq3 @ 53fc214d00, lines 893,911)
+	Q_strncpyz(resbuf, UI_Cvar_VariableString("r_availableModes"), sizeof(resbuf));
+	if(*resbuf)
+	{
+		char* s = resbuf;
+		unsigned int i = 0;
+		while( s && i < sizeof(detectedResolutions)/sizeof(detectedResolutions[0])-1)
+		{
+			detectedResolutions[i++] = s;
+			s = strchr(s, ' ');
+			if( s )
+				*s++ = '\0';
+		}
+		detectedResolutions[ i ] = NULL;
+
+		if( i > 0 )
+		{
+			resolutions = detectedResolutions;
+			resolutionsDetected = qtrue;
+		}
+
+=== code/sdl/sdl_glimp.c (ioq3 1.36 era): mode sort - largest first, the rest by closeness to the DESKTOP aspect at first init  (github.com/ioquake/ioq3 @ acbf982689, lines 121,141)
+static int GLimp_CompareModes( const void *a, const void *b )
+{
+	const float ASPECT_EPSILON = 0.001f;
+	SDL_Rect *modeA = *(SDL_Rect **)a;
+	SDL_Rect *modeB = *(SDL_Rect **)b;
+	float aspectDiffA = fabs( ( (float)modeA->w / (float)modeA->h ) - displayAspect );
+	float aspectDiffB = fabs( ( (float)modeB->w / (float)modeB->h ) - displayAspect );
+	float aspectDiffsDiff = aspectDiffA - aspectDiffB;
+
+	if( aspectDiffsDiff > ASPECT_EPSILON )
+		return 1;
+	else if( aspectDiffsDiff < -ASPECT_EPSILON )
+		return -1;
+	else
+	{
+		if( modeA->w == modeB->w )
+			return modeA->h - modeB->h;
+		else
+			return modeA->w - modeB->w;
+	}
+}
+
+=== code/sdl/sdl_glimp.c (ioq3 1.36 era): GLimp_DetectAvailableModes -> r_availableModes  (github.com/ioquake/ioq3 @ acbf982689, lines 148,198)
+static void GLimp_DetectAvailableModes(void)
+{
+	char buf[ MAX_STRING_CHARS ] = { 0 };
+	SDL_Rect **modes;
+	int numModes;
+	int i;
+	SDL_PixelFormat *format = NULL;
+
+#if SDL_VERSION_ATLEAST(1, 2, 10)
+	format = videoInfo->vfmt;
+#	if MINSDL_PATCH >= 10
+#		error Ifdeffery no longer necessary, please remove
+#	endif
+#endif
+
+	modes = SDL_ListModes( format, SDL_OPENGL | SDL_FULLSCREEN );
+
+	if( !modes )
+	{
+		ri.Printf( PRINT_WARNING, "Can't get list of available modes\n" );
+		return;
+	}
+
+	if( modes == (SDL_Rect **)-1 )
+	{
+		ri.Printf( PRINT_ALL, "Display supports any resolution\n" );
+		return; // can set any resolution
+	}
+
+	for( numModes = 0; modes[ numModes ]; numModes++ );
+
+	if(numModes > 1)
+		qsort( modes+1, numModes-1, sizeof( SDL_Rect* ), GLimp_CompareModes );
+
+	for( i = 0; i < numModes; i++ )
+	{
+		const char *newModeString = va( "%ux%u ", modes[ i ]->w, modes[ i ]->h );
+
+		if( strlen( newModeString ) < (int)sizeof( buf ) - strlen( buf ) )
+			Q_strcat( buf, sizeof( buf ), newModeString );
+		else
+			ri.Printf( PRINT_WARNING, "Skipping mode %ux%x, buffer too small\n", modes[i]->w, modes[i]->h );
+	}
+
+	if( *buf )
+	{
+		buf[ strlen( buf ) - 1 ] = 0;
+		ri.Printf( PRINT_ALL, "Available modes: '%s'\n", buf );
+		ri.Cvar_Set( "r_availableModes", buf );
+	}
+}
+
+=== code/sdl/sdl_glimp.c: displayAspect from the live desktop, detection after every mode set  (github.com/ioquake/ioq3 @ acbf982689, lines 223,243)
+	if( videoInfo == NULL )
+	{
+		static SDL_VideoInfo sVideoInfo;
+		static SDL_PixelFormat sPixelFormat;
+
+		videoInfo = SDL_GetVideoInfo( );
+
+		// Take a copy of the videoInfo
+		Com_Memcpy( &sPixelFormat, videoInfo->vfmt, sizeof( SDL_PixelFormat ) );
+		sPixelFormat.palette = NULL; // Should already be the case
+		Com_Memcpy( &sVideoInfo, videoInfo, sizeof( SDL_VideoInfo ) );
+		sVideoInfo.vfmt = &sPixelFormat;
+		videoInfo = &sVideoInfo;
+
+		// Guess the display aspect ratio through the desktop resolution
+		// by assuming (relatively safely) that it is set at or close to
+		// the display's native aspect ratio
+		displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
+
+		ri.Printf( PRINT_ALL, "Estimated display aspect: %.3f\n", displayAspect );
+	}
+
+=== code/sys/sys_win32.c (ioq3 1.36 era): in_mouse != -1 -> SDL DirectX backend (DirectInput keyboard+mouse)  (github.com/ioquake/ioq3 @ d4d5527a89, lines 591,612)
+void Sys_GLimpInit( void )
+{
+#ifndef DEDICATED
+	if( !SDL_VIDEODRIVER_externallySet )
+	{
+		// It's a little bit weird having in_mouse control the
+		// video driver, but from ioq3's point of view they're
+		// virtually the same except for the mouse input anyway
+		if( Cvar_VariableIntegerValue( "in_mouse" ) == -1 )
+		{
+			// Use the windib SDL backend, which is closest to
+			// the behaviour of idq3 with in_mouse set to -1
+			_putenv( "SDL_VIDEODRIVER=windib" );
+		}
+		else
+		{
+			// Use the DirectX SDL backend
+			_putenv( "SDL_VIDEODRIVER=directx" );
+		}
+	}
+#endif
+}
+
+=== code/qcommon/vm.c (ioq3 1.36 era): VM_Init defaults, native-then-qvm fallback  (github.com/ioquake/ioq3 @ 30c44b1a87, lines 72,76)
+void VM_Init( void ) {
+	Cvar_Get( "vm_cgame", "2", CVAR_ARCHIVE );	// !@# SHIP WITH SET TO 2
+	Cvar_Get( "vm_game", "2", CVAR_ARCHIVE );	// !@# SHIP WITH SET TO 2
+	Cvar_Get( "vm_ui", "2", CVAR_ARCHIVE );		// !@# SHIP WITH SET TO 2
+
+
+=== code/qcommon/vm.c  (github.com/ioquake/ioq3 @ 30c44b1a87, lines 557,567)
+	if ( interpret == VMI_NATIVE ) {
+		// try to load as a system dll
+		Com_Printf( "Loading dll file %s.\n", vm->name );
+		vm->dllHandle = Sys_LoadDll( module, vm->fqpath , &vm->entryPoint, VM_DllSyscall );
+		if ( vm->dllHandle ) {
+			return vm;
+		}
+
+		Com_Printf( "Failed to load dll, looking for qvm.\n" );
+		interpret = VMI_COMPILED;
+	}
+
+=== code/client/cl_parse.c (ioq3 1.36 era): cl_connectedToPureServer = the server's sv_pure (a local game included)  (github.com/ioquake/ioq3 @ 37d664d4b2, lines 426,429)
+		Cvar_Set( "fs_game", "" );
+	}
+	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
+}
+
+=== code/server/sv_init.c (ioq3 1.36 era): sv_pure defaults to 1  (github.com/ioquake/ioq3 @ 37d664d4b2, lines 656,656)
+	sv_pure = Cvar_Get ("sv_pure", "1", CVAR_SYSTEMINFO );
+
+=== code/qcommon/files.c (ioq3 1.36 era): FS_AddGameDirectory - the loose dir is added first, its pk3s after, so pk3s shadow loose files of the same path  (github.com/ioquake/ioq3 @ 48d8c8876b, lines 2444,2500)
+void FS_AddGameDirectory( const char *path, const char *dir ) {
+	searchpath_t	*sp;
+	int				i;
+	searchpath_t	*search;
+	pack_t			*pak;
+	char			*pakfile;
+	int				numfiles;
+	char			**pakfiles;
+
+	// Unique
+	for ( sp = fs_searchpaths ; sp ; sp = sp->next ) {
+		if ( sp->dir && !Q_stricmp(sp->dir->path, path) && !Q_stricmp(sp->dir->gamedir, dir)) {
+			return;			// we've already got this one
+		}
+	}
+	
+	Q_strncpyz( fs_gamedir, dir, sizeof( fs_gamedir ) );
+
+	//
+	// add the directory to the search path
+	//
+	search = Z_Malloc (sizeof(searchpath_t));
+	search->dir = Z_Malloc( sizeof( *search->dir ) );
+
+	Q_strncpyz( search->dir->path, path, sizeof( search->dir->path ) );
+	Q_strncpyz( search->dir->gamedir, dir, sizeof( search->dir->gamedir ) );
+	search->next = fs_searchpaths;
+	fs_searchpaths = search;
+
+	// find all pak files in this directory
+	pakfile = FS_BuildOSPath( path, dir, "" );
+	pakfile[ strlen(pakfile) - 1 ] = 0;	// strip the trailing slash
+
+	pakfiles = Sys_ListFiles( pakfile, ".pk3", NULL, &numfiles, qfalse );
+
+	qsort( pakfiles, numfiles, sizeof(char*), paksort );
+
+	for ( i = 0 ; i < numfiles ; i++ ) {
+		pakfile = FS_BuildOSPath( path, dir, pakfiles[i] );
+		if ( ( pak = FS_LoadZipFile( pakfile, pakfiles[i] ) ) == 0 )
+			continue;
+		// store the game name for downloading
+		strcpy(pak->pakGamename, dir);
+
+		search = Z_Malloc (sizeof(searchpath_t));
+		search->pack = pak;
+		search->next = fs_searchpaths;
+		fs_searchpaths = search;
+	}
+
+	// done
+	Sys_FreeFileList( pakfiles );
+}
+
+/*
+================
+FS_idPak
+
+=== code/qcommon/files.c (ioq3 1.36 era): search-path order, homepath added after basepath (higher priority)  (github.com/ioquake/ioq3 @ 48d8c8876b, lines 2770,2808)
+
+	// add search path elements in reverse priority order
+	if (fs_basepath->string[0]) {
+		FS_AddGameDirectory( fs_basepath->string, gameName );
+	}
+	// fs_homepath is somewhat particular to *nix systems, only add if relevant
+	
+	#ifdef MACOS_X
+	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT );
+	// Make MacOSX also include the base path included with the .app bundle
+	if (fs_apppath->string[0])
+		FS_AddGameDirectory(fs_apppath->string, gameName);
+	#endif
+	
+	// NOTE: same filtering below for mods and basegame
+	if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
+		FS_AddGameDirectory ( fs_homepath->string, gameName );
+	}
+
+	// check for additional base game so mods can be based upon other mods
+	if ( fs_basegame->string[0] && !Q_stricmp( gameName, BASEGAME ) && Q_stricmp( fs_basegame->string, gameName ) ) {
+		if (fs_basepath->string[0]) {
+			FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
+		}
+		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
+			FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
+		}
+	}
+
+	// check for additional game folder for mods
+	if ( fs_gamedirvar->string[0] && !Q_stricmp( gameName, BASEGAME ) && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
+		if (fs_basepath->string[0]) {
+			FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
+		}
+		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
+			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
+		}
+	}
+
+
+=== code/qcommon/files.c (ioq3 1.36 era): on a pure server loose files are only allowed for .cfg/.menu/.game/demo/.dat  (github.com/ioquake/ioq3 @ 48d8c8876b, lines 1160,1174)
+			// FIXME TTimo I'm not sure about the fs_numServerPaks test
+			// if you are using FS_ReadFile to find out if a file exists,
+			//   this test can make the search fail although the file is in the directory
+			// I had the problem on https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=8
+			// turned out I used FS_FileExists instead
+			if ( fs_numServerPaks ) {
+
+				if ( Q_stricmp( filename + l - 4, ".cfg" )		// for config files
+					&& Q_stricmp( filename + l - 5, ".menu" )	// menu files
+					&& Q_stricmp( filename + l - 5, ".game" )	// menu files
+					&& Q_stricmp( filename + l - strlen(demoExt), demoExt )	// menu files
+					&& Q_stricmp( filename + l - 4, ".dat" ) ) {	// for journal files
+					continue;
+				}
+			}
+
+=== code/ui/ui_shared.c (ioq3 1.36 era; TA UI): multi item label lookup - r_mode -1 not in the list shows an EMPTY label  (github.com/ioquake/ioq3 @ 72dea0a184, lines 1949,1999)
+int Item_Multi_FindCvarByValue(itemDef_t *item) {
+	char buff[1024];
+	float value = 0;
+	int i;
+	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
+	if (multiPtr) {
+		if (multiPtr->strDef) {
+	    DC->getCVarString(item->cvar, buff, sizeof(buff));
+		} else {
+			value = DC->getCVarValue(item->cvar);
+		}
+		for (i = 0; i < multiPtr->count; i++) {
+			if (multiPtr->strDef) {
+				if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) {
+					return i;
+				}
+			} else {
+ 				if (multiPtr->cvarValue[i] == value) {
+ 					return i;
+ 				}
+ 			}
+ 		}
+	}
+	return 0;
+}
+
+const char *Item_Multi_Setting(itemDef_t *item) {
+	char buff[1024];
+	float value = 0;
+	int i;
+	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
+	if (multiPtr) {
+		if (multiPtr->strDef) {
+	    DC->getCVarString(item->cvar, buff, sizeof(buff));
+		} else {
+			value = DC->getCVarValue(item->cvar);
+		}
+		for (i = 0; i < multiPtr->count; i++) {
+			if (multiPtr->strDef) {
+				if (Q_stricmp(buff, multiPtr->cvarStr[i]) == 0) {
+					return multiPtr->cvarList[i];
+				}
+			} else {
+ 				if (multiPtr->cvarValue[i] == value) {
+					return multiPtr->cvarList[i];
+ 				}
+ 			}
+ 		}
+	}
+	return "";
+}
+
+=== code/ui/ui_shared.c: a multi item only changes with the (relative-mouse) cursor INSIDE its rect  (github.com/ioquake/ioq3 @ 72dea0a184, lines 2001,2027)
+qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
+	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
+	if (multiPtr) {
+	  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+			if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
+				int current = Item_Multi_FindCvarByValue(item) + 1;
+				int max = Item_Multi_CountSettings(item);
+				if ( current < 0 || current >= max ) {
+					current = 0;
+				}
+				if (multiPtr->strDef) {
+					DC->setCVar(item->cvar, multiPtr->cvarStr[current]);
+				} else {
+					float value = multiPtr->cvarValue[current];
+					if (((float)((int) value)) == value) {
+						DC->setCVar(item->cvar, va("%i", (int) value ));
+					}
+					else {
+						DC->setCVar(item->cvar, va("%f", value ));
+					}
+				}
+				return qtrue;
+			}
+		}
+	}
+  return qfalse;
+}
+
+=== code/ui/ui_shared.c: negative values parse in cvarFloatList  (github.com/ioquake/ioq3 @ 72dea0a184, lines 334,356)
+qboolean PC_Float_Parse(int handle, float *f) {
+	pc_token_t token;
+	int negative = qfalse;
+
+	if (!trap_PC_ReadToken(handle, &token))
+		return qfalse;
+	if (token.string[0] == '-') {
+		if (!trap_PC_ReadToken(handle, &token))
+			return qfalse;
+		negative = qtrue;
+	}
+	if (token.type != TT_NUMBER) {
+		PC_SourceError(handle, "expected float but found %s\n", token.string);
+		return qfalse;
+	}
+	if (negative)
+		*f = -token.floatvalue;
+	else
+		*f = token.floatvalue;
+	return qtrue;
+}
+
+/*
+
+=== code/ui/ui_main.c (ioq3 1.36 era; TA UI): Quality presets write r_mode 4/3  (github.com/ioquake/ioq3 @ 845de6a960, lines 3075,3135)
+	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
+		switch (val) {
+			case 0:	// high quality
+				trap_Cvar_SetValue( "r_fullScreen", 1 );
+				trap_Cvar_SetValue( "r_subdivisions", 4 );
+				trap_Cvar_SetValue( "r_vertexlight", 0 );
+				trap_Cvar_SetValue( "r_lodbias", 0 );
+				trap_Cvar_SetValue( "r_colorbits", 32 );
+				trap_Cvar_SetValue( "r_depthbits", 24 );
+				trap_Cvar_SetValue( "r_picmip", 0 );
+				trap_Cvar_SetValue( "r_mode", 4 );
+				trap_Cvar_SetValue( "r_texturebits", 32 );
+				trap_Cvar_SetValue( "r_fastSky", 0 );
+				trap_Cvar_SetValue( "r_inGameVideo", 1 );
+				trap_Cvar_SetValue( "cg_shadows", 1 );
+				trap_Cvar_SetValue( "cg_brassTime", 2500 );
+				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+			break;
+			case 1: // normal 
+				trap_Cvar_SetValue( "r_fullScreen", 1 );
+				trap_Cvar_SetValue( "r_subdivisions", 12 );
+				trap_Cvar_SetValue( "r_vertexlight", 0 );
+				trap_Cvar_SetValue( "r_lodbias", 0 );
+				trap_Cvar_SetValue( "r_colorbits", 0 );
+				trap_Cvar_SetValue( "r_depthbits", 24 );
+				trap_Cvar_SetValue( "r_picmip", 1 );
+				trap_Cvar_SetValue( "r_mode", 3 );
+				trap_Cvar_SetValue( "r_texturebits", 0 );
+				trap_Cvar_SetValue( "r_fastSky", 0 );
+				trap_Cvar_SetValue( "r_inGameVideo", 1 );
+				trap_Cvar_SetValue( "cg_brassTime", 2500 );
+				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+				trap_Cvar_SetValue( "cg_shadows", 0 );
+			break;
+			case 2: // fast
+				trap_Cvar_SetValue( "r_fullScreen", 1 );
+				trap_Cvar_SetValue( "r_subdivisions", 8 );
+				trap_Cvar_SetValue( "r_vertexlight", 0 );
+				trap_Cvar_SetValue( "r_lodbias", 1 );
+				trap_Cvar_SetValue( "r_colorbits", 0 );
+				trap_Cvar_SetValue( "r_depthbits", 0 );
+				trap_Cvar_SetValue( "r_picmip", 1 );
+				trap_Cvar_SetValue( "r_mode", 3 );
+				trap_Cvar_SetValue( "r_texturebits", 0 );
+				trap_Cvar_SetValue( "cg_shadows", 0 );
+				trap_Cvar_SetValue( "r_fastSky", 1 );
+				trap_Cvar_SetValue( "r_inGameVideo", 0 );
+				trap_Cvar_SetValue( "cg_brassTime", 0 );
+				trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
+			break;
+			case 3: // fastest
+				trap_Cvar_SetValue( "r_fullScreen", 1 );
+				trap_Cvar_SetValue( "r_subdivisions", 20 );
+				trap_Cvar_SetValue( "r_vertexlight", 1 );
+				trap_Cvar_SetValue( "r_lodbias", 2 );
+				trap_Cvar_SetValue( "r_colorbits", 16 );
+				trap_Cvar_SetValue( "r_depthbits", 16 );
+				trap_Cvar_SetValue( "r_mode", 3 );
+				trap_Cvar_SetValue( "r_picmip", 2 );
+				trap_Cvar_SetValue( "r_texturebits", 16 );
+				trap_Cvar_SetValue( "cg_shadows", 0 );
+
+=== code/ui/ui_main.c: menus.txt + ingame.txt both loaded at init  (github.com/ioquake/ioq3 @ 845de6a960, lines 5120,5133)
+	menuSet = UI_Cvar_VariableString("ui_menuFiles");
+	if (menuSet == NULL || menuSet[0] == '\0') {
+		menuSet = "ui/menus.txt";
+	}
+
+#if 0
+	if (uiInfo.inGameLoad) {
+		UI_LoadMenus("ui/ingame.txt", qtrue);
+	} else {
+	}
+#else 
+	UI_LoadMenus(menuSet, qtrue);
+	UI_LoadMenus("ui/ingame.txt", qfalse);
+#endif
+
+=== code/ui/ui_main.c: the TA cursor moves by relative deltas only  (github.com/ioquake/ioq3 @ 845de6a960, lines 5195,5215)
+void _UI_MouseEvent( int dx, int dy )
+{
+	// update mouse screen position
+	uiInfo.uiDC.cursorx += dx;
+	if (uiInfo.uiDC.cursorx < 0)
+		uiInfo.uiDC.cursorx = 0;
+	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
+		uiInfo.uiDC.cursorx = SCREEN_WIDTH;
+
+	uiInfo.uiDC.cursory += dy;
+	if (uiInfo.uiDC.cursory < 0)
+		uiInfo.uiDC.cursory = 0;
+	else if (uiInfo.uiDC.cursory > SCREEN_HEIGHT)
+		uiInfo.uiDC.cursory = SCREEN_HEIGHT;
+
+  if (Menu_Count() > 0) {
+    //menuDef_t *menu = Menu_GetFocused();
+    //Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+  }
+
+
+=== code/server/sv_init.c (CURRENT ioq3 main = what the fleet's ioq3ded 1.36+u20251228 is built from): a pure server TOUCHES vm/ui.qvm
+		p = FS_LoadedPakNames();
+		Cvar_Set( "sv_pakNames", p );
+
+		// we need to touch the cgame and ui qvm because they could be in
+		// separate pk3 files and the client will need to download the pk3
+		// files with the latest cgame and ui qvm to pass the pure check
+		SV_TouchFile( "vm/cgame.qvm" );
+		SV_TouchFile( "vm/ui.qvm" );
+	}
+	else {
+		Cvar_Set( "sv_paks", "" );
+		Cvar_Set( "sv_pakNames", "" );
+	}
+
+=== code/server/sv_client.c (CURRENT main): SV_VerifyPaks_f drops a client whose ui.qvm pk3 checksum differs from the server's
+	if ( sv_pure->integer != 0 ) {
+
+		nChkSum1 = nChkSum2 = 0;
+		// we run the game, so determine which cgame and ui the client "should" be running
+		bGood = (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
+		if (bGood)
+			bGood = (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
+
+				break;
+			}
+			// verify the second to be the ui checksum
+			pArg = Cmd_Argv(nCurArg++);
+			if (!pArg || *pArg == '@' || atoi(pArg) != nChkSum2 ) {
+				bGood = qfalse;
+				break;
+		else {
+			cl->pureAuthentic = 0;
+			cl->lastSnapshotTime = 0;
+			cl->state = CS_ACTIVE;
+			SV_SendClientSnapshot( cl );
+			SV_DropClient( cl, "Unpure Client. "
+				"You may need to enable in-game downloads "
+				"to connect to this server (set "
+				"cl_allowDownload 1)" );
+
+=== code/q3_ui/ui_video.c (CURRENT main): even today's q3_ui only appends the current mode when r_availableModes is non-empty - on retail it falls back to the id table
+*/
+static void GraphicsOptions_GetResolutions( void )
+{
+	trap_Cvar_VariableStringBuffer("r_availableModes", resbuf, sizeof(resbuf));
+	if(*resbuf)
+	{
+		char* s = resbuf;
+		unsigned int i = 0;
+		while( s && i < ARRAY_LEN(detectedResolutions)-1 )
+		{
+			detectedResolutions[i++] = s;
+			s = strchr(s, ' ');
+			if( s )
+				*s++ = '\0';
+		}
+		detectedResolutions[ i ] = NULL;
+
+		// add custom resolution if not in mode list
+		if ( i < ARRAY_LEN(detectedResolutions)-1 )
+		{
+			Com_sprintf( currentResolution, sizeof ( currentResolution ), "%dx%d", uis.glconfig.vidWidth, uis.glconfig.vidHeight );
+
+			for( i = 0; detectedResolutions[ i ]; i++ )
+			{
+				if ( strcmp( detectedResolutions[ i ], currentResolution ) == 0 )
+					break;
+			}
+
+			if ( detectedResolutions[ i ] == NULL )
+			{
+				detectedResolutions[ i++ ] = currentResolution;
+				detectedResolutions[ i ] = NULL;
+			}
+		}
+
+		resolutions = detectedResolutions;
+		resolutionsDetected = qtrue;
+	}
+}

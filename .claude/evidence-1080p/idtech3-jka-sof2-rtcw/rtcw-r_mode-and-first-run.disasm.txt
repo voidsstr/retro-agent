@@ -1,0 +1,357 @@
+Return to Castle Wolfenstein (GOG 2.0.0.2 tree) - both engines honour r_mode -1;
+the first launch of a fresh tree is forced to r_mode 3 by Com_SetRecommended.
+
+== WolfMP.exe (Wolf 1.4-MP, Oct 28 2002)
+[1] R_Register: plain 3-arg Cvar_Get - r_mode ("3", 0x21) -> [0x1224318], r_customwidth
+    ("1600") -> [0x1224324], r_customheight ("1024") -> [0x12242d8], r_customaspect -> [0x1222570].
+  0045ab07: push    0x21
+  0045ab09: push    0x4e47c0
+  0045ab0e: push    0x4f4488   ; "r_mode"
+  0045ab13: call    dword ptr [0x1207028]
+  0045ab19: push    0x21
+  0045ab1b: push    0x4e6aec
+  0045ab20: push    0x4f1dc4   ; "r_fullscreen"
+  0045ab25: mov     dword ptr [0x1224318], eax
+  0045ab2a: call    dword ptr [0x1207028]
+  0045ab30: mov     dword ptr [0xadee14], eax
+  0045ab35: push    0x21
+  0045ab37: push    0x4f4480   ; "1600"
+  0045ab3c: push    0x4f4470   ; "r_customwidth"
+  0045ab41: call    dword ptr [0x1207028]
+  0045ab47: push    0x21
+  0045ab49: push    0x4f4468   ; "1024"
+  0045ab4e: push    0x4f4458   ; "r_customheight"
+  0045ab53: mov     dword ptr [0x1224324], eax
+  0045ab58: call    dword ptr [0x1207028]
+  0045ab5e: push    0x21
+  0045ab60: push    0x4e6aec
+  0045ab65: push    0x4f4448   ; "r_customaspect"
+  0045ab6a: mov     dword ptr [0x12242d8], eax
+  0045ab6f: call    dword ptr [0x1207028]
+  0045ab75: push    0x21
+  0045ab77: push    0x4e6aec
+  0045ab7c: push    0x4f4438   ; "r_simpleMipMaps"
+  0045ab81: mov     dword ptr [0x1222570], eax
+  0045ab86: call    dword ptr [0x1207028]
+  0045ab8c: add     esp, 0x48
+
+[2] R_GetModeInfo: mode == -1 -> r_customwidth/height/aspect.
+  00459c10: mov     eax, dword ptr [esp + 0x10]
+  00459c14: cmp     eax, -1
+  00459c17: jge     0x459c1c
+  00459c19: xor     eax, eax
+  00459c1b: ret     
+  00459c1c: cmp     eax, dword ptr [0x4f3cc0]
+  00459c22: jl      0x459c27
+  00459c24: xor     eax, eax
+  00459c26: ret     
+  00459c27: cmp     eax, -1
+  00459c2a: jne     0x459c5c
+  00459c2c: mov     eax, dword ptr [0x1224324]
+  00459c31: mov     edx, dword ptr [esp + 4]
+  00459c35: mov     ecx, dword ptr [eax + 0x20]
+  00459c38: mov     dword ptr [edx], ecx
+  00459c3a: mov     eax, dword ptr [0x12242d8]
+  00459c3f: mov     edx, dword ptr [esp + 8]
+  00459c43: mov     ecx, dword ptr [eax + 0x20]
+  00459c46: mov     dword ptr [edx], ecx
+  00459c48: mov     eax, dword ptr [0x1222570]
+  00459c4d: mov     edx, dword ptr [esp + 0xc]
+  00459c51: mov     ecx, dword ptr [eax + 0x1c]
+  00459c54: mov     eax, 1
+  00459c59: mov     dword ptr [edx], ecx
+  00459c5b: ret     
+  00459c5c: mov     edx, dword ptr [esp + 4]
+  00459c60: shl     eax, 4
+  00459c63: add     eax, 0x4f3c00
+  00459c68: mov     ecx, dword ptr [eax + 4]
+  00459c6b: mov     dword ptr [edx], ecx
+  00459c6d: mov     edx, dword ptr [esp + 8]
+  00459c71: mov     ecx, dword ptr [eax + 8]
+  00459c74: mov     dword ptr [edx], ecx
+  00459c76: fild    dword ptr [eax + 4]
+  00459c79: fild    dword ptr [eax + 8]
+  00459c7c: fmul    dword ptr [eax + 0xc]
+  00459c7f: mov     eax, dword ptr [esp + 0xc]
+  00459c83: fdivp   st(1)
+  00459c85: fstp    dword ptr [eax]
+  00459c87: mov     eax, 1
+  00459c8c: ret     
+
+[3] Com_SetRecommended: execs ONE of four cfgs - every one of them says `seta r_mode 3`.
+  00420610: push    esi
+  00420611: push    1
+  00420613: push    0x4e6aec
+  00420618: push    0x4ea24c   ; "r_highQualityVideo"
+  0042061d: call    0x421a90
+  00420622: add     esp, 0xc
+  00420625: test    eax, eax
+  00420627: je      0x420637
+  00420629: mov     ecx, dword ptr [eax + 0x20]
+  0042062c: test    ecx, ecx
+  0042062e: je      0x420637
+  00420630: mov     esi, 1
+  00420635: jmp     0x420639
+  00420637: xor     esi, esi
+  00420639: call    0x4474d0
+  0042063e: test    esi, esi
+  00420640: pop     esi
+  00420641: je      0x420677
+  00420643: test    eax, eax
+  00420645: je      0x42065f
+  00420647: push    0x4ea228   ; "Found high quality video and CPU"
+  0042064c: call    0x41e210
+  00420651: push    0x4ea20c   ; "exec highVidhighCPU.cfg"
+  00420656: call    0x41d800
+  0042065b: add     esp, 8
+  0042065e: ret     
+  0042065f: push    0x4ea1f4   ; "exec highVidlowCPU.cfg"
+  00420664: call    0x41d800
+  00420669: push    0x4ea1c4   ; "Found high quality video and low quality CPU"
+  0042066e: call    0x41e210
+  00420673: add     esp, 8
+  00420676: ret     
+  00420677: test    eax, eax
+  00420679: je      0x420693
+  0042067b: push    0x4ea1ac   ; "exec lowVidhighCPU.cfg"
+  00420680: call    0x41d800
+  00420685: push    0x4ea17c   ; "Found low quality video and high quality CPU"
+  0042068a: call    0x41e210
+  0042068f: add     esp, 8
+  00420692: ret     
+  00420693: push    0x4ea164   ; "exec lowVidlowCPU.cfg"
+  00420698: call    0x41d800
+  0042069d: push    0x4ea134   ; "Found low quality video and low quality CPU"
+  004206a2: call    0x41e210
+  004206a7: add     esp, 8
+  004206aa: ret     
+
+[4] end of Com_Init: if com_recommendedSet == 0 (no config yet) and not safe mode ->
+    Com_SetRecommended(); Cbuf_ExecuteText(EXEC_APPEND, "vid_restart"); then com_recommendedSet 1.
+    This runs AFTER default.cfg / wolfconfig_mp.cfg / autoexec.cfg / Com_StartupVariable, so it
+    beats fleetres.cfg AND the launcher's +set r_mode on the first launch of a fresh tree.
+  00420aeb: mov     ecx, dword ptr [0xed8144]
+  00420af1: mov     eax, dword ptr [ecx + 0x20]
+  00420af4: test    eax, eax
+  00420af6: jne     0x420b13
+  00420af8: mov     eax, dword ptr [ebp - 4]
+  00420afb: test    eax, eax
+  00420afd: jne     0x420b13
+  00420aff: call    0x420610
+  00420b04: push    0x4ea2b8   ; "vid_restart"
+  00420b09: push    2
+  00420b0b: call    0x41d8f0
+  00420b10: add     esp, 8
+  00420b13: push    0x4e6aec
+  00420b18: push    0x4ea310   ; "com_recommendedSet"
+  00420b1d: call    0x422010
+  00420b22: mov     edx, dword ptr [0xed8054]
+  00420b28: add     esp, 8
+
+    config order in Com_Init:
+  00420740: push    0x4ea424   ; "exec default.cfg"
+  00420745: call    0x41d800
+  0042074a: push    0x4ea410   ; "exec language.cfg"
+  0042074f: call    0x41d800
+  00420754: add     esp, 0x14
+  00420757: call    0x41e670
+  0042075c: test    eax, eax
+  0042075e: jne     0x420770
+  00420760: mov     dword ptr [ebp - 4], eax
+  00420763: push    0x4ea3f8   ; "exec wolfconfig_mp.cfg"
+  00420768: call    0x41d800
+  0042076d: add     esp, 4
+  00420770: push    0x4ea3e4   ; "exec autoexec.cfg"
+  00420775: call    0x41d800
+  0042077a: call    0x41d960
+  0042077f: push    0
+  00420781: call    0x41e6f0
+
+[5] the renderer's AssertCvarRange (fn 0x45b490, "WARNING: cvar '%s' out of range") is called
+    for exactly three cvars - r_picmip [0x122257c] 0..16, r_displayRefresh [0x1224304] 0..200,
+    r_znear [0x12242b4] 0.001..200. r_mode [0x1224318] is NOT range-checked anywhere.
+  0045aa35: mov     eax, dword ptr [0x122257c]
+  0045aa3a: push    1
+  0045aa3c: push    0x41800000   ; float 16
+  0045aa41: push    0
+  0045aa43: push    eax
+  0045aa44: call    0x45b490
+  0045ac1c: mov     dword ptr [0x1224304], eax
+  0045ac21: push    1
+  0045ac23: push    0x43480000   ; float 200
+  0045ac28: push    0
+  0045ac2a: push    eax
+  0045ac2b: call    0x45b490
+  0045acd5: push    1
+  0045acd7: push    0x43480000   ; float 200
+  0045acdc: push    0x3a83126f   ; float 0.001
+  0045ace1: push    eax
+  0045ace2: mov     dword ptr [0x12242b4], eax
+  0045ace7: call    0x45b490
+
+== WolfSP.exe (Wolf 1.32, May 1 2002)
+[1] R_Register: r_mode -> [0x1184488], r_customwidth -> [0x1184494], r_customheight -> [0x1184448],
+    r_customaspect -> [0x11826c4]; plain 3-arg Cvar_Get, no range.
+  00446d4c: push    0x21
+  00446d4e: push    0x4db788
+  00446d53: push    0x4ed5ec   ; "r_mode"
+  00446d58: mov     dword ptr [0x11826e0], eax
+  00446d5d: call    dword ptr [0x117371c]
+  00446d63: push    0x21
+  00446d65: push    0x4dda28
+  00446d6a: push    0x4eb90c   ; "r_fullscreen"
+  00446d6f: mov     dword ptr [0x1184488], eax
+  00446d74: call    dword ptr [0x117371c]
+  00446d7a: add     esp, 0x48
+  00446d7d: mov     dword ptr [0xb8fe54], eax
+  00446d82: push    0x21
+  00446d84: push    0x4ed5e4   ; "1600"
+  00446d89: push    0x4ed5d4   ; "r_customwidth"
+  00446d8e: call    dword ptr [0x117371c]
+  00446d94: push    0x21
+  00446d96: push    0x4ed5cc   ; "1024"
+  00446d9b: push    0x4ed5bc   ; "r_customheight"
+  00446da0: mov     dword ptr [0x1184494], eax
+  00446da5: call    dword ptr [0x117371c]
+  00446dab: push    0x21
+  00446dad: push    0x4dda28
+  00446db2: push    0x4ed5ac   ; "r_customaspect"
+  00446db7: mov     dword ptr [0x1184448], eax
+  00446dbc: call    dword ptr [0x117371c]
+  00446dc2: push    0x21
+  00446dc4: push    0x4dda28
+  00446dc9: push    0x4ed59c   ; "r_simpleMipMaps"
+  00446dce: mov     dword ptr [0x11826c4], eax
+  00446dd3: call    dword ptr [0x117371c]
+
+[2] R_GetModeInfo: mode == -1 branch present.
+  00445e00: mov     eax, dword ptr [esp + 0x10]
+  00445e04: cmp     eax, -1
+  00445e07: jge     0x445e0c
+  00445e09: xor     eax, eax
+  00445e0b: ret     
+  00445e0c: cmp     eax, dword ptr [0x4ecde0]
+  00445e12: jl      0x445e17
+  00445e14: xor     eax, eax
+  00445e16: ret     
+  00445e17: cmp     eax, -1
+  00445e1a: jne     0x445e4c
+  00445e1c: mov     eax, dword ptr [0x1184494]
+  00445e21: mov     edx, dword ptr [esp + 4]
+  00445e25: mov     ecx, dword ptr [eax + 0x20]
+  00445e28: mov     dword ptr [edx], ecx
+  00445e2a: mov     eax, dword ptr [0x1184448]
+  00445e2f: mov     edx, dword ptr [esp + 8]
+  00445e33: mov     ecx, dword ptr [eax + 0x20]
+  00445e36: mov     dword ptr [edx], ecx
+  00445e38: mov     eax, dword ptr [0x11826c4]
+  00445e3d: mov     edx, dword ptr [esp + 0xc]
+  00445e41: mov     ecx, dword ptr [eax + 0x1c]
+  00445e44: mov     eax, 1
+  00445e49: mov     dword ptr [edx], ecx
+  00445e4b: ret     
+  00445e4c: mov     edx, dword ptr [esp + 4]
+  00445e50: shl     eax, 4
+  00445e53: add     eax, 0x4ecd10
+  00445e58: mov     ecx, dword ptr [eax + 4]
+  00445e5b: mov     dword ptr [edx], ecx
+  00445e5d: mov     edx, dword ptr [esp + 8]
+  00445e61: mov     ecx, dword ptr [eax + 8]
+  00445e64: mov     dword ptr [edx], ecx
+  00445e66: fild    dword ptr [eax + 4]
+  00445e69: fild    dword ptr [eax + 8]
+  00445e6c: fmul    dword ptr [eax + 0xc]
+  00445e6f: mov     eax, dword ptr [esp + 0xc]
+  00445e73: fdivp   st(1)
+  00445e75: fstp    dword ptr [eax]
+  00445e77: mov     eax, 1
+  00445e7c: ret     
+
+[3] first-run: if com_recommendedSet == 0 -> Com_SetRecommended(1) (same four cfgs) ...
+  0041d85f: mov     ecx, dword ptr [0xe0ba84]
+  0041d865: mov     eax, dword ptr [ecx + 0x20]
+  0041d868: test    eax, eax
+  0041d86a: jne     0x41d885
+  0041d86c: push    1
+  0041d86e: call    0x41d310
+  0041d873: push    0x4dda28
+  0041d878: push    0x4e047c   ; "com_recommendedSet"
+  0041d87d: call    0x41ebe0
+  0041d882: add     esp, 0xc
+    ... which ends with Cbuf_AddText("vid_restart\n") when its argument is true:
+  0041d3fd: mov     eax, dword ptr [esp + 8]
+  0041d401: pop     edi
+  0041d402: test    eax, eax
+  0041d404: je      0x41d411
+  0041d406: push    0x4e0238   ; "vid_restart"
+  0041d40b: call    0x41acd0
+  0041d410: pop     ecx
+  0041d411: ret     
+
+[4] AssertCvarRange (fn 0x447750) callers: r_picmip, r_picmip2, r_displayRefresh, r_znear
+    (call sites 0x446c79, 0x446c91, 0x446e75, 0x446f4e) - r_mode [0x1184488] is not among them.
+
+== the four first-run cfgs (Main/pak0.pk3)
+--- highVidhighCPU.cfg
+seta r_subdivisions "4"
+seta r_vertexlight "0"
+seta r_dynamiclight "0"
+seta r_lowMemTextureSize "0"
+seta r_lodbias "0"
+seta r_colorbits "32"
+seta r_depthbits "24"
+seta r_texturebits "32"
+seta r_picmip "1"
+seta r_picmip2 "2"
+seta r_fastSky "0"
+seta cg_brassTime "2500"
+seta r_texturemode "GL_LINEAR_MIPMAP_NEAREST"
+seta r_mode 3
+--- highVidlowCPU.cfg
+seta r_subdivisions "4"
+seta r_vertexlight "0"
+seta r_dynamiclight "0"
+seta r_lowMemTextureSize "512"
+seta r_lowMemTextureThreshold "40.0"
+seta r_lodbias "0"
+seta r_colorbits "32"
+seta r_depthbits "24"
+seta r_texturebits "32"
+seta r_picmip "1"
+seta r_picmip2 "2"
+seta r_fastSky "0"
+seta cg_brassTime "1250"
+seta r_texturemode "GL_LINEAR_MIPMAP_NEAREST"
+seta r_mode 3
+--- lowVidhighCPU.cfg
+seta r_subdivisions "4"
+seta r_vertexlight "1"
+seta r_dynamiclight "0"
+seta r_lowMemTextureSize "512"
+seta r_lowMemTextureThreshold "40.0"
+seta r_lodbias "0"
+seta r_colorbits "32"
+seta r_depthbits "24"
+seta r_texturebits "16"
+seta r_picmip "2"
+seta r_picmip2 "2"
+seta r_fastSky "0"
+seta cg_brassTime "1250"
+seta r_texturemode "GL_LINEAR_MIPMAP_NEAREST"
+seta r_mode 3
+--- lowVidlowCPU.cfg
+seta r_subdivisions "4"
+seta r_vertexlight "1"
+seta r_dynamiclight "0"
+seta r_lowMemTextureSize "256"
+seta r_lowMemTextureThreshold "40.0"
+seta r_lodbias "0"
+seta r_colorbits "32"
+seta r_depthbits "24"
+seta r_texturebits "16"
+seta r_picmip "2"
+seta r_picmip2 "2"
+seta r_fastSky "1"
+seta cg_brassTime "1250"
+seta r_texturemode "GL_LINEAR_MIPMAP_NEAREST"
+seta r_mode 3

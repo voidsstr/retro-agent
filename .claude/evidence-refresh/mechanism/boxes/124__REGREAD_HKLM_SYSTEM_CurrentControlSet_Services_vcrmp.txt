@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKLM SYSTEM\CurrentControlSet\Services\vcrmp  status=0  2026-09-29 00:38:30
+{"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Services\\vcrmp","values":[{"name":"Type","type":"REG_DWORD","data":1},{"name":"Start","type":"REG_DWORD","data":3},{"name":"ErrorControl","type":"REG_DWORD","data":0},{"name":"Tag","type":"REG_DWORD","data":3},{"name":"ImagePath","type":"REG_EXPAND_SZ","data":"system32\\DRIVERS\\vcrmp.sys"},{"name":"Group","type":"REG_SZ","data":"Video"}],"subkeys":["Device0","Device1","Device2","Device3","Diag","Security","Enum"]}

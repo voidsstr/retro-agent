@@ -1,0 +1,16 @@
+== boxes/192_168_1_124/C__Games__Quake2Complete__glide3x.dll
+SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide
+SYSTEM\CurrentControlSet\Services\3dfxvs\Device0
+FX_GLIDE_REFRESH
+hwcInitVideo: setVideoMode (reg=refresh val=xRes<<16|yRes)
+hwcInitVideo: setVideoMode FAILED
+hwcInitVideo: setVideoMode returned
+_setVideoMode
+== boxes/192_168_1_124/C__WINDOWS__system32__glide3x.dll
+SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide
+SYSTEM\CurrentControlSet\Services\3dfxvs\Device0
+FX_GLIDE_REFRESH
+hwcInitVideo: setVideoMode (reg=refresh val=xRes<<16|yRes)
+hwcInitVideo: setVideoMode FAILED
+hwcInitVideo: setVideoMode returned
+_setVideoMode

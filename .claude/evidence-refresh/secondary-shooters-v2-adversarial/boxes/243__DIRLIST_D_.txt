@@ -1,0 +1,2 @@
+# 192.168.1.243  DIRLIST D:\  status=0  2026-09-29 04:41:03
+[{"name":"GAMES","is_dir":true,"size":0,"modified":"2026-09-27 09:56:42","hidden":false,"readonly":false}]

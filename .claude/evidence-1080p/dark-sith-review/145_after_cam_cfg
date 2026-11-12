@@ -1,0 +1,51 @@
+; $Header: r:/t2repos/thief2/src/cam.cfg,v 1.24 2000/03/08 11:43:50 adurant Exp $
+
+; hey, which game is this
+game dark
+
+; general configs
+include_user_cfg user.cfg
+editor_include_dromed_cfg dromed.cfg
+
+; game specific paths/configs
+dark_include_install_cfg darkinst.cfg
+shock_include_install_cfg install.cfg
+
+; set trait cache to include concretes
+trait_cache_flags 2
+
+no_network 
+
+sfx_vol_music -474
+fogging 1
+enhanced_sky 1
+render_weather 1
+movie_volume_factor 0.7
+
+sfx_vol_3d 0
+;skip_intro 
+sfx_device 1
+game_screen_depth 32
+gamma 1.
+game_hardware 1
+sfx_vol_2d 0
+game_screen_flags 45
+game_screen_size 1920 1080
+sfx_channels 48
+ambient_volume 0
+game_full_screen 1
+master_volume 0
+safe_texture_manager 
+
+; --- retro-fleet preinstalled tree ---------------------------------------
+; Display/audio values above are the shipped 1.18 defaults (800x600, 16-bit,
+; safe_texture_manager) - period-safe. The archive arrived configured for a
+; modern PC (1360x768 @ 32bpp, gamma 0.9); that file is kept as
+; cam.cfg.newdark-modern-pc.
+; NewDark's Thief2.exe probes thief2\miss8.mis for copy protection and the
+; GOG install.cfg/darkinst.cfg point cd_path at "\", so the check is skipped
+; here instead. (Retail backup\thief2.exe probes .\miss8.mis, which is
+; present in this tree, so the 1.18 fallback needs nothing.)
+skip_starting_checks 
+reverse_stereo 0
+skip_intro 

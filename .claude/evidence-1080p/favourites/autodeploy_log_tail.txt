@@ -1,0 +1,60 @@
+2026-09-28 14:46:45 + 192.168.1.195 answers as ADMIN-PC (OK ADMIN-PC Win6.1)
+2026-09-28 14:46:45 + 192.168.1.243 answers as N5R5L9 (OK N5R5L9 Win4.10)
+2026-09-28 14:46:45 + 192.168.1.249 answers as WHITEBEAST (OK WHITEBEAST Win6.2)
+2026-09-28 14:46:45   NSC-5C5396FAF9D (192.168.1.110) needs a sync: never synced by autodeploy
+2026-09-28 14:47:25     -> {"state": "done", "percent": 100, "titles_done": 51, "titles_total": 52, "titles_skipped": 0, "titles_gated": 1, "mb_done": 54188, "mb_total": 54188, "mbps": 0.0, "current_title": "Tribes2", "current_file": "Play Tribes 2 Solo and LAN.bat", "failed_files": 0, "failed_file": "", "elapsed_s": 40, "provisioned": true, "files_written": 20, "shortcuts_changed": 0, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": true, "message": "complete - 51 title(s)"}
+2026-09-28 14:47:25     recorded: done: 51/52 title(s), 1 gated, 0 skipped (no room), 0 file error(s), 20 file(s) written
+2026-09-28 14:47:25   NSC-C543575F526 (192.168.1.124): the IP-keyed record for 192.168.1.124 belongs to NSC-CABE14B7486 per fleet-roster.txt - not adopted; this box is synced afresh
+2026-09-28 14:47:25   NSC-C543575F526 (192.168.1.124) needs a sync: never synced by autodeploy
+2026-09-28 14:48:05     -> {"state": "done", "percent": 100, "titles_done": 45, "titles_total": 52, "titles_skipped": 0, "titles_gated": 7, "mb_done": 41817, "mb_total": 41817, "mbps": 0.01, "current_title": "Tribes2", "current_file": "Play Tribes 2 Solo and LAN.bat", "failed_files": 0, "failed_file": "", "elapsed_s": 39, "provisioned": true, "files_written": 23, "shortcuts_changed": 0, "new_image": true, "message": "complete - 45 title(s)"}
+2026-09-28 14:48:05     recorded: done: 45/52 title(s), 7 gated, 0 skipped (no room), 0 file error(s), 23 file(s) written
+2026-09-28 14:48:05   ADMIN-PC (192.168.1.195) needs a sync: never synced by autodeploy
+2026-09-28 14:48:45     -> {"state": "done", "percent": 100, "titles_done": 51, "titles_total": 52, "titles_skipped": 0, "titles_gated": 1, "mb_done": 54188, "mb_total": 54188, "mbps": 0.0, "current_title": "Tribes2", "current_file": "Play Tribes 2 Solo and LAN.bat", "failed_files": 0, "failed_file": "", "elapsed_s": 40, "provisioned": true, "files_written": 29, "shortcuts_changed": 0, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": false, "message": "complete - 51 title(s)"}
+2026-09-28 14:48:45     recorded: done: 51/52 title(s), 1 gated, 0 skipped (no room), 0 file error(s), 29 file(s) written
+2026-09-28 14:48:46   N5R5L9 (192.168.1.243): adopted the record the IP-keyed version kept under 192.168.1.243
+2026-09-28 14:48:46   N5R5L9 (192.168.1.243) needs a sync: deploy generation '0' -> '2026-09-28 staged icons XP-drawable (SeriousSamLogo, warcraft1/2, carmageddon, descent)'
+2026-09-28 14:49:06     -> {"state": "done", "percent": 100, "titles_done": 4, "titles_total": 52, "titles_skipped": 19, "titles_gated": 29, "mb_done": 382, "mb_total": 382, "mbps": 0.0, "current_title": "Quake2Win9x", "current_file": "launch.txt", "failed_files": 0, "failed_file": "", "elapsed_s": 19, "provisioned": true, "files_written": 2, "shortcuts_changed": 12, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": false, "message": "complete - 4 title(s)"}
+2026-09-28 14:49:06     recorded: done: 4/52 title(s), 29 gated, 19 skipped (no room), 0 file error(s), 2 file(s) written
+2026-09-28 14:49:06   WHITEBEAST (192.168.1.249) skipped: modern Windows host - its agent reports host_policy.managed=false
+2026-09-28 15:01:27 + 192.168.1.145 answers as DELL (OK DELL Win5.1)
+2026-09-28 15:01:27 + 192.168.1.240 answers as USER-41EA3B3330 (OK USER-41EA3B3330 Win5.1)
+2026-09-28 15:01:27   DELL (192.168.1.145): adopted the record the IP-keyed version kept under 192.168.1.145
+2026-09-28 15:01:27   DELL (192.168.1.145) needs a sync: 1 new title(s) - Quake2Win9x; deploy generation '0' -> '2026-09-28 staged icons XP-drawable (SeriousSamLogo, warcraft1/2, carmageddon, descent)'
+2026-09-28 15:02:07     -> {"state": "done", "percent": 100, "titles_done": 51, "titles_total": 52, "titles_skipped": 0, "titles_gated": 1, "mb_done": 54188, "mb_total": 54188, "mbps": 0.0, "current_title": "Tribes2", "current_file": "Play Tribes 2 Solo and LAN.bat", "failed_files": 0, "failed_file": "", "elapsed_s": 39, "provisioned": true, "files_written": 27, "shortcuts_changed": 0, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": false, "message": "complete - 51 title(s)"}
+2026-09-28 15:02:07     recorded: done: 51/52 title(s), 1 gated, 0 skipped (no room), 0 file error(s), 27 file(s) written
+2026-09-28 15:02:07   USER-41EA3B3330 (192.168.1.240): adopted the record the IP-keyed version kept under 192.168.1.240
+2026-09-28 15:02:07   USER-41EA3B3330 (192.168.1.240) busy (copying) - leaving it alone
+2026-09-28 15:03:38   USER-41EA3B3330 (192.168.1.240) busy (copying) - leaving it alone
+2026-09-28 15:05:08   USER-41EA3B3330 (192.168.1.240) needs a sync: 1 new title(s) - Quake2Win9x; deploy generation '0' -> '2026-09-28 staged icons XP-drawable (SeriousSamLogo, warcraft1/2, carmageddon, descent)'
+2026-09-28 15:06:08     -> {"state": "done", "percent": 100, "titles_done": 51, "titles_total": 52, "titles_skipped": 0, "titles_gated": 1, "mb_done": 54188, "mb_total": 54188, "mbps": 0.0, "current_title": "Tribes2", "current_file": "Play Tribes 2 Solo and LAN.bat", "failed_files": 0, "failed_file": "", "elapsed_s": 60, "provisioned": true, "files_written": 27, "shortcuts_changed": 0, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": false, "message": "complete - 51 title(s)"}
+2026-09-28 15:06:08     recorded: done: 51/52 title(s), 1 gated, 0 skipped (no room), 0 file error(s), 27 file(s) written
+2026-09-28 15:21:50 - 192.168.1.145 (DELL) no longer answers
+2026-09-28 15:21:50 - 192.168.1.240 (USER-41EA3B3330) no longer answers
+2026-09-28 15:23:23 - 192.168.1.110 (NSC-5C5396FAF9D) no longer answers
+2026-09-28 15:23:23 - 192.168.1.195 (ADMIN-PC) no longer answers
+2026-09-28 22:53:24 deploy generation '2026-09-28 staged icons XP-drawable (SeriousSamLogo, warcraft1/2, carmageddon, descent)' (from _deploy_generation.txt); 52 title(s)
+2026-09-28 22:53:32 + 192.168.1.124 answers as NSC-C543575F526 (OK NSC-C543575F526 Win5.1)
+2026-09-28 22:53:32 + 192.168.1.243 answers as N5R5L9 (OK N5R5L9 Win4.10)
+2026-09-28 22:53:32 + 192.168.1.249 answers as WHITEBEAST (OK WHITEBEAST Win6.2)
+2026-09-28 22:53:32   WHITEBEAST (192.168.1.249) skipped: modern Windows host - its agent reports host_policy.managed=false
+2026-09-28 23:04:14 - 192.168.1.243 (N5R5L9) no longer answers
+2026-09-28 23:12:13 + 192.168.1.243 answers as N5R5L9 (OK N5R5L9 Win4.10)
+2026-09-28 23:23:04 - 192.168.1.124 (NSC-C543575F526) no longer answers
+2026-09-28 23:30:56 + 192.168.1.110 answers as NSC-5C5396FAF9D (OK NSC-5C5396FAF9D Win5.1)
+2026-09-28 23:30:56 + 192.168.1.124 answers as NSC-C543575F526 (OK NSC-C543575F526 Win5.1)
+2026-09-28 23:34:08 - 192.168.1.110 (NSC-5C5396FAF9D) no longer answers
+2026-09-28 23:43:30 + 192.168.1.195 answers as ADMIN-PC (OK ADMIN-PC Win6.1)
+2026-09-28 23:45:00 - 192.168.1.124 (NSC-C543575F526) no longer answers
+2026-09-28 23:49:39 + 192.168.1.123 answers as NSC-B20C188E96D (OK NSC-B20C188E96D Win5.1)
+2026-09-28 23:49:39 + 192.168.1.124 answers as NSC-C543575F526 (OK NSC-C543575F526 Win5.1)
+2026-09-28 23:49:39 + 192.168.1.145 answers as DELL (OK DELL Win5.1)
+2026-09-28 23:49:39 + 192.168.1.240 answers as USER-41EA3B3330 (OK USER-41EA3B3330 Win5.1)
+2026-09-28 23:49:39   NSC-B20C188E96D (192.168.1.123): adopted the record the IP-keyed version kept under 192.168.1.123
+2026-09-28 23:49:39   NSC-B20C188E96D (192.168.1.123) needs a sync: deploy generation '0' -> '2026-09-28 staged icons XP-drawable (SeriousSamLogo, warcraft1/2, carmageddon, descent)'
+2026-09-28 23:49:59     -> {"state": "done", "percent": 100, "titles_done": 51, "titles_total": 52, "titles_skipped": 0, "titles_gated": 1, "mb_done": 54188, "mb_total": 54188, "mbps": 0.0, "current_title": "Tribes2", "current_file": "Play Tribes 2 Solo and LAN.bat", "failed_files": 0, "failed_file": "", "elapsed_s": 19, "provisioned": true, "files_written": 27, "shortcuts_changed": 0, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": true, "message": "complete - 51 title(s)"}
+2026-09-28 23:49:59     recorded: done: 51/52 title(s), 1 gated, 0 skipped (no room), 0 file error(s), 27 file(s) written
+2026-09-28 23:56:08 + 192.168.1.186 answers as NSC-684BA8CF5ED (OK NSC-684BA8CF5ED Win5.1)
+2026-09-28 23:56:08   NSC-684BA8CF5ED (192.168.1.186) needs a sync: never synced by autodeploy
+2026-09-28 23:56:48     -> {"state": "done", "percent": 0, "titles_done": 0, "titles_total": 52, "titles_skipped": 51, "titles_gated": 1, "mb_done": 0, "mb_total": 0, "mbps": 0.0, "current_title": "", "current_file": "", "failed_files": 0, "failed_file": "", "elapsed_s": 40, "provisioned": true, "files_written": 0, "shortcuts_changed": 0, "since_progress_s": 0, "stalled_s": 0, "starved_s": 0, "cpu_busy_pct": -1, "new_image": true, "message": "complete - 0 title(s)"}
+2026-09-28 23:56:48     recorded: done: 0/52 title(s), 1 gated, 51 skipped (no room), 0 file error(s), 0 file(s) written
+2026-09-28 23:58:30 - 192.168.1.186 (NSC-684BA8CF5ED) no longer answers

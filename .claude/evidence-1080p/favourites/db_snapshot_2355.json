@@ -1,0 +1,3208 @@
+{
+ "192.168.1.123": {
+  "machine": {
+   "ip": "192.168.1.123",
+   "hostname": "NSC-B20C188E96D",
+   "os": "Win5.1",
+   "agent_version": "",
+   "index_hash": "9f4d3d9b",
+   "indexed_at": "2026-09-26 15:43:27",
+   "last_seen": "2026-09-28 23:53:24",
+   "note": ""
+  },
+  "favorites": [
+   {
+    "ip": "192.168.1.123",
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "applied_hash": "0bcee3ca5f172322",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "2 servers -> C:\\Games\\CounterStrike16\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "applied_hash": "12470715f92ab5b2",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "1 servers -> C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "16 servers -> C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:31",
+    "detail": "16 servers -> C:\\Games\\JediAcademy\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "mohaa",
+    "dir": "C:\\Program Files\\EA GAMES\\MOHAA",
+    "applied_hash": "50242698e0d78013",
+    "applied_at": "2026-08-28 12:11:40",
+    "detail": "16 servers -> C:\\Program Files\\EA GAMES\\MOHAA\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake.II.v3.20\\Quake.II.v3.20",
+    "applied_hash": "c6966dd186bd82e6",
+    "applied_at": "2026-08-28 11:12:34",
+    "detail": "1 servers -> C:\\Games\\Quake.II.v3.20\\Quake.II.v3.20\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2",
+    "applied_hash": "dd00d17a7bff3801",
+    "applied_at": "2026-08-28 11:12:34",
+    "detail": "1 servers -> C:\\Games\\Quake2\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "applied_hash": "26bff2c55a4cb5f1",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "1 servers -> C:\\Games\\Quake2Complete\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "same file as ioquake3"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake3",
+    "dir": "C:\\Program Files\\Quake III Arena",
+    "applied_hash": "5ab8171ff7b1d259",
+    "applied_at": "2026-08-28 12:11:40",
+    "detail": "16 servers -> C:\\Program Files\\Quake III Arena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "applied_hash": "6498bc1b9c87ac9f",
+    "applied_at": "2026-08-28 12:11:40",
+    "detail": "16 servers -> C:\\Quake III Arena\\Quake3\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "quake3",
+    "dir": "C:\\q3bench",
+    "applied_hash": "90103c2588aa6d66",
+    "applied_at": "2026-08-28 12:11:40",
+    "detail": "16 servers -> C:\\q3bench\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:31",
+    "detail": "16 servers -> C:\\Games\\SoldierOfFortune2\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "applied_hash": "82f0e7e55cd1ab92",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "1 servers -> C:\\Games\\UnrealGold\\System\\Unreal.ini"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "applied_hash": "f7fe18d23620627a",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "1 servers -> C:\\Games\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "applied_hash": "3d42db42c12ea0a0",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "applied_hash": "be2dfe1528295bac",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.123",
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "applied_hash": "884e3d32c806e50b",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "1 servers -> C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg"
+   }
+  ],
+  "games": [
+   {
+    "game_key": "avp",
+    "dir": "C:\\Games\\AliensVsPredator",
+    "name": "Aliens versus Predator",
+    "engine": "-",
+    "exe": "C:\\Games\\AliensVsPredator\\avp.exe",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Aliens vs Predator.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "bf1942",
+    "dir": "C:\\Games\\BF1942",
+    "name": "Battlefield 1942",
+    "engine": "-",
+    "exe": "C:\\Games\\BF1942\\BF1942.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon",
+    "dir": "C:\\Games\\Carmageddon1",
+    "name": "Carmageddon",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon1\\MAINPROG.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon2",
+    "dir": "C:\\Games\\Carmageddon2",
+    "name": "Carmageddon 2",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon2\\carma2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent",
+    "dir": "C:\\Games\\Descent1",
+    "name": "Descent",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent1\\DESCENTR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent2",
+    "dir": "C:\\Games\\Descent2",
+    "name": "Descent II",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent2\\DESCENTW.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent3",
+    "dir": "C:\\Games\\Descent3",
+    "name": "Descent 3",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent3\\Descent 3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "name": "Deus Ex",
+    "engine": "-",
+    "exe": "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hd",
+    "dir": "C:\\Games\\HiddenAndDangerous\\Bin",
+    "name": "Hidden & Dangerous",
+    "engine": "-",
+    "exe": "C:\\Games\\HiddenAndDangerous\\Bin\\HDE.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\glh2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII\\VOODOO",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\VOODOO\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "ioquake3",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\ioquake3.x86.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jk",
+    "dir": "C:\\Games\\JediKnightDF2",
+    "name": "Jedi Knight: Dark Forces II",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightDF2\\JK.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Dark Forces II.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "name": "Jedi Academy",
+    "engine": "q3",
+    "exe": "C:\\Games\\JediAcademy\\jamp.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "jkmots",
+    "dir": "C:\\Games\\JediKnightMotS",
+    "name": "Jedi Knight: Mysteries of the Sith",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightMotS\\JKM.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Mysteries of the Sith.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\glquake.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1\\VOODOO",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\VOODOO\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "name": "Quake II",
+    "engine": "q2",
+    "exe": "C:\\Games\\Quake2Complete\\quake2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\quake3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "C&C: Red Alert 2",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\Ra2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2yr",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "Red Alert 2: Yuri's Revenge",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\gamemd.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redfaction",
+    "dir": "C:\\Games\\RedFaction",
+    "name": "Red Faction",
+    "engine": "-",
+    "exe": "C:\\Games\\RedFaction\\rf.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "redneck",
+    "dir": "C:\\Games\\RedneckRampage",
+    "name": "Redneck Rampage",
+    "engine": "-",
+    "exe": "C:\\Games\\RedneckRampage\\RR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamFirstEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamFirstEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamSecondEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamSecondEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "shogo",
+    "dir": "C:\\Games\\Shogo",
+    "name": "Shogo: Mobile Armor Division",
+    "engine": "-",
+    "exe": "C:\\Games\\Shogo\\Shogo.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sin",
+    "dir": "C:\\Games\\SiNGold",
+    "name": "SiN Gold",
+    "engine": "-",
+    "exe": "C:\\Games\\SiNGold\\sin.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof",
+    "dir": "C:\\Games\\SoldierOfFortune",
+    "name": "Soldier of Fortune",
+    "engine": "-",
+    "exe": "C:\\Games\\SoldierOfFortune\\SoF.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "name": "Soldier of Fortune II",
+    "engine": "q3",
+    "exe": "C:\\Games\\SoldierOfFortune2\\sof2mp.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sshock2",
+    "dir": "C:\\Games\\SystemShock2",
+    "name": "System Shock 2",
+    "engine": "-",
+    "exe": "C:\\Games\\SystemShock2\\shock2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft\\BroodWar",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\BroodWar\\StarCraft.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tfc",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Team Fortress Classic",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief",
+    "dir": "C:\\Games\\ThiefGold",
+    "name": "Thief: The Dark Project",
+    "engine": "-",
+    "exe": "C:\\Games\\ThiefGold\\THIEF.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\Thief2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2\\backup",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\backup\\Thief2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tibsun",
+    "dir": "C:\\Games\\TiberianSun",
+    "name": "C&C: Tiberian Sun",
+    "engine": "-",
+    "exe": "C:\\Games\\TiberianSun\\SUN.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tribes2",
+    "dir": "C:\\Games\\Tribes2\\GameData",
+    "name": "Tribes 2",
+    "engine": "t2",
+    "exe": "C:\\Games\\Tribes2\\GameData\\Tribes2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealGold\\System\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\Games\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "Return to Castle Wolfenstein",
+    "engine": "rtcw",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfMP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "wolfsp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "RtCW (single player)",
+    "engine": "-",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfSP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   }
+  ]
+ },
+ "192.168.1.145": {
+  "machine": {
+   "ip": "192.168.1.145",
+   "hostname": "DELL",
+   "os": "Win5.1",
+   "agent_version": "",
+   "index_hash": "d1a78a0a",
+   "indexed_at": "2026-09-28 14:59:49",
+   "last_seen": "2026-09-28 23:53:24",
+   "note": ""
+  },
+  "favorites": [
+   {
+    "ip": "192.168.1.145",
+    "game_key": "cs16",
+    "dir": "C:\\GAMES\\CounterStrike16",
+    "applied_hash": "0bcee3ca5f172322",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "2 servers -> C:\\GAMES\\CounterStrike16\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "cs16",
+    "dir": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6",
+    "applied_hash": "1438bca8b9c64d0c",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "2 servers -> C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "applied_hash": "12470715f92ab5b2",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "ioquake3",
+    "dir": "C:\\GAMES\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "16 servers -> C:\\GAMES\\Quake3-TeamArena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "jka",
+    "dir": "C:\\GAMES\\JediAcademy",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:32",
+    "detail": "16 servers -> C:\\GAMES\\JediAcademy\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "mohaa",
+    "dir": "C:\\Program Files\\EA GAMES\\MOHAA",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:32",
+    "detail": "16 servers -> C:\\Program Files\\EA GAMES\\MOHAA\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "quake2",
+    "dir": "C:\\GAMES\\Quake2",
+    "applied_hash": "dd00d17a7bff3801",
+    "applied_at": "2026-08-28 19:37:32",
+    "detail": "1 servers -> C:\\GAMES\\Quake2\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "quake2",
+    "dir": "C:\\GAMES\\Quake2Complete",
+    "applied_hash": "26bff2c55a4cb5f1",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\GAMES\\Quake2Complete\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "quake3",
+    "dir": "C:\\GAMES\\Quake III Arena",
+    "applied_hash": "a4462fb166a22119",
+    "applied_at": "2026-08-29 13:41:17",
+    "detail": "16 servers -> C:\\GAMES\\Quake III Arena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "quake3",
+    "dir": "C:\\GAMES\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "same file as ioquake3"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "quake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "applied_hash": "7ddd6f75f4033a6e",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "16 servers -> C:\\Quake III Arena\\Quake3\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "quake3",
+    "dir": "C:\\q3bench",
+    "applied_hash": "156f3d3d6de14c88",
+    "applied_at": "2026-08-29 23:07:32",
+    "detail": "16 servers -> C:\\q3bench\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "sof2",
+    "dir": "C:\\GAMES\\SoldierOfFortune2",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:32",
+    "detail": "16 servers -> C:\\GAMES\\SoldierOfFortune2\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "applied_hash": "82f0e7e55cd1ab92",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\UnrealGold\\System\\Unreal.ini"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "applied_hash": "f7fe18d23620627a",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "ut2004",
+    "dir": "C:\\UT2004\\System",
+    "applied_hash": "5c74dcf61c17d687",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "applied_hash": "3d42db42c12ea0a0",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "applied_hash": "be2dfe1528295bac",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.145",
+    "game_key": "wolfmp",
+    "dir": "C:\\GAMES\\ReturnToCastleWolfenstein",
+    "applied_hash": "884e3d32c806e50b",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\GAMES\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg"
+   }
+  ],
+  "games": [
+   {
+    "game_key": "avp",
+    "dir": "C:\\GAMES\\AliensVsPredator",
+    "name": "Aliens versus Predator",
+    "engine": "-",
+    "exe": "C:\\GAMES\\AliensVsPredator\\avp.exe",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Aliens vs Predator.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "bf1942",
+    "dir": "C:\\GAMES\\BF1942",
+    "name": "Battlefield 1942",
+    "engine": "-",
+    "exe": "C:\\GAMES\\BF1942\\BF1942.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon",
+    "dir": "C:\\GAMES\\Carmageddon1",
+    "name": "Carmageddon",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Carmageddon1\\MAINPROG.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon2",
+    "dir": "C:\\GAMES\\Carmageddon2",
+    "name": "Carmageddon 2",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Carmageddon2\\carma2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\GAMES\\CounterStrike16",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\GAMES\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6\\hl.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "descent",
+    "dir": "C:\\GAMES\\Descent1",
+    "name": "Descent",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Descent1\\DESCENTR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent2",
+    "dir": "C:\\GAMES\\Descent2",
+    "name": "Descent II",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Descent2\\DESCENTW.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent3",
+    "dir": "C:\\GAMES\\Descent3",
+    "name": "Descent 3",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Descent3\\Descent 3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "name": "Deus Ex",
+    "engine": "-",
+    "exe": "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\GAMES\\CounterStrike16",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\GAMES\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\GAMES\\HalfLife1",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\GAMES\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6\\hl.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Sierra\\Half-Life",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Sierra\\Half-Life\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hd",
+    "dir": "C:\\Games\\HiddenAndDangerous\\Bin",
+    "name": "Hidden & Dangerous",
+    "engine": "-",
+    "exe": "C:\\Games\\HiddenAndDangerous\\Bin\\HDE.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\GAMES\\HexenII",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\GAMES\\HexenII\\glh2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII\\VOODOO",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\VOODOO\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hl2",
+    "dir": "C:\\Program Files\\Strogino CS Portal\\Counter-Strike Source",
+    "name": "Half-Life 2",
+    "engine": "-",
+    "exe": "C:\\Program Files\\Strogino CS Portal\\Counter-Strike Source\\hl2.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "ioquake3",
+    "dir": "C:\\GAMES\\Quake3-TeamArena",
+    "name": "ioquake3",
+    "engine": "q3",
+    "exe": "C:\\GAMES\\Quake3-TeamArena\\ioquake3.x86.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jk",
+    "dir": "C:\\GAMES\\JediKnightDF2",
+    "name": "Jedi Knight: Dark Forces II",
+    "engine": "-",
+    "exe": "C:\\GAMES\\JediKnightDF2\\JK.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Dark Forces II.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jka",
+    "dir": "C:\\GAMES\\JediAcademy",
+    "name": "Jedi Academy",
+    "engine": "q3",
+    "exe": "C:\\GAMES\\JediAcademy\\jamp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jkmots",
+    "dir": "C:\\GAMES\\JediKnightMotS",
+    "name": "Jedi Knight: Mysteries of the Sith",
+    "engine": "-",
+    "exe": "C:\\GAMES\\JediKnightMotS\\JKM.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Mysteries of the Sith.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "mohaa",
+    "dir": "C:\\Program Files\\EA GAMES\\MOHAA",
+    "name": "Medal of Honor: AA",
+    "engine": "q3",
+    "exe": "C:\\Program Files\\EA GAMES\\MOHAA\\MOHAA.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\GAMES\\Quake1",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\GAMES\\Quake1\\glquake.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1\\VOODOO",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\VOODOO\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake2",
+    "dir": "C:\\GAMES\\Quake2Complete",
+    "name": "Quake II",
+    "engine": "q2",
+    "exe": "C:\\GAMES\\Quake2Complete\\quake2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\GAMES\\Quake3-TeamArena",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\GAMES\\Quake3-TeamArena\\quake3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\Quake III Arena\\Quake3\\quake3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\q3bench",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\q3bench\\quake3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ra2",
+    "dir": "C:\\GAMES\\RedAlert2",
+    "name": "C&C: Red Alert 2",
+    "engine": "-",
+    "exe": "C:\\GAMES\\RedAlert2\\Ra2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2yr",
+    "dir": "C:\\GAMES\\RedAlert2",
+    "name": "Red Alert 2: Yuri's Revenge",
+    "engine": "-",
+    "exe": "C:\\GAMES\\RedAlert2\\gamemd.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redfaction",
+    "dir": "C:\\GAMES\\RedFaction",
+    "name": "Red Faction",
+    "engine": "-",
+    "exe": "C:\\GAMES\\RedFaction\\rf.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redneck",
+    "dir": "C:\\GAMES\\RedneckRampage",
+    "name": "Redneck Rampage",
+    "engine": "-",
+    "exe": "C:\\GAMES\\RedneckRampage\\RR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamFirstEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamFirstEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamSecondEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamSecondEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "shogo",
+    "dir": "C:\\GAMES\\Shogo",
+    "name": "Shogo: Mobile Armor Division",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Shogo\\Shogo.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sin",
+    "dir": "C:\\GAMES\\SiNGold",
+    "name": "SiN Gold",
+    "engine": "-",
+    "exe": "C:\\GAMES\\SiNGold\\sin.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof",
+    "dir": "C:\\GAMES\\SoldierOfFortune",
+    "name": "Soldier of Fortune",
+    "engine": "-",
+    "exe": "C:\\GAMES\\SoldierOfFortune\\SoF.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof2",
+    "dir": "C:\\GAMES\\SoldierOfFortune2",
+    "name": "Soldier of Fortune II",
+    "engine": "q3",
+    "exe": "C:\\GAMES\\SoldierOfFortune2\\sof2mp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sshock2",
+    "dir": "C:\\GAMES\\SystemShock2",
+    "name": "System Shock 2",
+    "engine": "-",
+    "exe": "C:\\GAMES\\SystemShock2\\shock2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\GAMES\\StarCraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\GAMES\\StarCraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\GAMES\\StarCraft\\BroodWar",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\GAMES\\StarCraft\\BroodWar\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Program Files\\Starcraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Program Files\\Starcraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tfc",
+    "dir": "C:\\GAMES\\HalfLife1",
+    "name": "Team Fortress Classic",
+    "engine": "goldsrc",
+    "exe": "C:\\GAMES\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tfc",
+    "dir": "C:\\Sierra\\Half-Life",
+    "name": "Team Fortress Classic",
+    "engine": "goldsrc",
+    "exe": "C:\\Sierra\\Half-Life\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "thief",
+    "dir": "C:\\GAMES\\ThiefGold",
+    "name": "Thief: The Dark Project",
+    "engine": "-",
+    "exe": "C:\\GAMES\\ThiefGold\\THIEF.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\GAMES\\Thief2",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\GAMES\\Thief2\\Thief2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2\\backup",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\backup\\Thief2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tibsun",
+    "dir": "C:\\GAMES\\TiberianSun",
+    "name": "C&C: Tiberian Sun",
+    "engine": "-",
+    "exe": "C:\\GAMES\\TiberianSun\\SUN.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tribes2",
+    "dir": "C:\\Games\\Tribes2\\GameData",
+    "name": "Tribes 2",
+    "engine": "t2",
+    "exe": "C:\\Games\\Tribes2\\GameData\\Tribes2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ts",
+    "dir": "C:\\Sierra\\Half-Life",
+    "name": "The Specialists",
+    "engine": "goldsrc",
+    "exe": "C:\\Sierra\\Half-Life\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealGold\\System\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2003",
+    "dir": "C:\\UT2003\\System",
+    "name": "Unreal Tournament 2003",
+    "engine": "ut2k4",
+    "exe": "C:\\UT2003\\System\\UT2003.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\Games\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "wolfmp",
+    "dir": "C:\\GAMES\\ReturnToCastleWolfenstein",
+    "name": "Return to Castle Wolfenstein",
+    "engine": "rtcw",
+    "exe": "C:\\GAMES\\ReturnToCastleWolfenstein\\WolfMP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "wolfsp",
+    "dir": "C:\\GAMES\\ReturnToCastleWolfenstein",
+    "name": "RtCW (single player)",
+    "engine": "-",
+    "exe": "C:\\GAMES\\ReturnToCastleWolfenstein\\WolfSP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   }
+  ]
+ },
+ "192.168.1.195": {
+  "machine": {
+   "ip": "192.168.1.195",
+   "hostname": "ADMIN-PC",
+   "os": "Win6.1",
+   "agent_version": "",
+   "index_hash": "cc1d8a2f",
+   "indexed_at": "2026-09-28 12:19:49",
+   "last_seen": "2026-09-28 23:53:24",
+   "note": ""
+  },
+  "favorites": [
+   {
+    "ip": "192.168.1.195",
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "applied_hash": "0bcee3ca5f172322",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "2 servers -> C:\\Games\\CounterStrike16\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "cs16",
+    "dir": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6",
+    "applied_hash": "d4d35f6e78de1862",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "2 servers -> C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "cs16",
+    "dir": "C:\\gameservers\\cs16bcs",
+    "applied_hash": "0bcee3ca5f172322",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "2 servers -> C:\\gameservers\\cs16bcs\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "applied_hash": "12470715f92ab5b2",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "ioquake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "applied_hash": "73ff889950deb0bb",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Quake III Arena\\Quake3\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "applied_hash": "26bff2c55a4cb5f1",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\Quake2Complete\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "same file as ioquake3"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "quake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "applied_hash": "73ff889950deb0bb",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "same file as ioquake3"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "unreal",
+    "dir": "C:\\GOG Games\\Unreal Gold\\System",
+    "applied_hash": "b8dedddd03e171fa",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\GOG Games\\Unreal Gold\\System\\Unreal.ini"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "applied_hash": "82f0e7e55cd1ab92",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\UnrealGold\\System\\Unreal.ini"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "applied_hash": "f7fe18d23620627a",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "applied_hash": "3d42db42c12ea0a0",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "applied_hash": "be2dfe1528295bac",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "wolfmp",
+    "dir": "C:\\GOG Games\\Return to Castle Wolfenstein",
+    "applied_hash": "3ed91a7bb57c06b0",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\GOG Games\\Return to Castle Wolfenstein\\Main\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.195",
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "applied_hash": "884e3d32c806e50b",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg"
+   }
+  ],
+  "games": [
+   {
+    "game_key": "avp",
+    "dir": "C:\\Games\\AliensVsPredator",
+    "name": "Aliens versus Predator",
+    "engine": "-",
+    "exe": "C:\\Games\\AliensVsPredator\\avp.exe",
+    "launcher": "C:\\Users\\Public\\Desktop\\Aliens vs Predator.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "bf1942",
+    "dir": "C:\\Games\\BF1942",
+    "name": "Battlefield 1942",
+    "engine": "-",
+    "exe": "C:\\Games\\BF1942\\BF1942.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon",
+    "dir": "C:\\Games\\Carmageddon1",
+    "name": "Carmageddon",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon1\\MAINPROG.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon2",
+    "dir": "C:\\Games\\Carmageddon2",
+    "name": "Carmageddon 2",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon2\\carma2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6\\hl.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\gameservers\\cs16bcs",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\gameservers\\cs16bcs\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\gameservers\\cs16lan",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\gameservers\\cs16lan\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "descent",
+    "dir": "C:\\Games\\Descent1",
+    "name": "Descent",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent1\\DESCENTR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent2",
+    "dir": "C:\\Games\\Descent2",
+    "name": "Descent II",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent2\\DESCENTW.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent3",
+    "dir": "C:\\Games\\Descent3",
+    "name": "Descent 3",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent3\\Descent 3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "name": "Deus Ex",
+    "engine": "-",
+    "exe": "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Program Files\\Bcs16 Romania\\Counter-Strike 1.6\\hl.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\gameservers\\cs16bcs",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\gameservers\\cs16bcs\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\gameservers\\cs16lan",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\gameservers\\cs16lan\\hl.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hd",
+    "dir": "C:\\Games\\HiddenAndDangerous\\Bin",
+    "name": "Hidden & Dangerous",
+    "engine": "-",
+    "exe": "C:\\Games\\HiddenAndDangerous\\Bin\\HDE.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\glh2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII\\VOODOO",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\VOODOO\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "ioquake3",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\ioquake3.x86.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ioquake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "name": "ioquake3",
+    "engine": "q3",
+    "exe": "C:\\Quake III Arena\\Quake3\\ioquake3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "jk",
+    "dir": "C:\\Games\\JediKnightDF2",
+    "name": "Jedi Knight: Dark Forces II",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightDF2\\JK.EXE",
+    "launcher": "C:\\Users\\Public\\Desktop\\Jedi Knight - Dark Forces II.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "name": "Jedi Academy",
+    "engine": "q3",
+    "exe": "C:\\Games\\JediAcademy\\jamp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jkmots",
+    "dir": "C:\\Games\\JediKnightMotS",
+    "name": "Jedi Knight: Mysteries of the Sith",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightMotS\\JKM.EXE",
+    "launcher": "C:\\Users\\Public\\Desktop\\Jedi Knight - Mysteries of the Sith.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\glquake.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1\\VOODOO",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\VOODOO\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "name": "Quake II",
+    "engine": "q2",
+    "exe": "C:\\Games\\Quake2Complete\\quake2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\quake3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\Quake III Arena\\Quake3\\quake3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\q3bench",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\q3bench\\quake3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ra2",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "C&C: Red Alert 2",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\Ra2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2yr",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "Red Alert 2: Yuri's Revenge",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\gamemd.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redfaction",
+    "dir": "C:\\Games\\RedFaction",
+    "name": "Red Faction",
+    "engine": "-",
+    "exe": "C:\\Games\\RedFaction\\rf.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redneck",
+    "dir": "C:\\Games\\RedneckRampage",
+    "name": "Redneck Rampage",
+    "engine": "-",
+    "exe": "C:\\Games\\RedneckRampage\\RR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamFirstEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamFirstEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamSecondEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamSecondEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "shogo",
+    "dir": "C:\\Games\\Shogo",
+    "name": "Shogo: Mobile Armor Division",
+    "engine": "-",
+    "exe": "C:\\Games\\Shogo\\Shogo.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sin",
+    "dir": "C:\\Games\\SiNGold",
+    "name": "SiN Gold",
+    "engine": "-",
+    "exe": "C:\\Games\\SiNGold\\sin.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof",
+    "dir": "C:\\Games\\SoldierOfFortune",
+    "name": "Soldier of Fortune",
+    "engine": "-",
+    "exe": "C:\\Games\\SoldierOfFortune\\SoF.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "name": "Soldier of Fortune II",
+    "engine": "q3",
+    "exe": "C:\\Games\\SoldierOfFortune2\\sof2mp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sshock2",
+    "dir": "C:\\Games\\SystemShock2",
+    "name": "System Shock 2",
+    "engine": "-",
+    "exe": "C:\\Games\\SystemShock2\\shock2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft\\BroodWar",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\BroodWar\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Program Files\\Starcraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Program Files\\Starcraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tfc",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Team Fortress Classic",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief",
+    "dir": "C:\\Games\\ThiefGold",
+    "name": "Thief: The Dark Project",
+    "engine": "-",
+    "exe": "C:\\Games\\ThiefGold\\THIEF.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\Thief2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2\\backup",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\backup\\Thief2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tibsun",
+    "dir": "C:\\Games\\TiberianSun",
+    "name": "C&C: Tiberian Sun",
+    "engine": "-",
+    "exe": "C:\\Games\\TiberianSun\\SUN.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tribes2",
+    "dir": "C:\\Games\\Tribes2\\GameData",
+    "name": "Tribes 2",
+    "engine": "t2",
+    "exe": "C:\\Games\\Tribes2\\GameData\\Tribes2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\GOG Games\\Unreal Gold\\System",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\GOG Games\\Unreal Gold\\System\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\GOG Games\\Unreal Gold\\System_226bak",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\GOG Games\\Unreal Gold\\System_226bak\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealGold\\System\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\Games\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "wolfmp",
+    "dir": "C:\\GOG Games\\Return to Castle Wolfenstein",
+    "name": "Return to Castle Wolfenstein",
+    "engine": "rtcw",
+    "exe": "C:\\GOG Games\\Return to Castle Wolfenstein\\WolfMP.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "Return to Castle Wolfenstein",
+    "engine": "rtcw",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfMP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "wolfsp",
+    "dir": "C:\\GOG Games\\Return to Castle Wolfenstein",
+    "name": "RtCW (single player)",
+    "engine": "-",
+    "exe": "C:\\GOG Games\\Return to Castle Wolfenstein\\WolfSP.exe",
+    "launcher": "",
+    "source": "registry"
+   },
+   {
+    "game_key": "wolfsp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "RtCW (single player)",
+    "engine": "-",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfSP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   }
+  ]
+ },
+ "192.168.1.240": {
+  "machine": {
+   "ip": "192.168.1.240",
+   "hostname": "USER-41EA3B3330",
+   "os": "Win5.1",
+   "agent_version": "",
+   "index_hash": "58c28ae4",
+   "indexed_at": "2026-09-28 15:04:49",
+   "last_seen": "2026-09-28 23:53:24",
+   "note": ""
+  },
+  "favorites": [
+   {
+    "ip": "192.168.1.240",
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "applied_hash": "0bcee3ca5f172322",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "2 servers -> C:\\Games\\CounterStrike16\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "applied_hash": "12470715f92ab5b2",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:32",
+    "detail": "16 servers -> C:\\Games\\JediAcademy\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2",
+    "applied_hash": "487ecc51c095f498",
+    "applied_at": "2026-08-29 13:01:18",
+    "detail": "1 servers -> C:\\Games\\Quake2\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "applied_hash": "26bff2c55a4cb5f1",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\Quake2Complete\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "same file as ioquake3"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "quake3",
+    "dir": "C:\\Program Files\\Quake III Arena",
+    "applied_hash": "c38d4cbfb53c80d7",
+    "applied_at": "2026-08-29 13:01:18",
+    "detail": "16 servers -> C:\\Program Files\\Quake III Arena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:32",
+    "detail": "16 servers -> C:\\Games\\SoldierOfFortune2\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "applied_hash": "82f0e7e55cd1ab92",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\UnrealGold\\System\\Unreal.ini"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "applied_hash": "f7fe18d23620627a",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "ut2004",
+    "dir": "C:\\UT2004\\System",
+    "applied_hash": "a911cd667e35c278",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "applied_hash": "3d42db42c12ea0a0",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "applied_hash": "be2dfe1528295bac",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.240",
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "applied_hash": "884e3d32c806e50b",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg"
+   }
+  ],
+  "games": [
+   {
+    "game_key": "avp",
+    "dir": "C:\\Games\\AliensVsPredator",
+    "name": "Aliens versus Predator",
+    "engine": "-",
+    "exe": "C:\\Games\\AliensVsPredator\\avp.exe",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Aliens vs Predator.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "bf1942",
+    "dir": "C:\\Games\\BF1942",
+    "name": "Battlefield 1942",
+    "engine": "-",
+    "exe": "C:\\Games\\BF1942\\BF1942.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon",
+    "dir": "C:\\Games\\Carmageddon1",
+    "name": "Carmageddon",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon1\\MAINPROG.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon2",
+    "dir": "C:\\Games\\Carmageddon2",
+    "name": "Carmageddon 2",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon2\\carma2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent",
+    "dir": "C:\\Games\\Descent1",
+    "name": "Descent",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent1\\DESCENTR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent2",
+    "dir": "C:\\Games\\Descent2",
+    "name": "Descent II",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent2\\DESCENTW.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent3",
+    "dir": "C:\\Games\\Descent3",
+    "name": "Descent 3",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent3\\Descent 3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "name": "Deus Ex",
+    "engine": "-",
+    "exe": "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hd",
+    "dir": "C:\\Games\\HiddenAndDangerous\\Bin",
+    "name": "Hidden & Dangerous",
+    "engine": "-",
+    "exe": "C:\\Games\\HiddenAndDangerous\\Bin\\HDE.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\glh2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII\\VOODOO",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\VOODOO\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "ioquake3",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\ioquake3.x86.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jk",
+    "dir": "C:\\Games\\JediKnightDF2",
+    "name": "Jedi Knight: Dark Forces II",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightDF2\\JK.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Dark Forces II.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "name": "Jedi Academy",
+    "engine": "q3",
+    "exe": "C:\\Games\\JediAcademy\\jamp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jkmots",
+    "dir": "C:\\Games\\JediKnightMotS",
+    "name": "Jedi Knight: Mysteries of the Sith",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightMotS\\JKM.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Mysteries of the Sith.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\glquake.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1\\VOODOO",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\VOODOO\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "name": "Quake II",
+    "engine": "q2",
+    "exe": "C:\\Games\\Quake2Complete\\quake2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\quake3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "C&C: Red Alert 2",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\Ra2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2yr",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "Red Alert 2: Yuri's Revenge",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\gamemd.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redfaction",
+    "dir": "C:\\Games\\RedFaction",
+    "name": "Red Faction",
+    "engine": "-",
+    "exe": "C:\\Games\\RedFaction\\rf.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redneck",
+    "dir": "C:\\Games\\RedneckRampage",
+    "name": "Redneck Rampage",
+    "engine": "-",
+    "exe": "C:\\Games\\RedneckRampage\\RR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamFirstEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamFirstEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamSecondEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamSecondEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "shogo",
+    "dir": "C:\\Games\\Shogo",
+    "name": "Shogo: Mobile Armor Division",
+    "engine": "-",
+    "exe": "C:\\Games\\Shogo\\Shogo.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sin",
+    "dir": "C:\\Games\\SiNGold",
+    "name": "SiN Gold",
+    "engine": "-",
+    "exe": "C:\\Games\\SiNGold\\sin.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof",
+    "dir": "C:\\Games\\SoldierOfFortune",
+    "name": "Soldier of Fortune",
+    "engine": "-",
+    "exe": "C:\\Games\\SoldierOfFortune\\SoF.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "name": "Soldier of Fortune II",
+    "engine": "q3",
+    "exe": "C:\\Games\\SoldierOfFortune2\\sof2mp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sshock2",
+    "dir": "C:\\Games\\SystemShock2",
+    "name": "System Shock 2",
+    "engine": "-",
+    "exe": "C:\\Games\\SystemShock2\\shock2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft\\BroodWar",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\BroodWar\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tfc",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Team Fortress Classic",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief",
+    "dir": "C:\\Games\\ThiefGold",
+    "name": "Thief: The Dark Project",
+    "engine": "-",
+    "exe": "C:\\Games\\ThiefGold\\THIEF.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\Thief2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2\\backup",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\backup\\Thief2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tibsun",
+    "dir": "C:\\Games\\TiberianSun",
+    "name": "C&C: Tiberian Sun",
+    "engine": "-",
+    "exe": "C:\\Games\\TiberianSun\\SUN.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tribes2",
+    "dir": "C:\\Games\\Tribes2\\GameData",
+    "name": "Tribes 2",
+    "engine": "t2",
+    "exe": "C:\\Games\\Tribes2\\GameData\\Tribes2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealGold\\System\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\Games\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "Return to Castle Wolfenstein",
+    "engine": "rtcw",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfMP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "wolfsp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "RtCW (single player)",
+    "engine": "-",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfSP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   }
+  ]
+ },
+ "192.168.1.124": {
+  "machine": {
+   "ip": "192.168.1.124",
+   "hostname": "NSC-C543575F526",
+   "os": "Win5.1",
+   "agent_version": "",
+   "index_hash": "44fc0555",
+   "indexed_at": "2026-09-28 13:29:49",
+   "last_seen": "2026-09-28 23:53:24",
+   "note": ""
+  },
+  "favorites": [
+   {
+    "ip": "192.168.1.124",
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "applied_hash": "0bcee3ca5f172322",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "2 servers -> C:\\Games\\CounterStrike16\\config\\serverbrowser.vdf"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "applied_hash": "37d44edd4a3c22c4",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "1 servers -> C:\\Games\\DeusEx\\SYSTEM\\DeusEx.ini"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:07",
+    "detail": "16 servers -> C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:31",
+    "detail": "16 servers -> C:\\Games\\JediAcademy\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "mohaa",
+    "dir": "D:\\Program Files\\EA GAMES\\MOHAA",
+    "applied_hash": "461688c4a90a5473",
+    "applied_at": "2026-08-25 23:12:13",
+    "detail": "16 servers -> D:\\Program Files\\EA GAMES\\MOHAA\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2",
+    "applied_hash": "c6966dd186bd82e6",
+    "applied_at": "2026-08-25 18:31:42",
+    "detail": "1 servers -> C:\\Games\\Quake2\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "applied_hash": "26bff2c55a4cb5f1",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\Quake2Complete\\baseq2\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "applied_hash": "047671bcdbc70f33",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "same file as ioquake3"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "quake3",
+    "dir": "C:\\Quake III Arena\\Quake3",
+    "applied_hash": "8fd4903511d5579d",
+    "applied_at": "2026-08-25 23:12:14",
+    "detail": "16 servers -> C:\\Quake III Arena\\Quake3\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "applied_hash": "c38b843d9be6212d",
+    "applied_at": "2026-08-29 23:07:31",
+    "detail": "16 servers -> C:\\Games\\SoldierOfFortune2\\baseq3\\autoexec.cfg"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "applied_hash": "9d3456062f9af8fa",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\UnrealGold\\System\\Unreal.ini"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "applied_hash": "4e20ad979b78ff7d",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\UT2004\\System\\UT2004.ini"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UT436\\System",
+    "applied_hash": "ca3737c718bf79ef",
+    "applied_at": "2026-08-31 22:09:39",
+    "detail": "17 servers -> C:\\Games\\UT436\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "applied_hash": "bcf5b578894fd7eb",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "16 servers -> C:\\Games\\UnrealTournament436\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament\\System",
+    "applied_hash": "274537ab1ef6693d",
+    "applied_at": "2026-08-31 22:09:39",
+    "detail": "17 servers -> C:\\Games\\UnrealTournament\\System\\UnrealTournament.ini"
+   },
+   {
+    "ip": "192.168.1.124",
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "applied_hash": "884e3d32c806e50b",
+    "applied_at": "2026-09-28 23:54:08",
+    "detail": "1 servers -> C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg"
+   }
+  ],
+  "games": [
+   {
+    "game_key": "avp",
+    "dir": "C:\\Games\\AliensVsPredator",
+    "name": "Aliens versus Predator",
+    "engine": "-",
+    "exe": "C:\\Games\\AliensVsPredator\\avp.exe",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Aliens vs Predator.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "bf1942",
+    "dir": "C:\\Games\\BF1942",
+    "name": "Battlefield 1942",
+    "engine": "-",
+    "exe": "C:\\Games\\BF1942\\BF1942.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon",
+    "dir": "C:\\Games\\Carmageddon1",
+    "name": "Carmageddon",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon1\\MAINPROG.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "carmageddon2",
+    "dir": "C:\\Games\\Carmageddon2",
+    "name": "Carmageddon 2",
+    "engine": "-",
+    "exe": "C:\\Games\\Carmageddon2\\carma2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "cs16",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Counter-Strike 1.6",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent",
+    "dir": "C:\\Games\\Descent1",
+    "name": "Descent",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent1\\DESCENTR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent2",
+    "dir": "C:\\Games\\Descent2",
+    "name": "Descent II",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent2\\DESCENTW.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "descent3",
+    "dir": "C:\\Games\\Descent3",
+    "name": "Descent 3",
+    "engine": "-",
+    "exe": "C:\\Games\\Descent3\\Descent 3.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "deusex",
+    "dir": "C:\\Games\\DeusEx\\SYSTEM",
+    "name": "Deus Ex",
+    "engine": "-",
+    "exe": "C:\\Games\\DeusEx\\SYSTEM\\DeusEx.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\CounterStrike16",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\CounterStrike16\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "halflife",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Half-Life",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hd",
+    "dir": "C:\\Games\\HiddenAndDangerous\\Bin",
+    "name": "Hidden & Dangerous",
+    "engine": "-",
+    "exe": "C:\\Games\\HiddenAndDangerous\\Bin\\HDE.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\glh2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "C:\\Games\\HexenII\\VOODOO",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "C:\\Games\\HexenII\\VOODOO\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ioquake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "ioquake3",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\ioquake3.x86.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "jk",
+    "dir": "C:\\Games\\JediKnightDF2",
+    "name": "Jedi Knight: Dark Forces II",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightDF2\\JK.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Dark Forces II.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jka",
+    "dir": "C:\\Games\\JediAcademy",
+    "name": "Jedi Academy",
+    "engine": "q3",
+    "exe": "C:\\Games\\JediAcademy\\jamp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "jkmots",
+    "dir": "C:\\Games\\JediKnightMotS",
+    "name": "Jedi Knight: Mysteries of the Sith",
+    "engine": "-",
+    "exe": "C:\\Games\\JediKnightMotS\\JKM.EXE",
+    "launcher": "C:\\Documents and Settings\\All Users\\Desktop\\Jedi Knight - Mysteries of the Sith.lnk",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\glquake.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake",
+    "dir": "C:\\Games\\Quake1\\VOODOO",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "C:\\Games\\Quake1\\VOODOO\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake2",
+    "dir": "C:\\Games\\Quake2Complete",
+    "name": "Quake II",
+    "engine": "q2",
+    "exe": "C:\\Games\\Quake2Complete\\quake2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "quake3",
+    "dir": "C:\\Games\\Quake3-TeamArena",
+    "name": "Quake III Arena",
+    "engine": "q3",
+    "exe": "C:\\Games\\Quake3-TeamArena\\quake3.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ra2",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "C&C: Red Alert 2",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\Ra2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "ra2yr",
+    "dir": "C:\\Games\\RedAlert2",
+    "name": "Red Alert 2: Yuri's Revenge",
+    "engine": "-",
+    "exe": "C:\\Games\\RedAlert2\\gamemd.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redfaction",
+    "dir": "C:\\Games\\RedFaction",
+    "name": "Red Faction",
+    "engine": "-",
+    "exe": "C:\\Games\\RedFaction\\rf.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "redneck",
+    "dir": "C:\\Games\\RedneckRampage",
+    "name": "Redneck Rampage",
+    "engine": "-",
+    "exe": "C:\\Games\\RedneckRampage\\RR.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamFirstEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamFirstEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "sam",
+    "dir": "C:\\Games\\SeriousSamSecondEncounter\\Bin",
+    "name": "Serious Sam",
+    "engine": "-",
+    "exe": "C:\\Games\\SeriousSamSecondEncounter\\Bin\\SeriousSam.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "shogo",
+    "dir": "C:\\Games\\Shogo",
+    "name": "Shogo: Mobile Armor Division",
+    "engine": "-",
+    "exe": "C:\\Games\\Shogo\\Shogo.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sin",
+    "dir": "C:\\Games\\SiNGold",
+    "name": "SiN Gold",
+    "engine": "-",
+    "exe": "C:\\Games\\SiNGold\\sin.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof",
+    "dir": "C:\\Games\\SoldierOfFortune",
+    "name": "Soldier of Fortune",
+    "engine": "-",
+    "exe": "C:\\Games\\SoldierOfFortune\\SoF.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sof2",
+    "dir": "C:\\Games\\SoldierOfFortune2",
+    "name": "Soldier of Fortune II",
+    "engine": "q3",
+    "exe": "C:\\Games\\SoldierOfFortune2\\sof2mp.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "sshock2",
+    "dir": "C:\\Games\\SystemShock2",
+    "name": "System Shock 2",
+    "engine": "-",
+    "exe": "C:\\Games\\SystemShock2\\shock2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "C:\\Games\\StarCraft\\BroodWar",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "C:\\Games\\StarCraft\\BroodWar\\StarCraft.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tfc",
+    "dir": "C:\\Games\\HalfLife1",
+    "name": "Team Fortress Classic",
+    "engine": "goldsrc",
+    "exe": "C:\\Games\\HalfLife1\\hl.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief",
+    "dir": "C:\\Games\\ThiefGold",
+    "name": "Thief: The Dark Project",
+    "engine": "-",
+    "exe": "C:\\Games\\ThiefGold\\THIEF.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\Thief2.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "thief2",
+    "dir": "C:\\Games\\Thief2\\backup",
+    "name": "Thief II: The Metal Age",
+    "engine": "-",
+    "exe": "C:\\Games\\Thief2\\backup\\Thief2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "tibsun",
+    "dir": "C:\\Games\\TiberianSun",
+    "name": "C&C: Tiberian Sun",
+    "engine": "-",
+    "exe": "C:\\Games\\TiberianSun\\SUN.EXE",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "tribes2",
+    "dir": "C:\\Games\\Tribes2\\GameData",
+    "name": "Tribes 2",
+    "engine": "t2",
+    "exe": "C:\\Games\\Tribes2\\GameData\\Tribes2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "unreal",
+    "dir": "C:\\Games\\UnrealGold\\System",
+    "name": "Unreal",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealGold\\System\\Unreal.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut2004",
+    "dir": "C:\\Games\\UT2004\\System",
+    "name": "Unreal Tournament 2004",
+    "engine": "ut2k4",
+    "exe": "C:\\Games\\UT2004\\System\\UT2004.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "ut99",
+    "dir": "C:\\Games\\UnrealTournament436\\System",
+    "name": "Unreal Tournament (99)",
+    "engine": "unreal",
+    "exe": "C:\\Games\\UnrealTournament436\\System\\UnrealTournament.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "wolfmp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "Return to Castle Wolfenstein",
+    "engine": "rtcw",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfMP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   },
+   {
+    "game_key": "wolfsp",
+    "dir": "C:\\Games\\ReturnToCastleWolfenstein",
+    "name": "RtCW (single player)",
+    "engine": "-",
+    "exe": "C:\\Games\\ReturnToCastleWolfenstein\\WolfSP.exe",
+    "launcher": "",
+    "source": "shortcut"
+   }
+  ]
+ },
+ "192.168.1.243": {
+  "machine": {
+   "ip": "192.168.1.243",
+   "hostname": "N5R5L9",
+   "os": "Win4.10",
+   "agent_version": "",
+   "index_hash": "51eba809",
+   "indexed_at": "2026-09-25 01:28:27",
+   "last_seen": "2026-09-28 23:53:24",
+   "note": ""
+  },
+  "favorites": [
+   {
+    "ip": "192.168.1.243",
+    "game_key": "quake2",
+    "dir": "c:\\Games\\Quake2Win9x",
+    "applied_hash": "c8bbbf44c1388419",
+    "applied_at": "2026-09-28 23:54:19",
+    "detail": "1 servers -> c:\\Games\\Quake2Win9x\\baseq2\\autoexec.cfg"
+   }
+  ],
+  "games": [
+   {
+    "game_key": "descent",
+    "dir": "c:\\Games\\Descent1",
+    "name": "Descent",
+    "engine": "-",
+    "exe": "c:\\Games\\Descent1\\DESCENTR.EXE",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "heretic",
+    "dir": "c:\\Games\\HERET3TV",
+    "name": "Heretic",
+    "engine": "-",
+    "exe": "c:\\Games\\HERET3TV\\heretic.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen",
+    "dir": "c:\\Games\\HEXEN",
+    "name": "Hexen",
+    "engine": "-",
+    "exe": "c:\\Games\\HEXEN\\hexen.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "c:\\Games\\HexenII",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "c:\\Games\\HexenII\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "hexen2",
+    "dir": "c:\\Games\\HexenII\\VOODOO",
+    "name": "Hexen II",
+    "engine": "-",
+    "exe": "c:\\Games\\HexenII\\VOODOO\\glh2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake",
+    "dir": "c:\\Games\\Quake1",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "c:\\Games\\Quake1\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake",
+    "dir": "c:\\Games\\Quake1\\VOODOO",
+    "name": "Quake",
+    "engine": "nq",
+    "exe": "c:\\Games\\Quake1\\VOODOO\\glquake.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "quake2",
+    "dir": "c:\\Games\\Quake2Win9x",
+    "name": "Quake II",
+    "engine": "q2",
+    "exe": "c:\\Games\\Quake2Win9x\\quake2.exe",
+    "launcher": "",
+    "source": "scan"
+   },
+   {
+    "game_key": "starcraft",
+    "dir": "c:\\STARCRAFT",
+    "name": "StarCraft",
+    "engine": "-",
+    "exe": "c:\\STARCRAFT\\StarCraft.exe",
+    "launcher": "",
+    "source": "scan"
+   }
+  ]
+ }
+}

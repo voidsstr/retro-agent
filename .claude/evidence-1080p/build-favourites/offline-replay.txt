@@ -1,0 +1,51 @@
+box            file                                                           engine   srv pass1     pass2     incumbents kept old->new
+192.168.1.123  C_Games_CounterStrike16_config_serverbrowser.vdf               goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.123  C_Games_Quake2Complete_baseq2_autoexec.cfg                     q2         1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.123  C_Games_Quake3-TeamArena_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.123  C_Games_UT2004_System_UT2004.ini                               ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.123  C_Games_UnrealGold_System_Unreal.ini                           unreal     1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.123  C_Games_UnrealTournament436_System_UnrealTournament.ini        unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.123  C_Games_UnrealTournament_System_UnrealTournament.ini           unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.124  C_Games_CounterStrike16_config_serverbrowser.vdf               goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.124  C_Games_Quake2Complete_baseq2_autoexec.cfg                     q2         1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.124  C_Games_Quake3-TeamArena_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.124  C_Games_UT2004_System_UT2004.ini                               ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.124  C_Games_UnrealGold_System_Unreal.ini                           unreal     1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.124  C_Games_UnrealTournament436_System_UnrealTournament.ini        unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.145  C_GAMES_CounterStrike16_config_serverbrowser.vdf               goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.145  C_GAMES_Quake2Complete_baseq2_autoexec.cfg                     q2         1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.145  C_GAMES_Quake3-TeamArena_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.145  C_Games_UT2004_System_UT2004.ini                               ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.145  C_Games_UnrealGold_System_Unreal.ini                           unreal     1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.145  C_Games_UnrealTournament436_System_UnrealTournament.ini        unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.145  C_Games_UnrealTournament_System_UnrealTournament.ini           unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.145  C_Program_Files_Bcs16_Romania_Counter-Strike_1.6_config_server goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.145  C_Quake_III_Arena_Quake3_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.145  C_UT2004_System_UT2004.ini                                     ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.195  C_GOG_Games_Unreal_Gold_System_Unreal.ini                      unreal     1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.195  C_Games_CounterStrike16_config_serverbrowser.vdf               goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.195  C_Games_Quake2Complete_baseq2_autoexec.cfg                     q2         1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.195  C_Games_Quake3-TeamArena_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.195  C_Games_UT2004_System_UT2004.ini                               ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.195  C_Games_UnrealGold_System_Unreal.ini                           unreal     1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.195  C_Games_UnrealTournament436_System_UnrealTournament.ini        unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.195  C_Games_UnrealTournament_System_UnrealTournament.ini           unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.195  C_Program_Files_Bcs16_Romania_Counter-Strike_1.6_config_server goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.195  C_Quake_III_Arena_Quake3_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.195  C_gameservers_cs16bcs_config_serverbrowser.vdf                 goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.240  C_Games_CounterStrike16_config_serverbrowser.vdf               goldsrc    2 unchanged unchanged 2 of 2 -> 2 of 2
+192.168.1.240  C_Games_Quake2Complete_baseq2_autoexec.cfg                     q2         1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.240  C_Games_Quake3-TeamArena_baseq3_autoexec.cfg                   q3         1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.240  C_Games_UT2004_System_UT2004.ini                               ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.240  C_Games_UnrealGold_System_Unreal.ini                           unreal     1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.240  C_Games_UnrealTournament436_System_UnrealTournament.ini        unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.240  C_Games_UnrealTournament_System_UnrealTournament.ini           unreal     1 WRITE     unchanged 1 of 16 -> 1 of 16
+192.168.1.240  C_UT2004_System_UT2004.ini                                     ut2k4      1 unchanged unchanged 1 of 1 -> 1 of 1
+192.168.1.243  c_Games_Quake2Win9x_baseq2_autoexec.cfg                        q2         1 unchanged unchanged 1 of 1 -> 1 of 1
+
+Team Arena servers chosen: ['192.168.1.132:27962']
+captured .123 servercache.dat md5 1d9ecd77ad96baa12e160cf4ec596787 692748
+merged sample -> /home/voidsstr/.retro-fleet/patch-out/favourites/servercache.dat.sample-123 md5 852e1cf5e1208cb7f592e923c3d1ed44 692748
+header (0, 1, 692736) summary {'favourites': ['192.168.1.132:27962'], 'ours': ['192.168.1.132:27962'], 'added': ['192.168.1.132:27962'], 'dropped': [], 'full': [], 'skipped': [], 'theirs': 0, 'numglobal': 0}
+globals untouched: True
+second merge unchanged: True

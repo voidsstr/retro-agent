@@ -1,0 +1,2 @@
+# 192.168.1.243  REGREAD HKLM Software\3Dfx Interactive\Voodoo2\D3D  status=0  2026-09-29 01:17:30
+{"root":"HKLM","path":"Software\\3Dfx Interactive\\Voodoo2\\D3D","values":[{"name":"(Default)","type":"REG_SZ","data":""},{"name":"SSTV2_ANTIALIAS","type":"REG_SZ","data":"0"},{"name":"SSTV2_RGAMMA","type":"REG_SZ","data":"1.30"},{"name":"SSTV2_GGAMMA","type":"REG_SZ","data":"1.30"},{"name":"SSTV2_BGAMMA","type":"REG_SZ","data":"1.30"}],"subkeys":[]}

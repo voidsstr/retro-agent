@@ -1,0 +1,45 @@
+# Max Payne: MaxPayne.exe is SafeDisc-wrapped (sections stxt774/stxt371) so its own code cannot be read statically.
+# Registry after real runs on every box holds ONLY Display Width/Height/Bits Per Pixel (see boxes/*REGREAD_HKCU_Software_Remedy*). No refresh value, no dialog control, no switch (case-insensitive strings of MaxPayne.exe/e2mfc.dll/grphmfc.dll/rlmfc.dll).
+# MaxPayne.exe imports ?REFRESHRATE_DEFAULT@P_DisplayMode@@2IB. e2driver/e2_d3d8_driver_mfc.dll: pp @ [esi+0xd8]; pp.FullScreen_RefreshRateInHz (+0x2c = [esi+0x104]) = f([esi+0x20]) where f (0x100256c0) maps REFRESHRATE_DEFAULT -> 0:
+---- 0x10028fa3
+   0x10028f80  mov    dword ptr [esi + 0x100], edx
+   0x10028f86  lea    edx, [esi + 0xd0]
+   0x10028f8c  push   edx
+   0x10028f8d  lea    edx, [esi + 0xd8]
+   0x10028f93  push   edx
+   0x10028f94  mov    edx, dword ptr [esi + 0xcc]
+   0x10028f9a  push   edi
+   0x10028f9b  push   eax
+   0x10028f9c  mov    eax, dword ptr [esi + 0x10c]
+   0x10028fa2  push   eax
+   0x10028fa3  mov    dword ptr [esi + 0x104], ecx
+   0x10028fa9  mov    dword ptr [esi + 0x108], ecx
+   0x10028faf  mov    ecx, dword ptr [0x1007af28]
+   0x10028fb5  mov    ebx, dword ptr [ecx]
+---- 0x10029331
+   0x10029310  mov    dword ptr [esi + 0xfc], eax
+   0x10029316  mov    al, byte ptr [esi + 0x2d]
+   0x10029319  xor    edx, edx
+   0x1002931b  test   al, al
+   0x1002931d  mov    eax, dword ptr [esi + 0x20]
+   0x10029320  setne  dl
+   0x10029323  push   eax
+   0x10029324  mov    ecx, esi
+   0x10029326  mov    dword ptr [esi + 0x100], edx
+   0x1002932c  call   0x10001a1e
+   0x10029331  mov    dword ptr [esi + 0x104], eax
+   0x10029337  mov    al, byte ptr [esi + 0x2c]
+   0x1002933a  test   al, al
+   0x1002933c  mov    dword ptr [esi + 0x108], 0
+## 0x100256c0 (IAT 0x10089b70 = REFRESHRATE_DEFAULT)
+   0x100256c0  mov    edx, dword ptr [0x10089b70]
+   0x100256c6  mov    eax, dword ptr [esp + 4]
+   0x100256ca  push   esi
+   0x100256cb  mov    esi, dword ptr [edx]
+   0x100256cd  xor    ecx, ecx
+   0x100256cf  cmp    eax, esi
+   0x100256d1  sete   cl
+   0x100256d4  pop    esi
+   0x100256d5  dec    ecx
+   0x100256d6  and    eax, ecx
+   0x100256d8  ret    4

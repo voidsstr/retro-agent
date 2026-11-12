@@ -1,0 +1,25 @@
+pak8.pk3        d8b96d429ca4a9c289071cb7e77e14d2  454478 B  (vm/ui.qvm 3e6b8fadb2a970c2b754e48e63a054d7)
+quake3.exe      b5cf3dd55e045aac6096ff97379d0cab  872448 B
+ioquake3.x86.exe 12f99bc0f9ba416ee477a4f13de8feaa  1363456 B
+baseq3 pk3s     pak0.pk3, pak1.pk3, pak2.pk3, pak3.pk3, pak4.pk3, pak5.pk3, pak6.pk3, pak7.pk3, pak8.pk3
+zz-fleetres-ui.pk3 not on the share yet
+server baseq3   /home/voidsstr/q3a-server/.q3a/baseq3: pak0.pk3, pak1.pk3, pak2.pk3, pak3.pk3, pak4.pk3, pak5.pk3, pak6.pk3, pak7.pk3, pak8.pk3
+check: OK - every recorded original matches
+building q3lcc/q3cpp/q3rcc/q3asm from ioq3 83a776283b
+compiling stock q3_ui ...
+compiling patched q3_ui ...
+GATE reproduction: stock build == pak8 vm/ui.qvm (md5 3e6b8fadb2a970c2b754e48e63a054d7)
+GATE drift: only ui_video.asm changed; 560 functions outside it identical; strings added ['r_availableModes', 'r_customheight', 'r_customwidth']
+GATE format: VM_MAGIC 0x12721444, header 32 B, no jump table, 81705 instructions
+GATE behaviour: retail 1.32c, LCD, ACCEPT with Video Mode untouched            stock 640x480->3 patched 1920x1080            ACCEPT r_mode -1 1920x1080
+GATE behaviour: ioquake3 1.36, LCD, ACCEPT with Video Mode untouched           stock 640x480->3 patched 1920x1080            ACCEPT r_mode -1 1920x1080
+GATE behaviour: ioquake3 1.36, LCD, pick the next driver mode                  stock 640x480->4 patched 1680x1050            ACCEPT r_mode -1 1680x1050
+GATE behaviour: ioquake3 1.36, LCD, pick a driver mode that is one of id's     stock 640x480->9 patched 1024x768             ACCEPT r_mode 6 -x-
+GATE behaviour: retail 1.32c, LCD, pick id's wide-screen entry                 stock 640x480->2 patched 856x480 wide screen  ACCEPT r_mode 11 -x-
+GATE behaviour: retail 1.32c, LCD, RIGHT at the end of the list does nothing   stock 640x480->4 patched 1920x1080            ACCEPT r_mode -1 1920x1080
+GATE behaviour: retail 1.32c, 4:3 CRT at r_mode -1 1024x768 (one of id's sizes) stock 640x480->3 patched 1024x768             ACCEPT r_mode -1 1024x768
+GATE behaviour: retail 1.32c, r_mode 6 (a plain id mode) - unchanged from id   stock 1024x768->6 patched 1024x768             ACCEPT r_mode 6 -x-
+pk3      /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/baseq3/zz-fleetres-ui.pk3  283708 B  md5 f737a9d51ed89c22d6b2be31cf8368d3
+ui.qvm   283592 B  md5 b764efe7d8856bc5191e5df3b4349289
+manifest /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/manifest.json
+build exit=0

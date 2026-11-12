@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers\\3dfx","values":[{"name":"DLL","type":"REG_SZ","data":"retroicd.dll"},{"name":"Flags","type":"REG_DWORD","data":1},{"name":"Version","type":"REG_DWORD","data":2},{"name":"DriverVersion","type":"REG_DWORD","data":1}],"subkeys":[]}

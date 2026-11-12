@@ -1,0 +1,7 @@
+# Halo (halo.exe): switches -vidmode, -refresh, -window/-windowed; cvar-ish 'rasterizer_refresh_rate'; dump text 'Refresh rate= %d Hz' under '###Video Options###'.
+rasterizer_refresh_rate
+-vidmode
+Refresh rate= %d Hz
+-refresh
+# Staged Play Halo.bat (680 B, md5 e3f9bcbb..): start "" halo.exe %HALO_NOVIDEO% -vidmode %FR_W%,%FR_H%,%FR_HZ%
+# Deployed on .145/.195/.240 is the OLDER 104-byte launcher (md5 ab92a422..) - same -vidmode %FR_W%,%FR_H%,%FR_HZ% - see boxes/<b>/Halo/Play Halo.bat

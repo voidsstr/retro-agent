@@ -1,0 +1,70 @@
+Far Cry 1.4 (GOG 2.0.0.9) Bin32\XRenderD3D9.dll EnumDisplayFormats: copies EVERY adapter mode {w,h,bpp} (bpp 24->32), no size/aspect filter.
+Menu (FCData\Scripts.pak SCRIPTS/MenuScreens/Options/Video.lua widget_resolution.Initialize): System:EnumDisplayFormats() filtered to bpp==32 and w>640 and h>480.
+
+3806cef2: mov      edx, dword ptr [esp + 8]
+3806cef6: mov      eax, dword ptr [edx + 0x458]
+3806cefc: cmp      dword ptr [eax + 4], ebx
+3806ceff: push     ebp
+3806cf00: mov      ebp, dword ptr [esp + 0x20]
+3806cf04: jle      0x3806cfab
+3806cf0a: mov      dword ptr [esp + 0x24], ebx
+3806cf0e: push     edi
+3806cf0f: nop      
+3806cf10: mov      eax, dword ptr [eax]
+3806cf12: mov      esi, dword ptr [esp + 0x28]
+3806cf16: mov      ecx, dword ptr [eax + esi]
+3806cf19: mov      edx, dword ptr [eax + esi + 4]
+3806cf1d: add      eax, esi
+3806cf1f: mov      eax, dword ptr [eax + 0xc]
+3806cf22: push     eax
+3806cf23: mov      dword ptr [esp + 0x18], ecx
+3806cf27: mov      dword ptr [esp + 0x1c], edx
+3806cf2b: call     0x38010d50
+3806cf30: mov      edi, eax
+3806cf32: add      esp, 4
+3806cf35: cmp      edi, 0x18
+3806cf38: jne      0x3806cf3f
+3806cf3a: mov      edi, 0x20
+3806cf3f: mov      esi, dword ptr [ebp + 4]
+3806cf42: mov      ecx, dword ptr [ebp + 8]
+3806cf45: lea      eax, [esi + 1]
+3806cf48: cmp      eax, ecx
+3806cf4a: mov      dword ptr [ebp + 4], eax
+3806cf4d: jle      0x3806cf70
+3806cf4f: mov      ecx, eax
+3806cf51: sar      ecx, 1
+3806cf53: lea      eax, [ecx + eax + 0x20]
+3806cf57: lea      edx, [eax + eax*2]
+3806cf5a: shl      edx, 2
+3806cf5d: mov      dword ptr [ebp + 8], eax
+3806cf60: mov      eax, dword ptr [ebp]
+3806cf63: push     edx
+3806cf64: push     eax
+3806cf65: call     0x380012b0
+3806cf6a: add      esp, 8
+3806cf6d: mov      dword ptr [ebp], eax
+3806cf70: mov      edx, dword ptr [ebp]
+3806cf73: lea      ecx, [esi + esi*2]
+3806cf76: lea      eax, [edx + ecx*4]
+3806cf79: mov      ecx, dword ptr [esp + 0x14]
+3806cf7d: mov      edx, dword ptr [esp + 0x18]
+3806cf81: mov      dword ptr [eax], ecx
+3806cf83: mov      dword ptr [eax + 4], edx
+3806cf86: mov      edx, dword ptr [esp + 0x28]
+3806cf8a: mov      dword ptr [eax + 8], edi
+3806cf8d: mov      eax, dword ptr [esp + 0x10]
+3806cf91: mov      eax, dword ptr [eax + 0x458]
+3806cf97: mov      ecx, dword ptr [eax + 4]
+3806cf9a: inc      ebx
+3806cf9b: add      edx, 0x10
+3806cf9e: cmp      ebx, ecx
+3806cfa0: mov      dword ptr [esp + 0x28], edx
+3806cfa4: jl       0x3806cf10
+3806cfaa: pop      edi
+3806cfab: mov      eax, dword ptr [ebp + 4]
+3806cfae: pop      ebp
+3806cfaf: pop      esi
+3806cfb0: pop      ebx
+3806cfb1: add      esp, 0x10
+3806cfb4: .byte    0xc2
+3806cfb5: .byte    0x08

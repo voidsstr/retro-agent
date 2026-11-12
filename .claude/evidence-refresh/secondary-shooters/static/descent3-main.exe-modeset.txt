@@ -1,0 +1,54 @@
+# Descent3/main.exe (1.4) - mode-set call sites. IDirectDraw4::SetDisplayMode = vtable+0x54 (this,w,h,bpp,refresh,flags); ebx=0 (it is the NULL pUnkOuter passed to DirectDrawCreate at 0x53546b)
+---- vtable+0x54 at 0x5354f0
+   0x005354cb  mov    edx, dword ptr [0x5ab7d8]
+   0x005354d1  mov    eax, dword ptr [0xf35798]
+   0x005354d6  push   ebx
+   0x005354d7  and    edx, 0xff
+   0x005354dd  mov    ecx, dword ptr [eax]
+   0x005354df  push   ebx
+   0x005354e0  push   edx
+   0x005354e1  mov    edx, dword ptr [0x5ab7e0]
+   0x005354e7  push   edx
+   0x005354e8  mov    edx, dword ptr [0x5ab7dc]
+   0x005354ee  push   edx
+   0x005354ef  push   eax
+   0x005354f0  call   dword ptr [ecx + 0x54]
+---- vtable+0x54 at 0x535530
+---- vtable+0x54 at 0x535530
+   0x005354f7  mov    eax, dword ptr [0xf35798]
+   0x005354fc  push   ebx
+   0x005354fd  push   ebx
+   0x005354fe  push   0x10
+   0x00535500  mov    dword ptr [0x5ab7dc], 0x280
+   0x0053550a  mov    dword ptr [0x5ab7e0], 0x1e0
+   0x00535514  mov    byte ptr [0x5ab7d8], 0x10
+   0x0053551b  mov    ecx, dword ptr [eax]
+   0x0053551d  push   0x1e0
+   0x00535522  push   0x280
+   0x00535527  push   eax
+   0x00535528  mov    dword ptr [esp + 0x2c], 0xffffffff
+   0x00535530  call   dword ptr [ecx + 0x54]
+---- vtable+0x54 at 0x537fb7
+
+# OpenGL path: DEVMODE dmFields = 0x1c0000 (BITSPERPEL|PELSWIDTH|PELSHEIGHT - NO DM_DISPLAYFREQUENCY), dmBitsPerPel=16
+---- const 0x1c0000 at 0x53cea5
+   0x0053ce8a  mov    ecx, dword ptr [0x5ac654]
+   0x0053ce90  mov    edx, dword ptr [0x5ac658]
+   0x0053ce96  mov    esi, dword ptr [0x5962bc]
+   0x0053ce9c  lea    eax, [esp + 0x28]
+   0x0053cea0  mov    ebx, 0x10
+   0x0053cea5  mov    edi, 0x1c0000
+   0x0053ceaa  push   0
+   0x0053ceac  push   eax
+   0x0053cead  mov    word ptr [esp + 0x54], 0x94
+   0x0053ceb4  mov    dword ptr [esp + 0x98], ebx
+   0x0053cebb  mov    dword ptr [esp + 0x9c], ecx
+   0x0053cec2  mov    dword ptr [esp + 0xa0], edx
+   0x0053cec9  mov    dword ptr [esp + 0x58], edi
+   0x0053cecd  call   esi
+   0x0053cecf  test   eax, eax
+   0x0053ced1  je     0x53cf44
+   0x0053ced3  lea    ecx, [esp + 0x28]
+   0x0053ced7  mov    ebp, 0x1e0
+   0x0053cedc  push   0
+   0x0053cede  push   ecx

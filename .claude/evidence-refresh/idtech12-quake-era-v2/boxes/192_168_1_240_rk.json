@@ -1,0 +1,18 @@
+{
+ "_ip": "192.168.1.240",
+ "_started": "2026-09-29 04:13:22 EDT",
+ "_greeting": "OK USER-41EA3B3330 Win5.1",
+ "DIRLIST C:\\RETRO_AGENT\\refreshkeep*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\RETRO_AGENT\\launch": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\RETRO_AGENT\\hidden.vbs": {
+  "status": 0,
+  "text": "[]"
+ },
+ "_finished": "2026-09-29 04:13:22 EDT"
+}

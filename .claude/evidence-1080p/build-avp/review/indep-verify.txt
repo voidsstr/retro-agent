@@ -1,0 +1,8 @@
+# 2026-09-29T04:56:26-04:00 independent verification - oracle 1: libunshield.so.1 (unshield 1.6.2) unshield_deobfuscate() via ctypes; oracle 2: NakedAVP README re-fetched from GitHub by this review
+rows 210 deob 154 keep 56
+deob == upstream NakedAVP: 145  keep == upstream: 56  upstream covered: 201 / 201
+manifest outputs: 154 complete: True failures: []
+outputs dir files: 154 (excluding manifest.json)
+uncovered upstream: []
+PROBLEMS: 0
+rc=0

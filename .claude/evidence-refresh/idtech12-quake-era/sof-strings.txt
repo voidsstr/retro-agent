@@ -1,0 +1,77 @@
+=== SoF.exe 2052096 2f4db3771d51d8b585bbea695041e40c
+Ambient/Gen/Chain/MissTrans.wav
+Ambient/Models/Monitor/Static.wav
+FileVersion
+game is version %i, not %i
+GetFileVersionInfoA
+GetVersion
+GetVersionExA
+GHOUL/ENEMY/ECTO/STD_IMONITOR_N_A_N.GHL
+GHOUL/ENEMY/ECTO/STD_IMONITORUP2_N_A_N.GHL
+GHOUL/ENEMY/ECTO/STD_IMONITORUP_N_A_N.GHL
+GHOUL/ENEMY/ECTO/STD_SSTUMBLE_2BK_P_N.GHL
+GHOUL/ENEMY/ECTO/STD_SSTUMBLE_2FRNT_N_N.GHL
+GHOUL/ENEMY/FEMALE/STD_IMONITOR_N_A_N.GHL
+GHOUL/ENEMY/FEMALE/STD_IMONITORUP2_N_A_N.GHL
+GHOUL/ENEMY/FEMALE/STD_IMONITORUP_N_A_N.GHL
+GHOUL/ENEMY/FEMALE/STD_SSTUMBLE_2BK_P_N.GHL
+GHOUL/ENEMY/FEMALE/STD_SSTUMBLE_2FRNT_N_N.GHL
+GHOUL/ENEMY/MESO/STD_IMONITOR_N_A_N.GHL
+GHOUL/ENEMY/MESO/STD_IMONITORUP2_N_A_N.GHL
+GHOUL/ENEMY/MESO/STD_IMONITORUP_N_A_N.GHL
+GHOUL/ENEMY/MESO/STD_SSTUMBLE_2BK_P_N.GHL
+GHOUL/ENEMY/MESO/STD_SSTUMBLE_2FRNT_N_N.GHL
+GHOUL/OBJECTS/GENERIC/COMP_MONITOR/DAMAGED.TGA
+GHOUL/OBJECTS/GENERIC/COMP_MONITOR/MONITOR.GHB
+GHOUL/OBJECTS/GENERIC/COMP_MONITOR/MONITOR.GHL
+GHOUL/OBJECTS/GENERIC/COMP_MONITOR/MONITOR.IFL
+GHOUL/OBJECTS/GENERIC/COMP_MONITOR/MONITOR.TGA
+GZ_LBOSSTHIGH_B
+GZ_LBOSSTHIGH_F
+GZ_RBOSSTHIGH_B
+GZ_RBOSSTHIGH_F
+Impact/Glassbreak/Monitor.wav
+_LBOSSTHIGH
+Mod_LoadBrushModel: %s has wrong version number (%i should be %i)
+MONITOR
+pics/monitor/monitor
+player is version %i, not %i
+ProductVersion
+_RBOSSTHIGH
+refresh
+    rejected connect from version %i
+Server is version %4.2f.
+Server returned version %i, not %i
+%s has incompatible api_version
+SoF requires windows version 4 or greater
+Speed     : %d MHz
+timerefresh
+       Trail Frequency %s%6.1f
+Unrecognized version %s
+version
+VERSION
+VERSION.dll
+vid_ref
+=== ref_gl.dll 225280 e0454d950f52d1815bffb48012709b99
+Attempting gl_driver : %s
+...calling CDS assuming dual monitors:
+GetVersion
+GetVersionExA
+gl_bitdepth
+gl_bitdepth requires Win95 OSR2.x (or later) or WinNT 4.x (or later)
+gl_displayrefresh
+gl_driver
+gl_ext_swapinterval
+GL_FindImage: Invalid version for (%s)
+GLimp_Init() - GetVersionEx failed
+gl_mode
+glPassThrough
+gl_swapinterval
+gl_version
+GL_VERSION:
+Invalid version for Terrain Set %s
+ref_gl version: 
+r_norefresh
+...using gl_bitdepth of %d
+vid_ref
+wglSwapIntervalEXT

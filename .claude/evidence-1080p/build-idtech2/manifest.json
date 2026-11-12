@@ -1,0 +1,195 @@
+{
+ "key": "idtech2",
+ "library": "/mnt/retro-share/Files/Games-Library",
+ "backup_tag": "originals-2026-09-29",
+ "outputs": [
+  {
+   "title": "Quake2Complete",
+   "share_path": "Files/Games-Library/Quake2Complete/quake2.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/Quake2Complete/quake2.exe",
+   "md5": "d4fe128806b9ac7899c8ac6e4d6c367d",
+   "size": 362496,
+   "kind": "exe",
+   "original_md5": "57dd2cf4ba176f3e6ae72fccc94c38b4",
+   "original_size": 362496,
+   "original_state": "replaced",
+   "source": null,
+   "backup_share_path": "Files/Games-Library/_patches/Quake2Complete/originals-2026-09-29/quake2.exe",
+   "edits": [
+    {
+     "offset": "0x54464",
+     "what": "vid_modes[9].width",
+     "old": "40060000",
+     "new": "80070000"
+    },
+    {
+     "offset": "0x54468",
+     "what": "vid_modes[9].height",
+     "old": "b0040000",
+     "new": "38040000"
+    },
+    {
+     "offset": "0x54470",
+     "what": "vid_modes[9].desc",
+     "old": "4d6f646520393a2031363030783132303000",
+     "new": "4d6f646520393a2031393230783130383000"
+    },
+    {
+     "offset": "0x54720",
+     "what": "menu label[9]",
+     "old": "5b3136303020313230305d00",
+     "new": "5b3139323020313038305d00"
+    }
+   ],
+   "notes": [
+    "vid_modes[9] = 1600x1200 'Mode 9: 1600x1200' (desc @0x54470)",
+    "menu labels[9] = '[1600 1200]' (@0x54720), labels[10] = NULL",
+    "vid_modes[9] = 1920x1080 'Mode 9: 1920x1080' (desc @0x54470)",
+    "menu labels[9] = '[1920 1080]' (@0x54720), labels[10] = NULL"
+   ]
+  },
+  {
+   "title": "SiNGold",
+   "share_path": "Files/Games-Library/SiNGold/sin.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/sin.exe",
+   "md5": "55d69eb8584e633b16445adb126f8d47",
+   "size": 667648,
+   "kind": "exe",
+   "original_md5": "8d320d7fc3ea3a226ec98dafef3e81ba",
+   "original_size": 667648,
+   "original_state": "replaced",
+   "source": null,
+   "backup_share_path": "Files/Games-Library/_patches/SiNGold/originals-2026-09-29/sin.exe",
+   "edits": [
+    {
+     "offset": "0x944e4",
+     "what": "vid_modes[9].width",
+     "old": "40060000",
+     "new": "80070000"
+    },
+    {
+     "offset": "0x944e8",
+     "what": "vid_modes[9].height",
+     "old": "b0040000",
+     "new": "38040000"
+    },
+    {
+     "offset": "0x944f0",
+     "what": "vid_modes[9].desc",
+     "old": "4d6f646520393a2031363030783132303000",
+     "new": "4d6f646520393a2031393230783130383000"
+    }
+   ],
+   "notes": [
+    "vid_modes[9] = 1600x1200 'Mode 9: 1600x1200' (desc @0x944f0)",
+    "vid_modes[9] = 1920x1080 'Mode 9: 1920x1080' (desc @0x944f0)"
+   ]
+  },
+  {
+   "title": "SoldierOfFortune",
+   "share_path": "Files/Games-Library/SoldierOfFortune/SoF.exe",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SoldierOfFortune/SoF.exe",
+   "md5": "b4ed42272887b16a8ecdb92c919a507d",
+   "size": 2052096,
+   "kind": "exe",
+   "original_md5": "2f4db3771d51d8b585bbea695041e40c",
+   "original_size": 2052096,
+   "original_state": "replaced",
+   "source": null,
+   "backup_share_path": "Files/Games-Library/_patches/SoldierOfFortune/originals-2026-09-29/SoF.exe",
+   "edits": [
+    {
+     "offset": "0x1c6e9c",
+     "what": "vid_modes[9].width",
+     "old": "40060000",
+     "new": "80070000"
+    },
+    {
+     "offset": "0x1c6ea0",
+     "what": "vid_modes[9].height",
+     "old": "b0040000",
+     "new": "38040000"
+    },
+    {
+     "offset": "0x1c6ea8",
+     "what": "vid_modes[9].desc",
+     "old": "4d6f646520393a2031363030783132303000",
+     "new": "4d6f646520393a2031393230783130383000"
+    }
+   ],
+   "notes": [
+    "vid_modes[9] = 1600x1200 'Mode 9: 1600x1200' (desc @0x1c6ea8)",
+    "vid_modes[9] = 1920x1080 'Mode 9: 1920x1080' (desc @0x1c6ea8)"
+   ]
+  },
+  {
+   "title": "SiNGold",
+   "share_path": "Files/Games-Library/SiNGold/base/menus/main.mnu",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/base/menus/main.mnu",
+   "md5": "886cdbf4cee22fc649b43aa0f42867e4",
+   "size": 90780,
+   "kind": "sin-mnu",
+   "original_md5": null,
+   "original_size": null,
+   "original_state": "absent - new file",
+   "source": {
+    "pak": "Files/Games-Library/SiNGold/base/pak5.sin",
+    "pak_size": 1239753,
+    "entry": "menus/main.mnu",
+    "entry_md5": "d038864bdf6921ad4181ab96ac1300a4",
+    "entry_size": 90780
+   },
+   "backup_share_path": null,
+   "edits": null,
+   "notes": [
+    "loose base/menus/main.mnu: numitems 10 -> 10, ' 1600 x 1200' -> ' 1920 x 1080'"
+   ]
+  },
+  {
+   "title": "SiNGold",
+   "share_path": "Files/Games-Library/SiNGold/2015/menus/main.mnu",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SiNGold/2015/menus/main.mnu",
+   "md5": "dce920d214d1e1aa0445578066c2eaeb",
+   "size": 112320,
+   "kind": "sin-mnu",
+   "original_md5": null,
+   "original_size": null,
+   "original_state": "absent - new file",
+   "source": {
+    "pak": "Files/Games-Library/SiNGold/2015/pak0.sin",
+    "pak_size": 269730473,
+    "entry": "menus/main.mnu",
+    "entry_md5": "3de83c90bf6e20f4ea250ef143648739",
+    "entry_size": 112319
+   },
+   "backup_share_path": null,
+   "edits": null,
+   "notes": [
+    "loose 2015/menus/main.mnu: numitems 9 -> 10, ' 1600 x 1200' -> ' 1920 x 1080'"
+   ]
+  },
+  {
+   "title": "SoldierOfFortune",
+   "share_path": "Files/Games-Library/SoldierOfFortune/base/pak2.pak",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/idtech2/SoldierOfFortune/base/pak2.pak",
+   "md5": "d2d96ee679c039596c35c3fe9404ef41",
+   "size": 3156,
+   "kind": "sof-pak",
+   "original_md5": null,
+   "original_size": null,
+   "original_state": "absent - new file",
+   "source": {
+    "pak": "Files/Games-Library/SoldierOfFortune/base/pak0.pak",
+    "pak_size": 705825871,
+    "entry": "menus/m_video.rmf",
+    "entry_md5": "bc6bab97e0a55ca6b42316d210093ee7",
+    "entry_size": 3080
+   },
+   "backup_share_path": null,
+   "edits": null,
+   "notes": [
+    "pak2.pak = PACK with 1 entry menus/m_video.rmf (3080 B, md5 b76b6a280803df8b4145f8f32c2270a2)"
+   ]
+  }
+ ]
+}

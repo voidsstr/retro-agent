@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKLM SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers  status=0  2026-09-29 00:45:23
+{"root":"HKLM","path":"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers","values":[],"subkeys":["3dfx"]}

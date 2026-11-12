@@ -1,0 +1,26 @@
+{
+ "ip": "192.168.1.124",
+ "t": "2026-09-29 00:55:41",
+ "out": {
+  "GAMERES": {
+   "status": 0,
+   "text": "{\"panel\":{\"edid\":true,\"name\":\"HP P1120\",\"pnpid\":\"HWP22D3\",\"type\":\"CRT\",\"digital\":false,\"native\":\"1600x1200\",\"native_hz\":85,\"vmax_hz\":160,\"size_cm\":\"40x30\"},\"desktop\":{\"persisted\":\"1280x1024\",\"persisted_hz\":85,\"live\":\"1280x1024\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1280x960\",\"four_three\":\"1280x960\",\"aspect\":\"4:3\",\"hz\":85,\"hz_four_three\":85,\"hz_desktop\":85,\"hz_launcher\":85,\"fov\":90,\"q2mode\":8,\"q3mode\":7,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"320x240@85\",\"400x300@85\",\"512x384@85\",\"640x480@85\",\"800x600@85\",\"1024x768@85\",\"1152x864@85\",\"1280x960@85\",\"1280x1024@85\",\"1600x1200@85\",\"720x576@72\",\"960x720@75\",\"320x200@85\",\"640x400@85\",\"720x480@85\",\"1600x1024@85\",\"1280x720@60\",\"1280x800@60\",\"1360x768@60\",\"1440x900@60\",\"1680x1050@60\"],\"rules\":80}"
+  },
+  "DISPLAYCFG get": {
+   "status": 0,
+   "text": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}"
+  },
+  "DIRLIST C:\\WINDOWS\\system32\\glide*": {
+   "status": 0,
+   "text": "[{\"name\":\"glide2x.dll\",\"is_dir\":false,\"size\":94208,\"modified\":\"2003-04-02 05:25:25\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x.dll\",\"is_dir\":false,\"size\":1025320,\"modified\":\"2026-09-28 02:09:00\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x_38a891e8.dll\",\"is_dir\":false,\"size\":1025320,\"modified\":\"2026-09-28 02:09:00\",\"hidden\":false,\"readonly\":false},{\"name\":\"glide3x_am31.dll\",\"is_dir\":false,\"size\":344064,\"modified\":\"2003-04-02 05:25:25\",\"hidden\":false,\"readonly\":false}]"
+  },
+  "DIRLIST C:\\WINDOWS\\system32\\retro*": {
+   "status": 0,
+   "text": "[{\"name\":\"retroicd.dll\",\"is_dir\":false,\"size\":2773619,\"modified\":\"2026-09-28 14:57:42\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd.dll.0176\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-28 05:42:47\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.63.dll\",\"is_dir\":false,\"size\":2763236,\"modified\":\"2003-04-10 21:29:38\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.64.dll\",\"is_dir\":false,\"size\":2764496,\"modified\":\"2003-04-11 00:35:27\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.65.dll\",\"is_dir\":false,\"size\":2764902,\"modified\":\"2003-04-02 07:16:49\",\"hidden\":false,\"readonly\":false},{\"name\":\"retroicd_0.1.75.dll\",\"is_dir\":false,\"size\":2773020,\"modified\":\"2026-09-25 08:48:47\",\"hidden\":false,\"readonly\":false}]"
+  },
+  "REGREAD HKLM SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\OpenGLDrivers\\3dfx": {
+   "status": 0,
+   "text": "{\"root\":\"HKLM\",\"path\":\"SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\OpenGLDrivers\\\\3dfx\",\"values\":[{\"name\":\"DLL\",\"type\":\"REG_SZ\",\"data\":\"retroicd.dll\"},{\"name\":\"Flags\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"Version\",\"type\":\"REG_DWORD\",\"data\":2},{\"name\":\"DriverVersion\",\"type\":\"REG_DWORD\",\"data\":1}],\"subkeys\":[]}"
+  }
+ }
+}

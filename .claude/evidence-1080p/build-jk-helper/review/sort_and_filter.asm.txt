@@ -1,0 +1,152 @@
+# JK.EXE / JKM.EXE: after enumeration the device-open routine SORTS the capped list, and displayMode indexes the SORTED copy
+## JK device-open 0x4223d0 -> on success of 0x425b60 jumps to 0x422797:
+00422797: mov    edx,DWORD PTR ds:0x55b3fc
+0042279d: push   0x4249d0
+004227a2: push   0x54
+004227a4: push   edx
+004227a5: push   0x866cc0
+004227aa: call   0x513060
+004227af: add    esp,0x10
+## 0x513060 = MSVC CRT qsort (VC4-6 qsort.c: CUTOFF 8 shortsort 0x513210, middle pivot, lostk/histk); swap 0x513270
+00513060: mov    eax,DWORD PTR [esp+0x8]
+00513064: sub    esp,0x100
+0051306a: cmp    eax,0x2
+0051306d: push   ebx
+0051306e: push   ebp
+0051306f: push   esi
+00513070: push   edi
+00513071: jb     0x51310d
+00513077: mov    ebx,DWORD PTR [esp+0x11c]
+0051307e: test   ebx,ebx
+00513080: je     0x51310d
+00513086: lea    esi,[eax-0x1]
+00513089: mov    edi,DWORD PTR [esp+0x114]
+00513090: imul   esi,ebx
+00513093: add    esi,edi
+00513095: lea    eax,[esp+0x20]
+00513099: lea    ecx,[esp+0x98]
+005130a0: mov    DWORD PTR [esp+0x1c],0x0
+005130a8: mov    DWORD PTR [esp+0x10],esi
+005130ac: mov    DWORD PTR [esp+0x14],eax
+005130b0: mov    DWORD PTR [esp+0x18],ecx
+005130b4: mov    eax,esi
+005130b6: xor    edx,edx
+005130b8: sub    eax,edi
+005130ba: div    ebx
+005130bc: inc    eax
+005130bd: cmp    eax,0x8
+005130c0: ja     0x513118
+## comparator 0x4249d0: ModeX-vs-other special case, then bpp (+0x20), width (+8), height (+0xc) ascending
+004249d0: mov    edx,DWORD PTR [esp+0x4]
+004249d4: mov    ecx,DWORD PTR [esp+0x8]
+004249d8: push   esi
+004249d9: mov    eax,DWORD PTR [edx]
+004249db: mov    esi,DWORD PTR [ecx]
+004249dd: test   eax,eax
+004249df: je     0x4249f6
+004249e1: test   esi,esi
+004249e3: jne    0x4249fa
+004249e5: mov    eax,DWORD PTR [edx+0x8]
+004249e8: mov    edx,DWORD PTR [ecx+0x8]
+004249eb: sub    eax,edx
+004249ed: neg    eax
+004249ef: sbb    eax,eax
+004249f1: and    al,0xfe
+004249f3: inc    eax
+004249f4: pop    esi
+004249f5: ret
+004249f6: test   esi,esi
+004249f8: je     0x424a10
+004249fa: test   eax,eax
+004249fc: jne    0x424a10
+004249fe: mov    eax,DWORD PTR [ecx+0x8]
+00424a01: mov    ecx,DWORD PTR [edx+0x8]
+00424a04: sub    eax,ecx
+00424a06: neg    eax
+00424a08: sbb    eax,eax
+00424a0a: and    eax,0x2
+00424a0d: dec    eax
+00424a0e: pop    esi
+00424a0f: ret
+00424a10: mov    eax,DWORD PTR [edx+0x20]
+00424a13: mov    esi,DWORD PTR [ecx+0x20]
+00424a16: cmp    eax,esi
+00424a18: je     0x424a1e
+00424a1a: sub    eax,esi
+00424a1c: pop    esi
+00424a1d: ret
+00424a1e: mov    eax,DWORD PTR [edx+0x8]
+00424a21: mov    esi,DWORD PTR [ecx+0x8]
+00424a24: cmp    eax,esi
+00424a26: je     0x424a2c
+00424a28: sub    eax,esi
+00424a2a: pop    esi
+00424a2b: ret
+00424a2c: mov    eax,DWORD PTR [edx+0xc]
+00424a2f: mov    edx,DWORD PTR [ecx+0xc]
+00424a32: sub    eax,edx
+00424a34: pop    esi
+00424a35: ret
+## the device-record copy that follows (0x4277e6) copies this SORTED array
+004277d3: push   ebp
+004277d4: call   0x4223d0
+004277d9: xor    edi,edi
+004277db: add    esp,0x4
+004277de: cmp    eax,edi
+004277e0: je     0x42790d
+004277e6: mov    ecx,DWORD PTR ds:0x55b3fc
+004277ec: mov    DWORD PTR [ebx+0x29c],edi
+004277f2: mov    eax,ecx
+## MotS: same sort (0x56c510 qsort, 0x427b00 comparator) at 0x4258da, identical code modulo addresses
+004258da: mov    edx,DWORD PTR ds:0x5b6bac
+004258e0: push   0x427b00
+004258e5: push   0x54
+004258e7: push   edx
+004258e8: push   0x948b60
+004258ed: call   0x56c510
+## MotS pass-2 callback 0x428f60: EXTRA FILTER DF2 does not have - width >= 1400 && lPitch == width -> return without storing or counting
+00428f60: push   edi
+00428f61: mov    edi,DWORD PTR ds:0x5b6bac
+00428f67: cmp    edi,0x40
+00428f6a: jae    0x429121
+00428f70: mov    eax,edi
+00428f72: push   esi
+00428f73: shl    eax,0x3
+00428f76: sub    eax,edi
+00428f78: push   ebp
+00428f79: mov    ebp,DWORD PTR [esp+0x10]
+00428f7d: xor    ecx,ecx
+00428f7f: lea    eax,[eax+eax*2]
+00428f82: push   ebx
+00428f83: mov    edx,DWORD PTR [ebp+0xc]
+00428f86: lea    esi,[eax*4+0x948b60]
+00428f8d: mov    eax,DWORD PTR [ebp+0x8]
+00428f90: mov    DWORD PTR [esi],ecx
+00428f92: mov    DWORD PTR [esi+0x8],edx
+00428f95: mov    edx,DWORD PTR [ebp+0x10]
+00428f98: mov    DWORD PTR [esi+0xc],eax
+00428f9b: mov    DWORD PTR [esi+0x14],edx
+00428f9e: mov    eax,DWORD PTR [esi+0x8]
+00428fa1: cmp    eax,0x578
+00428fa6: jl     0x428fba
+00428fa8: mov    ebx,DWORD PTR [esi+0x14]
+00428fab: cmp    eax,ebx
+00428fad: jne    0x428fba
+00428faf: pop    ebx
+00428fb0: pop    ebp
+00428fb1: pop    esi
+00428fb2: pop    edi
+00428fb3: ret    0x8
+00428fb6: nop
+00428fb7: nop
+00428fb8: nop
+00428fb9: nop
+## DF2 pass-2 callback 0x425e30 at the same point: only the 320x200 aspect special case, no filter
+00425e6e: mov    eax,DWORD PTR [esi+0x8]
+00425e71: cmp    eax,0x140
+00425e76: jne    0x425e8a
+00425e78: cmp    DWORD PTR [esi+0xc],0xc8
+00425e7f: jne    0x425e8a
+00425e81: mov    DWORD PTR [esi+0x4],0x3f400000
+00425e88: jmp    0x425e91
+00425e8a: mov    DWORD PTR [esi+0x4],0x3f800000

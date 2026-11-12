@@ -1,0 +1,7 @@
+System Shock 2 mount failure
+NO DISC MOUNTER IS INSTALLED on this machine. Looked for Daemon Tools (Program Files\D-Tools, DAEMON Tools, DAEMON Tools Lite; registry App Paths daemon.exe and DTLite.exe; HKLM\SOFTWARE\DT Soft) and for WinCDEmu (Program Files\WinCDEmu batchmnt64.exe and batchmnt.exe; registry Uninstall\WinCDEmu InstallLocation), then searched Program Files for both. Install one - this is an INSTALL problem, not a mount problem.
+image=C:\Games\SystemShock2\_disc\System Shock 2 (USA).cue
+game=C:\Games\SystemShock2\shock2.exe
+daemon=
+wincdemu=
+dt_flavour=

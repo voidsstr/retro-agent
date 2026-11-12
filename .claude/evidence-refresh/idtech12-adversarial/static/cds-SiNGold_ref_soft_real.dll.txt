@@ -1,0 +1,31 @@
+====================================================================================================
+PE SiNGold/ref_soft_real.dll imagebase 0x13000000
+import slots: {'0x1302e03c': 'KERNEL32.dll!LoadLibraryA', '0x1302e040': 'KERNEL32.dll!GetProcAddress'}
+----------------------------------------------------------------------------------------------------
+SITE 0x1301ec56  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1301ec83  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x13024ffc  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1302c4cf  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1302c4e7  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x1302c4db then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1302c4f8  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x1302c4db then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1302c505  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x1302c4db then call esi)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x1301493b: mov eax, 0x7fffff   | next: and edx, eax
+   0x13018761: and ebx, 0x7fffff   | next: and ecx, 0x7fffff
+   0x13018767: and ecx, 0x7fffff   | next: mov dword ptr [0x13055b44], ebx
+   0x130193b4: and ebx, 0x7fffff   | next: and ebp, 0x7fffff
+   0x130193ba: and ebp, 0x7fffff   | next: push edx
+   0x1302024d: push 0xcc0020   | next: push 0
+   0x13024143: test edx, 0xff0000   | next: je 0x13024157
+   0x1302637f: test eax, 0xff0000   | next: je 0x13026394
+   0x130263e8: test edx, 0xff0000   | next: je 0x13026402
+   0x13027029: push 0x400000   | next: push 0
+   0x13027090: lea eax, [edi + 0x400000]   | next: lea ecx, [esi + 0x98]
+   0x13028cc3: test eax, 0xff0000   | next: je 0x13028cdd

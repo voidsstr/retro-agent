@@ -1,0 +1,4 @@
+f737a9d51ed89c22d6b2be31cf8368d3  /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/baseq3/zz-fleetres-ui.pk3
+f737a9d51ed89c22d6b2be31cf8368d3  /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/rebuild2/baseq3/zz-fleetres-ui.pk3
+b764efe7d8856bc5191e5df3b4349289  /home/voidsstr/.retro-fleet/patch-out/q3-baseq3-ui/ui.qvm
+b764efe7d8856bc5191e5df3b4349289  /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/rebuild2/ui.qvm

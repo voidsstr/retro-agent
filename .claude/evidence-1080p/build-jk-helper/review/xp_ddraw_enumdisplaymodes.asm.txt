@@ -1,0 +1,96 @@
+# XP SP3 ddraw.dll (Files/OS/XPSP3-FLEET/I386/DDRAW.DL_, cabextract; md5 a340cd71eb535a3dd751b5f28723e50c) - what EnumDisplayModes hands the callback, and when it stops
+## per-mode thunk 0x73791f69: dwSize 0x6c for the v1/v2 vtables, dwFlags 0x4100e, lPitch = (bpp * width) >> 3 - NO alignment, so an 8-bpp mode's lPitch == its width (MotS's filter fires for every 8-bpp mode >= 1400 wide)
+73791f69:	mov    edi,edi
+73791f6b:	push   ebp
+73791f6c:	mov    ebp,esp
+73791f6e:	sub    esp,0x7c
+73791f71:	push   ebx
+73791f72:	mov    ebx,DWORD PTR [ebp+0x8]
+73791f75:	push   edi
+73791f76:	push   0x1f
+73791f78:	xor    eax,eax
+73791f7a:	pop    ecx
+73791f7b:	lea    edi,[ebp-0x7c]
+73791f7e:	rep stos DWORD PTR es:[edi],eax
+73791f80:	mov    eax,DWORD PTR [ebx]
+73791f82:	cmp    eax,0x7379f500
+73791f87:	je     0x73791f97
+73791f89:	cmp    eax,0x7379f4a0
+73791f8e:	mov    DWORD PTR [ebp-0x7c],0x7c
+73791f95:	jne    0x73791f9e
+73791f97:	mov    DWORD PTR [ebp-0x7c],0x6c
+73791f9e:	movzx  eax,WORD PTR [ebp+0x14]
+73791fa2:	movzx  edi,WORD PTR [ebp+0x18]
+73791fa6:	mov    DWORD PTR [ebp-0x70],eax
+73791fa9:	movzx  eax,WORD PTR [ebp+0x1c]
+73791fad:	mov    ecx,eax
+73791faf:	imul   ecx,DWORD PTR [ebp-0x70]
+73791fb3:	push   esi
+73791fb4:	push   eax
+73791fb5:	shr    ecx,0x3
+73791fb8:	push   0x0
+73791fba:	lea    esi,[ebp-0x34]
+73791fbd:	mov    DWORD PTR [ebp-0x78],0x4100e
+73791fc4:	mov    DWORD PTR [ebp-0x74],edi
+73791fc7:	mov    DWORD PTR [ebp-0x6c],ecx
+73791fca:	call   0x73768e5d
+73791fcf:	test   BYTE PTR [ebp+0x24],0x1
+73791fd3:	pop    ecx
+73791fd4:	pop    ecx
+73791fd5:	pop    esi
+73791fd6:	je     0x73791fe1
+73791fd8:	movzx  eax,WORD PTR [ebp+0x20]
+73791fdc:	mov    DWORD PTR [ebp-0x64],eax
+73791fdf:	jmp    0x73791fe5
+73791fe1:	and    DWORD PTR [ebp-0x64],0x0
+73791fe5:	cmp    DWORD PTR [ebp+0x28],0x0
+73791fe9:	je     0x73791ff1
+73791feb:	or     BYTE PTR [ebp-0x12],0x20
+73791fef:	jmp    0x7379202c
+73791ff1:	mov    eax,DWORD PTR [ebx]
+73791ff3:	cmp    eax,0x7379f500
+73791ff8:	je     0x7379202c
+73791ffa:	cmp    eax,0x7379f4a0
+73791fff:	je     0x7379202c
+73792001:	cmp    eax,0x7379f420
+73792006:	je     0x7379202c
+73792008:	push   DWORD PTR [ebp-0x64]
+7379200b:	movzx  eax,WORD PTR [ebp+0x1c]
+7379200f:	push   eax
+73792010:	movzx  eax,WORD PTR [ebp+0x14]
+73792014:	push   edi
+73792015:	push   eax
+73792016:	mov    eax,DWORD PTR [ebx+0x4]
+73792019:	push   DWORD PTR [eax+0x4]
+7379201c:	call   0x7376d071
+73792021:	add    esp,0x14
+73792024:	test   eax,eax
+73792026:	je     0x7379202c
+73792028:	or     BYTE PTR [ebp-0xe],0x8
+7379202c:	push   DWORD PTR [ebp+0x10]
+7379202f:	lea    eax,[ebp-0x7c]
+73792032:	push   eax
+73792033:	call   DWORD PTR [ebp+0xc]
+73792036:	pop    edi
+73792037:	pop    ebx
+73792038:	leave
+73792039:	ret
+## the enumeration loop (EnumDisplayModes, 0x7379203f..): stops ONLY on a zero return (test eax,eax / je), so MotS's skip-return (eax = width) CONTINUES the enumeration
+737923ce:	call   0x73791f69
+737923d3:	add    esp,0x24
+737923d6:	test   eax,eax
+737923d8:	je     0x737923e2
+737923da:	inc    ebx
+
+73792425:	call   0x73791f69
+7379242a:	add    esp,0x24
+7379242d:	test   eax,eax
+7379242f:	je     0x73792466
+73792431:	cmp    DWORD PTR [ebp-0xe0],esi
+
+7379245e:	call   0x73791f69
+73792463:	add    esp,0x24
+73792466:	xor    esi,esi
+73792468:	push   DWORD PTR [ebp-0xbc]
+7379246e:	call   DWORD PTR ds:0x7376119c
+

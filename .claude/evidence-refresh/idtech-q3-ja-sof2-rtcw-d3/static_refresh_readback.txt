@@ -1,0 +1,160 @@
+ENUM_CURRENT_SETTINGS readback after the mode set (the value the engine prints as 'MODE: ... hz:N'), aligned excerpts:
+
+== Quake3-TeamArena/quake3.exe
+    0045a17c: add      byte ptr [eax], al
+    0045a17e: add      byte ptr [eax], al
+    0045a180: call     0x459a20
+    0045a185: add      esp, 0x10
+    0045a188: test     eax, eax
+    0045a18a: je       0x45a143
+    0045a18c: lea      edx, [esp + 0x18]
+    0045a190: push     edx
+    0045a191: xor      eax, eax
+    0045a193: push     -1
+    0045a195: mov      ecx, 0x27
+    0045a19a: lea      edi, [esp + 0x20]
+    0045a19e: rep stosd dword ptr es:[edi], eax
+    0045a1a0: push     eax
+    0045a1a1: mov      word ptr [esp + 0x48], 0x9c
+    0045a1a8: call     dword ptr [0x4b2248]
+    0045a1ae: test     eax, eax
+    0045a1b0: je       0x45a1be
+    0045a1b2: mov      eax, dword ptr [esp + 0x90]
+    0045a1b9: mov      dword ptr [0xc5c7f4], eax
+    0045a1be: mov      ecx, dword ptr [ebp + 0x10]
+    0045a1c1: pop      edi
+    0045a1c2: pop      esi
+
+== JediAcademy/jasp.exe
+    0048b3b2: add      byte ptr [eax], al
+    0048b3b4: call     0x48af20
+    0048b3b9: add      esp, 0x10
+    0048b3bc: test     eax, eax
+    0048b3be: je       0x48b668
+    0048b3c4: xor      eax, eax
+    0048b3c6: mov      ecx, 0x27
+    0048b3cb: lea      edi, [esp + 0x18]
+    0048b3cf: rep stosd dword ptr es:[edi], eax
+    0048b3d1: lea      eax, [esp + 0x18]
+    0048b3d5: push     eax
+    0048b3d6: push     -1
+    0048b3d8: push     0
+    0048b3da: mov      word ptr [esp + 0x48], 0x9c
+    0048b3e1: call     dword ptr [0x4f0270]
+    0048b3e7: test     eax, eax
+    0048b3e9: je       0x48b3f8
+    0048b3eb: mov      ecx, dword ptr [esp + 0x90]
+    0048b3f2: mov      dword ptr [0xc98484], ecx
+    0048b3f8: mov      edx, dword ptr [ebp + 0xc]
+
+== JediAcademy/jamp.exe
+    004c5dea: ror      byte ptr [ebx], 1
+    004c5ded: add      byte ptr [eax], al
+    004c5def: add      byte ptr [eax], al
+    004c5df1: call     0x4c56d0
+    004c5df6: add      esp, 0x10
+    004c5df9: test     eax, eax
+    004c5dfb: je       0x4c5db5
+    004c5dfd: xor      eax, eax
+    004c5dff: mov      ecx, 0x27
+    004c5e04: lea      edi, [esp + 0x18]
+    004c5e08: rep stosd dword ptr es:[edi], eax
+    004c5e0a: lea      ecx, [esp + 0x18]
+    004c5e0e: push     ecx
+    004c5e0f: push     -1
+    004c5e11: push     eax
+    004c5e12: mov      word ptr [esp + 0x48], 0x9c
+    004c5e19: call     dword ptr [0x53b23c]
+    004c5e1f: test     eax, eax
+    004c5e21: je       0x4c5e30
+    004c5e23: mov      edx, dword ptr [esp + 0x90]
+    004c5e2a: mov      dword ptr [0xfe3188], edx
+    004c5e30: mov      eax, dword ptr [ebp + 0xc]
+    004c5e33: pop      edi
+    004c5e34: pop      esi
+
+== SoldierOfFortune2/SoF2.exe
+    100b8d79: mov      eax, 2
+    100b8d7e: pop      ebx
+    100b8d7f: add      esp, 0x930
+    100b8d85: ret      
+    100b8d86: mov      byte ptr [0x10840a94], 1
+    100b8d8d: xor      eax, eax
+    100b8d8f: mov      ecx, 0x25
+    100b8d94: lea      edi, [esp + 0x18]
+    100b8d98: rep stosd dword ptr es:[edi], eax
+    100b8d9a: lea      ecx, [esp + 0x18]
+    100b8d9e: push     ecx
+    100b8d9f: push     -1
+    100b8da1: push     eax
+    100b8da2: mov      word ptr [esp + 0x48], 0x94
+    100b8da9: call     dword ptr [0x100da1f8]
+    100b8daf: test     eax, eax
+    100b8db1: je       0x100b8dcd
+    100b8db3: mov      eax, dword ptr [esp + 0x90]
+    100b8dba: push     eax
+    100b8dbb: push     0x100f706c
+    100b8dc0: mov      dword ptr [0x1079a248], eax
+
+== SoldierOfFortune2/sof2mp.exe
+    004df22c: add      byte ptr [eax], al
+    004df22e: pop      ebx
+    004df22f: add      esp, 0x130
+    004df235: ret      
+    004df236: mov      dword ptr [0x1243214], 1
+    004df240: lea      edx, [esp + 0x14]
+    004df244: push     edx
+    004df245: xor      eax, eax
+    004df247: push     -1
+    004df249: mov      ecx, 0x25
+    004df24e: lea      edi, [esp + 0x1c]
+    004df252: rep stosd dword ptr es:[edi], eax
+    004df254: push     eax
+    004df255: mov      word ptr [esp + 0x44], 0x94
+    004df25c: call     dword ptr [0x54c288]
+    004df262: test     eax, eax
+    004df264: je       0x4df272
+    004df266: mov      eax, dword ptr [esp + 0x8c]
+    004df26d: mov      dword ptr [0x11a6308], eax
+
+== ReturnToCastleWolfenstein/WolfSP.exe
+    00465595: add      byte ptr [eax], al
+    00465597: pop      ebx
+    00465598: add      esp, 0x130
+    0046559e: ret      
+    0046559f: mov      dword ptr [0x109bd64], 1
+    004655a9: lea      edx, [esp + 0x14]
+    004655ad: mov      ecx, 0x25
+    004655b2: xor      eax, eax
+    004655b4: lea      edi, [esp + 0x14]
+    004655b8: push     edx
+    004655b9: push     -1
+    004655bb: rep stosd dword ptr es:[edi], eax
+    004655bd: push     eax
+    004655be: mov      word ptr [esp + 0x44], 0x94
+    004655c5: call     dword ptr [0x4d72bc]
+    004655cb: test     eax, eax
+    004655cd: je       0x4655db
+    004655cf: mov      eax, dword ptr [esp + 0x8c]
+    004655d6: mov      dword ptr [0x1184390], eax
+
+== ReturnToCastleWolfenstein/WolfMP.exe
+    00478d85: add      byte ptr [eax], al
+    00478d87: pop      ebx
+    00478d88: add      esp, 0x130
+    00478d8e: ret      
+    00478d8f: mov      dword ptr [0x113b244], 1
+    00478d99: lea      edx, [esp + 0x14]
+    00478d9d: mov      ecx, 0x25
+    00478da2: xor      eax, eax
+    00478da4: lea      edi, [esp + 0x14]
+    00478da8: push     edx
+    00478da9: push     -1
+    00478dab: rep stosd dword ptr es:[edi], eax
+    00478dad: push     eax
+    00478dae: mov      word ptr [esp + 0x44], 0x94
+    00478db5: call     dword ptr [0x4e02cc]
+    00478dbb: test     eax, eax
+    00478dbd: je       0x478dcb
+    00478dbf: mov      eax, dword ptr [esp + 0x8c]
+    00478dc6: mov      dword ptr [0x1224230], eax

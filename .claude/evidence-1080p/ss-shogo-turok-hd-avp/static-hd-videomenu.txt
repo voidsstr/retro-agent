@@ -1,0 +1,87 @@
+# raw tool output - Hidden and Dangerous Deluxe v1.50 (HDE.exe 2003-10-03)
+## HDE.exe mc_VideoConfigCallback (0x462450, per the linker map inside Data/data.dta): IGraph NumDisplayModes (+0xdc) / GetDisplayMode (+0xe0); keep w>=512 && h>=384; dedupe; sort by w*h
+  00462966: mov ecx, dword ptr [eax]
+  00462968: push eax
+  00462969: call dword ptr [ecx + 0xdc]
+  0046296f: cmp eax, ebp
+  00462971: mov dword ptr [esp + 0x20], eax
+  00462975: jbe 0x462a17
+  0046297b: mov eax, dword ptr [0x4fa57c]
+  00462980: lea ecx, [esp + 0x28]
+  00462984: push ecx
+  00462985: lea ecx, [esp + 0x18]
+  00462989: mov edx, dword ptr [eax]
+  0046298b: push ecx
+  0046298c: lea ecx, [esp + 0x7c]
+  00462990: push ecx
+  00462991: push ebp
+  00462992: push eax
+  00462993: call dword ptr [edx + 0xe0]
+  00462999: test al, al
+  0046299b: je 0x462a04
+  0046299d: mov ecx, dword ptr [esp + 0x74]
+  004629a1: cmp ecx, 0x200
+  004629a7: jl 0x462a04
+  004629a9: mov eax, dword ptr [esp + 0x14]
+  004629ad: cmp eax, 0x180
+  004629b2: jl 0x462a04
+  004629b4: mov edx, dword ptr [esp + 0x58]
+  004629b8: shl eax, 0x10
+  004629bb: or eax, ecx
+  004629bd: mov ecx, dword ptr [esp + 0x54]
+  004629c1: mov edi, eax
+  004629c3: test ecx, ecx
+  004629c5: mov dword ptr [esp + 0x10], edi
+  004629c9: jne 0x4629cf
+  004629cb: xor eax, eax
+  004629cd: jmp 0x4629d6
+  004629cf: mov eax, edx
+  004629d1: sub eax, ecx
+  004629d3: sar eax, 2
+  004629d6: mov esi, eax
+  004629d8: dec eax
+  00462aa0: mov edi, esi
+  00462aa2: shr ebp, 0x10
+  00462aa5: and edi, 0xffff
+  00462aab: push ebp
+  00462aac: push edi
+  00462aad: push 0x4f3e3c
+  00462ab2: push edx
+  00462ab3: call 0x403f90
+## format strings
+  f3e3c %i x %i
+  f3e44 %i-bit
+## igraph2.dll GetDisplayMode -> IDirect3D8::EnumAdapterModes (unfiltered pass-through)
+10007360: 83ec38                   sub esp, 0x38
+10007363: 56                       push esi
+10007364: 8b742440                 mov esi, dword ptr [esp + 0x40]
+10007368: 8b86dc010000             mov eax, dword ptr [esi + 0x1dc]
+1000736e: 8b08                     mov ecx, dword ptr [eax]
+10007370: 8d542414                 lea edx, [esp + 0x14]
+10007374: 52                       push edx
+10007375: 50                       push eax
+10007376: ff5124                   call dword ptr [ecx + 0x24]
+10007379: 8b86d8010000             mov eax, dword ptr [esi + 0x1d8]
+1000737f: 8b08                     mov ecx, dword ptr [eax]
+10007381: 8d542404                 lea edx, [esp + 4]
+10007385: 52                       push edx
+10007386: 8b542448                 mov edx, dword ptr [esp + 0x48]
+1000738a: 52                       push edx
+1000738b: 8b54241c                 mov edx, dword ptr [esp + 0x1c]
+1000738f: 52                       push edx
+10007390: 50                       push eax
+10007391: ff511c                   call dword ptr [ecx + 0x1c]
+10007394: 85c0                     test eax, eax
+10007396: 5e                       pop esi
+## manual (Manuals/T2_HDD_MAN_english.pdf) Options > Video
+Video
+Choosing screen the resolution, full-screen or windowed option. If you desire
+to change the video mode, you’ll need to apply the selected settings by
+choosing the APPLY CHANGES menu item. If the game runs slowly on your
+
+17
+
+machine, you may choose to disable rendering of shadows in this menu, which
+may speed up the game if an older graphics card is installed.
+
+Credits

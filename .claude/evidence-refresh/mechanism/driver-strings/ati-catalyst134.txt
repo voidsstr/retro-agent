@@ -1,0 +1,61 @@
+# ATI Catalyst 13.4 legacy XP (the .123 driver, 8.970) - B156345 binaries expanded with 7z from /mnt/retro-share/Files/Drivers/ATI/WinXP/Radeon/Catalyst134-Legacy-XP-Display
+== ati/ati2mtag.sys (md5 83ee57dec3a97d68154d52db32dbf64f)
+(0 != refreshRate)
+AddEdidRefreshRates
+DalAllowSelfRefreshControl
+DALRULE_ANALOGDDCDISPLAYSUPPORTALLREFRESHRATE
+DALRULE_APPLYPREVIOUSREFRESHRATE
+DALRULE_DONOTREPORTCUSTOMREFRESHRATE
+DefaultSettings.VRefresh
+GXODFP2CVTLowerRefreshRate
+GXODFP2DualLinkMinVerRefreshRate
+GXODFP2MinVerRefreshRate
+GXODFP2ReducedRefreshRate
+GXODFP3CVTLowerRefreshRate
+GXODFP3DualLinkMinVerRefreshRate
+GXODFP3MinVerRefreshRate
+GXODFP3ReducedRefreshRate
+GXODFP4CVTLowerRefreshRate
+GXODFP4DualLinkMinVerRefreshRate
+GXODFP4MinVerRefreshRate
+GXODFP4ReducedRefreshRate
+GXODFP5CVTLowerRefreshRate
+GXODFP5DualLinkMinVerRefreshRate
+GXODFP5MinVerRefreshRate
+GXODFP5ReducedRefreshRate
+GXODFPCVTLowerRefreshRate
+GXODFPDualLinkMinVerRefreshRate
+GXODFPEXTCVTLowerRefreshRate
+GXODFPEXTDualLinkMinVerRefreshRate
+GXODFPEXTMinVerRefreshRate
+GXODFPEXTReducedRefreshRate
+GXODFPMinVerRefreshRate
+GXODFPReducedRefreshRate
+PECI_ResetReducedRefreshRate
+PECI_SetReducedRefreshRate
+PECI_UpdateRefreshRate
+pPowerState->display.explicitRefreshrate != 0
+PP_PermitReducedRefreshRate
+R6LCD_ALLOWDISABLELOWREFRESHBYUSER
+R6LCD_REFRESHRATECHANGEWITHOUTLVDSONOFF
+Refresh rate cannot be Zero!
+  ulVerticalRefresh            = %u
+Unknown VBIOS refreshrate index.
+VSyncControl
+VSyncControl_DEF
+== ati/ati2dvag.dll (md5 5fa75eb8ead6902f62efad46a4ed2cfa)
+== ati/ati3duag.dll (md5 d26c54e0c855e82ab346ab1a64fbd57a)
+VSyncControl
+== ati/atioglxx.dll (md5 3bef63ab5a364597b9b4373150c5319f)
+eglATIWaitForVerticalRefresh
+VSyncControl
+
+# INF: every chip section sets it, nothing reads it
+12
+
+# Also checked (no Refresh_Rate / RefreshRateOverride / 3D_Refresh string, ASCII or UTF-16):
+  ati2evxx.exe md5 808a882b7ecfacf65049e12a856c6876
+  ati2edxx.dll md5 4d8aed24cea7699f2ab42536cd4f9077
+  atiadlxx.dll md5 878fabebdcf78c8f6876443933ba905e
+  ati2cqag.dll md5 b300a246f366654e45ca047867d2b68c
+# => 3D_Refresh_Rate_Override_DEF=0 is set by the INF and read by NO binary in the package: vestigial.

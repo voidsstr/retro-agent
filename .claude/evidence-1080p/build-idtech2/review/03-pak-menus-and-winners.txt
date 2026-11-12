@@ -1,0 +1,51 @@
+== SiNGold base paks: ['pak0.sin', 'pak1.sin', 'pak2.sin', 'pak3.sin', 'pak4.sin', 'pak5.sin']  loose menus dir: []
+   pak0.sin b'SPAK' size 194635743 entries 9405, menus/* 0
+   pak1.sin b'SPAK' size 193031131 entries 272, menus/* 0
+   pak2.sin b'SPAK' size 86675171 entries 2934, menus/* 353
+      menus/main.mnu                88377 md5 aab255ba0d009209c82a2c5e0cf41b02  1600-lines: [b'" 1600 x 1200"']
+      menus/main2.mnu               51003 md5 6770650a608a8caffff6723218f62b23  1600-lines: [b'" 1600 x 1200"']
+      menus/main3.mnu               52738 md5 ae612742e04a444682b50226786be2d2  1600-lines: [b'" 1600 x 1200"']
+      menus/main_alt.mnu            88801 md5 d7f7370e97bddd31601198f92af898cd  1600-lines: [b'"1600 x 1200"']
+      menus/main_old.mnu            21202 md5 eedf99a413e7578b383de3067b39d89a  1600-lines: [b'"1600 x 1200"']
+      menus/mvc54a.tmp              80554 md5 eeb4512e0058a3af885b50f05bdc7639  1600-lines: [b'" 1600 x 1200"']
+      menus/mvc7.tmp                80556 md5 58149621b4b4fbab17938a03fb645184  1600-lines: [b'" 1600 x 1200"']
+   pak3.sin b'SPAK' size 101165584 entries 170, menus/* 0
+   pak4.sin b'SPAK' size 56174357 entries 504, menus/* 63
+      menus/main.mnu                89128 md5 5ec4a1bf2b2589336c954b9490bd7261  1600-lines: [b'" 1600 x 1200"']
+      menus/main_alt.mnu            89591 md5 97df720269fefdb9cb35b229a26fbc8c  1600-lines: [b'"1600 x 1200"']
+   pak5.sin b'SPAK' size 1239753 entries 7, menus/* 1
+      menus/main.mnu                90780 md5 d038864bdf6921ad4181ab96ac1300a4  1600-lines: [b'" 1600 x 1200"']
+== SiNGold 2015 paks: ['pak0.sin']  loose menus dir: []
+   pak0.sin b'SPAK' size 269730473 entries 3935, menus/* 98
+      menus/shipyard/records_incoming_main.mnu   1293 md5 7701c22851432cd1728f56d040a20f18  1600-lines: []
+      menus/shipyard/records_main.mnu    786 md5 0011b5026ea484d3bb54ab6180b120f8  1600-lines: []
+      menus/shipyard/records_outgoing_main.mnu   1293 md5 dadff5c2e24683b8f78bd43d87ef01c8  1600-lines: []
+      menus/shipyard/seccon1_main.mnu   1487 md5 5b631d42c04825e3e7e35317dac1e567  1600-lines: []
+      menus/shipyard/seccon2_main.mnu   1487 md5 e0ffe4b1157d8a64bbd52bab9a01cbdc  1600-lines: []
+      menus/shipyard/security_alarms_main.mnu    730 md5 5929758583d948c8e2fa9d5908dc7bd0  1600-lines: []
+      menus/shipyard/security_cameras_main.mnu    940 md5 e32092b0296ceb0f806ef61dc6c0665e  1600-lines: []
+      menus/shipyard/security_main.mnu    747 md5 651a313d4247b2c3ca380e01f4fb8414  1600-lines: []
+      menus/shipyard/security_passcodes_main.mnu    753 md5 991cf36a8fa59bd7e47d276413828f2e  1600-lines: []
+      menus/main.mnu               112319 md5 3de83c90bf6e20f4ea250ef143648739  1600-lines: [b'" 1600 x 1200"']
+      menus/main_alt.mnu           114985 md5 04729dc9388537c61840979590682275  1600-lines: [b'"1600 x 1200"']
+== SiNGold ctf paks: ['pak0.sin', 'pak1.sin']  loose menus dir: []
+   pak0.sin b'SPAK' size 24938087 entries 257, menus/* 4
+      menus/main.mnu                90047 md5 3555bdaae891bcc3a05ae9b1aa0f5b18  1600-lines: [b'" 1600 x 1200"']
+      menus/main_alt.mnu            89578 md5 8f7b6ed512559fe43a838c7ce02f7dcd  1600-lines: [b'"1600 x 1200"']
+   pak1.sin b'SPAK' size 8752518 entries 33, menus/* 1
+      menus/main.mnu                91704 md5 e55c5dd6b26f90bc7590446e98d70ac8  1600-lines: [b'" 1600 x 1200"']
+== SoldierOfFortune base paks: ['pak0.pak', 'pak1.pak']  loose menus dir: []
+   pak0.pak b'PACK' size 705825871 entries 9728, menus/* 425
+      menus/m_video.rmf              3080 md5 bc6bab97e0a55ca6b42316d210093ee7  1600-lines: [b'<list "640x480,800x600,960x720,1024x768,1152x864,1280x960,1600x1200" match "3,4,5,6,7,8,9" atext "^MENU_VIDEO_']
+   pak1.pak b'PACK' size 20517183 entries 533, menus/* 0
+== SoldierOfFortune user paks: []  loose menus dir: []
+== Quake2Complete baseq2 paks: ['pak0.pak', 'pak1.pak', 'pak2.pak']  loose menus dir: []
+   pak0.pak b'PACK' size 183997730 entries 3307, menus/* 0
+   pak1.pak b'PACK' size 12992754 entries 279, menus/* 0
+   pak2.pak b'PACK' size 45055 entries 2, menus/* 0
+== Quake2Complete xatrix paks: ['pak0.pak']  loose menus dir: []
+   pak0.pak b'PACK' size 93310499 entries 832, menus/* 0
+== Quake2Complete rogue paks: ['pak0.pak']  loose menus dir: []
+   pak0.pak b'PACK' size 109117652 entries 1983, menus/* 0
+== Quake2Complete ctf paks: ['pak0.pak']  loose menus dir: []
+   pak0.pak b'PACK' size 12101005 entries 169, menus/* 0

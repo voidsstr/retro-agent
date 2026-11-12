@@ -1,0 +1,38 @@
+8276:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 52 bytes
+8284:[23:47:35][FILE ] UPLOAD: Complete, 352 bytes to "C:\Games\CounterStrike16\config\serverbrowser.vdf"
+8287:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 6753 bytes
+8297:[23:47:35][FILE ] UPLOAD: Complete, 6890 bytes to "C:\Games\DeusEx\SYSTEM\DeusEx.ini"
+8300:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 1521 bytes
+8310:[23:47:35][FILE ] UPLOAD: Complete, 2654 bytes to "C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg"
+8313:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 3407 bytes
+8323:[23:47:35][FILE ] UPLOAD: Complete, 3689 bytes to "C:\Games\Quake2Complete\baseq2\autoexec.cfg"
+8326:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 8765 bytes
+8336:[23:47:35][FILE ] UPLOAD: Complete, 8908 bytes to "C:\Games\UnrealGold\System\Unreal.ini"
+8339:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 19869 bytes
+8349:[23:47:35][FILE ] UPLOAD: Complete, 19981 bytes to "C:\Games\UT2004\System\UT2004.ini"
+8352:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 18135 bytes
+8362:[23:47:35][FILE ] UPLOAD: Complete, 17743 bytes to "C:\Games\UnrealTournament436\System\UnrealTournament.ini"
+8365:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 19675 bytes
+8375:[23:47:35][FILE ] UPLOAD: Complete, 19338 bytes to "C:\Games\UnrealTournament\System\UnrealTournament.ini"
+8378:[23:47:35][FILE ] DOWNLOAD: GetFileSize = 1423 bytes
+8388:[23:47:35][FILE ] UPLOAD: Complete, 1863 bytes to "C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg"
+8390:[23:47:39][GAMESYNC] 52 title(s) (1 gated, not walked), 39589 file(s), 54188 MB to copy; C: has 183081 MB free
+8623:[23:47:49][GAMESYNC] done: 51/52 title(s) copied, 0 skipped (no room), 1 gated (machine cannot run), 0 file error(s), 27 file(s) written, 0 new/removed shortcut(s)
+29:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 52 bytes
+37:[23:52:00][FILE ] UPLOAD: Complete, 352 bytes to "C:\Games\CounterStrike16\config\serverbrowser.vdf"
+40:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 6753 bytes
+50:[23:52:00][FILE ] UPLOAD: Complete, 6890 bytes to "C:\Games\DeusEx\SYSTEM\DeusEx.ini"
+53:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 1521 bytes
+63:[23:52:00][FILE ] UPLOAD: Complete, 2665 bytes to "C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg"
+66:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 3407 bytes
+76:[23:52:00][FILE ] UPLOAD: Complete, 3683 bytes to "C:\Games\Quake2Complete\baseq2\autoexec.cfg"
+79:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 8765 bytes
+89:[23:52:00][FILE ] UPLOAD: Complete, 8908 bytes to "C:\Games\UnrealGold\System\Unreal.ini"
+92:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 19869 bytes
+102:[23:52:00][FILE ] UPLOAD: Complete, 19972 bytes to "C:\Games\UT2004\System\UT2004.ini"
+105:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 18135 bytes
+115:[23:52:00][FILE ] UPLOAD: Complete, 17748 bytes to "C:\Games\UnrealTournament436\System\UnrealTournament.ini"
+118:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 19675 bytes
+128:[23:52:00][FILE ] UPLOAD: Complete, 19343 bytes to "C:\Games\UnrealTournament\System\UnrealTournament.ini"
+131:[23:52:00][FILE ] DOWNLOAD: GetFileSize = 1423 bytes
+141:[23:52:00][FILE ] UPLOAD: Complete, 1863 bytes to "C:\Games\ReturnToCastleWolfenstein\Main\autoexec.cfg"

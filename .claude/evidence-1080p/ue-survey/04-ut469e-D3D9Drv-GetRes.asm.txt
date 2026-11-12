@@ -1,0 +1,180 @@
+# /mnt/retro-share/Files/Games-Library/UnrealTournament/System/D3D9Drv.dll md5 01bb5c61f3f1c4744ea34f8072141cbc (OldUnreal 469e, staged GameRenderDevice)
+# GetRes: Z == Viewport->ColorBytes*8, skip 320x200/640x400 (floats at 0x1003a8c8.. = 320,200,640,400), AddUnique, appQsort, print all - NO cap
+[wide] string at file 0x37ab0 VA 0x100390b0
+   ref at VA 0x10003399
+      10003389: push eax
+      1000338a: push 0x10039090
+      1000338f: jmp 0x10003303
+      10003394: xor eax, eax
+      10003396: jmp 0x10003341
+   >> 10003398: push 0x100390b0
+      1000339d: push eax
+      1000339e: call esi
+      100033a0: add esp, 8
+      100033a3: test eax, eax
+      100033a5: je 0x1000354f
+      100033ab: lea ecx, [ebp - 0x2c]
+      100033ae: call 0x10008550
+      100033b3: mov byte ptr [ebp - 4], 1
+      100033b7: xor esi, esi
+      100033b9: mov dword ptr [ebp - 0x14], esi
+      100033bc: cmp esi, dword ptr [edi + 0x18ee8]
+      100033c2: jge 0x10003472
+      100033c8: mov ecx, esi
+      100033ca: add ecx, ecx
+      100033cc: mov edx, dword ptr [edi + 0x18ee4]
+      100033d2: mov eax, dword ptr [edi + 0xc]
+      100033d5: mov eax, dword ptr [eax + 0x78]
+      100033d8: shl eax, 3
+      100033db: movd xmm0, eax
+      100033df: cvtdq2pd xmm0, xmm0
+      100033e3: shr eax, 0x1f
+      100033e6: addsd xmm0, qword ptr [eax*8 + 0x1003a970]
+      100033ef: cvtpd2ps xmm1, xmm0
+      100033f3: movss xmm0, dword ptr [edx + ecx*8 + 8]
+      100033f9: ucomiss xmm0, xmm1
+      100033fc: lahf 
+      100033fd: test ah, 0x44
+      10003400: jp 0x1000346c
+      10003402: movss xmm3, dword ptr [edx + ecx*8]
+      10003407: ucomiss xmm3, dword ptr [0x1003a8c8]
+      1000340e: lahf 
+      1000340f: test ah, 0x44
+      10003412: jp 0x10003427
+      10003414: movss xmm0, dword ptr [edx + ecx*8 + 4]
+      1000341a: ucomiss xmm0, dword ptr [0x1003a8c0]
+      10003421: lahf 
+      10003422: test ah, 0x44
+      10003425: jnp 0x1000346c
+      10003427: ucomiss xmm3, dword ptr [0x1003a8d4]
+      1000342e: lahf 
+      1000342f: test ah, 0x44
+      10003432: jp 0x10003447
+      10003434: movss xmm0, dword ptr [edx + ecx*8 + 4]
+      1000343a: ucomiss xmm0, dword ptr [0x1003a8d0]
+      10003441: lahf 
+      10003442: test ah, 0x44
+      10003445: jnp 0x1000346c
+      10003447: xorps xmm2, xmm2
+      1000344a: xorps xmm0, xmm0
+      1000344d: movss xmm1, dword ptr [edx + ecx*8 + 4]
+      10003453: unpcklps xmm3, xmm0
+      10003456: unpcklps xmm1, xmm2
+      10003459: unpcklps xmm3, xmm1
+      1000345c: movups xmmword ptr [ebp - 0x48], xmm3
+      10003460: lea eax, [ebp - 0x48]
+      10003463: push eax
+      10003464: lea ecx, [ebp - 0x2c]
+      10003467: call 0x1000a930
+      1000346c: inc esi
+      1000346d: jmp 0x100033b9
+      10003472: push 0x1000c860
+      10003477: push 0x10
+      10003479: push dword ptr [ebp - 0x28]
+      1000347c: push dword ptr [ebp - 0x2c]
+      1000347f: call dword ptr [0x100350e0]
+      10003485: add esp, 0x10
+      10003488: lea ecx, [ebp - 0x38]
+      1000348b: call dword ptr [0x100350f8]
+      10003491: mov byte ptr [ebp - 4], 2
+      10003495: xor esi, esi
+      10003497: mov dword ptr [ebp - 0x14], esi
+      1000349a: mov edi, dword ptr [0x1003510c]
+      100034a0: cmp esi, dword ptr [ebp - 0x28]
+      100034a3: jge 0x100034e8
+      100034a5: mov edx, esi
+      100034a7: add edx, edx
+      100034a9: mov ecx, dword ptr [ebp - 0x2c]
+      100034ac: cvttss2si eax, dword ptr [ecx + edx*8 + 4]
+      100034b2: push eax
+      100034b3: cvttss2si eax, dword ptr [ecx + edx*8]
+      100034b8: push eax
+      100034b9: push 0x100390c0
+      100034be: lea eax, [ebp - 0x44]
+      100034c1: push eax
+      100034c2: call edi
+      100034c4: add esp, 0x10
+      100034c7: mov byte ptr [ebp - 4], 3
+      100034cb: push eax
+      100034cc: lea ecx, [ebp - 0x38]
+      100034cf: call dword ptr [0x10035100]
+      100034d5: mov byte ptr [ebp - 4], 2
+      100034d9: lea ecx, [ebp - 0x44]
+      100034dc: call dword ptr [0x10035110]
+      100034e2: inc esi
+      100034e3: mov dword ptr [ebp - 0x14], esi
+      100034e6: jmp 0x100034a0
+      100034e8: push 1
+      100034ea: lea eax, [ebp - 0x44]
+      100034ed: push eax
+      100034ee: lea ecx, [ebp - 0x38]
+      100034f1: call dword ptr [0x10035108]
+      100034f7: mov byte ptr [ebp - 4], 4
+      100034fb: mov ecx, eax
+      100034fd: call dword ptr [0x10035104]
+      10003503: push eax
+      10003504: mov ecx, dword ptr [ebp + 0xc]
+      10003507: call dword ptr [0x100350c0]
+      1000350d: mov byte ptr [ebp - 4], 2
+      10003511: lea ecx, [ebp - 0x44]
+      10003514: call dword ptr [0x10035110]
+      1000351a: mov byte ptr [ebp - 4], 1
+      1000351e: lea ecx, [ebp - 0x38]
+      10003521: call dword ptr [0x10035110]
+      10003527: mov byte ptr [ebp - 4], 5
+      1000352b: xor eax, eax
+      1000352d: mov dword ptr [ebp - 0x18], eax
+      10003530: mov ecx, dword ptr [ebp - 0x28]
+      10003533: cmp eax, ecx
+      10003535: jge 0x1000353d
+      10003537: inc eax
+      10003538: mov dword ptr [ebp - 0x18], eax
+      1000353b: jmp 0x10003533
+      1000353d: mov byte ptr [ebp - 4], 0
+      10003541: lea ecx, [ebp - 0x2c]
+      10003544: call dword ptr [0x100350f4]
+      1000354a: jmp 0x1000333c
+      1000354f: push 0x100390d0
+      10003554: lea eax, [ebp + 8]
+      10003557: push eax
+
+# fullscreen SetRes best-match searches the same array (obj+0x18f0c) with the same depth filter:
+10001bfb:	je     0x10001cc2
+10001c01:	mov    %ebx,-0x488(%ebp)
+10001c07:	mov    %esi,-0x484(%ebp)
+10001c0d:	movl   $0x7fffffff,-0x480(%ebp)
+10001c17:	xor    %edx,%edx
+10001c19:	mov    %edx,-0x48c(%ebp)
+10001c1f:	nop
+10001c20:	cmp    0x18f10(%edi),%edx
+10001c26:	jge    0x10001cc2
+10001c2c:	mov    %edx,%ecx
+10001c2e:	add    %ecx,%ecx
+10001c30:	shl    $0x3,%eax
+10001c33:	movd   %eax,%xmm1
+10001c37:	cvtdq2ps %xmm1,%xmm1
+10001c3a:	mov    0x18f0c(%edi),%eax
+10001c40:	movss  0x8(%eax,%ecx,8),%xmm0
+10001c46:	ucomiss %xmm1,%xmm0
+10001c49:	lahf
+10001c4a:	test   $0x44,%ah
+10001c4d:	mov    0xc(%ebp),%esi
+10001c50:	jp     0x10001cb3
+10001c52:	mov    0x18f0c(%edi),%eax
+10001c58:	movss  0x4(%eax,%ecx,8),%xmm3
+10001c5e:	movd   -0x484(%ebp),%xmm0
+10001c66:	cvtdq2ps %xmm0,%xmm0
+10001c69:	movaps %xmm3,%xmm2
+10001c6c:	subss  %xmm0,%xmm2
+10001c70:	movss  (%eax,%ecx,8),%xmm4
+10001c75:	movd   -0x488(%ebp),%xmm0
+10001c7d:	cvtdq2ps %xmm0,%xmm0
+10001c80:	movaps %xmm4,%xmm1
+10001c83:	subss  %xmm0,%xmm1
+10001c87:	mulss  %xmm1,%xmm1
+10001c8b:	mulss  %xmm2,%xmm2
+10001c8f:	addss  %xmm2,%xmm1
+10001c93:	cvttss2si %xmm1,%eax
+
+# 469e WinDrv windowed GetRes table (54 entries @0x10033010, clipped to desktop):
+320x240 384x288 400x300 512x384 640x360 640x480 800x600 854x480 960x540 960x720 1024x576 1024x768 1138x640 1152x864 1280x720 1280x800 1280x960 1280x1024 1344x750 1366x768 1400x1050 1440x1080 1600x900 1600x1200 1600x1280 1680x1050 1792x1344 1800x1400 1856x1392 1920x1080 1920x1200 1920x1280 1920x1440 2048x1152 2048x1280 2048x1536 2560x1440 2560x1600 2560x2048 2576x1450 2800x2100 2880x1620 2880x1800 3200x1800 3200x2048 3200x2400 3840x2160 3840x2400 4096x2304 4480x2520 5120x2880 6016x3384 8192x4608 15360x8640

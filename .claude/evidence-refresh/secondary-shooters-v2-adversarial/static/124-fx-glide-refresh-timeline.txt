@@ -1,0 +1,33 @@
+# .124 (V5 6000, vcr-kmd, our h5 glide3x md5 38a891e8) - WHERE OUR GLIDE READS FX_GLIDE_REFRESH, and WHEN IT WAS THERE
+# (adversarial review of secondary-shooters-v2, 2026-09-29; read-only REGREADs only)
+
+## which key our Glide reads
+voodoo-cleanroom/build/retro3dfx-glide/glide3x/h5/minihwc/minihwc.c
+  getRegPath() (line ~1371): on NT 5.x, if HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0 exists
+      -> "SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide", else ...\banshee\Device0\glide.
+      (the DEVICEMAP\VIDEO path is used only on NT4). The vcr-kmd device key {919B6B70-...}\0000\Glide is NEVER read.
+  hwcGetenv() (line 9547): getenv() first, then HKCU\<regPath>, then HKLM\<regPath>.
+  hwcInitVideo (line 4675): if (GETENV("FX_GLIDE_REFRESH")) refresh = atoi(...)  - unconditional override of the app's GR_REFRESH.
+  win_mode.c setVideoMode: IDirectDraw2_SetDisplayMode(w,h,bpp,refresh); on failure retries with refresh 0 (default).
+deployed binary: .claude/worktrees/v56k-bench/voodoo-cleanroom/out/glide3x_h5.dll md5 38a891e81ea58379a0c22be6d7c0d6fb (= .124 system32\glide3x.dll per fleetbook 2026-09-28)
+  strings: SYSTEM\CurrentControlSet\Services\3dfxvs\Device0 / ...\3dfxvs\Device0\glide / FX_GLIDE_REFRESH / "Unsupported Refresh Rate -- defaulting to 60hz"
+HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0 EXISTS on .124 (AmigaMerlin leftover, REGREAD 04:4x) -> regPath = ...\3dfxvs\Device0\glide
+
+## timeline of FX_GLIDE_REFRESH in HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide
+00:34:28  "75"   secondary-shooters/boxes/124__REGREAD_HKLM_SYSTEM_CurrentControlSet_Services_3dfxvs_Device0_glide.txt
+03:55-03:59       Glide opened at 75 while ICDs asked 85 (Q2/ioq3/GLQuake/HL) - 124-window/run1.txt, run2.txt
+04:05:19  "75"   hl1-cs16/live/probe-124-glide.json
+04:06     "75"   idtech-q3-ja-sof2-rtcw-d3-r2/boxes/124_glide.json
+~04:15            .124 rebooted (HKLM\Software\RetroAgent DriverUpdateBoot "2026-09-29 04:15", HwPublished 04:16:26);
+                  V5 lane commit 0b698d7 04:17 "3dfxctl 2.1.0 ... verified across a real reboot on .124";
+                  3dfxctl preset 'defaults' deletes FX_GLIDE_REFRESH (scripts/3dfx/3dfxctl/ctl_logic.h ctl_presets: CTL_ID_GLIDE_REFRESH defaults=CTL_ABSENT)
+04:33:24  ABSENT secondary-shooters-v2-adversarial/boxes/124__REGREAD_HKLM_SYSTEM_CurrentControlSet_Services_3dfxvs_Device0_glide.txt
+04:54:18  ABSENT (re-read; DISPLAYCFG 1280x1024x32@85)
+HKCU\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide: "Cannot open key" (00:34 and 04:33)
+Session Manager\Environment and HKCU\Environment: no FX_GLIDE_* (04:4x)
+{919B6B70-D4BE-429E-BA88-B764A6812C33}\0000\Glide still holds FX_GLIDE_REFRESH="75" (04:33) - inert for our Glide (not on getRegPath).
+
+=> From ~04:15 Glide on .124 opens at the rate the APP asks for:
+   UE1 GlideDrv (Unreal Gold): RefreshRate=60Hz in Unreal.ini -> GR_REFRESH_60Hz -> 60 Hz (inferred, unmeasured)
+   MesaFX (UT436, Serious Sam, Tribes 2 via retroicd.dll): fxBestRefresh -> 85 at 1280x960 (UT436's own retrogl.log sessions: 'fxBestRefresh: 1280x960 max 85 Hz -> GR_REFRESH enum 7', 'grSstWinOpenExt ... res=17 (1280x960) ref=7') -> 85 (inferred, unmeasured)
+   The 75 Hz "class (4)" measurements of 03:55-03:59 describe the state BEFORE the value was removed.

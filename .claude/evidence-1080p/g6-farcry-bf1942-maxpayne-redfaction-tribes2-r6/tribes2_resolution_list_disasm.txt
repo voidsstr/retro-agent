@@ -1,0 +1,130 @@
+Tribes 2 v25034 + TribesNext RC2a, GameData\Tribes2.exe (4,419,584 B, 2013-03-18)
+Engine resolution list (OpenGL device): EnumDisplaySettingsA(NULL,i) keeping w>=640, h>=480, bpp 16|32, (bitdepth-switch allowed || bpp==desktop); no max, no aspect filter.
+
+005631c0: lea      eax, [ebp - 0xa8]
+005631c6: push     0x9c
+005631cb: push     0
+005631cd: push     eax
+005631ce: call     0x5599f0
+005631d3: mov      eax, dword ptr [ebp - 0xb4]
+005631d9: add      esp, 0xc
+005631dc: lea      edx, [ebp - 0xa8]
+005631e2: mov      word ptr [ebp - 0x84], 0x9c
+005631eb: push     edx
+005631ec: push     eax
+005631ed: push     0
+005631ef: inc      dword ptr [ebp - 0xb4]
+005631f5: call     dword ptr [0x7dc854]   ; EnumDisplaySettingsA
+005631fb: mov      dword ptr [ebp - 0xb0], eax
+00563201: mov      eax, dword ptr [ebp - 0x3c]
+00563204: cmp      eax, 0x280
+00563209: mov      dword ptr [ebp - 0xc0], eax
+0056320f: jb       0x563321
+00563215: mov      eax, dword ptr [ebp - 0x38]
+00563218: cmp      eax, 0x1e0
+0056321d: mov      dword ptr [ebp - 0xbc], eax
+00563223: jb       0x563321
+00563229: mov      eax, dword ptr [ebp - 0x40]
+0056322c: cmp      eax, 0x10
+0056322f: mov      dword ptr [ebp - 0xc4], eax
+00563235: je       0x563240
+00563237: cmp      eax, 0x20
+0056323a: jne      0x563321
+
+== $pref::Video::clipHigh (from the card profile's ClipHigh column; TRUE only for NVIDIA 'RIVA TNT/') removes w>1152 or h>864
+00563740: push     1
+00563742: push     0x78d388  "$IssueVoodooWarning"
+00563747: call     0x4260f0
+0056374c: pop      ecx
+0056374d: pop      ecx
+0056374e: push     0
+00563750: push     0x78ce04  "$pref::Video::clipHigh"
+00563755: call     0x426320
+0056375a: test     al, al
+0056375c: pop      ecx
+0056375d: pop      ecx
+0056375e: je       0x5637cd
+00563760: mov      ebx, dword ptr [esi + 8]
+00563763: dec      ebx
+00563764: test     ebx, ebx
+00563766: jl       0x5637cd
+00563768: mov      edi, ebx
+0056376a: mov      edx, dword ptr [esi + 0x10]
+0056376d: mov      eax, edi
+0056376f: lea      eax, [eax*4]
+00563776: lea      eax, [eax + eax*2]
+00563779: cmp      dword ptr [edx + eax], 0x480
+00563780: ja       0x56378c
+00563782: cmp      dword ptr [edx + eax + 4], 0x360
+0056378a: jbe      0x5637c8
+0056378c: mov      ecx, dword ptr [esi + 8]
+0056378f: sub      ecx, edi
+00563791: inc      edi
+00563792: dec      ecx
+00563793: lea      ecx, [ecx*4]
+0056379a: lea      ecx, [ecx + ecx*2]
+0056379d: push     ecx
+0056379e: .byte    0x8d
+0056379f: .byte    0x0c
+
+== first-run default when $pref::Video::resolution is unset: 800 (0x320) x 600 (0x258) x 16 (0x10)
+005611f9: call     0x403180
+005611fe: push     0x78c374  "$pref::Video::resolution"
+00561203: call     0x4261f0
+00561208: mov      edi, eax
+0056120a: pop      ecx
+0056120b: push     0x448
+00561210: push     0x78c390  "winWindow.cc"
+00561215: push     edi
+00561216: call     0x55b2a0
+0056121b: inc      eax
+0056121c: pop      ecx
+0056121d: push     eax
+0056121e: call     0x402000
+00561223: mov      ebx, eax
+00561225: add      esp, 0xc
+00561228: push     edi
+00561229: push     ebx
+0056122a: call     0x55b260
+0056122f: pop      ecx
+00561230: pop      ecx
+00561231: push     0x78c3a0
+00561236: push     ebx
+00561237: call     0x55b3e0
+0056123c: test     eax, eax
+0056123e: pop      ecx
+0056123f: pop      ecx
+00561240: je       0x561250
+00561242: push     eax
+00561243: call     0x55b400
+00561248: pop      ecx
+00561249: jmp      0x561255
+0056124b: mov      eax, eax
+0056124d: lea      eax, [eax]
+00561250: mov      eax, 0x320
+00561255: push     0x78c3a0
+0056125a: push     0
+0056125c: mov      esi, eax
+0056125e: call     0x55b3e0
+00561263: test     eax, eax
+00561265: pop      ecx
+00561266: pop      ecx
+00561267: je       0x561272
+00561269: push     eax
+0056126a: call     0x55b400
+0056126f: pop      ecx
+00561270: jmp      0x561277
+00561272: mov      eax, 0x258
+00561277: push     0x78c348
+0056127c: push     0
+0056127e: mov      edi, eax
+00561280: call     0x55b3e0
+00561285: test     eax, eax
+00561287: pop      ecx
+00561288: pop      ecx
+00561289: je       0x561294
+0056128b: push     eax
+0056128c: call     0x55b400
+00561291: pop      ecx
+00561292: jmp      0x561299
+00561294: mov      eax, 0x10

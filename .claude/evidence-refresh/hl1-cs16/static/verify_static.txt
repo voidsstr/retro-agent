@@ -1,0 +1,240 @@
+==============================================================================
+HalfLife1/hl.exe  942080 B  md5 77cce9925d2a039ae38b679b1225e944  base 0x400000
+ChangeDisplaySettings IAT slots: {'0x4ac42c': 'ChangeDisplaySettingsA'}
+switch/value strings (exact, NUL-delimited): {'-gl': ['0x4cfe18'], '-d3d': ['0x4cfe10'], '-w': ['0x4cefcc'], '-h': ['0x4cefc0'], '-width': ['0x4cefd0'], '-height': ['0x4cefc4'], 'EngineType': ['0x4cfdf8', '0x4cfe38', '0x4cfe50', '0x4d282c']}
+
+-- calls through the ChangeDisplaySettings slot: 4
+  call @004240cd  dmFields writes nearby: none (NULL devmode / restore call)
+      00424094  mov    dword ptr [ebp - 8], ecx
+      00424097  mov    edx, dword ptr [ebp - 8]
+      0042409a  mov    dword ptr [ebp - 4], edx
+      0042409d  cmp    dword ptr [ebp - 4], 0
+      004240a1  je     0x4240b5
+      004240a3  push   1
+      004240a5  mov    eax, dword ptr [ebp - 4]
+      004240a8  mov    edx, dword ptr [eax]
+      004240aa  mov    ecx, dword ptr [ebp - 4]
+      004240ad  call   dword ptr [edx + 4]
+      004240b0  mov    dword ptr [ebp - 0x10], eax
+      004240b3  jmp    0x4240bc
+      004240b5  mov    dword ptr [ebp - 0x10], 0
+      004240bc  mov    eax, dword ptr [ebp - 0xc]
+      004240bf  mov    dword ptr [eax + 0xd4], 0
+      004240c9  push   0
+      004240cb  push   0
+      004240cd  call   dword ptr [0x4ac42c]
+  call @004640bb  dmFields writes nearby: ['004640af mov dword ptr [esp + 0x34], 0x1c0000']
+      00464070  sub    esp, 0x94
+      00464076  push   edi
+      00464077  mov    edx, dword ptr [esp + 0xa4]
+      0046407e  mov    ecx, 0x25
+      00464083  xor    eax, eax
+      00464085  lea    edi, [esp + 4]
+      00464089  push   4
+      0046408b  rep stosd dword ptr es:[edi], eax
+      0046408d  mov    eax, dword ptr [esp + 0xa0]
+      00464094  mov    ecx, dword ptr [esp + 0xa4]
+      0046409b  mov    dword ptr [esp + 0x74], eax
+      0046409f  lea    eax, [esp + 8]
+      004640a3  push   eax
+      004640a4  mov    word ptr [esp + 0x30], 0x94
+      004640ab  mov    dword ptr [esp + 0x7c], ecx
+      004640af  mov    dword ptr [esp + 0x34], 0x1c0000
+      004640b7  mov    dword ptr [esp + 0x74], edx
+      004640bb  call   dword ptr [0x4ac42c]
+  call @00464155  dmFields writes nearby: none (NULL devmode / restore call)
+      0046412f  push   0
+      00464131  push   eax
+      00464132  call   esi
+      00464134  mov    ecx, dword ptr [0x4ea8dc]
+      0046413a  push   6
+      0046413c  push   ecx
+      0046413d  call   esi
+      0046413f  mov    eax, dword ptr [0x4e1a20]
+      00464144  pop    esi
+      00464145  test   eax, eax
+      00464147  je     0x464151
+      00464149  mov    edx, dword ptr [eax]
+      0046414b  push   eax
+      0046414c  call   dword ptr [edx + 0x4c]
+      0046414f  jmp    0x46415b
+      00464151  push   0
+      00464153  push   0
+      00464155  call   dword ptr [0x4ac42c]
+  call @0046cf5b  dmFields writes nearby: none (NULL devmode / restore call)
+      0046cf29  mov    eax, dword ptr [0x4e1a20]
+      0046cf2e  test   eax, eax
+      0046cf30  je     0x46cf3e
+      0046cf32  push   -1
+      0046cf34  call   0x4085c0
+      0046cf39  add    esp, 4
+      0046cf3c  jmp    0x46cf61
+      0046cf3e  mov    edx, dword ptr [0x4cf8a4]
+      0046cf44  mov    eax, dword ptr [0x4cf8a0]
+      0046cf49  push   0x10
+      0046cf4b  push   edx
+      0046cf4c  push   eax
+      0046cf4d  call   0x464070
+      0046cf52  add    esp, 0xc
+      0046cf55  jmp    0x46cf61
+      0046cf57  push   0
+      0046cf59  push   0
+      0046cf5b  call   dword ptr [0x4ac42c]
+
+-- instructions naming the switch strings: 6
+  00423c4e  EngineType
+  00423c67  -d3d
+  00423c84  -gl
+  00423d0b  EngineType
+  00423d32  EngineType
+  0046ce3b  EngineType
+
+-- immediates that could set DM_DISPLAYFREQUENCY: 0
+==============================================================================
+HalfLife1/hw.dll  1175552 B  md5 374a87fd6175a6a9541656bc959bc822  base 0x10000000
+ChangeDisplaySettings IAT slots: NONE (not imported)
+switch/value strings (exact, NUL-delimited): {}
+
+-- calls through the ChangeDisplaySettings slot: 0
+
+-- instructions naming the switch strings: 0
+
+-- immediates that could set DM_DISPLAYFREQUENCY: 2
+      10090acc  call   0x1004adc0
+      10090ad1  add    esp, 0xc
+      10090ad4  .byte  0x81
+      10090ad5  mov    fs, word ptr [edx + eax]
+      10090ad8  add    byte ptr [eax], al
+      10090ada  add    byte ptr [eax], al
+      --
+      10092601  mov    esi, dword ptr [esp + 8]
+      10092605  push   edi
+      10092606  mov    edi, 0x400000
+      1009260b  .byte  0x8b
+      1009260c  .byte  0x8e
+      1009260d  .byte  0x24
+      --
+==============================================================================
+CounterStrike16/hl.exe  86077 B  md5 2098ccf443433129b556c2849fe99e26  base 0x1400000
+ChangeDisplaySettings IAT slots: NONE (not imported)
+switch/value strings (exact, NUL-delimited): {'-gl': ['0x14110dc'], '-d3d': ['0x14110d4'], '-w': ['0x14112f4'], '-h': ['0x14112e8'], '-width': ['0x14112ec'], '-height': ['0x14112e0'], 'EngineD3D': ['0x14114ac']}
+
+-- calls through the ChangeDisplaySettings slot: 0
+
+-- instructions naming the switch strings: 5
+  01401606  -gl
+  0140161b  -d3d
+  01401a60  EngineD3D
+  01401c93  -gl
+  01401ca3  -d3d
+
+-- immediates that could set DM_DISPLAYFREQUENCY: 0
+==============================================================================
+CounterStrike16/hw.dll  1840440 B  md5 4903e8e80f2a00d3ab2886f0f209a6d6  base 0x1d00000
+ChangeDisplaySettings IAT slots: {'0x1e483c4': 'ChangeDisplaySettingsA'}
+switch/value strings (exact, NUL-delimited): {'-freq': ['0x1e7e434', '0x1e8cb0c'], '-gl': ['0x1e8cb84'], '-d3d': ['0x1e8cb7c'], '-w': ['0x1e8ca40'], '-h': ['0x1e8ca4c'], '-width': ['0x1e8ca38'], '-height': ['0x1e8ca44'], 'EngineD3D': ['0x1e8cb70', '0x1e8cb9c', '0x1e8cbbc']}
+
+-- calls through the ChangeDisplaySettings slot: 3
+  call @01dc75cd  dmFields writes nearby: none (NULL devmode / restore call)
+      01dc75b5  nop    
+      01dc75b6  nop    
+      01dc75b7  nop    
+      01dc75b8  nop    
+      01dc75b9  nop    
+      01dc75ba  nop    
+      01dc75bb  nop    
+      01dc75bc  nop    
+      01dc75bd  nop    
+      01dc75be  nop    
+      01dc75bf  nop    
+      01dc75c0  mov    eax, dword ptr [ecx]
+      01dc75c2  call   dword ptr [eax + 0x1c]
+      01dc75c5  test   al, al
+      01dc75c7  jne    0x1dc75e7
+      01dc75c9  push   0
+      01dc75cb  push   0
+      01dc75cd  call   dword ptr [0x1e483c4]
+  call @01dc7684  dmFields writes nearby: ['01dc7635 mov dword ptr [esp + 0x30], 0x1c0000', '01dc7674 or eax, 0x400000']
+      01dc7649  call   0x1d383e0
+      01dc764e  add    esp, 4
+      01dc7651  test   eax, eax
+      01dc7653  pop    edi
+      01dc7654  je     0x1dc767d
+      01dc7656  mov    ecx, dword ptr [0x2cd36e8]
+      01dc765c  mov    edx, dword ptr [ecx + eax*4 + 4]
+      01dc7660  push   edx
+      01dc7661  call   0x1e2e266
+      01dc7666  mov    dword ptr [esp + 0x80], eax
+      01dc766d  mov    eax, dword ptr [esp + 0x30]
+      01dc7671  add    esp, 4
+      01dc7674  or     eax, 0x400000
+      01dc7679  mov    dword ptr [esp + 0x2c], eax
+      01dc767d  lea    eax, [esp + 4]
+      01dc7681  push   4
+      01dc7683  push   eax
+      01dc7684  call   dword ptr [0x1e483c4]
+  call @01de1592  dmFields writes nearby: none (NULL devmode / restore call)
+      01de152c  jmp    dword ptr [0x1e48444]
+      01de1532  jmp    dword ptr [0x1e4839c]
+      01de1538  jmp    dword ptr [0x1e48398]
+      01de153e  jmp    dword ptr [0x1e48394]
+      01de1544  jmp    dword ptr [0x1e48390]
+      01de154a  jmp    dword ptr [0x1e4838c]
+      01de1550  jmp    dword ptr [0x1e48388]
+      01de1556  jmp    dword ptr [0x1e48384]
+      01de155c  jmp    dword ptr [0x1e48380]
+      01de1562  jmp    dword ptr [0x1e4837c]
+      01de1568  jmp    dword ptr [0x1e48378]
+      01de156e  jmp    dword ptr [0x1e48480]
+      01de1574  jmp    dword ptr [0x1e483d8]
+      01de157a  jmp    dword ptr [0x1e483d4]
+      01de1580  jmp    dword ptr [0x1e483d0]
+      01de1586  jmp    dword ptr [0x1e483cc]
+      01de158c  jmp    dword ptr [0x1e483c8]
+      01de1592  jmp    dword ptr [0x1e483c4]
+
+-- instructions naming the switch strings: 7
+  01d7bb90  -freq
+  01dc7640  -freq
+  01dc7a90  EngineD3D
+  01dc7aa2  -d3d
+  01dc7ab8  -gl
+  01dc7b86  EngineD3D
+  01dc7bad  EngineD3D
+
+-- immediates that could set DM_DISPLAYFREQUENCY: 5
+      01daba9e  mov    ecx, dword ptr [esp + 0x20]
+      01dabaa2  pop    edi
+      01dabaa3  shl    ecx, 0x18
+      01dabaa6  or     ecx, 0x400000
+      01dabaac  pop    esi
+      01dabaad  .byte  0x89
+      --
+      01dabac7  and    eax, 0xfffff
+      01dabacc  shl    edx, 0x18
+      01dabacf  or     eax, edx
+      01dabad1  or     eax, 0x400000
+      01dabad6  mov    ecx, eax
+      01dabad8  .byte  0x33
+      --
+      01dbc07c  call   0x1d6d950
+      01dbc081  add    esp, 0xc
+      01dbc084  .byte  0x81
+      01dbc085  mov    fs, word ptr [edx + eax]
+      01dbc088  add    byte ptr [eax], al
+      01dbc08a  add    byte ptr [eax], al
+      --
+      01dc0ab1  mov    esi, dword ptr [esp + 8]
+      01dc0ab5  push   edi
+      01dc0ab6  mov    edi, 0x400000
+      01dc0abb  .byte  0x8b
+      01dc0abc  .byte  0x8e
+      01dc0abd  .byte  0x24
+      --
+      01dc766d  mov    eax, dword ptr [esp + 0x30]
+      01dc7671  add    esp, 4
+      01dc7674  or     eax, 0x400000
+      01dc7679  .byte  0x89
+      01dc767a  inc    esp
+      01dc767b  .byte  0x24
+      --

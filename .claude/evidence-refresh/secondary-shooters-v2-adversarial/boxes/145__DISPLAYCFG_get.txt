@@ -1,0 +1,2 @@
+# 192.168.1.145  DISPLAYCFG get  status=0  2026-09-29 04:28:25
+{"width":1920,"height":1080,"bpp":32,"refresh":60}

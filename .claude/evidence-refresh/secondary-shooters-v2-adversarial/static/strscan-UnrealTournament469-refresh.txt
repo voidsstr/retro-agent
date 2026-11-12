@@ -1,0 +1,106 @@
+UnrealTournament/System/Core.dll	A	0xb6a5c	GPerformanceFrequency != 0
+UnrealTournament/System/Core.dll	A	0xee52e	?GPerformanceFrequency@@3NA
+UnrealTournament/System/Core.dll	W	0xb6a98	Timer Frequency=%lf MHz - Timing Source = %s
+UnrealTournament/System/Engine.dll	A	0x27626d	?GetFrequency@FSoundData@@QAEHXZ
+UnrealTournament/System/Engine.dll	A	0x27e9ea	?UpdateFrequency@AActor@@UAEMPAV1@AAVFVector@@1@Z
+UnrealTournament/System/Engine.dll	A	0x27ea1c	?UpdateFrequency@ACarcass@@UAEMPAVAActor@@AAVFVector@@1@Z
+UnrealTournament/System/Engine.dll	A	0x27ea56	?UpdateFrequency@AInventory@@UAEMPAVAActor@@AAVFVector@@1@Z
+UnrealTournament/System/Engine.dll	W	0x20f70c	AActor::UpdateFrequency
+UnrealTournament/System/Engine.dll	W	0x21037c	AInventory::UpdateFrequency
+UnrealTournament/System/Engine.dll	W	0x2103b4	ACarcass::UpdateFrequency
+UnrealTournament/System/Engine.dll	W	0x210b74	FSoundData::GetFrequency
+UnrealTournament/System/Galaxy.dll	W	0x58a28	glxControlSample(MusicHandle->Voice, GLX_DEFSMPFREQUENCY, GLX_DEFSMPVOLUME, GLX_DEFSMPPANNING, (order * 100))
+UnrealTournament/System/Galaxy.dll	W	0x59d38	glxControlSample(MusicHandle->Voice, GLX_DEFSMPFREQUENCY, GLX_DEFSMPVOLUME, GLX_DEFSMPPANNING, 0)
+UnrealTournament/System/GlideDrv.dll	W	0xeb8c	Glide: Refresh %i failed, falling back...
+UnrealTournament/System/GlideDrv.dll	W	0xed38	RefreshRate
+UnrealTournament/System/GlideDrv.dll	W	0xee40	RefreshRates
+UnrealTournament/System/IpDrv.dll	A	0x39ee6	?UpdateFrequency@AActor@@UAEMPAV1@AAVFVector@@1@Z
+UnrealTournament/System/OpenGlDrv.dll	A	0x3edd8	RefreshRate
+UnrealTournament/System/OpenGlDrv.dll	W	0x3e5c4	RefreshRate
+UnrealTournament/System/Setup.exe	A	0x4e022	?ForceRefresh@WProperties@@UAEXXZ
+UnrealTournament/System/Setup.exe	A	0x4ecba	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealTournament/System/SGLDrv.dll	W	0x134bc	FastUglyRefresh
+UnrealTournament/System/Window.dll	A	0x65dd7	?ForceRefresh@WProperties@@UAEXXZ
+UnrealTournament/System/Window.dll	A	0x695f9	?RefreshMRU@WMRUComboBox@@QAEXXZ
+UnrealTournament/System/Window.dll	A	0x6961a	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealTournament/System/Window.dll	A	0x6bb5d	?__FUNC_NAME__@?2??ForceRefresh@WProperties@@UAEXXZ@4QBGB
+UnrealTournament/System/Window.dll	A	0x6ef8c	?__FUNC_NAME__@?2??RefreshMRU@WMRUComboBox@@QAEXXZ@4QBGB
+UnrealTournament/System/Window.dll	A	0x6efc5	?__FUNC_NAME__@?2??RefreshPage@WWizardDialog@@UAEXXZ@4QBGB
+UnrealTournament/System/Window.dll	W	0x42bbc	WMRUComboBox::RefreshMRU
+UnrealTournament/System/Window.dll	W	0x47568	WProperties::ForceRefresh
+UnrealTournament/System/Window.dll	W	0x48d66	eWWizardDialog::RefreshPage
+UnrealTournament/System/WinDrv.dll	A	0x2e844	?ForceRefresh@WProperties@@UAEXXZ
+UnrealTournament/System/UnrealTournament.exe	A	0x2f3d0	?ForceRefresh@WProperties@@UAEXXZ
+UnrealTournament/System/UnrealTournament.exe	A	0x3005e	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealTournament/System/UnrealEd.exe	A	0xe3a88	?ForceRefresh@WProperties@@UAEXXZ
+UnrealTournament/System/UnrealEd.exe	A	0xe68fe	?RefreshPage@WWizardDialog@@UAEXXZ
+UnrealTournament/System/UnrealEd.exe	A	0xe7106	?GetFrequency@FSoundData@@QAEHXZ
+UnrealTournament/System/UnrealEd.exe	W	0xa3f68	WDlgSearchActors::RefreshActorList
+UnrealTournament/System/UnrealEd.exe	W	0xa4a6c	WBrowser::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xa4a98	WBrowser::RefreshPackages
+UnrealTournament/System/UnrealEd.exe	W	0xa4e88	WBrowserMaster::RefreshBrowserTabs
+UnrealTournament/System/UnrealEd.exe	W	0xa4ed0	WBrowserMaster::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xa6ed0	WCodeFrame::RefreshScripts
+UnrealTournament/System/UnrealEd.exe	W	0xa8814	WDlgTexReplace::Refresh
+UnrealTournament/System/UnrealEd.exe	W	0xa96b8	WDlgStaticMeshImport::RefreshName
+UnrealTournament/System/UnrealEd.exe	W	0xac944	WDlgImportSound::RefreshName
+UnrealTournament/System/UnrealEd.exe	W	0xad15c	WBrowserSound::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xad1bc	WBrowserSound::RefreshPackages
+UnrealTournament/System/UnrealEd.exe	W	0xad208	WBrowserSound::RefreshGroups
+UnrealTournament/System/UnrealEd.exe	W	0xad248	WBrowserSound::RefreshSoundList
+UnrealTournament/System/UnrealEd.exe	W	0xad744	WDlgImportMusic::RefreshName
+UnrealTournament/System/UnrealEd.exe	W	0xae070	WBrowserMusic::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xae0a4	WBrowserMusic::RefreshPackages
+UnrealTournament/System/UnrealEd.exe	W	0xae0e4	WBrowserMusic::RefreshGroups
+UnrealTournament/System/UnrealEd.exe	W	0xae148	WBrowserMusic::RefreshMusicList
+UnrealTournament/System/UnrealEd.exe	W	0xae9fc	WBrowserGroup::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xaebb8	WBrowserGroup::RefreshActorList
+UnrealTournament/System/UnrealEd.exe	W	0xaebf8	WBrowserGroup::RefreshGroupList
+UnrealTournament/System/UnrealEd.exe	W	0xaf000	WBrowserGroup::OnRefreshGroupsClick
+UnrealTournament/System/UnrealEd.exe	W	0xaf920	WDlgImportTexture::RefreshName
+UnrealTournament/System/UnrealEd.exe	W	0xb13b0	WBrowserTexture::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xb1450	WBrowserTexture::RefreshPackages
+UnrealTournament/System/UnrealEd.exe	W	0xb1494	WBrowserTexture::RefreshGroups
+UnrealTournament/System/UnrealEd.exe	W	0xb14d8	WBrowserTexture::RefreshTextureList
+UnrealTournament/System/UnrealEd.exe	W	0xb1520	WBrowserTexture::RefreshTextureListInternal
+UnrealTournament/System/UnrealEd.exe	W	0xb1688	WBrowserTexture::RefreshScrollBar
+UnrealTournament/System/UnrealEd.exe	W	0xb1c1c	WDlgImportMesh::RefreshName
+UnrealTournament/System/UnrealEd.exe	W	0xb2750	WBrowserMesh::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xb2784	WBrowserMesh::RefreshMeshList
+UnrealTournament/System/UnrealEd.exe	W	0xb283c	WBrowserMesh::RefreshAnimList
+UnrealTournament/System/UnrealEd.exe	W	0xb28f8	WBrowserMesh::RefreshViewport
+UnrealTournament/System/UnrealEd.exe	W	0xb4c00	WBrowserActor::RefreshPackages
+UnrealTournament/System/UnrealEd.exe	W	0xb5d3c	WBrowserActor::RefreshAll
+UnrealTournament/System/UnrealEd.exe	W	0xb5d70	WBrowserActor::RefreshActorList
+UnrealTournament/System/UnrealEd.exe	W	0xb67b0	WCustomizeContextMenus::RefreshMenuItemList
+UnrealTournament/System/UnrealEd.exe	W	0xb6aac	Refresh selection
+UnrealTournament/System/UnrealEd.exe	W	0xb6ca0	WSelectGroups::RefreshActorList
+UnrealTournament/System/UnrealEd.exe	W	0xb7524	WButtonGroup::RefreshBuilders
+UnrealTournament/System/UnrealEd.exe	W	0xb7678	WButtonBar::RefreshScrollBar
+UnrealTournament/System/UnrealEd.exe	W	0xbbe8c	WBrowser::RefreshGroups
+UnrealTournament/System/UnrealEd.exe	W	0xbbebc	WBrowser::RefreshItemList
+UnrealTournament/System/UnrealEd.exe	W	0xbbef0	WBrowser::RefreshGroups
+UnrealTournament/System/UnrealEd.exe	W	0xbbf20	WBrowser::RefreshItemList
+UnrealTournament/System/UnrealEd.exe	W	0xec494	Refresh Group List
+UnrealTournament/System/UnrealEd.exe	W	0xfcea6	&Refresh
+UnrealTournament/System/UnrealEd.exe	W	0x100996	&Refresh
+UnrealTournament/System/UnrealEd.exe	W	0x12adac	Refresh View-Reset the viewport size and origin
+UnrealTournament/System/ALAudio.dll	W	0x34bac	format. Typically this is caused by non - stereo output or an incompatible output frequency.
+UnrealTournament/System/D3D9Drv.dll	W	0x36294	RefreshRate
+UnrealTournament/System/D3D9Drv.dll	W	0x37288	Failed to create D3D device with default refresh rate: %ls
+UnrealTournament/System/OpenAL32.dll	A	0x69778	AL_FREQUENCY
+UnrealTournament/System/OpenAL32.dll	A	0x69b9c	AL_EFFECT_FREQUENCY_SHIFTER
+UnrealTournament/System/OpenAL32.dll	A	0x69c14	AL_EFFECT_DEDICATED_LOW_FREQUENCY_EFFECT
+UnrealTournament/System/OpenAL32.dll	A	0x6a23c	AL_FREQUENCY_SHIFTER_FREQUENCY
+UnrealTournament/System/OpenAL32.dll	A	0x6a25c	AL_FREQUENCY_SHIFTER_LEFT_DIRECTION
+UnrealTournament/System/OpenAL32.dll	A	0x6a280	AL_FREQUENCY_SHIFTER_RIGHT_DIRECTION
+UnrealTournament/System/OpenAL32.dll	A	0x6a2a8	AL_RING_MODULATOR_FREQUENCY
+UnrealTournament/System/OpenAL32.dll	A	0x6cc2c	ALC_FREQUENCY
+UnrealTournament/System/OpenAL32.dll	A	0x6cc3c	ALC_REFRESH
+UnrealTournament/System/OpenAL32.dll	A	0x6d6f4	frequency
+UnrealTournament/System/OpenAL32.dll	A	0xaaca0	Frequency shifter frequency out of range
+UnrealTournament/System/OpenAL32.dll	A	0xaaccc	Invalid frequency shifter float property 0x%04x
+UnrealTournament/System/OpenAL32.dll	A	0xaacfc	Frequency shifter left direction out of range
+UnrealTournament/System/OpenAL32.dll	A	0xaad2c	Frequency shifter right direction out of range
+UnrealTournament/System/OpenAL32.dll	A	0xaad5c	Invalid frequency shifter integer property 0x%04x
+UnrealTournament/System/OpenAL32.dll	A	0xaade8	Modulator frequency out of range

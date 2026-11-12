@@ -1,0 +1,116 @@
+# Thief2.exe NewDark 1.26 (md5 1109955d4d0a7855592b33d954abcb76) - video-options resolution list builder
+# hw: candidates = 3D device mode list, depth {16,32} or {32,32} with force_32bit; filter w >= 400, 300 <= h <= 0x12c0 (4800), <= 0x40 (64) entries
+0045236b: cmp dword ptr [edi + 0x17ea], ebp
+00452371: jle 0x4523ad
+00452373: test byte ptr [0x7d2cc4], 4
+0045237a: je 0x4523ad
+0045237c: mov eax, dword ptr [eax + 0x18]
+0045237f: mov esi, 0x20
+00452384: push 0x6fb79c  ; "force_32bit"
+00452389: mov dword ptr [esp + 0x20], eax
+0045238d: mov ebp, eax
+0045238f: mov dword ptr [esp + 0x18], 0x10
+00452397: mov dword ptr [esp + 0x1c], esi
+0045239b: call 0x664c10
+004523a0: add esp, 4
+004523a3: test al, al
+004523a5: je 0x4523c3
+004523a7: mov dword ptr [esp + 0x14], esi
+004523ab: jmp 0x4523c3
+004523ad: mov eax, 8
+004523b2: mov ebp, 0x7c2948
+004523b7: mov dword ptr [esp + 0x1c], ebp
+004523bb: mov dword ptr [esp + 0x14], eax
+004523bf: mov dword ptr [esp + 0x18], eax
+004523c3: mov eax, dword ptr [0x7d2cc0]
+004523c8: mov ecx, dword ptr [0x7d2cbc]
+004523ce: mov edx, dword ptr [0x7d2cb8]
+004523d4: push eax
+004523d5: push ecx
+004523d6: push edx
+004523d7: lea eax, [esp + 0x308]
+004523de: push 0x701268  ; "%dx%dx%d"
+004523e3: push eax
+004523e4: call dword ptr [0x6dd32c]
+004523ea: lea eax, [esp + 0x310]
+004523f1: add esp, 0x14
+004523f4: lea edx, [eax + 1]
+004523f7: mov cl, byte ptr [eax]
+004523f9: inc eax
+004523fa: test cl, cl
+004523fc: jne 0x4523f7
+004523fe: sub eax, edx
+00452400: mov dword ptr [esp + 0x20], eax
+00452404: lea eax, [edi + 0x12ca]
+0045240a: xor esi, esi
+0045240c: mov ecx, 0xc
+00452411: mov dword ptr [edi + 0x12be], ecx
+00452417: cmp eax, esi
+00452419: je 0x452445
+0045241b: cmp dword ptr [eax + 0x9d], ecx
+00452421: jle 0x452445
+00452423: mov edx, dword ptr [eax + 0xad]
+00452429: mov ebx, dword ptr [eax + 0x98]
+0045242f: mov dword ptr [ebx + edx*4], esi
+00452432: mov edx, dword ptr [eax + 0x98]
+00452438: mov dword ptr [edx + 0x30], 0x101
+0045243f: mov dword ptr [eax + 0xad], ecx
+00452445: mov eax, dword ptr [0x7865ec]
+0045244a: lea eax, [eax + eax*2]
+0045244d: movzx ebx, byte ptr [eax*4 + 0x786771]
+00452455: push 0x298
+0045245a: lea ecx, [esp + 0x40]
+0045245e: push esi
+0045245f: push ecx
+00452460: and ebx, 0x20
+00452463: mov dword ptr [esp + 0x44], esi
+00452467: call 0x6b2310
+0045246c: add esp, 0xc
+0045246f: mov dword ptr [esp + 0x10], esi
+00452473: mov dword ptr [edi + 0x12c6], esi
+00452479: movzx eax, word ptr [ebp]
+0045247d: cmp ax, -1
+00452481: je 0x452501
+00452483: cwde 
+00452484: lea eax, [eax + eax*2]
+00452487: lea eax, [eax*4 + 0x786768]
+0045248e: test ebx, ebx
+00452490: je 0x452498
+00452492: test byte ptr [eax + 9], 0x20
+00452496: je 0x4524f0
+00452498: movzx edx, byte ptr [eax + 8]
+0045249c: cmp edx, dword ptr [esp + 0x14]
+004524a0: je 0x4524a8
+004524a2: cmp edx, dword ptr [esp + 0x18]
+004524a6: jne 0x4524f0
+004524a8: mov edx, 0x190
+004524ad: cmp word ptr [eax + 4], dx
+004524b1: jl 0x4524f0
+004524b3: movzx eax, word ptr [eax + 6]
+004524b7: mov ecx, 0x12c
+004524bc: cmp ax, cx
+004524bf: jl 0x4524f0
+004524c1: mov edx, 0x12c0
+004524c6: cmp ax, dx
+004524c9: jg 0x4524f0
+004524cb: mov eax, dword ptr [edi + 0x12c6]
+004524d1: cmp dword ptr [edi + 0x12c2], eax
+004524d7: jne 0x4524e1
+004524d9: mov dword ptr [esp + 0x1c], ebp
+004524dd: mov dword ptr [esp + 0x10], esi
+004524e1: inc eax
+004524e2: mov dword ptr [edi + 0x12c6], eax
+
+# widescreen label suffix helper (flag 0x80): ' / %s'
+004521e0: sub esp, 0x28
+004521e3: mov eax, dword ptr [0x785400]
+004521e8: xor eax, esp
+004521ea: mov dword ptr [esp + 0x24], eax
+004521ee: mov eax, dword ptr [esp + 0x2c]
+004521f2: push esi
+004521f3: push edi
+004521f4: mov edi, ecx
+004521f6: call 0x66aa90
+004521fb: push eax
+004521fc: lea eax, [esp + 0x10]
+00452200: push 0x70128c  ; " / %s"

@@ -1,0 +1,79 @@
+string 0x4c1c28 b'...trying next higher resolution:' refs ['0x45a01b']
+string 0x4c1c58 b'...calling CDS: ' refs ['0x459fc9']
+
+== quake3.exe 1.32c GLW_SetMode: CDS(&dm, CDS_FULLSCREEN) with the named rate, then the next-higher fallback
+  00459f86: add     byte ptr [ebx + 0x5256084d], cl
+  00459f8c: push    eax
+  00459f8d: push    ecx
+  00459f8e: mov     eax, 1
+  00459f93: call    0x459a20
+  00459f98: add     esp, 0x18
+  00459f9b: test    eax, eax
+  00459f9d: jne     0x45a18c
+  00459fa3: push    0x4c1c6c
+  00459fa8: push    eax
+  00459fa9: call    dword ptr [0xc599a0]
+  00459faf: add     esp, 8
+  00459fb2: push    0
+  00459fb4: push    0
+>>00459fb6: call    dword ptr [0x4b224c]
+  00459fbc: mov     eax, 2
+  00459fc1: pop     edi
+  00459fc2: pop     esi
+  00459fc3: pop     ebx
+  00459fc4: mov     esp, ebp
+  00459fc6: pop     ebp
+  00459fc7: ret     
+  00459fc8: push    0x4c1c58
+  00459fcd: push    0
+  00459fcf: call    dword ptr [0xc599a0]
+  00459fd5: mov     ebx, dword ptr [0x4b224c]
+  00459fdb: add     esp, 8
+  00459fde: push    4
+  00459fe0: lea     edx, [esp + 0x1c]
+  00459fe4: push    edx
+  00459fe5: call    ebx
+  00459fe7: mov     esi, eax
+  00459fe9: test    esi, esi
+  00459feb: jne     0x45a006
+  00459fed: push    0x4bba74
+  00459ff2: jmp     0x45a0fb
+  00459ff7: mov     dword ptr [0xc2f084], 1
+  0045a001: jmp     0x45a18c
+  0045a006: push    0x4c1c4c
+  0045a00b: push    0
+  0045a00d: call    dword ptr [0xc599a0]
+  0045a013: mov     ecx, esi
+  0045a015: call    0x459ce0
+  0045a01a: push    0x4c1c28
+  0045a01f: push    0
+  0045a021: call    dword ptr [0xc599a0]
+  0045a027: add     esp, 0x10
+  0045a02a: lea     ecx, [esp + 0xb8]
+  0045a031: push    ecx
+  0045a032: xor     edi, edi
+  0045a034: push    edi
+  0045a035: push    edi
+  0045a036: call    dword ptr [0x4b2248]
+  0045a03c: test    eax, eax
+  0045a03e: je      0x45a07e
+  0045a040: mov     edx, dword ptr [esp + 0x124]
+  0045a047: cmp     edx, dword ptr [0xc5c7e8]
+  0045a04d: jb      0x45a068
+  0045a04f: mov     eax, dword ptr [esp + 0x128]
+  0045a056: cmp     eax, dword ptr [0xc5c7ec]
+  0045a05c: jb      0x45a068
+  0045a05e: cmp     dword ptr [esp + 0x120], 0xf
+  0045a066: jae     0x45a0df
+  0045a068: lea     ecx, [esp + 0xb8]
+  0045a06f: push    ecx
+  0045a070: inc     edi
+  0045a071: push    edi
+  0045a072: push    0
+  0045a074: call    dword ptr [0x4b2248]
+  0045a07a: test    eax, eax
+  0045a07c: jne     0x45a040
+  0045a07e: push    0x4c1c1c
+  0045a083: xor     edi, edi
+  0045a085: push    edi
+  0045a086: call    dword ptr [0xc599a0]

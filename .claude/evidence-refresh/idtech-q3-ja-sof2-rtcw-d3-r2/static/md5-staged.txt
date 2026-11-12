@@ -1,0 +1,15 @@
+b5cf3dd55e045aac6096ff97379d0cab  Quake3-TeamArena/quake3.exe
+12f99bc0f9ba416ee477a4f13de8feaa  Quake3-TeamArena/ioquake3.x86.exe
+a828ce4eae3a55de4a29112067975abc  Quake3-TeamArena/SDL.dll
+bb180f3bb47a674b905ce36582acb4d6  Quake3-TeamArena/FLEETRES.EXE
+1d55a7142e883dc4d54cfe87be987c66  JediAcademy/jasp.exe
+896f5804934cf4c1d5750a0b82ea4c5e  JediAcademy/jamp.exe
+bb180f3bb47a674b905ce36582acb4d6  JediAcademy/FLEETRES.EXE
+c0c873320da54b0d191041ba942ab28e  SoldierOfFortune2/SoF2.exe
+0263922b67e3474f9e77e769f217f53a  SoldierOfFortune2/sof2mp.exe
+bb180f3bb47a674b905ce36582acb4d6  SoldierOfFortune2/FLEETRES.EXE
+dd1f541307ce485076628cadae3637fa  ReturnToCastleWolfenstein/WolfSP.exe
+6ad8aceea02dc1eef8af0c73331cddaf  ReturnToCastleWolfenstein/WolfMP.exe
+bb180f3bb47a674b905ce36582acb4d6  ReturnToCastleWolfenstein/FLEETRES.EXE
+7cd77c22b38c223ef1047083e374875a  Doom3/DOOM3.exe
+bb180f3bb47a674b905ce36582acb4d6  Doom3/FLEETRES.EXE

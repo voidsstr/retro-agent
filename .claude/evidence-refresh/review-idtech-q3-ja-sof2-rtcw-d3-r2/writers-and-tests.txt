@@ -1,0 +1,71 @@
+# scripts/benchmarks/lan_check.py is a THIRD writer of these fleetres.cfg files and does NOT run the shortcut .bat
+229:    def fleetres_cfg(self, env):
+239:            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"',
+329:    def fleetres_cfg(self, env):
+334:            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"',
+372:    def fleetres_cfg(self, env):
+375:    async def prepare(self, box, env):
+379:            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"', f'seta cg_fov "{env.get("FR_FOV", "90")}"', ""]))
+439:    async def prepare(self, box, env):
+443:            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"', f'seta cg_fov "{env.get("FR_FOV", "90")}"', ""]))
+486:    def fleetres_cfg(self, env):
+568:    """Counter-Strike 1.6: hl.exe -game cstrike -full -gl -w -h (MESA_FORCE_SSE=1),
+583:    def fleetres_cfg(self, env):
+593:    def env_lines(self):
+594:        return ["set MESA_FORCE_SSE=1"]
+663:    def env_lines(self):
+716:    def fleetres_cfg(self, env):
+723:    async def prepare(self, box, env):
+787:    def fleetres_cfg(self, env):
+964:    bat = rf"{t.root}\LANCHECK.BAT"
+965:    await box.upload(bat, "\r\n".join(["@echo off"] + (t.env_lines() if hasattr(t, "env_lines") else []) +
+
+## .124 RTCW Main\fleetres.cfg (125 B) = lan_check RTCW.fleetres_cfg byte for byte (57+17+23+28), same mtime as its LANCHECK.BAT
+lan_check RTCW body bytes = 125
+DIRLIST C:\Games\ReturnToCastleWolfenstein LANCHECK.BAT 135 2026-09-28 10:40:38
+DIRLIST C:\Games\ReturnToCastleWolfenstein\Main fleetres.cfg 125 2026-09-28 10:40:38
+DIRLIST C:\Games\SoldierOfFortune2 LANCHECK.BAT 142 2026-09-28 15:28:44
+DIRLIST C:\Games\SoldierOfFortune2\base fleetres.cfg 143 2026-09-28 15:31:14
+
+## .124 LANCHECK.BAT / V56KBENCH.BAT carry no FX_GLIDE_REFRESH
+-- 124_C_Games_Quake3-TeamArena_LANCHECK.BAT
+@echo off
+cd /d "C:\Games\Quake3-TeamArena"
+ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1280 +set r_customheight 960 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 90 +set logfile 2 +exec lancheck.cfg
+-- 124_C_Games_JediAcademy_LANCHECK.BAT
+@echo off
+cd /d "C:\Games\JediAcademy"
+jamp.exe +set r_mode -1 +set r_customwidth 1280 +set r_customheight 960 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 90 +set logfile 2 +exec lancheck.cfg
+-- 124_C_Games_Quake3-TeamArena_V56KBENCH.BAT
+@echo off
+set SSTH3_SLI_AA_CONFIGURATION=5
+set FX_GLIDE_SWAPINTERVAL=0
+cd /d "C:\Games\Quake3-TeamArena"
+quake3.exe +set fs_basepath "C:\Games\Quake3-TeamArena" +set fs_homepath "C:\Games\Quake3-TeamArena" +set logfile 2 +set r_glDriver 3dfxogl +set r_mode -1 +set r_customwidth 1024 +set r_customheight 768 +set r_customaspect 1 +set r_colorbits 16 +set r_depthbits 16 +set r_texturebits 16 +set r_stencilbits 0 +set r_fullscreen 1 +set r_picmip 0 +exec bench.cfg
+-- 124_C_Games_ReturnToCastleWolfenstein_V56KBENCH.BAT
+@echo off
+set RETRO_GLIDE_MAPLOG=C:\RETRO_AGENT\cr\maplog.txt
+set SSTH3_SLI_AA_CONFIGURATION=5
+set FX_GLIDE_SWAPINTERVAL=0
+cd /d "C:\Games\ReturnToCastleWolfenstein"
+WolfMP.exe +set fs_basepath "C:\Games\ReturnToCastleWolfenstein" +set fs_homepath "C:\Games\ReturnToCastleWolfenstein" +set logfile 2 +set r_glIgnoreWicked3D 1 +set r_glDriver retrogl +set r_mode 3 +set r_fullscreen 1 +set r_colorbits 32 +set r_texturebits 32 +set r_depthbits 24 +set r_picmip 0 +set r_swapInterval 0 +set com_maxfps 0 +set sv_pure 0 +set s_initsound 0 +set timedemo 1 +demo wolfbench
+
+# tests/python/test_gameres_mirror.py::test_a_shared_cfg_is_written_identically_by_both_writers concatenates EVERY .bat in the title dir
+288:           "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZ%"}
+298:                echoes += open(os.path.join(tdir, b), encoding="utf-8",
+307:            if want not in echoes:
+=> one launcher flipped to %FR_HZW% satisfies it for the whole title; a launcher left on %FR_HZ% is not caught, and lan_check.py is not covered at all.
+
+# gr_cfg_body(NULL) is shared by Quake3-TeamArena (baseq3, missionpack) AND JediAcademy (base)
+685:{ "Quake3-TeamArena", GR_OP_CFG, "baseq3\\fleetres.cfg", NULL, NULL, NULL },
+686:{ "Quake3-TeamArena", GR_OP_CFG, "missionpack\\fleetres.cfg", NULL, NULL, NULL },
+687:{ "JediAcademy",      GR_OP_CFG, "base\\fleetres.cfg", NULL, NULL, NULL },
+
+# Doom 3 safe-mode fallback zeroes r_displayRefresh (R_InitOpenGL 0x4acdc5), so a +set on the command line cannot reach that path
+DoomConfig.cfg on .123/.240 (09-01): r_mode "3" beside com_machineSpec "2" (spec 2 would give r_mode 4 per review static disasm), .195: r_mode -1 / spec 3
+seta r_mode "3"
+seta com_machineSpec "2"
+seta r_mode "3"
+seta com_machineSpec "2"
+seta r_mode "-1"
+seta com_machineSpec "3"

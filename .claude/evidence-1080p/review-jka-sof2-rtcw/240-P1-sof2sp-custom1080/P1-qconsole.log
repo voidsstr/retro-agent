@@ -1,0 +1,104 @@
+Logfile opened on Mon Sep 28 21:51:40 2026
+
+Precaching string packages ...
+ ... 3180 strings precached
+^5---------- Getting System Info -----------
+OS: Microsoft WinXP Service Pack 3 (NT)
+RDTSC instruction supported
+3dNow! enabled processor
+SSE2 enabled processor
+Extended name: AMD Athlon(tm) 64 Processor 3300+
+AMD running at 2379 MHz
+1022MB physical memory available
+^5------------------------------------------
+^5--------- Client Initialization ----------
+Loading renderer.....
+^5--------- Initializing Renderer ----------
+^3WARNING: cvar 'r_lodbias' out of range (-1.000000 < 0.000000)
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+Checking for ARB multisample ... ignoring
+...setting mode -1: 1920 1080 FS
+...using desktop display depth of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...95 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+...display frequency = 60 Hz
+...using GL_EXT_texture_edge_clamp
+...using GL_EXT_secondary_color
+...GL_NV_register_combiners not found
+...GL_NV_vertex_array_range not found
+...GL_NV_fence not found
+...GL_ATI_pn_triangles not found
+Initializing OpenGL extensions
+...using GL_EXT_texture_env_add
+...GL_EXT_texture_filter_anisotropic available (max 16.000000)
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...using GL_EXT_point_parameters
+Freeing shader text .....
+Loading shader text .....
+^1Multiple shader definitions for "models/objects/colombia/furniture/chair_col_bsp"!
+..... 5561 shader definitions loaded
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3 GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_WIN_swap_hint WGL_EXT_swap_control
+
+WGL_EXTENSIONS: WGL_ARB_extensions_string WGL_ARB_pixel_format WGL_ATI_pixel_format_float WGL_ARB_pixel_format_float WGL_ARB_multisample WGL_EXT_swap_control WGL_ARB_pbuffer WGL_ARB_render_texture WGL_ARB_make_current_read WGL_EXT_extensions_string WGL_ARB_buffer_region WGL_EXT_framebuffer_sRGB WGL_ATI_render_texture_rectangle WGL_EXT_pixel_format_packed_float WGL_I3D_genlock WGL_NV_swap_group WGL_ARB_create_context WGL_AMDX_gpu_association 
+
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 1 overbright bits
+CPU: AMD at 2379 MHz
+OS: WinXP Service Pack 3 (NT)
+
+rendering primitives: single glDrawElements
+Multitexture: enabled
+Secondary color: enabled
+Register Combiners: disabled
+VAR: disabled
+Fence: disabled
+PN triangles: disabled
+Compiled vertex arrays: enabled
+Texenv add: enabled
+Point parameters :enabled
+Anisotropic level: 1.000000
+Texturemode: GL_LINEAR_MIPMAP_LINEAR
+Picmip: 1 (Min: 0)
+No mip mip: 0
+LOD bias: 0 (0/-1)
+Compressed solid texture format: GL_SOLID_FORMAT
+Compressed alpha texture format: GL_ALPHA_FORMAT
+Uncompressed solid texture format: GL_SOLID_FORMAT
+Uncompressed alpha texture format: GL_ALPHA_FORMAT
+Lightmap/fog texture format: GL_SOLID_FORMAT
+Cinematic texture format: GL_SOLID_FORMAT
+^5---------- Initializing Shaders ----------
+^5------------------------------------------
+^5---- Renderer Initialization Complete ----
+^5Redetecting settings due to video card change
+RE_Shutdown( 1 )
+Shutting down OpenGL subsystem
+...wglMakeCurrent( NULL, NULL ): success
+...deleting GL context: success
+...releasing DC: success
+...destroying window
+...resetting display
+...shutting down QGL
+...unloading OpenGL DLL

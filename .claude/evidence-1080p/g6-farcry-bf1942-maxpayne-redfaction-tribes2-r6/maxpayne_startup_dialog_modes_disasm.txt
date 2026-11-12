@@ -1,0 +1,115 @@
+Max Payne v1.05. The retail MaxPayne.exe is SafeDisc 2.51.020-encrypted; this listing is from the SAME build with the wrapper removed
+(Games/Windows XP/Max_Payne_Fixes.zip -> MaxPayne.exe, used here for READING ONLY - not staged, not recommended).
+Startup dialog (MainDialog: Display Adapter / Screen Mode / Acceleration) collects every driver mode with w>=640 && h>=480 - no aspect or size cap.
+The in-game VIDEO menu has only 'Texture Sharpness' and 'Brightness' (x_english.ras GCID_VIDEO block). The fleet launcher passes -nodialog, so no resolution UI is ever shown.
+
+00406bd7: call     dword ptr [0x7ca580]   ; ?getDriverCaps@P_Driver@@QBEPBVP_DriverCaps@@XZ
+00406bdd: mov      ebx, eax
+00406bdf: xor      edi, edi
+00406be1: mov      eax, dword ptr [ebx + 0x13c]
+00406be7: test     eax, eax
+00406be9: je       0x406ca4
+00406bef: mov      ecx, dword ptr [ebx + 0x140]
+00406bf5: sub      ecx, eax
+00406bf7: mov      eax, 0xb30f6353
+00406bfc: imul     ecx
+00406bfe: add      edx, ecx
+00406c00: sar      edx, 7
+00406c03: mov      eax, edx
+00406c05: shr      eax, 0x1f
+00406c08: add      edx, eax
+00406c0a: cmp      edi, edx
+00406c0c: jae      0x406ca4
+00406c12: mov      ecx, dword ptr [ebx + 0x13c]
+00406c18: lea      eax, [edi + edi*2]
+00406c1b: lea      edx, [eax + eax*4]
+00406c1e: lea      esi, [edi + edx*4]
+00406c21: lea      eax, [ecx + esi*2]
+00406c24: add      esi, eax
+00406c26: mov      eax, dword ptr [esi + 0x44]
+00406c29: cmp      eax, 0x280
+00406c2e: jb       0x406c9e
+00406c30: mov      ecx, dword ptr [esi + 0x48]
+00406c33: cmp      ecx, 0x1e0
+00406c39: jb       0x406c9e
+00406c3b: mov      dword ptr [ebp - 0x2c], ecx
+00406c3e: xor      ecx, ecx
+00406c40: mov      cl, byte ptr [esi + 0x58]
+00406c43: mov      dword ptr [ebp - 0x24], 0
+00406c4a: mov      byte ptr [ebp - 0x20], 0
+00406c4e: mov      dword ptr [ebp - 0x30], eax
+00406c51: mov      dword ptr [ebp - 0x28], ecx
+00406c54: mov      ecx, esi
+00406c56: call     dword ptr [0x7ca584]   ; ?supports32BitTextures@P_DisplayMode@@QBE_NXZ
+00406c5c: test     al, al
+00406c5e: je       0x406c64
+00406c60: mov      byte ptr [ebp - 0x20], 1
+00406c64: xor      eax, eax
+00406c66: mov      dword ptr [ebp - 0x24], eax
+00406c69: mov      ecx, dword ptr [esi + 8]
+00406c6c: test     ecx, ecx
+00406c6e: je       0x406c8c
+00406c70: mov      edx, dword ptr [esi + 0xc]
+00406c73: sub      edx, ecx
+00406c75: sar      edx, 2
+00406c78: cmp      eax, edx
+00406c7a: jae      0x406c8c
+00406c7c: mov      ecx, dword ptr [ecx + eax*4]
+00406c7f: mov      edx, 1
+00406c84: shl      edx, cl
+00406c86: or       dword ptr [ebp - 0x24], edx
+00406c89: inc      eax
+00406c8a: jmp      0x406c69
+00406c8c: mov      ecx, dword ptr [ebp - 0x4c]
+00406c8f: lea      eax, [ebp - 0x30]
+00406c92: push     eax
+00406c93: push     1
+00406c95: push     ecx
+00406c96: lea      ecx, [ebp - 0x54]
+00406c99: call     0x4083a0
+00406c9e: inc      edi
+00406c9f: jmp      0x406be1
+00406ca4: mov      ebx, dword ptr [ebp + 0xc]
+
+== retail e2driver/e2_d3d8_driver_mfc.dll: EnumAdapterModes loop links every mode (no size/aspect filter) -> P_DriverCaps::linkMode
+10027660: mov      edx, dword ptr [ebp - 0x18]
+10027663: mov      edx, dword ptr [edx + 0xcc]
+10027669: mov      eax, dword ptr [0x1007af28]
+1002766e: mov      ecx, dword ptr [eax]
+10027670: push     edx
+10027671: push     eax
+10027672: call     dword ptr [ecx + 0x18]
+10027675: xor      ecx, ecx
+10027677: cmp      eax, ecx
+10027679: mov      dword ptr [ebp - 0x44], eax
+1002767c: jne      0x10027681
+1002767e: mov      byte ptr [ebp - 0x11], cl
+10027681: mov      dword ptr [ebp - 0x20], ecx
+10027684: mov      dword ptr [ebp - 0x2c], ecx
+10027687: mov      dword ptr [ebp - 0x30], ecx
+1002768a: cmp      ecx, eax
+1002768c: jae      0x10027a34
+10027692: xor      eax, eax
+10027694: mov      dword ptr [ebp - 0x78], eax
+10027697: lea      edi, [ebp - 0x78]
+1002769a: push     edi
+1002769b: push     ecx
+1002769c: mov      ecx, dword ptr [ebp - 0x18]
+1002769f: mov      ecx, dword ptr [ecx + 0xcc]
+100276a5: mov      dword ptr [ebp - 0x74], eax
+100276a8: mov      dword ptr [ebp - 0x70], eax
+100276ab: mov      dword ptr [ebp - 0x6c], eax
+100276ae: mov      eax, dword ptr [0x1007af28]
+100276b3: mov      edx, dword ptr [eax]
+100276b5: push     ecx
+100276b6: push     eax
+100276b7: call     dword ptr [edx + 0x1c]
+100276ba: test     eax, eax
+100276bc: je       0x10027725
+100276be: push     eax
+100276bf: push     0x10074e40  "D3D->EnumAdapterModes"
+100276c4: lea      ecx, [ebp - 0x5c]
+100276c7: call     0x10001384
+100276cc: mov      esi, eax
+100276ce: .byte    0xa0
+100276cf: int3     

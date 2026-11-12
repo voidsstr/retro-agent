@@ -1,0 +1,301 @@
+Connection from 192.168.1.196:53448
+[14:14:35][MAIN ] handle_client: starting auth on socket 804
+[14:14:35][PROTO] AUTH: success
+[14:14:35][MAIN ] Client authenticated
+[14:14:35][MAIN ] CMD: "UPLOAD C:\RETRO_AGENT\stage\conshow.ps1" (39 bytes)
+[14:14:35][FILE ] UPLOAD: CreateFileA("C:\RETRO_AGENT\stage\conshow.ps1") = OK
+[14:14:35][FILE ] UPLOAD: Complete, 426 bytes to "C:\RETRO_AGENT\stage\conshow.p
+s1"
+[14:14:35][MAIN ] CMD: "EXEC powershell -NoProfile -ExecutionPolicy Bypass -File
+ C:\RETRO_AGENT\stage\co"... (100 bytes)
+[14:14:35][EXEC ] EXEC: cmdline="cmd.exe /c powershell -NoProfile -ExecutionPoli
+cy Bypass -File C:\RETRO_AGENT\stage\conshow.ps1 000B0170 4"
+[14:14:35][EXEC ] CreateProcessA OK, PID=1652
+[14:14:36][EXEC ] Process 1652 exited: code=0, output=14 bytes, 1264ms elapsed
+[14:14:38][MAIN ] CMD: "SCREENSHOT 0" (12 bytes)
+[14:14:38][PROTO] frame_send: 6220855 bytes
+[14:14:39][MAIN ] CMD: "WINLIST" (7 bytes)
+[14:14:39][INPUT] WINLIST: found 4 visible windows
+[14:14:39][MAIN ] CMD: "EXEC powershell -NoProfile -ExecutionPolicy Bypass -File
+ C:\RETRO_AGENT\stage\co"... (100 bytes)
+[14:14:39][EXEC ] EXEC: cmdline="cmd.exe /c powershell -NoProfile -ExecutionPoli
+cy Bypass -File C:\RETRO_AGENT\stage\conshow.ps1 000B0170 7"
+[14:14:39][EXEC ] CreateProcessA OK, PID=1604
+[14:14:40][EXEC ] Process 1604 exited: code=0, output=13 bytes, 1248ms elapsed
+[14:14:40][MAIN ] CMD: "WINLIST" (7 bytes)
+[14:14:40][INPUT] WINLIST: found 4 visible windows
+[14:14:40][MAIN ] Client disconnected
+[14:14:49][MAIN ] Connection from 192.168.1.196:54592
+Connection from 192.168.1.196:54592
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] handle_client: starting auth on socket 740
+[14:14:49][MAIN ] Auth failed, closing connection
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:49][MAIN ] console: a console write returned after 4294967 s - the consol
+e is accepting output again
+[14:14:51][MAIN ] Connection from 192.168.1.196:54606
+Connection from 192.168.1.196:54606
+[14:14:51][MAIN ] handle_client: starting auth on socket 532
+[14:14:51][PROTO] AUTH: success
+[14:14:51][MAIN ] Client authenticated
+[14:14:51][MAIN ] CMD: "GAMEINDEX HASH" (14 bytes)
+[14:14:51][MAIN ] Client disconnected
+[14:15:02][MAIN ] Connection from 192.168.1.196:44826
+Connection from 192.168.1.196:44826
+[14:15:02][MAIN ] handle_client: starting auth on socket 728
+[14:15:02][PROTO] AUTH: success
+[14:15:02][MAIN ] Client authenticated
+[14:15:02][MAIN ] CMD: "UPLOAD C:\RETRO_AGENT\stage\conread.ps1" (39 bytes)
+[14:15:02][PROTO] frame_recv: 1375 bytes
+[14:15:02][FILE ] UPLOAD: CreateFileA("C:\RETRO_AGENT\stage\conread.ps1") = OK
+[14:15:02][FILE ] UPLOAD: Complete, 1375 bytes to "C:\RETRO_AGENT\stage\conread.
+ps1"
+[14:15:02][MAIN ] CMD: "EXEC powershell -NoProfile -ExecutionPolicy Bypass -File
+ C:\RETRO_AGENT\stage\co"... (94 bytes)
+[14:15:02][EXEC ] EXEC: cmdline="cmd.exe /c powershell -NoProfile -ExecutionPoli
+cy Bypass -File C:\RETRO_AGENT\stage\conread.ps1 3560"
+[14:15:02][EXEC ] CreateProcessA OK, PID=3444
+
+

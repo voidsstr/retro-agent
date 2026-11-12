@@ -1,0 +1,28 @@
+DOOM 3 1.3 - build of base/zz_fleetvideo.pk4 (2026-09-29, build phase only; nothing published)
+
+Source: Files/Games-Library/Doom3/base/pak007.pk4 (192031 B, md5 6319f086f930ec1618ab09b4c20c268c)
+Output: ~/.retro-fleet/patch-out/doom3/Doom3/base/zz_fleetvideo.pk4 (69371 B, md5 9608103a37eb82327c49b35905431f48)
+  guis/mainmenu.gui  696623 B md5 a3d2857be2c131fb326544fc4b0d4900 (stock e90e5f71..., lines 4889-4890 changed)
+  guis/mpmain.gui    142531 B md5 aff72db7e6df284eec2e620dcc9a3d1d (stock c7adb074..., lines 4446-4447 changed, CRLF kept)
+Rebuild is byte-identical (fixed zip timestamps).
+
+Deviation from the diagnosis: also patches guis/mpmain.gui - the in-game multiplayer
+ESC menu carries its own identical Screen Size choiceDef (#str_04222 / 3;4;5;6;7;8 on
+r_mode); without it a LAN game's menu still shows 640x480 at r_mode -1.
+Not done: r_aspectRatio choiceDef - no free row in the Video box (rows at y 125/150/175,
+box ends 203, OSWarning at 205) and the launcher re-sets r_aspectRatio every launch.
+
+Evidence the negative value parses: stock invert-mouse choiceDef uses values "0.022;-0.022".
+Evidence literal choices work: stock "No;Yes", "best;oss;alsa"; #str strings contain
+"DSL/Cable" and "Team DM" (so the menu lexes the localised string with path/space rules).
+Precedence: base pk4 names sorted and prepended (later wins); pak000/005/006/007 all ship
+mainmenu.gui and the 1.3 patch put its copy in pak007 relying on exactly that.
+Server: ~/doom3-server runs +set si_pure 0 (entry.sh; no si_pure in its DoomConfig.cfg),
+so no server change is needed. --install-server exists for a future pure server.
+
+REVIEW 2026-09-29 (adversarial reviewer) - see review/REVIEW-NOTES.txt. Corrected here:
+  - "--install-server exists for a future pure server" is wrong: the pk4 holds only *.gui members,
+    which id's pure rules exclude, so it is PURE_NEVER - never on any pure list, and still used by a
+    client connected to a pure server. --install-server now says so and copies nothing.
+  - This matters because "Host DOOM 3 - LAN.bat" runs a PURE listen server (si_pure defaults to 1).
+    The pk4 must stay GUI-only; --build refuses anything else. Tests: 28 (was 15).

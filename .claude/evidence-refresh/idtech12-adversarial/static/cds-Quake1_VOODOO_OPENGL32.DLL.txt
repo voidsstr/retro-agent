@@ -1,0 +1,31 @@
+====================================================================================================
+PE Quake1/VOODOO/OPENGL32.DLL imagebase 0x10000000
+import slots: {'0x102e6244': 'KERNEL32.dll!LoadLibraryA', '0x102e62bc': 'KERNEL32.dll!GetProcAddress'}
+----------------------------------------------------------------------------------------------------
+SITE 0x1000ebfb  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1000f2c5  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x10015572  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1001558a  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x10015583 then call ebx)
+----------------------------------------------------------------------------------------------------
+SITE 0x1001559b  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x10015583 then call ebx)
+----------------------------------------------------------------------------------------------------
+SITE 0x100155a8  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x10015583 then call ebx)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x10002359: and eax, 0xff0000   | next: shr eax, 0x10
+   0x100023fc: and edi, 0xff0000   | next: and ebx, 0xff
+   0x10002670: and edx, 0xff0000   | next: shr edx, 0x10
+   0x1000299c: and edi, 0xff0000   | next: and ebx, 0xff
+   0x1000a375: push 0xffffff   | next: push 0x41400000
+   0x1000a3b2: push 0xffff00   | next: push 0x41400000
+   0x1000a420: push 0xff0000   | next: push 0x41400000
+   0x10010bef: push 0x400000   | next: push 0
+   0x10010e97: add eax, 0x400000   | next: cmp eax, edx
+   0x10010fa2: cmp ebp, 0x400000   | next: jl 0x10010f5b
+   0x100156b3: test edx, 0xff0000   | next: je 0x100156c7
+   0x10017363: test eax, 0xff0000   | next: je 0x1001737d
+   0x100173ef: test eax, 0xff0000   | next: je 0x10017404
+   0x10017458: test edx, 0xff0000   | next: je 0x10017472

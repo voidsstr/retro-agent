@@ -1,0 +1,22 @@
+Overlay pieces measured in the font the ENGINE draws the value with (virtual 640x480 units).
+BEFORE = the builder build b88dbdce (RTCW pk3); AFTER = the review rebuild d220e773. JKA/SoF2 identical in both.
+== BEFORE
+  Jedi ui/setup.menu              arialnb.fontdat    Custom ends  484.0 | width 490..514.0 | x 517..523.0 | height 526..550.0 | row ends 600  OK
+  Jedi ui/ingamesetup.menu        arialnb.fontdat    Custom ends  484.0 | width 490..514.0 | x 517..523.0 | height 526..550.0 | row ends 600  OK
+  Jedi ui/jamp/setup.menu         arialnb.fontdat    Custom ends  484.0 | width 490..514.0 | x 517..523.0 | height 526..550.0 | row ends 600  OK
+  Jedi ui/jamp/ingame_setup.menu  arialnb.fontdat    Custom ends  435.0 | width 441..465.0 | x 468..474.0 | height 477..501.0 | row ends 520  OK
+  Sold ui/setup_display.menu      hud.fontdat        Custom ends  229.0 | width 243..277.4 | x 284..290.0 | height 297..331.4 | row ends 290  OK
+  Retu ui/system.menu             fontImage_12.dat   Custom ends  276.0 | width 276..307.7 | x 303..310.0 | height 313..344.7 | row ends 372  OVERLAP
+  Retu ui/ingame_system.menu      fontImage_12.dat   Custom ends  278.0 | width 278..311.1 | x 307..314.4 | height 316..349.1 | row ends 372  OVERLAP
+  Retu ui_mp/system.menu          fontImage_16.dat   Custom ends  277.8 | width 285..312.0 | x 316..322.8 | height 326..353.0 | row ends 355  OK
+  Retu ui_mp/ingame_system.menu   fontImage_16.dat   Custom ends  277.8 | width 285..312.0 | x 316..322.8 | height 326..353.0 | row ends 355  OK
+== AFTER
+  Jedi ui/setup.menu              arialnb.fontdat    Custom ends  484.0 | width 490..514.0 | x 517..523.0 | height 526..550.0 | row ends 600  OK
+  Jedi ui/ingamesetup.menu        arialnb.fontdat    Custom ends  484.0 | width 490..514.0 | x 517..523.0 | height 526..550.0 | row ends 600  OK
+  Jedi ui/jamp/setup.menu         arialnb.fontdat    Custom ends  484.0 | width 490..514.0 | x 517..523.0 | height 526..550.0 | row ends 600  OK
+  Jedi ui/jamp/ingame_setup.menu  arialnb.fontdat    Custom ends  435.0 | width 441..465.0 | x 468..474.0 | height 477..501.0 | row ends 520  OK
+  Sold ui/setup_display.menu      hud.fontdat        Custom ends  229.0 | width 243..277.4 | x 284..290.0 | height 297..331.4 | row ends 290  OK
+  Retu ui/system.menu             fontImage_12.dat   Custom ends  276.0 | width 283..314.7 | x 318..325.0 | height 329..360.7 | row ends 372  OK
+  Retu ui/ingame_system.menu      fontImage_12.dat   Custom ends  278.0 | width 285..318.1 | x 322..329.4 | height 333..366.1 | row ends 372  OK
+  Retu ui_mp/system.menu          fontImage_16.dat   Custom ends  277.8 | width 285..312.0 | x 316..322.8 | height 326..353.0 | row ends 355  OK
+  Retu ui_mp/ingame_system.menu   fontImage_16.dat   Custom ends  277.8 | width 285..312.0 | x 316..322.8 | height 326..353.0 | row ends 355  OK

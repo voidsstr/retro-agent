@@ -1,0 +1,39 @@
+put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/UnrealGold/System/D3DDrv.dll (208896 B, md5 f924e209e7bc23b90b6f0360174683d3) -> Files/Games-Library/_patches/UnrealGold/originals-2026-09-29/System/D3DDrv.dll
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealGold/System/D3DDrv.dll (208896 B, md5 c51ba326f6a287f2e29ec3cc7dcb5e01) -> Files/Games-Library/UnrealGold/System/D3DDrv.dll
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/DeusEx/SYSTEM/D3DDRV.DLL (212992 B, md5 6179c83ce1d7516908e5442ebfb4d154) -> Files/Games-Library/_patches/DeusEx/originals-2026-09-29/SYSTEM/D3DDRV.DLL
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/D3DDRV.DLL (212992 B, md5 deff85e5e043b700567db9377c45b0ee) -> Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/DeusEx/SYSTEM/DEUSEX.U (5386972 B, md5 d343da03a6d311ee412dfae4b52ff975) -> Files/Games-Library/_patches/DeusEx/originals-2026-09-29/SYSTEM/DEUSEX.U
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/DEUSEX.U (5386972 B, md5 4e18e635d2dc0df2069171c72ec89eff) -> Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/UnrealTournament436/System/D3DDrv.dll (217088 B, md5 dd6e3692f8ead5e1df88716024bc25d1) -> Files/Games-Library/_patches/UnrealTournament436/originals-2026-09-29/System/D3DDrv.dll
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealTournament436/System/D3DDrv.dll (217088 B, md5 35a4f321d06bf6da519b2d023be4eaa2) -> Files/Games-Library/UnrealTournament436/System/D3DDrv.dll
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/notes/DeusEx/PATCH-NOTES-ue1.txt (1071 B, md5 992de6824e103b0ab7065baadbb5a7f2) -> Files/Games-Library/_patches/DeusEx/originals-2026-09-29/PATCH-NOTES-ue1.txt
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/notes/UnrealGold/PATCH-NOTES-ue1.txt (694 B, md5 7192a3c5001b9a3396ac7df28e285257) -> Files/Games-Library/_patches/UnrealGold/originals-2026-09-29/PATCH-NOTES-ue1.txt
+dry-run: nothing written
+put /home/voidsstr/.retro-fleet/patch-out/ue1/notes/UnrealTournament436/PATCH-NOTES-ue1.txt (744 B, md5 a68c9aeeebabf0217d2f3e64c529754e) -> Files/Games-Library/_patches/UnrealTournament436/originals-2026-09-29/PATCH-NOTES-ue1.txt
+dry-run: nothing written
+Files/Games-Library/UnrealGold/System/D3DDrv.dll
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/UnrealGold/System/D3DDrv.dll Files/Games-Library/_patches/UnrealGold/originals-2026-09-29/System/D3DDrv.dll --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealGold/System/D3DDrv.dll Files/Games-Library/UnrealGold/System/D3DDrv.dll --dry-run
+Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/DeusEx/SYSTEM/D3DDRV.DLL Files/Games-Library/_patches/DeusEx/originals-2026-09-29/SYSTEM/D3DDRV.DLL --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/D3DDRV.DLL Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL --dry-run
+Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/DeusEx/SYSTEM/DEUSEX.U Files/Games-Library/_patches/DeusEx/originals-2026-09-29/SYSTEM/DEUSEX.U --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/DEUSEX.U Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U --dry-run
+Files/Games-Library/UnrealTournament436/System/D3DDrv.dll
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/originals/UnrealTournament436/System/D3DDrv.dll Files/Games-Library/_patches/UnrealTournament436/originals-2026-09-29/System/D3DDrv.dll --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealTournament436/System/D3DDrv.dll Files/Games-Library/UnrealTournament436/System/D3DDrv.dll --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/notes/DeusEx/PATCH-NOTES-ue1.txt Files/Games-Library/_patches/DeusEx/originals-2026-09-29/PATCH-NOTES-ue1.txt --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/notes/UnrealGold/PATCH-NOTES-ue1.txt Files/Games-Library/_patches/UnrealGold/originals-2026-09-29/PATCH-NOTES-ue1.txt --dry-run
+  $ sharewrite.py put /home/voidsstr/.retro-fleet/patch-out/ue1/notes/UnrealTournament436/PATCH-NOTES-ue1.txt Files/Games-Library/_patches/UnrealTournament436/originals-2026-09-29/PATCH-NOTES-ue1.txt --dry-run
+publish: done (dry run). NEXT: GAMESYNC RESET + GAMESYNC START on every box, then DOWNLOAD each file and compare md5 (the edits keep file size).
+rc=0

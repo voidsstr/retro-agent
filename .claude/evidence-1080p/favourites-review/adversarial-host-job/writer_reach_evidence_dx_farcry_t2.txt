@@ -1,0 +1,72 @@
+# Deus Ex: does anything the player can reach show UBrowser favourites? (strings -a / grep -i on the staged tree)
+DEUSEX.U: 'favorit' hits = 3
+DEUSEXUI.U: 'favorit' hits = 0
+Extension.u: 'favorit' hits = 0
+UWindow.u: 'favorit' hits = 0
+UBrowser.u: 'favorit' hits = 92
+DEUSEX.INT 'favorit' hits: 1 (the only one is the throwing-knife description)
+DEUSEX.U join menus: class MenuScreenJoinGame class MenuScreenJoinInternet class MenuScreenJoinLan 
+DEUSEX.U internet list source: MasterServerAddress = "master"$Region$".gamespy.com"
+DEUSEX.INT [menuscreenjoingame]:
+[menuscreenjoingame]
+HeaderIPWindowLabel="IP Address"
+HostButtonName="Host Game"
+JoinButtonName="Join Game"
+RefreshButtonName="Refresh"
+HostButtonHelpText="Host a multiplayer game"
+JoinButtonHelpText="Join the currently selected game"
+RefreshButtonHelpText="Refresh the list of servers"
+
+# Far Cry favourites (FCData/Scripts.pak)
+fav file: ['profiles/server/fav_server.cfg']
+PrepareToJoin = function()
+		local Page = UI.PageNETServerList;
+		local iSelected = Page.GUI.ServerList:GetSelection(0);
+		
+		Game:Disconnect();
+		
+		if (iSelected) then
+			local szIP = UI.PageNETServerList.Servers[iSelected].IP;
+			local UBIGameServer = UI.PageNETServerList.UBIGameServers[szIP];
+			
+			if (not UBIGameServer) then
+				return;
+			end
+			
+			UI.PageNETServerList.szJoinIP = szIP;
+			UI.PageNETServerList.iJoinLobbyID = UBIGameServer.LobbyID;
+			UI.PageNETServerList.iJoinRoomID = UBIGameServer.RoomID;
+			UI.PageNETServerList.szServerName = UBIGameServer.ServerName;
+			
+			UI.PageNETServerList.JoinServer();
+		end	
+	end,
+	
+	JoinServer = function(Sender)
+		if
+UBIGameServers is filled only in Multiplayer/Ubisoft.lua: True
+
+# Tribes 2 favourites pref (GameData/base/scripts.vl2)
+scripts/GameGui.cs :: if ( $pref::ServerBrowser::FavoriteCount <= 0 || $pref::ServerBrowser::Favorite[0] $= "" )
+scripts/GameGui.cs :: $pref::ServerBrowser::Favorite[$pref::ServerBrowser::FavoriteCount] = %name TAB %address;
+scripts/GameGui.cs :: $pref::ServerBrowser::FavoriteCount++;
+scripts/GameGui.cs :: for ( %i = 0; %i < $pref::ServerBrowser::FavoriteCount; %i++ )
+scripts/GameGui.cs :: if ( getField( $pref::ServerBrowser::Favorite[%i], 1 ) $= %address )
+scripts/GameGui.cs :: $pref::ServerBrowser::Favorite[%i] = $pref::ServerBrowser::Favorite[%i + 1];
+scripts/GameGui.cs :: $pref::ServerBrowser::FavoriteCount--;
+scripts/clientDefaults.cs :: $pref::ServerBrowser::FavoriteCount = 0;
+# the 3 DEUSEX.U 'favorit' hits are flavour text:
+A favorite weapon of assassins in the Far East for centuries, throwing knives can be deadly when wielded by a master but
+Quotes from your favorite personalities
+	CreateToolLabel(110, 265, "Quotes from your favorite personalities");
+
+# UBrowser / network classes referenced by DEUSEX.U (strings -a | grep -o | uniq -c):
+     11 UBrowserRulesList
+      6 UBrowserPlayerList
+      3 UBrowserServerListFactory
+      1 UBrowserBufferedTcpLink
+      1 UBrowserBufferedTCPLink
+      1 UBrowser
+     13 DeusExGSpyLink
+      6 DeusExLocalLink
+=> DX lists servers with its own DeusExGSpyLink (Internet) and DeusExLocalLink (LAN); UBrowserFavoritesFact is never referenced.

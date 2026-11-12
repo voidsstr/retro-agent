@@ -1,0 +1,33 @@
+[      0 ms] ==== modetest 0.2.0  (C:\RETRO_AGENT\modetest\mtwd.exe 1024 768 8 -a -b 75 -pace 5 -hold 4 -tag vmwd)
+[      0 ms] OS: platform 2, 5.1 build 2600 Service Pack 3
+[      0 ms] registry  : ENUM_REGISTRY_SETTINGS -> 1280x1024x8@75
+[      0 ms] live      : 1280x1024x8 @75 Hz
+[      0 ms] persisted : 1280x1024x8 @75 Hz
+[      0 ms] EDID      : NONE READ - no measured ceiling (only -maxhz can give one)
+[      0 ms] ceiling   : 0 Hz (EDID 0, -maxhz 0; 0 = none)
+[      0 ms] driver lists 58 mode entries (EnumDisplaySettings, sentinels included):
+[      0 ms]   640x480x4 @ 60 72 75 85
+[      0 ms]   800x600x4 @ 56 60 72 75
+[      0 ms]   640x480x8 @ 60 72 75 85
+[      0 ms]   800x600x8 @ 56 60 72 75 85
+[      0 ms]   1024x768x8 @ 43 60 70 72 75 85
+[      0 ms]   1152x864x8 @ 70 75
+[      0 ms]   1280x1024x8 @ 43 60 72 75
+[      0 ms]   640x480x16 @ 60 72 75 85
+[      0 ms]   800x600x16 @ 56 60 72 75 85
+[      0 ms]   1024x768x16 @ 43 60 70 75 85
+[      0 ms]   1280x1024x16 @ 43
+[      0 ms]   640x480x24 @ 60 72 75 85
+[      0 ms]   800x600x24 @ 56 60 72 75 85
+[      0 ms]   1024x768x24 @ 43 60 70 75 85
+[      0 ms] TEST BUILD: watchdog budget forced to 3500 ms
+[      0 ms] PLAN: 1024x768x8 tests A B  pre-rate B=75 CB=0  switches<=5  pace 5 s  hold 4 s  budget 3 s
+[      0 ms] === TEST A: ChangeDisplaySettings 1024x768x8, NO rate (dmFields W|H|BPP), CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for
+[      0 ms] SWITCH 1: A: no-rate request
+[    265 ms] A: ChangeDisplaySettings -> 0 (SUCCESSFUL)
+[    265 ms] RESULT test=A step=norate req=1024x768x8@0 now=1024x768x8 eds_hz=60 caps_hz=60 dd_freq=60 vblank_mhz=0 vblank_hz=0 agree=1 via="WaitForVerticalBlank END+BEGIN" rc=SUCCESSFUL
+[   3500 ms] WATCHDOG: the run exceeded its 3 s budget - taking it over
+[   5281 ms] SWITCH 2: watchdog restore (give-back)
+[   5468 ms] restore: ChangeDisplaySettings(NULL, 0) -> 0 (SUCCESSFUL)
+[   5468 ms] restore: VERIFIED 1280x1024x8@75 (persisted 1280x1024x8@75)
+[   5468 ms] exit 5 (switches made: 2)

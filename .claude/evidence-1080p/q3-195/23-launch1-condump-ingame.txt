@@ -1,0 +1,420 @@
+GL_ARB_derivative_control GL_ARB_direct_state_access GL_ARB_draw_buffers
+GL_ARB_draw_buffers_blend GL_ARB_draw_elements_base_vertex
+GL_ARB_draw_indirect GL_ARB_draw_instanced GL_ARB_enhanced_layouts
+GL_ARB_explicit_attrib_location GL_ARB_explicit_uniform_location
+GL_ARB_fragment_coord_conventions GL_ARB_fragment_layer_viewport
+GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader
+GL_ARB_framebuffer_no_attachments GL_ARB_framebuffer_object
+GL_ARB_framebuffer_sRGB GL_ARB_geometry_shader4 GL_ARB_get_program_binary
+GL_ARB_get_texture_sub_image GL_ARB_gpu_shader5 GL_ARB_gpu_shader_fp64
+GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_imaging
+GL_ARB_instanced_arrays GL_ARB_internalformat_query
+GL_ARB_internalformat_query2 GL_ARB_invalidate_subdata
+GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multi_bind
+GL_ARB_multi_draw_indirect GL_ARB_multisample GL_ARB_multitexture
+GL_ARB_occlusion_query GL_ARB_occlusion_query2
+GL_ARB_pipeline_statistics_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_program_interface_query
+GL_ARB_provoking_vertex GL_ARB_query_buffer_object
+GL_ARB_robust_buffer_access_behavior GL_ARB_sample_shading
+GL_ARB_sampler_objects GL_ARB_seamless_cube_map
+GL_ARB_seamless_cubemap_per_texture GL_ARB_separate_shader_objects
+GL_ARB_shader_atomic_counters GL_ARB_shader_bit_encoding
+GL_ARB_shader_image_load_store GL_ARB_shader_image_size GL_ARB_shader_objects
+GL_ARB_shader_precision GL_ARB_shader_stencil_export
+GL_ARB_shader_storage_buffer_object GL_ARB_shader_subroutine
+GL_ARB_shader_texture_image_samples GL_ARB_shader_texture_lod
+GL_ARB_shading_language_100 GL_ARB_shading_language_420pack
+GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_shadow_ambient
+GL_ARB_stencil_texturing GL_ARB_sync GL_ARB_tessellation_shader
+GL_ARB_texture_barrier GL_ARB_texture_border_clamp
+GL_ARB_texture_buffer_object GL_ARB_texture_buffer_object_rgb32
+GL_ARB_texture_buffer_range GL_ARB_texture_compression
+GL_ARB_texture_compression_bptc GL_ARB_texture_compression_rgtc
+GL_ARB_texture_cube_map GL_ARB_texture_cube_map_array GL_ARB_texture_env_add
+GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar
+GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_gather
+GL_ARB_texture_mirror_clamp_to_edge GL_ARB_texture_mirrored_repeat
+GL_ARB_texture_multisample GL_ARB_texture_non_power_of_two
+GL_ARB_texture_query_levels GL_ARB_texture_query_lod GL_ARB_texture_rectangle
+GL_ARB_texture_rg GL_ARB_texture_rgb10_a2ui GL_ARB_texture_snorm
+GL_ARB_texture_stencil8 GL_ARB_texture_storage
+GL_ARB_texture_storage_multisample GL_ARB_texture_swizzle GL_ARB_texture_view
+GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3
+GL_ARB_transform_feedback_instanced GL_ARB_transform_feedback_overflow_query
+GL_ARB_transpose_matrix GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra
+GL_ARB_vertex_array_object GL_ARB_vertex_attrib_64bit GL_ARB_v¿—ëu
+GL_MAX_TEXTURE_SIZE: 16384
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 1 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+Dumped console text to q3c195a.txt.
+Scanning for servers on the local network...
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0004.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0005.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0006.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0007.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0008.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0009.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0010.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0011.jpg
+Requesting servers from master master.quake3arena.com...
+CL_ServersResponsePacket
+99 servers parsed (total 99)
+CL_ServersResponsePacket
+99 servers parsed (total 198)
+CL_ServersResponsePacket
+99 servers parsed (total 297)
+CL_ServersResponsePacket
+99 servers parsed (total 396)
+CL_ServersResponsePacket
+99 servers parsed (total 495)
+CL_ServersResponsePacket
+99 servers parsed (total 594)
+CL_ServersResponsePacket
+99 servers parsed (total 693)
+CL_ServersResponsePacket
+99 servers parsed (total 792)
+CL_ServersResponsePacket
+99 servers parsed (total 891)
+CL_ServersResponsePacket
+53 servers parsed (total 944)
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0012.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0013.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0014.jpg
+]\connect 192.168.1.132;27961
+Resolving update.quake3arena.com
+update.quake3arena.com resolved to 192.246.40.56:27951
+192.168.1.132 resolved to 192.168.1.132:27960
+Unknown command "27961"
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0015.jpg
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+Server uses protocol version 71 (yours is 68).
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: AMD Radeon HD 5450
+GL_VERSION: 4.5.13399 Compatibility Profile Context 15.200.1062.1004
+GL_EXTENSIONS: GL_AMDX_debug_output GL_AMDX_vertex_shader_tessellator
+GL_AMD_conservative_depth GL_AMD_debug_output GL_AMD_depth_clamp_separate
+GL_AMD_draw_buffers_blend GL_AMD_multi_draw_indirect GL_AMD_name_gen_delete
+GL_AMD_performance_monitor GL_AMD_pinned_memory GL_AMD_query_buffer_object
+GL_AMD_sample_positions GL_AMD_seamless_cubemap_per_texture
+GL_AMD_shader_stencil_export GL_AMD_shader_trace
+GL_AMD_texture_cube_map_array GL_AMD_texture_texture4
+GL_AMD_transform_feedback3_lines_triangles GL_AMD_vertex_shader_layer
+GL_AMD_vertex_shader_tessellator GL_AMD_vertex_shader_viewport_index
+GL_ARB_ES2_compatibility GL_ARB_ES3_1_compatibility GL_ARB_ES3_compatibility
+GL_ARB_arrays_of_arrays GL_ARB_base_instance GL_ARB_blend_func_extended
+GL_ARB_buffer_storage GL_ARB_clear_buffer_object GL_ARB_clear_texture
+GL_ARB_clip_control GL_ARB_color_buffer_float GL_ARB_compatibility
+GL_ARB_compressed_texture_pixel_storage GL_ARB_compute_shader
+GL_ARB_conditional_render_inverted GL_ARB_conservative_depth
+GL_ARB_copy_buffer GL_ARB_copy_image GL_ARB_cull_distance GL_ARB_debug_output
+GL_ARB_depth_buffer_float GL_ARB_depth_clamp GL_ARB_depth_texture
+GL_ARB_derivative_control GL_ARB_direct_state_access GL_ARB_draw_buffers
+GL_ARB_draw_buffers_blend GL_ARB_draw_elements_base_vertex
+GL_ARB_draw_indirect GL_ARB_draw_instanced GL_ARB_enhanced_layouts
+GL_ARB_explicit_attrib_location GL_ARB_explicit_uniform_location
+GL_ARB_fragment_coord_conventions GL_ARB_fragment_layer_viewport
+GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader
+GL_ARB_framebuffer_no_attachments GL_ARB_framebuffer_object
+GL_ARB_framebuffer_sRGB GL_ARB_geometry_shader4 GL_ARB_get_program_binary
+GL_ARB_get_texture_sub_image GL_ARB_gpu_shader5 GL_ARB_gpu_shader_fp64
+GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_imaging
+GL_ARB_instanced_arrays GL_ARB_internalformat_query
+GL_ARB_internalformat_query2 GL_ARB_invalidate_subdata
+GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multi_bind
+GL_ARB_multi_draw_indirect GL_ARB_multisample GL_ARB_multitexture
+GL_ARB_occlusion_query GL_ARB_occlusion_query2
+GL_ARB_pipeline_statistics_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_program_interface_query
+GL_ARB_provoking_vertex GL_ARB_query_buffer_object
+GL_ARB_robust_buffer_access_behavior GL_ARB_sample_shading
+GL_ARB_sampler_objects GL_ARB_seamless_cube_map
+GL_ARB_seamless_cubemap_per_texture GL_ARB_separate_shader_objects
+GL_ARB_shader_atomic_counters GL_ARB_shader_bit_encoding
+GL_ARB_shader_image_load_store GL_ARB_shader_image_size GL_ARB_shader_objects
+GL_ARB_shader_precision GL_ARB_shader_stencil_export
+GL_ARB_shader_storage_buffer_object GL_ARB_shader_subroutine
+GL_ARB_shader_texture_image_samples GL_ARB_shader_texture_lod
+GL_ARB_shading_language_100 GL_ARB_shading_language_420pack
+GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_shadow_ambient
+GL_ARB_stencil_texturing GL_ARB_sync GL_ARB_tessellation_shader
+GL_ARB_texture_barrier GL_ARB_texture_border_clamp
+GL_ARB_texture_buffer_object GL_ARB_texture_buffer_object_rgb32
+GL_ARB_texture_buffer_range GL_ARB_texture_compression
+GL_ARB_texture_compression_bptc GL_ARB_texture_compression_rgtc
+GL_ARB_texture_cube_map GL_ARB_texture_cube_map_array GL_ARB_texture_env_add
+GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar
+GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_gather
+GL_ARB_texture_mirror_clamp_to_edge GL_ARB_texture_mirrored_repeat
+GL_ARB_texture_multisample GL_ARB_texture_non_power_of_two
+GL_ARB_texture_query_levels GL_ARB_texture_query_lod GL_ARB_texture_rectangle
+GL_ARB_texture_rg GL_ARB_texture_rgb10_a2ui GL_ARB_texture_snorm
+GL_ARB_texture_stencil8 GL_ARB_texture_storage
+GL_ARB_texture_storage_multisample GL_ARB_texture_swizzle GL_ARB_texture_view
+GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3
+GL_ARB_transform_feedback_instanced GL_ARB_transform_feedback_overflow_query
+GL_ARB_transpose_matrix GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra
+GL_ARB_vertex_array_object GL_ARB_vertex_attrib_64bit GL_ARB_v¿—ëu
+GL_MAX_TEXTURE_SIZE: 16384
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0016.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0017.jpg
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0018.jpg
+Resolving update.quake3arena.com
+update.quake3arena.com resolved to 192.246.40.56:27951
+192.168.1.132:27961 resolved to 192.168.1.132:27961
+----- FS_Startup -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Users\admin\AppData\Roaming\Quake3/baseq3
+C:\Games\Quake3-TeamArena/baseq3
+
+----------------------
+8146 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: AMD Radeon HD 5450
+GL_VERSION: 4.5.13399 Compatibility Profile Context 15.200.1062.1004
+GL_EXTENSIONS: GL_AMDX_debug_output GL_AMDX_vertex_shader_tessellator
+GL_AMD_conservative_depth GL_AMD_debug_output GL_AMD_depth_clamp_separate
+GL_AMD_draw_buffers_blend GL_AMD_multi_draw_indirect GL_AMD_name_gen_delete
+GL_AMD_performance_monitor GL_AMD_pinned_memory GL_AMD_query_buffer_object
+GL_AMD_sample_positions GL_AMD_seamless_cubemap_per_texture
+GL_AMD_shader_stencil_export GL_AMD_shader_trace
+GL_AMD_texture_cube_map_array GL_AMD_texture_texture4
+GL_AMD_transform_feedback3_lines_triangles GL_AMD_vertex_shader_layer
+GL_AMD_vertex_shader_tessellator GL_AMD_vertex_shader_viewport_index
+GL_ARB_ES2_compatibility GL_ARB_ES3_1_compatibility GL_ARB_ES3_compatibility
+GL_ARB_arrays_of_arrays GL_ARB_base_instance GL_ARB_blend_func_extended
+GL_ARB_buffer_storage GL_ARB_clear_buffer_object GL_ARB_clear_texture
+GL_ARB_clip_control GL_ARB_color_buffer_float GL_ARB_compatibility
+GL_ARB_compressed_texture_pixel_storage GL_ARB_compute_shader
+GL_ARB_conditional_render_inverted GL_ARB_conservative_depth
+GL_ARB_copy_buffer GL_ARB_copy_image GL_ARB_cull_distance GL_ARB_debug_output
+GL_ARB_depth_buffer_float GL_ARB_depth_clamp GL_ARB_depth_texture
+GL_ARB_derivative_control GL_ARB_direct_state_access GL_ARB_draw_buffers
+GL_ARB_draw_buffers_blend GL_ARB_draw_elements_base_vertex
+GL_ARB_draw_indirect GL_ARB_draw_instanced GL_ARB_enhanced_layouts
+GL_ARB_explicit_attrib_location GL_ARB_explicit_uniform_location
+GL_ARB_fragment_coord_conventions GL_ARB_fragment_layer_viewport
+GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader
+GL_ARB_framebuffer_no_attachments GL_ARB_framebuffer_object
+GL_ARB_framebuffer_sRGB GL_ARB_geometry_shader4 GL_ARB_get_program_binary
+GL_ARB_get_texture_sub_image GL_ARB_gpu_shader5 GL_ARB_gpu_shader_fp64
+GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_imaging
+GL_ARB_instanced_arrays GL_ARB_internalformat_query
+GL_ARB_internalformat_query2 GL_ARB_invalidate_subdata
+GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multi_bind
+GL_ARB_multi_draw_indirect GL_ARB_multisample GL_ARB_multitexture
+GL_ARB_occlusion_query GL_ARB_occlusion_query2
+GL_ARB_pipeline_statistics_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_program_interface_query
+GL_ARB_provoking_vertex GL_ARB_query_buffer_object
+GL_ARB_robust_buffer_access_behavior GL_ARB_sample_shading
+GL_ARB_sampler_objects GL_ARB_seamless_cube_map
+GL_ARB_seamless_cubemap_per_texture GL_ARB_separate_shader_objects
+GL_ARB_shader_atomic_counters GL_ARB_shader_bit_encoding
+GL_ARB_shader_image_load_store GL_ARB_shader_image_size GL_ARB_shader_objects
+GL_ARB_shader_precision GL_ARB_shader_stencil_export
+GL_ARB_shader_storage_buffer_object GL_ARB_shader_subroutine
+GL_ARB_shader_texture_image_samples GL_ARB_shader_texture_lod
+GL_ARB_shading_language_100 GL_ARB_shading_language_420pack
+GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_shadow_ambient
+GL_ARB_stencil_texturing GL_ARB_sync GL_ARB_tessellation_shader
+GL_ARB_texture_barrier GL_ARB_texture_border_clamp
+GL_ARB_texture_buffer_object GL_ARB_texture_buffer_object_rgb32
+GL_ARB_texture_buffer_range GL_ARB_texture_compression
+GL_ARB_texture_compression_bptc GL_ARB_texture_compression_rgtc
+GL_ARB_texture_cube_map GL_ARB_texture_cube_map_array GL_ARB_texture_env_add
+GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar
+GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_gather
+GL_ARB_texture_mirror_clamp_to_edge GL_ARB_texture_mirrored_repeat
+GL_ARB_texture_multisample GL_ARB_texture_non_power_of_two
+GL_ARB_texture_query_levels GL_ARB_texture_query_lod GL_ARB_texture_rectangle
+GL_ARB_texture_rg GL_ARB_texture_rgb10_a2ui GL_ARB_texture_snorm
+GL_ARB_texture_stencil8 GL_ARB_texture_storage
+GL_ARB_texture_storage_multisample GL_ARB_texture_swizzle GL_ARB_texture_view
+GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3
+GL_ARB_transform_feedback_instanced GL_ARB_transform_feedback_overflow_query
+GL_ARB_transpose_matrix GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra
+GL_ARB_vertex_array_object GL_ARB_vertex_attrib_64bit GL_ARB_v¿—ëu
+GL_MAX_TEXTURE_SIZE: 16384
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+Initializing Shaders
+----- finished R_Init -----
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm...
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 4593920 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 1335 faces, 32 meshes, 59 trisurfs, 13 flares
+CL_InitCGame:  1.15 seconds
+59 msec to draw all images
+Com_TouchMemory: 0 msec
+Fleet246 entered the game
+Hunter ate Xaero's rocket
+Gorre ate Angel's rocket
+Xaero ate Hunter's rocket
+Xaero was kicked
+Xaero: You could not stand in a gentle breeze, yet I'm a hurricane.
+Fleet246 was in the wrong place.
+Hunter ate Angel's rocket
+Angel almost dodged Hunter's rocket
+Angel: I will get re-wired, hunter, ... you'll just decompose.
+]toggleconsole;wait 150;screenshotjpeg
+Fleet246: toggleconsole
+Wrote screenshots/shot0019.jpg
+Gorre: Bah!
+Gorre was in the wrong place.
+Gorre: Grrrrrr.
+Gorre ate Angel's rocket
+Angel was gunned down by Hunter
+Gorre was gunned down by Hunter
+Angel: That rocked hunter!
+Wrote screenshots/shot0020.jpg
+Fleet246 was machinegunned by Hunter
+Gorre ate Hunter's rocket
+Hunter was railed by Angel
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0021.jpg
+Fleet246 almost dodged Hunter's rocket
+Angel was railed by Gorre
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0022.jpg
+Angel: I'd tell you to kiss my bottom, but I'm afraid you'd take me up on it.
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0023.jpg
+Angel almost dodged Gorre's rocket
+Angel: At least I do not stink when I rot.
+Hunter blew herself up.
+Hunter: We are the last ... is this the end?
+Fleet246 ate Gorre's rocket
+Gorre blew himself up.
+Hunter ate Gorre's rocket
+Fleet246 almost dodged Hunter's rocket
+Hunter was in the wrong place.
+]\toggleconsole;wait 150;screenshotjpeg
+Wrote screenshots/shot0024.jpg
+Angel ate Hunter's rocket
+Angel: it is good that ya did this before ya got old and weak, hunter.
+Gorre cratered.
+Gorre was railed by Angel
+]\condump q3c195b.txt
+Dumped console text to q3c195b.txt.
+

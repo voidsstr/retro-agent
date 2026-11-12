@@ -1,0 +1,23 @@
+{
+ "_ip": "192.168.1.243",
+ "_started": "2026-09-29 04:08:14 EDT",
+ "_greeting": "OK N5R5L9 Win4.10",
+ "DIRLIST C:\\AUTOEXEC*": {
+  "status": 0,
+  "text": "[{\"name\":\"AUTOEXEC.BAT\",\"is_dir\":false,\"size\":2184,\"modified\":\"1980-01-04 05:07:56\",\"hidden\":false,\"readonly\":false},{\"name\":\"AUTOEXEC.BAK\",\"is_dir\":false,\"size\":70,\"modified\":\"1980-01-04 06:23:02\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\WINDOWS\\VOODOO2*": {
+  "status": 0,
+  "text": "[{\"name\":\"VOODOO2.VAR\",\"is_dir\":false,\"size\":68,\"modified\":\"1980-01-04 05:01:16\",\"hidden\":false,\"readonly\":false},{\"name\":\"VOODOO2.BMP\",\"is_dir\":false,\"size\":481078,\"modified\":\"1980-01-04 05:10:58\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\WINDOWS\\SYSTEM\\VOODOO2*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DOWNLOAD C:\\AUTOEXEC.BAT": {
+  "status": 1,
+  "saved": "192_168_1_243_env.C__AUTOEXEC.BAT",
+  "bytes": 2184
+ },
+ "_finished": "2026-09-29 04:08:14 EDT"
+}

@@ -1,0 +1,21 @@
+# GOG SiN Gold 1.13b rebuild on the share: /mnt/retro-share/Files/Games-Library/_patches/backup-2026-08-29/SiNGold/gog-1.13b-binaries/sin.exe (1,436,160 B, built 2020-03-17)
+131399874914033b73d439733663dc47  /mnt/retro-share/Files/Games-Library/_patches/backup-2026-08-29/SiNGold/gog-1.13b-binaries/sin.exe
+# its mode table (strings -a):
+Mode 0: 640x480
+Mode 1: 800x600
+Mode 2: 960x720
+Mode 3: 1024x768
+Mode 4: 1152x864
+Mode 5: 1280x960
+Mode 6: 1280x1024
+Mode 7: 1600x1200
+Mode 8: 800x480 (Widescreen)
+Mode 9: 1440x900 (Widescreen)
+Mode 10: 1680x1050 (Widescreen)
+Mode 11: 1280x720 (Widescreen)
+Mode 12: 1920x1080 (Widescreen)
+Mode 13: 2560x1440 (Widescreen)
+Mode 14: 3840x2160 (Widescreen)
+# PE: subsystem 6.0, OS 6.0 (XP is 5.1 -> loader refuses)
+# imports: WINMM.dll, WS2_32.dll, KERNEL32.dll, USER32.dll, VCRUNTIME140.dll, api-ms-win-crt-utility-l1-1-0.dll, api-ms-win-crt-convert-l1-1-0.dll, api-ms-win-crt-string-l1-1-0.dll, api-ms-win-crt-stdio-l1-1-0.dll, api-ms-win-crt-environment-l1-1-0.dll, api-ms-win-crt-filesystem-l1-1-0.dll, api-ms-win-crt-time-l1-1-0.dll, api-ms-win-crt-heap-l1-1-0.dll, api-ms-win-crt-runtime-l1-1-0.dll, api-ms-win-crt-math-l1-1-0.dll, api-ms-win-crt-locale-l1-1-0.dll
+# README-RESTAGE.txt in the staged tree records: on Windows 7 (.246) this sin.exe 'exits immediately with RC=0, no window and no event-log entry' (2026-08-29)

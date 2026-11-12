@@ -1,0 +1,109 @@
+CounterStrike16/hw.dll callers of ['0x1de1592', '0x1de1250'] : 3
+
+-- 01d7b95a -> 01de1250
+   01d7b8f0  mov    eax, dword ptr [esp + 4]
+   01d7b8f4  sub    esp, 0x348
+   01d7b8fa  mov    dword ptr [0x239833c], eax
+   01d7b8ff  push   ebx
+   01d7b900  push   ebp
+   01d7b901  push   esi
+   01d7b902  push   edi
+   01d7b903  push   eax
+   01d7b904  call   dword ptr [0x1e48398]
+   01d7b90a  lea    ecx, [esp + 0xe4]
+   01d7b911  mov    dword ptr [0x2398338], eax
+   01d7b916  push   ecx
+   01d7b917  push   eax
+   01d7b918  call   dword ptr [0x1e4846c]
+   01d7b91e  xor    ebp, ebp
+   01d7b920  mov    edx, dword ptr [esp + 0xec]
+   01d7b927  mov    eax, dword ptr [esp + 0xf0]
+   01d7b92e  and    edx, 0xffff
+   01d7b934  and    eax, 0xffff
+   01d7b939  push   ebp
+   01d7b93a  mov    dword ptr [0x2398330], edx
+   01d7b940  mov    dword ptr [0x2398334], eax
+   01d7b945  call   dword ptr [0x1e485c0]
+   01d7b94b  test   eax, eax
+   01d7b94d  jl     0x1d7c876
+   01d7b953  lea    ecx, [esp + 0x28]
+   01d7b957  push   ebp
+   01d7b958  push   ecx
+   01d7b959  push   ebp
+   01d7b95a  call   0x1de1250
+   01d7b95f  test   eax, eax
+   01d7b961  jl     0x1d7c870
+   01d7b967  mov    eax, dword ptr [esp + 0x28]
+   01d7b96b  lea    ecx, [esp + 0xf4]
+
+-- 01dc77c0 -> 01de1250
+   01dc7793  add    esp, 0x94
+   01dc7799  ret    
+   01dc779a  cmp    eax, 2
+   01dc779d  sete   al
+   01dc77a0  add    esp, 0x94
+   01dc77a6  ret    
+   01dc77a7  nop    
+   01dc77a8  nop    
+   01dc77a9  nop    
+   01dc77aa  nop    
+   01dc77ab  nop    
+   01dc77ac  nop    
+   01dc77ad  nop    
+   01dc77ae  nop    
+   01dc77af  nop    
+   01dc77b0  push   ebx
+   01dc77b1  push   esi
+   01dc77b2  mov    esi, ecx
+   01dc77b4  push   edi
+   01dc77b5  push   0
+   01dc77b7  lea    edi, [esi + 0x1bc]
+   01dc77bd  push   edi
+   01dc77be  push   0
+   01dc77c0  call   0x1de1250
+   01dc77c5  test   eax, eax
+   01dc77c7  je     0x1dc77cf
+   01dc77c9  pop    edi
+   01dc77ca  pop    esi
+   01dc77cb  xor    al, al
+   01dc77cd  pop    ebx
+   01dc77ce  ret    
+   01dc77cf  mov    ecx, esi
+   01dc77d1  call   0x1dc7770
+   01dc77d6  test   al, al
+
+-- 01dc7e69 -> 01de1250
+   01dc7e3f  nop    
+   01dc7e40  mov    eax, ecx
+   01dc7e42  mov    dword ptr [eax], 0x1e4a6d4
+   01dc7e48  mov    dword ptr [eax + 4], 0
+   01dc7e4f  ret    
+   01dc7e50  mov    dword ptr [ecx], 0x1e4a6ec
+   01dc7e56  ret    
+   01dc7e57  nop    
+   01dc7e58  nop    
+   01dc7e59  nop    
+   01dc7e5a  nop    
+   01dc7e5b  nop    
+   01dc7e5c  nop    
+   01dc7e5d  nop    
+   01dc7e5e  nop    
+   01dc7e5f  nop    
+   01dc7e60  push   esi
+   01dc7e61  lea    esi, [ecx + 4]
+   01dc7e64  push   0
+   01dc7e66  push   esi
+   01dc7e67  push   0
+   01dc7e69  call   0x1de1250
+   01dc7e6e  test   eax, eax
+   01dc7e70  je     0x1dc7e76
+   01dc7e72  xor    al, al
+   01dc7e74  pop    esi
+   01dc7e75  ret    
+   01dc7e76  mov    eax, dword ptr [esi]
+   01dc7e78  push   8
+   01dc7e7a  push   0
+   01dc7e7c  push   eax
+   01dc7e7d  mov    ecx, dword ptr [eax]
+   01dc7e7f  .byte  0xff
+   01dc7e80  push   ecx

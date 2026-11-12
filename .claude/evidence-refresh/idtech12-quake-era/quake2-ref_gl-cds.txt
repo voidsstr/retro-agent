@@ -1,0 +1,95 @@
+==== mov ebx, dword ptr [0x1002714c] at 0x1000def7
+    0x1000de9d: inc esp
+    0x1000de9e: add byte ptr [eax], al
+    0x1000dea0: sbb al, 0
+    0x1000dea2: fld dword ptr [esi + 0x14]
+    0x1000dea5: call 0x10017f30
+    0x1000deaa: push eax
+    0x1000deab: push 0x1002f2bc
+    0x1000deb0: push 0
+    0x1000deb2: call dword ptr [0x100567b8]
+    0x1000deb8: add esp, 0xc
+    0x1000debb: jmp 0x1000deea
+    0x1000debd: push 0
+    0x1000debf: call dword ptr [0x10027144]
+    0x1000dec5: mov esi, eax
+    0x1000dec7: push 0xc
+    0x1000dec9: push esi
+    0x1000deca: call dword ptr [0x10027000]
+    0x1000ded0: push eax
+    0x1000ded1: push 0x1002f294
+    0x1000ded6: push 0
+    0x1000ded8: call dword ptr [0x100567b8]
+    0x1000dede: add esp, 0xc
+    0x1000dee1: push esi
+    0x1000dee2: push 0
+    0x1000dee4: call dword ptr [0x10027148]
+    0x1000deea: push 0x1002f280
+    0x1000deef: push 0
+    0x1000def1: call dword ptr [0x100567b8]
+ >> 0x1000def7: mov ebx, dword ptr [0x1002714c]
+    0x1000defd: add esp, 8
+    0x1000df00: lea ecx, [esp + 0x1c]
+    0x1000df04: push 4
+    0x1000df06: push ecx
+    0x1000df07: call ebx
+    0x1000df09: test eax, eax
+    0x1000df0b: jne 0x1000df52
+==== call dword ptr [0x1002714c] at 0x1000e0a1
+    0x1000e047: call dword ptr [0x100567b8]
+    0x1000e04d: mov edx, dword ptr [esp + 0x14]
+    0x1000e051: mov eax, dword ptr [esp + 0x18]
+    0x1000e055: add esp, 8
+    0x1000e058: push 1
+    0x1000e05a: push edx
+    0x1000e05b: push eax
+0x1000de50: ror byte ptr [ebp - 0x7cdbdb84], 0xc4
+0x1000de57: or bl, dh
+0x1000de59: stosd dword ptr es:[edi], eax
+0x1000de5a: mov eax, dword ptr [esp + 0xc]
+0x1000de5e: mov word ptr [esp + 0x40], 0x9c
+0x1000de65: mov dword ptr [esp + 0x88], edx
+0x1000de6c: mov dword ptr [esp + 0x8c], eax
+0x1000de73: mov dword ptr [esp + 0x44], 0x180000
+0x1000de7b: fld dword ptr [esi + 0x14]
+0x1000de7e: fcomp dword ptr [0x1002741c]
+0x1000de84: fnstsw ax
+0x1000de86: test ah, 0x40
+0x1000de89: jne 0x1000debd
+0x1000de8b: fld dword ptr [esi + 0x14]
+0x1000de8e: call 0x10017f30
+0x1000de93: mov dword ptr [esp + 0x84], eax
+0x1000de9a: mov dword ptr [esp + 0x44], 0x1c0000
+0x1000dea2: fld dword ptr [esi + 0x14]
+0x1000dea5: call 0x10017f30
+0x1000deaa: push eax
+0x1000deab: push 0x1002f2bc
+0x1000deb0: push 0
+0x1000deb2: call dword ptr [0x100567b8]
+0x1000deb8: add esp, 0xc
+0x1000debb: jmp 0x1000deea
+0x1000debd: push 0
+0x1000debf: call dword ptr [0x10027144]
+0x1000dec5: mov esi, eax
+0x1000dec7: push 0xc
+0x1000dec9: push esi
+0x1000deca: call dword ptr [0x10027000]
+0x1000ded0: push eax
+0x1000ded1: push 0x1002f294
+0x1000ded6: push 0
+0x1000ded8: call dword ptr [0x100567b8]
+0x1000dede: add esp, 0xc
+0x1000dee1: push esi
+0x1000dee2: push 0
+0x1000dee4: call dword ptr [0x10027148]
+0x1000deea: push 0x1002f280
+0x1000deef: push 0
+0x1000def1: call dword ptr [0x100567b8]
+0x1000def7: mov ebx, dword ptr [0x1002714c]
+0x1000defd: add esp, 8
+0x1000df00: lea ecx, [esp + 0x1c]
+0x1000df04: push 4
+0x1000df06: push ecx
+0x1000df07: call ebx
+0x1000df09: test eax, eax
+0x1000df0b: jne 0x1000df52

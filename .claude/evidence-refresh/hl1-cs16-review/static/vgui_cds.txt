@@ -1,0 +1,67 @@
+==============================================================================
+HalfLife1/vgui.dll 352256 ab2f53789783766a03e0cad6d442f106 base 0x10000000
+slots: {'0x1002f200': 'USER32.dll!ChangeDisplaySettingsA'}
+
+-- 10022451 call dword ptr [0x1002f200]  (USER32.dll!ChangeDisplaySettingsA)
+   10022402  cmp    ebp, dword ptr [esp + 0x14]
+   10022406  jne    0x1002245f
+   10022408  mov    edx, dword ptr [esp + 0xc0]
+   1002240f  mov    eax, dword ptr [esp + 0x18]
+   10022413  cmp    edx, eax
+   10022415  jne    0x1002245f
+   10022417  mov    ecx, 0x25
+   1002241c  xor    eax, eax
+   1002241e  lea    edi, [esp + 0x20]
+   10022422  push   4
+   10022424  rep stosd dword ptr es:[edi], eax
+   10022426  lea    ecx, [esp + 0x24]
+   1002242a  mov    eax, edx
+   1002242c  push   ecx
+   1002242d  mov    word ptr [esp + 0x4c], 0x94
+   10022434  mov    dword ptr [esp + 0x50], 0x1c0000
+   1002243c  mov    dword ptr [esp + 0x90], eax
+   10022443  mov    dword ptr [esp + 0x94], ebx
+   1002244a  mov    dword ptr [esp + 0x98], ebp
+   10022451  call   dword ptr [0x1002f200]
+   10022457  test   eax, eax
+   10022459  je     0x1002247e
+   1002245b  mov    edi, dword ptr [esp + 0x10]
+   1002245f  mov    eax, dword ptr [esi + 0x30]
+   10022462  inc    edi
+   10022463  cmp    edi, eax
+   10022465  mov    dword ptr [esp + 0x10], edi
+   10022469  jl     0x100223ca
+   1002246f  pop    edi
+   10022470  pop    esi
+
+-- 10022532 call dword ptr [0x1002f200]  (USER32.dll!ChangeDisplaySettingsA)
+   10022516  ret    0xc
+   10022519  nop    
+   1002251a  nop    
+   1002251b  nop    
+   1002251c  nop    
+   1002251d  nop    
+   1002251e  nop    
+   1002251f  nop    
+   10022520  push   esi
+   10022521  mov    esi, ecx
+   10022523  mov    eax, dword ptr [esi + 0x24]
+   10022526  mov    cl, byte ptr [eax + 0x34]
+   10022529  test   cl, cl
+   1002252b  je     0x10022578
+   1002252d  push   edi
+   1002252e  push   0
+   10022530  push   0
+   10022532  call   dword ptr [0x1002f200]
+   10022538  mov    edx, dword ptr [esi]
+   1002253a  mov    ecx, esi
+   1002253c  call   dword ptr [edx]
+   1002253e  mov    edx, dword ptr [esi + 0x24]
+   10022541  mov    edi, dword ptr [eax]
+   10022543  mov    ecx, dword ptr [edx + 0x30]
+   10022546  push   ecx
+   10022547  mov    ecx, dword ptr [edx + 0x2c]
+   1002254a  push   ecx
+   1002254b  mov    ecx, dword ptr [edx + 0x28]
+   1002254e  mov    edx, dword ptr [edx + 0x24]
+   10022551  push   ecx

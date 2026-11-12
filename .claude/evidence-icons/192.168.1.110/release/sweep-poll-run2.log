@@ -1,0 +1,7 @@
+{"t": "14:12:27", "phase": "before", "state": "done", "lnk": 99, "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+RESET OK marker cleared
+START OK started
+{"t": "14:12:27", "el": 0, "state": "done", "msg": "complete - 51 title(s)", "done": 51, "total": 52, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+{"t": "14:12:37", "el": 10, "state": "copying", "msg": "copying JediKnightMotS", "done": 17, "total": 52, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+{"t": "14:12:47", "el": 20, "state": "done", "msg": "complete - 51 title(s)", "done": 51, "total": 52, "starved_s": 0, "cpu": -1, "lnk": 99, "gone": [], "new": [], "backup_n": 97, "backup_newest": "2026-09-26 13:36:34"}
+END min_lnk_seen=99 sizing_samples=0

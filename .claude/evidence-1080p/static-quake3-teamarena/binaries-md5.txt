@@ -1,0 +1,34 @@
+# md5 / size / PE timestamp of the staged binaries (read from /mnt/retro-share/Files/Games-Library/Quake3-TeamArena, 2026-09-29)
+12f99bc0f9ba416ee477a4f13de8feaa     1363456  ioquake3.x86.exe
+b5cf3dd55e045aac6096ff97379d0cab      872448  quake3.exe
+a828ce4eae3a55de4a29112067975abc      338432  SDL.dll
+7f2b92700036167b1ab33cadba56fd8f      261120  baseq3/uix86.dll
+116ed86aa325ace18e6590d1df9d944c      255488  missionpack/uix86.dll
+bb180f3bb47a674b905ce36582acb4d6       30208  FLEETRES.EXE
+23edd351be918ac2daefe2150fb9c707        4117  FLEETRES.BAT
+37f86cdead3f2c569e96b2de61b914a7        4094  FLEETGL.BAT
+d6cec2379153acd7c3ba9131a8dce326        1521  baseq3/autoexec.cfg
+d6cec2379153acd7c3ba9131a8dce326        1521  missionpack/autoexec.cfg
+3d45f45125fc7114075199d9a749f8ae        1432  Play Quake III Arena.bat
+59b55b543b67cc3c870144030e7456ec        1594  Play Team Arena.bat
+f97b09b7dc0868f86bc04ad5058a3b38        2162  Play Quake III Arena - retail 1.32c.bat
+8ec2ab65ff508fb55a856c31ba6b13a0         203  launch.txt
+
+# official id 1.32c binary from Files/Game Updates/quake3-1.32c-win.zip:
+b5cf3dd55e045aac6096ff97379d0cab  quake3-1.32c-win.zip!Quake III Arena 1.32c/win32/quake3.exe (identical to the staged quake3.exe)
+
+# vm/ui.qvm inside the paks (extracted with unzip -p):
+730c5f17ada2a812bb42bd7261134dd9  baseq3/pak1.pk3!vm/ui.qvm
+063434b95ca606b7994d60dd7077b6cc  baseq3/pak2.pk3!vm/ui.qvm
+063434b95ca606b7994d60dd7077b6cc  baseq3/pak3.pk3!vm/ui.qvm
+1ebf0449b149a57f65f23a735b621590  baseq3/pak4.pk3!vm/ui.qvm
+d0ddfcf3feaa8977da906682cc69094c  baseq3/pak6.pk3!vm/ui.qvm
+a5da4e8e1acf0bc97cb2a919efa8491e  baseq3/pak7.pk3!vm/ui.qvm
+3e6b8fadb2a970c2b754e48e63a054d7  baseq3/pak8.pk3!vm/ui.qvm
+3ee9a97357810c41d6f08bbc1bb71e05  missionpack/pak1.pk3!vm/ui.qvm
+37fd7cd877f328619ccd84af7493b733  missionpack/pak2.pk3!vm/ui.qvm
+59cb82218d1d32472851380488501feb  missionpack/pak3.pk3!vm/ui.qvm
+
+# QVM header magic (0x12721444 = VM_MAGIC v1, the only one retail 1.32c accepts)
+baseq3/pak8.pk3 !vm/ui.qvm magic 0x12721444
+missionpack/pak3.pk3 !vm/ui.qvm magic 0x12721444

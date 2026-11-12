@@ -1,0 +1,85 @@
+Log: Log file open, 09/28/26 07:13:56
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows XP 5.1 (Build: 2600)
+Init: Version: 3369 (128.29)
+Init: Compiled: Nov 23 2005 16:23:34
+Init: Command line: 
+Init: Character set: Unicode
+Init: Base directory: C:\Games\UT2004\System\
+Init: Ini:UT2004.ini   UserIni:User.ini
+Init: Build label: UT2004 Build UT2004_Build_[2005-11-23_16.22]
+Init: Object subsystem initialized
+Log: Splash screen filename is '..\Help\UT2004Logo.bmp'
+Log: 	vcrdd.dll/vcr-kmd Voodoo 5 6000 (open driver)
+Log: Game class is 'GameInfo'
+Log: Bringing Level Entry.myLevel up for play (0) appSeconds: 13.772000...
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Error: Unknown member Group in MasterServerList
+Log: Browse: NvidiaLogo.ut2?Name=NSC-C543575F526
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 27915->27883; refs: 283606
+Log: Game class is 'CinematicGame'
+Log: Bringing Level NvidiaLogo.myLevel up for play (0) appSeconds: 23.291000...
+Log: (Karma): Autodetecting CPU for SSE
+Log: (Karma): Using SSE Optimizations
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: ALAudio: Using DirectSound to record audio.
+ScriptLog: New Player NSC-C543575F526 id=041fbee373f9fc6e5dedc6810ce480f2
+Log: Opened viewport
+Log: Enter SetRes: 1280x960 Fullscreen 1
+Log: Using back-buffer format 23(16-bit)
+Log: Using depth-buffer format 80(16-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Log: OS doesn't support IME.
+Log: Startup time: 31.693000 seconds
+Log: Precaching: NvidiaLogo.LevelInfo0
+Log: Static mesh batches: 508608 vertex bytes, 110460 index bytes
+Critical: CreateTexture failed(D3DERR_INVALIDCALL).
+Critical: Windows GetLastError: The requested lookup key was not found in any active activation context. (14007)
+Exit: Executing UObject::StaticShutdownAfterError
+Exit: Executing UWindowsClient::ShutdownAfterError
+Log: Waiting for file streaming thread to finish...
+Exit: OpenAL Audio subsystem shut down.
+Critical: FD3DTexture::Cache
+Critical: FD3DRenderInterface::CacheTexture
+Critical: FD3DRenderInterface::HandleCombinedMaterial
+Critical: FD3DRenderInterface::SetSimpleMaterial
+Critical: FD3DRenderInterface::SetMaterial
+Critical: FBspDrawList::Render
+Critical: RenderLevel
+Critical: NvidiaLogo.myLevel
+Critical: FLevelSceneNode::Render
+Critical: FPlayerSceneNode::Render
+Critical: UGameEngine::Draw
+Critical: UWindowsViewport::Repaint
+Critical: UWindowsClient::Tick
+Critical: ClientTick
+Critical: UGameEngine::Tick
+Critical: Level Untitled
+Critical: UpdateWorld
+Critical: MainLoop
+Critical: FMallocWindows::Free
+Critical: FMallocWindows::Realloc
+Critical: 10910191 0 FArray
+Critical: FArray::Realloc
+Critical: 0*2
+Critical: FMallocWindows::Free
+Localization: No localization: Window.IDDIALOG_CrashBox.IDC_CrashBox (int)
+Exit: Exiting.
+Log: FileManager: Reading 0 GByte 48 MByte 48 KByte 601 Bytes from HD took 22.968979 seconds (22.912979 reading, 0.056000 seeking).
+Log: FileManager: 3.336997 seconds spent with misc. duties
+Uninitialized: Name subsystem shut down
+Uninitialized: Log file closed, 09/28/26 07:14:57

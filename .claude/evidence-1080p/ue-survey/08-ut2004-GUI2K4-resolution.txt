@@ -1,0 +1,186 @@
+# /mnt/retro-share/Files/Games-Library/UT2004/System/GUI2K4.u (3369) UT2K4Tab_DetailSettings script text
+class UT2K4Tab_DetailSettings extends Settings_Tabs;
+struct DisplayMode
+	var int	Width,
+			Height;
+const RENDERMODECOUNT = 2;
+var() DisplayMode 		DisplayModes[17];
+var() localized string	BitDepthText[2];
+function CheckSupportedResolutions()
+	local int		i, Index, BitDepth;
+	local string	CurrentSelection, Str, W, H, WH;
+	local bool 		bStandard, bSupported, bOldIgnoreChange;
+	local PlayerController PC;
+	PC = PlayerOwner();
+	CurrentSelection = co_Resolution.GetText();
+	// Disable all notifications!!
+	bOldIgnoreChange = bIgnoreChange;
+	bIgnoreChange = True;
+	if (co_ColorDepth != None && co_ColorDepth.ItemCount() > 0)
+		BitDepth = int(Left(co_ColorDepth.GetText(), 2));
+	// Don't let user create non-fullscreen window bigger than highest
+	//  supported resolution, or MacOS X client crashes. --ryan.
+	for(i = 0; i < ArrayCount(DisplayModes); i++)
+		W = string(DisplayModes[i].Width);
+		H = string(DisplayModes[i].Height);
+		WH = W $ "x" $ H;
+		Str = "SUPPORTEDRESOLUTION WIDTH="$W@"HEIGHT="$H@"BITDEPTH="$BitDepth;
+		if (CurrentSelection ~= WH)
+			bStandard = True;
+		Index = co_Resolution.FindIndex(WH);
+		bSupported = bool(PC.ConsoleCommand(Str));
+		if ( !bSupported && co_Resolution.MyComboBox.List.IsValidIndex(Index) )
+			co_Resolution.RemoveItem(Index, 1);
+		else if ( bSupported && !co_Resolution.MyComboBox.List.IsValidIndex(Index) )
+			AddNewResolution(WH);
+	if (!bStandard)
+		Divide(CurrentSelection, "x", W, H);
+		Str = "SUPPORTEDRESOLUTION WIDTH="$W@"HEIGHT="$H@"BITDEPTH="$BitDepth;
+		bSupported = bool(PC.ConsoleCommand(Str));
+		if ( !bSupported )
+			Index = co_Resolution.FindIndex(CurrentSelection);
+			bInvalidRes = True;
+	CheckSliders();
+	co_Resolution.SetText(CurrentSelection);
+	bIgnoreChange = bOldIgnoreChange;
+function bool InternalOnPreDraw(Canvas C)
+	if ( Controller.ActivePage == PageOwner && bInvalidRes )
+		bInvalidRes = False;
+		Controller.OpenMenu("GUI2K4.UT2K4GenericMessageBox","",InvalidSelectionText);
+	return False;
+function ResolutionChanged(int NewX, int NewY)
+	if ( !bIgnoreResNotice )
+		if ( Controller.ActivePage == PageOwner )
+			PageOwner.CheckResolution(false, Controller);
+		Refresh();
+	else
+		InternalOnLoadINI(co_ColorDepth,"");
+function Refresh()
+	InternalOnLoadINI(co_Resolution,"");
+	InternalOnLoadINI(co_ColorDepth,"");
+	InternalOnLoadINI(ch_FullScreen,"");
+	CheckSupportedResolutions();
+function int AddNewResolution(string NewDisplayMode)
+	local int i, ItemW, ItemH, InWidth, InHeight;
+	local bool bTemp;
+	local string Str, StrW, StrH;
+	bTemp = bIgnoreChange;
+	bIgnoreChange = True;
+	// first, find out if this resolution exists already
+	i = co_Resolution.FindIndex(NewDisplayMode);
+	if (i >= 0)
+		bIgnoreChange = bTemp;
+		return i;
+	Divide(NewDisplayMode, "x", StrW, StrH);
+	InWidth = int(StrW);
+	InHeight = int(StrH);
+	// not there, so add it in the appropriate spot
+	for (i = 0; i < co_Resolution.ItemCount(); i++)
+		Str = co_Resolution.GetItem(i);
+		Divide(Str, "x", StrW, StrH);
+		ItemW = int(StrW);
+		ItemH = int(StrH);
+		if ( ItemW == InWidth )
+			if ( ItemH > InHeight )
+				break;
+		else if ( ItemW > InWidth )
+			break;
+	if (i == co_Resolution.ItemCount())
+		co_Resolution.AddItem(NewDisplayMode);
+	else
+		co_Resolution.MyComboBox.List.Insert(i, NewDisplayMode);
+	bIgnoreChange = bTemp;
+	return i;
+	case co_Resolution:
+		// Resolution
+		// GameResolution is set if menu requires 640x480 but current resolution is smaller than that
+		if(Controller.GameResolution != "")
+			sRes = Controller.GameResolution;
+		else sRes = Controller.GetCurrentRes();
+		sResD = sRes;
+		i = AddNewResolution(sRes);
+		if ( i >= 0 && i < co_Resolution.ItemCount() )
+			co_Resolution.SilentSetIndex(i);
+		break;
+
+# GetComboOptions co_Resolution branch:
+		case co_Resolution:
+			Ar.Length = ArrayCount(DisplayModes);
+			for (i = 0; i < Ar.Length; i++)
+				Ar[i].Item = DisplayModes[i].Width$"x"$DisplayModes[i].Height;
+			break;
+
+# DisplayModes[17] defaults decoded from the class export (tagged Width/Height struct properties, export offset 145901 size 5005):
+#   320x240 512x384 640x480 800x500 800x600 1024x640 1024x768 1152x768 1152x864 1280x800 1280x854 1280x960 1280x1024 1600x1024 1600x1200 1680x1050 1920x1200  (no 1920x1080)
+# var() DisplayMode DisplayModes[17] is NOT config. XInterface.GUIController 'var array<string> MainMenuOptions' is NOT config. UT2004.ini [Engine.Engine] GUIController=GUI2K4.UT2K4GUIController IS config.
+# UT2K4SettingsPage PanelClass defaults: [0] UT2K4Tab_DetailSettings [1] Audio [2] Player [3] Game [4] IForce [5] WeaponPref [6] Hud
+# D3DDrv SUPPORTEDRESOLUTION = lookup of WxH+depth in the D3D adapter-mode list (this+0x4670/count 0x4674):
+10012ac0 <.text+0x11ac0>:
+10012ac0:	lea    0x8(%ebp),%ecx
+10012ac3:	push   $0x100622d0
+10012ac8:	push   %ecx
+10012ac9:	call   *%esi
+10012acb:	add    $0x8,%esp
+10012ace:	cmp    %ebx,%eax
+10012ad0:	je     0x10012b85
+10012ad6:	mov    0x8(%ebp),%eax
+10012ad9:	mov    0x1005d228,%esi
+10012adf:	lea    -0x34(%ebp),%edx
+10012ae2:	push   %edx
+10012ae3:	push   $0x100622c0
+10012ae8:	push   %eax
+10012ae9:	mov    %ebx,-0x34(%ebp)
+10012aec:	mov    %ebx,-0x30(%ebp)
+10012aef:	mov    %ebx,-0x2c(%ebp)
+10012af2:	mov    %ebx,-0x28(%ebp)
+10012af5:	call   *%esi
+10012af7:	add    $0xc,%esp
+10012afa:	cmp    %ebx,%eax
+10012afc:	je     0x10012b67
+10012afe:	mov    0x8(%ebp),%edx
+10012b01:	lea    -0x30(%ebp),%ecx
+10012b04:	push   %ecx
+10012b05:	push   $0x100622b0
+10012b0a:	push   %edx
+10012b0b:	call   *%esi
+10012b0d:	add    $0xc,%esp
+10012b10:	cmp    %ebx,%eax
+10012b12:	je     0x10012b67
+10012b14:	mov    0x8(%ebp),%ecx
+10012b17:	lea    -0x2c(%ebp),%eax
+10012b1a:	push   %eax
+10012b1b:	push   $0x1006229c
+10012b20:	push   %ecx
+10012b21:	call   *%esi
+10012b23:	add    $0xc,%esp
+10012b26:	cmp    %ebx,%eax
+10012b28:	je     0x10012b67
+10012b2a:	mov    -0x34(%ebp),%esi
+10012b2d:	mov    -0x30(%ebp),%edi
+10012b30:	mov    -0x2c(%ebp),%ebx
+10012b33:	xor    %edx,%edx
+10012b35:	mov    -0x38(%ebp),%ecx
+10012b38:	cmp    0x4674(%ecx),%edx
+10012b3e:	jge    0x10012b67
+10012b40:	mov    %edx,%eax
+10012b42:	shl    $0x4,%eax
+10012b45:	add    0x4670(%ecx),%eax
+10012b4b:	cmp    %esi,(%eax)
+10012b4d:	jne    0x10012b82
+10012b4f:	cmp    %edi,0x4(%eax)
+10012b52:	jne    0x10012b82
+10012b54:	mov    0xc(%eax),%eax
+10012b57:	call   0x1000e6d0
+10012b5c:	cmp    %ebx,%eax
+10012b5e:	jne    0x10012b82
+10012b60:	movl   $0x1,-0x28(%ebp)
+10012b67:	mov    -0x28(%ebp),%edx
+10012b6a:	mov    0xc(%ebp),%eax
+10012b6d:	push   %edx
+10012b6e:	push   $0x10062294
+10012b73:	push   %eax
+10012b74:	call   *0x1005d0d8
+10012b7a:	add    $0xc,%esp
+10012b7d:	jmp    0x10012737
+10012b82:	inc    %edx
+10012b83:	jmp    0x10012b35

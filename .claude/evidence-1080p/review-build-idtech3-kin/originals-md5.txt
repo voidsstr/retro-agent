@@ -1,0 +1,8 @@
+1572917  0263922b67e3474f9e77e769f217f53a  SoldierOfFortune2/sof2mp.exe
+9282026  71c2edf5a30135d4aa921bf6259946ee  JediAcademy/base/assets3.pk3
+9668867  9d9ee621e26ffafb8fddc1619ac3b7ee  SoldierOfFortune2/base/update101.pk3
+152544  cf25d6731ed29c80303febbb177aa585  ReturnToCastleWolfenstein/Main/sp_pak3.pk3
+4449596  22b972974f499a237c96a2200b0d019e  ReturnToCastleWolfenstein/Main/mp_pak1.pk3
+69463128  4cffdaeead89e89ed03c4ebb24ae3ae8  SoldierOfFortune2/base/therest.pk3
+315823656  ce92b11df889cb0a045762bb5fd7cde5  ReturnToCastleWolfenstein/Main/pak0.pk3
+652804510  3f47006dde61f171769666f31065a34c  JediAcademy/base/assets1.pk3

@@ -1,0 +1,46 @@
+# Serious Sam logs pulled read-only 2026-09-29 (DOWNLOAD C:\Games\<title>\SeriousSam.log)
+== .195/SeriousSamSecondEncounter
+  SeriousEngine Build: 10000.5
+Scripts\PersistentSymbols.ini(4): Identifier 'sam_iDriver' is not declared
+Scripts\PersistentSymbols.ini(4): Cannot assign: different types
+Scripts\Game_startup.ini(7): Identifier 'gfx_iRefreshRate' is not declared
+Scripts\Game_startup.ini(7): Cannot assign: different types
+  Starting display mode: 1920x1080xdesktop (fullscreen)
+  CDS: mode set to 1920x1080x0
+* OpenGL context created: *----------------------------------
+<command>(1): Identifier 'dem_bScreenShot' is not declared
+<command>(1): Cannot assign: different types
+== .240/SeriousSamSecondEncounter
+  SeriousEngine Build: 10000.5
+Scripts\Game_startup.ini(7): Identifier 'sam_iDriver' is not declared
+Scripts\Game_startup.ini(7): Cannot assign: different types
+Scripts\Game_startup.ini(8): Identifier 'gfx_iRefreshRate' is not declared
+Scripts\Game_startup.ini(8): Cannot assign: different types
+  Starting display mode: 1920x1080xdesktop (fullscreen)
+  CDS: mode set to 1920x1080x0
+* OpenGL context created: *----------------------------------
+  CDS: mode reset to original desktop settings
+  CDS: mode reset to original desktop settings
+== .195/SeriousSamFirstEncounter
+  SeriousEngine Build: 10000.1
+Starting display mode: 1920x1080xDesktop 3Dfx fullscreen
+  CDS: mode reset to original desktop settings
+CDS error: DISP_CHANGE_BADMODE
+Starting display mode: 640x480xDesktop ICD fullscreen
+  CDS: mode reset to original desktop settings
+CDS error: DISP_CHANGE_BADMODE
+Starting display mode: 640x480x16 ICD fullscreen
+  CDS: mode reset to original desktop settings
+CDS error: DISP_CHANGE_BADMODE
+Starting display mode: 640x480xDesktop 3Dfx fullscreen
+  CDS: mode reset to original desktop settings
+CDS error: DISP_CHANGE_BADMODE
+Starting display mode: 640x480x16 3Dfx fullscreen
+== .240/SeriousSamFirstEncounter
+  SeriousEngine Build: 10000.1
+Starting display mode: 1920x1080xDesktop ICD fullscreen
+  CDS: mode reset to original desktop settings
+  CDS: mode set to 1920x1080x0
+OpenGL context created: ATI Technologies Inc., RADEON X800 Series, 2.1.8545 Release
+# Engine.dll symbols (strings -a): TFE build 10000.1 'persistent user INDEX gfx_iRefreshRate;' (OPENGL32.DLL/3DFXVGL.DLL only, no D3D8); TSE build 10000.5 'persistent user INDEX gap_iRefreshRate;' (+D3D8.DLL).
+# TFE SeriousSam.exe declares sam_iDriver (ICD vs 3Dfx MiniGL); TSE SeriousSam.exe declares sam_iGfxAPI - so .195's per-box 'sam_iDriver=1 (Direct3D)' selects TFE's 3DFXVGL path and is undeclared in TSE.

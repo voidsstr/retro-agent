@@ -1,0 +1,323 @@
+# Westwood options-menu resolution list filter - disassembly of the STAGED binaries (capstone), 2026-09-29
+# md5: 282f160ee2e4a33bb4f27827f6fe620e RedAlert2/game.exe (RA2 1.006) ; 03452ffd29502f7e701c952eec93dd38 RedAlert2/gamemd.exe (YR 1.001) ; a943a8512d9984276b6e19c8d4a2100c TiberianSun/GAME.EXE (CnCNet 2.03)
+
+## RA2 game.exe: main-menu Options dialog 213, 'Set Resolution' combo 1773 (GetDlgItem 0x6ed) - list fill
+  00542a48: 68ed060000               push 0x6ed
+  00542a4d: 55                       push ebp
+  00542a4e: ffd3                     call ebx
+  00542a50: 6a10                     push 0x10
+  00542a52: 89442460                 mov dword ptr [esp + 0x60], eax
+  00542a56: a0410ba400               mov al, byte ptr [0xa40b41]
+  00542a5b: 84c0                     test al, al
+  00542a5d: 740c                     je 0x542a6b
+  00542a5f: 6800100000               push 0x1000
+  00542a64: 6800100000               push 0x1000
+  00542a69: eb0a                     jmp 0x542a75
+  00542a6b: 6800030000               push 0x300
+  00542a70: 6800040000               push 0x400
+  00542a75: bae0010000               mov edx, 0x1e0
+  00542a7a: b980020000               mov ecx, 0x280
+  00542a7f: e81c38f5ff               call 0x4962a0
+  00542a84: 33ff                     xor edi, edi
+  00542a86: a310eda600               mov dword ptr [0xa6ed10], eax
+  00542a8b: 85c0                     test eax, eax
+  00542a8d: 8bd8                     mov ebx, eax
+  00542a8f: c7442458ffffffff         mov dword ptr [esp + 0x58], 0xffffffff
+  00542a97: c744246000000000         mov dword ptr [esp + 0x60], 0
+  00542a9f: 0f848f000000             je 0x542b34
+  00542aa5: 833800                   cmp dword ptr [eax], 0
+  00542aa8: 0f8486000000             je 0x542b34
+  00542aae: 8b03                     mov eax, dword ptr [ebx]
+  00542ab0: 8b4b04                   mov ecx, dword ptr [ebx + 4]
+  00542ab3: 8a15410ba400             mov dl, byte ptr [0xa40b41]
+  00542ab9: 83c304                   add ebx, 4
+  00542abc: 83c304                   add ebx, 4
+  00542abf: 84d2                     test dl, dl
+  00542ac1: 7515                     jne 0x542ad8
+  00542ac3: 3d80020000               cmp eax, 0x280
+  00542ac8: 740e                     je 0x542ad8
+  00542aca: 3d20030000               cmp eax, 0x320
+  00542acf: 7407                     je 0x542ad8
+  00542ad1: 3d00040000               cmp eax, 0x400
+  00542ad6: 7551                     jne 0x542b29
+  00542ad8: 3b0558eca600             cmp eax, dword ptr [0xa6ec58]
+  00542ade: 7510                     jne 0x542af0
+  00542ae0: 3b0d5ceca600             cmp ecx, dword ptr [0xa6ec5c]
+  00542ae6: 7508                     jne 0x542af0
+  00542ae8: 8b542460                 mov edx, dword ptr [esp + 0x60]
+  00542aec: 89542458                 mov dword ptr [esp + 0x58], edx
+  00542af0: 51                       push ecx
+  00542af1: 50                       push eax
+  00542af2: 8d442418                 lea eax, [esp + 0x18]
+  00542af6: 68f4fd7d00               push 0x7dfdf4
+  00542afb: 50                       push eax
+  00542afc: e8f3f52300               call 0x7820f4
+  00542b01: 8b54246c                 mov edx, dword ptr [esp + 0x6c]
+  00542b05: 83c410                   add esp, 0x10
+  00542b08: 8d4c2410                 lea ecx, [esp + 0x10]
+  00542b0c: 51                       push ecx
+  00542b0d: 6a00                     push 0
+  00542b0f: 68bc040000               push 0x4bc
+  00542b14: 52                       push edx
+  00542b15: ffd6                     call esi
+  00542b17: 57                       push edi
+  00542b18: 50                       push eax
+  00542b19: 8b442464                 mov eax, dword ptr [esp + 0x64]
+  00542b1d: 6851010000               push 0x151
+  00542b22: 50                       push eax
+  00542b23: ffd6                     call esi
+  00542b25: ff442460                 inc dword ptr [esp + 0x60]
+  00542b29: 8b03                     mov eax, dword ptr [ebx]
+  00542b2b: 47                       inc edi
+  00542b2c: 85c0                     test eax, eax
+  00542b2e: 0f857affffff             jne 0x542aae
+  00542b34: 8b4c2458                 mov ecx, dword ptr [esp + 0x58]
+
+## RA2 game.exe: mode enumeration helper 0x4962a0 - EnumDisplayModes (vtbl+0x20), keep width<=maxW, height<=maxH, width>=minW, height>=minH, dwRGBBitCount(+0x54)==bpp
+  00496351: 8b442420                 mov eax, dword ptr [esp + 0x20]
+  00496355: 8b542438                 mov edx, dword ptr [esp + 0x38]
+  00496359: 8b04b8                   mov eax, dword ptr [eax + edi*4]
+  0049635c: 8b480c                   mov ecx, dword ptr [eax + 0xc]
+  0049635f: 3bca                     cmp ecx, edx
+  00496361: 7738                     ja 0x49639b
+  00496363: 8b5008                   mov edx, dword ptr [eax + 8]
+  00496366: 8b6c243c                 mov ebp, dword ptr [esp + 0x3c]
+  0049636a: 3bd5                     cmp edx, ebp
+  0049636c: 772d                     ja 0x49639b
+  0049636e: 3b4c2414                 cmp ecx, dword ptr [esp + 0x14]
+  00496372: 7227                     jb 0x49639b
+  00496374: 3b542418                 cmp edx, dword ptr [esp + 0x18]
+  00496378: 7221                     jb 0x49639b
+  0049637a: 8b542440                 mov edx, dword ptr [esp + 0x40]
+  0049637e: 8b6854                   mov ebp, dword ptr [eax + 0x54]
+  00496381: 3bea                     cmp ebp, edx
+  00496383: 7516                     jne 0x49639b
+  00496385: 890e                     mov dword ptr [esi], ecx
+  00496387: 8b4008                   mov eax, dword ptr [eax + 8]
+  0049638a: 83c604                   add esi, 4
+  0049638d: 8906                     mov dword ptr [esi], eax
+  0049638f: 8b442410                 mov eax, dword ptr [esp + 0x10]
+  00496393: 83c604                   add esi, 4
+  00496396: 40                       inc eax
+  00496397: 89442410                 mov dword ptr [esp + 0x10], eax
+
+## RA2 game.exe: OptionsClass ctor 0x5d8840 (object 0xa40b18) - [eax+0x29] (=0xa40b41 AllowHiResModes) := cl = 0
+  005d8840: 8bc1                     mov eax, ecx
+  005d8842: ba01000000               mov edx, 1
+  005d8847: 33c9                     xor ecx, ecx
+  005d8849: 56                       push esi
+  005d884a: c70003000000             mov dword ptr [eax], 3
+  005d8850: 895004                   mov dword ptr [eax + 4], edx
+  005d8853: 894808                   mov dword ptr [eax + 8], ecx
+  005d8856: c7400c03000000           mov dword ptr [eax + 0xc], 3
+  005d885d: 885010                   mov byte ptr [eax + 0x10], dl
+  005d8860: 885018                   mov byte ptr [eax + 0x18], dl
+  005d8863: 885019                   mov byte ptr [eax + 0x19], dl
+  005d8866: 88501a                   mov byte ptr [eax + 0x1a], dl
+  005d8869: 88501c                   mov byte ptr [eax + 0x1c], dl
+  005d886c: 885039                   mov byte ptr [eax + 0x39], dl
+  005d886f: ba12000000               mov edx, 0x12
+  005d8874: 83ceff                   or esi, 0xffffffff
+  005d8877: 89908c000000             mov dword ptr [eax + 0x8c], edx
+  005d887d: 899090000000             mov dword ptr [eax + 0x90], edx
+  005d8883: ba11000000               mov edx, 0x11
+  005d8888: 897020                   mov dword ptr [eax + 0x20], esi
+  005d888b: 899094000000             mov dword ptr [eax + 0x94], edx
+  005d8891: 899098000000             mov dword ptr [eax + 0x98], edx
+  005d8897: ba10000000               mov edx, 0x10
+  005d889c: 897024                   mov dword ptr [eax + 0x24], esi
+  005d889f: 89909c000000             mov dword ptr [eax + 0x9c], edx
+  005d88a5: 8990a0000000             mov dword ptr [eax + 0xa0], edx
+  005d88ab: ba51000000               mov edx, 0x51
+  005d88b0: 897040                   mov dword ptr [eax + 0x40], esi
+  005d88b3: 897044                   mov dword ptr [eax + 0x44], esi
+  005d88b6: c7401402000000           mov dword ptr [eax + 0x14], 2
+  005d88bd: 88481b                   mov byte ptr [eax + 0x1b], cl
+  005d88c0: 884828                   mov byte ptr [eax + 0x28], cl
+  005d88c3: 884829                   mov byte ptr [eax + 0x29], cl
+  005d88c6: 88482a                   mov byte ptr [eax + 0x2a], cl
+  005d88c9: c7402c3333333f           mov dword ptr [eax + 0x2c], 0x3f333333
+
+## RA2 game.exe: Load_Settings - Get_Bool('Video','AllowHiResModes', current) -> [esi+0x29]  (only xref to the key string: the game never writes it back)
+string at off 3e8800 va 0x7e8800
+ xref at 005d8de0
+  005d8dc8: b83c1f7e00               mov eax, 0x7e1f3c
+  005d8dcd: 50                       push eax
+  005d8dce: 6810887e00               push 0x7e8810
+  005d8dd3: e818dbe2ff               call 0x4068f0
+  005d8dd8: 8a4e29                   mov cl, byte ptr [esi + 0x29]
+  005d8ddb: 83c408                   add esp, 8
+  005d8dde: 51                       push ecx
+  005d8ddf: 6800887e00               push 0x7e8800
+  005d8de4: 6860887e00               push 0x7e8860
+  005d8de9: b940978300               mov ecx, 0x839740
+  005d8dee: e81d66f3ff               call 0x50f410
+  005d8df3: 884629                   mov byte ptr [esi + 0x29], al
+  005d8df6: 3ac3                     cmp al, bl
+
+## YR gamemd.exe: same filter (flag byte 0xa8eb95 = object 0xa8eb60 + 0x35)
+  0056016c: 68ed060000               push 0x6ed
+  00560171: 55                       push ebp
+  00560172: ffd3                     call ebx
+  00560174: 6a10                     push 0x10
+  00560176: 89442460                 mov dword ptr [esp + 0x60], eax
+  0056017a: a095eba800               mov al, byte ptr [0xa8eb95]
+  0056017f: 84c0                     test al, al
+  00560181: 740c                     je 0x56018f
+  00560183: 6800100000               push 0x1000
+  00560188: 6800100000               push 0x1000
+  0056018d: eb0a                     jmp 0x560199
+  0056018f: 6800030000               push 0x300
+  00560194: 6800040000               push 0x400
+  00560199: bae0010000               mov edx, 0x1e0
+  0056019e: b980020000               mov ecx, 0x280
+  005601a3: e85847f4ff               call 0x4a4900
+  005601a8: 33ff                     xor edi, edi
+  005601aa: a358cfab00               mov dword ptr [0xabcf58], eax
+  005601af: 85c0                     test eax, eax
+  005601b1: 8bd8                     mov ebx, eax
+  005601b3: c7442458ffffffff         mov dword ptr [esp + 0x58], 0xffffffff
+  005601bb: c744246000000000         mov dword ptr [esp + 0x60], 0
+  005601c3: 0f848f000000             je 0x560258
+  005601c9: 833800                   cmp dword ptr [eax], 0
+  005601cc: 0f8486000000             je 0x560258
+  005601d2: 8b03                     mov eax, dword ptr [ebx]
+  005601d4: 8b4b04                   mov ecx, dword ptr [ebx + 4]
+
+## YR gamemd.exe ctor 0x5fa350: [eax+0x35] := 0
+  005fa3cd: 88481f                   mov byte ptr [eax + 0x1f], cl
+  005fa3d0: c7402c20030000           mov dword ptr [eax + 0x2c], 0x320
+  005fa3d7: c7403058020000           mov dword ptr [eax + 0x30], 0x258
+  005fa3de: 884834                   mov byte ptr [eax + 0x34], cl
+  005fa3e1: 884835                   mov byte ptr [eax + 0x35], cl
+  005fa3e4: 884836                   mov byte ptr [eax + 0x36], cl
+
+## TS GAME.EXE: Options -> Display dialog 216, 'Resolution Modes' listbox 1497 (GetDlgItem 0x5d9) - list fill; AllowHiRes byte 0x7e4745
+  0050b4e9: 68d9050000               push 0x5d9
+  0050b4ee: 56                       push esi
+  0050b4ef: ff1578a36c00             call dword ptr [0x6ca378]
+  0050b4f5: 8be8                     mov ebp, eax
+  0050b4f7: a045477e00               mov al, byte ptr [0x7e4745]
+  0050b4fc: 84c0                     test al, al
+  0050b4fe: 6a10                     push 0x10
+  0050b500: 740c                     je 0x50b50e
+  0050b502: 6800100000               push 0x1000
+  0050b507: 6800100000               push 0x1000
+  0050b50c: eb0a                     jmp 0x50b518
+  0050b50e: 6858020000               push 0x258
+  0050b513: 6820030000               push 0x320
+  0050b518: ba90010000               mov edx, 0x190
+  0050b51d: b980020000               mov ecx, 0x280
+  0050b522: e8d97ef6ff               call 0x473400
+  0050b527: 8b3d08a46c00             mov edi, dword ptr [0x6ca408]
+  0050b52d: 33f6                     xor esi, esi
+  0050b52f: 3bc6                     cmp eax, esi
+  0050b531: a3f44e8000               mov dword ptr [0x804ef4], eax
+  0050b536: 8bd8                     mov ebx, eax
+  0050b538: c744245cffffffff         mov dword ptr [esp + 0x5c], 0xffffffff
+  0050b540: 89742460                 mov dword ptr [esp + 0x60], esi
+  0050b544: 7478                     je 0x50b5be
+  0050b546: 833800                   cmp dword ptr [eax], 0
+  0050b549: 7473                     je 0x50b5be
+  0050b54b: 8b03                     mov eax, dword ptr [ebx]
+  0050b54d: 8b4b04                   mov ecx, dword ptr [ebx + 4]
+  0050b550: 8a1545477e00             mov dl, byte ptr [0x7e4745]
+  0050b556: 83c304                   add ebx, 4
+  0050b559: 83c304                   add ebx, 4
+  0050b55c: 84d2                     test dl, dl
+  0050b55e: 750e                     jne 0x50b56e
+  0050b560: 3d80020000               cmp eax, 0x280
+  0050b565: 7407                     je 0x50b56e
+  0050b567: 3d20030000               cmp eax, 0x320
+  0050b56c: 7549                     jne 0x50b5b7
+  0050b56e: 3b055c4e8000             cmp eax, dword ptr [0x804e5c]
+  0050b574: 7510                     jne 0x50b586
+  0050b576: 3b0d604e8000             cmp ecx, dword ptr [0x804e60]
+  0050b57c: 7508                     jne 0x50b586
+  0050b57e: 8b542460                 mov edx, dword ptr [esp + 0x60]
+  0050b582: 8954245c                 mov dword ptr [esp + 0x5c], edx
+  0050b586: 51                       push ecx
+  0050b587: 50                       push eax
+  0050b588: 8d442418                 lea eax, [esp + 0x18]
+  0050b58c: 68a0097000               push 0x7009a0
+  0050b591: 50                       push eax
+  0050b592: e8579d1a00               call 0x6b52ee
+  0050b597: 83c410                   add esp, 0x10
+  0050b59a: 8d4c2410                 lea ecx, [esp + 0x10]
+  0050b59e: 51                       push ecx
+  0050b59f: 6a00                     push 0
+  0050b5a1: 6880010000               push 0x180
+  0050b5a6: 55                       push ebp
+  0050b5a7: ffd7                     call edi
+  0050b5a9: 56                       push esi
+  0050b5aa: 50                       push eax
+  0050b5ab: 689a010000               push 0x19a
+  0050b5b0: 55                       push ebp
+  0050b5b1: ffd7                     call edi
+  0050b5b3: ff442460                 inc dword ptr [esp + 0x60]
+  0050b5b7: 8b03                     mov eax, dword ptr [ebx]
+  0050b5b9: 46                       inc esi
+  0050b5ba: 85c0                     test eax, eax
+  0050b5bc: 758d                     jne 0x50b54b
+
+## TS GAME.EXE: ctor 0x589960 - [eax+0x25] (AllowHiResModes) := 0
+  005899ce: ba51000000               mov edx, 0x51
+  005899d3: 884824                   mov byte ptr [eax + 0x24], cl
+  005899d6: 884825                   mov byte ptr [eax + 0x25], cl
+
+## Dialog resources
+DIALOG id=213 title='' ncontrols=31
+   ctl  1670 cls=#128               text='GUI:MainMenu'  @318,257 108x23
+   ctl  1486 cls=#128               text='GUI:Keyboard'  @317,122 108x23
+   ctl  1684 cls=#130               text='GUI:OptionsMenu'  @318,1 108x10
+   ctl  1485 cls=#128               text='GUI:Network'  @317,149 108x23
+   ctl  1322 cls=msctls_trackbar32  text='Slider2'  @170,175 120x13
+   ctl 4294967295 cls=#130               text='GUI:ScrollRate'  @170,160 60x10
+   ctl  1323 cls=msctls_trackbar32  text='Slider3'  @25,45 120x13
+   ctl 4294967295 cls=#130               text='GUI:VisualDetails'  @25,30 60x10
+   ctl  1651 cls=#130               text='GUI:HigherDetail'  @85,30 60x10
+   ctl  1650 cls=#130               text='GUI:Faster'  @230,160 60x10
+   ctl  1295 cls=msctls_trackbar32  text='Slider3'  @25,110 120x13
+   ctl 4294967295 cls=#130               text='GUI:Difficulty'  @25,95 60x10
+   ctl  1648 cls=#130               text='GUI:Harder'  @85,95 60x10
+   ctl  1537 cls=#128               text='GUI:TargetLines'  @25,175 130x10
+   ctl  1538 cls=#128               text='GUI:Tooltips'  @25,160 130x10
+   ctl  1540 cls=#128               text='GUI:ShowHidden'  @25,190 130x10
+   ctl  1773 cls=#133               text=''  @170,45 120x74
+   ctl 4294967295 cls=#130               text='GUI:MusicVolume'  @25,235 85x10
+   ctl  1327 cls=msctls_trackbar32  text='Slider1'  @25,250 85x13
+   ctl 4294967295 cls=#130               text='GUI:SoundVolume'  @122,235 85x10
+   ctl  1330 cls=msctls_trackbar32  text='Slider2'  @122,250 85x13
+   ctl 4294967295 cls=#130               text='GUI:VoiceVolume'  @220,235 85x10
+   ctl  1334 cls=msctls_trackbar32  text='Slider2'  @220,250 85x13
+   ctl  1774 cls=#130               text='GUI:DisplayOptions'  @10,10 140x10
+   ctl  1775 cls=#130               text='GUI:GameOptions'  @10,75 298x10
+   ctl  1776 cls=#130               text='GUI:UIOptions'  @10,140 298x10
+   ctl  1777 cls=#130               text='GUI:AudioOptions'  @10,215 298x10
+   ctl  1778 cls=#130               text='GUI:SetResolution'  @170,30 120x10
+   ctl  1685 cls=#130               text='GUI:Blank'  @10,282 303x12
+   ctl  1820 cls=#130               text=''  @339,29 61x33
+   ctl  1539 cls=#128               text='GUI:AssumeNoObserve'  @171,158 130x10
+DIALOG id=216 title='' ncontrols=8
+   ctl  1670 cls=#128               text='GUI:Back'  @318,257 108x23
+   ctl  1684 cls=#130               text='GUI:DisplayOptions'  @318,1 108x10
+   ctl  1497 cls=#131               text=''  @62,65 185x110
+   ctl  1498 cls=#130               text='GUI:ResolutionModes'  @61,31 185x10
+   ctl  1652 cls=#128               text='GUI:StretchFit'  @62,181 185x10
+   ctl  1739 cls=#128               text='GUI:Proceed'  @318,122 108x23
+   ctl  1685 cls=#130               text='GUI:Blank'  @10,282 303x12
+   ctl  1820 cls=#130               text=''  @339,29 61x33
+DIALOG id=216 title='' ncontrols=6
+   ctl     1 cls=#128               text='OK'  @22,170 62x14
+   ctl     2 cls=#128               text='Cancel'  @145,170 62x14
+   ctl  1497 cls=#131               text=''  @22,37 185x110
+   ctl  1498 cls=#130               text='Resolution Modes'  @22,25 185x10
+   ctl 65535 cls=#130               text='Display Options:'  @22,12 185x9
+   ctl  1652 cls=#128               text='Stretch movies to fit resolution'  @22,153 185x10
+DIALOG id=213 title='' ncontrols=6
+   ctl  1483 cls=#128               text='Main Menu'  @37,120 126x18
+   ctl  1484 cls=#128               text='Display'  @37,32 126x18
+   ctl  1485 cls=#128               text='Network'  @37,98 126x18
+   ctl  1486 cls=#128               text='Keyboard'  @37,76 126x18
+   ctl  1487 cls=#128               text='Sound'  @37,54 126x18
+   ctl  1488 cls=#128               text='Game Settings'  @37,10 126x18

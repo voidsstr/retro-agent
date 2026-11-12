@@ -1,0 +1,20 @@
+members: [('guis/mainmenu.gui', 696623, 8, '0x0', 0, '0x20', 0, (2026, 9, 29, 0, 0, 0)), ('guis/mpmain.gui', 142531, 8, '0x0', 0, '0x20', 0, (2026, 9, 29, 0, 0, 0))]
+testzip: None  comment: b''
+PURE_NEVER (every member pure-excluded): True
+
+== guis/mainmenu.gui orig 696570 e90e5f71de393bc74622c82ec7c57e60  new 696623 a3d2857be2c131fb326544fc4b0d4900  delta 53
+  common prefix 116595 B (0x1c773), common suffix 579913 B; orig middle 62 B, new middle 115 B
+  orig middle: b'#str_04222"//320x240;400x300;512x384;\n\t\t\t\tvalues\t\t"3;4;5;6;7;8'
+  new  middle: b'640x480;800x600;1024x768;1152x864;1280x1024;1600x1200;Native"//320x240;400x300;512x384;\n\t\t\t\tvalues\t\t"3;4;5;6;7;8;-1'
+  line counts 21397 21397  differing lines: [4889, 4890]
+  CRLF count orig/new: 0 0
+
+== guis/mpmain.gui orig 142478 c7adb0744ee918263132201c55b3d890  new 142531 aff72db7e6df284eec2e620dcc9a3d1d  delta 53
+  common prefix 103204 B (0x19324), common suffix 39237 B; orig middle 37 B, new middle 90 B
+  orig middle: b'#str_04222"\r\n\t\t\t\t\tvalues\t"3;4;5;6;7;8'
+  new  middle: b'640x480;800x600;1024x768;1152x864;1280x1024;1600x1200;Native"\r\n\t\t\t\t\tvalues\t"3;4;5;6;7;8;-1'
+  line counts 6318 6318  differing lines: [4446, 4447]
+  CRLF count orig/new: 6317 6317
+local hdr: b'guis/mainmenu.gui' ver 20 flag 0x0 method 8 csz 57030 usz 696623 extra 0
+local hdr: b'guis/mpmain.gui' ver 20 flag 0x0 method 8 csz 12103 usz 142531 extra 0
+local headers: 2  next sig at 0x10e69 b'PK\x01\x02'

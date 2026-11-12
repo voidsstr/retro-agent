@@ -1,0 +1,143 @@
+: PID: 1076
+: CPU: arch=x86-64 , fam=586 , cpus=1
+: SIMD: SSE=2 , 3DNow=1 , MMX=1
+: OS Version: 5.1.2600 Service Pack 3
+: Desktop resolution: 1920 x 1080
+: Virtual desktop resolution: 1920 x 1080
+: -----------------------------------------------------------
+: Command line: Thief2.exe 
+: -----------------------------------------------------------
+: CWD: C:\Games\Thief2
+: -----------------------------------------------------------
+: App Version: Thief 2 Final 1.26
+: --------------------- misc config -------------------------
+: resname_base .\RES
+: cd_path \
+: load_path .\
+: script_module_path .\
+: movie_path .\MOVIES
+: install_path .\
+: language english
+: game_screen_size 1920 1080
+: game_screen_depth 16
+: game_screen_flags 13
+: game_full_screen 1
+: game_hardware 1
+: single_display_mode 2
+: ui_scale_mode 2
+: use_d3d_display
+: framerate_cap 100.0
+: SlowFrame 4
+: SlowFrameUI 10
+: force_32bit
+: force_32bit_textures
+: mipmap_mode 2
+: lm_mipmap_mode 0
+: lm_init_texmem 2
+: lm_filter_margin 1
+: tex_edge_padding 2
+: alpha_test_as_opaque
+: d3d_disp_enable_atoc 1
+: multisampletype 8
+: d3d_disp_enable_distortionfx
+: sfx_device 1
+: sfx_channels 48
+: sfx_vol_music -474
+: sfx_vol_2d 0
+: sfx_vol_3d 0
+: sfx_mixer_timeout 200
+: game dark
+: obj_min -18192
+: obj_max 8184
+: max_refs 47740
+: gui_font intrface\smalfont
+: enhanced_sky 1
+: crop_movies
+: new_mantle
+: apply_dbmods 0
+: z_far 512
+: wr_render_zcomp
+: render_weapon_particles
+: legacy_force_match_unrefs 0
+: dark_zcomp_arm
+: -----------------------------------------------------------
+: Enumerating D3D9 adapters (1)...
+:    Adapter 0
+:       device name: \\.\DISPLAY1
+:       driver     : ati2dvag.dll
+:       descr      : ATI Radeon HD 3850 AGP
+:       driver ver : 0x0006000E-000A1C63
+:       vendor id  : 0x00001002
+:       device id  : 0x00009515
+:       subsys id  : 0x0028174B
+:       device guid: D7B71EE2-D655-11CF-9868-2220A1C2
+:       desktop res: 1920 x 1080
+:       Modes
+:          640 x 480 x 16
+:          720 x 480 x 16
+:          800 x 600 x 16
+:          848 x 480 x 16
+:          1024 x 768 x 16
+:          1152 x 864 x 16
+:          1280 x 720 x 16
+:          1280 x 768 x 16
+:          1280 x 800 x 16
+:          1280 x 960 x 16
+:          1280 x 1024 x 16
+:          1360 x 768 x 16
+:          1440 x 900 x 16
+:          1680 x 1050 x 16
+:          1920 x 1080 x 16
+:          640 x 480 x 32
+:          720 x 480 x 32
+:          800 x 600 x 32
+:          848 x 480 x 32
+:          1024 x 768 x 32
+:          1152 x 864 x 32
+:          1280 x 720 x 32
+:          1280 x 768 x 32
+:          1280 x 800 x 32
+:          1280 x 960 x 32
+:          1280 x 1024 x 32
+:          1360 x 768 x 32
+:          1440 x 900 x 32
+:          1680 x 1050 x 32
+:          1920 x 1080 x 32
+:       Device Validation
+:          validated ok, device added (0, E390000)
+: Enumeration done
+: D3DProvider: Enumerating adapter 0 modes
+:    640 x 480 x 16
+:    720 x 480 x 16
+:    800 x 600 x 16
+:    848 x 480 x 16
+:    1024 x 768 x 16
+:    1152 x 864 x 16
+:    1280 x 720 x 16
+:    1280 x 768 x 16
+:    1280 x 800 x 16
+:    1280 x 960 x 16
+:    1280 x 1024 x 16
+:    1360 x 768 x 16
+:    1440 x 900 x 16
+:    1680 x 1050 x 16
+:    1920 x 1080 x 16
+:    640 x 480 x 32
+:    720 x 480 x 32
+:    800 x 600 x 32
+:    848 x 480 x 32
+:    1024 x 768 x 32
+:    1152 x 864 x 32
+:    1280 x 720 x 32
+:    1280 x 768 x 32
+:    1280 x 800 x 32
+:    1280 x 960 x 32
+:    1280 x 1024 x 32
+:    1360 x 768 x 32
+:    1440 x 900 x 32
+:    1680 x 1050 x 32
+:    1920 x 1080 x 32
+: D3DProvider: Enumeration done
+: sw framerate cap requested (10000 us)
+: D3DProvider StartMode: smode 1920x1080x32 ; mode 640x480x32 (5 9 0 2D) ; 2d_surf_mode: 0
+:    CreateDevice: res = D3D_OK ; 1920x1080 fmt=22 zfmt=75 cnt=1 ms=8 swap=1 fs=1 hz=0 pres=1 flags=2

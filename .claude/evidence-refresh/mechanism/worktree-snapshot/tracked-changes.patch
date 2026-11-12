@@ -1,0 +1,730 @@
+diff --git a/agent/shared/gameres.h b/agent/shared/gameres.h
+index 98a2902..a08ea5a 100644
+--- a/agent/shared/gameres.h
++++ b/agent/shared/gameres.h
+@@ -64,8 +64,16 @@
+ 
+ #define GR_MAX_MODES 512
+ 
+-/* A mode the DRIVER offers, with the best real refresh seen for it. */
+-typedef struct { int w, h, hz; } gr_mode_t;
++/* A mode the DRIVER offers: the best real refresh seen for it, and every real
++ * rate it was listed at (up to GR_MODE_RATES). The full set exists for the
++ * no-EDID rule in gr_target_hz(): "is the persisted desktop's own rate listed
++ * at THIS resolution" cannot be answered from the best rate alone. */
++#define GR_MODE_RATES 12
++typedef struct {
++    int w, h, hz;
++    unsigned char nr;                   /* how many of r[] are filled        */
++    unsigned char r[GR_MODE_RATES];     /* real rates, 50..199, as listed    */
++} gr_mode_t;
+ 
+ /* A bare resolution. The fixed engine tables and the 4:3 ladder are lists of
+  * resolutions, not of driver modes - a refresh field there would be
+@@ -103,9 +111,19 @@ typedef struct {
+      * number for the box. A rate is offered per resolution, so an engine
+      * running at the 4:3 target may have a different ceiling from one running
+      * at the panel's native mode, and a single `hz` would be wrong for one of
+-     * them. 0 means "not known - leave the refresh alone", never 60. */
+-    int  hz;                    /* best real rate at w x h                   */
+-    int  hz43;                  /* best real rate at w43 x h43               */
++     * them. 0 means "not known - leave the refresh alone", never 60.
++     * gr_target_hz() decides each one - the SAME function FLEETRES.EXE calls
++     * for FR_HZW / FR_HZ43 / FR_HZQ2 / FR_HZQ3, so the two writers of a
++     * shared cfg can never disagree about the number. */
++    int  hz;                    /* rate for a title at w x h     (FR_HZW)    */
++    int  hz43;                  /* rate for a title at w43 x h43 (FR_HZ43)   */
++    int  hzq2, hzq3;            /* the same at the id Tech 2 / id Tech 3
++                                 * INDEX mode (gr_q2tab[q2mode],
++                                 * gr_q3tab[q3mode]) - SoF2 and RTCW render
++                                 * there, not at w43 x h43 (1152x864 vs
++                                 * 1280x960 on the 1080p boxes)             */
++    int  hz_src;                /* where hz/hz43/hzq2/hzq3 came from:
++                                 * GR_HZSRC_EDID / _PERSISTED / _NONE         */
+     int  desk_hz;               /* best real rate at the persisted desktop   */
+     int  fr_hz;                 /* the persisted mode's OWN rate - what
+                                  * FLEETRES publishes as FR_HZ. Used only
+@@ -152,6 +170,19 @@ GR_FN int gr_hz_is_real(int hz) { return hz >= GR_HZ_MIN && hz < GR_HZ_MAX; }
+ /* Add a mode, keeping the HIGHEST real refresh seen for that resolution. A
+  * driver enumerates one entry per (resolution, depth, rate), so the same WxH
+  * arrives many times and only the best rate is worth remembering. */
++/* remember one more REAL rate a mode was listed at (duplicates ignored) */
++GR_FN void gr_mode_note_rate(gr_mode_t *m, int hz)
++{
++    int k;
++    if (!gr_hz_is_real(hz))
++        return;
++    for (k = 0; k < m->nr; k++)
++        if (m->r[k] == (unsigned char)hz)
++            return;
++    if (m->nr < GR_MODE_RATES)
++        m->r[m->nr++] = (unsigned char)hz;
++}
++
+ GR_FN void gr_modes_add(gr_modes_t *l, int w, int h, int hz)
+ {
+     int i;
+@@ -162,16 +193,35 @@ GR_FN void gr_modes_add(gr_modes_t *l, int w, int h, int hz)
+     for (i = 0; i < l->n; i++)
+         if (l->m[i].w == w && l->m[i].h == h) {
+             if (hz > l->m[i].hz) l->m[i].hz = hz;
++            gr_mode_note_rate(&l->m[i], hz);
+             return;
+         }
+     if (l->n < GR_MAX_MODES) {
+         l->m[l->n].w = w;
+         l->m[l->n].h = h;
+         l->m[l->n].hz = hz;
++        l->m[l->n].nr = 0;
++        gr_mode_note_rate(&l->m[l->n], hz);
+         l->n++;
+     }
+ }
+ 
++/* Was w x h listed at exactly this real rate (after the insert-time cap)? */
++GR_FN int gr_has_rate(const gr_modes_t *l, int w, int h, int hz)
++{
++    int i, k;
++    if (!gr_hz_is_real(hz))
++        return 0;
++    for (i = 0; i < l->n; i++)
++        if (l->m[i].w == w && l->m[i].h == h) {
++            for (k = 0; k < l->m[i].nr; k++)
++                if (l->m[i].r[k] == (unsigned char)hz)
++                    return 1;
++            return 0;
++        }
++    return 0;
++}
++
+ /*
+  * THE HIGHEST REFRESH THIS MONITOR SUPPORTS AT THIS RESOLUTION.
+  *
+@@ -198,6 +248,64 @@ GR_FN int gr_best_hz(const gr_modes_t *l, int w, int h)
+     return 0;
+ }
+ 
++/* where a per-target rate came from (gr_target_t.hz_src, FR_HZSRC) */
++#define GR_HZSRC_NONE      0    /* nothing vouches for a rate: leave it alone  */
++#define GR_HZSRC_EDID      1    /* the driver's list under the EDID ceiling    */
++#define GR_HZSRC_PERSISTED 2    /* no ceiling: the desktop's own, shown rate   */
++
++/* A MEASURED ceiling: an EDID that states a vertical range. An EDID without a
++ * range descriptor (legal in 1.4) has no ceiling to cap a list with - the
++ * list was built uncapped - so it is treated like no EDID at all. */
++GR_FN int gr_have_ceiling(const gr_panel_t *p)
++{
++    return p->ok && p->vmax > 0;
++}
++
++/*
++ * THE REFRESH A TITLE RUNNING AT w x h IS TOLD TO ASK FOR - one function,
++ * called by BOTH writers of a shared cfg: GAMERES (gr_decide below, the
++ * %HZW% %HZ43% %HZQ2% %HZQ3% tokens) and FLEETRES.EXE (FR_HZW FR_HZ43 FR_HZQ2
++ * FR_HZQ3). Two copies of this rule would be two answers; the id Tech 3
++ * fleetres.cfg is rewritten by each writer whenever it disagrees with the
++ * other, and the "0 value(s) changed" signal dies with it.
++ *
++ * WITH A MEASURED CEILING: gr_best_hz - the best rate the driver lists at
++ * w x h, the EDID maximum already applied as the list was built.
++ *
++ * WITHOUT ONE there is no measurement of the MONITOR - only of the mode the
++ * tube is showing right now, the persisted desktop. That vouches for exactly
++ * one rate: its own, and only at a resolution no bigger than itself (the same
++ * vertical rate over fewer lines is a lower line rate - inside what the tube
++ * is demonstrably syncing) and only where the driver LISTS that exact rate.
++ * Anything else answers 0: leave the refresh alone. This keeps what FR_HZ
++ * already gave a no-EDID tube at its own desktop mode (.143's 100 Hz at
++ * 1024x768) without ever claiming a rate the tube has not been seen to take -
++ * and never the driver's unclamped best, which is what the card can do, not
++ * what the monitor can.
++ */
++GR_FN int gr_target_hz(const gr_panel_t *p, const gr_modes_t *l, int w, int h,
++                       int reg_w, int reg_h, int reg_hz, int *src)
++{
++    int hz;
++    if (gr_have_ceiling(p)) {
++        hz = gr_best_hz(l, w, h);
++        if (src) *src = hz ? GR_HZSRC_EDID : GR_HZSRC_NONE;
++        return hz;
++    }
++    if (gr_hz_is_real(reg_hz) && w <= reg_w && h <= reg_h &&
++        gr_has_rate(l, w, h, reg_hz)) {
++        if (src) *src = GR_HZSRC_PERSISTED;
++        return reg_hz;
++    }
++    if (src) *src = GR_HZSRC_NONE;
++    return 0;
++}
++
++GR_FN const char *gr_hz_src_name(int src)
++{
++    return src == GR_HZSRC_EDID ? "edid" : src == GR_HZSRC_PERSISTED ? "persisted" : "none";
++}
++
+ /*
+  * Is a mode one we may ask for?
+  *
+@@ -456,8 +564,12 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
+      * must leave the refresh alone. Falling back to the persisted desktop's
+      * rate here would be the "hardcoded 60" mistake wearing a better hat: it
+      * would claim a rate for a resolution nobody measured it at. */
+-    t->hz      = gr_best_hz(l, t->w, t->h);
+-    t->hz43    = gr_best_hz(l, t->w43, t->h43);
++    {
++        int s1 = GR_HZSRC_NONE, s2 = GR_HZSRC_NONE;
++        t->hz   = gr_target_hz(p, l, t->w, t->h, reg_w, reg_h, reg_hz, &s1);
++        t->hz43 = gr_target_hz(p, l, t->w43, t->h43, reg_w, reg_h, reg_hz, &s2);
++        t->hz_src = s1 > s2 ? s1 : s2;
++    }
+     t->desk_hz = gr_best_hz(l, reg_w, reg_h);
+     if (!t->desk_hz && reg_hz >= GR_HZ_MIN && reg_hz < GR_HZ_MAX)
+         t->desk_hz = reg_hz;    /* the mode it is persisted at IS a measurement */
+@@ -469,6 +581,12 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
+     t->fov    = gr_horplus_fov(tgt_w, tgt_h);
+     t->q2mode = gr_q2_mode_for(l, t->w43, t->h43);
+     t->q3mode = gr_q3_mode_for(l, t->w43, t->h43);
++    /* the index engines render at their TABLE's mode, which is not always the
++     * 4:3 target (q3mode 7 = 1152x864 where w43 is 1280x960) */
++    t->hzq2 = gr_target_hz(p, l, gr_q2tab[t->q2mode].w, gr_q2tab[t->q2mode].h,
++                           reg_w, reg_h, reg_hz, NULL);
++    t->hzq3 = gr_target_hz(p, l, gr_q3tab[t->q3mode].w, gr_q3tab[t->q3mode].h,
++                           reg_w, reg_h, reg_hz, NULL);
+     t->d3ar   = gr_d3_aspect(tgt_w, tgt_h);
+     t->wide   = (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0;
+     t->lcd    = lcd;
+@@ -487,8 +605,11 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
+  *
+  *   %W% %H%          the widescreen-capable target
+  *   %W43% %H43%      the 4:3-only target
+- *   %HZ% %HZ43%      the highest refresh the monitor supports AT that target
+- *                    - two numbers, because a rate is offered per resolution
++ *   %HZW% %HZ43%     the refresh a title AT that target asks for
++ *   %HZQ2% %HZQ3%    ... at the id Tech 2 / id Tech 3 index mode
++ *                    - per target, because a rate is offered per resolution;
++ *                    0 = leave it alone (gr_target_hz). %HZ% = %HZW%.
++ *   %HZSRC%          edid | persisted | none - what vouches for them
+  *   %DESKHZ%         the same, at the persisted desktop mode
+  *   %FRHZ%           the persisted mode's OWN rate - exactly what FLEETRES
+  *                    publishes as FR_HZ, for a file both writers touch
+@@ -529,8 +650,13 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
+                     else if (!strcmp(tok, "H"))       sprintf(val, "%d", t->h);
+                     else if (!strcmp(tok, "W43"))     sprintf(val, "%d", t->w43);
+                     else if (!strcmp(tok, "H43"))     sprintf(val, "%d", t->h43);
+-                    else if (!strcmp(tok, "HZ"))      sprintf(val, "%d", t->hz);
++                    /* HZ is kept as the old name of HZW */
++                    else if (!strcmp(tok, "HZ") || !strcmp(tok, "HZW"))
++                                                      sprintf(val, "%d", t->hz);
+                     else if (!strcmp(tok, "HZ43"))    sprintf(val, "%d", t->hz43);
++                    else if (!strcmp(tok, "HZQ2"))    sprintf(val, "%d", t->hzq2);
++                    else if (!strcmp(tok, "HZQ3"))    sprintf(val, "%d", t->hzq3);
++                    else if (!strcmp(tok, "HZSRC"))   strcpy(val, gr_hz_src_name(t->hz_src));
+                     else if (!strcmp(tok, "DESKHZ"))  sprintf(val, "%d", t->desk_hz);
+                     else if (!strcmp(tok, "FRHZ"))    sprintf(val, "%d", t->fr_hz);
+                     /* True only when a rate is actually KNOWN. An engine told
+diff --git a/agent/src/gameres.c b/agent/src/gameres.c
+index 712ed56..e209de4 100644
+--- a/agent/src/gameres.c
++++ b/agent/src/gameres.c
+@@ -217,11 +217,12 @@ void gameres_probe(void)
+             g_gr.reg_w, g_gr.reg_h, g_gr.modes.n,
+             g_gr.t.w, g_gr.t.h, g_gr.t.aspect, g_gr.t.w43, g_gr.t.h43,
+             g_gr.t.q2mode, g_gr.t.q3mode, g_gr.t.fov);
+-    log_msg(LOG_GR, "refresh: best %d Hz at %dx%d, %d Hz at %dx%d, "
+-                    "%d Hz at the desktop %dx%d (panel max %d Hz%s); "
+-                    "desktop is persisted at %d Hz",
++    log_msg(LOG_GR, "refresh: %d Hz at %dx%d, %d Hz at %dx%d, %d/%d Hz at the "
++                    "id Tech 2/3 index modes (%s), %d Hz at the desktop %dx%d "
++                    "(panel max %d Hz%s); desktop is persisted at %d Hz",
+             g_gr.t.hz, g_gr.t.w, g_gr.t.h,
+             g_gr.t.hz43, g_gr.t.w43, g_gr.t.h43,
++            g_gr.t.hzq2, g_gr.t.hzq3, gr_hz_src_name(g_gr.t.hz_src),
+             g_gr.t.desk_hz, g_gr.reg_w, g_gr.reg_h,
+             g_gr.panel.vmax, g_gr.panel.ok ? "" : " - NOT MEASURED",
+             g_gr.t.fr_hz);
+@@ -816,6 +817,7 @@ void handle_gameres(SOCKET sock, const char *args)
+         "\"cap\":\"%dx%d\","
+         "\"target\":{\"wide\":\"%dx%d\",\"four_three\":\"%dx%d\","
+         "\"aspect\":\"%s\",\"hz\":%d,\"hz_four_three\":%d,"
++        "\"hz_q2\":%d,\"hz_q3\":%d,\"hz_src\":\"%s\","
+         "\"hz_desktop\":%d,\"hz_launcher\":%d,"
+         "\"fov\":%d,\"q2mode\":%d,\"q3mode\":%d,"
+         "\"d3_aspect\":%d,\"dosbox_fullresolution\":\"%s\"},"
+@@ -830,7 +832,8 @@ void handle_gameres(SOCKET sock, const char *args)
+         g_gr.live_w, g_gr.live_h, g_gr.live_bpp,
+         g_gr.cap_w, g_gr.cap_h,
+         g_gr.t.w, g_gr.t.h, g_gr.t.w43, g_gr.t.h43, g_gr.t.aspect,
+-        g_gr.t.hz, g_gr.t.hz43, g_gr.t.desk_hz, g_gr.t.fr_hz,
++        g_gr.t.hz, g_gr.t.hz43, g_gr.t.hzq2, g_gr.t.hzq3, gr_hz_src_name(g_gr.t.hz_src),
++        g_gr.t.desk_hz, g_gr.t.fr_hz,
+         g_gr.t.fov, g_gr.t.q2mode, g_gr.t.q3mode, g_gr.t.d3ar,
+         g_gr.t.lcd ? "desktop" : "original");
+     if (n < 0) n = 0;
+diff --git a/agent/tools/refreshkeep.c b/agent/tools/refreshkeep.c
+index b24de2f..04084a6 100644
+--- a/agent/tools/refreshkeep.c
++++ b/agent/tools/refreshkeep.c
+@@ -86,6 +86,7 @@ int main(int argc, char **argv)
+ {
+     const char *proc = NULL;
+     int want = 0, limit = 1800, elapsed = 0, seen = 0, forced = 0;
++    int force_at[64];                   /* seconds of each re-apply (budget) */
+ 
+     if (argc < 2) {
+         printf("usage: refreshkeep <hz|max> [procname.exe|-] [maxseconds]\n");
+@@ -127,6 +128,14 @@ int main(int argc, char **argv)
+         target = rk_pick_refresh(rates, n, want);
+         if (!rk_should_force((int) cur.dmDisplayFrequency, target))
+             continue;
++        if (!rk_budget_ok(force_at, forced < 64 ? forced : 64, elapsed)) {
++            printf("t=%ds refreshkeep: the mode keeps drifting off %dHz - %d re-applies "
++                   "inside %ds, so something else is setting it (a Direct3D title "
++                   "resetting its device?). STOPPING rather than ping-pong a CRT.\n",
++                   elapsed, target, RK_MAX_FORCES, RK_FORCE_WINDOW_S);
++            fflush(stdout);
++            break;
++        }
+ 
+         {
+             DEVMODE set;
+@@ -144,8 +153,10 @@ int main(int argc, char **argv)
+                    cur.dmPelsWidth, cur.dmPelsHeight, cur.dmBitsPerPel,
+                    cur.dmDisplayFrequency, target, r);
+             fflush(stdout);
+-            if (r == DISP_CHANGE_SUCCESSFUL)
+-                forced++;
++            if (forced < 64)
++                force_at[forced] = elapsed;
++            forced++;                   /* a FAILED re-apply counts too: it is still a try */
++            (void) r;
+         }
+     }
+ 
+diff --git a/agent/tools/refreshlogic.h b/agent/tools/refreshlogic.h
+index fff0109..b718686 100644
+--- a/agent/tools/refreshlogic.h
++++ b/agent/tools/refreshlogic.h
+@@ -54,10 +54,35 @@ static int rk_pick_refresh(const int *avail, int n, int want)
+ }
+ 
+ /* Should we issue a ChangeDisplaySettings right now?
+- * Only when we have a target and the display is not already on it. */
++ * Only when we have a target, the display REPORTS a real rate, and it is not
++ * already on the target.
++ *
++ * A current rate of 0 or 1 is "unknown", not "wrong": Windows 9x reports 0
++ * for the live mode (measured on .243, 2026-09-29: DISPLAYCFG get -> refresh 0,
++ * registry_refresh 75) and a driver can report its 1 Hz "default". Forcing on
++ * an unknown re-applies the mode on EVERY 1 s poll, the re-apply cannot make
++ * the reading real, and a CRT re-syncs once a second for the whole session. */
+ static int rk_should_force(int current_hz, int target_hz)
+ {
+-    return target_hz > 0 && current_hz != target_hz;
++    return target_hz > 0 && rk_hz_is_real(current_hz) && current_hz != target_hz;
++}
++
++/* A re-apply BUDGET. A mode that keeps drifting off target is being set by
++ * someone else - a Direct3D / DirectDraw title that loses its device when we
++ * change the mode under it, resets it at no rate, and so loses it again: a
++ * mode-switch ping-pong on a CRT. So at most RK_MAX_FORCES re-applies inside
++ * any RK_FORCE_WINDOW_S seconds, and past that refreshkeep stops for good and
++ * says so. times[] holds the seconds of the re-applies made so far. */
++#define RK_MAX_FORCES     3
++#define RK_FORCE_WINDOW_S 60
++
++static int rk_budget_ok(const int *times, int n, int now_s)
++{
++    int i, recent = 0;
++    for (i = 0; i < n; i++)
++        if (now_s - times[i] < RK_FORCE_WINDOW_S)
++            recent++;
++    return recent < RK_MAX_FORCES;
+ }
+ 
+ #endif /* REFRESHLOGIC_H */
+diff --git a/provisioning/fleetres/fleetres.c b/provisioning/fleetres/fleetres.c
+index 343af43..060e97e 100644
+--- a/provisioning/fleetres/fleetres.c
++++ b/provisioning/fleetres/fleetres.c
+@@ -52,6 +52,18 @@
+ #include <string.h>
+ #include <stdlib.h>
+ 
++/* THE PER-TARGET REFRESH IS DECIDED BY THE AGENT'S OWN HEADER, NOT A PORT.
++ * GAMERES (agent/src/gameres.c) and this launcher both write the id Tech 3
++ * fleetres.cfg and Serious Sam's Game_startup.ini, and a one-number
++ * disagreement makes each rewrite the other's copy forever. So the rate
++ * FR_HZW / FR_HZ43 / FR_HZQ2 / FR_HZQ3 carry comes from gr_target_hz() in
++ * agent/shared/gameres.h - Win32-free, compiled here and in the agent alike -
++ * over a mode list built the same way (every mode >= 16 bpp with its rate, the
++ * EDID vertical maximum applied as each is ADDED, then the live mode at 0 Hz
++ * and the persisted one at its own rate: gameres.c gr_enum_modes).
++ * tests/python/test_fleetres_refresh_mirror.py pins every one of those. */
++#include "../../agent/shared/gameres.h"
++
+ #ifndef ENUM_CURRENT_SETTINGS
+ #define ENUM_CURRENT_SETTINGS ((DWORD)-1)
+ #endif
+@@ -564,6 +576,9 @@ int main(int argc, char **argv)
+     int cap_w = 0, cap_h = 0;
+     int glide_n = 0, glide_render = 0;
+     char glide_dev[128];
++    static gr_modes_t rl;              /* the same list gameres.c builds, WITH rates */
++    gr_panel_t gp;
++    int hzw = 0, hz43 = 0, hzq2 = 0, hzq3 = 0, src_w = 0, src_43 = 0;
+     char asp[16], nasp[16];
+     const char *mode = "-cmd";
+ 
+@@ -647,10 +662,20 @@ int main(int argc, char **argv)
+         reg_w = dm.dmPelsWidth; reg_h = dm.dmPelsHeight;
+         reg_hz = dm.dmDisplayFrequency;
+     }
++    /* EDID FIRST (gameres.c's order): the rate list clamps every rate to the
++     * panel's vertical maximum as it is ADDED, so the ceiling must be known
++     * before a single mode goes in. */
++    native_ok = panel_probe(&p);
++    gr_modes_reset(&rl);
++    rl.hz_cap = native_ok ? p.vmax : 0;
+     for (i = 0; ; i++) {
+         memset(&dm, 0, sizeof(dm)); dm.dmSize = sizeof(dm);
+         if (!EnumDisplaySettingsA(NULL, i, &dm)) break;
+-        if (dm.dmBitsPerPel >= 16) add_mode(dm.dmPelsWidth, dm.dmPelsHeight);
++        if (dm.dmBitsPerPel >= 16) {
++            add_mode(dm.dmPelsWidth, dm.dmPelsHeight);
++            gr_modes_add(&rl, (int)dm.dmPelsWidth, (int)dm.dmPelsHeight,
++                         (int)dm.dmDisplayFrequency);
++        }
+     }
+     /* Some drivers (measured on .143, GeForce 6800) answer ENUM_CURRENT_SETTINGS
+      * but return FALSE at index 0 for the NULL device.  Retry against each
+@@ -666,14 +691,20 @@ int main(int argc, char **argv)
+             for (i = 0; ; i++) {
+                 memset(&dm, 0, sizeof(dm)); dm.dmSize = sizeof(dm);
+                 if (!EnumDisplaySettingsA(ad2.DeviceName, i, &dm)) break;
+-                if (dm.dmBitsPerPel >= 16) add_mode(dm.dmPelsWidth, dm.dmPelsHeight);
++                if (dm.dmBitsPerPel >= 16) {
++                    add_mode(dm.dmPelsWidth, dm.dmPelsHeight);
++                    gr_modes_add(&rl, (int)dm.dmPelsWidth, (int)dm.dmPelsHeight,
++                                 (int)dm.dmDisplayFrequency);
++                }
+             }
+         }
+     }
+     add_mode(desk_w, desk_h);
+     add_mode(reg_w, reg_h);
+-
+-    native_ok = panel_probe(&p);
++    /* the two modes the box demonstrably shows - exactly as gameres.c adds
++     * them: the live one with no rate claimed, the persisted one at its own */
++    gr_modes_add(&rl, desk_w, desk_h, 0);
++    gr_modes_add(&rl, reg_w, reg_h, reg_hz);
+ 
+     /* Optional PER-BOX ceiling, for a machine whose 3D hardware cannot drive
+      * the mode its monitor deserves (a Voodoo 2 stops at 800x600; an Intel
+@@ -823,6 +854,20 @@ int main(int argc, char **argv)
+     aspect_str(tgt_w, tgt_h, asp);
+     if (native_ok) aspect_str(p.native_w, p.native_h, nasp); else strcpy(nasp, "?");
+ 
++    /* THE REFRESH EACH KIND OF TITLE ASKS FOR, AT ITS OWN RESOLUTION - the
++     * agent's gr_target_hz(), not a port of it. 0 = leave the refresh alone
++     * (no EDID ceiling and not the tube's own shown mode), never 60. */
++    memset(&gp, 0, sizeof(gp));
++    gp.ok = native_ok;
++    gp.native_w = p.native_w; gp.native_h = p.native_h; gp.native_hz = p.native_hz;
++    gp.digital = p.digital; gp.vmax = p.vmax; gp.hcm = p.hcm; gp.vcm = p.vcm;
++    hzw  = gr_target_hz(&gp, &rl, tgt_w, tgt_h, reg_w, reg_h, reg_hz, &src_w);
++    hz43 = gr_target_hz(&gp, &rl, t43_w, t43_h, reg_w, reg_h, reg_hz, &src_43);
++    hzq2 = gr_target_hz(&gp, &rl, q2tab[q2_mode_for(t43_w, t43_h)].w,
++                        q2tab[q2_mode_for(t43_w, t43_h)].h, reg_w, reg_h, reg_hz, NULL);
++    hzq3 = gr_target_hz(&gp, &rl, q3tab[q3_mode_for(t43_w, t43_h)].w,
++                        q3tab[q3_mode_for(t43_w, t43_h)].h, reg_w, reg_h, reg_hz, NULL);
++
+     if (_stricmp(mode, "-info") == 0) {
+         printf("panel      : %s  pnp=%s  %s\n",
+                native_ok ? (p.name[0] ? p.name : "(unnamed)") : "(no EDID)",
+@@ -843,6 +888,9 @@ int main(int argc, char **argv)
+                q3_mode_for(t43_w, t43_h),
+                q3tab[q3_mode_for(t43_w, t43_h)].w,
+                q3tab[q3_mode_for(t43_w, t43_h)].h);
++        printf("refresh    : %d Hz at %dx%d, %d Hz at %dx%d, id Tech 2/3 index %d/%d Hz"
++               "  (%s; 0 = left alone)\n", hzw, tgt_w, tgt_h, hz43, t43_w, t43_h,
++               hzq2, hzq3, gr_hz_src_name(src_w > src_43 ? src_w : src_43));
+         printf("glide      : %s%s%s  render device %s\n",
+                glide_n ? "3dfx silicon PRESENT " : "no 3dfx silicon",
+                glide_n ? glide_dev : "",
+@@ -882,6 +930,18 @@ int main(int argc, char **argv)
+     printf("set \"FR_HZ=%d\"\n",
+            (reg_hz >= 50 && reg_hz <= 240) ? reg_hz
+            : ((desk_hz >= 50 && desk_hz <= 240) ? desk_hz : 60));
++    /* THE PER-TARGET RATES (agent/shared/gameres.h gr_target_hz). A title
++     * asks for the one that matches the resolution IT runs at: FR_HZW at
++     * FR_W x FR_H, FR_HZ43 at FR_W43 x FR_H43, FR_HZQ2 / FR_HZQ3 at the
++     * FR_Q2MODE / FR_Q3MODE table entry. 0 means LEAVE THE REFRESH ALONE -
++     * a launcher must then pass no rate at all, never 0 as a rate and never
++     * a 60 of its own. FR_HZ above keeps its old meaning (the persisted
++     * desktop's rate) for the launchers not yet moved over. */
++    printf("set \"FR_HZW=%d\"\n",  hzw);
++    printf("set \"FR_HZ43=%d\"\n", hz43);
++    printf("set \"FR_HZQ2=%d\"\n", hzq2);
++    printf("set \"FR_HZQ3=%d\"\n", hzq3);
++    printf("set \"FR_HZSRC=%s\"\n", gr_hz_src_name(src_w > src_43 ? src_w : src_43));
+     printf("set \"FR_ASPECT=%s\"\n",   asp);
+     printf("set \"FR_PANEL=%s\"\n",    lcd ? "LCD" : "CRT");
+     printf("set \"FR_NATIVE_W=%d\"\n", native_ok ? p.native_w : desk_w);
+diff --git a/tests/README.md b/tests/README.md
+index 147759a..885bd17 100644
+--- a/tests/README.md
++++ b/tests/README.md
+@@ -376,6 +376,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
+ | 0.1.34 fullscreen refresh snap-down (`fxBestRefresh`, was hardcoded 60Hz) | MesaFX ICD | `native/test_fx_best_refresh.c` |
+ | 0.1.35 fullscreen cursor overlay stamp/clip (`fxDrawCursorOverlay`) | MesaFX ICD | `native/test_fx_cursor_overlay.c` |
+ | refreshkeep 100Hz hold: a game that omits DM_DISPLAYFREQUENCY gets 60Hz on XP | `agent/tools/refreshlogic.h` | `native/test_refreshkeep.c` |
++| refreshkeep must never force on an UNKNOWN current rate (Win9x reports 0 for the live mode - `.243` DISPLAYCFG 2026-09-29 - so the old `current != target` re-applied every 1 s poll forever) and must stop when the mode keeps drifting (a D3D title resetting its device after every re-apply = a CRT ping-pong): at most 3 re-applies a minute | `agent/tools/refreshlogic.h:rk_should_force`, `rk_budget_ok`; `agent/tools/refreshkeep.c` | `native/test_refreshkeep.c::an_unknown_current_rate_is_never_forced`, `a_mode_that_keeps_drifting_stops_the_holder` |
+ | game-refresh stale-cvar strip read the VALUE, not the name, in GoldSrc configs | `scripts/game-refresh/deploy_game_refresh.py` | `python/test_game_refresh_cvars.py` |
+ | glide2x XP bring-up: linear-base guards + prime-before-ALLOCCONTEXT (79ee51e) | open Glide (glide2x/h3 minihwc) | `native/test_glide2x_mapboard_guards.c` |
+ | missing v-tags made `make` stamp 1.9.2 on v1.25.1 source (2026-08-11) | agent/Makefile versioning | `python/test_agent_version.py` |
+@@ -475,6 +476,8 @@ staged title's own config at the end of that title's sync.
+ | **a file BOTH the agent and the title's launcher write must get the same settings from each.** The launcher rebuilds `fleetres.cfg` at every start and the agent rewrites it whenever one of its settings is missing, so a one-line disagreement (a refresh rate) means each rewrites the other's copy forever and the `0 value(s) changed` signal dies with it | `agent/shared/gameres.h:gr_cfg_body`, `scripts/fleet/stage-fleetres.py:idtech3_cfg` | `python/test_gameres_mirror.py::test_a_shared_cfg_is_written_identically_by_both_writers` |
+ | the agent's rule table must not become a SECOND answer: every rule is checked against the staged library and against the launcher that already writes the same file | `agent/shared/gameres.h:gr_rules` | `python/test_gameres_mirror.py` |
+ | `validate-staged-library.py` failed the WHOLE library on Quake III because `FLEETGL.BAT` uses `%FR_*%` without calling `FLEETRES.BAT` — it is a HELPER the Play launchers call after it, so the variables are already in the environment. A validator that cries wolf is one people learn to ignore (2026-09-04) | `scripts/validate-staged-library.py` | `test_staged_library.py` (suite [6]) |
++| **the refresh a title asks for is per TARGET and has ONE implementation** (design phase 1, 2026-09-29, not yet on hardware). `gr_target_hz()` answers the rate for a title at its own resolution - with an EDID ceiling the best listed rate, WITHOUT one only the persisted desktop's own rate at a mode no bigger than itself where the driver lists it, else 0 = leave it alone (never the driver's unclamped best: `.133`-shaped fixture, card 100 Hz, tube shown 85). FLEETRES.EXE compiles the same header, so FR_HZW / FR_HZ43 / FR_HZQ2 / FR_HZQ3 can go into a cfg both writers touch without either undoing the other. Also fixes the mirror test's latent `%HZ%` -> `%FR_HZ%` map (a different number) | `agent/shared/gameres.h:gr_target_hz`, `gr_has_rate`; `provisioning/fleetres/fleetres.c` (FR_HZ* lines) | `native/test_gameres.c::t_target_rate_*`, `t_listed_rates_respect_the_cap`; `python/test_fleetres_refresh_mirror.py` |
++| **modetest: measure what a mode change that names NO refresh lands on, per OS + driver, without hurting a CRT** (2026-09-29, built, not yet run on a box). Only listed modes, never bigger than the persisted desktop, explicit rates listed and under the EDID vertical AND horizontal limits (`.124`'s old CPD-G200: 96 kHz vs 1600x1200@85 = 106 kHz), "max" refused with no ceiling, refused when the live mode is not the persisted one (Win9x 0 Hz = unknown, not different), a bounded switch count, and a vblank-timed refresh because Win9x reports 0 | `tools/modetest/modetest_logic.h` | `native/test_modetest_logic.c`; the per-box plan (`tools/modetest/run_modetest.py`: switch counts = the tool's own, never bigger than the persisted desktop, explicit rates under the EDID vmax, no rate named on Win9x, DirectDraw/D3D steps launched visible, `.124` gated to the V5 lane, `.249` never) in `python/test_modetest_plan.py` |
+ 
+ ### GAMESYNC library enumeration (box `.243`, 2026-08-31)
+ 
+diff --git a/tests/native/test_gameres.c b/tests/native/test_gameres.c
+index baee33f..24e8524 100644
+--- a/tests/native/test_gameres.c
++++ b/tests/native/test_gameres.c
+@@ -585,6 +585,155 @@ TEST(t_shared_files_use_the_launchers_number)
+     CHECK_EQ_I(t.fr_hz, 60);
+ }
+ 
++
++/*
++ * THE RATE A TITLE IS TOLD TO ASK FOR, PER TARGET - gr_target_hz(), the one
++ * function GAMERES and FLEETRES.EXE both call (FR_HZW / FR_HZ43 / FR_HZQ2 /
++ * FR_HZQ3). Fixtures are the fleet's own lists, 2026-09-29.
++ */
++static void add_rows(gr_modes_t *l, const int (*t)[3], size_t n)
++{
++    size_t i;
++    for (i = 0; i < n; i++)
++        gr_modes_add(l, t[i][0], t[i][1], t[i][2]);
++}
++
++/* .124: V5 6000 on vcr-kmd, HP P1120 (EDID vmax 160, 40x30 cm), desktop
++ * persisted 1280x1024@85; vcr-kmd lists several rates per 4:3 mode and only
++ * 60 at the wide ones (GAMERES 2026-09-29 00:26). */
++TEST(t_target_rate_on_a_crt_with_edid)
++{
++    static const int t124[][3] = {
++        {640,480,60},{640,480,75},{640,480,85},{800,600,60},{800,600,85},
++        {1024,768,60},{1024,768,75},{1024,768,85},
++        {1152,864,75},{1152,864,60},{1152,864,85},
++        {1280,960,60},{1280,960,85},{1280,960,75},
++        {1280,1024,60},{1280,1024,75},{1280,1024,85},
++        {1600,1200,60},{1600,1200,85},{1280,720,60},{1680,1050,60}
++    };
++    gr_modes_t l; gr_target_t t; gr_panel_t p;
++    char out[256];
++    memset(&p, 0, sizeof(p));
++    p.ok = 1; p.native_w = 1600; p.native_h = 1200; p.native_hz = 85;
++    p.vmax = 160; p.hcm = 40; p.vcm = 30;
++    gr_modes_reset(&l);
++    l.hz_cap = p.vmax;
++    add_rows(&l, t124, sizeof(t124) / sizeof(t124[0]));
++    gr_modes_add(&l, 1280, 1024, 85);                   /* the persisted mode */
++    gr_decide(&p, &l, 1280, 1024, 85, 32, 0, 0, &t);
++
++    CHECK_EQ_I(t.w, 1280); CHECK_EQ_I(t.h, 960);
++    CHECK_EQ_I(t.hz, 85);                               /* FR_HZW  at 1280x960 */
++    CHECK_EQ_I(t.hz43, 85);                             /* FR_HZ43 */
++    CHECK_EQ_I(gr_q3tab[t.q3mode].w, 1152);             /* SoF2 / RTCW run here */
++    CHECK_EQ_I(t.hzq3, 85);
++    CHECK_EQ_I(t.hzq2, 85);
++    CHECK_EQ_I(t.hz_src, GR_HZSRC_EDID);
++    CHECK_EQ_I(gr_expand("%HZW% %HZ43% %HZQ2% %HZQ3% %HZSRC% %HZ%", &t, out,
++                         sizeof(out)), 0);
++    CHECK(strcmp(out, "85 85 85 85 edid 85") == 0, "per-target tokens expand");
++    /* a wide mode on this tube is 60 Hz only - asking it for 85 there would
++     * be the one-number-per-box mistake */
++    CHECK_EQ_I(gr_target_hz(&p, &l, 1280, 720, 1280, 1024, 85, NULL), 60);
++}
++
++/* .123 / .145: a 1080p LCD on VGA (vmax 76). The native mode is 60 Hz only;
++ * the 4:3 modes the id Tech 2 / GoldSrc titles fall back to take 75. */
++TEST(t_target_rate_on_a_1080p_lcd)
++{
++    static const int t145[][3] = {
++        {640,480,60},{640,480,75},{800,600,60},{800,600,75},{1024,768,60},
++        {1024,768,75},{1152,864,75},{1280,960,60},{1280,960,75},
++        {1280,1024,60},{1280,1024,75},{1920,1080,60}
++    };
++    gr_modes_t l; gr_target_t t; gr_panel_t p = panel_1080p();
++    gr_modes_reset(&l);
++    l.hz_cap = p.vmax;
++    add_rows(&l, t145, sizeof(t145) / sizeof(t145[0]));
++    gr_decide(&p, &l, 1920, 1080, 60, 32, 0, 0, &t);
++
++    CHECK_EQ_I(t.hz, 60);                               /* 1920x1080 */
++    CHECK_EQ_I(t.w43, 1280);
++    CHECK_EQ_I(t.hz43, 75);                             /* 1280x960 */
++    CHECK_EQ_I(gr_q3tab[t.q3mode].w, 1152);
++    CHECK_EQ_I(t.hzq3, 75);
++    CHECK_EQ_I(t.fr_hz, 60);                            /* what FR_HZ said: 60 */
++}
++
++/* NO EDID: only the persisted desktop - the mode the tube is SHOWING - vouches
++ * for a rate, at resolutions no bigger than itself, where the driver lists
++ * that exact rate. Never the driver's unclamped best. */
++TEST(t_target_rate_without_edid_is_the_shown_rate_or_nothing)
++{
++    /* .133-shaped: a 4:3 tube persisted at 1280x1024@85, the card lists 100 */
++    static const int t133[][3] = {
++        {1024,768,60},{1024,768,85},{1024,768,100},
++        {1152,864,60},{1152,864,75},{1152,864,85},
++        {1280,960,60},{1280,960,75},{1280,960,85},{1280,960,100},
++        {1280,1024,60},{1280,1024,75},{1280,1024,85},
++        {800,600,60},{800,600,72}
++    };
++    gr_modes_t l; gr_target_t t; gr_panel_t p = panel_none();
++    int src = -1;
++    gr_modes_reset(&l);                                 /* no EDID: no cap */
++    add_rows(&l, t133, sizeof(t133) / sizeof(t133[0]));
++    gr_modes_add(&l, 1280, 1024, 85);
++    gr_decide(&p, &l, 1280, 1024, 85, 32, 0, 0, &t);
++
++    CHECK_EQ_I(t.w, 1280); CHECK_EQ_I(t.h, 960);
++    CHECK_EQ_I(gr_best_hz(&l, 1280, 960), 100);         /* what the CARD can do */
++    CHECK_EQ_I(t.hz, 85);                               /* what the TUBE was seen at */
++    CHECK(t.hz != 100, "the unclamped driver best is never claimed without EDID");
++    CHECK_EQ_I(t.hzq3, 85);                             /* 1152x864 lists 85 */
++    CHECK_EQ_I(t.hz_src, GR_HZSRC_PERSISTED);
++    /* 800x600 does not list 85: leave it alone, not 72, not 60 */
++    CHECK_EQ_I(gr_target_hz(&p, &l, 800, 600, 1280, 1024, 85, &src), 0);
++    CHECK_EQ_I(src, GR_HZSRC_NONE);
++    /* nothing bigger than the persisted mode is vouched for */
++    CHECK_EQ_I(gr_target_hz(&p, &l, 1600, 1200, 1280, 1024, 85, NULL), 0);
++    /* an EDID that states no range is no ceiling either */
++    p.ok = 1; p.native_w = 1280; p.native_h = 1024; p.vmax = 0;
++    CHECK_EQ_I(gr_target_hz(&p, &l, 1280, 960, 1280, 1024, 85, &src), 85);
++    CHECK_EQ_I(src, GR_HZSRC_PERSISTED);
++}
++
++/* .243: Windows 98 lists every mode at 0 Hz; the persisted 1024x768 carries
++ * the display class's RefreshRate (75). The desktop's own mode keeps 75 - what
++ * FR_HZ gave it - and every other mode is left to the driver. */
++TEST(t_target_rate_on_win98_without_edid)
++{
++    gr_modes_t l; gr_target_t t; gr_panel_t p = panel_none();
++    gr_modes_reset(&l);
++    gr_modes_add(&l, 640, 480, 0);
++    gr_modes_add(&l, 800, 600, 0);
++    gr_modes_add(&l, 1024, 768, 0);                     /* live, rate unknown */
++    gr_modes_add(&l, 1024, 768, 75);                    /* persisted */
++    gr_decide(&p, &l, 1024, 768, 75, 8, 0, 0, &t);
++
++    CHECK_EQ_I(t.w, 1024); CHECK_EQ_I(t.h, 768);
++    CHECK_EQ_I(t.hz, 75);
++    CHECK_EQ_I(t.fr_hz, 75);
++    CHECK_EQ_I(gr_target_hz(&p, &l, 800, 600, 1024, 768, 75, NULL), 0);
++    CHECK_EQ_I(gr_target_hz(&p, &l, 640, 480, 1024, 768, 75, NULL), 0);
++}
++
++/* The rate list must survive the insert-time EDID cap exactly like the best
++ * rate does: a rate past the panel's maximum is not "listed". */
++TEST(t_listed_rates_respect_the_cap)
++{
++    gr_modes_t l;
++    gr_modes_reset(&l);
++    l.hz_cap = 76;
++    gr_modes_add(&l, 1280, 960, 60);
++    gr_modes_add(&l, 1280, 960, 75);
++    gr_modes_add(&l, 1280, 960, 85);                    /* over the cap */
++    gr_modes_add(&l, 1280, 960, 1);                     /* sentinel */
++    CHECK_EQ_I(gr_has_rate(&l, 1280, 960, 75), 1);
++    CHECK_EQ_I(gr_has_rate(&l, 1280, 960, 85), 0);
++    CHECK_EQ_I(gr_has_rate(&l, 1280, 960, 1), 0);
++    CHECK_EQ_I(gr_best_hz(&l, 1280, 960), 75);
++}
++
+ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
+     RUN(t_lcd_gets_native);
+     RUN(t_q2_q3_tables_differ);
+@@ -601,4 +750,9 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
+     RUN(t_refresh_is_per_resolution);
+     RUN(t_refresh_is_clamped_to_the_edid);
+     RUN(t_shared_files_use_the_launchers_number);
++    RUN(t_target_rate_on_a_crt_with_edid);
++    RUN(t_target_rate_on_a_1080p_lcd);
++    RUN(t_target_rate_without_edid_is_the_shown_rate_or_nothing);
++    RUN(t_target_rate_on_win98_without_edid);
++    RUN(t_listed_rates_respect_the_cap);
+ )
+diff --git a/tests/native/test_refreshkeep.c b/tests/native/test_refreshkeep.c
+index a1b2057..b1eebe0 100644
+--- a/tests/native/test_refreshkeep.c
++++ b/tests/native/test_refreshkeep.c
+@@ -61,6 +61,30 @@ TEST(forces_at_60_and_stays_quiet_at_100) {
+     CHECK_EQ_I(rk_should_force(60, 0), 0);
+ }
+ 
++TEST(an_unknown_current_rate_is_never_forced) {
++    /* Win9x reports 0 for the live mode and some drivers their 1 Hz default:
++     * the OLD rule forced on every 1 s poll forever (0 != 100), and a re-apply
++     * cannot make the reading real - a CRT re-syncing once a second. */
++    CHECK_EQ_I(rk_should_force(0, 100), 0);
++    CHECK_EQ_I(rk_should_force(1, 100), 0);
++    CHECK_EQ_I(rk_should_force(255, 100), 0);
++    CHECK(0 != 100, "the old rule's test - current != target - was true here");
++}
++
++TEST(a_mode_that_keeps_drifting_stops_the_holder) {
++    /* A D3D title that loses its device when the mode changes under it resets
++     * at no rate: each re-apply is undone within a second. Three re-applies in
++     * a minute is the budget; the fourth is refused. */
++    int t[8] = { 5, 6, 7 };
++    CHECK_EQ_I(rk_budget_ok(t, 0, 5), 1);
++    CHECK_EQ_I(rk_budget_ok(t, 2, 7), 1);
++    CHECK_EQ_I(rk_budget_ok(t, 3, 8), 0);
++    /* an OpenGL title that drifts once per level load is fine: re-applies a
++     * minute apart never exhaust it */
++    t[0] = 0; t[1] = 70; t[2] = 140;
++    CHECK_EQ_I(rk_budget_ok(t, 3, 150), 1);
++}
++
+ TEST(empty_mode_list_is_safe) {
+     CHECK_EQ_I(rk_pick_refresh(NULL, 0, 0), 0);
+     CHECK_EQ_I(rk_pick_refresh(NULL, 0, 100), 0);
+@@ -72,5 +96,7 @@ MUNIT_MAIN("refreshkeep 100Hz hold (agent/tools/refreshlogic.h)", {
+     RUN(unsupported_rate_yields_no_change);
+     RUN(sentinel_rates_are_never_chosen);
+     RUN(forces_at_60_and_stays_quiet_at_100);
++    RUN(an_unknown_current_rate_is_never_forced);
++    RUN(a_mode_that_keeps_drifting_stops_the_holder);
+     RUN(empty_mode_list_is_safe);
+ })
+diff --git a/tests/python/test_gameres_mirror.py b/tests/python/test_gameres_mirror.py
+index 82c3c56..c00327d 100644
+--- a/tests/python/test_gameres_mirror.py
++++ b/tests/python/test_gameres_mirror.py
+@@ -282,10 +282,16 @@ def test_a_shared_cfg_is_written_identically_by_both_writers():
+     bodies = _cfg_bodies()
+     assert bodies, "gr_cfg_body() parsed to nothing - the parser is broken"
+ 
+-    # FR_* is the launcher's spelling of the agent's %TOKEN%.
++    # FR_* is the launcher's spelling of the agent's %TOKEN%. %HZ% was mapped
++    # to %FR_HZ% here, which is a DIFFERENT number (the persisted desktop's
++    # rate, the agent's %FRHZ%) - latent until a body used %HZ%. The per-target
++    # rates have their own FR_ twins, computed by the same gr_target_hz()
++    # (tests/python/test_fleetres_refresh_mirror.py).
+     tok = {"%W%": "%FR_W%", "%H%": "%FR_H%", "%W43%": "%FR_W43%",
+            "%H43%": "%FR_H43%", "%FOV%": "%FR_FOV%", "%Q2MODE%": "%FR_Q2MODE%",
+-           "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZ%"}
++           "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZW%",
++           "%HZW%": "%FR_HZW%", "%HZ43%": "%FR_HZ43%", "%HZQ2%": "%FR_HZQ2%",
++           "%HZQ3%": "%FR_HZQ3%"}
+ 
+     problems = []
+     for r in RULES:

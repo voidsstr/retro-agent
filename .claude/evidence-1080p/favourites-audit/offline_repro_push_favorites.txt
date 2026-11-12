@@ -1,0 +1,9 @@
+/tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/favaudit/repro_push.py:2: SyntaxWarning: "\G" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\G"? A raw string is also an option.
+  Case A: ioquake3 + quake3 share C:\Games\Quake3-TeamArena, ioquake3.x86.exe is running.
+== A: ioquake3.x86.exe running, quake3 row shares the file
+   ioquake3 -> BUSY: ioquake3.x86.exe is running - not attempted. It rewrites this file on exit, so our w
+   quake3 -> wrote 1 servers (23ca7553bd32b20b)
+   agent commands: ['MKDIR C:\\Games\\Quake3-TeamArena\\baseq3', 'UPLOAD C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg']
+== B: stale index row, directory absent, DIRLIST returns []
+   ioquake3 -> wrote 1 servers (b1a7217a6becc9d5)
+   agent commands: ['DIRLIST C:\\Games\\PurgedTitle\\baseq3', 'MKDIR C:\\Games\\PurgedTitle\\baseq3', 'UPLOAD C:\\Games\\PurgedTitle\\baseq3\\autoexec.cfg']

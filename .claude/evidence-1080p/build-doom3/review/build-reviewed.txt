@@ -1,0 +1,6 @@
+built /home/voidsstr/.retro-fleet/patch-out/doom3/Doom3/base/zz_fleetvideo.pk4  69371 B  md5 9608103a37eb82327c49b35905431f48
+  pure status: PURE_NEVER (GUI-only - never on a pure list)
+  guis/mainmenu.gui  changed lines [4889, 4890]  md5 a3d2857be2c131fb326544fc4b0d4900
+  guis/mpmain.gui  changed lines [4446, 4447]  md5 aff72db7e6df284eec2e620dcc9a3d1d
+diffs    /home/voidsstr/.retro-fleet/patch-out/doom3/diffs
+manifest /home/voidsstr/.retro-fleet/patch-out/doom3/manifest.json

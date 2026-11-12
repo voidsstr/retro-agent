@@ -1,0 +1,8 @@
+{
+ "_ip": "192.168.1.243",
+ "_at": "2026-09-29 03:58:01 EDT",
+ "DIRLIST E:\\GAMES": {
+  "status": 0,
+  "text": "[{\"name\":\"Quake1\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 05:04:46\",\"hidden\":false,\"readonly\":false},{\"name\":\"Descent1\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 05:06:46\",\"hidden\":false,\"readonly\":false},{\"name\":\"UnrealTournament436\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 05:07:56\",\"hidden\":false,\"readonly\":false},{\"name\":\"HexenII\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 05:40:12\",\"hidden\":false,\"readonly\":false},{\"name\":\"Quake2Win9x\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-29 05:43:44\",\"hidden\":false,\"readonly\":false}]"
+ }
+}

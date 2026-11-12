@@ -1,0 +1,3 @@
+built /home/voidsstr/.retro-fleet/patch-out/jk-helper/JKMODE.EXE  13824 bytes  md5 ee50a1b453e1f72dd27dbd1a9c712e9b  imports ADVAPI32.DLL, KERNEL32.DLL, USER32.DLL
+manifest /home/voidsstr/.retro-fleet/patch-out/jk-helper/manifest.json
+rc=0

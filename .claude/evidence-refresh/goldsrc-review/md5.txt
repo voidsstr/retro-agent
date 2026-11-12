@@ -1,0 +1,6 @@
+77cce9925d2a039ae38b679b1225e944  HalfLife1/hl.exe
+374a87fd6175a6a9541656bc959bc822  HalfLife1/hw.dll
+8dca902ec1e31441adf5fde45c90b378  HalfLife1/sw.dll
+2098ccf443433129b556c2849fe99e26  CounterStrike16/hl.exe
+4903e8e80f2a00d3ab2886f0f209a6d6  CounterStrike16/hw.dll
+05c1e82726cd5ab6518864f77947527c  CounterStrike16/sw.dll

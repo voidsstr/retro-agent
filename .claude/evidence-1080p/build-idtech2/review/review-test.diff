@@ -1,0 +1,391 @@
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/rv/builder-orig/test_patch_idtech2.py	2026-09-29 04:12:19.787655219 -0400
++++ /home/voidsstr/development/retro-agent/.claude/worktrees/lcd1080-patches/tests/python/test_patch_idtech2.py	2026-09-29 04:46:20.820470354 -0400
+@@ -10,21 +10,38 @@
+ 
+ Pure logic runs anywhere. The share-dependent half SKIPS LOUDLY when
+ /mnt/retro-share/Files/Games-Library is not mounted.
++
++The module is loaded under its OWN name ("idtech2_apply"), never as a bare
++`import apply` with a sys.path insert: several patch builders ship an apply.py
++and tests/run_all.sh runs one pytest process, so a bare import hands whichever
++test runs second the FIRST test's module out of sys.modules (measured
++2026-09-29 by the descent3 builder against this file).
+ """
++import importlib.util
+ import io
+ import os
++import shutil
+ import struct
+ import sys
++import warnings
+ 
+ import pytest
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+-sys.path.insert(0, os.path.join(HERE, "..", "..", "provisioning", "patches", "idtech2"))
+-import apply as P  # noqa: E402
++APPLY = os.path.join(HERE, "..", "..", "provisioning", "patches", "idtech2", "apply.py")
++_spec = importlib.util.spec_from_file_location("idtech2_apply", APPLY)
++P = importlib.util.module_from_spec(_spec)
++sys.modules["idtech2_apply"] = P
++_spec.loader.exec_module(P)
+ 
+ LIB = P.LIBRARY
+ 
+ 
++def test_loaded_under_its_own_name_not_as_a_bare_apply_module():
++    assert P.__name__ == "idtech2_apply"
++    assert sys.modules.get("apply") is not P
++
++
+ def spec(title):
+     return next(s for s in P.EXES if s["title"] == title)
+ 
+@@ -206,9 +223,77 @@
+     assert sp["rel"] == "base/pak2.pak"      # a pak - loose files lose to pak0 in SoF
+ 
+ 
+-def test_sin_menus_ship_loose_in_both_game_dirs():
++def test_sin_menus_ship_loose_in_every_game_dir_a_client_reaches():
++    """base\\ and 2015\\ have shortcuts; ctf\\ is reached by joining a
++    ds_sinctf.bat server, which switches the client into the server's game dir
++    - where ctf\\pak1.sin's own main.mnu would still say 1600 x 1200 for what
++    the patched sin.exe now sets as 1920x1080."""
+     rels = sorted(d["rel"] for d in P.DERIVED if d["title"] == "SiNGold")
+-    assert rels == ["2015/menus/main.mnu", "base/menus/main.mnu"]
++    assert rels == ["2015/menus/main.mnu", "base/menus/main.mnu", "ctf/menus/main.mnu"]
++    ctf = next(d for d in P.DERIVED if d["rel"] == "ctf/menus/main.mnu")
++    assert ctf["pak"] == "ctf/pak1.sin", "pak1 is the ctf copy the engine loads (pak0 has one too)"
++    assert all(d["paks"] == (32, "sin") for d in P.DERIVED if d["title"] == "SiNGold")
++    assert next(d for d in P.DERIVED if d["kind"] == "sof-pak")["paks"] == (10, "pak")
++
++
++def write_pak(path, files, magic=b"PACK"):
++    esz = P.PAK_FORMATS[magic]
++    body, ents = bytearray(), []
++    for name, data in files:
++        ents.append((name.encode(), 12 + len(body), len(data)))
++        body += data
++    d = b"".join(n.ljust(esz - 8, b"\0") + struct.pack("<ii", p, l) for n, p, l in ents)
++    with open(path, "wb") as f:
++        f.write(magic + struct.pack("<ii", 12 + len(body), len(d)) + bytes(body) + d)
++
++
++def test_pak_winner_is_the_highest_pak_carrying_the_entry(tmp_path):
++    """Both FS_AddGameDirectory variants PREPEND each pak as it is opened, so
++    the highest-numbered pak with the entry is the one the engine reads - the
++    relabel must start from THAT copy or it silently reverts a newer pak."""
++    write_pak(tmp_path / "pak0.sin", [("menus/main.mnu", b"a")], b"SPAK")
++    write_pak(tmp_path / "pak1.sin", [("maps/x.bsp", b"b")], b"SPAK")
++    write_pak(tmp_path / "PAK4.SIN", [("MENUS/MAIN.MNU", b"c")], b"SPAK")   # case-insensitive
++    assert P.pak_winner(str(tmp_path), "menus/main.mnu", 32, "sin") == "PAK4.SIN"
++    assert P.pak_winner(str(tmp_path), "menus/main.mnu", 32, "sin", skip=(4,)) == "pak0.sin"
++    assert P.pak_winner(str(tmp_path), "menus/none.mnu", 32, "sin") is None
++    # the engine's loop bound is part of the answer: SoF opens pak0-9 only
++    write_pak(tmp_path / "pak12.pak", [("menus/m_video.rmf", b"d")])
++    write_pak(tmp_path / "pak0.pak", [("menus/m_video.rmf", b"e")])
++    assert P.pak_winner(str(tmp_path), "menus/m_video.rmf", 10, "pak") == "pak0.pak"
++
++
++def test_partial_copy_recognises_only_a_truncated_known_file():
++    whole = b"0123456789"
++    assert P.is_partial_copy(b"", whole)
++    assert P.is_partial_copy(b"0123", whole)
++    assert not P.is_partial_copy(whole, whole)            # complete is not partial
++    assert not P.is_partial_copy(b"0124", whole)          # diverges: somebody else's bytes
++    assert not P.is_partial_copy(whole + b"x", whole)
++    assert P.is_partial_copy(b"01", b"zz", whole)
++
++
++def test_classify_exe_tells_stock_patched_and_foreign_apart():
++    data, desc9 = synthetic_exe()
++    spec = {"title": "T", "rel": "t.exe", "size": len(data), "md5": P.md5(data),
++            "table": 0x100, "desc9": desc9, "extra": []}
++    patched = P.apply_edits(data, P.exe_edits(spec))
++    assert P.classify_exe(spec, data) == ("stock", data)
++    assert P.classify_exe(spec, patched) == ("patched", data)
++    other = bytearray(patched)
++    other[0] ^= 1
++    assert P.classify_exe(spec, bytes(other)) == (None, None)
++    assert P.classify_exe(spec, patched[:-1]) == (None, None)
++    assert P.classify_exe(spec, None) == (None, None)
++
++
++def test_publish_refuses_a_library_that_is_not_the_share(tmp_path, monkeypatch):
++    """sharewrite.py always writes \\\\192.168.1.122\\files and verifies
++    through /mnt/retro-share; originals read from anywhere else would be
++    backed up and 'verified' against a different tree."""
++    monkeypatch.setattr(P, "sharewrite", lambda *a: pytest.fail("sharewrite must not run"))
++    assert P.main(["--publish", str(tmp_path), "--library", str(tmp_path)]) == 2
++    assert P.main(["--publish", str(tmp_path), "--library", str(tmp_path), "--dry-run"]) == 2
+ 
+ 
+ # ---------------------------------------------------------------------------
+@@ -216,32 +301,102 @@
+ # ---------------------------------------------------------------------------
+ 
+ def offers(*modes):
++    """mode_offered()/gr_mode_offered(): a list of fewer than four modes is
++    treated as NO list (everything offered), exactly as both writers do."""
++    if len(modes) < 4:
++        return lambda w, h: True
+     return lambda w, h: (w, h) in modes
+ 
+ 
+-@pytest.mark.parametrize("box,tgt,q2mode,modes,want", [
+-    (".123", (1920, 1080), 8, [(1920, 1080), (1280, 960)], 9),
+-    (".145", (1920, 1080), 8, [(1920, 1080), (1280, 960)], 9),
+-    (".195", (1920, 1080), 8, [(1920, 1080), (1280, 960)], 9),
+-    (".240", (1920, 1080), 8, [(1920, 1080), (1280, 960)], 9),
+-    (".124", (1280, 960), 8, [(1600, 1200), (1280, 960)], 8),   # HP P1120 CRT
+-    (".143", (1280, 960), 8, [(1280, 960), (1280, 1024)], 8),   # no EDID -> 4:3 CRT
++# The driver mode lists the boxes answered GAMERES with on 2026-09-29
++# (.claude/evidence-1080p/g6-*/gameres_1{23,45}_2026-09-29.json, gameres_240_*,
++# q3-195/99-gameres-final.json; .124 from evidence-refresh/*/boxes/124__GAMERES.txt).
++MODES_123 = [(640, 480), (720, 480), (800, 600), (848, 480), (1024, 768), (1152, 864),
++             (1280, 720), (1280, 768), (1280, 800), (1280, 960), (1280, 1024), (1360, 768),
++             (1440, 900), (1680, 1050), (1920, 1080)]
++MODES_145 = [(640, 480), (720, 480), (720, 576), (800, 600), (1024, 768), (1152, 864),
++             (1280, 720), (1280, 768), (1280, 800), (1280, 960), (1280, 1024), (1360, 768),
++             (1600, 900), (1600, 1024), (1680, 1050), (1920, 1080)]
++MODES_240 = [(320, 200), (320, 240), (400, 300), (512, 384), (640, 400), (640, 432),
++             (640, 480), (720, 480), (720, 576), (800, 480), (800, 600), (848, 480),
++             (1024, 768), (1152, 864), (1280, 720), (1280, 768), (1280, 800), (1280, 960),
++             (1280, 1024), (1360, 768), (1360, 1024), (1440, 900), (1776, 1000), (1920, 1080)]
++MODES_195 = [(640, 480), (720, 480), (720, 576), (800, 600), (1024, 768), (1152, 648),
++             (1280, 720), (1280, 768), (1280, 800), (1280, 960), (1280, 1024), (1360, 768),
++             (1360, 1024), (1366, 768), (1400, 1050), (1440, 900), (1600, 900), (1680, 1050),
++             (1776, 1000), (1920, 1080)]
++LCD_1080 = MODES_123
++P1120_124 = [(320, 240), (400, 300), (512, 384), (640, 480), (800, 600), (1024, 768),
++             (1152, 864), (1280, 960), (1280, 1024), (1600, 1200), (720, 576), (960, 720),
++             (320, 200), (640, 400), (720, 480), (1600, 1024), (1280, 720), (1280, 800),
++             (1360, 768), (1440, 900), (1680, 1050)]      # no 1920x1080 on the CRT
++
++
++@pytest.mark.parametrize("box,tgt,t43,modes,q2mode,want", [
++    (".123", (1920, 1080), (1280, 960), MODES_123, 8, 9),
++    (".145", (1920, 1080), (1280, 960), MODES_145, 8, 9),
++    (".195", (1920, 1080), (1280, 960), MODES_195, 8, 9),
++    (".240", (1920, 1080), (1280, 960), MODES_240, 8, 9),
++    (".124", (1280, 960), (1280, 960), P1120_124, 8, 8),     # HP P1120 CRT, measured
++    # .143: no EDID -> 4:3 tube; persisted 1280x1024 -> 1280x960 (inferred, not
++    # measured). Either a short list (the GeForce 6800 enumeration quirk: all
++    # offered) or a normal one gives 8, never 9.
++    (".143", (1280, 960), (1280, 960), [(1024, 768)], 8, 8),
++    (".143", (1280, 960), (1280, 960), [(800, 600), (1024, 768), (1280, 960), (1280, 1024)], 8, 8),
+ ])
+-def test_q2wide_per_box(box, tgt, q2mode, modes, want):
+-    assert P.fr_q2wide(tgt[0], tgt[1], q2mode, offers(*modes)) == want
++def test_q2wide_per_box(box, tgt, t43, modes, q2mode, want):
++    off = offers(*modes)
++    assert P.q2_mode_for(t43[0], t43[1], off) == q2mode, "FR_Q2MODE as measured"
++    assert P.fr_q2wide(tgt[0], tgt[1], t43[0], t43[1], off) == want
++    assert P.q2wide_res(want) == ((1920, 1080) if want == 9 else P.Q2TAB[want])
+ 
+ 
+ def test_q2wide_never_hands_a_patched_exe_9_for_1600x1200():
+     """On a patched exe mode 9 is 1920x1080: a 4:3 box whose FR_Q2MODE is 9
+-    (a 1600x1200 CRT) must get 8, or it would be asked for a 16:9 mode."""
+-    assert P.fr_q2wide(1600, 1200, 9, offers((1600, 1200), (1920, 1080))) == 8
++    (.124's P1120 if its desktop were raised to 1600x1200) must get 8."""
++    off = offers(*P1120_124)
++    assert P.q2_mode_for(1600, 1200, off) == 9
++    assert P.fr_q2wide(1600, 1200, 1600, 1200, off) == 8
++
++
++def test_q2wide_capped_branch_reselects_rather_than_clamping():
++    """Capping the TABLE at entry 8 re-runs the selector; clamping the INDEX
++    (the first draft's min(FR_Q2MODE, 8)) would ask a 1600x1200 tube that does
++    not list 1280x960 for 1280x960 anyway, and id Tech 2 answers a refused
++    fullscreen mode by opening a WINDOW at that size."""
++    tube = [(640, 480), (800, 600), (1024, 768), (1152, 864), (1600, 1200)]
++    off = offers(*tube)
++    assert P.q2_mode_for(1600, 1200, off) == 9
++    assert min(P.q2_mode_for(1600, 1200, off), 8) == 8                  # not listed
++    assert P.fr_q2wide(1600, 1200, 1600, 1200, off) == 7                # 1152x864 is
++
++
++def test_q2wide_equals_q2mode_wherever_q2mode_is_not_9():
++    """The non-16:9 branch must be FR_Q2MODE itself on every target where
++    FR_Q2MODE is not 9 - so the CRT boxes see no change at all."""
++    lists = [LCD_1080, P1120_124, [(1024, 768)], [(640, 480), (800, 600), (1024, 768),
++             (1280, 1024)], [(800, 600), (1024, 768), (1152, 864), (1280, 960)]]
++    for modes in lists:
++        off = offers(*modes)
++        for t43 in ((640, 480), (800, 600), (1024, 768), (1152, 864), (1280, 960), (1600, 1200)):
++            q2 = P.q2_mode_for(t43[0], t43[1], off)
++            for tgt in (t43, (1280, 1024), (1920, 1200)):     # never 16:9 here
++                got = P.fr_q2wide(tgt[0], tgt[1], t43[0], t43[1], off)
++                assert got != 9
++                if q2 != 9:
++                    assert got == q2, (modes, t43, tgt)
+ 
+ 
+ def test_q2wide_falls_back_when_1080p_is_not_offered_or_capped():
+-    assert P.fr_q2wide(1920, 1080, 8, offers((1280, 960))) == 8
+-    assert P.fr_q2wide(1280, 720, 4, offers((1920, 1080), (1280, 720))) == 4   # ResCap
+-    assert P.fr_q2wide(1920, 1200, 8, offers((1920, 1080))) == 8             # 16:10
+-    assert P.fr_q2wide(2560, 1440, 8, offers((1920, 1080))) == 9             # 16:9, larger
++    lcd_no_1080 = [m for m in LCD_1080 if m != (1920, 1080)]
++    assert P.fr_q2wide(1920, 1080, 1280, 960, offers(*lcd_no_1080)) == 8
++    # ResCap 1280x720 on a 1080p panel: 16:9 but under 1920x1080
++    assert P.fr_q2wide(1280, 720, 800, 600, offers(*LCD_1080)) == 4
++    assert P.fr_q2wide(1366, 768, 1024, 768, offers(*LCD_1080)) == 6   # small 16:9 panel
++    assert P.fr_q2wide(1920, 1200, 1600, 1200, offers((1920, 1080), (1920, 1200),
++                                                       (1600, 1200), (1280, 960))) == 8  # 16:10
++    assert P.fr_q2wide(2560, 1440, 1280, 960, offers((1920, 1080), (2560, 1440),
++                                                      (1280, 960), (1024, 768))) == 9   # 16:9, larger
+ 
+ 
+ # ---------------------------------------------------------------------------
+@@ -254,17 +409,23 @@
+     ("SoldierOfFortune", "SoF.exe"): "b4ed42272887b16a8ecdb92c919a507d",
+     ("SiNGold", "base/menus/main.mnu"): "886cdbf4cee22fc649b43aa0f42867e4",
+     ("SiNGold", "2015/menus/main.mnu"): "dce920d214d1e1aa0445578066c2eaeb",
++    ("SiNGold", "ctf/menus/main.mnu"): "e639508cdb2d45e0068f9af25cf3f0dd",
+     ("SoldierOfFortune", "base/pak2.pak"): "d2d96ee679c039596c35c3fe9404ef41",
+ }
+ 
+ 
+-@pytest.fixture(scope="module")
+-def work():
++def need_share():
+     if not os.path.isdir(LIB):
+         msg = ("SKIPPED LOUDLY: staged library %s is not mounted - the id Tech 2 "
+                "patch was NOT verified against the real originals" % LIB)
+         print(msg, file=sys.stderr)
++        warnings.warn(msg)          # shows in the default -q summary, unlike the reason
+         pytest.skip(msg)
++
++
++@pytest.fixture(scope="module")
++def work():
++    need_share()
+     return {(w["title"], w["rel"]): w for w in P.load_originals(LIB)}
+ 
+ 
+@@ -304,6 +465,7 @@
+         pre + "SoldierOfFortune/SoF.exe",
+         pre + "SiNGold/base/menus/main.mnu",
+         pre + "SiNGold/2015/menus/main.mnu",
++        pre + "SiNGold/ctf/menus/main.mnu",
+         pre + "SoldierOfFortune/base/pak2.pak",
+     ]
+     # each backup is the STAGED original, each put is our built output
+@@ -316,3 +478,115 @@
+     monkeypatch.setattr(P, "sharewrite", lambda local, dest, dry: calls.append(dest) or 3)
+     assert P.cmd_publish(LIB, str(tmp_path), dry=True) == 2
+     assert len(calls) == 1
++
++
++# ---------------------------------------------------------------------------
++# resuming after a put that died half way (a synthetic library of links to the
++# share's files - nothing is written to the share)
++# ---------------------------------------------------------------------------
++
++SYNTH_LINKS = ["Quake2Complete/quake2.exe", "SiNGold/sin.exe", "SoldierOfFortune/SoF.exe",
++               "SoldierOfFortune/base/pak0.pak", "SoldierOfFortune/base/pak1.pak",
++               "SiNGold/2015/pak0.sin", "SiNGold/ctf/pak0.sin", "SiNGold/ctf/pak1.sin"] + \
++              ["SiNGold/base/pak%d.sin" % i for i in range(6)]
++
++
++@pytest.fixture
++def synth(tmp_path):
++    """tmp_path/lib mirrors what load_originals reads, as symlinks to the real
++    share files; quake2.exe is a private COPY so a test can damage it."""
++    need_share()
++    lib = tmp_path / "lib"
++    for rel in SYNTH_LINKS:
++        src = P.ci_path(LIB, rel)
++        assert src, "%s missing from the share (case-insensitive)" % rel
++        dst = lib / rel
++        dst.parent.mkdir(parents=True, exist_ok=True)
++        if rel == "Quake2Complete/quake2.exe":
++            shutil.copyfile(src, dst)
++        else:
++            os.symlink(src, dst)
++    return lib
++
++
++def q2(synth):
++    return synth / "Quake2Complete" / "quake2.exe"
++
++
++def backup(synth, data):
++    b = synth / P.backup_rel_of("Quake2Complete", "quake2.exe")
++    b.parent.mkdir(parents=True, exist_ok=True)
++    b.write_bytes(data)
++
++
++def test_synth_library_is_a_faithful_stand_in(synth):
++    got = {(w["title"], w["rel"]): (P.md5(w["data"]), w["damaged"]) for w in P.load_originals(str(synth))}
++    assert got == {k: (v, None) for k, v in EXPECTED_OUTPUT_MD5.items()}
++
++
++@pytest.mark.parametrize("damage", ["missing", "truncated-output", "truncated-original"])
++def test_a_half_published_exe_is_recovered_from_its_verified_backup(synth, damage):
++    orig = q2(synth).read_bytes()
++    out = P.apply_edits(orig, P.exe_edits(P.EXES[0]))
++    backup(synth, orig)
++    if damage == "missing":
++        q2(synth).unlink()
++    elif damage == "truncated-output":
++        q2(synth).write_bytes(out[:0x54470])      # died inside the edited bytes
++    else:
++        q2(synth).write_bytes(orig[:4096])
++    w = {(x["title"], x["rel"]): x for x in P.load_originals(str(synth))}[("Quake2Complete", "quake2.exe")]
++    assert w["damaged"] and w["state"].startswith("DAMAGED")
++    assert P.md5(w["data"]) == EXPECTED_OUTPUT_MD5[("Quake2Complete", "quake2.exe")]
++    assert w["orig_path"] is None, "the backup is the original now - never re-back-up damage"
++    assert P.cmd_check(str(synth)) == 2, "a damaged share must never read CHECK OK"
++
++
++def test_a_half_published_exe_without_a_backup_is_refused(synth):
++    q2(synth).unlink()
++    with pytest.raises(P.PatchError):
++        P.load_originals(str(synth))
++
++
++def test_a_changed_exe_is_never_overwritten_even_with_a_backup(synth):
++    orig = q2(synth).read_bytes()
++    backup(synth, orig)
++    other = bytearray(orig)
++    other[0x100] ^= 0xff                          # somebody else's build, same size
++    q2(synth).write_bytes(bytes(other))
++    with pytest.raises(P.PatchError):
++        P.load_originals(str(synth))
++
++
++def test_a_truncated_new_file_is_put_again_and_a_foreign_one_refused(synth, tmp_path, monkeypatch):
++    out = {(x["title"], x["rel"]): x for x in P.load_originals(str(synth))}
++    menu = out[("SiNGold", "ctf/menus/main.mnu")]["data"]
++    dst = synth / "SiNGold" / "ctf" / "menus" / "main.mnu"
++    dst.parent.mkdir(parents=True)
++    dst.write_bytes(menu[:1000])
++    w = {(x["title"], x["rel"]): x for x in P.load_originals(str(synth))}[("SiNGold", "ctf/menus/main.mnu")]
++    assert w["damaged"] and w["state"].startswith("DAMAGED")
++    # publish (sharewrite stubbed) puts exactly the damaged file again - and,
++    # in this synthetic library, the exes too, whose backups do not exist here
++    assert P.cmd_build(str(synth), str(tmp_path / "o")) == 0
++    calls = []
++    monkeypatch.setattr(P, "sharewrite", lambda l, d, dry: calls.append(d) or 0)
++    assert P.cmd_publish(str(synth), str(tmp_path / "o"), dry=True) == 0
++    assert "Files/Games-Library/SiNGold/ctf/menus/main.mnu" in calls
++    dst.write_bytes(b"somebody else's menu")
++    with pytest.raises(P.PatchError):
++        P.load_originals(str(synth))
++
++
++@pytest.mark.parametrize("title,gamedir,name,magic", [
++    ("SiNGold", "base", "pak6.sin", b"SPAK"),
++    ("SiNGold", "ctf", "pak2.sin", b"SPAK"),
++    ("SoldierOfFortune", "base", "pak3.pak", b"PACK"),
++])
++def test_a_newer_pak_carrying_the_menu_stops_the_build(synth, title, gamedir, name, magic):
++    """If a later pak starts shipping the menu, the relabel must be re-derived
++    from it - or the loose file / pak2 would silently revert that pak."""
++    entry = "menus/m_video.rmf" if title == "SoldierOfFortune" else "menus/main.mnu"
++    write_pak(synth / title / gamedir / name, [(entry, b"newer")], magic)
++    with pytest.raises(P.PatchError, match="engine loads"):
++        P.load_originals(str(synth))

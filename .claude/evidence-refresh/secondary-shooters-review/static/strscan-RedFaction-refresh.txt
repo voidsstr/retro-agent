@@ -1,0 +1,114 @@
+FLEETRES.EXE  A@0x4dfc  native     : %dx%d @%dHz  aspect %s  size %dx%dcm  input %s  vmax %dHz
+FLEETRES.EXE  A@0x4e68  desktop now: %dx%d %dbpp @%dHz  aspect 
+FLEETRES.EXE  A@0x4f8a  set "FR_HZ=%d"
+RedFaction.exe  A@0xb729c  QueryPerformanceFrequency
+RedFaction.exe  A@0xb9a50  %d MHz
+RedFaction.exe  A@0xba6f8  CPU Speed: %d Mhz
+RedFaction.exe  A@0x172787  kkkeeehhhZ[ZNNNHHHCCC===DEDSRS___mmm
+RedFaction.exe  A@0x1778b7  kkkeeehhhZ[ZNNNHHHCCC===DEDSRS___mmm
+RedFaction.exe  A@0x22dee6  bXrRHz[P
+RedFaction.exe  A@0x23802f  hZ}XE>-#
+RedFaction.exe  A@0x2c5d16  bXrRHz[P
+RedFaction.exe  A@0x2cfe5f  hZ}XE>-#
+RedFaction.exe  A@0x35db46  bXrRHz[P
+RedFaction.exe  A@0x367c8f  hZ}XE>-#
+RedFaction.exe  A@0x3f5976  bXrRHz[P
+RedFaction.exe  A@0x3ffabf  hZ}XE>-#
+RedFaction.exe  A@0x48d7a6  bXrRHz[P
+RedFaction.exe  A@0x4978ef  hZ}XE>-#
+RedFaction.exe  A@0x5255d6  bXrRHz[P
+RedFaction.exe  A@0x52f71f  hZ}XE>-#
+RedFaction.exe  A@0x5bd406  bXrRHz[P
+RedFaction.exe  A@0x5c754f  hZ}XE>-#
+UpdateLauncher.exe  A@0x4280d  hz D
+UpdateLauncher.exe  A@0xe108e  QueryPerformanceFrequency
+UpdateLauncher.exe  A@0xec250  CPU Speed: %d Mhz
+binkw32.dll  A@0x37574  QueryPerformanceFrequency
+red.exe  A@0x9f579  H&?hZ
+red.exe  A@0x9f699  9?hZ
+red.exe  A@0x9fb26  9?hZ
+red.exe  A@0x9ffb1  9?hZ
+red.exe  A@0xa1580  q>hZ
+red.exe  A@0x143e6e  hz>T
+red.exe  A@0x1705fa  QueryPerformanceFrequency
+red.exe  A@0x179b60  $Autosave Frequency (in minutes):
+red.exe  A@0x179bc4  $Autosave Frequency (in minutes):
+red.exe  A@0x17d8ec  +Preserve Low Frequencies
+red.exe  A@0x17d908  +Preserve Medium Frequencies
+red.exe  A@0x180974  CPU Speed: %d Mhz
+red.exe  A@0x1abe5a  hw1whZ
+red.exe  A@0x1ae624  11hz
+red.exe  A@0x1aface  1whhhZ.11w6w
+red.exe  A@0x1b025d  1whz
+red.exe  A@0x1b0c16  hhZ-22ZZ_pPiiyhw111w
+red.exe  A@0x1b253b  yjjuuhhhhhz....w
+red.exe  A@0x1b3102  uuuuhhhhhz
+red.exe  A@0x1b35ee  uh.hhz
+red.exe  A@0x1b38f8  hh...hz
+red.exe  A@0x1b45c5  wwww11111..hhhz
+red.exe  A@0x1b4faa  zhh.hhhhz
+red.exe  A@0x1b5e83  hhhz
+red.exe  A@0x1cc8a8  uhhhZ
+red.exe  A@0x1cdf30  hhZ[\VCSSSSSSV
+red.exe  A@0x1ce41b  eW[[[OOHOhZ,02--jZ
+red.exe  A@0x1d0bbb  hZ-hh..
+red.exe  A@0x1d3931  eWfIP_ZhZ.hZ.hoOg
+red.exe  A@0x1d4cad  wh-jjj___0jh11.h1whZ-u
+red.exe  A@0x1d546a  whZZ-OOhZ,-_PPffffWfffWWWWffig
+red.exe  A@0x1d570c  ZZhZ
+red.exe  A@0x1d5bbd  wZ.1hZ-h
+red.exe  A@0x1d5c74  y_Z.hZ[[OgWY^VSCCCCSSVVV^
+red.exe  A@0x1d5e55  ttiPOZ,O-ZZhhZ-Z_PF[fffffffffff[iP_ZZ.hZhh,ZZOPi[[[
+red.exe  A@0x1d634e  opOZZZ-hhZ.h-hjPiIffffffffffffFP_Zhh..ZZhOZZOgi
+red.exe  A@0x1d65ca  oZZZZh-Z..hwhZ0PiFffffffWWffffFP_ZZ.h-hZ,h-ZoOP
+red.exe  A@0x1d97b6  wzjjjjjjj00jjz11wZ.1whZ
+red.exe  A@0x1db3c1  PFFPOhZ[_hhZpFWWWeeWeeWWfIZ.Z[HhZoOOp
+red.exe  A@0x1dbac0  vp____0jz111hZ
+red.exe  A@0x1dbdc5  OHgOOhZ[ZwwjFfWWWWWWWWWffI_hhP[ZZFffF_
+red.exe  A@0x1dead6  oOOZhhwZiZ.wZFfWWeeeWWWWxfffP-hZ[F-ZFWWfF
+red.exe  A@0x1ded57  gPPHHZ.Oihw.ZPIfWWWWWWWWWxffPhwhF[Zhi[FP_
+red.exe  A@0x1dedc7  [[[ddHZ.-_j.11whjjjj__jjj-hhhhh.
+red.exe  A@0x1df1b1  w..hhh.11h.1111whj0__________jjh11whZ.11.-jj-h
+red.exe  A@0x1dfc5d  OOOPHZ.P[-w1.ZP[fWWWWWWWWWfFP-wwhi_.,PF[ig
+red.exe  A@0x1dfedd  gP[[FHZ.pih11wZOFfWWWWWWWWff[PZw.,fPhZiF[iO
+red.exe  A@0x1e1758  11hZ11w..hZ-h
+red.exe  A@0x1e1f69  tPPHOoZw1ZO.ww-PfWWWTeTTeeWWWWfF_hhZ[[ZZF[fWfP
+red.exe  A@0x1e21eb  ooOOZ.wwOPh.w-PfWWWTTTeWWWWxfff_hhZ[[ZhH[Wffi
+red.exe  A@0x1e3a5d  11hjh11hZ--hh.
+red.exe  A@0x1e6abc  exffffffffffFP_Zh.w1111whZ-w11whZZZZZZZZh.
+red.exe  A@0x1e6fbf  xffffFPP__Z-.11wwwhZ-w11whhhZZOOZZZhh
+red.exe  A@0x1e74c1  [PpOjZ-hwwh..ZOZ.11111whZ,oZZZhh
+red.exe  A@0x1e76ec  ]\a\[R\FhZ[WWWWfF_j.w
+red.exe  A@0x1e7c65  1w.hz222zhhhz.ww1
+red.exe  A@0x1e8568  11wjjw1whZ--hh.h
+red.exe  A@0x1e9c78  [[[FFdFHZ.11h_[x
+red.exe  A@0x1ea95a  hz.w1
+red.exe  A@0x1ead75  1..hhhZ-hw
+red.exe  A@0x1eafd5  11w.h--Zjjjj0______0j-hw1111hZ.1111.hZZZh.
+red.exe  A@0x1eb2e5  O_PFFffff[FFHZ..Zif[H-.u
+red.exe  A@0x1eb5ae  1hZ,O_PP////_jj
+red.exe  A@0x1eba60  ZOPIffffIF[iHZh.ZHf[HZ..w1.ZPFFx
+rf.exe  A@0x1b8f2  hz:X
+rf.exe  A@0xe97e9  H&?hZ
+rf.exe  A@0xe9909  9?hZ
+rf.exe  A@0xe9d96  9?hZ
+rf.exe  A@0xea221  9?hZ
+rf.exe  A@0xeb7f0  q>hZ
+rf.exe  A@0x111e10  hDHZ
+rf.exe  A@0x111e48  hLHZ
+rf.exe  A@0x111e56  u@hTHZ
+rf.exe  A@0x111e66  u0hXHZ
+rf.exe  A@0x111e78  h`HZ
+rf.exe  A@0x111e88  hdHZ
+rf.exe  A@0x111ee3  PhtHZ
+rf.exe  A@0x111f37  PhtHZ
+rf.exe  A@0x129603  D$Xh8hZ
+rf.exe  A@0x12986c  L$TPhphZ
+rf.exe  A@0x19210a  QueryPerformanceFrequency
+rf.exe  A@0x199ff0  Click the 'Get Servers' button to get a fresh list of available servers.  Click 'Refresh All' to refresh the info in the current list.
+rf.exe  A@0x19a29c  Refresh Selected
+rf.exe  A@0x19a2c8  Refresh All
+rf.exe  A@0x1a30f0  +Tracer Frequency:
+rf.exe  A@0x1a60dc  CPU Speed: %d Mhz
+rf.exe  A@0x1aad38  +Preserve Low Frequencies
+rf.exe  A@0x1aad54  +Preserve Medium Frequencies

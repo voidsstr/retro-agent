@@ -1,0 +1,7 @@
+edid-195.json 5&22402632&0&UID515 {"bytes_in_registry": 128, "extension_blocks": 1, "digital": true, "range": {"vmin": 50, "vmax": 76, "hmin_khz": 24, "hmax_khz": 94, "max_pclk_mhz": 170}, "name": "HP 2511"}
+edid-123.json 5&18a66be1&0&30000003&01&00 {"bytes_in_registry": 256, "extension_blocks": 0, "digital": false, "name": "DELL P2312H", "range": {"vmin": 56, "vmax": 76, "hmin_khz": 30, "hmax_khz": 83, "max_pclk_mhz": 170}}
+edid-145.json 4&2be19955&0&80861100&00&02 {"bytes_in_registry": 256, "extension_blocks": 0, "digital": false, "name": "DELL E2414H", "range": {"vmin": 56, "vmax": 76, "hmin_khz": 30, "hmax_khz": 83, "max_pclk_mhz": 170}}
+edid-145.json 4&2be19955&0&80861500&00&02 {"bytes_in_registry": 256, "extension_blocks": 0, "digital": false, "name": "DELL E2414H", "range": {"vmin": 56, "vmax": 76, "hmin_khz": 30, "hmax_khz": 83, "max_pclk_mhz": 170}}
+edid-145.json 5&312556c&0&11335578&01&00 {"bytes_in_registry": 256, "extension_blocks": 0, "digital": false, "name": "DELL E2414H", "range": {"vmin": 56, "vmax": 76, "hmin_khz": 30, "hmax_khz": 83, "max_pclk_mhz": 170}}
+edid-240.json 5&234f275&0&10000084&01&00 {"bytes_in_registry": 256, "extension_blocks": 0, "digital": true, "name": "DELL E2313H", "range": {"vmin": 56, "vmax": 76, "hmin_khz": 30, "hmax_khz": 83, "max_pclk_mhz": 170}}
+edid-240.json 5&26362c56&0&10000084&01&00 {"bytes_in_registry": 256, "extension_blocks": 0, "digital": true, "name": "DELL E2313H", "range": {"vmin": 56, "vmax": 76, "hmin_khz": 30, "hmax_khz": 83, "max_pclk_mhz": 170}}

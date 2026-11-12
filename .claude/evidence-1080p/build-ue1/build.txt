@@ -1,0 +1,6 @@
+UnrealGold/System/D3DDrv.dll             f924e209e7bc23b90b6f0360174683d3 -> c51ba326f6a287f2e29ec3cc7dcb5e01  (208896 B, 1 byte(s) changed)
+DeusEx/SYSTEM/D3DDRV.DLL                 6179c83ce1d7516908e5442ebfb4d154 -> deff85e5e043b700567db9377c45b0ee  (212992 B, 1 byte(s) changed)
+DeusEx/SYSTEM/DEUSEX.U                   d343da03a6d311ee412dfae4b52ff975 -> 4e18e635d2dc0df2069171c72ec89eff  (5386972 B, 1 byte(s) changed)
+UnrealTournament436/System/D3DDrv.dll    dd6e3692f8ead5e1df88716024bc25d1 -> 35a4f321d06bf6da519b2d023be4eaa2  (217088 B, 1 byte(s) changed)
+manifest: /home/voidsstr/.retro-fleet/patch-out/ue1/manifest.json
+rc=0

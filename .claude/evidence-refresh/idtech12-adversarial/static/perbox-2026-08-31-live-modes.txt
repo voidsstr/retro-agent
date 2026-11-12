@@ -1,0 +1,29 @@
+# extract of .claude/worktrees/perbox/matrix.jsonl (2026-08-31, perbox sweep): desktop_mode_after = DISPLAYCFG get while the title ran
+192.168.1.171 HexenII Play Hexen II.bat 2026-08-31T10:37:09 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 16, 'refresh': 60}
+192.168.1.133 HexenII Play Hexen II.bat 2026-08-31T10:37:16 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 1024, 'height': 768, 'bpp': 16, 'refresh': 60}
+192.168.1.124 HexenII Play Hexen II.bat 2026-08-31T10:37:25 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60} after {'width': 1024, 'height': 768, 'bpp': 16, 'refresh': 60}
+192.168.1.143 HexenII Play Hexen II.bat 2026-08-31T10:38:20 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 100} after {'width': 1024, 'height': 768, 'bpp': 16, 'refresh': 60}
+192.168.1.246 HexenII Play Hexen II.bat 2026-08-31T10:38:37 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1024, 'height': 768, 'bpp': 16, 'refresh': 60}
+192.168.1.123 HexenII Play Hexen II.bat 2026-08-31T10:38:39 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 848, 'height': 480, 'bpp': 16, 'refresh': 60}
+192.168.1.240 HexenII Play Hexen II.bat 2026-08-31T10:39:28 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 848, 'height': 480, 'bpp': 16, 'refresh': 60}
+192.168.1.171 Quake1 Play Quake.bat 2026-08-31T10:40:35 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 32, 'refresh': 60}
+192.168.1.133 Quake1 Play Quake.bat 2026-08-31T10:40:44 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60}
+192.168.1.124 Quake1 Play Quake.bat 2026-08-31T10:41:01 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60} after {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60}
+192.168.1.171 Quake2Complete Quake II.bat 2026-08-31T10:41:10 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 32, 'refresh': 60}
+192.168.1.133 Quake2Complete Quake II.bat 2026-08-31T10:41:18 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.124 Quake2Complete Quake II.bat 2026-08-31T10:41:35 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60} after {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60}
+192.168.1.246 Quake1 Play Quake.bat 2026-08-31T10:41:57 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 32, 'refresh': 60}
+192.168.1.123 Quake1 Play Quake.bat 2026-08-31T10:42:01 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 32, 'refresh': 60}
+192.168.1.246 Quake2Complete Quake II.bat 2026-08-31T10:42:30 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.123 Quake2Complete Quake II.bat 2026-08-31T10:42:35 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.240 Quake1 Play Quake.bat 2026-08-31T10:43:00 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 32, 'refresh': 60}
+192.168.1.143 Quake1 Play Quake.bat 2026-08-31T10:43:02 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 100} after {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 100}
+192.168.1.240 Quake2Complete Quake II.bat 2026-08-31T10:43:37 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.143 Quake2Complete Quake II.bat 2026-08-31T10:43:39 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 100} after {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60}
+192.168.1.171 SiNGold Play SiN Gold.bat 2026-08-31T10:45:45 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 800, 'height': 600, 'bpp': 32, 'refresh': 60}
+192.168.1.133 SiNGold Play SiN Gold.bat 2026-08-31T10:45:56 before {'width': 1280, 'height': 1024, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.246 SiNGold Play SiN Gold.bat 2026-08-31T10:46:57 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.124 SiNGold Play SiN Gold.bat 2026-08-31T10:47:01 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60} after {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60}
+192.168.1.123 SiNGold Play SiN Gold.bat 2026-08-31T10:47:05 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.240 SiNGold Play SiN Gold.bat 2026-08-31T10:48:24 before {'width': 1920, 'height': 1080, 'bpp': 32, 'refresh': 60} after {'width': 1280, 'height': 960, 'bpp': 32, 'refresh': 60}
+192.168.1.143 SiNGold Play SiN Gold.bat 2026-08-31T10:49:26 before {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 100} after {'width': 1024, 'height': 768, 'bpp': 32, 'refresh': 60}

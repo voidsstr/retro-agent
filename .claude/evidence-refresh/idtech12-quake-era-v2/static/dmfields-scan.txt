@@ -1,0 +1,39 @@
+== Quake1/GLQUAKE.EXE
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x43ff1e: push 0x400000']
+   dmFields-like stores without it  : ['0x41448c: mov dword ptr [0x809400], 0x1c0000', '0x415891: mov dword ptr [esp + 0x4c], 0x1c0000', '0x415a4d: mov dword ptr [esp + 0x4c], 0x1c0000'] 
+== Quake1/WINQUAKE.EXE
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x445044: mov dword ptr [ebp - 4], 0x400000', '0x45dbff: push 0x400000']
+   dmFields-like stores without it  : ['0x40c869: mov dword ptr [esp + 0x50], 0x1c0000', '0x40cadd: mov dword ptr [esp + 0x50], 0x1c0000', '0x40ccfb: mov dword ptr [esp + 0x50], 0x1c0000', '0x40cd68: mov dword ptr [esp + 0x50], 0x1c0000', '0x40da72: mov dword ptr [0x47da10], 0x1c0000', '0x445076: mov dword ptr [ebp - 4], 0x100000'] 
+== HexenII/glh2.exe
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x41b75d: or ebx, 0x400000', '0x44e3bf: push 0x400000']
+   dmFields-like stores without it  : ['0x41ba2b: or dword ptr [esp + 0x14], 0x80000', '0x41ba46: or dword ptr [esp + 0x14], 0x100000', '0x42f565: mov dword ptr [0x7cb8a8], 0x1c0000', '0x4308f1: mov dword ptr [esp + 0x4c], 0x1c0000', '0x430ad0: mov dword ptr [esp + 0x4c], 0x1c0000'] 
+== HexenII/h2.exe
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x43a33d: or ebx, 0x400000', '0x45c09b: mov dword ptr [ebp - 4], 0x400000', '0x472b8f: push 0x400000']
+   dmFields-like stores without it  : ['0x415e99: mov dword ptr [esp + 0x50], 0x1c0000', '0x41610d: mov dword ptr [esp + 0x50], 0x1c0000', '0x41632d: mov dword ptr [esp + 0x50], 0x1c0000', '0x41639a: mov dword ptr [esp + 0x50], 0x1c0000', '0x417052: mov dword ptr [0x498980], 0x1c0000', '0x43a60b: or dword ptr [esp + 0x14], 0x80000', '0x43a626: or dword ptr [esp + 0x14], 0x100000', '0x45c0cd: mov dword ptr [ebp - 4], 0x100000'] 
+== Quake2Complete/ref_gl.dll
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x10019d8e: push 0x400000']
+   dmFields-like stores without it  : ['0x1000de73: mov dword ptr [esp + 0x44], 0x180000', '0x1000de9a: mov dword ptr [esp + 0x44], 0x1c0000', '0x1000df98: mov dword ptr [esp + 0x4c], 0x180000', '0x1000dfd2: mov dword ptr [esp + 0x44], 0x1c0000'] 
+== Quake2Complete/ref_soft.dll
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x1001770e: push 0x400000']
+   dmFields-like stores without it  : [] 
+== SiNGold/ref_gl.dll
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x120252a4: push 0x400000']
+   dmFields-like stores without it  : ['0x1200e815: mov dword ptr [0x120568c0], 0x1c0000', '0x12017c2d: mov dword ptr [esp + 0x44], 0x180000', '0x12017c54: mov dword ptr [esp + 0x44], 0x1c0000', '0x12017d62: mov dword ptr [esp + 0x54], 0x180000', '0x12017d9c: mov dword ptr [esp + 0x44], 0x1c0000'] 
+== SiNGold/ref_gl_amd.dll
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x1202775e: push 0x400000']
+   dmFields-like stores without it  : ['0x1201692d: mov dword ptr [esp + 0x44], 0x180000', '0x12016954: mov dword ptr [esp + 0x44], 0x1c0000', '0x12016a62: mov dword ptr [esp + 0x54], 0x180000', '0x12016a9c: mov dword ptr [esp + 0x44], 0x1c0000'] 
+== SiNGold/ref_soft_real.dll
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x13027029: push 0x400000']
+   dmFields-like stores without it  : [] 
+== SoldierOfFortune/ref_gl.dll
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x3000f04b: mov esi, 0x400000', '0x30011635: mov ebx, 0x400000', '0x3001b864: mov dword ptr [esp + 0x48], 0x580000']
+   dmFields-like stores without it  : ['0x3001b83a: mov dword ptr [esp + 0x50], 0x180000', '0x3001b9ac: mov dword ptr [esp + 0x58], 0x180000', '0x3001b9e6: mov dword ptr [esp + 0x48], 0x1c0000'] 
+== Quake2Complete/quake2.exe
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x418c0b: or ebx, 0x400000', '0x44004e: push 0x400000']
+   dmFields-like stores without it  : [] 
+== SiNGold/sin.exe
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x425f39: or ebx, 0x400000', '0x42676c: or dword ptr [esp + 0x10], 0x400000', '0x42714e: or ebx, 0x400000', '0x478889: push 0x400000']
+   dmFields-like stores without it  : [] 
+== SoldierOfFortune/SoF.exe
+   dmFields WITH DM_DISPLAYFREQUENCY : ['0x2001ef16: or ebx, 0x400000', '0x20031e0f: or edx, 0x400000', '0x20047577: or edi, 0x400000', '0x2005ef4e: or ebx, 0x400000']
+   dmFields-like stores without it  : [] 

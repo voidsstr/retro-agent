@@ -1,0 +1,5180 @@
+Event[0]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[1]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T11:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[2]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[3]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[4]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[5]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[6]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[7]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[8]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[9]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[10]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T08:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[11]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T08:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[12]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T08:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[13]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T08:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[14]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T07:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[15]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T07:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[16]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T07:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[17]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T07:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[18]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T06:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[19]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T06:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[20]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T06:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[21]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T06:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[22]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T05:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[23]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T05:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[24]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T05:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[25]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T05:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[26]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T04:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[27]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T04:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[28]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T04:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[29]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T04:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[30]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T03:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[31]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T03:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[32]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T03:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[33]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T03:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[34]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T02:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[35]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T02:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[36]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T02:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[37]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T02:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[38]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T01:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[39]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T01:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[40]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T01:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[41]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T01:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[42]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T00:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[43]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T00:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[44]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T00:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[45]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T00:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[46]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T23:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[47]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T23:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[48]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T23:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[49]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T23:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[50]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T22:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[51]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T22:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[52]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T22:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[53]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T22:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[54]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T21:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[55]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T21:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[56]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T21:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[57]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T21:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[58]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T20:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[59]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T20:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[60]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T20:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[61]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T20:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[62]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T19:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[63]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T19:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[64]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T19:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[65]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T19:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[66]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T18:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[67]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T18:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[68]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T18:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[69]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T18:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[70]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T17:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[71]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T17:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[72]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T17:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[73]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T17:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[74]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T16:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[75]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T16:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[76]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T16:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[77]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T16:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[78]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T15:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[79]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T15:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[80]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T15:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[81]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T15:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[82]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T14:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[83]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T14:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[84]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T14:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[85]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T14:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[86]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T13:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[87]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T13:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[88]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T13:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[89]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T13:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[90]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T12:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[91]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T12:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[92]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T12:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[93]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T12:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[94]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T11:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[95]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T11:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[96]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T11:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[97]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T11:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[98]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T10:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[99]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T10:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[100]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T10:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[101]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T10:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[102]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T09:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[103]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T09:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[104]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T09:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[105]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T09:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[106]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T08:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[107]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T08:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[108]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T08:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[109]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T08:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[110]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T07:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[111]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T07:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[112]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T07:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[113]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T07:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[114]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T06:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[115]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T06:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[116]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T06:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[117]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T06:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[118]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T05:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[119]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T05:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[120]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T05:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[121]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T05:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[122]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T04:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[123]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T04:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[124]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T04:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[125]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T04:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[126]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T03:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[127]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T03:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[128]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T03:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[129]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T03:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[130]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T02:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[131]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T02:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[132]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T02:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[133]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T02:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[134]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T01:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[135]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T01:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[136]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T01:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[137]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T01:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[138]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[139]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[140]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[141]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[142]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-26T23:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[143]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-09-26T16:20:05.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[144]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:11:16.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[145]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[146]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-24T04:43:44.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[147]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-09-04T11:17:56.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[148]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T22:27:39.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[149]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T14:29:21.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (1756)
+
+Event[150]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T14:27:23.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (2716)
+
+Event[151]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T14:25:34.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (3788)
+
+Event[152]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T14:18:46.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (quake2.exe)
+
+Event[153]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T12:26:19.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Halo2 for Windows Vista)
+
+Event[154]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-09-01T11:55:34.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Halo2 for Windows Vista)
+
+Event[155]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-09-01T10:38:38.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[156]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T16:13:50.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[157]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T16:10:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Command & Conquer : Tiberian Sun)
+
+Event[158]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:53:31.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[159]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:52:13.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[160]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:51:29.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[161]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:50:45.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[162]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:50:01.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[163]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:48:57.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[164]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:47:26.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[165]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:45:19.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[166]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:43:09.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[167]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:41:54.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[168]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:41:22.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[169]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:40:49.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[170]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:38:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[171]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T15:37:13.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[172]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T14:54:32.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (quake2.exe)
+
+Event[173]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T14:53:03.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (quake2.exe)
+
+Event[174]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-31T14:29:29.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[175]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T14:14:41.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (quake2.exe)
+
+Event[176]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T14:12:46.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[177]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T14:11:52.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[178]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T14:04:56.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[179]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T13:46:59.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[180]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-31T10:57:54.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[181]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:50:19.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Command & Conquer : Tiberian Sun)
+
+Event[182]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:49:45.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Thief:The Dark Project)
+
+Event[183]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:48:05.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (996)
+
+Event[184]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:46:25.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Client MFC Application)
+
+Event[185]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:45:54.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[186]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:44:46.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[187]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:44:16.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (rf.exe)
+
+Event[188]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:43:39.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[189]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:42:32.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (quake2.exe)
+
+Event[190]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:40:53.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[191]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:40:19.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (JKM.EXE)
+
+Event[192]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:39:13.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (HDE.exe)
+
+Event[193]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:37:33.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[194]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:35:52.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[195]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:35:18.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (main.exe)
+
+Event[196]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:34:10.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[197]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:33:02.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (CARMA2_HW.EXE)
+
+Event[198]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:32:30.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[199]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:31:55.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (avp.exe)
+
+Event[200]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T10:02:12.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Turok2MPEnglish.exe)
+
+Event[201]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T04:49:24.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[202]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T04:39:47.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Warcraft II Battle.net Edition)
+
+Event[203]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T04:08:35.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[204]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T04:05:13.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[205]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T02:23:05.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[206]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T02:10:58.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (CARMA2_HW.EXE)
+
+Event[207]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T02:08:11.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[208]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T01:51:37.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[209]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T01:49:10.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[210]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T01:26:37.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Unreal.exe)
+
+Event[211]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T01:01:41.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (2328)
+
+Event[212]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:59:14.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[213]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:55:19.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[214]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:53:28.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[215]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:50:47.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[216]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:46:32.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Unreal.exe)
+
+Event[217]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:32:28.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Unreal.exe)
+
+Event[218]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:29:58.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (3220)
+
+Event[219]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-31T00:21:32.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[220]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:13:05.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[221]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-31T00:01:54.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[222]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-30T19:12:28.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (UT2004.exe)
+
+Event[223]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-30T12:16:16.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (HDE.exe)
+
+Event[224]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-30T11:23:52.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[225]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-30T00:30:29.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sof2mp.exe)
+
+Event[226]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-30T00:28:22.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sof2mp.exe)
+
+Event[227]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-30T00:05:30.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sof2mp.exe)
+
+Event[228]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T23:38:39.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sof2mp.exe)
+
+Event[229]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T23:36:05.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sof2mp.exe)
+
+Event[230]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-29T22:51:42.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[231]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:30:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[232]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:30:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[233]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:29:00.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Client MFC Application)
+
+Event[234]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:27:50.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Client MFC Application)
+
+Event[235]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:18:46.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (JKM.EXE)
+
+Event[236]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:16:18.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Tiberian Sun)
+
+Event[237]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:14:29.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Jedi Knight Main Executable)
+
+Event[238]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:12:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Half-Life Launcher)
+
+Event[239]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:10:32.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Unreal.exe)
+
+Event[240]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:09:26.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Thief:The Dark Project)
+
+Event[241]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:08:30.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (CARMA2_HW.EXE)
+
+Event[242]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:07:35.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[243]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:06:39.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[244]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:05:44.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[245]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:04:51.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[246]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T20:03:51.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (avp.exe)
+
+Event[247]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:57:20.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (3164)
+
+Event[248]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:56:25.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (rf.exe)
+
+Event[249]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:54:59.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (System Shock 2)
+
+Event[250]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:53:03.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Client MFC Application)
+
+Event[251]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:46:07.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (UT2004.exe)
+
+Event[252]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:28:54.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (main.exe)
+
+Event[253]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:28:23.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (main.exe)
+
+Event[254]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:26:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[255]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:19:06.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[256]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:17:31.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[257]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:17:30.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[258]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:14:41.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[259]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:13:21.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[260]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:12:06.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[261]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:09:47.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[262]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:07:30.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[263]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:05:57.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[264]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T19:05:56.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (sin.exe)
+
+Event[265]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T18:27:37.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Tiberian Sun)
+
+Event[266]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T18:23:59.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Tiberian Sun)
+
+Event[267]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T18:21:26.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[268]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T18:20:31.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[269]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T15:15:27.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DEUSEX.EXE)
+
+Event[270]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T15:10:28.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[271]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T15:07:48.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[272]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T15:06:50.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[273]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T15:06:19.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[274]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:41:05.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Unreal.exe)
+
+Event[275]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:34:33.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Thief:The Dark Project)
+
+Event[276]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:33:13.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[277]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:32:31.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (2540)
+
+Event[278]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:28:30.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (JKM.EXE)
+
+Event[279]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:23:41.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (JK.EXE)
+
+Event[280]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:13:09.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[281]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:09:36.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (CARMA2_HW.EXE)
+
+Event[282]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:06:43.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (DOSBox DOS Emulator)
+
+Event[283]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-29T14:05:35.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (avp.exe)
+
+Event[284]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-29T09:14:03.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[285]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-28T21:36:20.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[286]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-28T19:43:52.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[287]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-24T06:21:02.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[288]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-21T10:31:28.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[289]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T21:23:47.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[290]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T21:19:20.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[291]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T21:04:04.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[292]:
+  Log Name: Application
+  Source: Application Hang
+  Date: 2026-08-20T19:50:18.000
+  Event ID: 1002
+  Task: N/A
+  Level: Error
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The program Counter-Strike 1.6.exe version 1.0.0.0 stopped interacting with Windows and was closed. To see if more information about the problem is available, check the problem history in the Action Center control panel.
+ Process ID: 8ec
+ Start Time: 01dd30fe68036cf9
+ Termination Time: 16
+ Application Path: \\192.168.1.122\files\Files\Games\Windows XP\Counter-Strike 1.6.exe
+ Report Id: c63b4819-9cf1-11f1-93c0-782bcba5b470
+
+
+Event[293]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T18:04:26.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[294]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T17:58:04.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[295]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T17:55:51.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[296]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T17:51:48.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[297]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T17:47:02.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (StarCraft)
+
+Event[298]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T17:21:55.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (2084)
+
+Event[299]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T17:19:40.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (3104)
+
+Event[300]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T16:31:34.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (3972)
+
+Event[301]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-20T15:44:40.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Starcraft)
+
+Event[302]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-18T13:31:15.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[303]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-18T10:29:23.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[304]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-14T08:12:05.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[305]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-14T08:11:21.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[306]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-11T00:31:35.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[307]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-10T20:19:53.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[308]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-10T15:46:28.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[309]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-09T06:44:08.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[310]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-08T19:30:41.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[311]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-08T19:18:47.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[312]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-06T17:37:52.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[313]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-06T16:30:09.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[314]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-06T16:21:00.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[315]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-06T09:43:05.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[316]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-08-05T16:46:49.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[317]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-08-04T10:10:02.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Unreal.exe)
+
+Event[318]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-07-31T08:51:49.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[319]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2026-07-31T08:51:34.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[320]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-26T12:54:06.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[321]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-26T12:53:53.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[322]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-26T12:53:29.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[323]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-26T12:53:12.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Red Alert 2)
+
+Event[324]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-26T12:50:39.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (quake2.exe)
+
+Event[325]:
+  Log Name: Application
+  Source: Microsoft-Windows-LoadPerf
+  Date: 2013-09-26T03:48:43.377
+  Event ID: 1002
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-21-3994847488-226062-2860159258-1000
+  User Name: admin-PC\admin
+  Computer: admin-PC
+  Description: 
+Performance counters for the .NET Data Provider for Oracle (.NET Data Provider for Oracle) service are already in the registry, no need to reinstall. This only happens when you install the same counter twice. The second time install will generate this event.
+

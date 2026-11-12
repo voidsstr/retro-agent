@@ -1,0 +1,134 @@
+== Descent3/main.exe (1.4) resolution button labels + switches
+61db25d7609fc1f561445efe90f31e1e  /mnt/retro-share/Files/Games-Library/Descent3/main.exe
+10449:1600x1200
+10450:1280x960
+10451:1024x768
+10452:960x720
+10453:800x600
+10454:640x480
+10455:512x384
+10947:RS_resolution
+10974:-Height
+10975:-Width
+11008:-aspect
+
+== Descent3 README.TXT -aspect
+  -width <width>     Sets the screen resolution to the specified width,
+                     if possible.
+
+  -height <height>   Sets the screen resolution to the specified 
+                     height, if possible.
+
+  -nonetwork         Disables all network multiplayer functionality.
+  -aspect <value>    Specifies the screen aspect ratio for 
+                     non-standard displays, such as wide-screen 
+                     TVs.  The aspect value is the width of the screen
+                     divided by the height, so if you want to play 
+                     Descent 3 on a 16:9 wide-screen TV, use 
+                     "-aspect 1.78".
+
+== Descent2/DESCENTW.EXE screen resolution menu strings
+937356436f901aaf8c6b6c31778dd57e  /mnt/retro-share/Files/Games-Library/Descent2/DESCENTW.EXE
+ 320x200 N/A
+ 320x200
+ 640x480
+Modes w/o Cockpit:
+ 640x400
+ 800x600
+Select screen mode
+Using default mode for gameplay.
+Mode not supported by your
+DirectDraw driver.
+New Game
+Select mission
+Error in Mission file
+%s %d
+          Ok
+Sound effects & music...
+INVOKE JOYSTICK CONTROL PANEL
+Screen resolution...
+
+== Descent1/DESCENTR.EXE (DOS 1.4a) mode switches
+a6f2203ccf08bef25c003fa0609f6165  /mnt/retro-share/Files/Games-Library/Descent1/DESCENTR.EXE
+-Registered v1.4a May 2, 1995
+nof-320x240
+s 0-320x400
+s %-640x400
+nt.-640x480
+nt.-320x100
+
+== d1x/d2x-rebirth strings
+12bdeb2b9b5ba9e60119ba1ff6f809dd  /mnt/retro-share/Files/Games-Library/Descent1/d1x-rebirth.exe
+descent.cfg
+ResolutionX
+ResolutionY
+AspectX
+AspectY
+use custom values
+Screen Resolution
+Screen resolution...
+D1X-Rebirth v0.58.1
+39e8b2e5cad1f5615e7f86551841064c  /mnt/retro-share/Files/Games-Library/Descent2/d2x-rebirth.exe
+descent.cfg
+ResolutionX
+ResolutionY
+AspectX
+AspectY
+use custom values
+Screen Resolution
+Screen resolution...
+
+== Carmageddon1/MAINPROG.EXE
+45ed17edc10b118da9c632c8eacfa2f4  /mnt/retro-share/Files/Games-Library/Carmageddon1/MAINPROG.EXE
+VESA,W:640,H:480,B:8
+-lomem
+-nocutscenes
+-hires
+-runme
+
+== Carmageddon2/CARMA2_HW.EXE
+66a9c49483ff4415b518bb7df01385bd  /mnt/retro-share/Files/Games-Library/Carmageddon2/CARMA2_HW.EXE
+Screen width/height doesn't match graf data
+v1.02a
+640x480 init string
+320x200 init string
+-SCALEMOUSE
+-ALIEN
+-BLOOD
+-ZOMBIE
+-NOCUTSCENES
+-NOCUTSCENE
+32X20X8
+64x48x8
+
+== RedneckRampage SETMAIN.EXE fixed VESA list / RR.EXE
+Set screen width to 320 pixels and screen height to 200 pixels
+Set screen width to 640 pixels and screen height to 480 pixels
+Set screen width to 800 pixels and screen height to 600 pixels
+Set screen width to 1024 pixels and screen height to 768 pixels
+Set screen width to 1280 pixels and screen height to 1024 pixels
+Set screen width to 1600 pixels and screen height to 1200 pixels
+Choose a VESA 1.0/2.0 Mode
+VESA driver for ( %ld * %ld ) not found/supported!
+SCREEN SIZE
+ScreenMode = 1
+ScreenWidth = 800
+ScreenHeight = 600
+
+== ShadowWarrior Setmain.exe / SW.DAT
+Set screen width to 320 pixels and screen height to 200 pixels
+Set screen width to 320 pixels and screen height to 400 pixels
+Set screen width to 640 pixels and screen height to 480 pixels
+Set screen width to 800 pixels and screen height to 600 pixels
+Set screen width to 320 pixels and screen height to 200 pixels
+                        SHADOW WARRIOR(tm) Version 1.2                        
+%d x %d mode selected.
+ScreenMode = 2
+ScreenWidth = 320
+ScreenHeight = 200
+20:fullresolution=desktop
+22:output=overlay
+52:aspect=false
+
+== Daggerfall FALL.EXE
+TES: Daggerfall v1.07.

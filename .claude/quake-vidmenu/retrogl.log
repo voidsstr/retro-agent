@@ -1,0 +1,442 @@
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake3-TeamArena\quake3.exe' (pid=3228) ###
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=3228)
+  host process : C:\Games\Quake3-TeamArena\quake3.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=supplied)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+wglCreateContext(hdc=e0010375) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=4 paints-validated=0 quit=0
+wglCreateContext: hWnd=028800d0 GetClientRect=640x480 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=028800d0, 640x480, mesaAttr[colDepth=32])
+fxBestResolution: request 640x480 -> res enum 7 (640x480), 252 supported modes queried
+fxBestRefresh: 640x480 max 120 Hz (EnumDisplaySettings) -> GR_REFRESH enum 8
+fxMesaCreateBestContext: win=42467536 640x480 -> res enum 7, ref enum 8
+fxMesaCreateContext: ENTER win=42467536 res=7 (640x480) ref=8
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=42467536 res=7 (640x480) ref=8 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=42467536 res=7 (640x480) ref=8 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=640x480 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=003a39a0 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=003a39a0)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+### DllMain PROCESS_DETACH: retrogl FreeLibrary (pid=3228) ###
+cleangraphics: process exit -> grGlideShutdown()
+cleangraphics: grGlideShutdown returned
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe' (pid=3812) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=3812)
+  host process : C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=d2010053) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=1 paints-validated=2 quit=0
+wglCreateContext: hWnd=02bf00ca GetClientRect=640x480 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=02bf00ca, 640x480, mesaAttr[colDepth=32])
+fxBestResolution: request 640x480 -> res enum 7 (640x480), 252 supported modes queried
+fxBestRefresh: 640x480 max 120 Hz (EnumDisplaySettings) -> GR_REFRESH enum 8
+fxMesaCreateBestContext: win=46072010 640x480 -> res enum 7, ref enum 8
+fxMesaCreateContext: ENTER win=46072010 res=7 (640x480) ref=8
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=46072010 res=7 (640x480) ref=8 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=46072010 res=7 (640x480) ref=8 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=640x480 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=0134c4d8 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=0134c4d8)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+### DllMain PROCESS_DETACH: retrogl process exit (pid=3812) ###
+cleangraphics: process exit -> grGlideShutdown()
+cleangraphics: grGlideShutdown returned
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe' (pid=2984) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=2984)
+  host process : C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=4901029a) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=2 paints-validated=2 quit=0
+wglCreateContext: hWnd=02c400ca GetClientRect=640x480 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=02c400ca, 640x480, mesaAttr[colDepth=32])
+fxBestResolution: request 640x480 -> res enum 7 (640x480), 252 supported modes queried
+fxBestRefresh: 640x480 max 120 Hz (EnumDisplaySettings) -> GR_REFRESH enum 8
+fxMesaCreateBestContext: win=46399690 640x480 -> res enum 7, ref enum 8
+fxMesaCreateContext: ENTER win=46399690 res=7 (640x480) ref=8
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=46399690 res=7 (640x480) ref=8 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=46399690 res=7 (640x480) ref=8 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=640x480 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=0134c4d8 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=0134c4d8)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake2Complete\quake2.exe' (pid=2776) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=2776)
+  host process : C:\Games\Quake2Complete\quake2.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=b901037d) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=1 paints-validated=0 quit=0
+wglCreateContext: hWnd=033300d4 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=033300d4, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=53674196 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=53674196 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=53674196 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=53674196 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00c64778 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00c64778)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=b901037d) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=2 paints-validated=0 quit=0
+wglCreateContext: hWnd=036c0094 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=036c0094, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=57409684 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=57409684 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=57409684 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=57409684 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00c64778 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00c64778)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+### DllMain PROCESS_DETACH: retrogl process exit (pid=2776) ###
+cleangraphics: process exit -> grGlideShutdown()
+cleangraphics: grGlideShutdown returned
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\SeriousSamFirstEncounter\Bin\SeriousSam.exe' (pid=1656) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=1656)
+  host process : C:\Games\SeriousSamFirstEncounter\Bin\SeriousSam.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=0e01002c) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=3 paints-validated=2 quit=0
+wglCreateContext: hWnd=000800c4 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=000800c4, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=524484 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=524484 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=524484 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=524484 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00de3438 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00de3438)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\SeriousSamFirstEncounter\Bin\SeriousSam.exe' (pid=1080) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=1080)
+  host process : C:\Games\SeriousSamFirstEncounter\Bin\SeriousSam.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=180102a1) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=1 paints-validated=2 quit=0
+wglCreateContext: hWnd=000b00c4 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=000b00c4, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=721092 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=721092 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=721092 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=721092 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00dba600 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00dba600)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe' (pid=792) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=792)
+  host process : C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=5501027a) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=1 paints-validated=2 quit=0
+wglCreateContext: hWnd=000800d2 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=000800d2, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=524498 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=524498 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=524498 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=524498 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00a70008 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00a70008)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake3-TeamArena\ioquake3.x86.exe' (pid=812) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=812)
+  host process : C:\Games\Quake3-TeamArena\ioquake3.x86.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=8301024c) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=1 paints-validated=1 quit=0
+wglCreateContext: hWnd=000b00d2 GetClientRect=10x10 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=000b00d2, 10x10, mesaAttr[colDepth=32])
+fxBestResolution: request 10x10 -> res enum 0 (320x200), 252 supported modes queried
+fxBestRefresh: 10x10 max 0 Hz (EnumDisplaySettings) -> GR_REFRESH enum 0
+fxMesaCreateBestContext: win=721106 10x10 -> res enum 0, ref enum 0
+fxMesaCreateContext: ENTER win=721106 res=0 (320x200) ref=0
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=721106 res=0 (320x200) ref=0 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=721106 res=0 (320x200) ref=0 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=320x200 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=07d513f8 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=07d513f8)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=4901029b) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=3 paints-validated=1 quit=0
+wglCreateContext: hWnd=0009009c GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=0009009c, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=589980 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=589980 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=589980 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=589980 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=07d513f8 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=07d513f8)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake2Complete\quake2.exe' (pid=468) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=468)
+  host process : C:\Games\Quake2Complete\quake2.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=9a0102b3) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=1 paints-validated=0 quit=0
+wglCreateContext: hWnd=000f00d2 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=000f00d2, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=983250 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=983250 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=983250 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=983250 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00c64760 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00c64760)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=200101db) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=3 paints-validated=0 quit=0
+wglCreateContext: hWnd=001100d2 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=001100d2, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=1114322 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=1114322 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=1114322 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=1114322 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00c64760 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00c64760)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\CounterStrike16\hl.exe' (pid=1176) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=1176)
+  host process : C:\Games\CounterStrike16\hl.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=ea0101e8) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=2 paints-validated=1 quit=0
+wglCreateContext: hWnd=001400d2 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=001400d2, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=1310930 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=1310930 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=1310930 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=1310930 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00335000 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00335000)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\UnrealTournament436\System\UnrealTournament.exe' (pid=184) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=184)
+  host process : C:\Games\UnrealTournament436\System\UnrealTournament.exe
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=2 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=2; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(2) -> 1
+wglCreateContext(hdc=670102a8) enter [curPFD=2]
+wglCreateContext: activation pump dispatched=1 paints-validated=2 quit=0
+wglCreateContext: hWnd=001c00d0 GetClientRect=1280x960 curPFD=2 pfd.cColorBits=16 mesaColDepth=16 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=001c00d0, 1280x960, mesaAttr[colDepth=16])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=1835216 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=1835216 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=16 fsaa=1 -> pixFmt=3 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=1835216 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=3 aux=1 fxWinReq=0
+grSstWinOpenExt: win=1835216 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=3 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=16 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00425250 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00425250)
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake1\GLQUAKE.EXE' (pid=380) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=380)
+  host process : C:\Games\Quake1\GLQUAKE.EXE
+  glide3x.dll  : C:\WINDOWS\system32\glide3x.dll (module=69300000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=01010051) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=3 paints-validated=1 quit=0
+wglCreateContext: hWnd=00050096 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=00050096, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=327830 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=327830 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=1 -> pixFmt=5 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=327830 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=5 aux=1 fxWinReq=0
+grSstWinOpenExt: win=327830 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=5 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1765160308 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1765160308 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1765160308 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=01244008 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=01244008)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+### DllMain PROCESS_DETACH: retrogl process exit (pid=380) ###
+cleangraphics: process exit -> grGlideShutdown()
+cleangraphics: grGlideShutdown returned

@@ -1,0 +1,47 @@
+# raw tool output - TSE SeriousSam.exe: static defaults bound to the level symbols
+string b'Levels\\01_Hatshepsut.wld' at off 3607c va 43607c
+   xref at code va 422aa1
+string b'Levels\\Intro.wld' at off 36098 va 436098
+   xref at code va 422af1
+string b'user CTString sam_strFirstLevel;' at off 3659c va 43659c
+   xref at code va 423ff5
+string b'persistent user CTString sam_strIntroLevel;' at off 36524 va 436524
+   xref at code va 423f6b
+00422aa0: 687c604300               push 0x43607c
+00422aa5: ff15d0b04200             call dword ptr [0x42b0d0]
+00422aab: 83c404                   add esp, 4
+00422aae: a37c2f4400               mov dword ptr [0x442f7c], eax
+00422ab3: c3                       ret 
+00422af0: 6898604300               push 0x436098
+00422af5: ff15d0b04200             call dword ptr [0x42b0d0]
+00422afb: 83c404                   add esp, 4
+00422afe: a3782f4400               mov dword ptr [0x442f78], eax
+00422b03: c3                       ret 
+00423ff4: 689c654300               push 0x43659c
+00423ff9: ffd6                     call esi
+00423ffb: 83c408                   add esp, 8
+00423ffe: 894508                   mov dword ptr [ebp + 8], eax
+00424001: 8b0d7cb14200             mov ecx, dword ptr [0x42b17c]
+00424007: 8d4508                   lea eax, [ebp + 8]
+0042400a: 687c2f4400               push 0x442f7c
+0042400f: 50                       push eax
+00424010: 8b09                     mov ecx, dword ptr [ecx]
+00423f6a: 6824654300               push 0x436524
+00423f6f: ffd6                     call esi
+00423f71: 83c408                   add esp, 8
+00423f74: 894508                   mov dword ptr [ebp + 8], eax
+00423f77: 8b0d7cb14200             mov ecx, dword ptr [0x42b17c]
+00423f7d: 8d4508                   lea eax, [ebp + 8]
+00423f80: 68782f4400               push 0x442f78
+00423f85: 50                       push eax
+
+# staged library TSE Scripts/Game_startup.ini (what the launcher and GAMERES overwrite)
+sam_strFirstLevel = "Levels\\LevelsMP\\1_0_InTheLastEpisode.wld";
+sam_strIntroLevel = "Levels\\LevelsMP\\Intro.wld";
+sam_strTechTestLevel = "Levels\\LevelsMP\\Technology\\TechTest.wld";
+sam_strGameName = "serioussamse";
+
+# TSE levels present in the tree (case-insensitive search for 01_Hatshepsut / Levels/Intro.wld)
+  SE1_00_ExtraTools.gro:     49248  2001-10-26 17:52   Levels/LevelsMP/Intro.tbn
+  SE1_00_Levels.gro:   2445271  2001-12-01 10:56   Levels/LevelsMP/Intro.wld
+  SE1_00_Levels.gro:     49248  2001-10-17 00:47   Levels/LevelsMP/IntroTbn.tex

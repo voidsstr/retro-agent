@@ -1,0 +1,9 @@
+[2026-09-29 00:38:13 192.168.1.123] 'GAMERES' -> 0:
+{"panel":{"edid":true,"name":"DELL P2312H","pnpid":"DEL4076","type":"LCD","digital":false,"native":"1920x1080","native_hz":60,"vmax_hz":76,"size_cm":"51x29"},"desktop":{"persisted":"1920x1080","persisted_hz":60,"live":"1920x1080","bpp":32},"cap":"0x0","target":{"wide":"1920x1080","four_three":"1280x960","aspect":"16:9","hz":60,"hz_four_three":75,"hz_desktop":60,"hz_launcher":60,"fov":106,"q2mode":8,"q3mode":7,"d3_aspect":1,"dosbox_fullresolution":"desktop"},"modes":["640x480@75","720x480@60","800x600@75","848x480@75","1024x768@75","1152x864@75","1280x720@75","1280x768@75","1280x800@75","1280x960@75","1280x1024@75","1360x768@75","1440x900@75","1680x1050@75","1920x1080@60"],"rules":80}
+
+[2026-09-29 00:38:13 192.168.1.123] 'DISPLAYCFG get' -> 0:
+{"width":1920,"height":1080,"bpp":32,"refresh":60}
+
+[2026-09-29 00:38:13 192.168.1.123] 'PING' -> 0:
+PONG
+

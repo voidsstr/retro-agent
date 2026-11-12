@@ -1,0 +1,114 @@
+# THIEF.EXE (ThiefGold, ProductVersion 1.37, md5 8dd515df75176bcd1caaf65a93f47d81) - video-options resolution list builder
+# filter: <=12 entries (cmp esi,0xc), bitdepth == 16 hw / 8 sw, w >= 0x190 (400), 0x12c (300) <= h <= 0x300 (768)
+0051d0b7: mov ecx, dword ptr [esp + 0x10]
+0051d0bb: xor ebp, ebp
+0051d0bd: mov ax, word ptr [ecx]
+0051d0c0: cmp ax, 0xffff
+0051d0c4: je 0x51d1dc
+0051d0ca: cmp esi, 0xc
+0051d0cd: jge 0x51d1dc
+0051d0d3: movsx eax, ax
+0051d0d6: mov ecx, dword ptr [esp + 0x18]
+0051d0da: xor edx, edx
+0051d0dc: lea eax, [eax + eax*2]
+0051d0df: shl eax, 2
+0051d0e2: mov dl, byte ptr [eax + 0x615f48]
+0051d0e8: cmp edx, ecx
+0051d0ea: jne 0x51d1d5
+0051d0f0: cmp word ptr [eax + 0x615f44], 0x190
+0051d0f9: jl 0x51d1d5
+0051d0ff: mov cx, word ptr [eax + 0x615f46]
+0051d106: cmp cx, 0x12c
+0051d10b: jl 0x51d1d5
+0051d111: cmp cx, 0x300
+0051d116: jg 0x51d1d5
+0051d11c: movsx edx, word ptr [eax + 0x615f46]
+0051d123: xor ecx, ecx
+0051d125: mov cl, byte ptr [eax + 0x615f48]
+0051d12b: movsx eax, word ptr [eax + 0x615f44]
+0051d132: push ecx
+0051d133: push edx
+0051d134: push eax
+0051d135: lea ecx, [esp + 0x30]
+0051d139: push 0x61213c  ; "%dx%dx%d"
+0051d13e: push ecx
+0051d13f: call 0x59dd60
+0051d144: lea eax, [esi + 0x1bf]
+0051d14a: add esp, 0x14
+0051d14d: lea edx, [eax + eax*2]
+0051d150: lea eax, [esp + 0x24]
+0051d154: test eax, eax
+0051d156: lea edx, [ebx + edx*4]
+0051d159: je 0x51d16b
+
+# grd mode lookup(w,h,bpp): scans 0x57 = 87 entries of grd_mode_info, -1 if absent
+00535be0: push ebp
+00535be1: mov ebp, dword ptr [esp + 8]
+00535be5: push esi
+00535be6: mov esi, dword ptr [esp + 0x14]
+00535bea: push edi
+00535beb: mov edi, dword ptr [esp + 0x14]
+00535bef: xor eax, eax
+00535bf1: mov ecx, 0x615f46
+00535bf6: movsx edx, word ptr [ecx - 2]
+00535bfa: cmp edx, ebp
+00535bfc: jne 0x535c0e
+00535bfe: movsx edx, word ptr [ecx]
+00535c01: cmp edx, edi
+00535c03: jne 0x535c0e
+00535c05: xor edx, edx
+00535c07: mov dl, byte ptr [ecx + 2]
+00535c0a: cmp edx, esi
+00535c0c: je 0x535c1a
+00535c0e: inc eax
+00535c0f: add ecx, 0xc
+00535c12: cmp eax, 0x57
+00535c15: jl 0x535bf6
+00535c17: or eax, 0xffffffff
+00535c1a: pop edi
+00535c1b: pop esi
+
+# static software-mode list at 0x611df0 (grd ids):
+[77, 78, 19, 20, 21, 65535] = 400x300x8 512x384x8 640x400x8 640x480x8 800x600x8, 0xffff end
+
+# default game ScrnMode: 0x4108d0 returns &g_mode = 0x5e1a40 = {flags 7, w 640, h 480, depth 8, screen_flags 13};
+# 0x410826..0x410843 copies it, lets config_read("game_" prefix -> game_screen_size/_depth/_flags/full_screen, 0x43b190) override, and sets it.
+# no game_screen_size in any staged/deployed ThiefGold cfg => 640x480
+004108d0: mov eax, 0x5e1a40
+004108d5: ret 
+0041081f: mov ecx, 5
+00410824: mov esi, eax
+00410826: lea edi, [esp + 8]
+0041082a: push 0x5e1a10  ; "game_"
+0041082f: rep movsd dword ptr es:[edi], dword ptr [esi]
+00410831: lea ecx, [esp + 0xc]
+00410835: push ecx
+00410836: call 0x43b190
+0041083b: add esp, 8
+0041083e: lea edx, [esp + 8]
+00410842: push edx
+00410843: call 0x4108e0
+
+# config reader 0x43b190: sprintf("%sscreen_size", prefix) then reads TWO ints (w,h)
+0043b1b4: push ebx
+0043b1b5: lea ecx, [esp + 0x1c]
+0043b1b9: mov edi, 2
+0043b1be: push 0x5ea4b8  ; "%sscreen_size"
+0043b1c3: push ecx
+0043b1c4: mov dword ptr [esp + 0x18], edi
+0043b1c8: call 0x59dd60
+0043b1cd: add esp, 0xc
+0043b1d0: lea edx, [esp + 0xc]
+0043b1d4: lea eax, [esp + 0x10]
+0043b1d8: lea ecx, [esp + 0x18]
+0043b1dc: push edx
+0043b1dd: push eax
+0043b1de: push 1
+0043b1e0: push ecx
+0043b1e1: call 0x54a190
+0043b1e6: mov esi, dword ptr [esp + 0x54]
+0043b1ea: add esp, 0x10
+0043b1ed: test al, al
+0043b1ef: je 0x43b20b
+0043b1f1: cmp dword ptr [esp + 0xc], edi
+0043b1f5: jne 0x43b20b

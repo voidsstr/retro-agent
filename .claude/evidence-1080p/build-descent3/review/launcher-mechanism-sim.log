@@ -1,0 +1,10 @@
+(A) builder's proposal via patch_launcher: changed=[] skipped=1 errors=[] md5 unchanged=True
+    -> MARK 'call "%~dp0FLEETRES.BAT"' present in the staged launcher: True  => a SILENT NO-OP
+(B0) --check before shipping: errors=['Descent3/Play Descent 3.bat: still has \'start "" "%~dp0main.exe" -launched -Width %FR_W% -Height %FR_H%\''] (expected: 'still has')
+(B1) repair: changed=['Descent3/Play Descent 3.bat [repair]'] errors=[]
+     size 2760 -> 2771, CRLF lines: 50, bare LF: 0
+     start line now: ['start "" "%~dp0main.exe" -launched -pilot SDF -Width %FR_W% -Height %FR_H%']
+(B2) second run: changed=[] skipped=1 errors=[]  => idempotent
+(B3) --check after shipping: errors=[]
+     OLD is a substring of NEW? False (must be False, or the replace could re-apply)
+     parentheses in the new line? False

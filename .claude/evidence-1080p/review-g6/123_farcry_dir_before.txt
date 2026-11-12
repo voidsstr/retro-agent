@@ -1,0 +1,28 @@
+Dedicated server guide.rtf 513992 2004-02-26 08:31:14
+DedicatedServer.cmd 55 2004-01-12 19:12:44
+DevMode.lua 7031 2004-02-20 16:22:58
+Editor Manual.pdf 6377647 2004-02-22 17:58:18
+Editor.cmd 49 2004-01-12 19:04:36
+Editor.lua 6608 2004-02-03 17:48:36
+Far Cry.cmd 49 2004-01-12 19:06:40
+farcry.ico 141258 2026-08-30 04:24:35
+fcsplash.bmp 921656 2006-07-28 10:42:46
+FLEETRES.BAT 4117 2026-08-30 16:56:44
+FLEETRES.EXE 30208 2026-08-31 09:29:59
+game.cfg 9595 2009-04-01 09:39:56
+gfw_high.ico 141258 2012-12-06 13:32:34
+gog.ico 69248 2012-09-14 12:56:10
+install.reg 1121 2026-08-30 04:25:23
+launch.txt 952 2026-08-30 15:03:00
+log.txt 6973 2026-08-31 14:36:09
+Manual.pdf 567270 2004-02-20 07:43:38
+Manual_1_4.pdf 817844 2006-07-31 15:31:04
+Play Far Cry.bat 1974 2026-08-30 16:30:11
+README-FLEET.txt 4939 2026-08-30 15:03:01
+Readme.txt 51070 2009-03-27 15:45:38
+requires.json 2168 2026-08-30 04:25:41
+Server_Command_Table.pdf 64492 2006-07-31 15:30:50
+Support.ico 62895 2012-09-14 12:56:10
+System-fleet.cfg 1679 2026-08-30 15:35:49
+System.cfg 1680 2026-09-29 03:47:45
+Using the FarCry dedicated server.rtf 50688 2004-02-27 10:53:14

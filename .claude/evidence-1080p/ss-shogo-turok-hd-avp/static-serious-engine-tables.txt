@@ -1,0 +1,30 @@
+# raw tool output - Serious Engine 1 resolution tables (int32 w,h pairs) found in the staged binaries
+  Engine.dll <i 0x159200 320x240 400x300 480x360 512x384 640x480 720x540 800x600 960x720 1024x768 1152x864 1280x960 1280x1024 1600x1200 1792x1344 1856x1392 1920x1440 2048x1536 1280x480 1600x600 2048x768 848x480 856x480
+  SeriousSam.exe <i 0x2fb14 320x240 400x300 512x384 640x480 720x540 800x300 800x600 960x720 1024x384 1024x768 1152x864 1280x480 1280x960 1600x600 1600x1200 1920x720 1920x1440 2048x786 2048x1536
+  Engine.dll <i 0x1ad6d0 320x240 400x300 480x360 512x384 640x480 720x540 720x576 800x600 960x720 1024x768 1152x864 1280x960 1280x1024 1600x1200 1792x1344 1856x1392 1920x1440 2048x1536 1280x480 1600x600 2048x768 848x480 856x480
+  SeriousSam.exe <i 0x32a48 320x240 400x300 512x384 640x240 640x480 720x540 800x300 800x600 960x720 1024x384 1024x768 1152x864 1280x480 1280x960 1600x600 1600x1200 1920x720 1920x1440 2048x786 2048x1536
+  Engine.dll <i 0x1ad6c0 320x240 400x300 480x360 512x384 640x480 720x540 720x576 800x600 960x720 1024x768 1152x864 1280x960 1280x1024 1600x1200 1792x1344 1856x1392 1920x1440 2048x1536 1280x480 1600x600 2048x768 848x480 856x480
+
+# code references to the Engine.dll table (TSE: OpenGL CDS loop + D3D8 EnumAdapterModes loop; TFE 1.00: OpenGL only)
+  TSE Engine.dll @0x6003a8a1
+    6003a8a1: mov ebx, 0x601ad6d0
+    6003a8ec: call dword ptr [0x601692bc]
+    6003a91c: cmp ebx, 0x601ad788
+    6003a93d: call dword ptr [0x601690b8]
+  TSE Engine.dll @0x6003ab16
+    6003ab16: mov dword ptr [ebp - 8], 0x601ad6d0
+    6003ab41: call dword ptr [edx + 0x1c]
+    6003ab4a: cmp edx, dword ptr [eax]
+    6003ab54: cmp ecx, edx
+    6003ab5b: cmp eax, 0x15
+    6003ab60: cmp eax, 0x16
+    6003ab65: cmp eax, 0x19
+    6003ab6a: cmp eax, 0x18
+    6003ab6f: cmp eax, 0x17
+    6003ab88: call dword ptr [edx + 0x24]
+
+# refresh cvar names
+  SeriousSamFirstEncounter Engine.dll: persistent user INDEX gfx_iRefreshRate;
+  SeriousSamSecondEncounter Engine.dll: persistent user INDEX gap_iRefreshRate;
+  TFE 1.05 patch Engine.dll: D3D8.DLL
+  TFE 1.05 patch Engine.dll: persistent user INDEX gap_iRefreshRate;

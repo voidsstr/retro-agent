@@ -1,0 +1,5 @@
+# FS_PathCmp (paksort comparator) - a-z case conversion + '\\'/':' -> '/', per binary (review 2026-09-29)
+jasp.exe [] (0 candidate sites)
+sof2mp.exe [('0x44dc22', 'UPPER'), ('0x44dc31', 'UPPER'), ('0x44ddd8', 'UPPER'), ('0x44dde7', 'UPPER'), ('0x44e0f2', 'UPPER'), ('0x44e101', 'UPPER')] (27 candidate sites)
+WolfMP.exe [('0x4234db', 'UPPER'), ('0x4234ea', 'UPPER'), ('0x42522a', 'UPPER'), ('0x42526b', 'UPPER'), ('0x42527a', 'UPPER')] (5 candidate sites)
+# jamp.exe 0x43A60B, SoF2.exe 0x1003A478, WolfSP.exe 0x4200A6: cmp 0x61/0x7a then sub 0x20 (UPPERCASE) before the 0x5c/0x3a->0x2f mapping (wider-window scan)

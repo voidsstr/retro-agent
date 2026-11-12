@@ -1,0 +1,22 @@
+Acclaim\Turok\VideoD3D\Filtering 1
+Acclaim\Turok\VideoD3D\Screen^tint 1
+Acclaim\Turok\VideoD3D\Mipmapping 1
+Acclaim\Turok\VideoD3D\Fog 1
+Acclaim\Turok\VideoD3D\Wait^for^VSync 1
+Acclaim\Turok\VideoD3D\Filtered^Plants 0
+Acclaim\Turok\VideoD3D\Render^Overlap 1
+Acclaim\Turok\VideoD3D\Full^Sky 1
+Acclaim\Turok\VideoD3D\320^x^240 0
+Acclaim\Turok\VideoD3D\512^x^384 0
+Acclaim\Turok\VideoD3D\640^x^480 0
+Acclaim\Turok\VideoD3D\800^x^600 0
+Acclaim\Turok\VideoD3D\1024^x^768 0
+Acclaim\Turok\VideoD3D\1280^x^1024 0
+Acclaim\Turok\VideoD3D\Windowed 0
+Acclaim\Turok\VideoD3D\TripleBuffer 0
+Acclaim\Turok\VideoD3D\Brightness 50
+Acclaim\Turok\VideoD3D\Render^16^bit 0
+Acclaim\Turok\VideoD3D\Render^24^bit 0
+Acclaim\Turok\VideoD3D\Render^32^bit 1
+Acclaim\Turok\VideoD3D\3D^Card default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

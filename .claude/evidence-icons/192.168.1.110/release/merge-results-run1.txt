@@ -1,0 +1,31 @@
+AliensVsPredator	merged install.reg via regedit - 1/1 value(s) verified
+BF1942	install.reg sets no values
+Carmageddon2	merged install.reg via regedit - 4/4 value(s) verified
+CounterStrike16	merged install.reg via regedit - 10/10 value(s) verified
+Descent3	merged install.reg via regedit - 12/12 value(s) verified
+DeusEx	merged install.reg via regedit - 4/4 value(s) verified
+Doom3	merged install.reg via regedit - 8/8 value(s) verified
+FarCry	merged install.reg via regedit - 2/2 value(s) verified
+HalfLife1	merged install.reg via regedit - 12/12 value(s) verified
+Halo2	merged install.reg via regedit - 1/1 value(s) verified
+Halo	merged install.reg via regedit - 5/5 value(s) verified
+HexenII	merged install.reg via regedit - 1/1 value(s) verified
+HiddenAndDangerous	merged install.reg via regedit - 7/7 value(s) verified
+JediKnightDF2	merged install.reg via regedit - 2/2 value(s) verified
+JediKnightMotS	merged install.reg via regedit - 3/3 value(s) verified
+MaxPayne	merged install.reg via regedit - 3/3 value(s) verified
+RainbowSix	merged install.reg via regedit - 44/44 value(s) verified
+RedAlert2	merged install.reg via regedit - 4/4 value(s) verified
+RedFaction	merged install.reg via regedit - 7/7 value(s) verified
+SiNGold	merged install.reg via regedit - 2/2 value(s) verified
+SoldierOfFortune2	merged install.reg via regedit - 3/3 value(s) verified
+SoldierOfFortune	merged install.reg via regedit - 1/1 value(s) verified
+StarCraft	merged install.reg via regedit - 7/7 value(s) verified
+SystemShock2	merged install.reg via regedit - 3/3 value(s) verified
+TiberianSun	merged install.reg via regedit - 2/2 value(s) verified
+Tribes2	merged install.reg via regedit - 2/2 value(s) verified
+Turok2	install.reg sets no values
+UnrealGold	merged install.reg via regedit - 4/4 value(s) verified
+UnrealTournament436	merged install.reg via regedit - 2/2 value(s) verified
+UnrealTournament	merged install.reg via regedit - 4/4 value(s) verified
+UT2004	merged install.reg via regedit - 5/5 value(s) verified

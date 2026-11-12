@@ -1,0 +1,69 @@
+# raw tool output - Turok 2 Video_D3D.dll (1999-02-02, md5 b3919d01613a234a485fef78c2999fc6)
+## option records (name, ..., dialog id, default) - stride 0x44 at 0x1001b030
+   0 b'Filtering'     id=0x3e9 default=1
+   1 b'Screen tint'   id=0x3ed default=1
+   2 b'Mipmapping'    id=0x3ef default=1
+   3 b'Fog'           id=0x3f0 default=1
+   4 b'Wait for VSync' id=0x3f3 default=1
+   5 b'Filtered Plants' id=0x3f2 default=1
+   6 b'Render Overlap' id=0x3f1 default=1
+   7 b'Full Sky'      id=0x3f4 default=1
+   8 b'320 x 240'     id=0x3ea default=0
+   9 b'512 x 384'     id=0x3ec default=0
+  10 b'640 x 480'     id=0x3eb default=1
+  11 b'800 x 600'     id=0x3ee default=0
+  12 b'1024 x 768'    id=0x3fa default=0
+  13 b'1280 x 1024'   id=0x3fe default=0
+  14 b'Windowed'      id=0x3f6 default=0
+  15 b'TripleBuffer'  id=0x3f7 default=0
+  16 b'Brightness'    id=0x3f9 default=0
+  17 b'Render 16 bit' id=0x3fb default=1
+  18 b'Render 24 bit' id=0x3fd default=0
+  19 b'Render 32 bit' id=0x3fc default=0
+## DirectDraw EnumDisplayModes callback: only these six WxH pairs are marked available
+10002242: 81f940010000             cmp ecx, 0x140
+1000224a: 817e08f0000000           cmp dword ptr [esi + 8], 0xf0
+10002253: 89148584b20110           mov dword ptr [eax*4 + 0x1001b284], edx
+1000225a: 817e0c00020000           cmp dword ptr [esi + 0xc], 0x200
+10002263: 817e0880010000           cmp dword ptr [esi + 8], 0x180
+1000226c: 891485c8b20110           mov dword ptr [eax*4 + 0x1001b2c8], edx
+10002273: 817e0c80020000           cmp dword ptr [esi + 0xc], 0x280
+1000227c: 817e08e0010000           cmp dword ptr [esi + 8], 0x1e0
+10002285: 8914850cb30110           mov dword ptr [eax*4 + 0x1001b30c], edx
+1000228c: 817e0c20030000           cmp dword ptr [esi + 0xc], 0x320
+10002295: 817e0858020000           cmp dword ptr [esi + 8], 0x258
+1000229e: 89148550b30110           mov dword ptr [eax*4 + 0x1001b350], edx
+100022ae: 3bf9                     cmp edi, ecx
+100022b2: 817e0800030000           cmp dword ptr [esi + 8], 0x300
+100022bb: 89148594b30110           mov dword ptr [eax*4 + 0x1001b394], edx
+100022c2: 817e0c00050000           cmp dword ptr [esi + 0xc], 0x500
+100022cb: 394e08                   cmp dword ptr [esi + 8], ecx
+100022d0: 891485d8b30110           mov dword ptr [eax*4 + 0x1001b3d8], edx
+## mode set from the booleans
+10001650: c70584fd011040010000     mov dword ptr [0x1001fd84], 0x140
+1000165a: c70594fd0110f0000000     mov dword ptr [0x1001fd94], 0xf0
+10001664: 391dc0b20110             cmp dword ptr [0x1001b2c0], ebx
+1000166c: c70584fd011000020000     mov dword ptr [0x1001fd84], 0x200
+10001676: c70594fd011080010000     mov dword ptr [0x1001fd94], 0x180
+10001680: 391d04b30110             cmp dword ptr [0x1001b304], ebx
+10001688: c70584fd011080020000     mov dword ptr [0x1001fd84], 0x280
+10001692: c70594fd0110e0010000     mov dword ptr [0x1001fd94], 0x1e0
+1000169c: 391d48b30110             cmp dword ptr [0x1001b348], ebx
+100016a4: c70584fd011020030000     mov dword ptr [0x1001fd84], 0x320
+100016ae: c70594fd011058020000     mov dword ptr [0x1001fd94], 0x258
+100016be: b800040000               mov eax, 0x400
+100016c7: a384fd0110               mov dword ptr [0x1001fd84], eax
+100016cc: c70594fd011000030000     mov dword ptr [0x1001fd94], 0x300
+100016d6: 391dd0b30110             cmp dword ptr [0x1001b3d0], ebx
+100016de: c70584fd011000050000     mov dword ptr [0x1001fd84], 0x500
+100016e8: a394fd0110               mov dword ptr [0x1001fd94], eax
+100016ed: 391de0b40110             cmp dword ptr [0x1001b4e0], ebx
+## Resolution combobox (dialog 102 'Direct3D Properties', control 0x3f8) filled from the same six records
+10001762: 684b010000               push 0x14b
+10001767: 68f8030000               push 0x3f8
+1000177e: be90b20110               mov esi, 0x1001b290
+10001783: 8b46f0                   mov eax, dword ptr [esi - 0x10]
+10001790: 6843010000               push 0x143
+10001795: 68f8030000               push 0x3f8
+100017c8: 68f8030000               push 0x3f8
+100017da: 81fee4b30110             cmp esi, 0x1001b3e4

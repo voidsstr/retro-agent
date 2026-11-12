@@ -1,0 +1,217 @@
+# /mnt/retro-share/Files/Games-Library/UnrealGold/System/D3DDrv.dll  md5 f924e209e7bc23b90b6f0360174683d3  (Unreal Gold 226b)
+# GetRes handler (UD3DRenderDevice::Exec, this = FExec subobject = object+0x28)
+# [edx+eax+0x54] = DDSURFACEDESC2.ddpfPixelFormat.dwRGBBitCount -> only 16-bpp modes kept
+# 100064f5 cmp edi,0x10 / jge -> at most 16 entries printed; NO sort; file offset 0x64f5 bytes 83 ff 10
+# [this+0x9b4/0x9b8] = object 0x9dc/0x9e0 = max mode clamp, ctor sets 0x7fffffff; lowered only for 3dfx VEN 0x121a dev1 (640x480) dev2 (800x600)
+[wide] string at file 0x2ac34 VA 0x1002ac34
+   ref at VA 0x10006433
+      10006423: je 0x10006595
+      10006429: mov edi, dword ptr [0x100305f8]
+      1000642f: lea eax, [ebp + 8]
+   >> 10006432: push 0x1002ac34
+      10006437: push eax
+      10006438: call edi
+      1000643a: add esp, 8
+      1000643d: cmp eax, ebx
+      1000643f: je 0x1000659b
+      10006445: xor ecx, ecx
+      10006447: mov dword ptr [ebp - 0x38], ebx
+      1000644a: mov dword ptr [ebp - 0x34], ecx
+      1000644d: mov dword ptr [ebp - 0x30], ecx
+      10006450: mov byte ptr [ebp - 4], 1
+      10006454: xor edi, edi
+      10006456: cmp edi, dword ptr [esi + 0x930]
+      1000645c: jge 0x100064ec
+      10006462: mov edx, dword ptr [esi + 0x92c]
+      10006468: mov eax, edi
+      1000646a: shl eax, 5
+      1000646d: sub eax, edi
+      1000646f: shl eax, 2
+      10006472: cmp dword ptr [edx + eax + 0x54], 0x10
+      10006477: jne 0x100064e4
+      10006479: add eax, edx
+      1000647b: mov dword ptr [ebp - 0x14], ecx
+      1000647e: mov dword ptr [ebp - 0x28], ecx
+      10006481: mov edx, dword ptr [eax + 8]
+      10006484: mov eax, dword ptr [eax + 0xc]
+      10006487: mov dword ptr [ebp - 0x18], edx
+      1000648a: mov dword ptr [ebp - 0x2c], eax
+      1000648d: fild qword ptr [ebp - 0x18]
+      10006490: fild qword ptr [ebp - 0x2c]
+      10006493: mov dword ptr [ebp - 0x3c], 0
+      1000649a: fstp dword ptr [ebp - 0x44]
+      1000649d: fstp dword ptr [ebp - 0x40]
+      100064a0: cmp ecx, dword ptr [ebp - 0x34]
+      100064a3: jge 0x100064d5
+      100064a5: lea edx, [ecx + ecx*2]
+      100064a8: fld dword ptr [ebx + edx*4]
+      100064ab: fcomp dword ptr [ebp - 0x44]
+      100064ae: lea edx, [ebx + edx*4]
+      100064b1: fnstsw ax
+      100064b3: test ah, 0x40
+      100064b6: je 0x100064d2
+      100064b8: fld dword ptr [edx + 4]
+      100064bb: fcomp dword ptr [ebp - 0x40]
+      100064be: fnstsw ax
+      100064c0: test ah, 0x40
+      100064c3: je 0x100064d2
+      100064c5: fld dword ptr [edx + 8]
+      100064c8: fcomp dword ptr [ebp - 0x3c]
+      100064cb: fnstsw ax
+      100064cd: test ah, 0x40
+      100064d0: jne 0x100064e4
+      100064d2: inc ecx
+      100064d3: jmp 0x100064a0
+      100064d5: lea eax, [ebp - 0x44]
+      100064d8: lea ecx, [ebp - 0x38]
+      100064db: push eax
+      100064dc: call 0x1000113b
+      100064e1: mov ebx, dword ptr [ebp - 0x38]
+      100064e4: inc edi
+      100064e5: xor ecx, ecx
+      100064e7: jmp 0x10006456
+      100064ec: xor edi, edi
+      100064ee: mov eax, dword ptr [ebp - 0x34]
+      100064f1: cmp edi, eax
+      100064f3: jge 0x10006555
+      100064f5: cmp edi, 0x10
+      100064f8: jge 0x10006555
+      100064fa: lea ecx, [edi + edi*2]
+      100064fd: lea esi, [ebx + ecx*4]
+      10006500: mov ecx, dword ptr [ebp - 0x1c]
+      10006503: fild dword ptr [ecx + 0x9b4]
+      10006509: fcomp dword ptr [esi]
+      1000650b: fnstsw ax
+      1000650d: test ah, 1
+      10006510: jne 0x10006552
+      10006512: fild dword ptr [ecx + 0x9b8]
+      10006518: fcomp dword ptr [esi + 4]
+      1000651b: fnstsw ax
+      1000651d: test ah, 1
+      10006520: jne 0x10006552
+      10006522: test edi, edi
+      10006524: mov ebx, 0x1002ac24
+      10006529: jne 0x10006530
+      1000652b: mov ebx, 0x1002ac14
+      10006530: fld dword ptr [esi + 4]
+      10006533: call 0x10014862
+      10006538: fld dword ptr [esi]
+      1000653a: push eax
+      1000653b: call 0x10014862
+      10006540: mov edx, dword ptr [ebp + 0xc]
+      10006543: push eax
+      10006544: push ebx
+      10006545: push edx
+      10006546: call dword ptr [0x100305fc]
+      1000654c: mov ebx, dword ptr [ebp - 0x38]
+      1000654f: add esp, 0x10
+      10006552: inc edi
+      10006553: jmp 0x100064ee
+      10006555: push eax
+      10006556: push 0
+      10006558: lea ecx, [ebp - 0x38]
+      1000655b: mov byte ptr [ebp - 4], 2
+      1000655f: call 0x1000114f
+      10006564: mov eax, dword ptr [ebp - 0x38]
+      10006567: mov byte ptr [ebp - 4], 0
+      1000656b: test eax, eax
+      1000656d: je 0x1000657d
+      1000656f: mov ecx, dword ptr [0x100304d0]
+      10006575: push eax
+      10006576: mov ecx, dword ptr [ecx]
+      10006578: mov edx, dword ptr [ecx]
+      1000657a: call dword ptr [edx + 8]
+      1000657d: mov eax, 1
+      10006582: mov ecx, dword ptr [ebp - 0xc]
+      10006585: mov dword ptr fs:[0], ecx
+      1000658c: pop edi
+      1000658d: pop esi
+      1000658e: pop ebx
+      1000658f: mov esp, ebp
+      10006591: pop ebp
+      10006592: ret 8
+      10006595: mov edi, dword ptr [0x100305f8]
+      1000659b: lea eax, [ebp + 8]
+      1000659e: push 0x1002ac00
+      100065a3: push eax
+      100065a4: call edi
+      100065a6: add esp, 8
+      100065a9: cmp eax, ebx
+      100065ab: je 0x10006622
+      100065ad: mov ecx, dword ptr [ebp + 8]
+      100065b0: push ecx
+      100065b1: call dword ptr [0x10030608]
+      100065b7: fstp dword ptr [ebp - 0x14]
+      100065ba: mov edx, dword ptr [ebp - 0x14]
+      100065bd: mov eax, dword ptr [ebp + 0xc]
+      100065c0: add esp, 4
+      100065c3: mov dword ptr [ebp - 0x14], edx
+      100065c6: fld dword ptr [ebp - 0x14]
+      100065c9: sub esp, 8
+      100065cc: fstp qword ptr [esp]
+
+# EnumModesCallback (0x1000102d -> 0x10006370): appends every DDSURFACEDESC2, no filter
+10006370 <.text+0x5370>:
+10006370:	push   %esi
+10006371:	mov    0xc(%esp),%esi
+10006375:	push   %edi
+10006376:	mov    0x4(%esi),%edi
+10006379:	mov    0x8(%esi),%eax
+1000637c:	lea    0x1(%edi),%ecx
+1000637f:	cmp    %eax,%ecx
+10006381:	mov    %ecx,0x4(%esi)
+10006384:	jle    0x100063a3
+10006386:	lea    (%ecx,%ecx,2),%eax
+10006389:	push   $0x7c
+1000638b:	cltd
+1000638c:	and    $0x7,%edx
+1000638f:	add    %edx,%eax
+10006391:	sar    $0x3,%eax
+10006394:	lea    0x20(%eax,%ecx,1),%eax
+10006398:	mov    %esi,%ecx
+1000639a:	mov    %eax,0x8(%esi)
+1000639d:	call   *0x100305f4
+100063a3:	mov    (%esi),%edx
+100063a5:	mov    %edi,%ecx
+100063a7:	mov    0xc(%esp),%esi
+100063ab:	mov    $0x1,%eax
+100063b0:	shl    $0x5,%ecx
+100063b3:	sub    %edi,%ecx
+100063b5:	lea    (%edx,%ecx,4),%edi
+100063b8:	mov    $0x1f,%ecx
+100063bd:	rep movsl %ds:(%esi),%es:(%edi)
+100063bf:	pop    %edi
+100063c0:	pop    %esi
+100063c1:	ret    $0x8
+# EnumDisplayModes call: flags 0, DDSD_CAPS only (no size/format filter)
+1000ac8b:	mov    -0x44(%ebp),%edi
+1000ac8e:	xor    %eax,%eax
+1000ac90:	mov    %ecx,%ebx
+1000ac92:	shr    $0x2,%ecx
+1000ac95:	and    $0x3,%ebx
+1000ac98:	rep stos %eax,%es:(%edi)
+1000ac9a:	mov    %ebx,%ecx
+1000ac9c:	rep stos %al,%es:(%edi)
+1000ac9e:	movl   $0x7c,-0x188(%ebp)
+1000aca8:	movl   $0x1,-0x184(%ebp)
+1000acb2:	movl   $0x2000,-0x120(%ebp)
+1000acbc:	lea    0x954(%esi),%ecx
+1000acc2:	xor    %eax,%eax
+1000acc4:	cmp    0x4(%ecx),%eax
+1000acc7:	jge    0x1000accc
+1000acc9:	inc    %eax
+1000acca:	jmp    0x1000acc4
+1000accc:	xor    %edi,%edi
+1000acce:	push   $0x7c
+1000acd0:	mov    %edi,0x4(%ecx)
+1000acd3:	mov    %edi,0x8(%ecx)
+1000acd6:	call   *0x100305f4
+1000acdc:	mov    0x978(%esi),%eax
+1000ace2:	lea    0x954(%esi),%ebx
+1000ace8:	push   $0x1000102d
+1000aced:	lea    -0x188(%ebp),%ecx
+1000acf3:	mov    (%eax),%edx
+1000acf5:	push   %ebx
+1000acf6:	push   %ecx
+1000acf7:	push   %edi
+1000acf8:	push   %eax

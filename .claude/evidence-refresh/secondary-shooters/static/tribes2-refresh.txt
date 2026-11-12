@@ -1,0 +1,27 @@
+# Tribes 2 (Tribes2.exe v25034 + TribesNext): setScreenMode(width, height, bpp, fullScreen) - no refresh; prefs have no refresh key ($pref::Video::resolution / fullScreen / displayDevice / disableVerticalSync; strings -a Tribes2.exe).
+# OpenGLDevice::setScreenMode DEVMODE dmFields = 0x1c0000 (no DM_DISPLAYFREQUENCY), CDS_FULLSCREEN:
+---- const 0x1c0000 at 0x564041
+   0x00564030  push   dword ptr [ebp - 0x1f8]
+   0x00564036  push   dword ptr [ebp - 0x1fc]
+   0x0056403c  push   0x78d764
+   0x00564041  mov    dword ptr [ebp - 0xc8], 0x1c0000
+   0x0056404b  mov    dword ptr [ebp - 0x88], eax
+   0x00564051  call   0x425f30
+   0x00564056  add    esp, 0x10
+   0x00564059  push   dword ptr [ebp - 0x1f8]
+   0x0056405f  push   dword ptr [ebp - 0x1fc]
+   0x00564065  call   0x560d70
+   0x0056406a  mov    dword ptr [ebp - 0x208], eax
+   0x00564070  lea    eax, [ebp - 0xf0]
+   0x00564076  pop    ecx
+   0x00564077  pop    ecx
+   0x00564078  push   4
+   0x0056407a  push   eax
+   0x0056407b  call   dword ptr [0x7dc858]
+   0x00564081  mov    edi, eax
+   0x00564083  test   edi, edi
+   0x00564085  je     0x564100
+---- const 0x1c0000 at 0x568878
+   0x00568867  push   dword ptr [ebp - 0x2a0]
+   0x0056886d  push   dword ptr [ebp - 0x2a4]
+# No FLEETRES.BAT/EXE in the tree, no gameres.h rule, and GameData\base\prefs\ClientPrefs.cs is absent on .123/.145/.195/.240/.124 (DOWNLOAD error 2) - never saved on any box.

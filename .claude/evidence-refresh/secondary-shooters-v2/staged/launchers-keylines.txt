@@ -1,0 +1,288 @@
+################ Shogo
+Play Shogo - direct engine.bat	Shogo - Mobile Armor Division	Shogo.exe
+Play Shogo.bat	Shogo - via launcher (fallback)	Shogo.exe
+--- Shogo/Play Shogo.bat (24835 B, md5 94f98877)
+54:call "%~dp0FLEETRES.BAT"
+55:if exist "%~dp0FLEETRES.EXE" (
+56:  "%~dp0FLEETRES.EXE" -setline "%~dp0autoexec.cfg" screenwidth `screenwidth` `%FR_W%`
+57:  "%~dp0FLEETRES.EXE" -setline "%~dp0autoexec.cfg" screenheight `screenheight` `%FR_H%`
+66:set "GAME=%~dp0Shogo.exe"
+67:set "GAMEARGS="
+137:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+242:rem      GAME       = DedicatedServer.exe
+244:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+246:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+247:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+255:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+300:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+--- Shogo/Play Shogo - direct engine.bat (2175 B, md5 7a93e4f7)
+13:rem  the chain REVERSED, on my inference that Shogo.exe listing the patches
+29:call "%~dp0FLEETRES.BAT"
+30:if exist "%~dp0FLEETRES.EXE" (
+31:  "%~dp0FLEETRES.EXE" -setline "%~dp0autoexec.cfg" screenwidth `screenwidth` `%FR_W%`
+32:  "%~dp0FLEETRES.EXE" -setline "%~dp0autoexec.cfg" screenheight `screenheight` `%FR_H%`
+36:start "" "%~dp0Client.exe" -rez shogo.rez -rez sound.rez -rez ShogoP.rez -rez ShogoP2.rez -rez ShogoP3.rez -rez ShogoP4.rez
+--- Shogo/Play Shogo - direct engine TEST.bat (572 B, md5 87c0ab18)
+################ Halo
+Play Halo.bat	Halo Combat Evolved	halo.exe
+--- Halo/Play Halo.bat (680 B, md5 e3f9bcbb)
+2:call "%~dp0FLEETRES.BAT"
+4:rem ---- per-box HALO_NOVIDEO - see stage-fleetres.py halo_novideo ----
+9:rem ---- per-box HALO_BOXKEY - see stage-fleetres.py ----------------
+13:start "" halo.exe %HALO_NOVIDEO% -vidmode %FR_W%,%FR_H%,%FR_HZ%
+################ FarCry
+Play Far Cry.bat	Far Cry	farcry.ico
+--- FarCry/Play Far Cry.bat (1974 B, md5 17467613)
+5:rem Two things this has to do that a bare "start the exe" does not:
+18:rem The resolution is NOT staged - see FLEETRES.BAT. One staged tree reaches
+20:rem somewhere by construction, so FLEETRES.EXE reads this box own panel and
+22:rem Far Cry 1.4 renders 16:9 natively, so it gets the full panel (FR_W/FR_H)
+29:call "%~dp0FLEETRES.BAT"
+30:if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -setline "%~dp0System.cfg" r_Width r_Width = `%FR_W%`
+31:if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -setline "%~dp0System.cfg" r_Height r_Height = `%FR_H%`
+33:start "" "Bin32\FarCry.exe" %*
+--- FarCry/DedicatedServer.cmd (55 B, md5 dcdba509)
+1:start Bin32\FarCry_WinSV.exe %1 %2 %3 %4 %5 %6 %7 %8 %9
+--- FarCry/Editor.cmd (49 B, md5 5743523d)
+1:start Bin32\Editor.exe %1 %2 %3 %4 %5 %6 %7 %8 %9
+--- FarCry/Far Cry.cmd (49 B, md5 9de3cc4a)
+1:start Bin32\FarCry.exe %1 %2 %3 %4 %5 %6 %7 %8 %9
+################ Tribes2
+Play Tribes 2 Online.bat	Tribes 2 Online	GameData\base\Tribes2.ico
+Play Tribes 2 Solo and LAN.bat	Tribes 2 Solo and LAN	GameData\base\Tribes2.ico
+--- Tribes2/Play Tribes 2 Online.bat (2779 B, md5 78585e24)
+22:if not exist "%~dp0GameData\Tribes2.exe" (
+27:    echo    GameData\Tribes2.exe is missing - the staged tree is
+35:rem Tribes2.exe MUST run with GameData as the working directory - the engine
+55:start "" /D "%~dp0GameData" "%~dp0GameData\Tribes2.exe" -online -mod Classic
+--- Tribes2/Play Tribes 2 Solo and LAN.bat (1937 B, md5 48649c35)
+15:if not exist "%~dp0GameData\Tribes2.exe" (
+20:    echo    GameData\Tribes2.exe is missing - the staged tree is
+43:start "" /D "%~dp0GameData" "%~dp0GameData\Tribes2.exe" -nologin -mod Classic
+################ BF1942
+Play Battlefield 1942.bat	Battlefield 1942	bf1942.ico
+Host Battlefield 1942 - LAN.bat	Battlefield 1942 - Host LAN Server	bf1942.ico
+Join Battlefield 1942 - LAN.bat	Battlefield 1942 - Join LAN Game	bf1942.ico
+--- BF1942/Host Battlefield 1942 - LAN.bat (992 B, md5 94faa118)
+5:rem (zero ipx/nwlink/wsipx references in BF1942.exe, BF1942_w32ded.exe or any
+17:start "" "%~dp0BF1942_w32ded.exe" +game bf1942 +restart 1 +dedicated 1
+--- BF1942/Join Battlefield 1942 - LAN.bat (1826 B, md5 0c35afe4)
+27:call "%~dp0FLEETRES.BAT"
+28:if exist "%~dp0FLEETRES.EXE" (
+29:  "%~dp0FLEETRES.EXE" -setline "%~dp0Mods\bf1942\Settings\Profiles\Default\Video.con" game.setGameDisplayMode game.setGameDisplayMode %FR_W% %FR_H% 32 0
+31:if exist "%~dp0FLEETRES.EXE" (
+32:  "%~dp0FLEETRES.EXE" -setline "%~dp0Mods\bf1942\Settings\Profiles\Custom\Video.con" game.setGameDisplayMode game.setGameDisplayMode %FR_W% %FR_H% 32 0
+36:start "" "%~dp0BF1942.exe" +joinServer %HOSTIP%:14567 +isInternet 0
+--- BF1942/Play Battlefield 1942.bat (24969 B, md5 4fe790d1)
+54:call "%~dp0FLEETRES.BAT"
+55:if exist "%~dp0FLEETRES.EXE" (
+56:  "%~dp0FLEETRES.EXE" -setline "%~dp0Mods\bf1942\Settings\Profiles\Default\Video.con" game.setGameDisplayMode game.setGameDisplayMode %FR_W% %FR_H% 32 0
+58:if exist "%~dp0FLEETRES.EXE" (
+59:  "%~dp0FLEETRES.EXE" -setline "%~dp0Mods\bf1942\Settings\Profiles\Custom\Video.con" game.setGameDisplayMode game.setGameDisplayMode %FR_W% %FR_H% 32 0
+68:set "GAME=%~dp0BF1942.exe"
+69:set "GAMEARGS="
+139:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+244:rem      GAME       = DedicatedServer.exe
+246:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+248:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+249:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+257:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+302:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+################ MaxPayne
+Play Max Payne.bat	Max Payne	maxpayne.ico
+--- MaxPayne/Play Max Payne.bat (24880 B, md5 0906b30d)
+54:call "%~dp0FLEETRES.BAT"
+55:if exist "%~dp0FLEETRES.EXE" (
+56:  "%~dp0FLEETRES.EXE" -reg HKCU "Software\Remedy Entertainment\Max Payne\Video Settings" "Display Width" dword %FR_W%
+57:  "%~dp0FLEETRES.EXE" -reg HKCU "Software\Remedy Entertainment\Max Payne\Video Settings" "Display Height" dword %FR_H%
+66:set "GAME=%~dp0MaxPayne.exe"
+67:set "GAMEARGS=-nodialog -skipstartup"
+137:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+242:rem      GAME       = DedicatedServer.exe
+244:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+246:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+247:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+254:sc start secdrv >nul 2>&1
+255:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+300:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+################ RedFaction
+Play Red Faction.bat	Red Faction	RedFaction.exe
+--- RedFaction/Play Red Faction.bat (24904 B, md5 3d5c1c81)
+54:call "%~dp0FLEETRES.BAT"
+55:if exist "%~dp0FLEETRES.EXE" (
+56:  "%~dp0FLEETRES.EXE" -reg HKLM "SOFTWARE\Volition\Red Faction" "Resolution Width" dword %FR_W%
+57:  "%~dp0FLEETRES.EXE" -reg HKLM "SOFTWARE\Volition\Red Faction" "Resolution Height" dword %FR_H%
+58:  "%~dp0FLEETRES.EXE" -reg HKLM "SOFTWARE\Volition\Red Faction" "Resolution Bit Depth" dword 32
+67:set "GAME=%~dp0rf.exe"
+68:set "GAMEARGS="
+138:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+243:rem      GAME       = DedicatedServer.exe
+245:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+247:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+248:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+256:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+301:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+################ Turok2
+Play Turok 2.bat	Turok 2 - Seeds of Evil	turok2.ico
+Play Turok 2 - Multiplayer.bat	Turok 2 - Multiplayer	turok2.ico
+Join Turok 2 - LAN.bat	Turok 2 - Join LAN Game	turok2.ico
+--- Turok2/Join Turok 2 - LAN.bat (2847 B, md5 dc5216be)
+25:call "%~dp0FLEETRES.BAT"
+27:if %FR_W43% GEQ 800 set T2SEL=800
+28:if %FR_W43% GEQ 1024 set T2SEL=1024
+29:if exist "%~dp0FLEETRES.EXE" (
+30:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\320^x^240" "Acclaim\Turok\VideoD3D\320^x^240" 0
+31:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\512^x^384" "Acclaim\Turok\VideoD3D\512^x^384" 0
+32:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\640^x^480" "Acclaim\Turok\VideoD3D\640^x^480" 0
+33:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\800^x^600" "Acclaim\Turok\VideoD3D\800^x^600" 0
+34:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1024^x^768" "Acclaim\Turok\VideoD3D\1024^x^768" 0
+35:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1280^x^1024" "Acclaim\Turok\VideoD3D\1280^x^1024" 0
+36:  if "%T2SEL%"=="640" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\640^x^480" "Acclaim\Turok\VideoD3D\640^x^480" 1
+37:  if "%T2SEL%"=="800" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\800^x^600" "Acclaim\Turok\VideoD3D\800^x^600" 1
+38:  if "%T2SEL%"=="1024" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1024^x^768" "Acclaim\Turok\VideoD3D\1024^x^768" 1
+39:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\Windowed" "Acclaim\Turok\VideoD3D\Windowed" 0
+43:start "" "%~dp0Turok2MPEnglish.exe" +connect "%HOSTIP%" +name "%COMPUTERNAME%"
+--- Turok2/Play Turok 2.bat (2284 B, md5 316439bf)
+4:rem *** THIS EXE WANTS THE TUROK 2 CD. *** Turok2English.exe enumerates the
+14:call "%~dp0FLEETRES.BAT"
+16:if %FR_W43% GEQ 800 set T2SEL=800
+17:if %FR_W43% GEQ 1024 set T2SEL=1024
+18:if exist "%~dp0FLEETRES.EXE" (
+19:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\320^x^240" "Acclaim\Turok\VideoD3D\320^x^240" 0
+20:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\512^x^384" "Acclaim\Turok\VideoD3D\512^x^384" 0
+21:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\640^x^480" "Acclaim\Turok\VideoD3D\640^x^480" 0
+22:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\800^x^600" "Acclaim\Turok\VideoD3D\800^x^600" 0
+23:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1024^x^768" "Acclaim\Turok\VideoD3D\1024^x^768" 0
+24:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1280^x^1024" "Acclaim\Turok\VideoD3D\1280^x^1024" 0
+25:  if "%T2SEL%"=="640" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\640^x^480" "Acclaim\Turok\VideoD3D\640^x^480" 1
+26:  if "%T2SEL%"=="800" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\800^x^600" "Acclaim\Turok\VideoD3D\800^x^600" 1
+27:  if "%T2SEL%"=="1024" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1024^x^768" "Acclaim\Turok\VideoD3D\1024^x^768" 1
+28:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\Windowed" "Acclaim\Turok\VideoD3D\Windowed" 0
+32:start "" "%~dp0Turok2English.exe"
+--- Turok2/Play Turok 2 - Multiplayer.bat (2172 B, md5 56aaddb1)
+4:rem Turok2MPEnglish.exe is a SEPARATE BINARY from the single-player game and
+13:call "%~dp0FLEETRES.BAT"
+15:if %FR_W43% GEQ 800 set T2SEL=800
+16:if %FR_W43% GEQ 1024 set T2SEL=1024
+17:if exist "%~dp0FLEETRES.EXE" (
+18:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\320^x^240" "Acclaim\Turok\VideoD3D\320^x^240" 0
+19:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\512^x^384" "Acclaim\Turok\VideoD3D\512^x^384" 0
+20:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\640^x^480" "Acclaim\Turok\VideoD3D\640^x^480" 0
+21:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\800^x^600" "Acclaim\Turok\VideoD3D\800^x^600" 0
+22:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1024^x^768" "Acclaim\Turok\VideoD3D\1024^x^768" 0
+23:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1280^x^1024" "Acclaim\Turok\VideoD3D\1280^x^1024" 0
+24:  if "%T2SEL%"=="640" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\640^x^480" "Acclaim\Turok\VideoD3D\640^x^480" 1
+25:  if "%T2SEL%"=="800" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\800^x^600" "Acclaim\Turok\VideoD3D\800^x^600" 1
+26:  if "%T2SEL%"=="1024" "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\1024^x^768" "Acclaim\Turok\VideoD3D\1024^x^768" 1
+27:  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\config.ned" "Acclaim\Turok\VideoD3D\Windowed" "Acclaim\Turok\VideoD3D\Windowed" 0
+31:start "" "%~dp0Turok2MPEnglish.exe" +name "%COMPUTERNAME%"
+################ SeriousSamFirstEncounter
+Play Serious Sam - The First Encounter.bat	Serious Sam - The First Encounter	SeriousSamLogo.ico
+Host Serious Sam TFE - LAN.bat	Serious Sam - The First Encounter - Host LAN Game	SeriousSamLogo.ico
+Join Serious Sam TFE - LAN.bat	Serious Sam - The First Encounter - Join LAN Game	SeriousSamLogo.ico
+--- SeriousSamFirstEncounter/Host Serious Sam TFE - LAN.bat (26592 B, md5 b8dfe691)
+54:call "%~dp0FLEETRES.BAT"
+55:> "%~dp0Scripts\Game_startup.ini" echo // written by the launcher at every start - do not edit
+59:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeI=%FR_W%;
+60:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeJ=%FR_H%;
+61:>>"%~dp0Scripts\Game_startup.ini" echo gfx_iRefreshRate=%FR_HZ%;
+69:set "GAME=%~dp0Bin\DedicatedServer.exe"
+70:set "GAMEARGS=DefaultCoop"
+140:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+245:rem      GAME       = DedicatedServer.exe
+247:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+249:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+250:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+264:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+267:rem SeriousSam.exe accepts only +level/+game/+cdpath/+password/+connect/
+280:    echo   start here. That is EXPECTED on a box with no disc mounter -
+281:    echo   DedicatedServer.exe has no CD check and SeriousSam.exe does.
+286:start "" /D "%~dp0" "%~dp0Bin\SeriousSam.exe" +connect 127.0.0.1
+329:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+--- SeriousSamFirstEncounter/Join Serious Sam TFE - LAN.bat (26664 B, md5 1958b2c7)
+54:call "%~dp0FLEETRES.BAT"
+63:rem This block sits in the FLEETRES slot deliberately: it must run BEFORE the
+64:rem set "GAMEARGS=..." line below, because cmd expands %HOSTIP% at the moment
+80:> "%~dp0Scripts\Game_startup.ini" echo // written by the launcher at every start - do not edit
+84:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeI=%FR_W%;
+85:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeJ=%FR_H%;
+86:>>"%~dp0Scripts\Game_startup.ini" echo gfx_iRefreshRate=%FR_HZ%;
+94:set "GAME=%~dp0Bin\SeriousSam.exe"
+95:set "GAMEARGS=+connect %HOSTIP%"
+165:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+270:rem      GAME       = DedicatedServer.exe
+272:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+274:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+275:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+283:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+328:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+--- SeriousSamFirstEncounter/Play Serious Sam - The First Encounter.bat (25202 B, md5 a12fc981)
+54:call "%~dp0FLEETRES.BAT"
+55:> "%~dp0Scripts\Game_startup.ini" echo // written by the launcher at every start - do not edit
+59:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeI=%FR_W%;
+60:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeJ=%FR_H%;
+61:>>"%~dp0Scripts\Game_startup.ini" echo gfx_iRefreshRate=%FR_HZ%;
+69:set "GAME=%~dp0Bin\SeriousSam.exe"
+70:set "GAMEARGS="
+140:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+245:rem      GAME       = DedicatedServer.exe
+247:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+249:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+250:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+258:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+303:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+################ SeriousSamSecondEncounter
+Play Serious Sam - The Second Encounter.bat	Serious Sam - The Second Encounter	SeriousSamLogo.ico
+Host Serious Sam TSE - LAN.bat	Serious Sam - The Second Encounter - Host LAN Game	SeriousSamLogo.ico
+Join Serious Sam TSE - LAN.bat	Serious Sam - The Second Encounter - Join LAN Game	SeriousSamLogo.ico
+--- SeriousSamSecondEncounter/Host Serious Sam TSE - LAN.bat (26586 B, md5 8acf671f)
+54:call "%~dp0FLEETRES.BAT"
+55:> "%~dp0Scripts\Game_startup.ini" echo // written by the launcher at every start - do not edit
+59:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeI=%FR_W%;
+60:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeJ=%FR_H%;
+61:>>"%~dp0Scripts\Game_startup.ini" echo gfx_iRefreshRate=%FR_HZ%;
+69:set "GAME=%~dp0Bin\DedicatedServer.exe"
+70:set "GAMEARGS=DefaultCoop"
+140:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+245:rem      GAME       = DedicatedServer.exe
+247:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+249:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+250:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+264:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+267:rem SeriousSam.exe accepts only +level/+game/+cdpath/+password/+connect/
+280:    echo   start here. That is EXPECTED on a box with no disc mounter -
+281:    echo   DedicatedServer.exe has no CD check and SeriousSam.exe does.
+286:start "" /D "%~dp0" "%~dp0Bin\SeriousSam.exe" +connect 127.0.0.1
+329:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+--- SeriousSamSecondEncounter/Join Serious Sam TSE - LAN.bat (26658 B, md5 1c35cc6f)
+54:call "%~dp0FLEETRES.BAT"
+63:rem This block sits in the FLEETRES slot deliberately: it must run BEFORE the
+64:rem set "GAMEARGS=..." line below, because cmd expands %HOSTIP% at the moment
+80:> "%~dp0Scripts\Game_startup.ini" echo // written by the launcher at every start - do not edit
+84:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeI=%FR_W%;
+85:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeJ=%FR_H%;
+86:>>"%~dp0Scripts\Game_startup.ini" echo gfx_iRefreshRate=%FR_HZ%;
+94:set "GAME=%~dp0Bin\SeriousSam.exe"
+95:set "GAMEARGS=+connect %HOSTIP%"
+165:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+270:rem      GAME       = DedicatedServer.exe
+272:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+274:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+275:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+283:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+328:rem `start "" /b` returns immediately, so the modal can no longer wedge the
+--- SeriousSamSecondEncounter/Play Serious Sam - The Second Encounter.bat (25196 B, md5 ac7b2942)
+54:call "%~dp0FLEETRES.BAT"
+55:> "%~dp0Scripts\Game_startup.ini" echo // written by the launcher at every start - do not edit
+59:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeI=%FR_W%;
+60:>>"%~dp0Scripts\Game_startup.ini" echo sam_iScreenSizeJ=%FR_H%;
+61:>>"%~dp0Scripts\Game_startup.ini" echo gfx_iRefreshRate=%FR_HZ%;
+69:set "GAME=%~dp0Bin\SeriousSam.exe"
+70:set "GAMEARGS="
+140:rem and cannot affect anyone else's session; best effort, ignored if reg.exe is
+245:rem      GAME       = DedicatedServer.exe
+247:rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+249:rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+250:rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+258:start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+303:rem `start "" /b` returns immediately, so the modal can no longer wedge the

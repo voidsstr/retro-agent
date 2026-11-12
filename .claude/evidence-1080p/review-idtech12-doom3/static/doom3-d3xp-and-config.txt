@@ -1,0 +1,25 @@
+# Doom3 d3xp/ in the LIBRARY - the 1.3 patch overlay only, no Resurrection of Evil content pak (pak000.pk4):
+total 524288
+drwxr-xr-x   2 voidsstr voidsstr       0 Aug 31 00:55 .
+drwxr-xr-x   2 voidsstr voidsstr       0 Aug 31 05:29 ..
+-rwxr-xr-x   1 voidsstr voidsstr 1645741 May 10  2005 game01.pk4
+-rwxr-xr-x   1 voidsstr voidsstr 1888500 May 10  2005 game02.pk4
+-rwxr-xr-x   1 voidsstr voidsstr 1035335 May 10  2005 game03.pk4
+-rwxr-xr-x   1 voidsstr voidsstr   99336 Apr  6  2005 pak001.pk4
+Archive:  /mnt/retro-share/Files/Games-Library/Doom3/d3xp/pak001.pk4
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+   725514  2005-04-06 15:25   guis/mainmenu.gui
+   132811  2005-02-24 11:51   guis/mpmain.gui
+     9285  2005-03-10 19:27   MaterialEditorDefs.med
+    38581  2005-03-29 15:29   efxs/d3ctf1.efx
+    32782  2005-03-29 15:29   efxs/d3ctf2.efx
+# same on .123 and .145 (agent DIRLIST 2026-09-29 00:4x): game01.pk4 1645741, game02.pk4 1888500, game03.pk4 1035335, pak001.pk4 99336 - nothing else
+# .145 C:\Games\Doom3\base has no DoomConfig.cfg and no config.spec -> DOOM 3 has never been started there
+# .123 C:\Games\Doom3\base\DoomConfig.cfg written 2026-09-01 04:49:59 (with xpkey at the same second):
+96:seta r_customHeight "1080"
+97:seta r_customWidth "1920"
+98:seta r_fullscreen "1"
+99:seta r_mode "3"
+157:seta com_machineSpec "2"
+# no r_aspectRatio line in it

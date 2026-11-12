@@ -1,0 +1,1124 @@
+[15:13:47] probe 1 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:13:47] probe 1 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:14:18] probe 2 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:14:18] probe 2 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:14:48] probe 3 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:14:48] probe 3 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:15:19] probe 4 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:15:19] probe 4 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:15:49] probe 5 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:15:50] probe 5 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:16:20] probe 6 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:16:20] probe 6 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:16:51] probe 7 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:16:51] probe 7 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:17:21] probe 8 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:17:21] probe 8 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:17:52] probe 9 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:17:52] probe 9 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:18:23] probe 10 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:18:23] probe 10 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:18:53] probe 11 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:18:53] probe 11 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:19:24] probe 12 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:19:24] probe 12 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:19:55] probe 13 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:19:55] probe 13 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:20:25] probe 14 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:20:25] probe 14 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:20:56] probe 15 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:20:56] probe 15 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:21:26] probe 16 ports: 135:open 139:open 445:open 9897:closed 9898:closed
+[15:21:27] probe 16 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.133', 9898)
+
+[15:22:14] probe 17 ports: 135:closed 139:closed 445:closed 9897:closed 9898:closed
+[15:22:17] probe 17 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+OSError: [Errno 113] Connect call failed ('192.168.1.133', 9898)
+
+[15:23:02] probe 18 ports: 135:closed 139:closed 445:closed 9897:closed 9898:closed
+[15:23:05] probe 18 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+OSError: [Errno 113] Connect call failed ('192.168.1.133', 9898)
+
+[15:23:50] probe 19 ports: 135:closed 139:closed 445:closed 9897:closed 9898:closed
+[15:23:53] probe 19 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+OSError: [Errno 113] Connect call failed ('192.168.1.133', 9898)
+
+[15:24:38] probe 20 ports: 135:closed 139:closed 445:closed 9897:closed 9898:closed
+[15:24:42] probe 20 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+OSError: [Errno 113] Connect call failed ('192.168.1.133', 9898)
+
+[15:25:26] probe 21 ports: 135:closed 139:closed 445:closed 9897:closed 9898:closed
+[15:25:29] probe 21 boxcheck rc=1
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 341, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 317, in main
+    asyncio.run(cmd_status(ip))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 83, in cmd_status
+    c = await conn(ip)
+        ^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/evidence-icons/boxcheck.py", line 41, in conn
+    await c.connect(SECRET, timeout=15.0)
+  File "/home/voidsstr/development/retro-agent/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+OSError: [Errno 113] Connect call failed ('192.168.1.133', 9898)
+
+[15:25:59] WINDOW EXPIRED - agent never answered
+[15:26:44] extension: box went dark at 15:22 (ARP INCOMPLETE); watching 6 more min
+[15:26:51] arp=INCOMPLETE 445:noreply 9898:noreply pxe_lines=3
+[15:27:12] arp=FAILED 445:noreply 9898:noreply pxe_lines=3
+[15:28:15] arp=INCOMPLETE 445:noreply 9898:noreply pxe_lines=3
+[15:28:55] arp=FAILED 445:noreply 9898:noreply pxe_lines=3
+[15:29:34] arp=INCOMPLETE 445:noreply 9898:noreply pxe_lines=3
+[15:29:55] arp=FAILED 445:noreply 9898:noreply pxe_lines=3
+[15:31:41] arp=INCOMPLETE 445:noreply 9898:noreply pxe_lines=3
+[15:32:01] arp=FAILED 445:noreply 9898:noreply pxe_lines=3
+[15:32:56] extension end

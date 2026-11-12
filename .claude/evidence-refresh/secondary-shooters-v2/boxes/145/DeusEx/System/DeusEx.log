@@ -1,0 +1,99 @@
+Log: Log file open, 08/29/26 23:09:54
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 1100
+Init: Compiled: Jan 29 2001 16:45:52
+Init: Command line:  DXMP_Cathedral.dx?game=DeusEx.DeusExMPGame -server
+Init: Base directory: C:\GAMES\DeusEx\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Log: Cd Path: C:\Games\DeusEx\
+Init: Computer: DELL
+Init: User: voidsstr
+Init: Memory total: Phys=2097151K Pagef=4194303K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=3092.958019 MHz
+Init: CPU Page size=4096, Processors=4
+Init: CPU Detected: PentiumPro-class processor (GenuineIntel)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI
+Log: Bound to DeusEx.dll
+Log: Bound to Extension.dll
+Log: Bound to ConSys.dll
+Log: Loading: Package DeusEx
+Log: Loading: Package Core
+Log: Loading: Package Engine
+Log: Loading: Package Extension
+Log: Loading: Package DeusExCharacters
+Log: Loading: Package DeusExUI
+Log: Loading: Package DeusExItems
+Log: Loading: Package Effects
+Log: Bound to Fire.dll
+Log: Loading: Package Fire
+Log: Loading: Package ConSys
+Log: Loading: Package DeusExSounds
+Log: Loading: Package DeusExDeco
+Log: Loading: Package UBrowser
+Log: Loading: Package UWindow
+Log: Bound to IpDrv.dll
+Log: Loading: Package IpDrv
+Log: Bound to DeusExText.dll
+Log: Loading: Package DeusExText
+Log: Loading: Package Ambient
+Log: Loading: Package MoverSFX
+Log: Loading: Package IpServer
+Log: Loading: Package MPCharacters
+Init: Unreal engine initialized
+Log: Browse: DXMP_Cathedral.dx?Name=Player?Class=DeusEx.JCDentonMale?game=DeusEx.DeusExMPGame
+Log: Doing load, not loadgame
+Log: Current mission number is -1, next is -1
+Log: LoadMap: DXMP_Cathedral.dx?Name=Player?Class=DeusEx.JCDentonMale?game=DeusEx.DeusExMPGame
+Log: Loading: Package DXMP_Cathedral
+Log: Loading: Package Paris
+Log: Loading: Package CoreTexDetail
+Log: Loading: Package Catacombs
+Log: Loading: Package CoreTexMetal
+Log: Loading: Package NewYorkCity
+Log: Loading: Package area51textures
+Log: Loading: Package NYCBar
+Log: Loading: Package CoreTexMisc
+Log: Loading: Package Cmd_tunnels
+Log: Loading: Package CoreTexGlass
+Log: Loading: Package Rocket
+Log: Loading: Package CoreTexWood
+Log: Loading: Package HK_BuildingExt
+Log: Loading: Package CoreTexEarth
+Log: Loading: Package CoreTexSky
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 34411->34397; refs: 485519
+Log: Game class is 'DeusExMPGame'
+Init: WinSock: version 1.1 (2.2), MaxSocks=32767, MaxUdp=65467
+Init: WinSock: Socket queue 131072 / 131072
+Init: WinSock: I am dell (192.168.1.145)
+DevNet: TcpNetDriver on port 7790
+Log: Spawning: IpDrv.UdpBeacon
+Log: Spawning: IpServer.UdpServerQuery
+Log: Spawning: IpServer.UdpServerUplink
+Log: Spawning: IpServer.UdpServerUplink
+Log: Spawning: IpServer.UdpServerUplink
+Log: Bringing Level DXMP_Cathedral.MyLevel up for play (20)...
+ScriptLog: InitGame: ?Name=Player?Class=DeusEx.JCDentonMale?game=DeusEx.DeusExMPGame
+ScriptLog: Base Mutator is DXMP_Cathedral.Mutator0
+Log: Loading: Package DeusExConText
+ScriptLog: UdpServerQuery: Port 7791 successfully bound.
+ScriptLog: DoUplink is not set.  Not connecting to Master Server.
+ScriptLog: DoUplink is not set.  Not connecting to Master Server.
+ScriptLog: DoUplink is not set.  Not connecting to Master Server.
+Init: Game engine initialized
+Log: Startup time: 1.168509 seconds
+DevNet: NotifyAcceptingConnection: Server MyLevel accept
+NetComeGo: Open MyLevel 08/29/26 23:13:06 192.168.1.143:1073
+DevNet: NotifyAcceptingChannel Control 0 server Level DXMP_Cathedral.MyLevel: Accepted
+DevNet: Level server received: HELLO REVISION=0 MINVER=1100 VER=1100
+DevNet: Level server received: NETSPEED 2600
+Log: Client netspeed is 2600
+DevNet: Level server received: LOGIN RESPONSE=495108413 URL=Index.dx?Name=Player?Class=DeusEx.JCDentonMale?Checksum=NoChecksum
+DevNet: Login request: Index.dx?Name=Player?Class=DeusEx.JCDento

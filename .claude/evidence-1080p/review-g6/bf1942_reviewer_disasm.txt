@@ -1,0 +1,208 @@
+BF1942 v1.61b BF1942.exe (md5 a56d63e83eb5e02b43e1928cb22cd15a) - reviewer re-check 2026-09-29
+1) Options/Video list builder: widget named 'DisplayModeList' (0x6b04b1), filter = TripleHead(w==4h) || h/w==0.75 (double @0x8dbfa0 = 0.75), then w>=640,h>=480
+   file bytes at 0x2b08d0: fcefdaff84c0753785ff897c2438db44   (75 37 at 0x2b08d6 = jne 0x6b090f)
+006b08c2: mov      eax, dword ptr [0x971eac]
+006b08c7: mov      ecx, dword ptr [eax + 0x2d8]
+006b08cd: push     edi
+006b08ce: push     esi
+006b08cf: call     0x45f8d0
+006b08d4: test     al, al
+006b08d6: jne      0x6b090f
+006b08d8: test     edi, edi
+006b08da: mov      dword ptr [esp + 0x38], edi
+006b08de: fild     dword ptr [esp + 0x38]
+006b08e2: jge      0x6b08ea
+006b08e4: fadd     dword ptr [0x8c40a0]
+006b08ea: test     esi, esi
+006b08ec: mov      dword ptr [esp + 0x38], esi
+006b08f0: fild     dword ptr [esp + 0x38]
+006b08f4: jge      0x6b08fc
+006b08f6: fadd     dword ptr [0x8c40a0]
+006b08fc: fdivp    st(1)
+006b08fe: fcomp    qword ptr [0x8dbfa0]
+006b0904: fnstsw   ax
+006b0906: test     ah, 0x44
+006b0909: jp       0x6b09c8
+006b090f: cmp      esi, 0x280
+006b0915: jb       0x6b09c8
+006b091b: cmp      edi, 0x1e0
+006b0921: jb       0x6b09c8
+
+2) RENDERER mode list (+0xa8) is NOT the full adapter list: EnumAdapterModes results kept only if predicate 0x63fc70 accepts:
+   640x480@60 and 800x600@60 (16/32bpp) always; anything else only if (w,h,refresh,bpp) matches the GDI list at +0x9c
+0063fc70: sub      esp, 0x10
+0063fc73: mov      edx, dword ptr [esp + 0x14]
+0063fc77: push     ebx
+0063fc78: push     ebp
+0063fc79: mov      ebp, dword ptr [edx]
+0063fc7b: mov      eax, dword ptr [edx + 4]
+0063fc7e: push     esi
+0063fc7f: mov      esi, dword ptr [edx + 8]
+0063fc82: test     esi, esi
+0063fc84: mov      ebx, dword ptr [edx + 0xc]
+0063fc87: mov      dword ptr [esp + 0x10], eax
+0063fc8b: jne      0x63fc92
+0063fc8d: mov      esi, 0x3c
+0063fc92: cmp      ebp, 0x280
+0063fc98: jne      0x63fca1
+0063fc9a: cmp      eax, 0x1e0
+0063fc9f: jmp      0x63fcae
+0063fca1: cmp      ebp, 0x320
+0063fca7: jne      0x63fcd4
+0063fca9: cmp      eax, 0x258
+0063fcae: jne      0x63fcd4
+0063fcb0: cmp      esi, 0x3c
+0063fcb3: jne      0x63fcd4
+0063fcb5: push     ebx
+0063fcb6: call     0x63dbb0
+0063fcbb: cmp      eax, 0x10
+0063fcbe: je       0x63fcc5
+0063fcc0: cmp      eax, 0x20
+0063fcc3: jne      0x63fcd0
+0063fcc5: pop      esi
+0063fcc6: pop      ebp
+0063fcc7: mov      al, 1
+0063fcc9: pop      ebx
+0063fcca: add      esp, 0x10
+0063fccd: ret      4
+0063fcd0: mov      eax, dword ptr [esp + 0x10]
+0063fcd4: mov      edx, dword ptr [ecx + 0x9c]
+0063fcda: push     edi
+0063fcdb: mov      edi, dword ptr [ecx + 0xa0]
+0063fce1: cmp      edx, edi
+0063fce3: je       0x63fd09
+0063fce5: cmp      dword ptr [edx], ebp
+0063fce7: jne      0x63fd02
+0063fce9: cmp      dword ptr [edx + 4], eax
+0063fcec: jne      0x63fd02
+0063fcee: cmp      dword ptr [edx + 0xc], esi
+0063fcf1: jne      0x63fd02
+0063fcf3: push     ebx
+0063fcf4: call     0x63dbb0
+0063fcf9: cmp      dword ptr [edx + 8], eax
+0063fcfc: je       0x63fd15
+0063fcfe: mov      eax, dword ptr [esp + 0x14]
+0063fd02: add      edx, 0x14
+0063fd05: cmp      edx, edi
+0063fd07: jne      0x63fce5
+0063fd09: pop      edi
+0063fd0a: pop      esi
+0063fd0b: pop      ebp
+0063fd0c: xor      al, al
+0063fd0e: pop      ebx
+0063fd0f: add      esp, 0x10
+0063fd12: ret      4
+0063fd15: pop      edi
+0063fd16: pop      esi
+0063fd17: pop      ebp
+0063fd18: mov      al, 1
+0063fd1a: pop      ebx
+0063fd1b: add      esp, 0x10
+0063fd1e: ret      4
+   GDI list builder 0x640470: EnumDisplaySettingsA(NULL,i): dmDisplayFlags==0, bpp 16|32, refresh 0/1->60, 60Hz-only when arg flag set
+00640470: sub      esp, 0xb0
+00640476: push     ebp
+00640477: mov      ebp, dword ptr [0x8c363c]   ; USER32.dll!EnumDisplaySettingsA
+0064047d: push     esi
+0064047e: push     edi
+0064047f: lea      eax, [esp + 0x20]
+00640483: xor      esi, esi
+00640485: push     eax
+00640486: push     esi
+00640487: push     esi
+00640488: mov      edi, ecx
+0064048a: mov      word ptr [esp + 0x50], 0x9c
+00640491: mov      word ptr [esp + 0x52], si
+00640496: call     ebp
+00640498: test     eax, eax
+0064049a: je       0x640533
+006404a0: mov      eax, dword ptr [esp + 0x94]
+006404a7: inc      esi
+006404a8: test     eax, eax
+006404aa: jne      0x640521
+006404ac: mov      al, byte ptr [esp + 0xc0]
+006404b3: test     al, al
+006404b5: mov      eax, dword ptr [esp + 0x98]
+006404bc: je       0x6404cc
+006404be: test     eax, eax
+006404c0: je       0x6404cc
+006404c2: cmp      eax, 1
+006404c5: je       0x6404cc
+006404c7: cmp      eax, 0x3c
+006404ca: jne      0x640521
+006404cc: mov      ecx, dword ptr [esp + 0x88]
+006404d3: cmp      ecx, 0x10
+006404d6: je       0x6404dd
+006404d8: cmp      ecx, 0x20
+006404db: jne      0x640521
+006404dd: test     eax, eax
+006404df: mov      edx, dword ptr [esp + 0x8c]
+006404e6: mov      dword ptr [esp + 0xc], edx
+006404ea: mov      edx, dword ptr [esp + 0x90]
+006404f1: mov      byte ptr [esp + 0x1c], 0
+006404f6: mov      dword ptr [esp + 0x10], edx
+006404fa: mov      dword ptr [esp + 0x14], ecx
+006404fe: je       0x640509
+00640500: cmp      eax, 1
+00640503: mov      dword ptr [esp + 0x18], eax
+00640507: jne      0x640511
+00640509: mov      dword ptr [esp + 0x18], 0x3c
+00640511: lea      eax, [esp + 0xc]
+00640515: push     eax
+00640516: lea      ecx, [edi + 0x98]
+0064051c: call     0x660180
+00640521: lea      ecx, [esp + 0x20]
+00640525: push     ecx
+00640526: push     esi
+00640527: push     0
+00640529: call     ebp
+0064052b: test     eax, eax
+0064052d: jne      0x6404a0
+
+3) Preset files: profile creation (0x4435f3..) copies Settings/Default/VideoLow|Medium|High.con into the NEW profile's Video.con AND VideoCustom.con; Custom performance level loads <profile>/VideoCustom.con (0x6b171f)
+004435e3: mov      eax, dword ptr [esp + 0xb8]
+004435ea: cmp      eax, 1
+004435ed: jne      0x443745
+004435f3: mov      ecx, dword ptr [0x9a2380]
+004435f9: mov      ebx, dword ptr [ecx]
+004435fb: push     0
+004435fd: push     0x8d1d28   ; 'Video.con'
+00443602: lea      edx, [esp + 0xa4]
+00443609: push     edx
+0044360a: lea      eax, [esp + 0x50]
+0044360e: push     eax
+0044360f: call     0x46f58c
+00443614: add      esp, 0xc
+00443617: push     eax
+00443618: push     0x8d1d18   ; 'VideoLow.con'
+0044361d: lea      ecx, [esp + 0x8c]
+00443624: push     ecx
+00443625: lea      edx, [esp + 0x70]
+00443629: push     edx
+0044362a: call     0x46f58c
+0044362f: mov      ecx, dword ptr [0x9a2380]
+00443635: add      esp, 0xc
+00443638: push     eax
+00443639: call     dword ptr [ebx + 0x1c]
+0044363c: lea      ecx, [esp + 0x60]
+006b1708: mov      ecx, esi
+006b170a: call     0x6b0520
+006b170f: mov      bl, al
+006b1711: cmp      dword ptr [esi + 0x24], 1
+006b1715: mov      byte ptr [esp + 0x17], bl
+006b1719: jne      0x6b1a73
+006b171f: push     0x8d1d08   ; 'VideoCustom.con'
+006b1724: push     0x8c3830
+006b1729: lea      ecx, [esp + 0x58]
+006b172d: call     dword ptr [0x8c3134]   ; BFCPRT.dll!??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z
+006b1733: mov      ecx, dword ptr [0xa5c630]
+006b1739: push     eax
+006b173a: call     0x69b790
+006b173f: push     eax
+006b1740: push     0x8c3830
+006b1745: lea      ecx, [esp + 0xf0]
+006b174c: call     dword ptr [0x8c3134]   ; BFCPRT.dll!??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAE@PBD@Z
+006b1752: push     eax
+006b1753: lea      eax, [esp + 0x128]
+006b175a: push     0x8d2f00   ; 'Settings/Profiles'
+006b175f: push     eax

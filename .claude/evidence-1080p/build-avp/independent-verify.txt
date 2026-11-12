@@ -1,0 +1,5 @@
+outputs 154 md5sum==NakedAVP 145 mismatch [] not in NakedAVP ['FMVs/AlienIntro.bik', 'FMVs/AlienOutro.bik', 'FMVs/IntroSound.smk', 'FMVs/MarineIntro.bik', 'FMVs/MarineOutro.bik', 'FMVs/Menubackground.bik', 'FMVs/PredatorIntro.bik', 'FMVs/PredatorOutro.bik', 'FMVs/logos.bik']
+slow loop FMVs/Menubackground.bik 0a501a3836cd1fa4a60a039604a756e3 build 0a501a3836cd1fa4a60a039604a756e3 same
+slow loop avp_huds/Disk.RIF fe9a1f4e5caab35e38aabdbbb445aabc build fe9a1f4e5caab35e38aabdbbb445aabc same
+slow loop fastfile/Tex21.FFL e4eb4c0f3269939a8d9c6cca413e95f0 build e4eb4c0f3269939a8d9c6cca413e95f0 same
+manifest complete True outputs 154 failures []

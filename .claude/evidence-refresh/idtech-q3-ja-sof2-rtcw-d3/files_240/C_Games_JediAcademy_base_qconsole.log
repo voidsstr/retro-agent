@@ -1,0 +1,95 @@
+...detecting CPU, found AMD w/ 3DNow!
+
+------- Input Initialization -------
+Skipping check for DirectInput
+Joystick is not active.
+------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+--- Common Initialization Complete ---
+Working directory: C:\Games\JediAcademy
+Initializing OpenGL subsystem
+...initializing QGL
+succeeded
+...setting mode -1: 1920 1080 FS
+...using desktop display depth of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...95 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...GL_EXT_texture_compression_s3tc available
+...no tc preference specified
+.....using GL_EXT_texture_compression_s3tc
+...using GL_EXT_texture_env_add
+...GL_EXT_texture_filter_anisotropic available
+...using GL_EXT_texture_filter_anisotropic
+...Using GL_EXT_texture_edge_clamp
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...using GL_EXT_point_parameters
+...GL_NV_point_sprite not found
+...GL_NV_register_combiners not found
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: RADEON X800 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3 GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+lightmap texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+compressed lightmaps: disabled
+texture compression method: GL_EXT_texture_compression_s3tc
+anisotropic filtering: enabled  (16.000000 of 16.000000)
+Dynamic Glow: disabled
+
+------- sound initialization -------
+Initializing DirectSound
+locked hardware.  ok
+------ Server Initialization ------
+JA: v1.0.1.0 win-x86 Oct 24 2003
+Server: yavin1
+Loading shader text .....
+..... 3391 shader definitions loaded
+------- Game Initialization -------
+gamename: base
+gamedate: Oct 24 2003
+Warning: cvar "g_spskill" given initial values: "1" and "0"
+-----------------------------------
+-----------------------------------
+...loaded 1877 faces, 58 meshes, 134 trisurfs, 0 flares
+------ Server Initialization ------
+JA: v1.0.1.0 win-x86 Oct 24 2003
+Server: yavin1b
+------- Game Initialization -------
+gamename: base
+gamedate: Oct 24 2003
+Warning: cvar "g_spskill" given initial values: "1" and "0"
+-----------------------------------
+-----------------------------------
+...loaded 818 faces, 26 meshes, 150 trisurfs, 0 flares
+^5Saving game "auto"...
+^5Done.

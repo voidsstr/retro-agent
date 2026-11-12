@@ -1,0 +1,7 @@
+Per-box best listed refresh at the two modes the id Tech 2 titles can run at (GAMERES modes list, 2026-09-29).
+With the patched exes the LCD boxes run 1920x1080, so a refresh chosen at the 4:3 target (FR_HZ43) is wrong there.
+.123 DELL P2312H target 1920x1080@60  4:3 1280x960@75 (=FR_HZ43)  q2mode 8  best@1920x1080=60  best@1280x960=75  source evidence-1080p/g6-farcry-bf1942-maxpayne-redfaction-tribes2-r6/gameres_123_2026-09-29.json
+.145 DELL E2414H target 1920x1080@60  4:3 1280x960@75 (=FR_HZ43)  q2mode 8  best@1920x1080=60  best@1280x960=75  source evidence-1080p/g6-farcry-bf1942-maxpayne-redfaction-tribes2-r6/gameres_145_2026-09-29.json
+.240 DELL E2313H target 1920x1080@60  4:3 1280x960@75 (=FR_HZ43)  q2mode 8  best@1920x1080=60  best@1280x960=75  source evidence-1080p/g6-farcry-bf1942-maxpayne-redfaction-tribes2-r6/gameres_240_2026-09-29.json
+.195 HP 2511    target 1920x1080@60  4:3 1280x960@60 (=FR_HZ43)  q2mode 8  best@1920x1080=60  best@1280x960=60  source evidence-1080p/q3-195/99-gameres-final.json
+.124 HP P1120   target 1280x960@85  4:3 1280x960@85 (=FR_HZ43)  q2mode 8  best@1920x1080=None  best@1280x960=85  source evidence-refresh/secondary-shooters-v2/boxes/124__GAMERES.txt

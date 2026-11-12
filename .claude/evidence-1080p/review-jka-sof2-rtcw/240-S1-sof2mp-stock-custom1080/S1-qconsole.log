@@ -1,0 +1,166 @@
+logfile opened on Mon Sep 28 21:44:05 2026
+
+OS: Microsoft WinXP Service Pack 3 (NT)
+CPU Detected: AMD
+AMD
+^5
+---------- Input Initialization ----------
+Skipping check for DirectInput
+Joystick is not active.
+^5------------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+WARNING: tess.xyz not 16 byte aligned
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode 3: 640 480 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (640x480)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...95 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+...Using GL_EXT_texture_edge_clamp
+Initializing OpenGL extensions
+...using GL_EXT_texture_env_add
+...GL_EXT_texture_filter_anisotropic available
+...using GL_EXT_texture_filter_anisotropic
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...using GL_EXT_point_parameters
+...WGL_3DFX_gamma_control not found
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3 GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 3, 640 x 480 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD
+rendering primitives: single glDrawElements
+texturemode: 0
+picmip: 0
+texture bits: 0
+lightmap texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+anisotropic filtering: enabled
+bad filter name
+bad filter name
+Initializing Shaders
+...loading 'shaders/hospital.shader'
+...loading 'shaders/hud.shader'
+...loading 'shaders/menu.shader'
+...loading 'shaders/mp.shader'
+...loading 'shaders/mp_hos2.shader'
+...loading 'shaders/simple.shader'
+...loading 'shaders/threewave.shader'
+...loading 'shaders/threewave3.shader'
+...loading 'shaders/threewave4.shader'
+...loading 'shaders/weapons.shader'
+...loading 'shaders/airport.shader'
+...loading 'shaders/bolt_ons.shader'
+...loading 'shaders/common.shader'
+...loading 'shaders/mp_hk2.shader'
+...loading 'shaders/pick_ups.shader'
+...loading 'shaders/airport_models.shader'
+...loading 'shaders/arioche.shader'
+...loading 'shaders/armory.shader'
+...loading 'shaders/armory_models.shader'
+...loading 'shaders/average_armor.shader'
+...loading 'shaders/average_sleeves.shader'
+...loading 'shaders/cemetery.shader'
+...loading 'shaders/chem_suit.shader'
+...loading 'shaders/chunks.shader'
+...loading 'shaders/colombia.shader'
+...loading 'shaders/colombia_models.shader'
+...loading 'shaders/colors.shader'
+...loading 'shaders/common_models.shader'
+...loading 'shaders/decals.shader'
+...loading 'shaders/dog.shader'
+...loading 'shaders/effects.shader'
+...loading 'shaders/fat.shader'
+...loading 'shaders/female_armor.shader'
+...loading 'shaders/female_pants.shader'
+...loading 'shaders/female_skirt.shader'
+...loading 'shaders/finca.shader'
+...loading 'shaders/finca_models.shader'
+...loading 'shaders/fogs.shader'
+...loading 'shaders/gfx.shader'
+...loading 'shaders/gore.shader'
+...loading 'shaders/hongkong.shader'
+...loading 'shaders/hongkong_models.shader'
+...loading 'shaders/hospital_models.shader'
+...loading 'shaders/instances.shader'
+...loading 'shaders/jordan.shader'
+...loading 'shaders/jordan_models.shader'
+...loading 'shaders/kamchatka.shader'
+...loading 'shaders/kamchatka_models.shader'
+...loading 'shaders/liner.shader'
+...loading 'shaders/liner_models.shader'
+...loading 'shaders/metashader.shader'
+...loading 'shaders/osprey.shader'
+...loading 'shaders/prague.shader'
+...loading 'shaders/prague_models.shader'
+...loading 'shaders/roam.shader'
+...loading 'shaders/shop.shader'
+...loading 'shaders/shop_models.shader'
+...loading 'shaders/skies.shader'
+...loading 'shaders/skingore.shader'
+...loading 'shaders/snow.shader'
+...loading 'shaders/sprites.shader'
+...loading 'shaders/suit_long_coat.shader'
+...loading 'shaders/suit_sleeves.shader'
+...loading 'shaders/test.shader'
+...loading 'shaders/tools.shader'
+...loading 'shaders/glass.shader'
+...loading 'shaders/rmg.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+locked hardware.  ok
+------ Ambient Sound Initialization ------
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0x71e8060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Loading vm file vm/sof2mp_ui.qvm.
+VM file sof2mp_ui compiled to 712392 bytes of code
+sof2mp_ui loaded in 5271840 bytes on the hunk
+bad filter name
+UI total menu load time = 1154 ms
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:20100
+Hostname: user-41ea3b3330
+IP: 192.168.1.240
+Working directory: C:\Games\SoldierOfFortune2
+^5PunkBuster Client: PunkBuster Client (v0.995 | A0) **DISABLED**
+^3PunkBuster Server: PunkBuster Server (v0.995 | A0 C0.0) **DISABLED**
+r_mode will be changed upon restarting.
+Checking version...
+Unknown command "quit-attack"

@@ -1,0 +1,120 @@
+# UE1 OpenGLDrv (Unreal Gold 226 / UT 436 / Deus Ex 1112fm): ChangeDisplaySettingsA/W with dmFields = 0x180000 (PELSWIDTH|PELSHEIGHT only - no DM_DISPLAYFREQUENCY, not even BITSPERPEL), flags 4 = CDS_FULLSCREEN
+## UnrealGold/System/OpenGlDrv.dll
+---- USER32.dll!ChangeDisplaySettingsA (call) at 0x10005697
+   0x1000565c  xor    eax, eax
+   0x1000565e  lea    edi, [ebp - 0x15c]
+   0x10005664  rep stosd dword ptr es:[edi], eax
+   0x10005666  mov    edi, dword ptr [ebp + 8]
+   0x10005669  lea    edx, [ebp - 0x15c]
+   0x1000566f  push   4
+   0x10005671  push   edx
+   0x10005672  mov    word ptr [ebp - 0x138], 0x94
+   0x1000567b  mov    dword ptr [ebp - 0xf0], edi
+   0x10005681  mov    dword ptr [ebp - 0xec], esi
+   0x10005687  mov    dword ptr [ebp - 0xf4], ebx
+   0x1000568d  mov    dword ptr [ebp - 0x134], 0x180000
+   0x10005697  call   dword ptr [0x1002a608]
+   0x1000569d  test   eax, eax
+---- USER32.dll!ChangeDisplaySettingsA (call) at 0x10005782
+## UnrealTournament436/System/OpenGlDrv.dll
+---- USER32.dll!ChangeDisplaySettingsA (call) at 0x100056b9
+   0x1000567e  xor    eax, eax
+   0x10005680  lea    edi, [ebp - 0x15c]
+   0x10005686  rep stosd dword ptr es:[edi], eax
+   0x10005688  mov    edi, dword ptr [ebp + 8]
+   0x1000568b  lea    edx, [ebp - 0x15c]
+   0x10005691  push   4
+   0x10005693  push   edx
+   0x10005694  mov    word ptr [ebp - 0x138], 0x94
+   0x1000569d  mov    dword ptr [ebp - 0xf0], edi
+   0x100056a3  mov    dword ptr [ebp - 0xec], esi
+   0x100056a9  mov    dword ptr [ebp - 0xf4], ebx
+   0x100056af  mov    dword ptr [ebp - 0x134], 0x180000
+   0x100056b9  call   dword ptr [0x1002a610]
+   0x100056bf  test   eax, eax
+---- USER32.dll!ChangeDisplaySettingsA (call) at 0x100057a4
+## DeusEx/SYSTEM/OpenGlDrv.dll
+---- USER32.dll!ChangeDisplaySettingsA (call) at 0x100053a5
+   0x10005369  lea    edi, [ebp - 0x13c]
+   0x1000536f  lea    edx, [ebp - 0x13c]
+   0x10005375  rep stosd dword ptr es:[edi], eax
+   0x10005377  mov    eax, dword ptr [ebp + 8]
+   0x1000537a  mov    ecx, dword ptr [ebp + 0x10]
+   0x1000537d  push   4
+   0x1000537f  push   edx
+   0x10005380  mov    word ptr [ebp - 0x118], 0x94
+   0x10005389  mov    dword ptr [ebp - 0xd0], eax
+   0x1000538f  mov    dword ptr [ebp - 0xcc], ebx
+   0x10005395  mov    dword ptr [ebp - 0xd4], ecx
+   0x1000539b  mov    dword ptr [ebp - 0x114], 0x180000
+   0x100053a5  call   dword ptr [0x10018688]
+   0x100053ab  test   eax, eax
+---- USER32.dll!ChangeDisplaySettingsA (call) at 0x100054ec
+
+# UT 469e OpenGlDrv.dll: dmFields 0x180020, and 0x580020 (+DM_DISPLAYFREQUENCY) with dmDisplayFrequency = [esi+0x5a8] (RefreshRate) when non-zero
+---- USER32.dll!ChangeDisplaySettingsW (call) at 0x10001da1
+   0x10001d3a  mov    dword ptr [ebp - 0x150], edi
+   0x10001d40  mov    eax, dword ptr [ebp + 0xc]
+   0x10001d43  mov    dword ptr [ebp - 0x40], eax
+   0x10001d46  mov    dword ptr [ebp - 0x14c], eax
+   0x10001d4c  mov    dword ptr [ebp - 0x48], 0x20
+   0x10001d53  mov    dword ptr [ebp - 0x154], 0x20
+   0x10001d5d  mov    dword ptr [ebp - 0xa8], 0x180020
+   0x10001d67  mov    dword ptr [ebp - 0x194], 0x180020
+   0x10001d71  mov    eax, dword ptr [esi + 0x5a8]
+   0x10001d77  test   eax, eax
+   0x10001d79  je     0x10001dde
+   0x10001d7b  mov    dword ptr [ebp - 0x38], eax
+   0x10001d7e  mov    dword ptr [ebp - 0x144], eax
+   0x10001d84  mov    dword ptr [ebp - 0x194], 0x580020
+   0x10001d8e  mov    dword ptr [ebp - 0xa8], 0x580020
+   0x10001d98  push   4
+   0x10001d9a  lea    eax, [ebp - 0xf0]
+   0x10001da0  push   eax
+   0x10001da1  call   dword ptr [0x1003f4c0]
+   0x10001da7  test   eax, eax
+   0x10001da9  je     0x10001e11
+---- USER32.dll!ChangeDisplaySettingsW (call) at 0x10001de7
+   0x10001d9a  lea    eax, [ebp - 0xf0]
+
+# UT 469e D3D9Drv.dll: RefreshRate member at +0x18f94 (property registration 0x100146e8); SetRes: if (RefreshRate > 0) pp.FullScreen_RefreshRateInHz (+0x19498 = pp@0x19468 + 0x30) = RefreshRate, CreateDevice; on failure retry at default and log 'Failed to create D3D device with default refresh rate'
+---- 0x100021a9
+   0x10002182  mov    esi, dword ptr [0x100350c8]
+   0x10002188  cmp    byte ptr [edi + 0x194a0], 0
+   0x1000218f  je     0x1000247a
+   0x10002195  mov    byte ptr [ebp - 0x47b], 1
+   0x1000219c  cmp    dword ptr [edi + 0x19488], 0
+   0x100021a3  jne    0x10002242
+   0x100021a9  mov    eax, dword ptr [edi + 0x18f94]
+   0x100021af  test   eax, eax
+   0x100021b1  jle    0x10002242
+   0x100021b7  mov    dword ptr [edi + 0x19498], eax
+   0x100021bd  mov    ecx, dword ptr [edi + 0x19314]
+   0x100021c3  lea    edx, [edi + 0x19318]
+   0x100021c9  mov    eax, dword ptr [ecx]
+   0x100021cb  push   edx
+   0x100021cc  push   ebx
+   0x100021cd  push   0x20
+   0x100021cf  push   dword ptr [edi + 0x17e40]
+---- 0x10002354
+   0x10002333  mov    eax, 0x50
+   0x10002338  cmovne esi, eax
+   0x1000233b  mov    dword ptr [ebp - 0x490], esi
+   0x10002341  lea    ebx, [edi + 0x19468]
+   0x10002347  cmp    dword ptr [edi + 0x19488], 0
+   0x1000234e  jne    0x100023d4
+   0x10002354  mov    eax, dword ptr [edi + 0x18f94]
+   0x1000235a  test   eax, eax
+   0x1000235c  jle    0x100023d4
+   0x1000235e  mov    dword ptr [edi + 0x19498], eax
+   0x10002364  mov    ecx, dword ptr [edi + 0x19314]
+   0x1000236a  lea    edx, [edi + 0x19318]
+   0x10002370  mov    eax, dword ptr [ecx]
+   0x10002372  push   edx
+   0x10002373  push   ebx
+   0x10002374  push   esi
+   0x10002375  push   dword ptr [edi + 0x17e40]
+---- 0x100025e4
+   0x100025cb  mov    ecx, edi
+   0x100025cd  call   0x1000d8e0
+   0x100025d2  push   dword ptr [edi + 0x18f90]

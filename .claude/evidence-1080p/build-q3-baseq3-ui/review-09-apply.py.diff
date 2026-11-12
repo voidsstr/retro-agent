@@ -1,0 +1,178 @@
+--- builder/apply.py
++++ reviewed/apply.py
+@@ -60,7 +60,11 @@
+     apply.py --install-server [OUTDIR] [--dry-run] [--force]
+                                      FUTURE: copy the pk3 into quake3-server's baseq3 (its
+                                      pure list). ONLY after every fleet box has it: a client
+-                                     without it is dropped as unpure unless it downloads it.
++                                     without it is dropped as unpure unless it downloads it
++                                     (this server's ioq3ded touches vm/ui.qvm when pure, so
++                                     the pk3 IS offered - but only to cl_allowDownload 1).
++                                     Refuses until the library carries it AND
++                                     retro-autodeploy has recorded a sync of every box since.
+ 
+ Nothing here writes game data into git. Sources and tools are cached in
+ ~/.retro-fleet/patch-src/q3-baseq3-ui/, outputs go to
+@@ -112,6 +116,11 @@
+ SERVER_UNIT_FILE = os.path.expanduser("~/.config/systemd/user/%s.service" % SERVER_UNIT)
+ SERVER_BASEQ3 = "/home/voidsstr/q3a-server/.q3a/baseq3"   # fallback when the unit is unreadable
+ SERVER_PORT = 27961
++# How a published library file reaches the boxes: retro-autodeploy re-syncs a
++# box (GAMESYNC RESET + START) when this one-line file changes, and records each
++# sync that met its post-condition, keyed by hostname (scripts/fleet/autodeploy.py).
++DEPLOY_GENERATION_FILE = "_deploy_generation.txt"
++AUTODEPLOY_STATE = os.path.expanduser("~/.retro-fleet/autodeploy.json")
+ 
+ 
+ def server_baseq3():
+@@ -313,10 +322,27 @@
+ 
+ 
+ def pk3_order_key(name):
+-    """Both engines sort pk3s with a case-insensitive compare (id 1.32 paksort =
+-    Q_stricmp; ioquake3 FS_PathCmp), and the LAST in that order is searched
+-    first. Q_stricmp lowercases ASCII letters only."""
+-    return name.lower()
++    """The order both engines load a game directory's pk3s in, as a sort key;
++    the LAST name in this order is searched FIRST.
++
++    id 1.32 AND ioquake3 1.36 qsort the names with paksort() = FS_PathCmp()
++    (code/qcommon/files.c, read in both trees): it UPPER-cases a-z, maps '\\'
++    and ':' to '/', and compares everything else as signed C chars up to and
++    including the terminating NUL. It is NOT a lower-case compare - the six
++    characters [ \\ ] ^ _ ` sit between 'Z' and 'a', so they sort AFTER every
++    letter here and BEFORE them in lower case. (Review 2026-09-29: this used
++    name.lower(), which reported "zz-fleetres-u_.pk3" as harmless while the
++    engines would load it over ours.)"""
++    key = []
++    for ch in name.encode("latin-1", "replace"):
++        c = ch - 256 if ch >= 0x80 else ch     # char is signed on x86
++        if ord("a") <= c <= ord("z"):
++            c -= ord("a") - ord("A")
++        if c in (ord("\\"), ord(":")):
++            c = ord("/")
++        key.append(c)
++    key.append(0)                              # the NUL: a prefix sorts first
++    return tuple(key)
+ 
+ 
+ def host_cc():
+@@ -1037,6 +1063,11 @@
+             # an older copy: back it up first, same relative path
+             bdest = backup_rel(dest)
+             bcur = mnt_path(bdest)
++            if os.path.isfile(bcur) and md5_file(bcur) != have:
++                # NEVER overwrite a backup: the first one there may be the only
++                # copy of an original. Keep this replaced copy beside it.
++                bdest = "%s.%s" % (bdest, have[:8])
++                bcur = mnt_path(bdest)
+             if not (os.path.isfile(bcur) and md5_file(bcur) == have):
+                 print("backup   %s -> %s" % (dest, bdest))
+                 if not dry_run:
+@@ -1055,16 +1086,59 @@
+         return
+     print("\npublished. Next:")
+     print("  1. python3 scripts/validate-staged-library.py --quiet")
+-    print("  2. every box with the title: GAMESYNC RESET + GAMESYNC START, then check")
++    print("  2. carry it to every box: a provisioned box's GAMESYNC idles until RESET +")
++    print("     START. Bump the one line of Files/Games-Library/%s (shared by" % DEPLOY_GENERATION_FILE)
++    print("     every title's fix - bump it ONCE after all of the night's publishes) and")
++    print("     retro-autodeploy re-syncs each box as it comes online, the ones that are")
++    print("     off now included; or GAMESYNC RESET + START a box by hand. Then check")
+     print("     <GamesDir>\\%s\\baseq3\\%s is %d B (GamesDir is C:\\Games unless the"
+           % (TITLE, PK3_NAME, m["pk3"]["size"]))
+     print("     box sets HKLM\\Software\\RetroAgent\\GamesDir)")
+-    print("  3. only then: apply.py --install-server (the pure server)")
++    print("  3. only then: apply.py --install-server (the pure server). It reads")
++    print("     retro-autodeploy's records and refuses while a box has not synced since")
++    print("     the pk3 reached the share.")
+ 
+ 
+ # ============================================================================
+ # --install-server  (FUTURE: not run in the build phase)
+ # ============================================================================
++def fleet_readiness(published_at, state_path=None):
++    """Which boxes have completed a GAMESYNC since the pk3 reached the share, by
++    retro-autodeploy's own records (AUTODEPLOY_STATE: one record per box, keyed
++    by hostname, written only after a sync met its post-condition; "at" is the
++    host's local time). Returns (rows, error), rows = [(box, ip, at, ready)].
++
++    A legacy address-keyed record (no hostname) whose address a hostname record
++    now holds is left out: that box was re-keyed, not lost. Anything else that
++    cannot be shown ready is NOT ready - a box autodeploy never reached, or one
++    synced only by hand, reads as not ready, never as ready. Evidence, not
++    proof: spot-check a box with DIRLIST before trusting a borderline row."""
++    path = state_path or AUTODEPLOY_STATE
++    try:
++        with open(path) as f:
++            st = json.load(f)
++    except (OSError, ValueError) as e:
++        return [], "cannot read %s (%s)" % (path, e)
++    if not isinstance(st, dict):
++        return [], "%s is not a map of box records" % path
++    named_ips = {r.get("ip") for r in st.values() if isinstance(r, dict) and r.get("hostname")}
++    rows = []
++    for key in sorted(st):
++        rec = st[key]
++        if not isinstance(rec, dict):
++            continue
++        ip = rec.get("ip") or key
++        if not rec.get("hostname") and ip in named_ips:
++            continue
++        at = rec.get("at")
++        try:
++            t = time.mktime(time.strptime(at, "%Y-%m-%d %H:%M:%S"))
++        except (TypeError, ValueError, OverflowError):
++            t = None
++        rows.append((key, ip, at or "?", t is not None and t >= published_at))
++    return rows, None
++
++
+ def install_server(outdir, dry_run, force):
+     m = load_manifest(outdir)
+     pk3 = m["pk3"]["local_path"]
+@@ -1082,6 +1156,33 @@
+         if not force:
+             raise SystemExit("REFUSED: " + msg + " (or --force)")
+         print("WARNING: " + msg)
++    else:
++        # the library has it; has every BOX had a sync since? A box without the
++        # pk3 is dropped by the pure server ("Unpure Client ... set
++        # cl_allowDownload 1") - the fleet's clients leave that at its default 0.
++        published_at = os.path.getmtime(share)
++        rows, err = fleet_readiness(published_at)
++        print("fleet readiness - GAMESYNC since the pk3 reached the share (%s), by %s:"
++              % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(published_at)), AUTODEPLOY_STATE))
++        for box, ip, at, ready in rows:
++            print("  %-6s %-18s %-15s last sync %s" % ("ready" if ready else "NOT", box, ip, at))
++        late = [r for r in rows if not r[3]]
++        if err:
++            why = err
++        elif late:
++            why = "%d box(es) have not synced since the pk3 was published: %s" % (
++                len(late), ", ".join(r[0] for r in late))
++        elif not rows:
++            why = "retro-autodeploy has no box records at all"
++        else:
++            why = None
++        if why:
++            msg = ("%s - bump %s and let retro-autodeploy catch them up; a listed box "
++                   "that does not carry %s at all is fine (--force)"
++                   % (why, DEPLOY_GENERATION_FILE, TITLE))
++            if not force:
++                raise SystemExit("REFUSED: " + msg)
++            print("WARNING: " + msg)
+     dest = os.path.join(sdir, PK3_NAME)
+     if os.path.isfile(dest) and md5_file(dest) == want:
+         print("current  %s (md5 %s) - nothing to do" % (dest, want))
+@@ -1118,7 +1219,9 @@
+     g.add_argument("--publish", nargs="?", const=DEFAULT_OUT, metavar="OUTDIR")
+     g.add_argument("--install-server", nargs="?", const=DEFAULT_OUT, metavar="OUTDIR")
+     ap.add_argument("--dry-run", action="store_true")
+-    ap.add_argument("--force", action="store_true", help="--install-server before the library has the pk3")
++    ap.add_argument("--force", action="store_true",
++                    help="--install-server although the library lacks the pk3, or a box has "
++                         "not synced since it was published (read the list it prints first)")
+     ap.add_argument("--library", default=LIBRARY)
+     a = ap.parse_args(argv)
+     if a.check:

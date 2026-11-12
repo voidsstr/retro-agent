@@ -1,0 +1,16 @@
+{
+ "_ip": "192.168.1.195",
+ "_at": "2026-09-29 01:11:27",
+ "DIRLIST C:\\Games\\Doom3\\base\\D*": {
+  "status": 0,
+  "text": "[{\"name\":\"DoomConfig.cfg\",\"is_dir\":false,\"size\":5492,\"modified\":\"2026-08-31 20:53:08\",\"hidden\":false,\"readonly\":false},{\"name\":\"doomkey\",\"is_dir\":false,\"size\":134,\"modified\":\"2026-08-31 04:56:36\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\Doom3\\base\\q*": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\Games\\Doom3\\base\\s*": {
+  "status": 0,
+  "text": "[]"
+ }
+}

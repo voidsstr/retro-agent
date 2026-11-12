@@ -1,0 +1,10 @@
+{
+  "requirements_version": 1,
+  "title": "Quake3-TeamArena",
+  "year": 2000,
+  "min_cpu_mhz": 233,
+  "min_ram_mb": 64,
+  "min_vram_mb": 8,
+  "gpu_feature_level": "fixed",
+  "notes": "id Tech 3. OpenGL only - no software renderer - but no hardware T&L requirement."
+}

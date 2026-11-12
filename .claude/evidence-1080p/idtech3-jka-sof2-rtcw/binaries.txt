@@ -1,0 +1,7 @@
+# staged engine binaries analysed (md5, size, PE SubsystemVersion, version string)
+JediAcademy/jasp.exe  md5=1d55a7142e883dc4d54cfe87be987c66  size=1236992  subsys=4.0  ['JA: v1.0.1.0']
+JediAcademy/jamp.exe  md5=896f5804934cf4c1d5750a0b82ea4c5e  size=1527808  subsys=4.0  ['JAmp: v1.0.1.0']
+SoldierOfFortune2/SoF2.exe  md5=c0c873320da54b0d191041ba942ab28e  size=1064960  subsys=4.0  []
+SoldierOfFortune2/sof2mp.exe  md5=0263922b67e3474f9e77e769f217f53a  size=1572917  subsys=4.0  ['SOF2MP GOLD V1.03']
+ReturnToCastleWolfenstein/WolfSP.exe  md5=dd1f541307ce485076628cadae3637fa  size=1282095  subsys=4.0  ['Wolf 1.32']
+ReturnToCastleWolfenstein/WolfMP.exe  md5=6ad8aceea02dc1eef8af0c73331cddaf  size=1077310  subsys=4.0  ['Wolf 1.4-MP']

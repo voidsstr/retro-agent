@@ -1,0 +1,51 @@
+{
+  "key": "doom3",
+  "title": "Doom3",
+  "note": "new file; derived from pak007.pk4's GUIs with only the Screen Size choiceDef edited",
+  "originals": [
+    {
+      "share_path": "Files/Games-Library/Doom3/base/pak007.pk4",
+      "md5": "6319f086f930ec1618ab09b4c20c268c",
+      "size": 192031
+    }
+  ],
+  "outputs": [
+    {
+      "share_path": "Files/Games-Library/Doom3/base/zz_fleetvideo.pk4",
+      "local_path": "/home/voidsstr/.retro-fleet/patch-out/doom3/Doom3/base/zz_fleetvideo.pk4",
+      "md5": "9608103a37eb82327c49b35905431f48",
+      "size": 69371,
+      "original_md5": null,
+      "derived_from": {
+        "share_path": "Files/Games-Library/Doom3/base/pak007.pk4",
+        "md5": "6319f086f930ec1618ab09b4c20c268c"
+      },
+      "members": [
+        {
+          "name": "guis/mainmenu.gui",
+          "changed_lines": [
+            4889,
+            4890
+          ],
+          "md5": "a3d2857be2c131fb326544fc4b0d4900",
+          "stock_md5": "e90e5f71de393bc74622c82ec7c57e60"
+        },
+        {
+          "name": "guis/mpmain.gui",
+          "changed_lines": [
+            4446,
+            4447
+          ],
+          "md5": "aff72db7e6df284eec2e620dcc9a3d1d",
+          "stock_md5": "c7adb0744ee918263132201c55b3d890"
+        }
+      ],
+      "pure_status": "PURE_NEVER"
+    }
+  ],
+  "server": {
+    "path": "/home/voidsstr/doom3-server/base/zz_fleetvideo.pk4",
+    "unit": "doom3-server",
+    "needed": "no - the pk4 is PURE_NEVER (GUI-only): it never enters a pure list and a client's copy is used even on a pure server; the dedicated server draws no menu. (~/doom3-server also runs +set si_pure 0.)"
+  }
+}

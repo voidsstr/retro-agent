@@ -1,0 +1,188 @@
+ioq3 1.36 win_mingw-x86 Apr 12 2009
+----- FS_Startup -----
+Current search path:
+C:\Documents and Settings\User\Application Data\Quake3/baseq3
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+C:\Games\Quake3-TeamArena/baseq3
+
+----------------------
+4073 files in pk3 files
+execing default.cfg
+execing q3config.cfg
+execing autoexec.cfg
+Unknown command "this"
+execing fleetres.cfg
+Hunk_Clear: reset the hunk ok
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+QKEY found.
+----- Client Initialization Complete -----
+----- R_Init -----
+SDL using driver "directx"
+Initializing OpenGL display
+Estimated display aspect: 1.778
+...setting mode -1: 1920 1080
+Using 4/4/4 Color bits, 24 depth, 8 stencil display.
+Available modes: '1920x1080 1280x720 1776x1000 1360x768 848x480 800x480
+1280x768 320x200 640x400 1280x800 1440x900 720x480 640x432 320x240 400x300
+512x384 640x480 800x600 1024x768 1152x864 1280x960 1360x1024 720x576
+1280x1024'
+GL_RENDERER: Radeon X1600 Series
+Initializing OpenGL extensions
+...using GL_EXT_texture_compression_s3tc
+...using GL_EXT_texture_env_add
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...ignoring GL_EXT_texture_filter_anisotropic
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture
+GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow
+GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel
+GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects
+GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow
+GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression
+GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine
+GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two
+GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object
+GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color
+GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax
+GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias
+GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle
+GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array
+GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection
+GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod
+GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 0 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+Initializing Shaders
+----- finished R_Init -----
+------ Initializing Sound ------
+Loading "OpenAL32.dll"...
+Allocated 96 sources.
+OpenAL default capture device is 'WaveIn on SB Live! Audio [A800]'
+OpenAL capture device opened.
+OpenAL info:
+  Vendor:     OpenAL Community
+  Version:    1.1 ALSOFT 1.6.372
+  Renderer:   OpenAL Soft
+  AL Extensions: AL_EXTX_buffer_sub_data AL_EXT_EXPONENT_DISTANCE
+AL_EXT_FLOAT32 AL_EXT_IMA4 AL_EXT_LINEAR_DISTANCE AL_EXT_MCFORMATS
+AL_EXT_OFFSET AL_LOKI_quadriphonic
+  ALC Extensions: ALC_ENUMERATE_ALL_EXT ALC_ENUMERATION_EXT ALC_EXT_CAPTURE
+ALC_EXT_EFX
+  Device:     DirectSound Software
+Available Devices:
+DirectSound Software
+Wave File Writer
+Sound initialization successful.
+--------------------------------
+Loading vm file vm/ui.qvm...
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1368576 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Hostname: user-41ea3b3330
+IP: 192.168.1.240
+Opening IP6 socket: [::]:27960
+WARNING: NET_IP6Socket: socket: WSAEAFNOSUPPORT
+WARNING: Couldn't bind to a v6 ip address.
+Opening IP socket: 0.0.0.0:27960
+]\gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: Radeon X1600 Series
+GL_VERSION: 2.1.8545 Release
+GL_EXTENSIONS: GL_AMD_performance_monitor GL_ARB_depth_texture
+GL_ARB_draw_buffers GL_ARB_fragment_program GL_ARB_fragment_program_shadow
+GL_ARB_fragment_shader GL_ARB_framebuffer_object GL_ARB_half_float_pixel
+GL_ARB_half_float_vertex GL_ARB_map_buffer_range GL_ARB_multisample
+GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_pixel_buffer_object
+GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects
+GL_ARB_shader_texture_lod GL_ARB_shading_language_100 GL_ARB_shadow
+GL_ARB_shadow_ambient GL_ARB_texture_border_clamp GL_ARB_texture_compression
+GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine
+GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_float
+GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two
+GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_array_object
+GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader
+GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_envmap_bumpmap
+GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil
+GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3
+GL_ATI_texture_float GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color
+GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax
+GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture
+GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit
+GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object
+GL_EXT_gpu_program_parameters GL_EXT_multi_draw_arrays
+GL_EXT_packed_depth_stencil GL_EXT_packed_pixels GL_EXT_point_parameters
+GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color
+GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture
+GL_EXT_texgen_reflection GL_EXT_texture3D GL_EXT_texture_compression_s3tc
+GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add
+GL_EXT_texture_env_combine GL_EXT_texture_env_dot3
+GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias
+GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle
+GL_EXT_texture_sRGB GL_EXT_texture_swizzle GL_EXT_vertex_array
+GL_KTX_buffer_region GL_NV_blend_square GL_NV_texgen_reflection
+GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod
+GL_WIN_swap_hint WGL_EXT_swap_control
+GL_MAX_TEXTURE_SIZE: 4096
+GL_MAX_TEXTURE_UNITS_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:N/A
+GAMMA: hardware w/ 1 overbright bits
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: enabled
+]\condump fleet240-a-menu.txt
+Dumped console text to fleet240-a-menu.txt.
+

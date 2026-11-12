@@ -1,0 +1,9 @@
+# 2026-09-29T04:56:33-04:00 independent whole-tree scan (run length / printable ratio / broad magic table, raw vs libunshield-deobfuscated, 64 KiB)
+files in tree: 561 {'scanned': 351, 'in_table': 210}
+suspicious: 2
+   ('avpgolded.mpi', 1620, ['deob printable 0.98 vs raw 0.03'])
+   ('MPlayer/System/install.log', 886, ["deob has magic b'\\xff\\xfe', raw has none"])
+# both hits are FALSE POSITIVES, inspected by hand: avpgolded.mpi is plain (tcp/conc.mpath.com/8000 + zero padding; de-obfuscating zeros yields the printable ramp 0x75,0x74,...); MPlayer/System/install.log is plain text ('*** Installation ... UNWISE32') whose de-obfuscated head starts FF FE by chance.
+# positive control - the same scan over the 210 table rows only:
+files in tree: 561 {'scanned': 210}
+suspicious: 154

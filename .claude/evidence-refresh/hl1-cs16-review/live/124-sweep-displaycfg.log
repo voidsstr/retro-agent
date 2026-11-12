@@ -1,0 +1,66 @@
+04:39:03 watching /home/voidsstr/development/retro-agent/.claude/worktrees/v56k-bench/scripts/benchmarks/results/v56k_lan_192.168.1.124/sweep_armed3.log from byte 4545
+04:39:42 sweep: [04:39:40]     PASS  samples=[(30, ['quake3.exe'], (1280, 960, 10.5, 10.0)), (60, ['quake3.exe'], (1280, 960, 19.0, 14.4))]
+04:39:42 sweep: [04:39:40] --- Quake III Arena: C:\Games\Quake3-TeamArena\Play Quake III Arena.bat 
+04:40:07 [Quake III Arena +25s] DISPLAYCFG get -> {"width":1280,"height":960,"bpp":32,"refresh":85}
+04:40:27 [Quake III Arena +45s] DISPLAYCFG get -> {"width":1280,"height":960,"bpp":32,"refresh":85}
+04:40:51 sweep: [04:40:49]     PASS  samples=[(30, ['ioquake3.x86.exe'], (1280, 960, 16.6, 35.8)), (60, ['ioquake3.x86.exe'], (1280, 960, 16.6, 35.7))]
+04:40:51 sweep: [04:40:49] --- Quake: C:\Games\Quake1\Play Quake.bat 
+04:42:36 sweep: [04:42:36]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 10.2, 9.0)), (60, ['GLQUAKE.EXE'], (1280, 960, 25.9, 15.6))]
+04:42:36 sweep: [04:42:36] --- Red Alert 2 - Yuri's Revenge: C:\Games\RedAlert2\Launch Yuri's Revenge.bat 
+04:44:39 sweep: [04:44:37]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['RA2MD.exe', 'gamemd.exe'], (800, 600, 60.0, 57.0)), (60, ['RA2MD.exe', 'gamemd.exe'], (800, 600, 
+04:44:39 sweep: [04:44:37] --- Red Faction: C:\Games\RedFaction\Play Red Faction.bat 
+04:46:36 sweep: [04:46:36]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['rf.exe'], (640, 480, 0.0, 0.0)), (60, ['rf.exe'], (640, 480, 0.0, 0.0))]
+04:46:36 sweep: [04:46:36] --- Redneck Rampage - Rides Again: C:\Games\RedneckRampage\Play Rides Again.bat 
+04:47:42 sweep: [04:47:42]     PASS  samples=[(30, ['DOSBox.exe', 'find.exe', 'netstat.exe'], (640, 480, 73.2, 71.6)), (60, ['DOSBox.exe'], (640, 480, 71.2, 60.7))]
+04:47:42 sweep: [04:47:42] --- Redneck Rampage - Route 66: C:\Games\RedneckRampage\Play Route 66.bat 
+04:48:48 sweep: [04:48:48]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 61.7, 58.3)), (60, ['DOSBox.exe'], (640, 400, 61.7, 58.3))]
+04:48:48 sweep: [04:48:48] --- Redneck Rampage: C:\Games\RedneckRampage\Play Redneck Rampage - Game.bat 
+04:49:58 sweep: [04:49:55]     PASS  samples=[(30, ['DOSBox.exe'], (800, 600, 16.2, 28.0)), (60, ['DOSBox.exe'], (800, 600, 86.2, 39.1))]
+04:49:58 sweep: [04:49:55] --- Return to Castle Wolfenstein: C:\Games\ReturnToCastleWolfenstein\Play Return to Castle Wolfenstein.bat 
+04:51:04 sweep: [04:51:01]     PASS  samples=[(30, ['WolfSP.exe'], (640, 480, 16.5, 41.3)), (60, ['WolfSP.exe'], (640, 480, 15.1, 17.2))]
+04:51:04 sweep: [04:51:01] --- RTCW Multiplayer: C:\Games\ReturnToCastleWolfenstein\Play RTCW Multiplayer.bat 
+04:52:10 sweep: [04:52:08]     PASS  samples=[(30, ['WolfMP.exe'], (1152, 864, 23.6, 29.5)), (60, ['WolfMP.exe'], (1152, 864, 23.6, 29.7))]
+04:52:10 sweep: [04:52:08] --- Serious Sam - The First Encounter: C:\Games\SeriousSamFirstEncounter\Play Serious Sam - The First Encounter.bat 
+04:54:10 sweep: [04:54:09]     CHECK: dialog: Information; had to be forced closed  samples=[(30, ['SeriousSam.exe'], (1280, 1024, 20.8, 52.4)), (60, ['SeriousSam.exe'], (1280, 1024, 20.8, 52.4))]
+04:54:10 sweep: [04:54:09] --- Serious Sam - The Second Encounter: C:\Games\SeriousSamSecondEncounter\Play Serious Sam - The Second Encounter.bat 
+04:55:43 sweep: [04:55:43]     CHECK: dialog: CD check  samples=[(30, ['SeriousSam.exe'], (1280, 1024, 20.7, 52.6)), (60, ['SeriousSam.exe'], (1280, 1024, 20.7, 52.6))]
+04:55:43 sweep: [04:55:43] --- Shadow Warrior - Twin Dragon: C:\Games\ShadowWarrior\Play Twin Dragon.bat 
+04:56:49 sweep: [04:56:48]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 29.1, 52.0)), (60, ['DOSBox.exe'], (640, 400, 22.7, 21.9))]
+04:56:49 sweep: [04:56:48] --- Shadow Warrior - Wanton Destruction: C:\Games\ShadowWarrior\Play Wanton Destruction.bat 
+04:57:55 sweep: [04:57:54]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 54.6, 56.4)), (60, ['DOSBox.exe'], (640, 400, 24.5, 24.0))]
+04:57:55 sweep: [04:57:54] --- Shadow Warrior: C:\Games\ShadowWarrior\Play Shadow Warrior.bat 
+04:59:01 sweep: [04:59:00]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 54.6, 56.4)), (60, ['DOSBox.exe'], (640, 400, 22.9, 22.9))]
+04:59:01 sweep: [04:59:00] --- Shogo - Mobile Armor Division: C:\Games\Shogo\Play Shogo - direct engine.bat 
+05:00:10 sweep: [05:00:07]     PASS  samples=[(30, ['Client.exe'], (1280, 960, 1.6, 16.4)), (60, ['Client.exe'], (1280, 960, 1.6, 16.4))]
+05:00:10 sweep: [05:00:07] --- Shogo - via launcher (fallback): C:\Games\Shogo\Play Shogo.bat 
+05:01:16 sweep: [05:01:14]     CHECK: dialog: Shogo: Mobile Armor Division  samples=[(30, ['Shogo.exe'], (1280, 1024, 22.2, 51.0)), (60, ['Shogo.exe'], (1280, 1024, 22.2, 51.0))]
+05:01:16 sweep: [05:01:14] --- SiN - software mode for newer cards: C:\Games\SiNGold\Play SiN - software renderer.bat 
+05:03:16 sweep: [05:03:14]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['sin.exe'], (1280, 960, 48.8, 14.1)), (60, ['sin.exe'], (1280, 960, 48.8, 14.1))]
+05:03:16 sweep: [05:03:14] --- SiN - Wages of SiN: C:\Games\SiNGold\Play Wages of SiN.bat 
+05:04:52 sweep: [05:04:50]     PASS  samples=[(30, ['sin.exe'], (1280, 960, 13.0, 21.5)), (60, ['sin.exe'], (1280, 960, 13.0, 21.6))]
+05:04:52 sweep: [05:04:50] --- SiN: C:\Games\SiNGold\Play SiN Gold.bat 
+05:06:26 sweep: [05:06:24]     PASS  samples=[(30, ['sin.exe'], (1280, 960, 12.9, 21.3)), (60, ['sin.exe'], (1280, 960, 13.0, 21.6))]
+05:06:26 sweep: [05:06:24] --- Soldier of Fortune II - Multiplayer: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II - Multiplayer.bat 
+05:08:26 sweep: [05:08:25]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['sof2mp.exe'], (1152, 864, 31.7, 26.5)), (60, ['sof2mp.exe'], (1152, 864, 31.7, 26.5))]
+05:08:26 sweep: [05:08:25] --- Soldier of Fortune II: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II.bat 
+05:09:59 sweep: [05:09:58]     CHECK: dialog: No AGP memory detected  samples=[(30, ['SoF2.exe'], (1280, 1024, 30.2, 58.5)), (60, ['SoF2.exe'], (1280, 1024, 30.2, 58.5))]
+05:09:59 sweep: [05:09:58] --- Soldier of Fortune: C:\Games\SoldierOfFortune\Play Soldier of Fortune.bat 
+05:11:08 sweep: [05:11:06]     PASS  samples=[(30, ['SoF.exe'], (1280, 960, 9.6, 14.9)), (60, ['SoF.exe'], (1280, 960, 45.9, 33.4))]
+05:11:08 sweep: [05:11:06] --- StarCraft - Brood War: C:\Games\StarCraft\BroodWar\Play Brood War.bat 
+05:12:14 sweep: [05:12:14]     PASS  samples=[(30, ['StarCraft.exe'], (640, 480, 0.0, 0.1)), (60, ['StarCraft.exe'], (640, 480, 2.3, 23.9))]
+05:12:14 sweep: [05:12:14] --- StarCraft: C:\Games\StarCraft\Play StarCraft.bat 
+05:13:20 sweep: [05:13:19]     PASS  samples=[(30, ['StarCraft.exe'], (640, 480, 3.2, 17.7)), (60, ['StarCraft.exe'], (640, 480, 3.3, 18.2))]
+05:13:20 sweep: [05:13:19] --- System Shock 2: C:\Games\SystemShock2\Play System Shock 2.bat 
+05:14:26 sweep: [05:14:25]     CHECK: dialog: Cannot locate the CD-ROM  samples=[(30, ['clokspl.exe', 'shock2.exe'], (1280, 1024, 22.0, 51.1)), (60, ['clokspl.exe', 'shock2.exe'], (1280, 1024, 22.0, 51.1))]
+05:14:26 sweep: [05:14:25] --- Team Fortress Classic: C:\Games\HalfLife1\Team Fortress Classic.bat 
+05:14:51 [Team Fortress Classic +25s] DISPLAYCFG get -> {"width":1280,"height":960,"bpp":32,"refresh":85}
+05:15:11 [Team Fortress Classic +45s] DISPLAYCFG get -> {"width":1280,"height":960,"bpp":32,"refresh":85}
+05:16:20 sweep: [05:16:18]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 39.3, 31.4)), (60, ['find.exe', 'hl.exe', 'netstat.exe'], (1280, 960, 39.3, 31.4))]
+05:16:20 sweep: [05:16:18] --- The Elder Scrolls II - Daggerfall: C:\Games\Daggerfall\Play Daggerfall.bat 
+05:17:32 sweep: [05:17:32]     PASS  samples=[(30, ['DOSBox.exe'], (640, 480, 27.6, 65.7)), (60, ['DOSBox.exe'], (640, 480, 0.0, 0.6))]
+05:17:32 sweep: [05:17:32] --- Thief Gold: C:\Games\ThiefGold\Play Thief Gold.bat 
+05:19:32 sweep: [05:19:31]     CHECK: had to be forced closed  samples=[(30, ['THIEF.EXE'], (640, 480, 10.4, 9.5)), (60, ['THIEF.EXE'], (640, 480, 16.3, 16.1))]
+05:19:32 sweep: [05:19:31] --- Thief II - The Metal Age: C:\Games\Thief2\Play Thief 2.bat 
+05:21:32 sweep: [05:21:32]     CHECK: had to be forced closed  samples=[(30, ['Thief2.exe'], (1280, 960, 30.6, 38.0)), (60, ['Thief2.exe'], (1280, 960, 30.5, 37.9))]
+05:21:32 sweep: [05:21:32] --- Tom Clancy's Rainbow Six: C:\Games\RainbowSix\Play Rainbow Six.bat 
+2026-09-29 05:21:42 EDT FX_GLIDE_REFRESH present: False

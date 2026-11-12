@@ -1,0 +1,92 @@
+=== sin.exe 667648 8d320d7fc3ea3a226ec98dafef3e81ba
+                                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!""""""""""""""""""""""""""""""""################################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&'''''''''''''''''''''''''''''''''(((((((((((((((((((((((((((((((())))))))))))))))))))))))))))))))********************************++++++++++++++++++++++++++++++++,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,--------------------------------................................/////////////////////////////////00000000000000001111111111111111<REDACTED:fleet-gamekey-quake3-team-arena>3333333333333333444444444444444455555555555555556666666666666666777777777777777788888888888888889999999999999999::::::::::::::::;;;;;;;;;;;;;;;;<<<<<<<<<<<<<<<<=================>>>>>>>>>>>>>>>>????????????????@@@@@@@@AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDDEEEEEEEEFFFFFFFFGGGGGGGGHHHHHHHHIIIIIIIIJJJJJJJJKKKKKKKKLLLLLLLLMMMMMMMMNNNNNNNNOOOOOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVVVWWWWXXXXYYYYZZZZ[[[[\\\\]]]]^^^^____``aabbccddeeffgghhhiijjkkllmmnnoopqrstuvwxyz{|}~
+$Id: ASCII.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: darray.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: def_pars.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: elements.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: english.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: getarg.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+?$Id: holmes.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: nsynth.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: phtoelm.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: say.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: saynum.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: text.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+$Id: trie.c,v 1.13 1994/11/08 13:30:50 a904209 Exp a904209 $
+3dfxgl
+con_vidmode
+Couldn't fall back to software refresh!
+gl_driver
+gl_mode
+refreshnetservers
+refreshservers
+Setting frequency from "%f" to "%f"
+Sin requires windows version 4 or greater
+SNDEAX_RefreshBuffers: Buffer does not exist FL
+SNDEAX_RefreshBuffers: Buffer does not exist FR
+SNDEAX_RefreshBuffers: Buffer does not exist RL
+SNDEAX_RefreshBuffers: Buffer does not exist RR
+SNDEAX_RefreshBuffers: Unable to refresh FL
+SNDEAX_RefreshBuffers: Unable to refresh FR
+SNDEAX_RefreshBuffers: Unable to refresh RL
+SNDEAX_RefreshBuffers: Unable to refresh RR
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+timerefresh
+vid_ref
+=== ref_gl.dll 278528 050bdfd69b20c72090b0c8f09f5f6747
+1!1)1.14191@1E1J1O1X1]1c1h1p1u1{1
+1'1.171>1E1L1S1f1v1
+gl_bitdepth
+gl_bitdepth requires Win95 OSR2.x or WinNT 4.x
+gl_driver
+gl_ext_swapinterval
+gl_mode
+glPassThrough
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+...using gl_bitdepth of %d
+vid_ref
+wglSwapIntervalEXT
+=== ref_gl_amd.dll 283648 4dd5b1167b6a6c30f85d68c1630b1fdc
+gl_bitdepth
+gl_bitdepth requires Win95 OSR2.x or WinNT 4.x
+gl_driver
+gl_ext_swapinterval
+gl_mode
+glPassThrough
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+...using gl_bitdepth of %d
+vid_ref
+wglSwapIntervalEXT
+=== ref_soft_real.dll 262144 d5320ca507e03fa7f6684727c1537784
+DDERR_WASSTILLDRAWING
+sw_mode
+=== 3dfxgl.dll 137728 226edb2549982e019c8d8246990da448
+3Dfx Interactive Inc.
+3Dfx Interactive Voodoo^2(tm)
+3Dfx Interactive Voodoo Rush(tm)
+3Dfx Interactive Voodoo(tm)
+3DFX_set_global_palette
+3DFX_set_global_palette WGL_EXT_swap_control GL_EXT_paletted_texture GL_EXT_shared_texture_palette 
+3DFX_set_global_palette WGL_EXT_swap_control GL_EXT_paletted_texture GL_EXT_shared_texture_palette GL_SGIS_multitexture 
+gl3DfxNullExt
+glPassThrough
+_grSstControl@4
+_grSstIdle@0
+_grSstOrigin@4
+_grSstPerfStats@4
+_grSstQueryHardware@4
+_grSstResetPerfStats@0
+_grSstSelect@4
+_grSstWinClose@0
+_grSstWinOpen@28
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT

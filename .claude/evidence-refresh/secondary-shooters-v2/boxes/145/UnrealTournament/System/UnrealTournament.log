@@ -1,0 +1,102 @@
+﻿Log: Log file open, 09/29/26 00:52:45
+Init: Name subsystem initialized
+Init: Version: 469
+Init: Revision: e (Release)
+Init: Compiled: Nov  6 2025 17:38:02
+Init: Command line: 
+Init: Base directory: C:\GAMES\UnrealTournament\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Log: Enabling Data Executing Prevention
+Init: Computer: DELL
+Init: User: voidsstr
+Init: Memory total: Phys=3396536K Pagef=4194303K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Page size=4096, Processors=4
+Init: CPU Detected:         Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz (GenuineIntel)
+Init: CPU Features: INVARIANT_TSC CMov FPU RDTSC PAE MMX SSE SSE2 SSE3 SSSE3 SSE4_1 SSE4_2 AVX
+Init: Timer Frequency=3665.454080 MHz - Timing Source = QPC
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Enhanced Pointer Precision Disabled
+Init: Initializing DirectDraw
+Init: DirectDraw drivers detected:
+Init:    display (Primary Display Driver)
+Init: DirectDraw: Enumerated Display Modes:
+Init: DirectDraw: Mode 640x480x8
+Init: DirectDraw: Mode 640x480x16
+Init: DirectDraw: Mode 640x480x32
+Init: DirectDraw: Mode 720x480x8
+Init: DirectDraw: Mode 720x576x8
+Init: DirectDraw: Mode 800x600x8
+Init: DirectDraw: Mode 1024x768x8
+Init: DirectDraw: Mode 1152x864x8
+Init: DirectDraw: Mode 1280x720x8
+Init: DirectDraw: Mode 1280x768x8
+Init: DirectDraw: Mode 1280x800x8
+Init: DirectDraw: Mode 1280x960x8
+Init: DirectDraw: Mode 1280x1024x8
+Init: DirectDraw: Mode 1360x768x8
+Init: DirectDraw: Mode 1600x900x8
+Init: DirectDraw: Mode 1600x1024x8
+Init: DirectDraw: Mode 1680x1050x8
+Init: DirectDraw: Mode 1920x1080x8
+Init: DirectDraw: Mode 720x480x16
+Init: DirectDraw: Mode 720x576x16
+Init: DirectDraw: Mode 800x600x16
+Init: DirectDraw: Mode 1024x768x16
+Init: DirectDraw: Mode 1152x864x16
+Init: DirectDraw: Mode 1280x720x16
+Init: DirectDraw: Mode 1280x768x16
+Init: DirectDraw: Mode 1280x800x16
+Init: DirectDraw: Mode 1280x960x16
+Init: DirectDraw: Mode 1280x1024x16
+Init: DirectDraw: Mode 1360x768x16
+Init: DirectDraw: Mode 1600x900x16
+Init: DirectDraw: Mode 1600x1024x16
+Init: DirectDraw: Mode 1680x1050x16
+Init: DirectDraw: Mode 1920x1080x16
+Init: DirectDraw: Mode 720x480x32
+Init: DirectDraw: Mode 720x576x32
+Init: DirectDraw: Mode 800x600x32
+Init: DirectDraw: Mode 1024x768x32
+Init: DirectDraw: Mode 1152x864x32
+Init: DirectDraw: Mode 1280x720x32
+Init: DirectDraw: Mode 1280x768x32
+Init: DirectDraw: Mode 1280x800x32
+Init: DirectDraw: Mode 1280x960x32
+Init: DirectDraw: Mode 1280x1024x32
+Init: DirectDraw: Mode 1360x768x32
+Init: DirectDraw: Mode 1600x900x32
+Init: DirectDraw: Mode 1600x1024x32
+Init: DirectDraw: Mode 1680x1050x32
+Init: DirectDraw: Mode 1920x1080x32
+Init: DirectDraw initialized successfully
+Init: Initializing Mouse Input Handler: Win32 Cursor Input (Legacy: TRUE)
+Init: Client initialized
+Log: Bound to Render.dll
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Bound to Fire.dll
+Log: Bound to IpDrv.dll
+Log: Game class is 'UTIntro'
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Base Mutator is Entry.Mutator0
+Log: Browse: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: LoadMap: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Collecting garbage
+Log: Purging garbage
+Log: Unloading: Package Render
+Log: Garbage: objects: 17012->17009; refs: 229500
+Log: Game class is 'UTIntro'
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+ScriptLog: Base Mutator is CityIntro.Mutator0
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+L

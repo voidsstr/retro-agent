@@ -1,0 +1,77 @@
+# Re-verification disassembly (capstone), staged library files
+
+/mnt/retro-share/Files/Games-Library/UnrealGold/System/D3DDrv.dll  md5 f924e209e7bc23b90b6f0360174683d3  bytes@0x64f5 = 83 ff 10  (cmp edi,0x10 - the 16-entry GetRes cap)
+
+/mnt/retro-share/Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL  md5 6179c83ce1d7516908e5442ebfb4d154  bytes@0x62ce = 83 ff 10  (cmp edi,0x10 - the 16-entry GetRes cap)
+
+/mnt/retro-share/Files/Games-Library/UnrealTournament436/System/D3DDrv.dll  md5 dd6e3692f8ead5e1df88716024bc25d1  bytes@0x659f = 83 ff 10  (cmp edi,0x10 - the 16-entry GetRes cap)
+
+UnrealGold D3DDrv format strings: 0x1002ac14 '%ix%i', 0x1002ac24 ' %ix%i', 0x1002ac34 'GetRes'; clamp ctor 0x10001d88 mov eax,0x7fffffff -> [ebx+0x9dc]/[ebx+0x9e0]; 3dfx-only lowering at 0x1000c0c9 (640x480) / 0x1000c104 (800x600)
+UnrealGold D3DDrv mode source: IDirectDraw7::EnumDisplayModes(0, {dwSize=0x7c, dwFlags=DDSD_CAPS, ddsCaps=DDSCAPS_3DDEVICE}, &this->Modes(+0x954), cb 0x1000102d) at 0x1000acf9; IID_IDirect3D7 at 0x1001a700
+
+unreal-patch-226-final.exe embedded D3DDrv.dll at 0x11cdced: size 208896 md5 7984caa1280d74fcb6c32bfa9d1522cb bytes@0x64f5 = 83 ff 10 -> same cap
+
+## OldUnreal 469e System\D3DDrv.dll (NOT the staged renderer) md5 98145831c2ed2006c7520b723dab78f0 GetRes:
+    100074ce: 33f6                 xor esi, esi
+    100074d0: 3bb7d00d0000         cmp esi, dword ptr [edi + 0xdd0]
+    100074d6: 7d68                 jge 0x10007540
+    100074d8: 6bce7c               imul ecx, esi, 0x7c
+    100074db: 8b97cc0d0000         mov edx, dword ptr [edi + 0xdcc]
+    100074e1: 837c115410           cmp dword ptr [ecx + edx + 0x54], 0x10
+    100074e6: 7255                 jb 0x1000753d
+    100074e8: 8b44110c             mov eax, dword ptr [ecx + edx + 0xc]
+    100074ec: 660f6ec0             movd xmm0, eax
+    100074f0: f30fe6c0             cvtdq2pd xmm0, xmm0
+    100074f4: c1e81f               shr eax, 0x1f
+    100074f7: f20f5804c5200c0210   addsd xmm0, qword ptr [eax*8 + 0x10020c20]
+    10007500: 660f5ac8             cvtpd2ps xmm1, xmm0
+    10007504: 8b441108             mov eax, dword ptr [ecx + edx + 8]
+    10007508: 660f6ec0             movd xmm0, eax
+    1000750c: f30fe6c0             cvtdq2pd xmm0, xmm0
+    10007510: c1e81f               shr eax, 0x1f
+    10007513: f20f5804c5200c0210   addsd xmm0, qword ptr [eax*8 + 0x10020c20]
+    1000751c: 660f5ac0             cvtpd2ps xmm0, xmm0
+    10007520: f30f114dc8           movss dword ptr [ebp - 0x38], xmm1
+    10007525: f30f1145cc           movss dword ptr [ebp - 0x34], xmm0
+    1000752a: c745d000000000       mov dword ptr [ebp - 0x30], 0
+    10007531: 8d45c8               lea eax, [ebp - 0x38]
+    10007534: 50                   push eax
+    10007535: 8d4dd4               lea ecx, [ebp - 0x2c]
+    10007538: e813baffff           call 0x10002f50
+    1000753d: 46                   inc esi
+    1000753e: eb90                 jmp 0x100074d0
+    10007540: 33f6                 xor esi, esi
+    10007542: baf4cf0110           mov edx, 0x1001cff4
+    10007547: 8975ec               mov dword ptr [ebp - 0x14], esi
+    1000754a: 3b75d8               cmp esi, dword ptr [ebp - 0x28]
+    1000754d: 7d58                 jge 0x100075a7
+    1000754f: 8d0476               lea eax, [esi + esi*2]
+    10007552: 8b4dd4               mov ecx, dword ptr [ebp - 0x2c]
+    10007555: f30f101481           movss xmm2, dword ptr [ecx + eax*4]
+    1000755a: 660f6e874c0e0000     movd xmm0, dword ptr [edi + 0xe4c]
+    10007562: 0f5bc0               cvtdq2ps xmm0, xmm0
+    10007565: 0f2fc2               comiss xmm0, xmm2
+    10007568: 723a                 jb 0x100075a4
+    1000756a: f30f104c8104         movss xmm1, dword ptr [ecx + eax*4 + 4]
+    10007570: 660f6e87500e0000     movd xmm0, dword ptr [edi + 0xe50]
+    10007578: 0f5bc0               cvtdq2ps xmm0, xmm0
+    1000757b: 0f2fc1               comiss xmm0, xmm1
+    1000757e: 7224                 jb 0x100075a4
+    10007580: f30f2cc1             cvttss2si eax, xmm1
+    10007584: 50                   push eax
+    10007585: f30f2cc2             cvttss2si eax, xmm2
+    10007589: 50                   push eax
+    1000758a: b8e4cf0110           mov eax, 0x1001cfe4
+    1000758f: 85f6                 test esi, esi
+    10007591: 0f44c2               cmove eax, edx
+    10007594: 50                   push eax
+    10007595: 53                   push ebx
+    10007596: ff1598c00110         call dword ptr [0x1001c098]
+    1000759c: 83c410               add esp, 0x10
+    1000759f: baf4cf0110           mov edx, 0x1001cff4
+    100075a4: 46                   inc esi
+    100075a5: eba0                 jmp 0x10007547
+   -> keeps every mode with dwRGBBitCount >= 16 (jb), de-duplicates, prints ALL (loop bound = count), clamps W/H to [this+0xe4c]/[this+0xe50]; no 16-entry cap
+
+## OldUnreal 469e System\WinDrv.dll (md5 4ebaeababba96725fb28f59fd9ca2e79) built-in windowed-mode table at file 0x31a10:
+   320x240 384x288 400x300 512x384 640x360 640x480 800x600 854x480 960x540 960x720 1024x576 1024x768 1138x640 1152x864 1280x720 1280x800 1280x960 1280x1024 1344x750 1366x768 1400x1050 1440x1080 1600x900 1600x1200 1600x1280 1680x1050 1792x1344 1800x1400 1856x1392 1920x1080 1920x1200 1920x1280 1920x1440 2048x1152 2048x1280 2048x1536 2560x1440 2560x1600 2560x2048 2576x1450 2800x2100 2880x1620 2880x1800 3200x1800 3200x2048 3200x2400 3840x2160 3840x2400 4096x2304 4480x2520 5120x2880 6016x3384 8192x4608 15360x8640 268582256x0 16776963x0 268582272x4 16776963x0 268582288x8 -2130706685x0

@@ -1,0 +1,47 @@
+# GLQUAKE.EXE (md5 bcf40493)
+## VID_SetFullDIBMode: [0x8094a0]=leavecurrentmode (-current) skips the CDS entirely; dmFields 0x1c0000 (no DM_DISPLAYFREQUENCY); push 4 = CDS_FULLSCREEN
+  0x414470: a1a0948000               mov eax, dword ptr [0x8094a0]
+  0x414475: 83ec10                   sub esp, 0x10
+  0x414478: 85c0                     test eax, eax
+  0x41447a: 56                       push esi
+  0x41447b: 8b742418                 mov esi, dword ptr [esp + 0x18]
+  0x41447f: 57                       push edi
+  0x414480: 7565                     jne 0x4144e7
+  0x414482: 8d0476                   lea eax, [esi + esi*2]
+  0x414485: 6a04                     push 4
+  0x414487: 68d8938000               push 0x8093d8
+  0x41448c: c7050094800000001c00     mov dword ptr [0x809400], 0x1c0000
+  0x414496: 8d0486                   lea eax, [esi + eax*4]
+  0x414499: 66c705fc9380009c00       mov word ptr [0x8093fc], 0x9c
+  0x4144a2: c1e002                   shl eax, 2
+  0x4144a5: 8b88d08d8000             mov ecx, dword ptr [eax + 0x808dd0]
+  0x4144ab: 8b90bc8d8000             mov edx, dword ptr [eax + 0x808dbc]
+  0x4144b1: 890d40948000             mov dword ptr [0x809440], ecx
+  0x4144b7: 8b88d48d8000             mov ecx, dword ptr [eax + 0x808dd4]
+  0x4144bd: 8b80c08d8000             mov eax, dword ptr [eax + 0x808dc0]
+  0x4144c3: d3e2                     shl edx, cl
+  0x4144c5: a348948000               mov dword ptr [0x809448], eax
+  0x4144ca: 891544948000             mov dword ptr [0x809444], edx
+  0x4144d0: ff150886d500             call dword ptr [0xd58608]
+  0x4144d6: 85c0                     test eax, eax
+## VID_InitFullDIB: bpp>=15, w/h <= 10000 (0x2710), list cap 30 (0x1e); CDS_TEST|CDS_FULLSCREEN (push 6), dmFields 0x1c0000
+  0x41584b: 8b842484000000           mov eax, dword ptr [esp + 0x84]
+  0x415852: 83f80f                   cmp eax, 0xf
+  0x415855: 0f8291010000             jb 0x4159ec
+  0x41585b: 8b8c2488000000           mov ecx, dword ptr [esp + 0x88]
+  0x415862: b810270000               mov eax, 0x2710
+  0x415867: 3bc8                     cmp ecx, eax
+  0x415869: 0f877d010000             ja 0x4159ec
+  0x41586f: 3984248c000000           cmp dword ptr [esp + 0x8c], eax
+  0x415876: 0f8770010000             ja 0x4159ec
+  0x41587c: a1d0938000               mov eax, dword ptr [0x8093d0]
+  0x415881: 83f81e                   cmp eax, 0x1e
+  0x415884: 0f8d67010000             jge 0x4159f1
+  0x41588a: 8d54241c                 lea edx, [esp + 0x1c]
+  0x41588e: 6a06                     push 6
+  0x415890: 52                       push edx
+  0x415891: c744244c00001c00         mov dword ptr [esp + 0x4c], 0x1c0000
+  0x415899: ff150886d500             call dword ptr [0xd58608]
+  0x41589f: 85c0                     test eax, eax
+  0x4158a1: 0f8545010000             jne 0x4159ec
+  0x4158a7: a1d0938000               mov eax, dword ptr [0x8093d0]

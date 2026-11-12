@@ -1,0 +1,256 @@
+Log: Log file open, 09/28/26 12:36:03
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 226
+Init: Compiled: Aug 15 2000 14:16:34
+Init: Command line: 
+Init: Base directory: C:\Games\UnrealGold\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: Memory total: Phys=261608K Pagef=634912K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=2004.553010 MHz
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI 3DNow!
+Log: Loading: Package Engine
+Log: Loading: Package Core
+Log: Bound to Galaxy.dll
+Init: Galaxy is using DirectSound
+Init: Galaxy initialized
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 0
+Init: Client initialized
+Log: Bound to Render.dll
+Log: Loading: Package Render
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Loading: Package Entry
+Log: Loading: Package PlayrShp
+Log: Loading: Package Detail
+Log: Bound to Fire.dll
+Log: Loading: Package Fire
+Log: Loading: Package UnrealI
+Log: Loading: Package UnrealShare
+Log: Game class is 'EntryGameInfo'
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is Entry.Mutator0
+DevAudio: Galaxy SetViewport: NULL
+Log: Browse: UPack.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: LoadMap: UPack.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: Loading: Package UPack
+Log: Loading: Package NaliCast
+Log: Loading: Package GenIn
+Log: Loading: Package NaliFX
+Log: Loading: Package GenFluid
+Log: Loading: Package GenFX
+Log: Loading: Package GenEarth
+Log: Loading: Package AmbAncient
+Log: Loading: Package SKYBox
+Log: Loading: Package AmbOutside
+Log: Loading: Package DoorsAnc
+Log: Loading: Package shanesky
+Log: Loading: Package shaneDAY
+Log: Loading: Package Liquids
+Log: Loading: Package flyby
+Log: Bound to UPak.dll
+Log: Loading: Package UPak
+Log: Loading: Package marine
+Log: Loading: Package UDSDemo
+Log: Loading: Package UPakFonts
+Log: Loading: Package UWindow
+Log: Loading: Package UMenu
+Log: Loading: Package UBrowser
+Log: Bound to IpDrv.dll
+Log: Loading: Package IpDrv
+Log: Collecting garbage
+Log: Purging garbage
+Log: Unloading: Package Render
+Log: Game class is 'UPakIntro'
+Log: Bringing Level UPack.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is UPack.Mutator1
+Init: Initialized moving brush tracker for Level UPack.MyLevel
+DevAudio: Galaxy SetViewport: NULL
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: Loading: Package Female1Skins
+Log: Possessed PlayerPawn: UPakFemaleOne UPack.UPakFemaleOne0
+ScriptLog: All inventory from Player is accepted
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to GlideDrv.dll
+Init: Initializing Glide...
+Init: Found Glide: 2.70 1.00.01.0106GXP
+Init: Glide info: Type=0, fbRam=60817408 fbiRev=0 nTexelfx=2 Sli=0
+Init: grSstOpen Res=0 Ref=12 Buffers=3
+Init: Glide tmu 0: tmuRev=0 tmuRam=2097152 Space=32192496
+Init: Glide tmu 1: tmuRev=0 tmuRam=2097152 Space=32192496
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Init: Game engine initialized
+Log: Startup time: 4.432111 seconds
+DevMusic: Load music: Music flyby.flyby
+ScriptLog: Creating root window: UMenu.UMenuRootWindow
+Log: Loading: Package UWindowFonts
+Log: Browse: 192.168.1.196:7807/Index.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Init: WinSock: version 1.1 (2.2), MaxSocks=32767, MaxUdp=65467
+Init: WinSock: 0
+Init: WinSock: Socket queue 32768 / 32768
+Init: WinSock: I am nsc-c543575f526 (192.168.1.124)
+DevNet: Game client on port 0, rate 2600
+DevNet: PendingLevel received: CHALLENGE VER=226 CHALLENGE=-110373079
+DevNet: PendingLevel received: USES GUID=0F95120311D1EA864544A4BF00005453 PKG=DmDeck16 FLAGS=0 SIZE=828303 GEN=1
+DevNet: PendingLevel received: USES GUID=678F6F6D11D2FEB4C000FDAAE072794F PKG=Engine FLAGS=1 SIZE=1033475 GEN=7
+DevNet: PendingLevel received: USES GUID=678F6F6C11D2FEB4C000FDAAE072794F PKG=Core FLAGS=1 SIZE=57336 GEN=7
+DevNet: PendingLevel received: USES GUID=1E90ACA711D1ED664544279700005453 PKG=DecayedS FLAGS=1 SIZE=11835011 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACA811D1ED664544279700005453 PKG=Detail FLAGS=1 SIZE=1729964 GEN=1
+DevNet: PendingLevel received: USES GUID=678F6F7011D2FEB4C000FDAAE072794F PKG=Fire FLAGS=1 SIZE=15194 GEN=7
+DevNet: PendingLevel received: USES GUID=1E90ACBE11D1ED664544279700005453 PKG=Mine FLAGS=1 SIZE=6840408 GEN=1
+DevNet: PendingLevel received: USES GUID=1A161B4345ADE82C830A4BA1169844EE PKG=UnrealI FLAGS=1 SIZE=18592658 GEN=1
+DevNet: PendingLevel received: USES GUID=A09DF82F47E765A8EAA2BF97AE9A5EF6 PKG=UnrealShare FLAGS=1 SIZE=22181012 GEN=1
+DevNet: PendingLevel received: USES GUID=A3B94EE311D1ED674544E58A00005453 PKG=Ambancient FLAGS=1 SIZE=6773021 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACA211D1ED664544279700005453 PKG=AlfaFX FLAGS=1 SIZE=7980 GEN=1
+DevNet: PendingLevel received: USES GUID=A3B94EE811D1ED674544E58A00005453 PKG=Doorsmod FLAGS=1 SIZE=2547363 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACB511D1ED664544279700005453 PKG=HubEffects FLAGS=1 SIZE=222123 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACAE11D1ED664544279700005453 PKG=genfluid FLAGS=1 SIZE=5510043 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACAF11D1ED664544279700005453 PKG=GenFX FLAGS=1 SIZE=2189510 GEN=1
+DevNet: PendingLevel received: USES GUID=A3B94EE411D1ED674544E58A00005453 PKG=AmbModern FLAGS=1 SIZE=6112404 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACAA11D1ED664544279700005453 PKG=Female1skins FLAGS=1 SIZE=886624 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACAB11D1ED664544279700005453 PKG=Female2skins FLAGS=1 SIZE=709362 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACBA11D1ED664544279700005453 PKG=Male1skins FLAGS=1 SIZE=620722 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACBB11D1ED664544279700005453 PKG=Male2skins FLAGS=1 SIZE=709358 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACBC11D1ED664544279700005453 PKG=Male3skins FLAGS=1 SIZE=797992 GEN=1
+DevNet: PendingLevel received: USES GUID=1E90ACC811D1ED664544279700005453 PKG=SkTrooperskins FLAGS=1 SIZE=266196 GEN=1
+DevNet: PendingLevel received: USES GUID=4963894511D3200D500081A5E2372404 PKG=UPak FLAGS=1 SIZE=11415303 GEN=2
+DevNet: PendingLevel received: USES GUID=0611AE3111D31C5BC00007998A79584F PKG=marine FLAGS=1 SIZE=1688796 GEN=1
+DevNet: PendingLevel received: USES GUID=4963894811D3200D500081A5E2372404 PKG=UDSDemo FLAGS=1 SIZE=413044 GEN=2
+DevNet: PendingLevel received: USES GUID=C933964211D31C7CE0707CA10000C151 PKG=UPakFonts FLAGS=1 SIZE=3325182 GEN=1
+DevNet: PendingLevel received: USES GUID=678F6F6F11D2FEB4C000FDAAE072794F PKG=UWindow FLAGS=1 SIZE=653125 GEN=7
+DevNet: PendingLevel received: USES GUID=A93CCBA011D473875000CAB29733B2DA PKG=UMenu FLAGS=1 SIZE=2065300 GEN=1
+DevNet: PendingLevel received: USES GUID=678F6F7711D2FEB4C000FDAAE072794F PKG=UBrowser FLAGS=1 SIZE=180425 GEN=7
+DevNet: PendingLevel received: USES GUID=678F6F7111D2FEB4C000FDAAE072794F PKG=IpDrv FLAGS=1 SIZE=19069 GEN=7
+DevNet: PendingLevel received: WELCOME LEVEL=DmDeck16 LONE=0
+DevNet: Welcomed by server: LEVEL=DmDeck16 LONE=0
+Log: LoadMap: 192.168.1.196:7807/DmDeck16?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Loading: Package DmDeck16
+Log: Loading: Package DecayedS
+Log: Loading: Package Mine
+Log: Loading: Package AlfaFX
+Log: Loading: Package Doorsmod
+Log: Loading: Package HubEffects
+Log: Loading: Package AmbModern
+Log: Loading: Package Female2skins
+Log: Loading: Package Male1skins
+Log: Loading: Package Male2skins
+Log: Loading: Package Male3skins
+Log: Loading: Package SkTrooperskins
+Init: Shut down moving brush tracker for Level UPack.MyLevel
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+Log: Collecting garbage
+Log: Purging garbage
+Log: Unloading: Package UPack
+Log: Unloading: Package NaliCast
+Log: Unloading: Package GenIn
+Log: Unloading: Package NaliFX
+Log: Unloading: Package GenEarth
+Log: Unloading: Package SKYBox
+Log: Unloading: Package AmbOutside
+Log: Unloading: Package DoorsAnc
+Log: Unloading: Package shanesky
+Log: Unloading: Package shaneDAY
+Log: Unloading: Package Liquids
+Log: Unloading: Package flyby
+DevMusic: Unregister music: Music flyby.flyby
+Log: Bringing Level DmDeck16.MyLevel up for play (40)...
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: Possessed PlayerPawn: UPakFemaleOne Entry.UPakFemaleOne1
+ScriptLog: All inventory from Player is accepted
+Init: Initialized moving brush tracker for Level DmDeck16.MyLevel
+DevAudio: Galaxy SetViewport: WindowsViewport0
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+ScriptWarning: UPakFemaleOne DmDeck16.UPakFemaleOne2 (Function UPak.UPakPlayer.PlayerWalking.BeginState:0012) Accessed None
+Log: Possessed PlayerPawn: UPakFemaleOne DmDeck16.UPakFemaleOne2
+Log: appRequestExit(0)
+Exit: appPreExit
+Log: Purging garbage
+Log: Unbound to Engine.dll
+Log: Unbound to Core.dll
+Log: Unbound to Window.dll
+Log: Unloading: Package Engine
+Log: Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to Galaxy.dll
+DevAudio: Galaxy SetViewport: NULL
+Exit: Galaxy shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to Render.dll
+Exit: Lighting subsystem shut down
+Exit: Rendering shut down
+Log: Unloading: Package Entry
+Log: Unloading: Package PlayrShp
+Log: Unloading: Package Detail
+Log: Unbound to Fire.dll
+Log: Unloading: Package Fire
+Log: Unloading: Package UnrealI
+Log: Unloading: Package UnrealShare
+Log: Unloading: Package GenFluid
+Log: Unloading: Package GenFX
+Log: Unloading: Package AmbAncient
+Log: Unbound to UPak.dll
+Log: Unloading: Package UPak
+Log: Unloading: Package marine
+Log: Unloading: Package UDSDemo
+Log: Unloading: Package UPakFonts
+Log: Unloading: Package UWindow
+Log: Unloading: Package UMenu
+Log: Unloading: Package UBrowser
+Log: Unbound to IpDrv.dll
+Log: Unloading: Package IpDrv
+NetComeGo: Close TcpipConnection0 09/28/26 12:37:38
+Exit: Shutting down Glide...
+Exit: Glide shut down
+Log: Unloading: Package Female1Skins
+Log: Unbound to GlideDrv.dll
+Log: Unloading: Package UWindowFonts
+Exit: WinSock shut down
+Log: Unloading: Package DmDeck16
+Log: Unloading: Package DecayedS
+Log: Unloading: Package Mine
+Log: Unloading: Package AlfaFX
+Log: Unloading: Package Doorsmod
+Log: Unloading: Package HubEffects
+Log: Unloading: Package AmbModern
+Log: Unloading: Package Female2skins
+Log: Unloading: Package Male1skins
+Log: Unloading: Package Male2skins
+Log: Unloading: Package Male3skins
+Log: Unloading: Package SkTrooperskins
+Init: Shut down moving brush tracker for Level DmDeck16.MyLevel
+Exit: Object subsystem successfully closed.
+Exit: appExit
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.966M /  0.059M
+Uninitialized: Peak Memory  36.762M /  37.762M
+Uninitialized: Allocs           1 Current /  396382 Total
+Uninitialized: Log file closed, 09/28/26 12:37:39

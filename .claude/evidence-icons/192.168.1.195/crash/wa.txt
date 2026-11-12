@@ -1,0 +1,1108 @@
+Event[0]:
+  Log Name: Application
+  Source: Microsoft-Windows-EventSystem
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 4625
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The EventSystem sub system is suppressing duplicate event log entries for a duration of 86400 seconds.  The suppression timeout can be controlled by a REG_DWORD value named SuppressDuplicateDuration under the following registry key: HKLM\Software\Microsoft\EventSystem\EventLog.
+
+Event[1]:
+  Log Name: Application
+  Source: Microsoft-Windows-WMI
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 5615
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows Management Instrumentation Service started sucessfully
+
+Event[2]:
+  Log Name: Application
+  Source: Microsoft-Windows-WMI
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 5617
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows Management Instrumentation Service subsystems initialized successfully
+
+Event[3]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[4]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2013-09-25T21:09:32.000
+  Event ID: 900
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service is starting.
+
+
+Event[5]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2013-09-25T21:09:33.000
+  Event ID: 1066
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Initialization status for service objects.
+C:\Windows\system32\sppwinob.dll, msft:spp/windowsfunctionality/agent/7.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:rm/algorithm/phone/1.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:rm/algorithm/pkey/2005, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:spp/TaskScheduler/1.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:spp/volume/services/kms/1.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:spp/volume/services/kms/licenserenewal/1.0, 0x00000000, 0x00000000
+
+
+Event[6]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2013-09-25T21:09:33.000
+  Event ID: 1033
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+These policies are being excluded since they are only defined with override-only attribute.
+Policy Names=(IIS-W3SVC-MaxConcurrentRequests) (Microsoft.Windows.Smc-Enabled) (Shell-InBoxGames-FreeCell-EnableGame) (Shell-InBoxGames-Hearts-EnableGame) (Shell-InBoxGames-Minesweeper-EnableGame) (Shell-InBoxGames-PurblePlace-EnableGame) (Shell-InBoxGames-Shanghai-EnableGame) (Shell-InBoxGames-Solitaire-EnableGame) (Shell-InBoxGames-SpiderSolitaire-EnableGame) (Shell-MultiplayerInboxGames-Backgammon-EnableGame) (Shell-MultiplayerInboxGames-Checkers-EnableGame) (Shell-MultiplayerInboxGames-Spades-EnableGame) (Shell-PremiumInBoxGames-Chess-EnableGame) (Telnet-Client-EnableTelnetClient) (Telnet-Server-EnableTelnetServer) (TiffIFilterLicensing-EnableTiffIFilter) 
+App Id=55c92734-d682-4d71-983e-d6ec3f16059f
+Sku Id=770bc271-8dc1-467d-b574-73cbacbeccd1
+
+Event[7]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2013-09-25T21:09:33.000
+  Event ID: 1003
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service has completed licensing status check.
+Application Id=55c92734-d682-4d71-983e-d6ec3f16059f
+Licensing Status=
+1: 50e329f7-a5fa-46b2-85fd-f224e5da7764, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+2: 770bc271-8dc1-467d-b574-73cbacbeccd1, 1, 0 [(0 )(1 )(2 [0x00000000, 0, 1], [(?)( 5 0x00000000 30 17040)( 1 0x00000000 0 0 msft:rm/algorithm/flags/1.0 0x00000000 0)(?)(?)(?)])]
+3: 90a61a0d-0b76-4bf1-a8b8-89061855a4c9, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+4: 9abf5984-9c16-46f2-ad1e-7fe15931a8dd, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+5: b92e9980-b9d5-4821-9c94-140f632f6312, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+6: c1027486-8ae8-4633-9cf9-9658ed80504d, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+7: d188820a-cb63-4bad-a9a2-40b843ee23b7, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+8: d8e04254-f9a5-4729-ae86-886de6aa907c, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+9: da22eadd-46dc-4056-a287-f5041c852470, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+10: e120e868-3df2-464a-95a0-b52fa5ada4bf, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+11: e838d943-63ed-4a0b-9fb1-47152908acc9, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+12: 4a8149bb-7d61-49f4-8822-82c7bf88d64b, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+13: afd5f68f-b70f-4000-a21d-28dbc8be8b07, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+
+
+
+Event[8]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2013-09-25T21:09:33.000
+  Event ID: 902
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service has started.
+6.1.7600.16385
+
+Event[9]:
+  Log Name: Application
+  Source: Microsoft-Windows-User Profiles Service
+  Date: 2013-09-25T21:09:32.244
+  Event ID: 1531
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The User Profile Service has started successfully.  
+
+
+
+Event[10]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-25T21:10:42.000
+  Event ID: 4101
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows license validated.
+
+Event[11]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-25T21:10:42.000
+  Event ID: 6000
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The winlogon notification subscriber <SessionEnv> was unavailable to handle a notification event.
+
+Event[12]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:10:42.000
+  Event ID: 9003
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager was unable to start because a composited theme is not in use
+
+Event[13]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:10:48.000
+  Event ID: 102
+  Task: General
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2668) Windows: The database engine (6.01.7600.0000) started a new instance (0).
+
+Event[14]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:10:48.000
+  Event ID: 300
+  Task: Logging/Recovery
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2668) Windows: The database engine is initiating recovery steps.
+
+Event[15]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:10:48.000
+  Event ID: 301
+  Task: Logging/Recovery
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2668) Windows: The database engine has begun replaying logfile C:\ProgramData\Microsoft\Search\Data\Applications\Windows\MSS.log.
+
+Event[16]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:10:48.000
+  Event ID: 302
+  Task: Logging/Recovery
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2668) Windows: The database engine has successfully completed recovery steps.
+
+Event[17]:
+  Log Name: Application
+  Source: Microsoft-Windows-Search
+  Date: 2013-09-25T21:10:48.000
+  Event ID: 1003
+  Task: Search service
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Search Service started.
+
+
+Event[18]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:11:16.000
+  Event ID: 9010
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+A request to disable the Desktop Window Manager was made by process (Main executable for Yuri's Revenge)
+
+Event[19]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:11:16.000
+  Event ID: 9003
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager was unable to start because a composited theme is not in use
+
+Event[20]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:11:16.000
+  Event ID: 9013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager was unable to start because composition was disabled by a running application
+
+Event[21]:
+  Log Name: Application
+  Source: SecurityCenter
+  Date: 2013-09-25T21:11:33.000
+  Event ID: 1
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Security Center Service has started.
+
+Event[22]:
+  Log Name: Application
+  Source: Microsoft-Windows-LoadPerf
+  Date: 2013-09-25T21:13:40.961
+  Event ID: 1001
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Performance counters for the WmiApRpl (WmiApRpl) service were removed successfully. The Record Data contains the new values of the system Last Counter and Last Help registry entries.
+
+Event[23]:
+  Log Name: Application
+  Source: Microsoft-Windows-LoadPerf
+  Date: 2013-09-25T21:13:40.993
+  Event ID: 1000
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+Performance counters for the WmiApRpl (WmiApRpl) service were loaded successfully. The Record Data in the data section contains the new index values assigned to this service.
+
+Event[24]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:15:33.000
+  Event ID: 9003
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager was unable to start because a composited theme is not in use
+
+Event[25]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:15:33.000
+  Event ID: 9013
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager was unable to start because composition was disabled by a running application
+
+Event[26]:
+  Log Name: Application
+  Source: Microsoft-Windows-EventSystem
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 4625
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The EventSystem sub system is suppressing duplicate event log entries for a duration of 86400 seconds.  The suppression timeout can be controlled by a REG_DWORD value named SuppressDuplicateDuration under the following registry key: HKLM\Software\Microsoft\EventSystem\EventLog.
+
+Event[27]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 4101
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows license validated.
+
+Event[28]:
+  Log Name: Application
+  Source: Microsoft-Windows-WMI
+  Date: 2013-09-25T21:45:17.000
+  Event ID: 5615
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows Management Instrumentation Service started sucessfully
+
+Event[29]:
+  Log Name: Application
+  Source: Microsoft-Windows-WMI
+  Date: 2013-09-25T21:45:18.000
+  Event ID: 5617
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows Management Instrumentation Service subsystems initialized successfully
+
+Event[30]:
+  Log Name: Application
+  Source: Microsoft-Windows-User Profiles Service
+  Date: 2013-09-25T21:45:17.368
+  Event ID: 1531
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The User Profile Service has started successfully.  
+
+
+
+Event[31]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2013-09-25T21:45:20.000
+  Event ID: 6000
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The winlogon notification subscriber <SessionEnv> was unavailable to handle a notification event.
+
+Event[32]:
+  Log Name: Application
+  Source: Desktop Window Manager
+  Date: 2013-09-25T21:45:20.000
+  Event ID: 9003
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Desktop Window Manager was unable to start because a composited theme is not in use
+
+Event[33]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:45:26.000
+  Event ID: 102
+  Task: General
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2944) Windows: The database engine (6.01.7600.0000) started a new instance (0).
+
+Event[34]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:45:26.000
+  Event ID: 300
+  Task: Logging/Recovery
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2944) Windows: The database engine is initiating recovery steps.
+
+Event[35]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:45:26.000
+  Event ID: 301
+  Task: Logging/Recovery
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2944) Windows: The database engine has begun replaying logfile C:\ProgramData\Microsoft\Search\Data\Applications\Windows\MSS.log.
+
+Event[36]:
+  Log Name: Application
+  Source: ESENT
+  Date: 2013-09-25T21:45:26.000
+  Event ID: 302
+  Task: Logging/Recovery
+  Level: Information
+  Opcode: Info
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows (2944) Windows: The database engine has successfully completed recovery steps.
+
+Event[37]:
+  Log Name: Application
+  Source: Microsoft-Windows-Search
+  Date: 2013-09-25T21:45:26.000
+  Event ID: 1003
+  Task: Search service
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Windows Search Service started.
+
+
+Event[38]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-26T23:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[39]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[40]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[41]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[42]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T00:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[43]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T01:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[44]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T22:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[45]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T22:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[46]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-27T23:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[47]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T08:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[48]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T08:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[49]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[50]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[51]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[52]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T09:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[53]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[54]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:22:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[55]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:37:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[56]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T10:52:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[57]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T11:07:06.000
+  Event ID: 8197
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+License Activation Scheduler (sppuinotify.dll) logged the following information:
+0x80080005
+Failure displaying Software Licensing notification. The system will retry later.
+
+Event[58]:
+  Log Name: Application
+  Source: Microsoft-Windows-EventSystem
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 4625
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The EventSystem sub system is suppressing duplicate event log entries for a duration of 86400 seconds.  The suppression timeout can be controlled by a REG_DWORD value named SuppressDuplicateDuration under the following registry key: HKLM\Software\Microsoft\EventSystem\EventLog.
+
+Event[59]:
+  Log Name: Application
+  Source: Microsoft-Windows-Winlogon
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 4105
+  Task: N/A
+  Level: Warning
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows is in Notification period.
+
+Event[60]:
+  Log Name: Application
+  Source: Microsoft-Windows-WMI
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 5615
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows Management Instrumentation Service started sucessfully
+
+Event[61]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T11:15:00.000
+  Event ID: 900
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service is starting.
+
+
+Event[62]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T11:15:01.000
+  Event ID: 1066
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Initialization status for service objects.
+C:\Windows\system32\sppwinob.dll, msft:spp/windowsfunctionality/agent/7.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:rm/algorithm/phone/1.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:rm/algorithm/pkey/2005, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:spp/TaskScheduler/1.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:spp/volume/services/kms/1.0, 0x00000000, 0x00000000
+C:\Windows\system32\sppobjs.dll, msft:spp/volume/services/kms/licenserenewal/1.0, 0x00000000, 0x00000000
+
+
+Event[63]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T11:15:01.000
+  Event ID: 1003
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service has completed licensing status check.
+Application Id=55c92734-d682-4d71-983e-d6ec3f16059f
+Licensing Status=
+1: 50e329f7-a5fa-46b2-85fd-f224e5da7764, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+2: 770bc271-8dc1-467d-b574-73cbacbeccd1, 1, 1 [(0 )(1 )(2 [0x00000000, 0, 0], [( 5 0xC004F009 30 0)( 5 0xC004F009 30 0)( 1 0x00000000 0 0 msft:rm/algorithm/flags/1.0 0x00000000 0)(?)(?)( 9 0x00000000 0xC004F009)])]
+3: 90a61a0d-0b76-4bf1-a8b8-89061855a4c9, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+4: 9abf5984-9c16-46f2-ad1e-7fe15931a8dd, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+5: b92e9980-b9d5-4821-9c94-140f632f6312, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+6: c1027486-8ae8-4633-9cf9-9658ed80504d, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+7: d188820a-cb63-4bad-a9a2-40b843ee23b7, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+8: d8e04254-f9a5-4729-ae86-886de6aa907c, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+9: da22eadd-46dc-4056-a287-f5041c852470, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+10: e120e868-3df2-464a-95a0-b52fa5ada4bf, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+11: e838d943-63ed-4a0b-9fb1-47152908acc9, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+12: 4a8149bb-7d61-49f4-8822-82c7bf88d64b, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+13: afd5f68f-b70f-4000-a21d-28dbc8be8b07, 1, 0 [(0 [0xC004F014, 0, 0], [(?)(?)(?)(?)(?)(?)])(1 )(2 )]
+
+
+
+Event[64]:
+  Log Name: Application
+  Source: Microsoft-Windows-Security-SPP
+  Date: 2026-09-28T11:15:01.000
+  Event ID: 902
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+The Software Protection service has started.
+6.1.7600.16385
+
+Event[65]:
+  Log Name: Application
+  Source: Microsoft-Windows-WMI
+  Date: 2026-09-28T11:15:01.000
+  Event ID: 5617
+  Task: N/A
+  Level: Information
+  Opcode: N/A
+  Keyword: Classic
+  User: N/A
+  User Name: N/A
+  Computer: admin-PC
+  Description: 
+Windows Management Instrumentation Service subsystems initialized successfully
+
+Event[66]:
+  Log Name: Application
+  Source: Microsoft-Windows-User Profiles Service
+  Date: 2026-09-28T11:15:00.244
+  Event ID: 1531
+  Task: N/A
+  Level: Information
+  Opcode: Info
+  Keyword: N/A
+  User: S-1-5-18
+  User Name: NT AUTHORITY\SYSTEM
+  Computer: admin-PC
+  Description: 
+The User Profile Service has started successfully.  
+
+
+

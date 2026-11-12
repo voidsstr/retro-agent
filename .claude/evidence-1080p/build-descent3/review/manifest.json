@@ -1,0 +1,24 @@
+{
+  "key": "descent3",
+  "title": "Descent3",
+  "built": "2026-09-29T04:28:12-0400",
+  "target_game_window": [
+    4096,
+    4096
+  ],
+  "outputs": [
+    {
+      "rel": "sdf.plt",
+      "share_path": "Files/Games-Library/Descent3/sdf.plt",
+      "local_path": "/home/voidsstr/.retro-fleet/patch-out/descent3/Descent3/sdf.plt",
+      "md5": "a42937534d704dce2374df0a0deea849",
+      "size": 1770,
+      "original_md5": "b03f1b0f19e6d430f3d64b8c426f4da6",
+      "original_size": 1770,
+      "original_local_copy": "/home/voidsstr/.retro-fleet/patch-out/descent3/originals/Descent3/sdf.plt",
+      "backup_share_path": "Files/Games-Library/_patches/Descent3/originals-2026-09-29/sdf.plt",
+      "built_from": "the live staged file (still the original)",
+      "change": "int32 game_window_w/h at 0x1F/0x23: 640/480 -> 4096/4096"
+    }
+  ]
+}

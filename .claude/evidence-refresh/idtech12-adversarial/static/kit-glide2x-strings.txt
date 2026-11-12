@@ -1,0 +1,2113 @@
+!This program cannot be run in DOS mode.
+.text
+`.rdata
+@.data
+.idata
+.rsrc
+@.reloc
+l$$;
+j9h0
+]_^[
+l$$;
+jRh@
+]_^[
+\$$;
+jkhP
+]_^[
+L$ SV;
+\$$B
+]_^[
+\$$;
+]_^[
+t$$;
+]_^[
+L$ SV;
+\$$B
+]_^[
+T$ W
+D$,U
+jdPU
+D$ Q
+L$HR
+QRhx
+D$@3
+]_^[
+SVW3
+D$ +
+T$|QR
+]_^[
+jdPW
+]_^[
+]_^[
+]_^[
+D$$+
+]_^[
+SVWU
+D$(+
+]_^[
+SVWUj?
+]_^[
+SVWUj?
+]_^[
+]_^[
+j@j@j
+j j h
+WU~4f
+]_^[
+]_^[
+]_^[
+T$$j
+]_^[
+Z4^[
+|$PU
+D$TPts
+]_^[
+T$Lj
+]_^[
+SVWU3
+D$(PS
+D$(PS
+]_^[
+SVWU
+]_^[
+PQh4
+QRhP
+]_^[
+]_^[
+9>|H
+L$$PWUQ
+]_^[
+RSQP
+D$(SUP
+D$ R
+T$0RQ
+L$0QP
+\$$+
+WVh`
+WVhl
+]_^[
+D$8S
+T$@V
+L$LU3
+D$0P
+]_^[
+]_^[
+T$@SR
+L$TP
+L$`I
+L$\I
+L$XI
+q0^[
+SVWU
+PVUF
+]_^[
+SVWU
+N@PRQj
+\$(RS
+FDQP
+]_^[
+$SVWU
+L$<PQR
+T$,%
+D$8QRP
+T$<QRP
+]_^[
+D$8QRP
+L$8PRQ
+8]_^[
+@VWU
+\$ ;
+T$ ]_
+]_^[
+\$$Q
+]_^[
+]_^[
+VWHU
+<G;|$
+]_^[
+]_^[
+|$ U
+]@_^
+D$ SV
+D$0r
+]_^[
+D$ SV
+D$0+
+D$0r
+]_^[
+SVWU
+]_^[
+4SVW
+D$HP
+D$<%
+L$,3
++L$ 
+D$,;
+L$(3
+1]_^[
+T$,U
+|$(P
+D$0Q
+\$,RPWS
+]_^[
+SVWU
+]_^[
+2]^[
+>_^[
+8_^[
+VWU3
+]_^[
+VWU3
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+SVWU
+t-h|
+]_^[
+]_^[
+]_^[
+]_^[
+\$TWU
+D$4V
+D$Xj
+T$d+
+D$<+
+D$<+
+D$PPj
+]_^[
+\$(PS
+T$,RVQPj
+$_^[
+D$(U
+D$,j
+T$PQ
+D$@+
+D$PPj
+D$0]_^[
+L$TR
+WPRQ
+D$(Pj
+D$ Pj
+T$,Q
+l$0P
+]_^[
+L$$Q
+]_^[
+SVHW
+*]_^[
+D$$S
+D$4@
+D$4P
+]_^[
+]_^[
+SVWU
+.]_^[
+D$ P
+]_^[
+D$0RP
+D$ P
+]_^[
+SVWU
+L$$P
+L$ RPj
+L$$P
+L$ RPj
+L$$P
+L$ RPj
+L$$P
+L$ RPj
+]_^[
+L$(@
+\$$+
+0]_^[
+t$ WU
+D$,+
+D$,;
+D$,;
+D$,;
+*]_^[
+L$4P
+D$,QRPP
+T$0Q
+l$0QRUS
+L$D+L$@A
+L$<Q
+L$HQURW
+]@_^
+(SVW
+D$PS
+L$LPQQ
+D$LU
+L$LS
+T$HPQR
+T$|PR
+D$$h
+L$t;
+L$`;
+]@_^
+t$$U
+D$ PS
+]_^[
+D$$+
+T$ ]_^[
+VWSU
+GenuuS
+ineIuK
+nteluC
+][_^
+Authu
+entiu
+cAMDth
+Cyriu
+xInsu
+tead
+Cent
+aurH
+auls
+|$(+
+nd$ 
+]_^[
+VWSU
+VWSU
+SWQR
+uDUj
+]_^[
+D$ WUP
+]_^[
+SVWUt
+]_^[
+]_^[
+SVWU
+]_^[
+|$ V
+L$(F
+]_^[
+D$$]_
+D$$]_
+SVWU
+]_^[
+l$,W
+t MA
+]_^[
+D$(]
+VWU3
+]_^[
+]_^[
+SVWj
+@SVW
+@Pht
+<SVW
+,SVW
+Ahh@
+`PhP
+@(Ph
+@`Ph
+@ Ph
+@hPh@
+SVWhd
+SVWhl
+@Ph,	
+Ph0	
+Ph4	
+@PhD	
+@PhL	
+PhP	
+@Phd	
+Phl	
+Pht	
+Ph|	
+tSVW
+f<-u
+PQh,
+]_^[
+PQh<
+$?<?
+E Ph
+hZZZ
+\SVW
+A(;E
+A(h0
+@0Ph
+@<PhD 
+PhH!
+Ph`$
+SVWh
+SVWh
+$hH&
+,SVW
+Phh*
+PhD+
+xSVW
+I(9H(
+IL9HL
+Ph0-
+Phl-
+@<Ph
+Ph(.
+Phl.
+Phl/
+PhP0
+Id9Hd
+Ih9Hh
+SVWh
+Ph@2
+tK@V
+SVW3
+PUQR
+PUQR
+PUQR
+PUQR
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+v Vhp
+t$ P
+L$ V
+D$ Q
+T$ P
+VRPQ
+VRPQ
+VRPQ
+T$$^
+D$ ;
+D$ ;
+D$ ;
+]_^[
+Ph,8
+SVWh
+SVWh
+SVWh|9
+ SVW
+@dPh`:
+8SVW
+LSVW
+SVWj
+ SVW
+SVWj
+L$0VW3
+T$4PQR
+]_^[
+L$8PQ
+]_^[
+L$$@Q
+]_^[
+t$$WU3
+]_^[
+T$0PQR
+T$4PRQ
+L$8Q
+4SVW
+T$$S
+D$0Q
+D$0Q
+\$(j
+rdht;
+Pj	Q
+]_^[
+]_^[
+]_^[
+^;\$
+D$(]_^[
+t$$]_^[
+t$$]_^[
+t$$]_^[
+]_^[
+]_^[
+L$,V
+T$0RP
+]_^[
+]_^[
+u	Wj
+u"WSV
+]_^[
+SVWU
+]_^[
+]_^[
+J#D$
+~*SP
+SVW3
+]_^[
+L$,V
+T$,Q
+VWh(<
+PQh(<
+^_[3
+SVWUt3
+80t@
+]_^[
+SVWUt3
+0000
+]_^[
+SVWU
+]_^[
+D$ PWVU
+]_^[
+SVWU
+]_^[
+\$hWU
+L$ UP
+t$(3
+D$ ~
+D$$P
+L$ 3
+Mwa3
+84u7
+D$p-
+D$@U
+D$@U
+D$HP
+D$ d
+|$P3
+|$ {u
+D$[ 
+D$(8T$
+:T$Dw*
+D<P8T$Ds
+|$ {u
+|$,U
+L$ S
+P2D$8
+;|$,
+|$ c
+L$,t
++u Nu
+|$ xt
+D$ o
+D$$x
+|$ xuY
+|$ ou"
+D$4PR
+D$@PQ
+t	Nu
+|$ xtM
+|$ ptF
+|$ ou
+t	Nu
+|$ Fu
+L$,t
+9%u(
+]_^[
+D$H]_^[
+D$H]_^[
+]_^[
+D$ h
+]_^[
+D$$3
+																								
+													
+													
+										
+					
+SVWU
+]_^[
+]_^[
+.;|$(u
+D$$j
+G;t$
++|$(
+]_^[
+]_^[
+DSVWUh
+]_^[
+SVWUul
+]_^[
+]_^[
+]_^[
+]_^[
+v"SP
+v"SP
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+ _^[
+D$$]_^[
+D$\P
+D$D'
+|$ WRQP
+WRQP
+T$,~
+T$XP
+L$\RQ
+D$XP
+D$XP
+|$X-u
+D$0+
++D$4
+D$(u
+T$(PQRj 
+T$4P
+T$(PQRj0
+D$ P
+PQWR
+T$(PQRj 
+]_^[
+]_^[
+SVW3
+=t=Q
+]_^[
+>"tF
+>"t0
+>"u$
+T$ ]_^[
+SVWUP
+;-,K
+]_^[
+]_^[
+]_^[
+]_^[
+SVW3
+]_^[
+]_^[
+USVWj
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+VWU9
+]_^[
+IQRV
+]_^[
+w?95
+SVW3
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+WUuOj
+]_^[
+VRPQ
+]_^[
+9|$,u	
+L$0j
+VPj	Q
+]_^[
+]_^[
+L$0SVPj
+USPQ
+PUSQR
+]_^[
+WUSPQ
+D$(j
+D$4j
+VWh 
+L$4P
+PVWh 
+]_^[
+SVWUuL
+]_^[
+PSQR
+]_^[
+\$(;
+D$ j
+L$ j
+PQj	S
+t>Uj
+D$ U
+L$ VPQj
+L$$QP
+D$ VP
+]_^[
+SVWU
+t$ ;
+]_^[
+L$$+
+D$$j
+D$ ;
+]_^[
+]_^[
+D$ ]+
+t$$W3
+WWWWVPQ
+SVWU
+]_^[
+]_^[
+]_^[
+0FHu
+>9u	
+u%fN
+]_^[
+]_^[
+~/;=
+QVj	R
+@PQj
+Vj	Q
+t$0U
+#D$<
+L$$U
+D$$Q
+L$@RP
+]_^[
+]_^[
+]_^[
+u%SW
+]_^[
+]_^[
+]_^[
+uo9t$
+D$.%
+D$ %
+D$.%
+D$ %
+t$lW
+D$8S
+L$ Qh 
+SVW3
+95PP
+PQRV
+tzVS
+GIt%
+t/Ku
+SVWUu&j
+\$<US
+]_^[
+|$DVW
+D$8V
+L$8WUSPQ
+]_^[
+9D$Lu	
+]_^[
+]_^[
+]_^[
+L$LPQ
+]_^[
+]_^[
+D$"t
+]_^[
+]_^[
+]_^[
+D$"t
+]_^[
+]_^[
+D$Lj
+USj	P
+]_^[
+]_^[
+T$LPQUSj
+D$Lj
+VWj	P
+L$LSPVWj
+L$ P
+D$DR
+L$DPQ
+]_^[
+SVWU
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+]_^[
+l$<3
+|$43
+D$SM
+T$<PQR
++|$|
+L$XPWQ
+L$ff
+L$<f
+D$hf
+D$$]_^[
+t$ Wf
+]_^[
+D$+?f
+L$Df
+]_^[
+D$C@u.
+]_^[
+L$,C
+KK<5|7;
+]_^[
+SVW3
+=};j
+]_^[
+]_^[
+D$( t
+f#T$
+f#D$
+]_^[
+D$ P
+]_^[
+T$ PQR
+VUPQ
+D$ SP
+]_^[
+]_^[
+SVWu
+t	WP
+t$(Wf
+T$4f
+>_^[
+]_^[
++D$ 
+T$4f
+D$$f
+L$(u
+f9D$
+SVWU3
+]_^[
+]_^[
+@Iff
+IsTNT
+kernel32.dll
+?IsProcessorFeaturePresent
+KERNEL32
+e+000
+(null)
+ (8PX
+700WP
+`h````
+ppxxxx
+runtime error 
+TLOSS error
+SING error
+DOMAIN error
+R6028
+- unable to initialize heap
+R6027
+- not enough space for lowio initialization
+R6026
+- not enough space for stdio initialization
+R6025
+- pure virtual function call
+R6024
+- not enough space for _onexit/atexit table
+R6019
+- unable to open console device
+R6018
+- unexpected heap error
+R6017
+- unexpected multithread lock error
+R6016
+- not enough space for thread data
+abnormal program termination
+R6009
+- not enough space for environment
+R6008
+- not enough space for arguments
+R6002
+- floating point not loaded
+Microsoft Visual C++ Runtime Library
+Runtime Error!
+Program: 
+<program name unknown>
+?GetLastActivePopup
+GetActiveWindow
+MessageBoxA
+user32.dll
+1#QNAN
+1#INF
+1#IND
+1#SNAN
+frexp
+fmod
+_hypot
+_cabs
+ldexp
+modf
+fabs
+floor
+ceil
+sqrt
+atan2
+atan
+acos
+asin
+tanh
+cosh
+sinh
+log10
+glide2x.dll
+_ConvertAndDownloadRle@64
+__pciFetchRegister@16
+__pciUpdateRegister@20
+_grAADrawLine@8
+_grAADrawPoint@4
+_grAADrawPolygon@12
+_grAADrawPolygonVertexList@8
+_grAADrawTriangle@24
+_grAlphaBlendFunction@16
+_grAlphaCombine@20
+_grAlphaControlsITRGBLighting@4
+_grAlphaTestFunction@4
+_grAlphaTestReferenceValue@4
+_grBufferClear@12
+_grBufferNumPending@0
+_grBufferSwap@4
+_grCheckForRoom@4
+_grChromakeyMode@4
+_grChromakeyValue@4
+_grClipWindow@16
+_grColorCombine@20
+_grColorMask@8
+_grConstantColorValue4@16
+_grConstantColorValue@4
+_grCullMode@4
+_grDepthBiasLevel@4
+_grDepthBufferFunction@4
+_grDepthBufferMode@4
+_grDepthMask@4
+_grDisableAllEffects@0
+_grDitherMode@4
+_grDrawLine@8
+_grDrawPlanarPolygon@12
+_grDrawPlanarPolygonVertexList@8
+_grDrawPoint@4
+_grDrawPolygon@12
+_grDrawPolygonVertexList@8
+_grDrawTriangle@12
+_grErrorSetCallback@4
+_grFogColorValue@4
+_grFogMode@4
+_grFogTable@4
+_grGammaCorrectionValue@4
+_grGlideGetState@4
+_grGlideGetVersion@4
+_grGlideInit@0
+_grGlideSetState@4
+_grGlideShamelessPlug@4
+_grGlideShutdown@0
+_grHints@8
+_grLfbConstantAlpha@4
+_grLfbConstantDepth@4
+_grLfbLock@24
+_grLfbReadRegion@28
+_grLfbUnlock@8
+_grLfbWriteColorFormat@4
+_grLfbWriteColorSwizzle@8
+_grLfbWriteRegion@32
+_grRenderBuffer@4
+_grResetTriStats@0
+_grSplash@20
+_grSstConfigPipeline@12
+_grSstControl@4
+_grSstIdle@0
+_grSstIsBusy@0
+_grSstOrigin@4
+_grSstPerfStats@4
+_grSstQueryBoards@4
+_grSstQueryHardware@4
+_grSstResetPerfStats@0
+_grSstScreenHeight@0
+_grSstScreenWidth@0
+_grSstSelect@4
+_grSstStatus@0
+_grSstVRetraceOn@0
+_grSstVidMode@8
+_grSstVideoLine@0
+_grSstWinClose@0
+_grSstWinOpen@28
+_grTexCalcMemRequired@16
+_grTexClampMode@12
+_grTexCombine@28
+_grTexCombineFunction@8
+_grTexDetailControl@16
+_grTexDownloadMipMap@16
+_grTexDownloadMipMapLevel@32
+_grTexDownloadMipMapLevelPartial@40
+_grTexDownloadTable@12
+_grTexDownloadTablePartial@20
+_grTexFilterMode@12
+_grTexLodBiasValue@8
+_grTexMaxAddress@4
+_grTexMinAddress@4
+_grTexMipMapMode@12
+_grTexMultibase@8
+_grTexMultibaseAddress@20
+_grTexNCCTable@8
+_grTexSource@16
+_grTexTextureMemRequired@8
+_grTriStats@8
+_gu3dfGetInfo@8
+_gu3dfLoad@8
+_guAADrawTriangleWithClip@12
+_guAlphaSource@4
+_guColorCombineFunction@4
+_guDrawPolygonVertexListWithClip@8
+_guDrawTriangleWithClip@12
+_guEncodeRLE16@16
+_guEndianSwapBytes@4
+_guEndianSwapWords@4
+_guFbReadRegion@24
+_guFbWriteRegion@24
+_guFogGenerateExp2@8
+_guFogGenerateExp@8
+_guFogGenerateLinear@12
+_guFogTableIndexToW@4
+_guMPDrawTriangle@12
+_guMPInit@0
+_guMPTexCombineFunction@4
+_guMPTexSource@8
+_guMovieSetName@4
+_guMovieStart@0
+_guMovieStop@0
+_guTexAllocateMemory@60
+_guTexChangeAttributes@48
+_guTexCombineFunction@8
+_guTexCreateColorMipMap@0
+_guTexDownloadMipMap@12
+_guTexDownloadMipMapLevel@12
+_guTexGetCurrentMipMap@4
+_guTexGetMipMapInfo@4
+_guTexMemQueryAvail@4
+_guTexMemReset@0
+_guTexSource@4
+_pciClose@0
+_pciDeviceExists@4
+_pciFindCard@12
+_pciFindCardMulti@16
+_pciFindCardMultiFunc@20
+_pciFindFreeMTRR@4
+_pciFindMTRRMatch@16
+_pciGetConfigData@20
+_pciGetErrorCode@0
+_pciGetErrorString@0
+_pciLinearRangeSetPermission@12
+_pciMapCard@20
+_pciMapCardMulti@24
+_pciMapPhysicalDeviceToLinear@16
+_pciMapPhysicalToLinear@12
+_pciOpen@0
+_pciOpenEx@4
+_pciOutputDebugString@4
+_pciSetConfigData@20
+_pciSetMTRR@16
+_pciSetMTRRAmdK6@16
+_pciSetPassThroughBase@8
+_pciUnmapPhysical@8
+_pioInByte@4
+_pioInLong@4
+_pioInWord@4
+_pioOutByte@8
+_pioOutLong@8
+_pioOutWord@8
+xtexdl_def.c
+xtexdl_def.c
+xtexdl_def.c
+xtexdl_def.c
+xtexdl_def.c
+xtexdl_def.c
+xtexdl_def.c
+AI44
+AI44
+RGB332
+RGB332
+RGB565
+RGB565
+ARGB8332
+ARGB8332
+ARGB1555
+ARGB1555
+AYIQ8422
+AYIQ8422
+ARGB4444
+ARGB4444
+AI88
+AI88
+AP88
+AP88
+3df v%s %s lod range: %i %i aspect ratio: %i %i
+FX_GLIDE_HW_REV
+FX_GLIDE_HW_REV
+glide2x.dll
+FX_CPU
+FX_CPU
+FX_GLIDE_BOUNDS_CHECK
+FX_GLIDE_NO_SPLASH
+FX_GLIDE_SHAMELESS_PLUG
+FX_GLIDE_IGNORE_REOPEN
+FX_GLIDE_NO_DITHER_SUB
+FX_GLIDE_LOD_DITHER
+FX_GLIDE_ALLOC_COLOR
+FX_GLIDE_ALLOC_AUX
+FX_GLIDE_LWM
+FX_GLIDE_SWAPINTERVAL
+FX_SNAPSHOT
+Voodoo
+_GlideInitEnvironment
+%s: glide2x.dll expected %s, none detected
+DLL_PROCESS_DETACH
+DLL_PROCESS_ATTACH
+DLL_THREAD_ATTACH
+DLL_THREAD_DETACH
+Unhandled message
+@#%2.56.00.0459
+GLIDE STATISTICS:
+     triangles processed: %7d       tris drawn: %7d
+            buffer swaps: %7d       tris/frame: %7d , %d
+                  points: %7d       pnts/frame: %7d
+                   lines: %7d      lines/frame: %7d
+       texture downloads: %7d    texture bytes: %7d
+       palette downloads: %7d    palette bytes: %7d
+           NCC downloads: %7d        NCC bytes: %7d
+	CommandFifo:
+		Wraps: %ld
+		Avg Drain Depth: %g
+		Stalls: %ld
+		Avg Stall Depth: %g
+FX_GLIDE_REPORT_REAL_HW
+grSstSelect:  non-existent SST
+grTexDownloadMipMap: mipmap cannot span 2 Mbyte boundary
+%s: %s.
+%s: %s.
+glide
+glide
+ASSERTION FAILED:
+	Expression:   %s
+	File:         %s
+	Line:         %d
+Command Fifo:
+	fifoPtr:    0x%X
+	fifoParams: 0x%X : (0x%X : 0x%X)
+	fifoRoom:  0x%X : (0x%X : 0x%X)
+	fifo hw: (0x%X : 0x%X) : (0x%X : 0x%X : 0x%X)
+	Status: 0x%X
+ABNORMAL TERMINATION
+guMovieStart:  unsupported
+guMovieStop:  unsupported
+guMovieSetName:  unsupported
+guTexCombineFunction:  Unsupported function
+_gumpTexCombineFunction:  TEXTURE_SUBTRACT not supported
+_gumpTexCombineFunction:  Unsupported function
+ddgump.c
+guMPDrawTriangle:  Illegal state
+ddgump.c
+ddgump.c
+ddgump.c
+ddgump.c
+ddgump.c
+ddgump.c
+gumpDrawTriangle:  GR_MPTEXCOMBINE_SUBTRACT not implemented
+gaa.c
+gaa.c
+gaa.c
+gaa.c
+gaa.c
+gdraw.c
+gdraw.c
+gdraw.c
+gdraw.c
+gdraw.c
+@#%2.56.00.0459
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+gglide.c
+Read lock failure due to existing lock
+grLfbLock
+Read lock failure due to raw triple buffer bug
+grLfbLock
+illegal buffer parameter passed
+grLfbLock
+Write failure due to existing lock
+grLfbLock
+illegal buffer parameter passed
+grLfbLock
+Lock failed because of invalid lock type.
+grLfbLock
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+glfb.c
+FX_GLIDE_BOARDID
+Undefined boardID
+FX_GLIDE_REQUIREOEMDLL
+fxoem2x.dll
+Please remove fxoem2x.dll
+fxoem2x.dll
+fxoem2x.dll
+Missing fxoem2x.dll
+_fxoemInitMapBoard@4
+_fxoemSwapControlP@4
+_fxoemSwapControlWrite@8
+_fxoemInitVideoTiming@4
+_fxoemInitSetVideo@4
+_fxoemGet@12
+_fxoemInitSetVideo@4
+gsst.c
+3dfxspl2.dll
+_fxSplashInit@24
+_fxSplashShutdown@0
+_fxSplash@20
+_fxSplashPlug@16
+_fxoemRestoreVideo@4
+_fxoemControl@4
+gsst.c
+gsst.c
+gsst.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+grTexMipMapMode:  invalid mode passed
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtex.c
+gtexdl.c
+gtexdl.c
+gtexdl.c
+gtexdl.c
+gtexdl.c
+grTexDownloadMipMapLevelPartial: mipmap level cannot span 2 Mbyte boundary
+gtexdl.c
+gtexdl.c
+grTexDownloadMipMapLevelPartial: mipmap level cannot span 2 Mbyte boundary
+gtexdl.c
+gtexdl.c
+gtexdl.c
+gtexdl.c
+gutex.c
+fifo.c
+No errors.
+WinRT initialization failure.
+Memmap VxD initialization failure.
+Mapmem driver initialization failure.
+Genport I/O initialization failure.
+No PCI Bus detected.
+PCI library not open.
+Closing unopened PCI library.
+pciGetConfigData() on unopened library.
+Device_number is out of range.
+Cannot read from a non-existant device.
+Cannot update config regs from non-existant device.
+Cannot read a WRITE_ONLY register.
+Cannot write a READ_ONLY register.
+Phar Lap returned an error trying to map memory.
+Expected VxD version V%d.%d, got V%d.%d
+Memmap returned an error trying to map memory.
+Mapmem returned an error trying to map memory.
+Winrt returned an error trying to map memory.
+Mutual exclusion prohibits this
+Expected VXD version V%d.%d, got V%d.%d
+@#%Voodoo2 InitHeaders $Revision: 1$
+@#%Voodoo2 InitCode $Revision: 1$
+SSTV2_DEVICEID
+SSTV2_DEVICEID
+SSTV2_NOREMAP
+SSTV2_NOREMAP
+sst1Init Routines
+Voodoo2 InitCode $Revision: 1$
+: %s
+sst1InitMapBoard(): BoardsInSystem = %d
+SSTV2_SWAPBOARDS
+sst1InitMapBoard(): 0x%X
+pciError(): %s
+sst1InitMapBoard(): Disabling Scanline Interleaving (board #%d)...
+sst1InitMapBoard(): vAddr:0x%x pAddr:0x%x Dev:0x%x Board:%d
+SSTV2_VGA_PASS
+SSTV2_VGA_PASS
+sst1InitMapBoard(): Using SST_VGA_PASS=%d
+SSTV2_VGA_PASS
+SSTV2_IGNORE_INIT_REGISTERS
+WARNING: Ignoring sst1InitRegisters()...
+SSTV2_TEXMAP_DISABLE
+sst1InitRegisters() WARNING: Disabling texture mapping
+SSTV2_TF_FIFO_THRESH
+SSTV2_TF_FIFO_THRESH
+sst1InitRegisters(): Setting TREX-to-FBI FIFO THRESHOLD to 0x%x...
+SSTV2_PFT_CLKDEL
+SSTV2_PFT_CLKDEL
+sst1InitRegisters(): Setting PRELIM FT-CLK delay to 0x%x...
+sst1InitRegisters(): Could not detect DAC...
+SSTV2_TREX0INIT0
+sst1InitRegisters(): Using SST_TREX0INIT0 environment variable
+SSTV2_TREX0INIT0
+sst1InitRegisters(): Storing TREX0INIT0=0x%x
+SSTV2_TREX0INIT1
+sst1InitRegisters(): Using SST_TREX0INIT1 environment variable
+SSTV2_TREX0INIT1
+SSTV2_PTF0_CLKDEL
+SSTV2_PTF0_CLKDEL
+sst1InitRegisters(): Storing TREX0INIT1=0x%x
+SSTV2_TREX1INIT0
+sst1InitRegisters(): Using SST_TREX1INIT0 environment variable
+SSTV2_TREX1INIT0
+sst1InitRegisters(): Storing TREX1INIT0=0x%x
+SSTV2_TREX1INIT1
+sst1InitRegisters(): Using SST_TREX1INIT1 environment variable
+SSTV2_TREX1INIT1
+SSTV2_PTF1_CLKDEL
+SSTV2_PTF1_CLKDEL
+sst1InitRegisters(): Storing TREX1INIT1=0x%x
+SSTV2_TREX2INIT0
+sst1InitRegisters(): Using SST_TREX2INIT0 environment variable
+SSTV2_TREX2INIT0
+sst1InitRegisters(): Storing TREX2INIT0=0x%x
+SSTV2_TREX2INIT1
+sst1InitRegisters(): Using SST_TREX2INIT1 environment variable
+SSTV2_TREX2INIT1
+SSTV2_PTF2_CLKDEL
+SSTV2_PTF2_CLKDEL
+sst1InitRegisters(): Storing TREX2INIT1=0x%x
+SSTV2_SLOWPCIWR
+sst1InitRegisters(): Setting up SLOW PCI Writes...
+SSTV2_FASTPCIRD
+sst1InitRegisters(): Setting up FAST PCI Reads...
+SSTV2_SLOWMEM_WTR
+sst1InitRegisters(): Running slow write-to-read memory timing...
+SSTV2_SLOWMEM_RTW
+sst1InitRegisters(): Running slow read-to-write memory timing...
+SSTV2_FASTMEM_RAS_READS
+sst1InitRegisters(): Enabling fast RAS read memory timing...
+sst1InitRegisters(): ERROR filling DeviceInfo...
+SSTV2_MEMFIFO_LFB
+SSTV2_MEMFIFO_LFB
+sst1InitRegisters(): LFB Writes go through memory FIFO...
+SSTV2_MEMFIFO_TEX
+SSTV2_MEMFIFO_TEX
+sst1InitRegisters(): TEXTURE Writes go through memory FIFO...
+sst1InitRegisters(): exiting with status %d...
+SSTV2_NOSHUTDOWN
+SSTV2_NOSHUTDOWN
+sst1InitShutdown(): Bypassing shutdown with SSTV2_NOSHUTDOWN
+SSTV2_NOSHUTDOWN
+sst1InitShutdown(): Shutting down SST-1 #%d...
+sst1InitShutdown() WARNING: sst1InitSetGrxClk failed...Continuing...
+sst1InitShutdown(): Returning with status %d...
+SSTV2_DEVICEID
+SSTV2_DEVICEID
+SSTV2_BOARDS
+SSTV2_BOARDS
+SSTV2_IGNORE_CACHING
+sst1InitCaching(): Could not set wc mtrr
+sst1InitCaching(): Could not find wc mtrr
+sst1InitCaching(): Already have wc
+sst1InitCaching(): Could not set uc mtrr
+sst1InitCaching(): Could not find uc mtrr
+sst1InitCaching(): Already have uc
+sst1InitCaching(): wc(0x%X) : uc(0x%X)
+SSTV2_IGNORE_CACHING
+SSTV2_TMU_MEMSIZE
+SSTV2_TMU_MEMSIZE
+sst1InitGetTmuMemory() ERROR: Could not detect memory size.
+SSTV2_TEXMAP_DISABLE
+SSTV2_NUM_TMUS
+SSTV2_NUM_TMUS
+ERROR:  b_sum=0x%03x  r_sum=0x%03x
+ERROR:  non-unique r/b_sum=0x%03x
+ERROR:  non-unique g_sum=0x%03x
+ERROR: readAndSum4x4 must have an even X (%d)
+SSTV2_TEXMAP_DISABLE
+SSTV2_TMUCFG
+SSTV2_TMUCFG
+ERROR: unDither: invalid color sum
+SSTV2_FBICFG
+SSTV2_FBICFG
+SSTV2_FBI_MEMSIZE
+SSTV2_FBI_MEMSIZE
+SSTV2_NODEVICEINFO
+sst1DeviceInfo: Filling info Struct with default values...
+SSTV2_FBICFG
+SSTV2_FBICFG
+SSTV2_TMUCFG
+SSTV2_TMUCFG
+SSTV2_FBI_MEMSIZE
+SSTV2_FBI_MEMSIZE
+SSTV2_TMU_MEMSIZE
+SSTV2_TMU_MEMSIZE
+sst1InitFillDeviceInfo(): Retry #%d for chip GetInfo()...
+sst1DeviceInfo: Board ID: %d
+sst1DeviceInfo: FbiConfig:0x%x, TmuConfig:0x%x
+sst1DeviceInfo: FBI Revision:%d, TMU Revison:%d, Num TMUs:%d
+sst1DeviceInfo: FBI Memory:%d, TMU[0] Memory:%d
+, TMU[1] Memory:%d
+, TMU[2] Memory:%d
+sst1DeviceInfo: Dac Type: Unknown
+sst1DeviceInfo: Dac Type: %s %s
+sst1DeviceInfo: Dac Type: 
+AT&T ATT20C409
+ICS ICS5342
+TI TVP3409
+(SLI PROXY)
+Unknown
+sst1DeviceInfo: SLI Detected:%d
+SSTV2_DEBUGDAC
+[VOODOO2]
+[DAC]
+sst1InitVoodooFile(): ERROR in [CFG] section of .ini file...
+sst1InitVoodooFile(): ERROR in [DAC] section of .ini file...
+sst1Init Routines(): Using Initialization file '%s'
+MANUFACTURER
+DEVICE
+DETECT
+SETVIDEO
+SETMEMCLK
+SETVIDEOMODE
+dacwr
+dacwrpop
+dacrdwr
+dacrd
+dacrdpush
+Software\3Dfx Interactive\Voodoo2\Glide
+Software\3Dfx Interactive\Voodoo2
+%i%n
+%i%n
+%i%n
+GDBG_FILE
+GDBG_LEVEL
+gdbg_init(): debug level = %s
+gdbg_shutdown()
+%s.%d:	
+%s error (%s): 
+DEBUG
+sst1InitClearSwapPending() WARNING: Clearing pending swapbufferCMDs...
+SSTV2_TEXMAP_DISABLE
+sst1InitResetTmus(): Reset Graphics 
+SSTV2_CMDFIFO_DIRECT
+SSTV2_CMDFIFO_NOHOLES
+sst1InitCmdFifo(): Disabling Command Fifo...
+sst1InitCmdFifo(): sst1InitCmdFifoDirect() failed...
+sst1InitCmdFifo(): sst1InitCmdFifoDirect() failed for SLI Slave...
+sst1InitCmdFifo() exiting with status %d...
+sst1InitCmdFifoDirect(): Start:0x%x bytes, Size:%d(0x%x) bytes
+sst1InitCmdFifoDirect(): DirectExec:%d, DisableHoles:%d
+sst1InitCmdFifoDirect(): pageStart:%d, pageEnd:%d
+sst1InitCmdFifoDirect(): set32Proc: 0x%X
+SSTV2_IGNORE_IDLE
+FBI Initialization Registers:
+-----------------------------
+fbiInit0:0x%08x  fbiInit1:0x%08x
+fbiInit2:0x%08x  fbiInit3:0x%08x
+fbiInit4:0x%08x  fbiInit5:0x%08x
+fbiInit6:0x%08x  fbiInit7:0x%08x
+videoDimensions:0x%08x
+FBI Command Fifo Registers:
+---------------------------
+cmdFifoBase:    0x%08x	cmdFifoBump:0x%x
+cmdFifoReadPtr: 0x%08x	cmdFifoAmin:0x%x
+cmdFifoAmax:    0x%08x	cmdFifoDepth:0x%x
+cmdFifoHoles:   0x%08x
+SSTV2_SIPROCESS_CNTR
+SSTV2_SIPROCESS_CNTR
+sst1InitMeasureSiProcess(): Using PCI Counter preload value of 0x%x...
+sst1InitInfo(): NAND-tree: %d
+sst1InitInfo(): NOR-tree : %d
+AffIB
+AffIB
+A'1bB
+AL74B
+AffIB
+AffIB
+BSSTV2_IGNORE_INIT_VIDEO
+WARNING: Ignoring sst1InitVideo()...
+sst1InitVideo(): Insufficient memory available for desired resolution...
+SSTV2_IGNORE_INIT_VIDEO
+WARNING: Ignoring sst1InitVideo()...
+SSTV2_SCREENREZ
+SSTV2_SCREENREFRESH
+sst1InitVideo(): Allocating 1 Aux Buffer for SST-1 Compatibility...
+SSTV2_ALLOC_COLOR
+SSTV2_ALLOC_COLOR
+SSTV2_ALLOC_AUX
+SSTV2_ALLOC_AUX
+sst1InitVideo(): Insufficient memory available for desired resolution.
+SSTV2_VIDEO_24BPP
+SSTV2_VIDEO_24BPP
+SSTV2_HSYNC
+SSTV2_HSYNC
+sst1InitVideo(): Using SST_HSYNC=0x%x
+SSTV2_VSYNC
+SSTV2_VSYNC
+sst1InitVideo(): Using SST_VSYNC=0x%x
+SSTV2_BACKPORCH
+SSTV2_BACKPORCH
+sst1InitVideo(): Using SST_BACKPORCH=0x%x
+SSTV2_DIMENSIONS
+SSTV2_DIMENSIONS
+sst1InitVideo(): Using SST_DIMENSIONS=0x%x
+SSTV2_MEMOFFSET
+SSTV2_MEMOFFSET
+sst1InitVideo(): Using video memOffset=0x%x
+SSTV2_TILESINX
+SSTV2_TILESINX
+sst1InitVideo(): Using video tilesInX=0x%x
+SSTV2_VFIFO_THRESH
+SSTV2_VFIFO_THRESH
+sst1InitVideo(): Overriding Default Video Fifo Threshold %d and Storing %d
+SSTV2_VFIFO_THRESH
+sst1InitVideo() Setting up video for resolution (%d, %d), Refresh:%d Hz...
+sst1InitVideo(): Video Fifo Threshold = %d
+SSTV2_MEMFIFO_LWM
+SSTV2_MEMFIFO_LWM
+SSTV2_MEMFIFO_HWM
+SSTV2_MEMFIFO_HWM
+SSTV2_PCIFIFO_LWM
+SSTV2_PCIFIFO_LWM
+sst1InitVideo(): pciFifoLwm:%d  memFifoLwm:%d  memFifoHwm:%d
+sst1InitVideo(): Allocating %d Color Buffers and %d Aux Buffer(s)...
+SSTV2_MEMFIFO
+SSTV2_MEMFIFO
+sst1InitVideo(): Invalid memFifoEntries 0x%x
+SSTV2_MEMFIFO_ENTRIES
+SSTV2_MEMFIFO_ENTRIES
+sst1InitVideo(): Enabling Memory FIFO (Entries=%d)...
+sst1InitVideo(): Setting memory FIFO LWM to 0x%x (%d)
+SSTV2_VIN_CLKDEL
+SSTV2_VIN_CLKDEL
+SSTV2_VOUT_CLKDEL
+SSTV2_VOUT_CLKDEL
+sst1InitVideo(): vInClkDel=0x%x  vOutClkDel=0x%x
+sst1InitVideo(): Setting 16BPP video mode...
+sst1InitVideo(): Setting 24BPP video mode...
+SSTV2_VIDEO_FILTER_DISABLE
+SSTV2_VIDEO_FILTER_THRESHOLD
+SSTV2_VIDEO_FILTER_THRESHOLD
+sst1InitVideo(): Setting Video Filtering Treshold to 0x%x...
+sst1InitVideo(): Disabling Video Filtering...
+sst1InitVideo() ERROR: Could not calculate clock delay values...
+SSTV2_VIDCLK2X
+SSTV2_VIDCLK2X
+sst1InitVideo() ERROR: Could not calculate clock delay values...
+SSTV2_VIDEO_NOCLEAR
+SSTV2_VIDEO_CLEARCOLOR
+SSTV2_VIDEO_CLEARCOLOR
+sst1InitVideo(): Not Clearing Frame Buffer...
+sst1InitVideo(): Monitor Detected:%d
+SSTV2_VIDEO_DISABLE
+sst1InitVideo(): Disabling video timing...
+SSTV2_IGNORE_IDLE
+sst1InitVideo(): Ignoring calls to sst1InitIdle()...
+sst1InitVideo(): Disabling video output signals for proper monitor detection...
+sst1InitVideo() exiting with status %d...
+sst1InitAllocBuffers(): Unsupported Color/Aux buffer combination (%d/%d)
+SSTV2_DEBUGDAC
+sst1InitSetVidMode(): Entered...
+SSTV2_DEBUGDAC
+sst1InitSetVidClk(): Entered...
+sst1InitSetVidClk(): Setting up %.2f MHz Video Clock...
+SSTV2_DEBUGDAC
+sst1InitSetGrxClk(): Entered...
+sst1InitVideoBorder(): Setting border color to 0x%x...
+SSTV2_SCREENREZ
+SSTV2_SCREENREZ
+SSTV2_SCREENREFRESH
+SSTV2_SCREENREFRESH
+SSTV2_REFRESH_512x384
+SSTV2_REFRESH_512x384
+SSTV2_REFRESH_640x400
+SSTV2_REFRESH_640x400
+SSTV2_REFRESH_640x480
+SSTV2_REFRESH_640x480
+SSTV2_REFRESH_800x600
+SSTV2_REFRESH_800x600
+SSTV2_REFRESH_960x720
+SSTV2_REFRESH_960x720
+SSTV2_REFRESH_1024x768
+SSTV2_REFRESH_1024x768
+sst1InitFindVideoTimingStruc(): Unsupported Resolution...
+SSTV2_MDETECT_CONST
+SSTV2_MDETECT_CONST
+sst1InitMonitorDetect(): Using value 0x%x for constant gamma value...
+SSTV2_MDETECT
+SSTV2_MDETECT
+SSTV2_IGNORE_CLKDELAYS
+sst1InitSetClkDelays() WARNING: Bypassing dynamic clock delay detection...
+SSTV2_INIT_TF2_RESET_DELAY
+SSTV2_INIT_TF1_RESET_DELAY
+SSTV2_INIT_TF0_RESET_DELAY
+sst1InitSetClkDelays() ERROR(1): Could not reset TMUs...
+sst1InitSetClkDelays() ERROR(2): Could not reset TMUs...
+SSTV2_FT_CLKDEL
+SSTV2_FT_CLKDEL
+SSTV2_TF0_CLKDEL
+SSTV2_TF0_CLKDEL
+SSTV2_TF1_CLKDEL
+SSTV2_TF1_CLKDEL
+SSTV2_TF2_CLKDEL
+SSTV2_TF2_CLKDEL
+sst1InitSetClkDelays(): Setting FBI-to-TREX clock delay to 0x%x...
+sst1InitSetClkDelays(): Setting TREX#0 TREX-to-FBI clock delay to 0x%x
+sst1InitSetClkDelays(): Setting TREX#1 TREX-to-FBI clock delay to 0x%x
+sst1InitSetClkDelays(): Setting TREX#2 TREX-to-FBI clock delay to 0x%x
+sst1InitSetClkDelays() ERROR(3): Could not reset TMUs...
+sst1InitSli() ERROR: Boards types must be identical...
+sst1InitSli() ERROR: Scanline doubling not supported with SLI...
+sst1InitSli(): Enabling Scanline Interleaving...
+SSTV2_SLISWAP
+SSTV2_SLISWAP
+sst1InitSli(): Using dac_data[0] for swapping(%d, %d)...
+sst1InitSli(): Invalid memFifoEntriesNew 0x%x
+sst1InitSli(): Allocating %d Color Buffers and %d Aux Buffer(s)...
+sst1InitSli(): Allocating Memory/Command Fifo starting at page %d...
+sst1InitSli(): Memory FIFO Entries: %d...
+SSTV2_SLIS_VOUT_CLKDEL
+SSTV2_SLIS_VOUT_CLKDEL
+SSTV2_SLIS_PVOUT_CLKDEL
+SSTV2_SLIS_PVOUT_CLKDEL
+SSTV2_SLIS_VIN_CLKDEL
+SSTV2_SLIS_VIN_CLKDEL
+sst1InitSli(): slaveVinClkdel=0x%x, slaveVOutClkDel=0x%x, slavePVOutClkDel=0x%x
+SSTV2_PCIFIFO_LWM
+SSTV2_MEMFIFO_LWM
+sst1InitSli(): Slave pciFifoLwm:%d, memFifoLwm:%d
+sst1InitSli(): Could not unReset Slave Video...
+sst1InitSli(): Could not setup SLI Slave...
+SSTV2_SLIM_VOUT_CLKDEL
+SSTV2_SLIM_VOUT_CLKDEL
+SSTV2_SLIM_PVOUT_CLKDEL
+SSTV2_SLIM_PVOUT_CLKDEL
+SSTV2_SLIM_VIN_CLKDEL
+SSTV2_SLIM_VIN_CLKDEL
+sst1InitSli(): masterVinClkdel=0x%x, masterVOutClkDel=0x%x, masterPVOutClkDel=0x%x
+SSTV2_PCIFIFO_LWM
+SSTV2_MEMFIFO_LWM
+sst1InitSli(): Master pciFifoLwm:%d, memFifoLwm:%d
+SSTV2_IGNORE_IDLE
+sst1InitSli() exiting with status %d...
+sst1InitShutdownSli(): Disabling Scanline Interleaving...
+sst1InitShutdown(): Could not disable Slave SLI...
+SSTV2_SLIDETECT
+SSTV2_SLIDETECT
+?sst1InitGammaRGB(): Setting GammaRGB = (%.2f,%.2f,%.2f)
+SSTV2_RGAMMA
+SSTV2_RGAMMA
+SSTV2_GGAMMA
+SSTV2_GGAMMA
+SSTV2_BGAMMA
+SSTV2_BGAMMA
+SSTV2_GAMMA
+SSTV2_GAMMA
+sst1InitGammaRGB() exiting with status %d...
+SSTV2_INITDEBUG
+SSTV2_INITDEBUG_FILE
+SSTV2_INITDEBUG_FILE
+SSTV2_INITDEBUG_FILE
+sst1InitPrintf(): Could not open file '%s' for logging...
+This program was only meant to be used with the 3dfx Voodoo chipset
+to correct possible pci address conflicts.
+No Voodoo chipset was detected
+Unable to find region to map conflicting board
+No conflict with the Voodoo cards was found
+FxRemap: Possible PCI conflict not with Voodoo device
+%X (%X) <-> %X:%X (%X)
+FxRemap: No entries mapped
+Remapped Voodoo Board to avoid a conflict
+Warning no known voodoo card was found
+/dS3
+Command line: improper format
+ex: fxremap.exe /f 0xC0000000
+Command line: improper format
+ex: fxremap.exe /f 0xC0000000
+Command line option /f ignored in this version
+Command line: improper format
+ex: fxremap.exe /x 0xE0000000-0xF0000000
+Command line: improper format
+ex: fxremap.exe /x 0xE0000000-0xF0000000
+Command line: improper format
+ex: fxremap.exe /x 0xE0000000-0xF0000000
+Command line: improper options specified
+Valid options are /dS3 /f /x /i
+found voodoo2 hidden sli
+SSTV2_DEBUGDAC
+dacRd(0x%x,0x%x)
+SSTV2_DEBUGDAC
+dacWr(0x%x,0x%x)
+SSTV2_DEBUGDAC
+dacRdWr(Read=0x%x)
+dacWrModPop(Stack=0x%x,Mask=0x%x)
+SSTV2_DEBUGDAC
+sst1InitDacDetect(): Entered...
+SSTV2_DEBUGDAC
+sst1InitDacDetectATT(): Entered...
+sst1InitDacDetectATT(): Exiting...
+sst1InitDacDetectATT(): Exiting...
+SSTV2_DEBUGDAC
+sst1InitDacDetectTI(): Entered...
+sst1InitDacDetectTI(): Exiting...
+sst1InitDacDetectTI(): Exiting...
+SSTV2_DEBUGDAC
+sst1InitDacDetectICS(): Entered...
+sst1InitDacDetectICS(): Exiting...
+sst1InitDacDetectICS(): Exiting...
+SSTV2_GRXCLK
+sst1InitCalcGrxClk(): Overriding default clk frequency with SST_GRXCLK
+SSTV2_GRXCLK
+sst1InitGrxClk(): Setting up %d MHz Graphics Clock...
+SSTV2_DEBUGDAC
+sst1InitSetVidClkINI(): Entered...
+sst1InitDacIndexedEnable() ERROR: Could not Initialize DAC
+@#% fxPCI for Windows NT
+\\.\GpdDev
+\\.\MAPMEM
+@#% fxPCI for Windows 9x
+\\.\FXMEMMAP.VXD
+SST_DUALHEAD
+log10
+kU'9
+HMXB
+?Zd;
+?/L[
+S;uD
+z?aUY
+D?$?
+U>c{
+zc%C1
+.:3q
+-64OS
+NKeb
+GetModuleFileNameA
+GetModuleHandleA
+GetProcAddress
+LoadLibraryA
+FreeLibrary
+GetLastError
+GetExitCodeProcess
+GetCurrentProcess
+OutputDebugStringA
+GetVersionExA
+CreateFileA
+CloseHandle
+DeviceIoControl
+KERNEL32.dll
+RegQueryValueExA
+RegCloseKey
+RegOpenKeyA
+ADVAPI32.dll
+MessageBoxA
+USER32.dll
+HeapAlloc
+ExitProcess
+TerminateProcess
+GetCommandLineA
+GetVersion
+HeapFree
+ReadFile
+SetHandleCount
+GetFileType
+GetStdHandle
+GetStartupInfoA
+HeapDestroy
+HeapCreate
+VirtualFree
+VirtualAlloc
+GetCPInfo
+GetACP
+GetOEMCP
+FreeEnvironmentStringsA
+MultiByteToWideChar
+GetEnvironmentStrings
+FreeEnvironmentStringsW
+GetEnvironmentStringsW
+WideCharToMultiByte
+WriteFile
+LCMapStringA
+LCMapStringW
+GetStringTypeA
+GetStringTypeW
+FlushFileBuffers
+SetStdHandle
+SetFilePointer
+CompareStringA
+CompareStringW
+SetEnvironmentVariableA
+SetEndOfFile
+RaiseException
+HeapReAlloc
+0t1H2
+606M6j6
+:T<r<;>B>
+2R2p2
+3$3O3
+3#4{4
+4#7?7]7v7b8m8
+8)969B9N9
+?#?O?T?{?
+0_0k0
+1*161B1w1
+1#2:2N2h2
+3"313>3M3U3
+344B4N4V4
+5K5W5w5
+6$6(6-676B6L6W6a6l6v6
+7&7+7<7P7Y7c7l7{7
+8)8>8M8
+8&949C9I9Q9`9h9r9{9
+:!:1:7:I:P:V:n:
+=5=C=H=M=R=W=\=a=f=r=
+>:>R>a>g>q>x>
+?"?/???E?K?Q?^?
+0W0|0
+4E4_4y4
+647;7
+:l:s:y:
+<#=G=|=
+?)?Z?`?h?
+#020
+1#2/2
+2Y3h354A4
+4W5a5
+8y9	:
+:3:=:K:U:k:u:
+0'030L0y0
+1/2B2X2
+3J4e5
+7\8c8
+8P9T9X9\9`9d9h9l9
+<E=Q=
+70B0
+0#1/1
+222?2
+4.4<4
+5'6O6
+747A7
+:3:k:
+;(<Z<
+<)=G=|=
+0T0t0
+1/1L1S1u1
+222J2W2
+7-7s7
+8	9o9t9
+:*:1:
+=4=8=<=@=D=e=
+Z0i0
+6&7>7h7
+=%=<=q=w=
+2+2?2[2
+; ;$;(;,;0;4;H;N;Z;m;s;{;
+;#<A<
+>Z>a>
+?Q?b?i?
+0i1W2f2
+4V5c5
+6 6$6(6,6064686<6@6D6l6	7
+;;;V;c;
+<%=1=L=X=
+p0t0x0|0
+1d1q1
+2<2Y2e2
+435G5
+5K6~6
+7Y7_7
+8	9*9\9 :,:
+;%;I;|<
+<5=P=
+3E4`4o4z4
+4%7@7H7^7k7w7
+: :*:D:a:k:
+;9;C;b;
+>,>D>_>e>j>o>u>z>
+?0?:?w?
+030O0_0s0
+1!1+1K1f1w1
+2-272N2\2
+2I3P3V3f3l3s3>4E4K4]4c4j4
+4n5u5
+636B6Z6
+7	8(8O8
+9N9T9a9r9~9
+9E:\:s:
+;/;8;>;D;J;d;w;|;
+<R<d<m<s<y<
+<9=?=E=X=
+>'>->3>9>b>h>n>t>
+>*?>?R?X?s?
+090P0
+181>1D1J1o1u1{1
+2#2:2
+494M4_4l4w4|4
+5(5-5@5Y5d5p5}5
+636B6X6]6p6
+7.7;7F7K7c7r7
+8%878
+:-:A:S:
+:Q;`;z;
+<1<]<
+=3F3k3
+4g4j5w5
+5*6I6b6g6y6~6
+607J7b7
+838J8a8x8
+909G9^9u9
+:4:K:b:
+;1;H;_;v;
+<S<]<o<
+=&=N=q=
+>/>r>~>
+5A6O6
+7.7>7Z7d7t7
+< <M<^<o<{<
+1F2X2e2~2
+2>3P3x3
+535@5N5[5g5y5
+6#6:6w6
+627h7
+8N8\8
+8p9z9
+:C:d:j:p:
+;J;z;
+='=2=K=V=[=j=r={=
+>T>o>
+?C?X?
+5'5U5~5	6$6?6^6p6
+91:E:x:
+;K;5<C=W=
+1?2c2
+3=3G3R3_3l3{3
+3L4n4!5_5
+5+6B6P6U6Z6q6
+7"787F7
+748b8|8
+8J9V9x9
+:$:/:A:
+<%=>=s=h?
+2$212P2
+2	3I3
+3K4X5d5p5
+5!6/6A6]6
+6<7K7W7
+7G8X8i8
+=2=>=Q=^=
+=\>k>
+C0P0{0
+1%121]1
+2!2&2=2a2g2m2s2
+3F3L3R3X3
+444:4@4F4n4t4z4
+63;E;
+<S=n=
+>f>z>
+?/???K?x?
+0a0w0|0
+1T1j1o1
+2!202?2K2S2
+2!3x3
+4"484=4W4m4r4
+5A6S6
+7(7?7
+:!:0:
+;$;=;H;a;u;
+<M<]<f<o<v=
+?4?@?R?
+0,0F0
+1\2J3y3
+515<5f5
+5$6M6
+7>7e7
+:U;d;v;
+<"<4<C<R<d<
+=1=J=Y=h=z=
+>=>V>e>t>
+?#?'?+?/?3?7?;???
+04090P0
+232L2^2y2
+3.3\3
+5!5<5R5W5j5
+6+6k6
+6S7l7
+8!8/888J8r8
+9-9O9X9
+9*:0:6:<:j:p:v:|:
+;W<f<
+=7=M=R=e={=
+3+363e3{3
+5#6)6/656O6
+9<9B9H9N9l9r9x9~9
+:C:I:O:U:
+=+=1=7===d=j=p=v=
+?D?J?P?V?
+1#1,1
+2#252I2N2`2t2y2
+3"3o3u3
+4%4A4R4c4
+6)6f8
+9)989B9N9Y9^9p9
+:A:L:f:x:
+:i;p;w;
+;,<3<9<R<Y<_<
+=4=;=A=[=b=h=
+>^?g?
+040=0Q0Y0b0
+1%1+1D1M1V1q142E2
+4,454m4
+5&5a5j5w5
+6/6A6L6n6u6~6
+7#7*7p7y7
+8E9N9
+:):l:
+;#;M;
+;$<)<0<_<
+>N?T?Z?`?
+00u0
+1(2N2p2
+3#4I4k4
+4Y5o5
+5 626A6}6
+7"727
+8$8F8L8W8m8r8
+9!9'9I9O9c9i9
+9$:P:
+;:;g;4<M<
+?"?I?O?U?[?
+0s1y1
+1x2~2
+2(5.545:5a5g5m5s5
+6#6)6/6!7
+;$;*;
+=J>V>\>b>h>
+?S?X?^?d?j?
+1]2d2
+4/568{9
+:#:1:R:^:h:m:
+:";3;f;u;
+;&<5<
+<*=9=g=v=
+= >&>+>6>R>e>q>
+>#?A?^?
+70C0g0s0
+1E1Y1{1
+1"585
+7J7`7!8,818>8C8
+909;9
+:$:I:d:o:u:
+:G;a;p;
+<*<=<Y<w<
+<5=_=u=
+=4>N>.?
+040k0
+5?5Z5n5
+5b6o6
+7T8d8
+9d9r9
+;Q;[;
+=&>->
+?-?6?L?
+0=2`2
+3"484z5
+8 8$8(8,8R8m8F9V9
+:(;0;J;S;h;q;
+;5<?<J<V<0=:=
+=<>B>f>z>
+?-?D?a?n?
+20373@3
+5%5,5C5I5e5l5s5
+6$6-6
+757<7D7X7
+818T8
+9#:5:
+:P>X>
+8$8(8,80848h8l8p8t8x8|8
+:<:U:
+>:>J>\>~>
+?(?R?e?o?z?
+0!0M0S0c0o0{0
+101@1M1
+2)2A2J2]2j2s2
+3A3t3
+4D4Q4
+5&5L5X5
+6!6*6I6V6n6w6
+607J7
+7	8t8
+9!989d9z9
+;;;W;z;
+<)<]<i<v<
+4%4r5
+7L7P7T7X7\7
+8%808N8
+939S9b9q9
+:,:6:F:Y:k:u:
+;";,;9;H;b;l;|;
+=#=-=
+=	>r>|>
+>)?y?
+004080<0@0
+0'111i1
+2B3M3~3
+464A4
+6N6V6e6m6
+>I?d?
+V0`0
+3J4p4t4x4|4
+505A5W6^6d6o6u6}6
+8C8J8T8^8
+9E:\:
+:M;Y;i;o;
+<-=e=
+>3?V?]?
+"0E0L0
+121/2K2|2
+2h4l4p4t4x4|4
+4<5@5D5H5L5j8o8
+9Y;r;
+<=<M<W<\<
+2O3[3h3
+4f5q5
+616D6
+7"8^8
+<*<v<
+>@>o>
+8 8$8(8,8084888<8@8D8H8L8P8T8X8\8`8d8h8l8
+<1D1L1T1\1d1l1t1|1
+$;\;
+0D1H1L1P1T1X1\1`1d1h1l1p1t1x1|1
+: :$:L<T<\<d<l<t<|<
+=N?R?V?Z?^?b?f?j?n?r?v?z?~?
+0"0&0*0.02060:0>0B0F0J0$1,141<1D1L1T1\1d1l1t1|1

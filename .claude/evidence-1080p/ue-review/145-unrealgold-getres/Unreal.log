@@ -1,0 +1,113 @@
+Log: Log file open, 09/29/26 00:50:34
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 226
+Init: Compiled: Aug 15 2000 14:16:34
+Init: Command line: 
+Init: Base directory: C:\GAMES\UnrealGold\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: DELL
+Init: User: voidsstr
+Init: Memory total: Phys=2097151K Pagef=4194303K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=3092.967202 MHz
+Init: CPU Page size=4096, Processors=4
+Init: CPU Detected: PentiumPro-class processor (GenuineIntel)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI
+Log: Loading: Package Engine
+Log: Loading: Package Core
+Log: Bound to Galaxy.dll
+Init: Galaxy is using DirectSound
+Init: Galaxy initialized
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 0
+Init: Initializing DirectDraw
+Log: DirectDraw drivers:
+Log:    display (Primary Display Driver)
+Init: DirectDraw initialized successfully
+Init: Client initialized
+Log: Bound to Render.dll
+Log: Loading: Package Render
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Loading: Package Entry
+Log: Loading: Package PlayrShp
+Log: Loading: Package Detail
+Log: Bound to Fire.dll
+Log: Loading: Package Fire
+Log: Loading: Package UnrealI
+Log: Loading: Package UnrealShare
+Log: Game class is 'EntryGameInfo'
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is Entry.Mutator0
+DevAudio: Galaxy SetViewport: NULL
+Log: Browse: Unreal.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: LoadMap: Unreal.unr?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+Log: Loading: Package Unreal
+Log: Loading: Package NaliCast
+Log: Loading: Package GenEarth
+Log: Loading: Package GenFluid
+Log: Loading: Package NALIFX
+Log: Loading: Package GenIn
+Log: Loading: Package GenFX
+Log: Loading: Package Ambancient
+Log: Loading: Package Amboutside
+Log: Loading: Package DoorsAnc
+Log: Loading: Package Liquids
+Log: Loading: Package flyby
+Log: Collecting garbage
+Log: Purging garbage
+Log: Unloading: Package Render
+Log: Game class is 'Intro'
+Log: Bringing Level Unreal.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=Player?Class=UPak.UPakFemaleOne?Skin=Female1Skins.Gina?Team=255
+ScriptLog: Difficulty 1
+ScriptLog: Remote Administration with Password 
+ScriptLog: Base Mutator is Unreal.Mutator1
+Init: Initialized moving brush tracker for Level Unreal.MyLevel
+DevAudio: Galaxy SetViewport: NULL
+Log: Bound to UPak.dll
+Log: Loading: Package UPak
+Log: Loading: Package marine
+Log: Loading: Package UDSDemo
+Log: Loading: Package UPakFonts
+Log: Loading: Package UWindow
+Log: Loading: Package UMenu
+Log: Loading: Package UBrowser
+Log: Bound to IpDrv.dll
+Log: Loading: Package IpDrv
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: Loading: Package Female1Skins
+Log: Possessed PlayerPawn: UPakFemaleOne Unreal.UPakFemaleOne0
+ScriptLog: All inventory from Player is accepted
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to D3DDrv.dll
+Init: DirectDraw drivers detected:
+Init:    display (Primary Display Driver)
+Init: D3D Device: Supports system memory DMA blts
+Init: D3D Device: No page lock required
+Log: D3D Device 511345K vram, 511234K free
+Init: Unreal 1 Direct3D support - internal revision 1.7-UT 
+Init: D3D Device: szDriver=nv4_disp.dll
+Init: D3D Device: szDescription=NVIDIA GeForce 8400GS
+Init: D3D Device: wProduct=0
+Init: D3D Device: wVersion=0
+Init: D3D Device: wSubVersion=0
+Init: D3D Device: wBuild=0
+Init: D3D Device: dwVendorId=4318
+Init: D3D Device: dwDeviceId=4291
+Init: D3D Device: dwSubSysId=4318
+Init: D3D Device: dwRevision=162
+Init: Best-match display mode: 1920x1080x32 (Error=0)
+Init: D3D Device: dwZbuffer depth: 32 

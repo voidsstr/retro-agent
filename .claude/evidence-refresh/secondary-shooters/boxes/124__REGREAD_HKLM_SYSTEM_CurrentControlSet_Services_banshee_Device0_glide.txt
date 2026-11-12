@@ -1,0 +1,2 @@
+# 192.168.1.124  REGREAD HKLM SYSTEM\CurrentControlSet\Services\banshee\Device0\glide  status=255  2026-09-29 00:34:28
+Cannot open key: error 0

@@ -1,0 +1,52 @@
+##### SiNGold/ref_gl.dll
+==== mov ebx, dword ptr [0x1202f120] at 0x12017cb1
+    0x12017c54: mov dword ptr [esp + 0x44], 0x1c0000
+    0x12017c6a: push 0
+    0x12017c77: push 0
+    0x12017c90: push 0
+    0x12017c9c: push 0
+    0x12017ca9: push 0
+ >> 0x12017cb1: mov ebx, dword ptr [0x1202f120]
+    0x12017cbe: push 4
+    0x12017cc1: call ebx
+==== call dword ptr [0x1202f120] at 0x12017e65
+    0x12017e0c: push 0
+    0x12017e1c: push 1
+    0x12017e56: push 0
+    0x12017e61: push 0
+    0x12017e63: push 0
+ >> 0x12017e65: call dword ptr [0x1202f120]
+==== call dword ptr [0x1202f120] at 0x12017f89
+ >> 0x12017f89: call dword ptr [0x1202f120]
+##### SiNGold/ref_gl_amd.dll
+==== mov ebx, dword ptr [0x12033128] at 0x120169b1
+    0x12016954: mov dword ptr [esp + 0x44], 0x1c0000
+    0x1201696a: push 0
+    0x12016977: push 0
+    0x12016990: push 0
+    0x1201699c: push 0
+    0x120169a9: push 0
+ >> 0x120169b1: mov ebx, dword ptr [0x12033128]
+    0x120169be: push 4
+    0x120169c1: call ebx
+==== call dword ptr [0x12033128] at 0x12016b65
+    0x12016b0c: push 0
+    0x12016b1c: push 1
+    0x12016b56: push 0
+    0x12016b61: push 0
+    0x12016b63: push 0
+ >> 0x12016b65: call dword ptr [0x12033128]
+==== call dword ptr [0x12033128] at 0x12016c7b
+ >> 0x12016c7b: call dword ptr [0x12033128]
+##### SoldierOfFortune/ref_gl.dll
+==== mov ebx, dword ptr [0x3002b124] at 0x3001b8ef
+    0x3001b895: or edi, 0x40000
+ >> 0x3001b8ef: mov ebx, dword ptr [0x3002b124]
+    0x3001b8fc: push 4
+    0x3001b8ff: call ebx
+==== call dword ptr [0x3002b124] at 0x3001babb
+    0x3001ba5d: push 1
+    0x3001ba6f: call ebx
+ >> 0x3001babb: call dword ptr [0x3002b124]
+==== call dword ptr [0x3002b124] at 0x3001c0bb
+ >> 0x3001c0bb: call dword ptr [0x3002b124]

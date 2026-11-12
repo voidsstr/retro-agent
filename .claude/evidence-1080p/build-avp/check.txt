@@ -1,0 +1,4 @@
+AvP check - /mnt/retro-share/Files/Games-Library/AliensVsPredator
+  to de-obfuscate: 154  original=154  patched=0  UNEXPECTED=0  missing=0
+  must stay as-is: 56  match=56  WRONG/missing=0
+  RESULT: OK

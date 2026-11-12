@@ -1,0 +1,57 @@
+=== HalfLife1/hl.exe (ascii)
+   2202 hZ-J
+   7662 hZ6J
+  2ab92 hz[J
+  33652 hZmJ
+  adb1c HzK
+  b48ec EnumDisplayMonitors
+  c5f46 QueryPerformanceFrequency
+  c6d1e ChangeDisplaySettingsA
+  ce070 No VSync Hardware
+  d1808 .?AVCRefreshDlg@@
+  d181c REFRESH_TEXT_COLOR
+  d1830 REFRESH_BG_COLOR
+  d1844 REFRESH_TITLE_COLOR
+  d2874 %d x %d %d hz
+=== HalfLife1/hl.exe (utf16)
+  dbda4 Refresh	Ctrl+R
+  dd3c6 IDS_BTN_REFRESH
+  e02a2 IDC_BTN_REFRESH
+  e05fe &Refresh list
+  e3bea Refresh Servers
+=== HalfLife1/hw.dll (ascii)
+   5e29 D$ hZ
+  3105d hZT
+  aedb2 hzJ
+  cbd74 QueryPerformanceFrequency
+  e5624 r_norefresh
+  e5858 r_glowshellfreq
+  e5cbc timerefresh
+=== HalfLife1/hw.dll (utf16)
+=== HalfLife1/sw.dll (ascii)
+  83071 hZ7
+  8ef75 hZN
+  bc980 QueryPerformanceFrequency
+  d8e14 r_glowshellfreq
+  d8e48 timerefresh
+=== HalfLife1/sw.dll (utf16)
+=== CounterStrike16/hl.exe (ascii)
+=== CounterStrike16/hl.exe (utf16)
+=== CounterStrike16/hw.dll (ascii)
+  1d4fb 5hz
+  1d534 5hz
+ 15897c QueryPerformanceFrequency
+ 158dba ChangeDisplaySettingsA
+ 176ebc r_norefresh
+ 176fd0 r_glowshellfreq
+ 177280 timerefresh
+ 17e434 -freq
+ 18cb0c -freq
+ 18cfb8 No VSync Hardware
+=== CounterStrike16/hw.dll (utf16)
+=== CounterStrike16/sw.dll (ascii)
+ 13dff6 QueryPerformanceFrequency
+ 15ed3c r_glowshellfreq
+ 15ed5c timerefresh
+ 16a7a8 No VSync Hardware
+=== CounterStrike16/sw.dll (utf16)

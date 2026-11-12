@@ -1,0 +1,15 @@
+# strings -a baseq3/pak8.pk3:vm/ui.qvm (the UI both ioquake3 1.36 and retail 1.32c load with vm_ui 2)
+1631:menu/art/player_models_ports
+2167:856x480 wide screen
+2168:2048x1536
+2169:1600x1200
+2170:1280x1024
+2171:1152x864
+2172:1024x768
+2173:960x720
+2174:800x600
+2175:640x480
+2176:512x384
+2177:400x300
+2178:320x240
+2202:r_mode

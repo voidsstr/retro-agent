@@ -1,0 +1,37 @@
+HalfLife1/hw.dll callers of ['0x100a4658'] : 1
+
+-- 10056eaa -> 100a4658
+   10056e40  mov    eax, dword ptr [esp + 4]
+   10056e44  sub    esp, 0x33c
+   10056e4a  mov    dword ptr [0x105ea044], eax
+   10056e4f  push   ebx
+   10056e50  push   ebp
+   10056e51  push   esi
+   10056e52  push   edi
+   10056e53  push   eax
+   10056e54  call   dword ptr [0x100c523c]
+   10056e5a  lea    ecx, [esp + 0xd8]
+   10056e61  mov    dword ptr [0x105ea040], eax
+   10056e66  push   ecx
+   10056e67  push   eax
+   10056e68  call   dword ptr [0x100c524c]
+   10056e6e  xor    ebx, ebx
+   10056e70  mov    edx, dword ptr [esp + 0xe0]
+   10056e77  mov    eax, dword ptr [esp + 0xe4]
+   10056e7e  and    edx, 0xffff
+   10056e84  and    eax, 0xffff
+   10056e89  push   ebx
+   10056e8a  mov    dword ptr [0x105ea038], edx
+   10056e90  mov    dword ptr [0x105ea03c], eax
+   10056e95  call   dword ptr [0x100c53b0]
+   10056e9b  test   eax, eax
+   10056e9d  jl     0x10057cbe
+   10056ea3  lea    ecx, [esp + 0x28]
+   10056ea7  push   ebx
+   10056ea8  push   ecx
+   10056ea9  push   ebx
+   10056eaa  call   0x100a4658
+   10056eaf  test   eax, eax
+   10056eb1  jl     0x10057cb8
+   10056eb7  mov    eax, dword ptr [esp + 0x28]
+   10056ebb  lea    ecx, [esp + 0xe8]

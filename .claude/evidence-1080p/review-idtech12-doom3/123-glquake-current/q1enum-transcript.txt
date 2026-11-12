@@ -1,0 +1,18 @@
+>>> WINLIST [status 0]
+{"windows":[{"hwnd":"00250034","title":"Descent 3","class":"Descent 3","rect":{"left":0,"top":0,"right":640,"bottom":480},"visible":true,"pid":1864},{"hwnd":"000500DE","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1360},{"hwnd":"0001007E","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":640,"bottom":480},"visible":true,"pid":1884}],"foreground":{"hwnd":"00250034","pid":1864,"class":"Descent 3","title":"Descent 3"}}
+>>> EXEC cmd /c start "" /D "C:\Games\Quake1" "C:\Games\Quake1\GLQUAKE.EXE" -window -width 1280 -height 960 -conwidth 1280 -conheight 960 +toggleconsole +vid_describemodes [status 0]
+
+--- sleep 9
+>>> WINLIST [status 0]
+{"windows":[{"hwnd":"00250034","title":"Descent 3","class":"Descent 3","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1864},{"hwnd":"003400F0","title":"GLQuake","class":"WinQuake","rect":{"left":160,"top":60,"right":1446,"bottom":1052},"visible":true,"pid":904},{"hwnd":"000500DE","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1360},{"hwnd":"0001007E","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":1884}],"foreground":{"hwnd":"003400F0","pid":904,"class":"WinQuake","title":"GLQuake"}}
+>>> DISPLAYCFG get [status 0]
+{"width":1920,"height":1080,"bpp":32,"refresh":60}
+>>> SCREENSHOT -> /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-idtech12-doom3/123-glquake-current/05-window-console-describemodes.png (1920, 1080)
+>>> EXEC taskkill /f /im GLQUAKE.EXE [status 0]
+SUCCESS: The process "GLQUAKE.EXE" with PID 904 has been terminated.
+
+--- sleep 2
+>>> WINLIST [status 0]
+{"windows":[{"hwnd":"00250034","title":"Descent 3","class":"Descent 3","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1864},{"hwnd":"000500DE","title":"Retro Remote Agent Version 1.91.0","class":"ConsoleWindowClass","rect":{"left":-32000,"top":-32000,"right":-31840,"bottom":-31969},"visible":true,"pid":1360},{"hwnd":"0001007E","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1920,"bottom":1080},"visible":true,"pid":1884}],"foreground":{"hwnd":"00250034","pid":1864,"class":"Descent 3","title":"Descent 3"}}
+>>> DIRLIST C:\Games\Quake1\ID1 [status 0]
+[{"name":"autoexec.cfg","is_dir":false,"size":1124,"modified":"2026-09-25 00:57:07","hidden":false,"readonly":false},{"name":"glquake","is_dir":true,"size":0,"modified":"2026-08-31 04:10:18","hidden":false,"readonly":false},{"name":"PAK0.PAK","is_dir":false,"size":18689235,"modified":"2026-08-27 16:12:33","hidden":false,"readonly":false},{"name":"PAK1.PAK","is_dir":false,"size":34257856,"modified":"2026-08-27 16:12:35","hidden":false,"readonly":false},{"name":"quake00.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:03","hidden":false,"readonly":false},{"name":"quake01.tga","is_dir":false,"size":921618,"modified":"2026-08-29 17:54:24","hidden":false,"readonly":false}]

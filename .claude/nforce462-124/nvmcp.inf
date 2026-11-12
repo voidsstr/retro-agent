@@ -1,0 +1,1256 @@
+;;*****************************************************************************
+;;*****************************************************************************
+;;
+;; nvmcp.inf
+;;
+;;
+;; Copyright (c) 2000-2003 NVIDIA Corporation.
+;;
+;;*****************************************************************************
+;;*****************************************************************************
+
+
+
+[Version]
+Signature="$CHICAGO$"
+Class=Media
+ClassGUID={4D36E96C-E325-11CE-BFC1-08002BE10318}
+provider=%MfgName%
+;LayoutFile=layout.inf, layout1.inf, layout2.inf
+DriverVer=04/13/2005,6.14.0462.0
+CatalogFile=nvmcp.cat
+
+[SourceDisksNames]
+1=%DiskDescription%,,,""
+
+[SourceDisksFiles]
+nvapu.sys=1,,
+nvmcp.sys=1,,
+nvarm.sys=1,,
+nvack.dll=1,,
+nvax9x.sys=1,,
+nvasio.dll=1,,
+nvopenal.dll=1,,
+OpenAL32.dll=1,,
+ALut.dll=1,,
+nvuaudio.exe=1,,
+nvaudio.nvu=1,,
+NVCOAD.DLL=1,,
+
+[SourceDisksFiles.x86]
+nvapu.sys=1,,
+nvmcp.sys=1,,
+nvarm.sys=1,,
+nvack.dll=1,,
+nvax.sys=1,,
+nvasio.dll=1,,
+nvopenal.dll=1,,
+OpenAL32.dll=1,,
+ALut.dll=1,,
+nvuaudio.exe=1,,
+nvaudio.nvu=1,,
+NVCOAD.DLL=1,,
+
+
+[Manufacturer]
+%MfgName%=NVIDIA
+
+
+[NVIDIA]
+; MCP-D APU
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_0c1110DE
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_0c111043
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_81A01033
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_7105147B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_7104147B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_35301462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_36701462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_37301462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_5920107D
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_1A193411
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_8131104D
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_02831014
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_05B110DE
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_01B0&SUBSYS_022CA0A0
+
+; MCP ACI and MCP-D ACI
+; %nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1 ; competing VIA generic
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_838410DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_414410DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_414c10DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_83841043
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_414c1043
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_80951043
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_81A01033
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_7105147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_7104147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_35301462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_36701462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_37301462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_20061631
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_5920107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_1A193411
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_8131104D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_536111D4
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_02831014
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_02FFA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_01B1&SUBSYS_022CA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006B&SUBSYS_0CA7105B
+
+; MCP2-T APU
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_05B210DE
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_02831014
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_59701462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_57001462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_72901462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_77701462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_79601462
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0C1110DE
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_02E0A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_02E4A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_02EDA0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_02F3A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_02F9A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0304A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0338A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0358A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_03E5A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0411A0A0
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_1c00147b
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_1c01147b
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F440147b
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_5930107D
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_593E107D
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_593F107D
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_10001695
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_10041695
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F440270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F464270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F466270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F469270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F468270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F444270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F446270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F447270F
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_82001565
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_82011565
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_90421509
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_904C1509
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_904D1509
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_921E1509
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_923D1509
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_925C1509
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F5411297
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_05311297
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_F5451297
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_A5351297
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_50111297
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_50121297
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_80951043
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0C111043
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_1C02147B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_1C03147B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_1C04147B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_1C06147B
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0C1210DE
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_01E016F3
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_100115BD
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_340117F2
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_A0001458
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_A0011458
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_A0021458
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_40011816
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_40021816
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_30011919
+%nvmcp.DeviceDesc%=nvmcp, PCI\VEN_10DE&DEV_006B&SUBSYS_0CA7105B
+
+; MCP2 ACI and MCP2-T ACI
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02831014
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_59701462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_72901462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02E0A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02E4A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02EDA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02F3A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02F9A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_0304A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_0338A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_0358A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_02FFA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_03E5A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_0411A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F440147b
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_5930107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_593E107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_593F107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_10041695
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_10001695
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F440270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F469270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F446270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F447270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_82001565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_921E1509
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F5411297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_05311297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_F5451297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_A5351297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_50111297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_50121297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_1C03147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_1C04147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_0C1210DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_A0001458
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_006A&SUBSYS_A0011458
+
+; CK8 ACI
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_0C1110DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_414410DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_0321A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_0326A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_032BA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_0368A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_2008107B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_A5501297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_A5511297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_F5851297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_75101462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_77001462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_5940107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_5941107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_10051695
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_F641270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_F642270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_004415D4
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_82001565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_30031631
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_B1201897
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00DA&SUBSYS_006d103c
+
+
+; CK8S ACI
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0C1110DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_037AA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0380A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0385A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0362A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0368A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_044FA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0453A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0481A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0482A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_0483A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_02501462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_03001462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_004415D4
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_83001565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_82011565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_83011565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_5946107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_50111297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_30111297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_50121297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_30121297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_55851297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_043FA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_10051695
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_100C1695
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_300215BD
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_16F310DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_30051919
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_30061919
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_F645270F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_92611509
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_340317F2
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_1416147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_1418147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_1C04147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_1C05147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_00EA&SUBSYS_01E016F3
+
+; MCP2-S ACI
+
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_0C1110DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_414410DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_0330A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_0333A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_02e8A0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_02FFA0A0
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_57021462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_119A1462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_55851297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_35851297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_10151297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_100f1695
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_1C07147B
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_593E107D
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_62123411
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_83001565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_008A&SUBSYS_927A1509
+
+; MCP-04 ACI
+; %nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_003A ; competing RealTek generic
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_003A&SUBSYS_83041565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_003A&SUBSYS_CB8410DE
+
+; CK8-04 ACI
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_CB8410DE
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_83011565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_83021565
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_30301297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_30351297
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_006015D4
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_006515D4
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_006615D4
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_286510F1
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_289210F1
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_289110F1
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_289510F1
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_488110F1
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_2A05103C
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_1500103C
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_123A1462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_125A1462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_100A1462
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_00161170
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_340417F2
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_47901919
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_204B161F
+%nvaci.DeviceDesc%=nvaci, PCI\VEN_10DE&DEV_0059&SUBSYS_5347108E
+
+; Other
+%nvnforce.DeviceDesc%=nvnforce, NFORCE_VAD
+%nvnforce.DeviceDesc%=nvnforce, NVAX\NFORCE_VAD
+%nvadf.DeviceDesc%=nvadf, NFORCE_VAD_FRONT
+%nvadr.DeviceDesc%=nvadr, NFORCE_VAD_REAR
+%nvadc.DeviceDesc%=nvadc, NFORCE_VAD_CLFE
+%nvads.DeviceDesc%=nvads, NFORCE_VAD_SURR
+%nvadf.DeviceDesc%=nvadf, NVAX\NFORCE_VAD_FRONT
+%nvadr.DeviceDesc%=nvadr, NVAX\NFORCE_VAD_REAR
+%nvadc.DeviceDesc%=nvadc, NVAX\NFORCE_VAD_CLFE
+%nvads.DeviceDesc%=nvads, NVAX\NFORCE_VAD_SURR
+
+
+
+;; Excluding drivers from the "Add New Hardware" list.
+[ControlFlags]
+ExcludeFromSelect=*
+
+[DestinationDirs]
+DefaultDestDir=10,system32\drivers
+nvaci.FileList=10,system32\drivers
+nvax.FileList=10,system32\drivers
+nvax9x.FileList=10,system32\drivers
+nvnforce.FileList=11
+Uninstall.CoInst.FileList=11
+Win9X.Uninstall.FileList=11
+
+[nvax9x.FileList]
+nvax9x.sys
+
+[nvax.FileList]
+nvax.sys
+
+[nvaci.FileList]
+nvarm.sys
+nvmcp.sys
+nvapu.sys
+
+[nvnforce.FileList]
+nvack.dll
+nvasio.dll
+nvopenal.dll
+OpenAL32.dll
+ALut.dll
+
+
+[Win9X.Uninstall.FileList]
+nvuaudio.exe
+nvaudio.nvu
+
+[Uninstall.CoInst.FileList]
+NVCOAD.DLL
+
+[null.FileList]
+
+
+
+;;*****************************************************************************
+;; nvaci 9x
+;;*****************************************************************************
+[nvaci]
+CopyFiles=nvax9x.FileList,nvaci.FileList,nvnforce.FileList,Win9X.Uninstall.FileList
+AlsoInstall=KS.Registration(ks.inf),WDMAUDIO.Registration(wdmaudio.inf)
+AddReg=nvaci.AddReg,for9xUpgrade.AddReg,mixer.AddReg,Uninstall.AddReg
+
+[nvaci.Services]
+AddService = nvax, 0x00000002, nvax9x.ServiceInstall
+
+[nvaci.AddReg]
+HKR,,NTMPDriver,,nvax9x.sys
+HKR,,DevLoader,,"*ntkern"
+
+[for9xUpgrade.AddReg]
+HKLM,%Run%,"nForce9xUpgrade",,"rundll32.exe nvack.dll,nForce9xUpgrade"
+
+
+
+;;*****************************************************************************
+;; nvaci NT
+;;*****************************************************************************
+[nvaci.NT]
+AddReg=mixer.AddReg
+CopyFiles=nvax.FileList,nvaci.FileList,nvnforce.FileList
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+
+[nvaci.NT.Services]
+AddService = nvax, 0x00000002, nvax.ServiceInstall
+
+[Uninstall.AddReg]
+HKLM,"Software\Microsoft\Windows\CurrentVersion\Uninstall\NVIDIA Audio Driver"
+HKLM,"Software\Microsoft\Windows\CurrentVersion\Uninstall\NVIDIA Audio Driver",DisplayName,,"NVIDIA Audio Driver"
+HKLM,"Software\Microsoft\Windows\CurrentVersion\Uninstall\NVIDIA Audio Driver",UninstallString,,"%11%\nvuAudio.exe Uninstall %11%\NvAudio.nvu,NVIDIA Audio Driver"
+
+[mixer.AddReg]
+;; The translation for the DWORD (0xWWXXYYZZ) is ZZ,YY,XX,WW.
+;; Use MixApp to get the ID and values for the control.
+;HKLM,%MixerKey%0,MixerName,,"NVIDIA(R) nForce(TM) Audio"
+;HKLM,%MixerKey%0,MixerControlID,1,31,00,00,00
+;HKLM,%MixerKey%0,MixerControlValue,1,00,80,00,00
+
+
+;;*****************************************************************************
+;; nvmcp 9x
+;;*****************************************************************************
+[nvmcp]
+CopyFiles=nvax9x.FileList,nvaci.FileList,nvnforce.FileList,Win9X.Uninstall.FileList
+AddReg=nvmcp.AddReg,ChangePath,AppHacks,Uninstall.AddReg
+
+[nvmcp.AddReg]
+HKR,,NTMPDriver,,nvax9x.sys
+HKR,,DevLoader,,"*ntkern"
+
+[nvmcp.Services]
+AddService = nvax, 0x00000002, nvax9x.ServiceInstall
+
+[ChangePath]
+; this section does nothing but it is needed to set the nvmcp path
+
+[AppHacks]
+; The following are needed for 9X/ME, but exist already in XP.
+; These handle issues with GetPosition in these broken apps.
+;
+HKLM,%AppHacks%\%AppMickeyP%,DSAPPHACKID_RETURNWRITEPOS,3,04,00,00,00
+HKLM,%AppHacks%\%AppMickeyP%,DSAPPHACKID_DEVACCEL,3,0e,00,00,00,04,00,00,00
+
+HKLM,%AppHacks%\%AppMickeyK%,DSAPPHACKID_RETURNWRITEPOS,3,04,00,00,00
+HKLM,%AppHacks%\%AppMickeyK%,DSAPPHACKID_DEVACCEL,3,0e,00,00,00,04,00,00,00
+
+HKLM,%AppHacks%\%AppMickeyT%,DSAPPHACKID_RETURNWRITEPOS,3,04,00,00,00
+HKLM,%AppHacks%\%AppMickeyT%,DSAPPHACKID_DEVACCEL,3,0e,00,00,00,04,00,00,00
+
+HKLM,%AppHacks%\%AppPitDroids%,DSAPPHACKID_RETURNWRITEPOS,3,04,00,00,00
+HKLM,%AppHacks%\%AppPitDroids%,DSAPPHACKID_DEVACCEL,3,0e,00,00,00,04,00,00,00
+
+
+;;*****************************************************************************
+;; nvmcp NT
+;;*****************************************************************************
+[nvmcp.NT]
+CopyFiles=nvax.FileList,nvaci.FileList,nvnforce.FileList
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+AddReg=ChangePath
+
+
+[nvmcp.NT.Services]
+AddService = nvax, 0x00000002, nvax.ServiceInstall
+
+
+
+;;*****************************************************************************
+;; nvax9x Common
+;;*****************************************************************************
+[nvax9x.ServiceInstall]
+DisplayName   = %nvax.SvcDesc%
+ServiceType   = 1                  ; SERVICE_KERNEL_DRIVER
+StartType     = 3                  ; SERVICE_DEMAND_START
+ErrorControl  = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary = %10%\system32\drivers\nvax9x.sys
+
+
+;;*****************************************************************************
+;; nvax Common
+;;*****************************************************************************
+[nvax.ServiceInstall]
+DisplayName   = %nvax.SvcDesc%
+ServiceType   = 1                  ; SERVICE_KERNEL_DRIVER
+StartType     = 3                  ; SERVICE_DEMAND_START
+ErrorControl  = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary = %10%\system32\drivers\nvax.sys
+
+
+
+
+;;*****************************************************************************
+;; nvnforce Win9x
+;;*****************************************************************************
+[nvnforce]
+AddReg=nvnforce.AddReg,Win98G.Guids.AddReg,nvguid.AddReg,nvac97.AddReg,nvmixer.AddReg,for9xClean.AddReg
+
+[nvnforce.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvnforce.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvnforce.Wave
+AddInterface=%KSCATEGORY_CAPTURE%,%NVNFORCE_Wave%,nvnforce.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_DMus%,nvnforce.DMus
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_DMus%,nvnforce.DMus
+AddInterface=%KSCATEGORY_SYNTHESIZER%,%NVNFORCE_DMus%,nvnforce.DMus
+AddInterface=%KSCATEGORY_AUDIO%,%NVAC97_Topology%,nvac97.Topology
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Midi%,nvnforce.Midi
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Midi%,nvnforce.Midi
+
+[nvnforce.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+[for9xClean.AddReg]
+HKLM,%RunOnce%,"nForce9xSetup",,"rundll32.exe nvack.dll,nForce9xSetup"
+
+
+;;*****************************************************************************
+;; nvnforce NT
+;;*****************************************************************************
+[nvnforce.NT]
+AddReg=nvnforce.AddReg,nvac97.AddReg,nvguid.AddReg,nvmixer.AddReg
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+
+[nvnforce.NT.CoInstallers]
+AddReg=nvnforce.CoInst.AddReg
+CopyFiles=null.FileList
+
+[nvnforce.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvnforce.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvnforce.Wave
+AddInterface=%KSCATEGORY_CAPTURE%,%NVNFORCE_Wave%,nvnforce.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_DMus%,nvnforce.DMus
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_DMus%,nvnforce.DMus
+AddInterface=%KSCATEGORY_SYNTHESIZER%,%NVNFORCE_DMus%,nvnforce.DMus
+AddInterface=%KSCATEGORY_AUDIO%,%NVAC97_Topology%,nvac97.Topology
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Midi%,nvnforce.Midi
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Midi%,nvnforce.Midi
+
+[nvnforce.NT.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+[nvnforce.CoInst.AddReg]
+HKR,,CoInstallers32,0x00010000,"nvack.dll, nForceNtSetup"
+
+
+;;*****************************************************************************
+;; nvnforce Common
+;;*****************************************************************************
+[nvnforce.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi,redbook"
+HKR,,Driver,,nvapu.sys
+HKR,,NTMPDriver,,"nvapu.sys,sbemul.sys"
+HKR,,DevLoader,,"*ntkern,mmdevldr.vxd"
+
+HKR,Branding,icon,,"nvapu.sys,100"
+HKR,Branding,bitmap,,"nvapu.sys,101"
+HKR,Branding,url,,"http://www.nvidia.com"
+
+HKR,Drivers,SubClasses,,"wave,midi,mixer"
+HKR,Drivers\wave\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\mixer\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\wave\wdmaud.drv,Description,,%nvnforce.DeviceDesc%
+HKR,Drivers\midi\wdmaud.drv,Description,,%nvnforce.DeviceDesc%
+HKR,Drivers\mixer\wdmaud.drv,Description,,%nvnforce.DeviceDesc%
+
+;; Nvasio Portion
+HKCR,CLSID\%NVASIO_GUID%,,,%NVASIO_DESC%
+HKCR,CLSID\%NVASIO_GUID%\InprocServer32,,,"nvasio.dll"
+HKCR,CLSID\%NVASIO_GUID%\InprocServer32,ThreadingModel,,"Apartment"
+
+HKLM,"SOFTWARE\ASIO\%NVASIO_NAME%",CLSID,,%NVASIO_GUID%
+HKLM,"SOFTWARE\ASIO\%NVASIO_NAME%",Description,,%NVASIO_DESC%
+
+;; Generic Options
+;HKR,Settings,IgnoreSpeakerConfig,1,01,00,00,00
+
+;; APU Options
+HKR,Settings\APU,Center3dPanEnabled,1,01,00,00,00
+;HKR,Settings\APU\GlobalVolume,CreateCenter,0x10001,01
+;HKR,Settings\APU\GlobalVolume,CreateLfe,0x10001,01
+;HKR,Settings\APU\GlobalVolume,CreatePhantomBass,0x10001,01
+HKR,Settings\APU\GlobalVolume,LfeCrossover,0x10001,64
+;HKR,Settings\APU\GlobalVolume,SpeakerPhase,0x10001,01
+;HKR,Settings\APU,ApuStopTimeout,0x10001,00
+
+;HKR,Properties,KmxrReplicate,0x10001,01
+
+
+[nvnforce.Wave]
+AddReg=nvnforce.Wave.AddReg
+
+[nvnforce.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvnforce.WaveDesc%
+
+
+[nvnforce.DMus]
+AddReg=nvnforce.DMus.AddReg
+
+[nvnforce.DMus.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvnforce.DMusDesc%
+
+
+[nvac97.Topology]
+AddReg=nvac97.Topo.AddReg
+
+[nvac97.Topo.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvac97.TopoDesc%
+
+
+[nvnforce.Midi]
+AddReg=nvnforce.Midi.AddReg
+
+[nvnforce.Midi.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvnforce.MidiDesc%
+
+
+[nvnforce.ServiceInstall]
+DisplayName   = %nvnforce.SvcDesc%
+ServiceType   = 1                  ; SERVICE_KERNEL_DRIVER
+StartType     = 3                  ; SERVICE_DEMAND_START
+ErrorControl  = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary = %10%\system32\drivers\nvapu.sys
+
+
+
+;;*****************************************************************************
+;; AC97 Register Defaults
+;;*****************************************************************************
+[nvac97.AddReg]
+;HKR,Settings\Ac97,MasterVolume,1,00,00      ; 0 dB
+;HKR,Settings\Ac97,SurroundVolume,1,00,00    ; 0 dB
+;HKR,Settings\Ac97,CenterLfeVolume,1,00,00   ; 0 dB
+;HKR,Settings\Ac97,HeadphoneVolume,1,00,00   ; 0 dB
+;HKR,Settings\Ac97,MonoOutVolume,1,00,00     ; 0 dB
+;HKR,Settings\Ac97,3dCtrl,1,00,00            ; 0%
+;HKR,Settings\Ac97,ToneControls,1,0F,0F      ; Bypass Treble and Bass
+;HKR,Settings\Ac97,PcBeepVolume,1,00,00      ; 0 dB
+;HKR,Settings\Ac97,PhoneVolume,1,08,80       ; Muted, 0 dB
+;HKR,Settings\Ac97,MicVolume,1,08,80         ; Muted, 0 dB, +20 dB Off
+;HKR,Settings\Ac97,LineInVolume,1,08,08      ; Unmuted, 0 dB
+;HKR,Settings\Ac97,CdVolume,1,08,08          ; 0 dB
+;HKR,Settings\Ac97,VideoVolume,1,08,88       ; Muted, 0 dB
+;HKR,Settings\Ac97,AuxVolume,1,08,88         ; Muted, 0 dB
+;HKR,Settings\Ac97,WaveOutVolume,1,08,08     ; 0 dB - Never touched by the system.
+;HKR,Settings\Ac97,RecordSelect,1,00,00      ; Select Mic
+;HKR,Settings\Ac97,RecordGain,1,00,00        ; 0 dB
+;HKR,Settings\Ac97,RecordGainMic,1,00,00     ; 0 dB
+;HKR,Settings\Ac97,GeneralPurpose,1,00,00    ; Wave path = Pre-3D,
+                                             ; Simultated Stereo = Off, 3D = Off,
+                                             ; Loudness = Off, Mono Select = Mix,
+                                             ; Mic Select = Mic1
+
+
+;;*****************************************************************************
+;; Mixer Controls
+;;*****************************************************************************
+[nvmixer.AddReg]
+;HKR,Settings\MixerControls,DisableMasterAdvancedControls,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableLineOut,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableHeadphone,1,01,00,00,00
+HKR,Settings\MixerControls,DisablePcBeep,1,01,00,00,00
+HKR,Settings\MixerControls,DisablePhone,1,01,00,00,00
+HKR,Settings\MixerControls,DisablePhoneRecord,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableMic,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableMicBoost,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableMicSelect,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableLineIn,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableCd,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableVideo,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableAux,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableSpdifIn,1,01,00,00,00
+
+;HKR,Settings\MixerControls,DisableRecordStereoMix,1,01,00,00,00
+;HKR,Settings\MixerControls,DisableRecordMonoMix,1,01,00,00,00
+
+HKR,Settings\MixerControls,DisableDigitizedInputPanel,1,00,00,00,00
+;HKR,Settings\MixerControls,DisableDigitizedInput,1,01,00,00,00
+;HKR,Settings\MixerControls,DigitizedInputSelect,1,04,00,00,00
+
+HKR,Settings\MixerControls,DisableMonoOutPanel,1,01,00,00,00
+
+HKR,Settings\MixerControls,EnableSurroundVolume,1,01,00,00,00
+;HKR,Settings\MixerControls,Enable3DEnvironment,1,01,00,00,00
+
+;;
+;; Slider Range Defaults
+;;
+;; The formula for the slider defaults is hex(dB * 65536) = 0xWWXXYYZZ.
+;; WWXXYYZZ translates to ZZ,YY,XX,WW.
+;;
+;HKR,Settings\MixerControls,RangeRecordGainMin,1,00,00,00,00            ; 0 dB
+;HKR,Settings\MixerControls,RangeRecordGainMax,1,00,80,16,00            ; 22.5 dB
+;HKR,Settings\MixerControls,RangeRecordGainStep,1,00,80,01,00           ; 1.5 dB
+
+;; Rename Sliders
+;;
+;HKR,Settings\MixerControls,RenameCD,1,01,00,00,00           ; rename CD to the string %nvnode.CD%
+;HKR,Settings\MixerControls,RenameAux,1,01,00,00,00          ; rename Aux to the string %nvnode.Aux%
+;HKR,Settings\MixerControls,RenameMic,1,01,00,00,00          ; rename Mic to the string %nvnode.Mic%
+
+
+
+;;*****************************************************************************
+;; nvad Front
+;;*****************************************************************************
+
+;;
+;; Win9x
+;;
+[nvadf]
+AddReg=nvadf.AddReg,Win98G.Guids.AddReg,nvguid.AddReg,for9xClean.AddReg
+
+[nvadf.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvadf.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvadf.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvadf.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; NT
+;;
+[nvadf.NT]
+AddReg=nvadf.AddReg,nvguid.AddReg
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+
+[nvadf.NT.CoInstallers]
+AddReg=nvnforce.CoInst.AddReg
+CopyFiles=null.FileList
+
+[nvadf.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvadf.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvadf.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvadf.NT.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; Common
+;;
+[nvadf.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi,redbook"
+HKR,,Driver,,nvapu.sys
+HKR,,NTMPDriver,,"nvapu.sys,sbemul.sys"
+HKR,,DevLoader,,"*ntkern,mmdevldr.vxd"
+
+HKR,Branding,icon,,"nvapu.sys,100"
+HKR,Branding,bitmap,,"nvapu.sys,101"
+HKR,Branding,url,,"http://www.nvidia.com"
+
+HKR,Drivers,SubClasses,,"wave,midi,mixer"
+HKR,Drivers\wave\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\mixer\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\wave\wdmaud.drv,Description,,%nvadf.DeviceDesc%
+HKR,Drivers\midi\wdmaud.drv,Description,,%nvadf.DeviceDesc%
+HKR,Drivers\mixer\wdmaud.drv,Description,,%nvadf.DeviceDesc%
+
+[nvadf.Wave]
+AddReg=nvadf.Wave.AddReg
+
+[nvadf.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvadf.WaveDesc%
+
+
+[nvad.Topology]
+AddReg=nvad.Topo.AddReg
+
+[nvad.Topo.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvad.TopoDesc%
+
+
+
+
+;;*****************************************************************************
+;; nvad Rear
+;;*****************************************************************************
+
+;;
+;; Win9x
+;;
+[nvadr]
+AddReg=nvadr.AddReg,Win98G.Guids.AddReg,nvguid.AddReg,for9xClean.AddReg
+
+[nvadr.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvadr.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvadr.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvadr.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; NT
+;;
+[nvadr.NT]
+AddReg=nvadr.AddReg,nvguid.AddReg
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+
+[nvadr.NT.CoInstallers]
+AddReg=nvnforce.CoInst.AddReg
+CopyFiles=null.FileList
+
+[nvadr.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvadr.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvadr.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvadr.NT.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; Common
+;;
+[nvadr.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi,redbook"
+HKR,,Driver,,nvapu.sys
+HKR,,NTMPDriver,,"nvapu.sys,sbemul.sys"
+HKR,,DevLoader,,"*ntkern,mmdevldr.vxd"
+
+HKR,Branding,icon,,"nvapu.sys,100"
+HKR,Branding,bitmap,,"nvapu.sys,101"
+HKR,Branding,url,,"http://www.nvidia.com"
+
+HKR,Drivers,SubClasses,,"wave,midi,mixer"
+HKR,Drivers\wave\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\mixer\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\wave\wdmaud.drv,Description,,%nvadr.DeviceDesc%
+HKR,Drivers\midi\wdmaud.drv,Description,,%nvadr.DeviceDesc%
+HKR,Drivers\mixer\wdmaud.drv,Description,,%nvadr.DeviceDesc%
+
+[nvadr.Wave]
+AddReg=nvadr.Wave.AddReg
+
+[nvadr.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvadr.WaveDesc%
+
+
+
+
+;;*****************************************************************************
+;; nvad Center/LFE
+;;*****************************************************************************
+
+;;
+;; Win9x
+;;
+[nvadc]
+AddReg=nvadc.AddReg,Win98G.Guids.AddReg,nvguid.AddReg,for9xClean.AddReg
+
+[nvadc.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvadc.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvadc.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvadc.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; NT
+;;
+[nvadc.NT]
+AddReg=nvadc.AddReg,nvguid.AddReg
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+
+[nvadc.NT.CoInstallers]
+AddReg=nvnforce.CoInst.AddReg
+CopyFiles=null.FileList
+
+[nvadc.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvadc.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvadc.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvadc.NT.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; Common
+;;
+[nvadc.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi,redbook"
+HKR,,Driver,,nvapu.sys
+HKR,,NTMPDriver,,"nvapu.sys,sbemul.sys"
+HKR,,DevLoader,,"*ntkern,mmdevldr.vxd"
+
+HKR,Branding,icon,,"nvapu.sys,100"
+HKR,Branding,bitmap,,"nvapu.sys,101"
+HKR,Branding,url,,"http://www.nvidia.com"
+
+HKR,Drivers,SubClasses,,"wave,midi,mixer"
+HKR,Drivers\wave\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\mixer\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\wave\wdmaud.drv,Description,,%nvadc.DeviceDesc%
+HKR,Drivers\midi\wdmaud.drv,Description,,%nvadc.DeviceDesc%
+HKR,Drivers\mixer\wdmaud.drv,Description,,%nvadc.DeviceDesc%
+
+[nvadc.Wave]
+AddReg=nvadc.Wave.AddReg
+
+[nvadc.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvadc.WaveDesc%
+
+
+
+
+;;*****************************************************************************
+;; nvad SPDIF
+;;*****************************************************************************
+
+;;
+;; Win9x
+;;
+[nvads]
+AddReg=nvads.AddReg,Win98G.Guids.AddReg,nvguid.AddReg,for9xClean.AddReg
+
+[nvads.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvads.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvads.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvads.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; NT
+;;
+[nvads.NT]
+AddReg=nvads.AddReg,nvguid.AddReg
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration,WDMAUDIO.Registration
+
+[nvads.NT.CoInstallers]
+AddReg=nvnforce.CoInst.AddReg
+CopyFiles=null.FileList
+
+[nvads.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%NVNFORCE_Wave%,nvads.Wave
+AddInterface=%KSCATEGORY_RENDER%,%NVNFORCE_Wave%,nvads.Wave
+AddInterface=%KSCATEGORY_AUDIO%,%NVAD_Topology%,nvad.Topology
+
+[nvads.NT.Services]
+AddService = nvnforce, 0x00000002, nvnforce.ServiceInstall
+
+
+;;
+;; Common
+;;
+[nvads.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi,redbook"
+HKR,,Driver,,nvapu.sys
+HKR,,NTMPDriver,,"nvapu.sys,sbemul.sys"
+HKR,,DevLoader,,"*ntkern,mmdevldr.vxd"
+
+HKR,Branding,icon,,"nvapu.sys,100"
+HKR,Branding,bitmap,,"nvapu.sys,101"
+HKR,Branding,url,,"http://www.nvidia.com"
+
+HKR,Drivers,SubClasses,,"wave,midi,mixer"
+HKR,Drivers\wave\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\mixer\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\wave\wdmaud.drv,Description,,%nvads.DeviceDesc%
+HKR,Drivers\midi\wdmaud.drv,Description,,%nvads.DeviceDesc%
+HKR,Drivers\mixer\wdmaud.drv,Description,,%nvads.DeviceDesc%
+
+[nvads.Wave]
+AddReg=nvads.Wave.AddReg
+
+[nvads.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%nvads.WaveDesc%
+
+
+
+
+;;*****************************************************************************
+;; Guids for Win98G
+;;*****************************************************************************
+[Win98G.Guids.AddReg]
+; Pins
+HKLM,%MediaCategories%\%msguid.MonoOut%,Name,2,%mspin.MonoOut%
+HKLM,%MediaCategories%\%msguid.MonoOut%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.StereoMix%,Name,2,%mspin.StereoMix%
+HKLM,%MediaCategories%\%msguid.StereoMix%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.MonoMix%,Name,2,%mspin.MonoMix%
+HKLM,%MediaCategories%\%msguid.MonoMix%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.Video%,Name,2,%mspin.Video%
+HKLM,%MediaCategories%\%msguid.Video%,Display,3,00,00,00,00
+
+; Nodes
+HKLM,%MediaCategories%\%msguid.MonoOutVolume%,Name,2,%msnode.MonoOutVolume%
+HKLM,%MediaCategories%\%msguid.MonoOutVolume%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.MonoOutMute%,Name,2,%msnode.MonoOutMute%
+HKLM,%MediaCategories%\%msguid.MonoOutMute%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.StereoMixVolume%,Name,2,%msnode.StereoMixVolume%
+HKLM,%MediaCategories%\%msguid.StereoMixVolume%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.MonoMixVolume%,Name,2,%msnode.MonoMixVolume%
+HKLM,%MediaCategories%\%msguid.MonoMixVolume%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.MicBoost%,Name,2,%msnode.MicBoost%
+HKLM,%MediaCategories%\%msguid.MicBoost%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.AltMic%,Name,2,%msnode.AltMic%
+HKLM,%MediaCategories%\%msguid.AltMic%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.VideoVolume%,Name,2,%msnode.VideoVolume%
+HKLM,%MediaCategories%\%msguid.VideoVolume%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%msguid.VideoMute%,Name,2,%msnode.VideoMute%
+HKLM,%MediaCategories%\%msguid.VideoMute%,Display,3,00,00,00,00
+
+
+
+;;*****************************************************************************
+;; NVIDIA Guids
+;;*****************************************************************************
+[nvguid.AddReg]
+HKLM,%MediaCategories%\%nvguid.WaveOutDac%,Name,0,%nvnode.WaveOutDac%
+HKLM,%MediaCategories%\%nvguid.WaveOutDac%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.WaveInAdc%,Name,0,%nvnode.WaveInAdc%
+HKLM,%MediaCategories%\%nvguid.WaveInAdc%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.MicInAdc%,Name,0,%nvnode.MicInAdc%
+HKLM,%MediaCategories%\%nvguid.MicInAdc%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.AnalogOutMix%,Name,0,%nvnode.AnalogOutMix%
+HKLM,%MediaCategories%\%nvguid.AnalogOutMix%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.AnalogInSelect%,Name,0,%nvnode.AnalogInSelect%
+HKLM,%MediaCategories%\%nvguid.AnalogInSelect%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.MonoOutSelect%,Name,0,%nvnode.MonoOutSelect%
+HKLM,%MediaCategories%\%nvguid.MonoOutSelect%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.NvFx%,Name,0,%nvnode.NvFx%
+HKLM,%MediaCategories%\%nvguid.NvFx%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.DigitalEncoder%,Name,0,%nvnode.DigitalEncoder%
+HKLM,%MediaCategories%\%nvguid.DigitalEncoder%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.Spdif%,Name,0,%nvspecifier.Spdif%
+HKLM,%MediaCategories%\%nvguid.Spdif%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.DigitizedInput%,Name,0,%nvpin.DigitizedInput%
+HKLM,%MediaCategories%\%nvguid.DigitizedInput%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.LineOut%,Name,0,%nvpin.LineOut%
+HKLM,%MediaCategories%\%nvguid.LineOut%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.BalanceFade%,Name,0,%nvpin.BalanceFade%
+HKLM,%MediaCategories%\%nvguid.BalanceFade%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.LineInToRear%,Name,0,%nvnode.LineInToRear%
+HKLM,%MediaCategories%\%nvguid.LineInToRear%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.MicToCenterLFE%,Name,0,%nvnode.MicToCenterLFE%
+HKLM,%MediaCategories%\%nvguid.MicToCenterLFE%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.SwapCenterLFE%,Name,0,%nvnode.SwapCenterLFE%
+HKLM,%MediaCategories%\%nvguid.SwapCenterLFE%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.Phone%,Name,0,%nvnode.Phone%
+HKLM,%MediaCategories%\%nvguid.Phone%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.Surround%,Name,0,%nvnode.Surround%
+HKLM,%MediaCategories%\%nvguid.Surround%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.Center%,Name,0,%nvnode.Center%
+HKLM,%MediaCategories%\%nvguid.Center%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.LFE%,Name,0,%nvnode.LFE%
+HKLM,%MediaCategories%\%nvguid.LFE%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.Aux%,Name,0,%nvnode.Aux%
+HKLM,%MediaCategories%\%nvguid.Aux%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.3DEnv%,Name,0,%nvnode.3DEnv%
+HKLM,%MediaCategories%\%nvguid.3DEnv%,Display,3,00,00,00,00
+HKLM,%MediaCategories%\%nvguid.Front%,Name,0,%nvnode.Front%
+HKLM,%MediaCategories%\%nvguid.Front%,Display,3,00,00,00,00
+
+
+[nvmcp.NT.CoInstallers]
+AddReg=Uninstall.CoInst.AddReg
+CopyFiles=Uninstall.CoInst.FileList
+
+[nvaci.NT.CoInstallers]
+AddReg=Uninstall.CoInst.AddReg
+CopyFiles=Uninstall.CoInst.FileList
+
+[Uninstall.CoInst.AddReg]
+HKR,,CoInstallers32,0x00010000, "NVCOAD.DLL,NVCoInstaller"
+HKR, Uninstall, Script,0,"nvaudio.nvu"
+HKR, Uninstall, Name,0,"NVIDIA Audio Driver"
+HKR, Uninstall, INFSrcDir, 0, %01% 
+HKR, Uninstall, Uninstaller,0,"nvuaudio.exe"
+
+
+
+
+;;*****************************************************************************
+;; Strings
+;;*****************************************************************************
+[Strings]
+MfgName="NVIDIA Corporation"
+DiskDescription="NVIDIA(R) nForce(TM) Audio Driver CD or Disk"
+
+nvax.SvcDesc="Service for NVIDIA(R) nForce(TM) Audio Enumerator"
+nvnforce.SvcDesc="Service for NVIDIA(R) nForce(TM) Audio"
+
+nvaci.DeviceDesc="NVIDIA(R) nForce(TM) Audio Codec Interface"
+nvmcp.DeviceDesc="NVIDIA(R) nForce(TM) MCP Audio Processing Unit"
+nvnforce.DeviceDesc="NVIDIA(R) nForce(TM) Audio"
+nvadf.DeviceDesc="NVIDIA(R) nForce(TM) Analog Front"
+nvadr.DeviceDesc="NVIDIA(R) nForce(TM) Analog Rear"
+nvadc.DeviceDesc="NVIDIA(R) nForce(TM) Analog Center/LFE"
+nvads.DeviceDesc="NVIDIA(R) nForce(TM) Analog Surround"
+
+
+nvnforce.WaveDesc="NVIDIA(R) nForce(TM) Audio"
+nvadf.WaveDesc="NVIDIA(R) nForce(TM) Front"
+nvadr.WaveDesc="NVIDIA(R) nForce(TM) Rear"
+nvadc.WaveDesc="NVIDIA(R) nForce(TM) Center/LFE"
+nvads.WaveDesc="NVIDIA(R) nForce(TM) Surround"
+nvnforce.DMusDesc="NVIDIA(R) Kernel Synthesizer"
+nvac97.TopoDesc="NVIDIA(R) nForce(TM) Mixer"
+nvad.TopoDesc="NVIDIA(R) nForce(TM) Mixer"
+nvnforce.MidiDesc="NVIDIA(R) DLS Synthesizer"
+
+RunOnce = "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"
+Run = "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+MediaCategories="SYSTEM\CurrentControlSet\Control\MediaCategories"
+AppHacks="SYSTEM\CurrentControlSet\Control\MediaResources\DirectSound\Application Compatibility"
+AppMickeyP="MICKEYP.EXE37489012001F328A"
+AppMickeyK="MICKEYK.EXE37489012001F3292"
+AppMickeyT="MICKEYT.EXE37489012001C293C"
+AppPitDroids="PIT DROIDS.EXE37B9DC1C000BA02D"
+
+MixerKey="SOFTWARE\NVIDIA Corporation\nForce Audio Setup\Setting"
+
+Proxy.CLSID="{17CCA71B-ECD7-11D0-B908-00A0C9223196}"
+KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
+KSCATEGORY_RENDER="{65E8773E-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_SYNTHESIZER="{DFF220F3-F70F-11D0-B917-00A0C9223196}"
+
+NVNFORCE_Wave="wave"
+NVNFORCE_DMus="synth"
+NVAC97_Topology="topology"
+NVAD_Topology="topology"
+NVNFORCE_Midi="midi"
+
+; Pins not added by Win98G
+msguid.MonoMix          ="{00DFF078-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.MonoOut          ="{F9B41DC3-96E2-11d2-AC4C-00C04F8EFB68}"
+msguid.StereoMix        ="{00DFF077-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.Video            ="{915DAEC4-A434-11d2-AC52-00C04F8EFB68}"
+
+; Nodes not added by Win98G
+msguid.AltMic           ="{2BC31D6B-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.MicBoost         ="{2BC31D6A-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.MonoMixVolume    ="{22B0EAFE-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.MonoOutMute      ="{1AD247EC-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.MonoOutVolume    ="{1AD247EB-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.StereoMixVolume  ="{1AD247ED-96E3-11d2-AC4C-00C04F8EFB68}"
+msguid.VideoVolume      ="{9B46E708-992A-11d2-AC4D-00C04F8EFB68}"
+msguid.VideoMute        ="{9B46E709-992A-11d2-AC4D-00C04F8EFB68}"
+
+; NVIDIA Guids
+nvguid.WaveOutDac       ="{8ED18ED2-BFDA-4380-9507-2B645DBD104D}"
+nvguid.WaveInAdc        ="{FA1D33B3-CC27-4817-B40C-4260E47E7E88}"
+nvguid.MicInAdc         ="{CC3A55E2-3A97-4e01-91FC-1FDAA7D6F5F7}"
+nvguid.AnalogOutMix     ="{D0BC69E2-339F-429d-8C01-CAD64AD4928C}"
+nvguid.AnalogInSelect   ="{32AFD44E-892D-48de-AAD3-2C8C3A086CCC}"
+nvguid.MonoOutSelect    ="{A94AB2C4-1F9C-4b03-9D0F-05D092F93578}"
+nvguid.NvFx             ="{8633AF14-ECFF-4320-A962-8E6C2B522B9D}"
+nvguid.DigitalEncoder   ="{5CE2E43A-804F-47f2-8738-16D638E2E0F4}"
+nvguid.Spdif            ="{CD1DFDA7-0E7C-4724-9248-F6E03C8AC522}"
+nvguid.DigitizedInput   ="{E963DE7F-BA10-4819-A7E0-DBC560BC1E2E}"
+nvguid.LineOut          ="{79F2DAFE-59E5-4543-B419-DB395BADF698}"
+nvguid.BalanceFade      ="{252BA1C4-D29D-4CC4-80A3-03BC6F812091}"
+nvguid.LineInToRear     ="{3D0DE891-1B84-4304-9E38-19D30B8BFB9C}"
+nvguid.MicToCenterLFE   ="{F9E11089-C93A-4B3F-832B-B37F76E547F3}"
+nvguid.SwapCenterLFE    ="{73674D8A-74AE-412B-A4DF-D909291A4B43}"
+nvguid.Phone            ="{A6036A62-D93A-43E9-A103-259E10A14C1A}"
+nvguid.Surround         ="{E0351109-DEDC-45b3-8612-D3EC3D64DFBA}"
+nvguid.Center           ="{93F42BF5-9143-4447-A97A-99B3A7079282}"
+nvguid.LFE              ="{D13FD826-7F15-4e95-B64D-6A10B7C5D88B}"
+nvguid.Aux              ="{89A9E70C-53CD-48AC-B301-07976560FBE2}"
+nvguid.CD               ="{74D02989-ED07-418E-9A12-44332EEC35CE}"
+nvguid.Mic              ="{6D1B6BD8-062F-41E0-BD81-CECD685CFB38}"
+nvguid.3DEnv            ="{5F5023F3-DFCA-4F74-93E6-AD46F6D1371C}"
+nvguid.Front            ="{F8FE28AE-2FE9-42DE-8218-E794FFBC216B}"
+
+
+
+
+; ASIO Guids and Names
+NVASIO_GUID="{594C9953-1AB0-4459-877A-102DB82CBE39}"
+NVASIO_DESC="NVIDIA ASIO"
+NVASIO_NAME="NVIDIA ASIO Driver"
+
+; Pin strings not added by Win98G
+mspin.MonoMix           ="Mono Mix"
+mspin.MonoOut           ="Mono Out"
+mspin.StereoMix         ="Stereo Mix"
+mspin.Video             ="Video"
+
+; NVIDIA Pins
+nvpin.DigitizedInput    ="Digitized Input"
+nvpin.LineOut           ="Line Out"
+nvpin.BalanceFade       ="Balance/Fade"
+
+; Node strings not added by Win98G
+msnode.AltMic           ="Alternate Microphone"
+msnode.MicBoost         ="Microphone Boost"
+msnode.MonoMixVolume    ="Mono Mix Volume"
+msnode.MonoOutVolume    ="Mono Out Volume"
+msnode.MonoOutMute      ="Mono Out Mute"
+msnode.StereoMixVolume  ="Stereo Mix Volume"
+msnode.VideoVolume      ="Video Volume"
+msnode.VideoMute        ="Video Mute"
+
+; NVIDIA Nodes
+nvnode.WaveOutDac       ="Wave Out DAC"
+nvnode.WaveInAdc        ="Wave In ADC"
+nvnode.MicInAdc         ="Mic In ADC"
+nvnode.AnalogOutMix     ="Analog Out Mix"
+nvnode.AnalogInSelect   ="Analog In Mux"
+nvnode.MonoOutSelect    ="Mono Out Mux"
+nvnode.NvFx             ="NVIDIA(R) FX"
+nvnode.DigitalEncoder   ="Digital Encoder"
+nvnode.LineInToRear     ="Rear Speakers connected to Line In"
+nvnode.MicToCenterLFE   ="Center speaker and subwoofer connected to Microphone"
+nvnode.SwapCenterLFE    ="Swap center and subwoofer speaker outputs"
+nvnode.Phone            ="Phone"
+nvnode.Surround         ="Surround"
+nvnode.Center           ="Center"
+nvnode.LFE              ="Subwoofer"
+nvnode.3DEnv            ="3D Env"
+nvnode.Front            ="Front"
+nvnode.Aux              ="Aux"        ; needs to be enabled under "Rename Sliders"
+nvnode.CD               ="CD Audio"   ; needs to be enabled under "Rename Sliders"
+nvnode.Mic              ="Microphone" ; needs to be enabled under "Rename Sliders"
+
+
+; NVIDIA Specifiers
+nvspecifier.Spdif       ="SPDIF"
+

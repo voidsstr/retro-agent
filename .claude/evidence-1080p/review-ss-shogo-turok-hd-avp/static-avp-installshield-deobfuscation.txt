@@ -1,0 +1,11 @@
+reference entries 201 {'deob-match': 145, 'raw-match': 56}
+{'avp_huds': {'deob': 23}, 'avp_rifs': {'deob': 63}, 'fastfile': {'raw': 55, 'deob': 59}, 'language.txt': {'raw': 1}}
+fastfile/ffinfo.txt raw c8185818646c703c deob b'Graphics\\Com'
+fastfile/Tex1.FFL raw 9cc8f4e8c5c1cdc9 deob b'RFFL\x00\x00\x00\x00\x14\x00\x00\x00'
+avp_huds/alien.rif raw 9cccc4cc8cece435 deob b'REBCRIF1dz\x01\x00'
+fastfile/Snd2.FFL raw 5246464c00000000 deob b'\xe1\xe3\xe2cqpon.lkj'
+FMVs/AlienIntro.bik raw dcfce070e53abcc9 deob b'BIKf\x08\xf6T\x00)\x03\x00\x00'
+FMVs/IntroSound.smk raw 98ece001f5c1cdc9 deob b'SMK2\x04\x00\x00\x00\x04\x00\x00\x00'
+whole-tree scan: obfuscated files 154 {'fmvs': 9, 'fastfile': 59, 'avp_huds': 23, 'avp_rifs': 63}
+FMVs: ['fmvs/alienintro.bik', 'fmvs/alienoutro.bik', 'fmvs/introsound.smk', 'fmvs/logos.bik', 'fmvs/marineintro.bik', 'fmvs/marineoutro.bik', 'fmvs/menubackground.bik', 'fmvs/predatorintro.bik', 'fmvs/predatoroutro.bik']
+disc image check: Games/Windows XP/Aliens vs Predator Gold (1999) - Disc 1.zip -> MODE2/2352 -> ISO; TEX1.FFL LBA 52969 raw sector subheader 0000080000000800 (Form 1), user data starts 9cc8f4e8 = identical to the staged file (md5 643eda32d33393cdde7e64ce1bd4c9f8); disc avp.exe md5 91bb8e752f42d35f594fc06feabd49cf = staged. setup.ins names CDCheck.dll / CDCHECK_CDVERIFICATION.

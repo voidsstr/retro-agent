@@ -1,0 +1,1 @@
+{"root":"HKLM","path":"Software\\Lonely Cat Games\\Hidden and Dangerous Deluxe\\Config","values":[{"name":"Fullscreen","type":"REG_DWORD","data":1},{"name":"Display width","type":"REG_DWORD","data":1920},{"name":"Display height","type":"REG_DWORD","data":1080},{"name":"Display bitdepth","type":"REG_DWORD","data":32}],"subkeys":[]}

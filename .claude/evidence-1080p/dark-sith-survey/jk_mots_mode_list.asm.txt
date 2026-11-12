@@ -1,0 +1,197 @@
+# JK.EXE 1.01 (md5 85f8f883bbb7a167429879c899be1803)
+## stdDisplay init: SetCooperativeLevel(NORMAL) + EnumDisplayModes(cb 0x426030, 320-wide ModeX only), then SetCooperativeLevel(0x11 EXCLUSIVE|FULLSCREEN) + EnumDisplayModes(cb 0x425e30, every mode)
+00425bb2: mov eax, dword ptr [0x55b408]
+00425bb7: push 0x426030
+00425bbc: push 0
+00425bbe: push 0
+00425bc0: mov edx, dword ptr [eax]
+00425bc2: push 0
+00425bc4: push eax
+00425bc5: call dword ptr [edx + 0x20]
+00425bc8: test eax, eax
+00425bca: je 0x425bd0
+00425bcc: xor eax, eax
+00425bce: pop esi
+00425bcf: ret 
+00425bd0: mov eax, dword ptr [0x55b408]
+00425bd5: push 0x11
+00425bd7: push esi
+00425bd8: push eax
+00425bd9: mov ecx, dword ptr [eax]
+00425bdb: call dword ptr [ecx + 0x50]
+00425bde: test eax, eax
+00425be0: je 0x425be6
+00425be2: xor eax, eax
+00425be4: pop esi
+00425be5: ret 
+00425be6: mov eax, dword ptr [0x55b408]
+00425beb: push 0x425e30
+00425bf0: push 0
+00425bf2: push 0
+00425bf4: mov edx, dword ptr [eax]
+00425bf6: push 0
+
+## EnumDisplayModes callback 0x425e30: stores EVERY mode (w [ddsd+0xc], h [ddsd+8], bpp) into a 0x54-byte array at 0x866cc0 - hard cap 0x40 = 64 modes (shared counter [0x55b3fc] with the ModeX pass)
+00425e30: push edi
+00425e31: mov edi, dword ptr [0x55b3fc]
+00425e37: cmp edi, 0x40
+00425e3a: jae 0x425ff1
+00425e40: mov eax, edi
+00425e42: push esi
+00425e43: shl eax, 3
+00425e46: sub eax, edi
+00425e48: push ebp
+00425e49: mov ebp, dword ptr [esp + 0x10]
+00425e4d: xor ecx, ecx
+00425e4f: lea eax, [eax + eax*2]
+00425e52: push ebx
+00425e53: mov edx, dword ptr [ebp + 0xc]
+00425e56: lea esi, [eax*4 + 0x866cc0]
+00425e5d: mov eax, dword ptr [ebp + 8]
+00425e60: mov dword ptr [esi], ecx
+00425e62: mov dword ptr [esi + 8], edx
+00425e65: mov edx, dword ptr [ebp + 0x10]
+00425e68: mov dword ptr [esi + 0xc], eax
+
+## Setup > Display 'Video Modes' list builder 0x4150c0: shows every stored mode whose bpp == 16 (b3DAccel) or == 8 (software); label L"%dx%d %dbpp %s" (suffix L"[ModeX]" for pass-1 modes); NO width/height filter
+004150c0: sub esp, 0x108
+004150c6: push ebx
+004150c7: push ebp
+004150c8: mov ebp, dword ptr [esp + 0x118]
+004150cf: push esi
+004150d0: push edi
+004150d1: xor edi, edi
+004150d3: push ebp
+004150d4: mov dword ptr [esp + 0x14], edi
+004150d8: call 0x510650
+004150dd: mov ebx, dword ptr [esp + 0x128]
+004150e4: mov eax, dword ptr [esp + 0x120]
+004150eb: mov edx, dword ptr [0x556598]
+004150f1: add esp, 4
+004150f4: mov ecx, dword ptr [ebx]
+004150f6: mov dword ptr [eax + 0x10], edi
+004150f9: mov eax, ecx
+004150fb: shl eax, 4
+004150fe: add eax, ecx
+00415100: lea ecx, [eax + eax*4]
+00415103: mov eax, dword ptr [edx + 4]
+00415106: mov esi, dword ptr [eax + ecx*8 + 0x29c]
+0041510d: lea edx, [eax + ecx*8]
+00415110: mov dword ptr [esp + 0x14], edx
+00415114: mov eax, dword ptr [edx + 0x298]
+0041511a: test eax, eax
+0041511c: jbe 0x4151b0
+00415122: mov ecx, dword ptr [ebx + 0x2c]
+00415125: test ecx, ecx
+00415127: je 0x415135
+00415129: mov eax, dword ptr [esi + 0x20]
+0041512c: cmp eax, 0x10
+0041512f: je 0x41513d
+00415131: test ecx, ecx
+00415133: jne 0x41519e
+00415135: mov eax, dword ptr [esi + 0x20]
+00415138: cmp eax, 8
+0041513b: jne 0x41519e
+0041513d: cmp dword ptr [esi], 0
+00415140: mov ecx, 0x52e894
+00415145: jne 0x41514c
+00415147: mov ecx, 0x5565ac
+0041514c: mov edx, dword ptr [esi + 8]
+0041514f: push ecx
+00415150: mov ecx, dword ptr [esi + 0xc]
+00415153: push eax
+00415154: push ecx
+00415155: push edx
+00415156: push 0x52e8a4
+0041515b: lea eax, [esp + 0x2c]
+0041515f: push 0x80
+00415164: push eax
+00415165: call 0x512e90
+0041516a: add esp, 0x1c
+0041516d: lea ecx, [esp + 0x18]
+00415171: push edi
+00415172: push ecx
+00415173: push ebp
+00415174: call 0x5104d0
+00415179: mov eax, dword ptr [ebx + 4]
+0041517c: add esp, 0xc
+0041517f: cmp eax, edi
+00415181: jne 0x415191
+00415183: mov edx, dword ptr [esp + 0x11c]
+0041518a: mov eax, dword ptr [esp + 0x10]
+0041518e: mov dword ptr [edx + 0x10], eax
+00415191: mov eax, dword ptr [esp + 0x10]
+00415195: mov edx, dword ptr [esp + 0x14]
+00415199: inc eax
+0041519a: mov dword ptr [esp + 0x10], eax
+0041519e: mov eax, dword ptr [edx + 0x298]
+004151a4: add esi, 0x54
+004151a7: inc edi
+004151a8: cmp edi, eax
+004151aa: jb 0x415122
+004151b0: push 0
+004151b2: push 0
+004151b4: push ebp
+004151b5: call 0x5104d0
+004151ba: mov ecx, dword ptr [esp + 0x128]
+
+## default when HKLM\SOFTWARE\LucasArts Entertainment Company\JediKnight\v1.0\displayMode is absent: FindClosestMode(640x480) at 0x424630, ERR_NEED_256_COLOR if not 8bpp; b3DAccel default 0
+004146b3: mov dword ptr [esp + 0x34], 0x280
+004146bb: mov dword ptr [esp + 0x38], 0x1e0
+004146c3: jmp 0x4146d5
+004146c5: mov dword ptr [esp + 0x34], 0x140
+004146cd: mov dword ptr [esp + 0x38], 0xc8
+004146d5: mov eax, dword ptr [esi + 0x298]
+004146db: mov ecx, dword ptr [esi + 0x29c]
+004146e1: push eax
+004146e2: lea edx, [esp + 0x30]
+004146e6: push ecx
+004146e7: push edx
+004146e8: call 0x424630
+004146ed: lea ecx, [eax + eax*4]
+004146f0: mov dword ptr [0x860504], eax
+004146f5: add esp, 0xc
+004146f8: lea edx, [eax + ecx*4]
+004146fb: mov eax, dword ptr [esi + 0x29c]
+00414701: cmp dword ptr [eax + edx*4 + 0x20], ebx
+00414705: je 0x414714
+00414707: push 0x52e770  ; "ERR_NEED_256_COLOR"
+0041470c: call 0x41f380
+00414711: add esp, 4
+00414714: push 0x10
+00414716: push 0x86050c
+0041471b: push 0x52e784  ; "displayDeviceGUID"
+00414720: mov dword ptr [0x860530], 5
+0041472a: mov esi, ebp
+0041472c: call 0x50f600
+00414731: add esp, 0xc
+00414734: test eax, eax
+
+# JKM.EXE (Mysteries of the Sith, md5 192d2be2bfbe5a1acc9f562657a7d9ea) - identical logic
+## callbacks 0x429160 (ModeX pass) and 0x428f60 (all modes), cap 0x40
+00428f60: push edi
+00428f61: mov edi, dword ptr [0x5b6bac]
+00428f67: cmp edi, 0x40
+00428f6a: jae 0x429121
+00428f70: mov eax, edi
+00428f72: push esi
+00428f73: shl eax, 3
+00428f76: sub eax, edi
+
+## list builder 0x417a90 (bpp 16 with 3D accel / 8 without)
+00417af2: mov ecx, dword ptr [ebx + 0x2c]
+00417af5: test ecx, ecx
+00417af7: je 0x417b05
+00417af9: mov eax, dword ptr [esi + 0x20]
+00417afc: cmp eax, 0x10
+00417aff: je 0x417b0d
+00417b01: test ecx, ecx
+00417b03: jne 0x417b6e
+00417b05: mov eax, dword ptr [esi + 0x20]
+00417b08: cmp eax, 8
+00417b0b: jne 0x417b6e
+00417b0d: cmp dword ptr [esi], 0
+00417b10: mov ecx, 0x5873e4
+00417b15: jne 0x417b1c
+00417b17: mov ecx, 0x5b11b4
+00417b1c: mov edx, dword ptr [esi + 8]

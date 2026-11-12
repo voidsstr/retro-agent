@@ -1,0 +1,597 @@
+====================================================================================================
+PE Quake1/WINQUAKE.EXE imagebase 0x400000
+import slots: {'0x4f9424': 'KERNEL32.dll!LoadLibraryA', '0x4f9478': 'KERNEL32.dll!GetProcAddress', '0x4f9578': 'USER32.dll!EnumDisplaySettingsA', '0x4f957c': 'USER32.dll!ChangeDisplaySettingsA'}
+  string b'ChangeDisplaySettingsA' at VA 0x4f9a68
+  string b'EnumDisplaySettingsA' at VA 0x4f9a82
+  string b'SetDisplayMode failed (%s)!' at VA 0x479040
+----------------------------------------------------------------------------------------------------
+SITE 0x40c816  USER32.dll!EnumDisplaySettingsA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x40c872  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40c750: mov eax, dword ptr [eax + 4]
+   0x40c753: mov dword ptr [ebx], ecx
+   0x40c755: mov dword ptr [ebx + 4], eax
+   0x40c758: mov dword ptr [0x47cf40], edx
+   0x40c75e: mov dword ptr [0x47cf44], esi
+   0x40c764: mov dword ptr [0x47cf48], esi
+   0x40c76a: mov dword ptr [0x47cf4c], edx
+   0x40c770: push edx
+   0x40c771: mov dword ptr [0x47cf54], edx
+   0x40c777: mov dword ptr [0x47cf3c], 2
+   0x40c781: mov dword ptr [0x47cf50], edi
+   0x40c787: call dword ptr [0x4f958c]
+   0x40c78d: mov ebx, eax
+   0x40c78f: push edi
+   0x40c790: push ebx
+   0x40c791: call dword ptr [0x4f9384]
+   0x40c797: cmp eax, 0x280
+   0x40c79c: jle 0x40c7af
+   0x40c79e: push 0x468e88
+   0x40c7a3: call 0x411e60
+   0x40c7a8: add esp, 4
+   0x40c7ab: test eax, eax
+   0x40c7ad: je 0x40c7b1
+   0x40c7af: xor esi, esi
+   0x40c7b1: push ebx
+   0x40c7b2: mov dword ptr [0x468b2c], esi
+   0x40c7b8: push 0
+   0x40c7ba: mov dword ptr [0x47ce94], esi
+   0x40c7c0: call dword ptr [0x4f9590]
+   0x40c7c6: mov dword ptr [0x47d9e0], 3
+   0x40c7d0: mov dword ptr [0x4ca7e0], 0
+   0x40c7da: pop edi
+   0x40c7db: pop esi
+   0x40c7dc: pop ebx
+   0x40c7dd: add esp, 0x28
+   0x40c7e0: ret 
+   0x40c7e1: lea esp, [esp]
+   0x40c7e5: lea esp, [esp]
+   0x40c7e9: lea esp, [esp]
+   0x40c7f0: sub esp, 0xb0
+   0x40c7f6: mov dword ptr [esp + 8], 0x1869f
+   0x40c7fe: push ebx
+   0x40c7ff: push esi
+   0x40c800: push edi
+   0x40c801: mov ebx, dword ptr [0x47d9e0]
+   0x40c807: push ebp
+   0x40c808: xor esi, esi
+   0x40c80a: mov dword ptr [esp + 0x10], ebx
+   0x40c80e: lea eax, [esp + 0x24]
+   0x40c812: push eax
+   0x40c813: push esi
+   0x40c814: push 0
+   0x40c816: call dword ptr [0x4f9578]
+   0x40c81c: mov ecx, dword ptr [0x47d9e0]
+   0x40c822: mov dword ptr [esp + 0x14], eax
+   0x40c826: mov eax, dword ptr [esp + 0x8c]
+   0x40c82d: cmp eax, 8
+   0x40c830: jne 0x40ca0f
+   0x40c836: mov eax, dword ptr [esp + 0x90]
+   0x40c83d: cmp eax, 0x500
+   0x40c842: ja 0x40ca0f
+   0x40c848: mov eax, dword ptr [esp + 0x94]
+   0x40c84f: cmp eax, 0x400
+   0x40c854: ja 0x40ca0f
+   0x40c85a: cmp ecx, 0x1e
+   0x40c85d: jge 0x40ca0f
+   0x40c863: lea eax, [esp + 0x24]
+   0x40c867: push 6
+   0x40c869: mov dword ptr [esp + 0x50], 0x1c0000
+   0x40c871: push eax
+   0x40c872: call dword ptr [0x4f957c]
+   0x40c878: mov ecx, dword ptr [0x47d9e0]
+   0x40c87e: test eax, eax
+----------------------------------------------------------------------------------------------------
+SITE 0x40ca4d  USER32.dll!EnumDisplaySettingsA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x40cae6  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40c9cc: cmp ebx, ebp
+   0x40c9ce: je 0x40c9de
+   0x40c9d0: add edi, 0x38
+   0x40c9d3: inc edx
+   0x40c9d4: cmp edx, ecx
+   0x40c9d6: jl 0x40c9b7
+   0x40c9d8: mov ebx, dword ptr [esp + 0x10]
+   0x40c9dc: jmp 0x40c9ea
+   0x40c9de: mov dword ptr [esp + 0x20], 1
+   0x40c9e6: mov ebx, dword ptr [esp + 0x10]
+   0x40c9ea: mov eax, dword ptr [esp + 0x20]
+   0x40c9ee: test eax, eax
+   0x40c9f0: jne 0x40ca0f
+   0x40c9f2: lea eax, [ecx*8]
+   0x40c9f9: mov edx, dword ptr [esp + 0x18]
+   0x40c9fd: sub eax, ecx
+   0x40c9ff: mov eax, dword ptr [eax*8 + 0x47cec4]
+   0x40ca06: cmp edx, eax
+   0x40ca08: jle 0x40ca0e
+   0x40ca0a: mov dword ptr [esp + 0x18], eax
+   0x40ca0e: inc ecx
+   0x40ca0f: inc esi
+   0x40ca10: mov eax, dword ptr [esp + 0x14]
+   0x40ca14: mov dword ptr [0x47d9e0], ecx
+   0x40ca1a: test eax, eax
+   0x40ca1c: jne 0x40c80e
+   0x40ca22: cmp ebx, ecx
+   0x40ca24: jne 0x40cccb
+   0x40ca2a: xor ebp, ebp
+   0x40ca2c: push 0x468eb8
+   0x40ca31: mov dword ptr [esp + 0x1c], 0x1869f
+   0x40ca39: call 0x435870
+   0x40ca3e: mov dword ptr [esp + 0x14], ebx
+   0x40ca42: add esp, 4
+   0x40ca45: lea eax, [esp + 0x24]
+   0x40ca49: push eax
+   0x40ca4a: push ebp
+   0x40ca4b: push 0
+   0x40ca4d: call dword ptr [0x4f9578]
+   0x40ca53: mov dword ptr [esp + 0x14], eax
+   0x40ca57: mov eax, dword ptr [esp + 0x90]
+   0x40ca5e: cmp eax, 0x500
+   0x40ca63: mov eax, dword ptr [0x47d9e0]
+   0x40ca68: ja 0x40ca79
+   0x40ca6a: mov ecx, dword ptr [esp + 0x94]
+   0x40ca71: cmp ecx, 0x400
+   0x40ca77: jbe 0x40cabe
+   0x40ca79: push 0x468ee0
+   0x40ca7e: call 0x411e60
+   0x40ca83: add esp, 4
+   0x40ca86: test eax, eax
+   0x40ca88: mov eax, dword ptr [0x47d9e0]
+   0x40ca8d: jne 0x40ccbe
+   0x40ca93: mov ecx, dword ptr [esp + 0x90]
+   0x40ca9a: cmp ecx, 0xa00
+   0x40caa0: ja 0x40ccbe
+   0x40caa6: mov ecx, dword ptr [esp + 0x94]
+   0x40caad: mov edx, dword ptr [esp + 0x90]
+   0x40cab4: add ecx, ecx
+   0x40cab6: cmp ecx, edx
+   0x40cab8: jae 0x40ccbe
+   0x40cabe: cmp eax, 0x1e
+   0x40cac1: jge 0x40ccbe
+   0x40cac7: mov eax, dword ptr [esp + 0x8c]
+   0x40cace: cmp eax, 8
+   0x40cad1: jbe 0x40ccbe
+   0x40cad7: lea eax, [esp + 0x24]
+   0x40cadb: push 6
+   0x40cadd: mov dword ptr [esp + 0x50], 0x1c0000
+   0x40cae5: push eax
+   0x40cae6: call dword ptr [0x4f957c]
+   0x40caec: test eax, eax
+   0x40caee: mov eax, dword ptr [0x47d9e0]
+----------------------------------------------------------------------------------------------------
+SITE 0x40cd08  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40cbe0: push edx
+   0x40cbe1: add ecx, 0x47cee8
+   0x40cbe7: push eax
+   0x40cbe8: push 0x468f08
+   0x40cbed: push ecx
+   0x40cbee: call 0x458b20
+   0x40cbf3: add esp, 0x10
+   0x40cbf6: mov edx, dword ptr [0x47d9e0]
+   0x40cbfc: mov ecx, ebx
+   0x40cbfe: cmp ebx, edx
+   0x40cc00: mov dword ptr [esp + 0x20], 0
+   0x40cc08: jge 0x40cc93
+   0x40cc0e: lea eax, [ebx*8]
+   0x40cc15: sub eax, ebx
+   0x40cc17: lea edi, [eax*8 + 0x47cec4]
+   0x40cc1e: lea eax, [edx*8]
+   0x40cc25: sub eax, edx
+   0x40cc27: lea esi, [eax*8]
+   0x40cc2e: mov eax, dword ptr [esi + 0x47cec4]
+   0x40cc34: mov ebx, dword ptr [edi]
+   0x40cc36: cmp ebx, eax
+   0x40cc38: jne 0x40cc47
+   0x40cc3a: mov eax, dword ptr [edi + 4]
+   0x40cc3d: mov ebx, dword ptr [esi + 0x47cec8]
+   0x40cc43: cmp ebx, eax
+   0x40cc45: je 0x40cc55
+   0x40cc47: add edi, 0x38
+   0x40cc4a: inc ecx
+   0x40cc4b: cmp ecx, edx
+   0x40cc4d: jl 0x40cc2e
+   0x40cc4f: mov ebx, dword ptr [esp + 0x10]
+   0x40cc53: jmp 0x40cc93
+   0x40cc55: mov ebx, dword ptr [esp + 0x10]
+   0x40cc59: lea eax, [ecx*8]
+   0x40cc60: sub eax, ecx
+   0x40cc62: mov edi, dword ptr [eax*8 + 0x47cee0]
+   0x40cc69: lea ecx, [eax*8]
+   0x40cc70: cmp dword ptr [esi + 0x47cee0], edi
+   0x40cc76: jge 0x40cc8b
+   0x40cc78: add esi, 0x47cec0
+   0x40cc7e: lea edi, [ecx + 0x47cec0]
+   0x40cc84: mov ecx, 0xe
+   0x40cc89: rep movsd dword ptr es:[edi], dword ptr [esi]
+   0x40cc8b: mov dword ptr [esp + 0x20], 1
+   0x40cc93: mov eax, dword ptr [esp + 0x20]
+   0x40cc97: test eax, eax
+   0x40cc99: jne 0x40ccbe
+   0x40cc9b: lea eax, [edx*8]
+   0x40cca2: mov ecx, dword ptr [esp + 0x18]
+   0x40cca6: sub eax, edx
+   0x40cca8: mov eax, dword ptr [eax*8 + 0x47cec4]
+   0x40ccaf: cmp ecx, eax
+   0x40ccb1: jle 0x40ccb7
+   0x40ccb3: mov dword ptr [esp + 0x18], eax
+   0x40ccb7: inc edx
+   0x40ccb8: mov dword ptr [0x47d9e0], edx
+   0x40ccbe: inc ebp
+   0x40ccbf: mov eax, dword ptr [esp + 0x14]
+   0x40ccc3: test eax, eax
+   0x40ccc5: jne 0x40ca45
+   0x40cccb: mov dword ptr [esp + 0x1c], 0
+   0x40ccd3: mov eax, 8
+   0x40ccd8: push 6
+   0x40ccda: mov dword ptr [esp + 0x18], eax
+   0x40ccde: mov dword ptr [esp + 0x90], eax
+   0x40cce5: mov dword ptr [esp + 0x94], 0x2a
+   0x40ccf0: mov dword ptr [esp + 0x98], 0x25
+   0x40ccfb: mov dword ptr [esp + 0x50], 0x1c0000
+   0x40cd03: lea ecx, [esp + 0x28]
+   0x40cd07: push ecx
+   0x40cd08: call dword ptr [0x4f957c]
+   0x40cd0e: test eax, eax
+   0x40cd10: jne 0x40cd1a
+----------------------------------------------------------------------------------------------------
+SITE 0x40cd71  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40cc3d: mov ebx, dword ptr [esi + 0x47cec8]
+   0x40cc43: cmp ebx, eax
+   0x40cc45: je 0x40cc55
+   0x40cc47: add edi, 0x38
+   0x40cc4a: inc ecx
+   0x40cc4b: cmp ecx, edx
+   0x40cc4d: jl 0x40cc2e
+   0x40cc4f: mov ebx, dword ptr [esp + 0x10]
+   0x40cc53: jmp 0x40cc93
+   0x40cc55: mov ebx, dword ptr [esp + 0x10]
+   0x40cc59: lea eax, [ecx*8]
+   0x40cc60: sub eax, ecx
+   0x40cc62: mov edi, dword ptr [eax*8 + 0x47cee0]
+   0x40cc69: lea ecx, [eax*8]
+   0x40cc70: cmp dword ptr [esi + 0x47cee0], edi
+   0x40cc76: jge 0x40cc8b
+   0x40cc78: add esi, 0x47cec0
+   0x40cc7e: lea edi, [ecx + 0x47cec0]
+   0x40cc84: mov ecx, 0xe
+   0x40cc89: rep movsd dword ptr es:[edi], dword ptr [esi]
+   0x40cc8b: mov dword ptr [esp + 0x20], 1
+   0x40cc93: mov eax, dword ptr [esp + 0x20]
+   0x40cc97: test eax, eax
+   0x40cc99: jne 0x40ccbe
+   0x40cc9b: lea eax, [edx*8]
+   0x40cca2: mov ecx, dword ptr [esp + 0x18]
+   0x40cca6: sub eax, edx
+   0x40cca8: mov eax, dword ptr [eax*8 + 0x47cec4]
+   0x40ccaf: cmp ecx, eax
+   0x40ccb1: jle 0x40ccb7
+   0x40ccb3: mov dword ptr [esp + 0x18], eax
+   0x40ccb7: inc edx
+   0x40ccb8: mov dword ptr [0x47d9e0], edx
+   0x40ccbe: inc ebp
+   0x40ccbf: mov eax, dword ptr [esp + 0x14]
+   0x40ccc3: test eax, eax
+   0x40ccc5: jne 0x40ca45
+   0x40cccb: mov dword ptr [esp + 0x1c], 0
+   0x40ccd3: mov eax, 8
+   0x40ccd8: push 6
+   0x40ccda: mov dword ptr [esp + 0x18], eax
+   0x40ccde: mov dword ptr [esp + 0x90], eax
+   0x40cce5: mov dword ptr [esp + 0x94], 0x2a
+   0x40ccf0: mov dword ptr [esp + 0x98], 0x25
+   0x40ccfb: mov dword ptr [esp + 0x50], 0x1c0000
+   0x40cd03: lea ecx, [esp + 0x28]
+   0x40cd07: push ecx
+   0x40cd08: call dword ptr [0x4f957c]
+   0x40cd0e: test eax, eax
+   0x40cd10: jne 0x40cd1a
+   0x40cd12: mov dword ptr [esp + 0x1c], 1
+   0x40cd1a: mov eax, dword ptr [esp + 0x1c]
+   0x40cd1e: mov edx, dword ptr [0x47d9e0]
+   0x40cd24: test eax, eax
+   0x40cd26: jne 0x40cefd
+   0x40cd2c: mov dword ptr [esp + 0x10], ebx
+   0x40cd30: mov esi, 0x468b08
+   0x40cd35: mov dword ptr [0x47d9e0], edx
+   0x40cd3b: cmp edx, 0x1e
+   0x40cd3e: jge 0x40cec0
+   0x40cd44: mov eax, dword ptr [esp + 0x14]
+   0x40cd48: mov ecx, dword ptr [esi]
+   0x40cd4a: mov edx, dword ptr [esi + 4]
+   0x40cd4d: push 6
+   0x40cd4f: mov dword ptr [esp + 0x90], eax
+   0x40cd56: mov dword ptr [esp + 0x94], ecx
+   0x40cd5d: lea eax, [esp + 0x28]
+   0x40cd61: mov dword ptr [esp + 0x98], edx
+   0x40cd68: mov dword ptr [esp + 0x50], 0x1c0000
+   0x40cd70: push eax
+   0x40cd71: call dword ptr [0x4f957c]
+   0x40cd77: mov edx, dword ptr [0x47d9e0]
+   0x40cd7d: test eax, eax
+----------------------------------------------------------------------------------------------------
+SITE 0x40d41e  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40d347: push esi
+   0x40d348: push 0x468f88
+   0x40d34d: push 0x47da98
+   0x40d352: call 0x458b20
+   0x40d357: add esp, 0xc
+   0x40d35a: mov eax, 0x47da98
+   0x40d35f: pop edi
+   0x40d360: pop esi
+   0x40d361: ret 
+   0x40d362: add esi, 0x28
+   0x40d365: push esi
+   0x40d366: push 0x468f9c
+   0x40d36b: push 0x47da98
+   0x40d370: call 0x458b20
+   0x40d375: add esp, 0xc
+   0x40d378: mov eax, 0x47da98
+   0x40d37d: pop edi
+   0x40d37e: pop esi
+   0x40d37f: ret 
+   0x40d380: xor eax, eax
+   0x40d382: pop edi
+   0x40d383: pop esi
+   0x40d384: ret 
+   0x40d385: lea esp, [esp]
+   0x40d389: lea esp, [esp]
+   0x40d390: mov eax, dword ptr [0x468b30]
+   0x40d395: test eax, eax
+   0x40d397: jne 0x40d3c9
+   0x40d399: mov eax, dword ptr [0x468b4c]
+   0x40d39e: test eax, eax
+   0x40d3a0: je 0x40d3ab
+   0x40d3a2: push eax
+   0x40d3a3: call 0x445444
+   0x40d3a8: add esp, 4
+   0x40d3ab: mov eax, dword ptr [0x468b48]
+   0x40d3b0: test eax, eax
+   0x40d3b2: je 0x40d3bd
+   0x40d3b4: push eax
+   0x40d3b5: call 0x445444
+   0x40d3ba: add esp, 4
+   0x40d3bd: xor eax, eax
+   0x40d3bf: mov dword ptr [0x468b48], eax
+   0x40d3c4: mov dword ptr [0x468b4c], eax
+   0x40d3c9: ret 
+   0x40d3ca: lea ebx, [ebx]
+   0x40d3d0: mov eax, dword ptr [0x468b30]
+   0x40d3d5: cmp eax, 1
+   0x40d3d8: jne 0x40d40a
+   0x40d3da: mov eax, dword ptr [0x468b40]
+   0x40d3df: test eax, eax
+   0x40d3e1: je 0x40d3ec
+   0x40d3e3: push eax
+   0x40d3e4: call 0x445444
+   0x40d3e9: add esp, 4
+   0x40d3ec: mov eax, dword ptr [0x468b44]
+   0x40d3f1: test eax, eax
+   0x40d3f3: je 0x40d3fe
+   0x40d3f5: push eax
+   0x40d3f6: call 0x445444
+   0x40d3fb: add esp, 4
+   0x40d3fe: xor eax, eax
+   0x40d400: mov dword ptr [0x468b44], eax
+   0x40d405: mov dword ptr [0x468b40], eax
+   0x40d40a: ret 
+   0x40d40b: add eax, 0
+   0x40d410: mov eax, dword ptr [0x468b30]
+   0x40d415: cmp eax, 2
+   0x40d418: jne 0x40d454
+   0x40d41a: push 4
+   0x40d41c: push 0
+   0x40d41e: call dword ptr [0x4f957c]
+   0x40d424: mov eax, dword ptr [0x468b4c]
+   0x40d429: test eax, eax
+----------------------------------------------------------------------------------------------------
+SITE 0x40dad8  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40d9d0: fstp dword ptr [0x4ca25c]
+   0x40d9d6: call edi
+   0x40d9d8: mov ecx, dword ptr [0x47dac4]
+   0x40d9de: mov eax, dword ptr [0x4ca7e4]
+   0x40d9e3: push ecx
+   0x40d9e4: push esi
+   0x40d9e5: push 0x80
+   0x40d9ea: push eax
+   0x40d9eb: call edi
+   0x40d9ed: push esi
+   0x40d9ee: push 1
+   0x40d9f0: call 0x40f550
+   0x40d9f5: add esp, 8
+   0x40d9f8: mov eax, 1
+   0x40d9fd: pop edi
+   0x40d9fe: pop esi
+   0x40d9ff: add esp, 8
+   0x40da02: ret 
+   0x40da03: lea ebx, [ebx]
+   0x40da09: lea esp, [esp]
+   0x40da10: sub esp, 0x24
+   0x40da13: mov dword ptr [0x4ca7e0], 0
+   0x40da1d: push ebx
+   0x40da1e: push esi
+   0x40da1f: push edi
+   0x40da20: push ebp
+   0x40da21: call 0x40d3d0
+   0x40da26: call 0x40d390
+   0x40da2b: mov eax, dword ptr [0x468b4c]
+   0x40da30: test eax, eax
+   0x40da32: je 0x40da3d
+   0x40da34: push eax
+   0x40da35: call 0x445444
+   0x40da3a: add esp, 4
+   0x40da3d: mov eax, dword ptr [0x468b48]
+   0x40da42: test eax, eax
+   0x40da44: je 0x40da4f
+   0x40da46: push eax
+   0x40da47: call 0x445444
+   0x40da4c: add esp, 4
+   0x40da4f: xor eax, eax
+   0x40da51: push 0x56
+   0x40da53: mov dword ptr [0x468b48], eax
+   0x40da58: mov dword ptr [0x468b4c], eax
+   0x40da5d: call 0x445d59
+   0x40da62: add esp, 4
+   0x40da65: test eax, eax
+   0x40da67: jne 0x40da6e
+   0x40da69: call 0x40bfc0
+   0x40da6e: mov edi, dword ptr [esp + 0x38]
+   0x40da72: mov dword ptr [0x47da10], 0x1c0000
+   0x40da7c: lea eax, [edi*8]
+   0x40da83: sub eax, edi
+   0x40da85: mov ecx, dword ptr [eax*8 + 0x47cee0]
+   0x40da8c: mov edx, dword ptr [eax*8 + 0x47cec4]
+   0x40da93: lea esi, [eax*8]
+   0x40da9a: mov dword ptr [0x47da50], ecx
+   0x40daa0: mov al, byte ptr [esi + 0x47ced4]
+   0x40daa6: mov cl, al
+   0x40daa8: shl edx, cl
+   0x40daaa: mov cl, byte ptr [esi + 0x47cee4]
+   0x40dab0: shl edx, cl
+   0x40dab2: mov cl, al
+   0x40dab4: push 4
+   0x40dab6: push 0x47d9e8
+   0x40dabb: mov dword ptr [0x47da54], edx
+   0x40dac1: mov word ptr [0x47da0c], 0x9c
+   0x40daca: mov edx, dword ptr [esi + 0x47cec8]
+   0x40dad0: shl edx, cl
+   0x40dad2: mov dword ptr [0x47da58], edx
+   0x40dad8: call dword ptr [0x4f957c]
+   0x40dade: test eax, eax
+   0x40dae0: je 0x40daef
+----------------------------------------------------------------------------------------------------
+SITE 0x40ea6c  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x40e974: mov ecx, 0x4000
+   0x40e979: mov dl, byte ptr [eax]
+   0x40e97b: test dl, dl
+   0x40e97d: jne 0x40e985
+   0x40e97f: mov dl, byte ptr [esp + 0x20]
+   0x40e983: mov byte ptr [eax], dl
+   0x40e985: inc eax
+   0x40e986: dec ecx
+   0x40e987: jne 0x40e979
+   0x40e989: push 0x469274
+   0x40e98e: call 0x411e60
+   0x40e993: add esp, 4
+   0x40e996: test eax, eax
+   0x40e998: je 0x40e9b0
+   0x40e99a: mov dword ptr [0x468990], 1
+   0x40e9a4: mov ecx, dword ptr [0x47ce94]
+   0x40e9aa: mov dword ptr [0x468b2c], ecx
+   0x40e9b0: mov eax, dword ptr [0x4922f8]
+   0x40e9b5: test eax, eax
+   0x40e9b7: je 0x40e9c0
+   0x40e9b9: push eax
+   0x40e9ba: call dword ptr [0x4f954c]
+   0x40e9c0: mov edi, 1
+   0x40e9c5: push esi
+   0x40e9c6: xor ebx, ebx
+   0x40e9c8: mov dword ptr [0x47da88], edi
+   0x40e9ce: push ebx
+   0x40e9cf: call 0x40de20
+   0x40e9d4: add esp, 8
+   0x40e9d7: mov dword ptr [0x47da88], ebx
+   0x40e9dd: call 0x41e3a0
+   0x40e9e2: push esi
+   0x40e9e3: mov eax, dword ptr [0x468b2c]
+   0x40e9e8: push eax
+   0x40e9e9: mov dword ptr [0x468998], edi
+   0x40e9ef: mov dword ptr [0x47dc50], edi
+   0x40e9f5: call 0x40de20
+   0x40e9fa: add esp, 8
+   0x40e9fd: mov eax, dword ptr [0x468b28]
+   0x40ea02: mov dword ptr [0x47dc50], ebx
+   0x40ea08: mov dword ptr [0x4ca224], eax
+   0x40ea0d: push esi
+   0x40ea0e: call 0x40e2c0
+   0x40ea13: add esp, 4
+   0x40ea16: mov ecx, 0x469284
+   0x40ea1b: mov dword ptr [0x491fc0], 0x40fd50
+   0x40ea25: mov edx, 0x47daf0
+   0x40ea2a: mov eax, dword ptr [ecx]
+   0x40ea2c: mov ebx, dword ptr [ecx + 4]
+   0x40ea2f: pop ebp
+   0x40ea30: mov cl, byte ptr [ecx + 8]
+   0x40ea33: pop edi
+   0x40ea34: pop esi
+   0x40ea35: mov dword ptr [edx], eax
+   0x40ea37: mov dword ptr [0x491d64], 0x4101e0
+   0x40ea41: mov dword ptr [edx + 4], ebx
+   0x40ea44: pop ebx
+   0x40ea45: mov byte ptr [edx + 8], cl
+   0x40ea48: add esp, 0x14
+   0x40ea4b: ret 
+   0x40ea4c: lea esp, [esp]
+   0x40ea50: push esi
+   0x40ea51: mov eax, dword ptr [0x468998]
+   0x40ea56: test eax, eax
+   0x40ea58: je 0x40eaeb
+   0x40ea5e: mov eax, dword ptr [0x468b30]
+   0x40ea63: cmp eax, 2
+   0x40ea66: jne 0x40ea72
+   0x40ea68: push 4
+   0x40ea6a: push 0
+   0x40ea6c: call dword ptr [0x4f957c]
+   0x40ea72: push 0
+   0x40ea74: mov eax, dword ptr [0x4ca7e4]
+----------------------------------------------------------------------------------------------------
+SITE 0x41c1d3  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x41c20b  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x43472f  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x434778  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x434785  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x434792  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x43479f  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347ac  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347b9  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347c6  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347d3  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347e0  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347ed  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x4347fa  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x434807  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x434814  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x434767 then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x43c60f  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x43c646  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x44466c  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x444696  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x444b2b  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x444d49  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x444d5f  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x444f45  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x445a8e  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x45b795  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x4637c2  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x4637da  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x4637d3 then call ebx)
+----------------------------------------------------------------------------------------------------
+SITE 0x4637eb  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x4637d3 then call ebx)
+----------------------------------------------------------------------------------------------------
+SITE 0x4637f8  KERNEL32.dll!GetProcAddress  (mov ebx,[slot] @0x4637d3 then call ebx)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):

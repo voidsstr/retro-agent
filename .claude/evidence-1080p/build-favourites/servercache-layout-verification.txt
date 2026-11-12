@@ -1,0 +1,419 @@
+servercache.dat layout for the staged ioquake3.x86.exe (Quake3-TeamArena), verified 2026-09-29
+======================================================================================
+binary: /mnt/retro-share/Files/Games-Library/Quake3-TeamArena/ioquake3.x86.exe md5 12f99bc0f9ba416ee477a4f13de8feaa (1,363,456 B)
+source: ioq3 git at 06954842 (2009-04-13, the last commit before 'increase version in trunk' after 1.36; box binary says 'ioq3 1.36 win_mingw-x86 Apr 12 2009')
+
+--- source: code/qcommon/q_shared.h: MAX_GLOBAL_SERVERS 4096, MAX_OTHER_SERVERS 128, MAX_NAME_LENGTH 32
+--- source: code/qcommon/qcommon.h (1.36):
+typedef enum {
+	NA_BOT,
+	NA_BAD,					// an address lookup failed
+	NA_LOOPBACK,
+	NA_BROADCAST,
+	NA_IP,
+	NA_IP6,
+	NA_MULTICAST6,
+	NA_UNSPEC
+} netadrtype_t;
+
+typedef enum {
+	NS_CLIENT,
+	NS_SERVER
+} netsrc_t;
+
+#define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
+typedef struct {
+	netadrtype_t	type;
+
+	byte	ip[4];
+	byte	ip6[16];
+
+	unsigned short	port;
+	unsigned long	scope_id;	// Needed for IPv6 link-local addresses
+} netadr_t;
+typedef enum {
+	VMI_NATIVE,
+	VMI_BYTECODE,
+	VMI_COMPILED
+--- source: code/client/client.h serverInfo_t (1.36):
+typedef struct {
+	netadr_t	adr;
+	char	  	hostName[MAX_NAME_LENGTH];
+	char	  	mapName[MAX_NAME_LENGTH];
+	char	  	game[MAX_NAME_LENGTH];
+	int			netType;
+	int			gameType;
+	int		  	clients;
+	int		  	maxClients;
+	int			minPing;
+	int			maxPing;
+	int			ping;
+	qboolean	visible;
+	int			punkbuster;
+} serverInfo_t;
+--- source: code/client/cl_ui.c LAN_LoadCachedServers / LAN_SaveServersToCache / LAN_AddServer (1.36):
+void LAN_LoadCachedServers( void ) {
+	int size;
+	fileHandle_t fileIn;
+	cls.numglobalservers = cls.numfavoriteservers = 0;
+	cls.numGlobalServerAddresses = 0;
+	if (FS_SV_FOpenFileRead("servercache.dat", &fileIn)) {
+		FS_Read(&cls.numglobalservers, sizeof(int), fileIn);
+		FS_Read(&cls.numfavoriteservers, sizeof(int), fileIn);
+		FS_Read(&size, sizeof(int), fileIn);
+		if (size == sizeof(cls.globalServers) + sizeof(cls.favoriteServers)) {
+			FS_Read(&cls.globalServers, sizeof(cls.globalServers), fileIn);
+			FS_Read(&cls.favoriteServers, sizeof(cls.favoriteServers), fileIn);
+		} else {
+			cls.numglobalservers = cls.numfavoriteservers = 0;
+			cls.numGlobalServerAddresses = 0;
+		}
+		FS_FCloseFile(fileIn);
+	}
+}
+void LAN_SaveServersToCache( void ) {
+	int size;
+	fileHandle_t fileOut = FS_SV_FOpenFileWrite("servercache.dat");
+	FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
+	FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
+	size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers);
+	FS_Write(&size, sizeof(int), fileOut);
+	FS_Write(&cls.globalServers, sizeof(cls.globalServers), fileOut);
+	FS_Write(&cls.favoriteServers, sizeof(cls.favoriteServers), fileOut);
+	FS_FCloseFile(fileOut);
+}
+static int LAN_AddServer(int source, const char *name, const char *address) {
+	int max, *count, i;
+	netadr_t adr;
+	serverInfo_t *servers = NULL;
+	max = MAX_OTHER_SERVERS;
+	count = NULL;
+
+	switch (source) {
+		case AS_LOCAL :
+			count = &cls.numlocalservers;
+			servers = &cls.localServers[0];
+			break;
+		case AS_MPLAYER:
+		case AS_GLOBAL :
+			max = MAX_GLOBAL_SERVERS;
+			count = &cls.numglobalservers;
+			servers = &cls.globalServers[0];
+			break;
+		case AS_FAVORITES :
+			count = &cls.numfavoriteservers;
+			servers = &cls.favoriteServers[0];
+			break;
+	}
+	if (servers && *count < max) {
+		NET_StringToAdr( address, &adr, NA_IP );
+		for ( i = 0; i < *count; i++ ) {
+			if (NET_CompareAdr(servers[i].adr, adr)) {
+				break;
+			}
+		}
+		if (i >= *count) {
+			servers[*count].adr = adr;
+			Q_strncpyz(servers[*count].hostName, name, sizeof(servers[*count].hostName));
+			servers[*count].visible = qtrue;
+			(*count)++;
+			return 1;
+		}
+		return 0;
+	}
+	return -1;
+}
+--- source: code/ui/ui_main.c (Team Arena UI): _UI_Shutdown -> trap_LAN_SaveCachedServers (line 666); _UI_Init -> trap_LAN_LoadCachedServers (5137); server1..16 only registered as vmCvar_t ui_server1..16 (5615+)
+
+--- binary: LAN_LoadCachedServers @0x41cc40: reads numglobal (0xae9224), numfav (0xbad22c), size; cmp size,0xa9200 (=692736); globals 0xa4000 B (4096*164) at 0xae9228; favourites 0x5200 B (128*164) at 0xbad230
+  41cc40:	55                   	push   ebp
+  41cc41:	31 c0                	xor    eax,eax
+  41cc43:	89 e5                	mov    ebp,esp
+  41cc45:	31 c9                	xor    ecx,ecx
+  41cc47:	83 ec 18             	sub    esp,0x18
+  41cc4a:	a3 2c d2 ba 00       	mov    ds:0xbad22c,eax
+  41cc4f:	31 d2                	xor    edx,edx
+  41cc51:	8d 45 fc             	lea    eax,[ebp-0x4]
+  41cc54:	89 0d 24 92 ae 00    	mov    DWORD PTR ds:0xae9224,ecx
+  41cc5a:	89 15 28 d2 b8 00    	mov    DWORD PTR ds:0xb8d228,edx
+  41cc60:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  41cc64:	c7 04 24 d0 b6 51 00 	mov    DWORD PTR [esp],0x51b6d0
+  41cc6b:	e8 70 a5 01 00       	call   0x4371e0
+  41cc70:	85 c0                	test   eax,eax
+  41cc72:	75 02                	jne    0x41cc76
+  41cc74:	c9                   	leave
+  41cc75:	c3                   	ret
+  41cc76:	8b 55 fc             	mov    edx,DWORD PTR [ebp-0x4]
+  41cc79:	b8 04 00 00 00       	mov    eax,0x4
+  41cc7e:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  41cc82:	c7 04 24 24 92 ae 00 	mov    DWORD PTR [esp],0xae9224
+  41cc89:	89 54 24 08          	mov    DWORD PTR [esp+0x8],edx
+  41cc8d:	e8 0e c4 01 00       	call   0x4390a0
+  41cc92:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]
+  41cc95:	ba 04 00 00 00       	mov    edx,0x4
+  41cc9a:	89 54 24 04          	mov    DWORD PTR [esp+0x4],edx
+  41cc9e:	c7 04 24 2c d2 ba 00 	mov    DWORD PTR [esp],0xbad22c
+  41cca5:	89 4c 24 08          	mov    DWORD PTR [esp+0x8],ecx
+  41cca9:	e8 f2 c3 01 00       	call   0x4390a0
+  41ccae:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+  41ccb1:	b9 04 00 00 00       	mov    ecx,0x4
+  41ccb6:	8d 55 f8             	lea    edx,[ebp-0x8]
+  41ccb9:	89 4c 24 04          	mov    DWORD PTR [esp+0x4],ecx
+  41ccbd:	89 14 24             	mov    DWORD PTR [esp],edx
+  41ccc0:	89 44 24 08          	mov    DWORD PTR [esp+0x8],eax
+  41ccc4:	e8 d7 c3 01 00       	call   0x4390a0
+  41ccc9:	81 7d f8 00 92 0a 00 	cmp    DWORD PTR [ebp-0x8],0xa9200
+  41ccd0:	74 24                	je     0x41ccf6
+  41ccd2:	31 c9                	xor    ecx,ecx
+  41ccd4:	31 d2                	xor    edx,edx
+  41ccd6:	31 c0                	xor    eax,eax
+  41ccd8:	89 0d 2c d2 ba 00    	mov    DWORD PTR ds:0xbad22c,ecx
+  41ccde:	89 15 24 92 ae 00    	mov    DWORD PTR ds:0xae9224,edx
+  41cce4:	a3 28 d2 b8 00       	mov    ds:0xb8d228,eax
+  41cce9:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+  41ccec:	89 04 24             	mov    DWORD PTR [esp],eax
+  41ccef:	e8 ec ae 01 00       	call   0x437be0
+  41ccf4:	c9                   	leave
+  41ccf5:	c3                   	ret
+  41ccf6:	8b 4d fc             	mov    ecx,DWORD PTR [ebp-0x4]
+  41ccf9:	ba 00 40 0a 00       	mov    edx,0xa4000
+  41ccfe:	89 54 24 04          	mov    DWORD PTR [esp+0x4],edx
+  41cd02:	c7 04 24 28 92 ae 00 	mov    DWORD PTR [esp],0xae9228
+  41cd09:	89 4c 24 08          	mov    DWORD PTR [esp+0x8],ecx
+  41cd0d:	e8 8e c3 01 00       	call   0x4390a0
+  41cd12:	8b 45 fc             	mov    eax,DWORD PTR [ebp-0x4]
+  41cd15:	b9 00 52 00 00       	mov    ecx,0x5200
+  41cd1a:	89 4c 24 04          	mov    DWORD PTR [esp+0x4],ecx
+  41cd1e:	c7 04 24 30 d2 ba 00 	mov    DWORD PTR [esp],0xbad230
+  41cd25:	89 44 24 08          	mov    DWORD PTR [esp+0x8],eax
+  41cd29:	e8 72 c3 01 00       	call   0x4390a0
+  41cd2e:	eb b9                	jmp    0x41cce9
+--- binary: CL_SetServerInfo @0x416420 - field offsets: hostName +0x20 (len 0x20), mapName +0x40, game +0x60, netType +0x80, gameType +0x84, clients +0x88, maxClients +0x8c, minPing +0x90, maxPing +0x94, ping +0x98, punkbuster +0xa0
+  416420:	55                   	push   ebp
+  416421:	89 e5                	mov    ebp,esp
+  416423:	56                   	push   esi
+  416424:	89 d6                	mov    esi,edx
+  416426:	53                   	push   ebx
+  416427:	83 ec 10             	sub    esp,0x10
+  41642a:	85 c0                	test   eax,eax
+  41642c:	89 c3                	mov    ebx,eax
+  41642e:	0f 84 65 01 00 00    	je     0x416599
+  416434:	85 d2                	test   edx,edx
+  416436:	0f 84 54 01 00 00    	je     0x416590
+  41643c:	89 34 24             	mov    DWORD PTR [esp],esi
+  41643f:	ba 70 a9 51 00       	mov    edx,0x51a970
+  416444:	89 54 24 04          	mov    DWORD PTR [esp+0x4],edx
+  416448:	e8 f3 fe 04 00       	call   0x466340
+  41644d:	89 04 24             	mov    DWORD PTR [esp],eax
+  416450:	e8 9b bd 0f 00       	call   0x5121f0
+  416455:	89 83 88 00 00 00    	mov    DWORD PTR [ebx+0x88],eax
+  41645b:	b8 78 a9 51 00       	mov    eax,0x51a978
+  416460:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  416464:	89 34 24             	mov    DWORD PTR [esp],esi
+  416467:	e8 d4 fe 04 00       	call   0x466340
+  41646c:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  416470:	b9 20 00 00 00       	mov    ecx,0x20
+  416475:	8d 53 20             	lea    edx,[ebx+0x20]
+  416478:	89 4c 24 08          	mov    DWORD PTR [esp+0x8],ecx
+  41647c:	89 14 24             	mov    DWORD PTR [esp],edx
+  41647f:	e8 fc f3 04 00       	call   0x465880
+  416484:	89 34 24             	mov    DWORD PTR [esp],esi
+  416487:	b8 81 a9 51 00       	mov    eax,0x51a981
+  41648c:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  416490:	e8 ab fe 04 00       	call   0x466340
+  416495:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  416499:	8d 53 40             	lea    edx,[ebx+0x40]
+  41649c:	b9 20 00 00 00       	mov    ecx,0x20
+  4164a1:	89 14 24             	mov    DWORD PTR [esp],edx
+  4164a4:	89 4c 24 08          	mov    DWORD PTR [esp+0x8],ecx
+  4164a8:	e8 d3 f3 04 00       	call   0x465880
+  4164ad:	89 34 24             	mov    DWORD PTR [esp],esi
+  4164b0:	b9 89 a9 51 00       	mov    ecx,0x51a989
+  4164b5:	89 4c 24 04          	mov    DWORD PTR [esp+0x4],ecx
+  4164b9:	e8 82 fe 04 00       	call   0x466340
+  4164be:	89 04 24             	mov    DWORD PTR [esp],eax
+  4164c1:	e8 2a bd 0f 00       	call   0x5121f0
+  4164c6:	89 83 8c 00 00 00    	mov    DWORD PTR [ebx+0x8c],eax
+  4164cc:	b8 97 a9 51 00       	mov    eax,0x51a997
+  4164d1:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  4164d5:	89 34 24             	mov    DWORD PTR [esp],esi
+  4164d8:	e8 63 fe 04 00       	call   0x466340
+  4164dd:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  4164e1:	8d 4b 60             	lea    ecx,[ebx+0x60]
+  4164e4:	ba 20 00 00 00       	mov    edx,0x20
+  4164e9:	89 0c 24             	mov    DWORD PTR [esp],ecx
+  4164ec:	89 54 24 08          	mov    DWORD PTR [esp+0x8],edx
+  4164f0:	e8 8b f3 04 00       	call   0x465880
+  4164f5:	89 34 24             	mov    DWORD PTR [esp],esi
+  4164f8:	ba 9c a9 51 00       	mov    edx,0x51a99c
+  4164fd:	89 54 24 04          	mov    DWORD PTR [esp+0x4],edx
+  416501:	e8 3a fe 04 00       	call   0x466340
+  416506:	89 04 24             	mov    DWORD PTR [esp],eax
+  416509:	e8 e2 bc 0f 00       	call   0x5121f0
+  41650e:	89 83 84 00 00 00    	mov    DWORD PTR [ebx+0x84],eax
+  416514:	b8 a5 a9 51 00       	mov    eax,0x51a9a5
+  416519:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  41651d:	89 34 24             	mov    DWORD PTR [esp],esi
+  416520:	e8 1b fe 04 00       	call   0x466340
+  416525:	89 04 24             	mov    DWORD PTR [esp],eax
+  416528:	e8 c3 bc 0f 00       	call   0x5121f0
+  41652d:	89 83 80 00 00 00    	mov    DWORD PTR [ebx+0x80],eax
+  416533:	b9 ad a9 51 00       	mov    ecx,0x51a9ad
+  416538:	89 4c 24 04          	mov    DWORD PTR [esp+0x4],ecx
+  41653c:	89 34 24             	mov    DWORD PTR [esp],esi
+  41653f:	e8 fc fd 04 00       	call   0x466340
+  416544:	89 04 24             	mov    DWORD PTR [esp],eax
+  416547:	e8 a4 bc 0f 00       	call   0x5121f0
+  41654c:	89 83 90 00 00 00    	mov    DWORD PTR [ebx+0x90],eax
+  416552:	ba b5 a9 51 00       	mov    edx,0x51a9b5
+  416557:	89 54 24 04          	mov    DWORD PTR [esp+0x4],edx
+  41655b:	89 34 24             	mov    DWORD PTR [esp],esi
+  41655e:	e8 dd fd 04 00       	call   0x466340
+  416563:	89 04 24             	mov    DWORD PTR [esp],eax
+  416566:	e8 85 bc 0f 00       	call   0x5121f0
+  41656b:	89 83 94 00 00 00    	mov    DWORD PTR [ebx+0x94],eax
+  416571:	b8 bd a9 51 00       	mov    eax,0x51a9bd
+  416576:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+  41657a:	89 34 24             	mov    DWORD PTR [esp],esi
+  41657d:	e8 be fd 04 00       	call   0x466340
+  416582:	89 04 24             	mov    DWORD PTR [esp],eax
+  416585:	e8 66 bc 0f 00       	call   0x5121f0
+  41658a:	89 83 a0 00 00 00    	mov    DWORD PTR [ebx+0xa0],eax
+  416590:	8b 75 08             	mov    esi,DWORD PTR [ebp+0x8]
+  416593:	89 b3 98 00 00 00    	mov    DWORD PTR [ebx+0x98],esi
+  416599:	83 c4 10             	add    esp,0x10
+  41659c:	5b                   	pop    ebx
+  41659d:	5e                   	pop    esi
+  41659e:	5d                   	pop    ebp
+  41659f:	c3                   	ret
+--- binary: LAN_ServerIsVisible/MarkServerVisible index favourites as [i*41*4 + 0xbad2cc] -> stride 164, visible at +0x9c (156)
+  41e442:	b9 80 00 00 00       	mov    ecx,0x80
+  41e447:	e9 8d ee ff ff       	jmp    0x41d2d9
+  41e44c:	83 f8 03             	cmp    eax,0x3
+  41e44f:	0f 85 b5 fe ff ff    	jne    0x41e30a
+  41e455:	83 fa 7f             	cmp    edx,0x7f
+  41e458:	0f 87 ac fe ff ff    	ja     0x41e30a
+  41e45e:	8d 1c 92             	lea    ebx,[edx+edx*4]
+  41e461:	8d 0c da             	lea    ecx,[edx+ebx*8]
+  41e464:	8b 04 8d cc d2 ba 00 	mov    eax,DWORD PTR [ecx*4+0xbad2cc]
+  41e46b:	e9 00 ea ff ff       	jmp    0x41ce70
+  41e470:	83 fb 03             	cmp    ebx,0x3
+  41e473:	0f 85 2f ef ff ff    	jne    0x41d3a8
+--- binary: inlined LAN_RemoveServer: NET_StringToAdr(addr,&comp,4) -> NA_IP == 4; compares 8-dword netadr_t (32 B) by value, stride 0xa4
+  41d511:	0f 8c e3 14 00 00    	jl     0x41e9fa
+  41d517:	89 14 24             	mov    DWORD PTR [esp],edx
+  41d51a:	b8 04 00 00 00       	mov    eax,0x4
+  41d51f:	8d 7d c8             	lea    edi,[ebp-0x38]
+  41d522:	89 7c 24 04          	mov    DWORD PTR [esp+0x4],edi
+  41d526:	31 ff                	xor    edi,edi
+  41d528:	89 44 24 08          	mov    DWORD PTR [esp+0x8],eax
+  41d52c:	e8 7f 67 02 00       	call   0x443cb0
+  41d531:	8b 9d 9c fb ff ff    	mov    ebx,DWORD PTR [ebp-0x464]
+  41d537:	8b 13                	mov    edx,DWORD PTR [ebx]
+  41d539:	85 d2                	test   edx,edx
+  41d53b:	0f 8e 9e 00 00 00    	jle    0x41d5df
+  41d541:	8b b5 7c fb ff ff    	mov    esi,DWORD PTR [ebp-0x484]
+  41d547:	31 db                	xor    ebx,ebx
+  41d549:	8b 0e                	mov    ecx,DWORD PTR [esi]
+  41d54b:	89 4c 24 20          	mov    DWORD PTR [esp+0x20],ecx
+  41d54f:	8b 46 04             	mov    eax,DWORD PTR [esi+0x4]
+  41d552:	89 44 24 24          	mov    DWORD PTR [esp+0x24],eax
+  41d556:	8b 56 08             	mov    edx,DWORD PTR [esi+0x8]
+  41d559:	89 54 24 28          	mov    DWORD PTR [esp+0x28],edx
+  41d55d:	8b 4e 0c             	mov    ecx,DWORD PTR [esi+0xc]
+  41d560:	89 4c 24 2c          	mov    DWORD PTR [esp+0x2c],ecx
+  41d564:	8b 46 10             	mov    eax,DWORD PTR [esi+0x10]
+  41d567:	89 44 24 30          	mov    DWORD PTR [esp+0x30],eax
+  41d56b:	8b 56 14             	mov    edx,DWORD PTR [esi+0x14]
+  41d56e:	89 54 24 34          	mov    DWORD PTR [esp+0x34],edx
+  41d572:	8b 4e 18             	mov    ecx,DWORD PTR [esi+0x18]
+  41d575:	8b 55 c8             	mov    edx,DWORD PTR [ebp-0x38]
+  41d578:	89 4c 24 38          	mov    DWORD PTR [esp+0x38],ecx
+  41d57c:	8b 46 1c             	mov    eax,DWORD PTR [esi+0x1c]
+  41d57f:	89 14 24             	mov    DWORD PTR [esp],edx
+  41d582:	8b 4d cc             	mov    ecx,DWORD PTR [ebp-0x34]
+  41d585:	8b 55 d4             	mov    edx,DWORD PTR [ebp-0x2c]
+  41d588:	89 44 24 3c          	mov    DWORD PTR [esp+0x3c],eax
+  41d58c:	8b 45 d0             	mov    eax,DWORD PTR [ebp-0x30]
+  41d58f:	89 4c 24 04          	mov    DWORD PTR [esp+0x4],ecx
+  41d593:	8b 4d d8             	mov    ecx,DWORD PTR [ebp-0x28]
+  41d596:	89 44 24 08          	mov    DWORD PTR [esp+0x8],eax
+  41d59a:	8b 45 dc             	mov    eax,DWORD PTR [ebp-0x24]
+  41d59d:	89 54 24 0c          	mov    DWORD PTR [esp+0xc],edx
+  41d5a1:	8b 55 e0             	mov    edx,DWORD PTR [ebp-0x20]
+  41d5a4:	89 4c 24 10          	mov    DWORD PTR [esp+0x10],ecx
+  41d5a8:	8b 4d e4             	mov    ecx,DWORD PTR [ebp-0x1c]
+  41d5ab:	89 44 24 14          	mov    DWORD PTR [esp+0x14],eax
+  41d5af:	89 54 24 18          	mov    DWORD PTR [esp+0x18],edx
+  41d5b3:	89 4c 24 1c          	mov    DWORD PTR [esp+0x1c],ecx
+  41d5b7:	e8 24 75 02 00       	call   0x444ae0
+  41d5bc:	85 c0                	test   eax,eax
+  41d5be:	0f 85 4e 13 00 00    	jne    0x41e912
+  41d5c4:	8b 85 9c fb ff ff    	mov    eax,DWORD PTR [ebp-0x464]
+  41d5ca:	47                   	inc    edi
+  41d5cb:	81 c3 a4 00 00 00    	add    ebx,0xa4
+  41d5d1:	81 c6 a4 00 00 00    	add    esi,0xa4
+  41d5d7:	39 38                	cmp    DWORD PTR [eax],edi
+  41d5d9:	0f 8f 6a ff ff ff    	jg     0x41d549
+  41d5df:	31 c0                	xor    eax,eax
+--- binary: NET_CompareAdr @0x444ae0: type compare; NA_LOOPBACK==2; NA_IP==4 compares 4 bytes (ip) only; NA_IP6==5 compares 16 bytes + scope; port = word at +0x18
+  444b22:	89 55 e4             	mov    DWORD PTR [ebp-0x1c],edx
+  444b25:	8b 55 28             	mov    edx,DWORD PTR [ebp+0x28]
+  444b28:	89 5d ac             	mov    DWORD PTR [ebp-0x54],ebx
+  444b2b:	8b 5d 3c             	mov    ebx,DWORD PTR [ebp+0x3c]
+  444b2e:	39 d1                	cmp    ecx,edx
+  444b30:	89 45 b0             	mov    DWORD PTR [ebp-0x50],eax
+  444b33:	89 4d c8             	mov    DWORD PTR [ebp-0x38],ecx
+  444b36:	89 55 a8             	mov    DWORD PTR [ebp-0x58],edx
+  444b39:	89 7d b4             	mov    DWORD PTR [ebp-0x4c],edi
+  444b3c:	89 75 b8             	mov    DWORD PTR [ebp-0x48],esi
+  444b3f:	89 5d bc             	mov    DWORD PTR [ebp-0x44],ebx
+  444b42:	8b 45 40             	mov    eax,DWORD PTR [ebp+0x40]
+  444b45:	8b 5d 44             	mov    ebx,DWORD PTR [ebp+0x44]
+  444b48:	89 45 c0             	mov    DWORD PTR [ebp-0x40],eax
+  444b4b:	89 5d c4             	mov    DWORD PTR [ebp-0x3c],ebx
+  444b4e:	74 10                	je     0x444b60
+  444b50:	31 d2                	xor    edx,edx
+  444b52:	83 c4 7c             	add    esp,0x7c
+  444b55:	89 d0                	mov    eax,edx
+  444b57:	5b                   	pop    ebx
+  444b58:	5e                   	pop    esi
+  444b59:	5f                   	pop    edi
+  444b5a:	5d                   	pop    ebp
+  444b5b:	c3                   	ret
+  444b5c:	8d 74 26 00          	lea    esi,[esi+eiz*1+0x0]
+  444b60:	83 f9 02             	cmp    ecx,0x2
+  444b63:	74 3b                	je     0x444ba0
+  444b65:	83 f9 04             	cmp    ecx,0x4
+  444b68:	74 1e                	je     0x444b88
+  444b6a:	83 f9 05             	cmp    ecx,0x5
+  444b6d:	75 4f                	jne    0x444bbe
+  444b6f:	fc                   	cld
+  444b70:	b8 10 00 00 00       	mov    eax,0x10
+  444b75:	8d 55 b0             	lea    edx,[ebp-0x50]
+  444b78:	8d 75 d0             	lea    esi,[ebp-0x30]
+  444b7b:	89 d7                	mov    edi,edx
+  444b7d:	89 c1                	mov    ecx,eax
+  444b7f:	f3 a6                	repz cmps BYTE PTR ds:[esi],BYTE PTR es:[edi]
+  444b81:	75 cd                	jne    0x444b50
+  444b83:	39 5d 94             	cmp    DWORD PTR [ebp-0x6c],ebx
+  444b86:	eb 0b                	jmp    0x444b93
+  444b88:	fc                   	cld
+  444b89:	8d 45 ac             	lea    eax,[ebp-0x54]
+  444b8c:	8d 75 cc             	lea    esi,[ebp-0x34]
+  444b8f:	89 c7                	mov    edi,eax
+  444b91:	f3 a6                	repz cmps BYTE PTR ds:[esi],BYTE PTR es:[edi]
+  444b93:	75 bb                	jne    0x444b50
+  444b95:	8d 74 26 00          	lea    esi,[esi+eiz*1+0x0]
+  444b99:	8d bc 27 00 00 00 00 	lea    edi,[edi+eiz*1+0x0]
+  444ba0:	8b 5d 08             	mov    ebx,DWORD PTR [ebp+0x8]
+  444ba3:	ba 01 00 00 00       	mov    edx,0x1
+  444ba8:	83 eb 04             	sub    ebx,0x4
+  444bab:	83 fb 01             	cmp    ebx,0x1
+  444bae:	77 a2                	ja     0x444b52
+  444bb0:	8b 7d 40             	mov    edi,DWORD PTR [ebp+0x40]
+  444bb3:	31 d2                	xor    edx,edx
+  444bb5:	66 39 7d 20          	cmp    WORD PTR [ebp+0x20],di
+  444bb9:	0f 94 c2             	sete   dl
+  444bbc:	eb 94                	jmp    0x444b52
+  444bbe:	c7 04 24 00 f0 51 00 	mov    DWORD PTR [esp],0x51f000

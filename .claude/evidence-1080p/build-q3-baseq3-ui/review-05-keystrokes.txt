@@ -1,0 +1,124 @@
+== stock / retail / r_textureMode GL_LINEAR_MIPMAP_NEAREST
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '640x480' (4 of 12)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Bilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'menu/art/accept_0'
+   ACCEPT: r_mode=3 r_customwidth=None r_customheight=None r_glDriver=libGL.so.1, then 'vid_restart\n'
+== stock / retail / r_textureMode GL_LINEAR_MIPMAP_LINEAR
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '640x480' (4 of 12)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Trilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'GRAPHICS'
+   NOT ON ACCEPT - RETURN here would apply NOTHING and no vid_restart would run
+== stock / ioquake3 / r_textureMode GL_LINEAR_MIPMAP_NEAREST
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '640x480' (4 of 12)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Bilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'menu/art/accept_0'
+   ACCEPT: r_mode=3 r_customwidth=None r_customheight=None r_glDriver=libGL.so.1, then 'vid_restart\n'
+== stock / ioquake3 / r_textureMode GL_LINEAR_MIPMAP_LINEAR
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '640x480' (4 of 12)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Trilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'GRAPHICS'
+   NOT ON ACCEPT - RETURN here would apply NOTHING and no vid_restart would run
+== patched / retail / r_textureMode GL_LINEAR_MIPMAP_NEAREST
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '1920x1080' (13 of 13)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Bilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'menu/art/accept_0'
+   ACCEPT: r_mode=-1 r_customwidth=1920 r_customheight=1080 r_glDriver=libGL.so.1, then 'vid_restart\n'
+== patched / retail / r_textureMode GL_LINEAR_MIPMAP_LINEAR
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '1920x1080' (13 of 13)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Trilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'GRAPHICS'
+   NOT ON ACCEPT - RETURN here would apply NOTHING and no vid_restart would run
+== patched / ioquake3 / r_textureMode GL_LINEAR_MIPMAP_NEAREST
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '1920x1080' (1 of 9)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Bilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'menu/art/accept_0'
+   ACCEPT: r_mode=-1 r_customwidth=1920 r_customheight=1080 r_glDriver=libGL.so.1, then 'vid_restart\n'
+== patched / ioquake3 / r_textureMode GL_LINEAR_MIPMAP_LINEAR
+   start 'SINGLE PLAYER'
+   DOWN x2 -> 'SETUP'
+   RETURN x1 -> 'PLAYER'
+   DOWN x2 -> 'SYSTEM'
+   RETURN x1 -> 'GRAPHICS'
+   DOWN x7 -> 'Video Mode:'
+   Video Mode '1920x1080' (1 of 9)
+   DOWN x7 -> 'Texture Filter:'
+   filter 'Trilinear'
+   RIGHT x1 -> 'Texture Filter:'
+   filter 'Trilinear'
+   DOWN x3 -> 'GRAPHICS'
+   NOT ON ACCEPT - RETURN here would apply NOTHING and no vid_restart would run
+
+== presets (Graphics Settings) and the Voodoo clamp
+   stock   ioquake3 preset 'High Quality' -> Video Mode '800x600' (5 of 12), ACCEPT r_mode=4
+   stock   ioquake3 preset 'Fast'       -> Video Mode '512x384' (3 of 12), ACCEPT r_mode=2
+   stock   retail   preset 'High Quality' -> Video Mode '800x600' (5 of 12), ACCEPT r_mode=4
+   stock   retail   preset 'Fast'       -> Video Mode '512x384' (3 of 12), ACCEPT r_mode=2
+   stock   retail   GL Driver Voodoo, Video Mode '640x480' -RIGHT-> '800x600' (id's 3dfx clamp), ACCEPT r_mode=4 r_glDriver=libMesaVoodooGL.so
+   patched ioquake3 preset 'High Quality' -> Video Mode '800x600' (8 of 10), ACCEPT r_mode=4
+   patched ioquake3 preset 'Fast'       -> Video Mode '512x384' (10 of 10), ACCEPT r_mode=2
+   patched retail   preset 'High Quality' -> Video Mode '800x600' (5 of 13), ACCEPT r_mode=4
+   patched retail   preset 'Fast'       -> Video Mode '512x384' (3 of 13), ACCEPT r_mode=2
+   patched retail   GL Driver Voodoo, Video Mode '1920x1080' -RIGHT-> '1024x768' (id's 3dfx clamp), ACCEPT r_mode=6 r_glDriver=libMesaVoodooGL.so

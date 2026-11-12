@@ -1,0 +1,33 @@
+== SeriousSamFirstEncounter Bin/Engine.dll (engine)
+  original 1560576 B md5 6281c69ec427b9a0dd828bc1cbf0b14b ok
+  table @0x159200: 22 pairs as expected
+  count word @0x1592b0 = 22 (left unchanged)
+  4 relocated pointers near the table, all to its base/count/end - none to an entry
+    0x159288  1280x480 -> 1280x720  (no reloc; IsDualHead/IsWideScreen false)
+    0x159290  1600x600 -> 1600x900  (no reloc; IsDualHead/IsWideScreen false)
+    0x159298  2048x768 -> 1920x1080  (no reloc; IsDualHead/IsWideScreen false)
+  PE checksum header 0x18820f, computed 0x18820f (valid - will be kept valid)
+  diff: 0x148-0x14a, 0x15928c-0x15928e, 0x159294-0x159296, 0x159298-0x15929a, 0x15929c-0x15929e
+  post: table = 320x240 400x300 480x360 512x384 640x480 720x540 800x600 960x720 1024x768 1152x864 1280x960 1280x1024 1600x1200 1792x1344 1856x1392 1920x1440 2048x1536 1280x720 1600x900 1920x1080 848x480 856x480
+  -> patched md5 7158150f6ba8981f6c4d141e0a379f58 (1560576 B)
+== SeriousSamFirstEncounter Scripts/Game_startup.ini (startup)
+  original 86 B md5 cf9c168d9af4e35df51b81b2b7a925ec ok
+  1 shipped line(s) present
+  post: shipped 86 B kept verbatim + include of Scripts\Game_FleetRes.ini
+  -> patched md5 c7410f66e11cfd027b8fbfbf1d09bae1 (412 B)
+== SeriousSamSecondEncounter Bin/Engine.dll (engine)
+  original 1929274 B md5 230c1b52f3bd125dc9af049b70472100 ok
+  table @0x1ad6d0: 23 pairs as expected
+  6 relocated pointers near the table, all to its base/count/end - none to an entry
+    0x1ad760  1280x480 -> 1280x720  (no reloc; IsDualHead/IsWideScreen false)
+    0x1ad768  1600x600 -> 1600x900  (no reloc; IsDualHead/IsWideScreen false)
+    0x1ad770  2048x768 -> 1920x1080  (no reloc; IsDualHead/IsWideScreen false)
+  PE checksum header 0x1e6ac5, computed 0x1e6ac5 (valid - will be kept valid)
+  diff: 0x158-0x15a, 0x1ad764-0x1ad766, 0x1ad76c-0x1ad76e, 0x1ad770-0x1ad772, 0x1ad774-0x1ad776
+  post: table = 320x240 400x300 480x360 512x384 640x480 720x540 720x576 800x600 960x720 1024x768 1152x864 1280x960 1280x1024 1600x1200 1792x1344 1856x1392 1920x1440 2048x1536 1280x720 1600x900 1920x1080 848x480 856x480
+  -> patched md5 4bdeec64bb57c0bd09d20319d195e08e (1929274 B)
+== SeriousSamSecondEncounter Scripts/Game_startup.ini (startup)
+  original 224 B md5 fb6e5696d4980a0d13e390aa745fea54 ok
+  4 shipped line(s) present
+  post: shipped 224 B kept verbatim + include of Scripts\Game_FleetRes.ini
+  -> patched md5 cce33f9ac340461d140f765610f08627 (550 B)

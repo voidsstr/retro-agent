@@ -1,0 +1,20 @@
+{
+ "_ip": "192.168.1.243",
+ "_at": "2026-09-29 03:57:56 EDT",
+ "PING": {
+  "status": 0,
+  "text": "PONG"
+ },
+ "REGREAD HKLM Software\\RetroAgent": {
+  "status": 0,
+  "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"DosStaged\",\"type\":\"REG_SZ\",\"data\":\"2026-09-29 00:02 (2 files)\"},{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.90.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-09-29 00:03:39 ok\"},{\"name\":\"ClockFixed\",\"type\":\"REG_SZ\",\"data\":\"from 1980-01-04 05:01:01 to 2026-09-29 03:07:40 UTC via http://192.168.1.122/\"},{\"name\":\"PciRescueBoot\",\"type\":\"REG_SZ\",\"data\":\"agent 1.93.0, uptime 40s: all 6 installed PCI device(s) present - nothing to do\"},{\"name\":\"PostSkipBoot\",\"type\":\"REG_SZ\",\"data\":\"already set; 2Dh 08 -> 08; 0Eh 00 -> 00; checksum valid; 1Bh 00 -> 00 (want 00)\"},{\"name\":\"CmosIde2Type\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"GamesDir\",\"type\":\"REG_SZ\",\"data\":\"E:\\\\GAMES\"}],\"subkeys\":[\"AutoMap\"]}"
+ },
+ "DIRLIST C:\\Games": {
+  "status": 0,
+  "text": "[{\"name\":\"DOOM\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:28:40\",\"hidden\":false,\"readonly\":false},{\"name\":\"HEXEN\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:31:06\",\"hidden\":false,\"readonly\":false},{\"name\":\"ROTT\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:32:08\",\"hidden\":false,\"readonly\":false},{\"name\":\"WOLF3D\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:32:42\",\"hidden\":false,\"readonly\":false},{\"name\":\"DUKE3D\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:57:14\",\"hidden\":false,\"readonly\":false},{\"name\":\"Quake2Win9x\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-25 05:13:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"Powerslave (1995)(3D Realms)\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:17:04\",\"hidden\":false,\"readonly\":false},{\"name\":\"WOLF3D2\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 06:51:16\",\"hidden\":false,\"readonly\":false},{\"name\":\"HERET3TV\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 13:19:32\",\"hidden\":false,\"readonly\":false},{\"name\":\"Quake1\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 05:48:28\",\"hidden\":false,\"readonly\":false},{\"name\":\"Descent1\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 05:49:28\",\"hidden\":false,\"readonly\":false},{\"name\":\"HexenII\",\"is_dir\":true,\"size\":0,\"modified\":\"1980-01-04 05:50:04\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "GAMERES": {
+  "status": 0,
+  "text": "{\"panel\":{\"edid\":false,\"name\":\"\",\"pnpid\":\"\",\"type\":\"CRT\",\"digital\":false,\"native\":\"0x0\",\"native_hz\":0,\"vmax_hz\":0,\"size_cm\":\"0x0\"},\"desktop\":{\"persisted\":\"1024x768\",\"persisted_hz\":75,\"live\":\"1024x768\",\"bpp\":8},\"cap\":\"0x0\",\"target\":{\"wide\":\"1024x768\",\"four_three\":\"1024x768\",\"aspect\":\"4:3\",\"hz\":75,\"hz_four_three\":75,\"hz_desktop\":75,\"hz_launcher\":75,\"fov\":90,\"q2mode\":6,\"q3mode\":6,\"d3_aspect\":0,\"dosbox_fullresolution\":\"original\"},\"modes\":[\"640x480@0\",\"800x600@0\",\"1024x768@75\"],\"rules\":80}"
+ }
+}

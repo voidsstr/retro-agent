@@ -1,0 +1,81 @@
+MEASURED / READ-BACK EVIDENCE (read-only; collected 2026-09-29 00:35-00:55 EDT)
+
+## Engine post-mode-set refresh lines ('MODE: <mode>, <w> x <h> <fs> hz:<N>') found in logs on the boxes / in sibling evidence
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_124/C_Documents_and_Settings_Administrator_Application_Data_Quake3_baseq3_qconsole.log
+     26 GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+     25 MODE: -1, 1280 x 960 fullscreen hz:N/A
+      1 SDL using driver "directx"
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_124/C_Games_JediAcademy_base_qconsole.log
+      1 Display refresh set to 85
+      1 GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.77]
+      1 MODE: -1, 1280 x 960 fullscreen hz:75
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_124/C_Games_Quake3-TeamArena_baseq3_qconsole.log
+      2 GL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)
+      2 MODE: -1, 1024 x 768 fullscreen hz:75
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_124/C_Games_ReturnToCastleWolfenstein_Main_rtcwconsole.log
+     13 GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]
+     13 MODE: 7, 1152 x 864 fullscreen hz:75
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_124/C_Games_SoldierOfFortune2_base_MP_qconsole.log
+      2 GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.78]
+      2 MODE: 7, 1152 x 864 fullscreen hz:75
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_145/C_Documents_and_Settings_voidsstr_Application_Data_Quake3_baseq3_qconsole.log
+      2 GL_RENDERER: GeForce 8400GS/PCIe/SSE2
+      1 MODE: 6, 1024 x 768 fullscreen hz:N/A
+      1 SDL using driver "directx"
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_195/C_Games_SoldierOfFortune2_base_MP_qconsole.log
+      1 GL_RENDERER: AMD Radeon HD 5450
+      1 MODE: 3, 640 x 480 windowed hz:60
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_240/C_Documents_and_Settings_User_Application_Data_Quake3_baseq3_qconsole.log
+      2 GL_RENDERER: RADEON 9800 XT
+      1 MODE: -1, 1920 x 1080 fullscreen hz:N/A
+      1 SDL using driver "directx"
+--- evidence-refresh/idtech-q3-ja-sof2-rtcw-d3/files_240/C_Games_JediAcademy_base_qconsole.log
+      1 GL_RENDERER: RADEON X800 Series
+      1 MODE: -1, 1920 x 1080 fullscreen hz:60
+--- evidence-1080p/145-q3/t3-retail-132c/qconsole.log
+      3 GL_RENDERER: GeForce 8400GS/PCIe/SSE2
+      3 MODE: -1, 1920 x 1080 fullscreen hz:60
+--- evidence-1080p/q3-123/L3/condump-L3-menu.txt
+      1 GL_RENDERER: ATI Radeon HD 3850 AGP
+      1 MODE: -1, 1920 x 1080 fullscreen hz:60
+--- evidence-1080p/q3-195/52-launch3-retail-condump.txt
+      2 GL_RENDERER: AMD Radeon HD 5450
+      2 MODE: -1, 1920 x 1080 fullscreen hz:60
+--- evidence-1080p/review-jka-sof2-rtcw/240-R1-rtcw-mp-custom1080/R1-rtcwconsole.log
+      1 GL_RENDERER: Radeon X1600 Series
+      1 MODE: -1, 1920 x 1080 fullscreen hz:60
+--- evidence-1080p/review-jka-sof2-rtcw/240-S1-sof2mp-stock-custom1080/S1-qconsole.log
+      1 GL_RENDERER: Radeon X1600 Series
+      1 MODE: 3, 640 x 480 fullscreen hz:60
+--- evidence-1080p/240-q3/43-B-condump-mainmenu.txt
+      3 GL_RENDERER: Radeon X1600 Series
+      2 MODE: -1, 1920 x 1080 fullscreen hz:N/A
+      1 SDL using driver "directx"
+
+## .124 MesaFX (C:\retrogl.log) - the rate our ICD ASKS Glide for (GR_REFRESH enum 7 = 85 Hz), per game:
+     21 C:\Games\Quake3-TeamArena\ioquake3.x86.exe :: fxBestRefresh: 10x10 max 0 Hz (EnumDisplaySettings) -> GR_REFRESH enum 0
+     14 C:\Games\SoldierOfFortune2\sof2mp.exe :: fxBestRefresh: 1152x864 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+     11 C:\Games\Quake3-TeamArena\ioquake3.x86.exe :: fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+      8 C:\Games\JediAcademy\jamp.exe :: fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+      4 C:\Games\Quake3-TeamArena\ioquake3.x86.exe :: fxBestRefresh: 1280x1024 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+      3 C:\Games\ReturnToCastleWolfenstein\WolfMP.exe :: fxBestRefresh: 1152x864 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+      3 C:\Games\Quake3-TeamArena\ioquake3.x86.exe :: fxBestRefresh: 1024x768 max 100 Hz (EnumDisplaySettings) -> GR_REFRESH enum 6
+      2 C:\Games\Quake3-TeamArena\ioquake3.x86.exe :: fxBestRefresh: 1024x768 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+      1 C:\Games\Quake3-TeamArena\ioquake3.x86.exe :: fxBestRefresh: 1600x1200 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+
+## .124 Glide settings key (REGREAD HKLM SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide):
+    FX_GLIDE_SWAPPENDINGCOUNT = 1
+    FX_GLIDE_SWAPINTERVAL = 0
+    SSTH3_SLI_AA_CONFIGURATION = 5
+    FX_GLIDE_REFRESH = 75
+   OpenGLDrivers\3dfx DLL = ['retroicd.dll']
+   -> our h5 Glide, voodoo-cleanroom/build/retro3dfx-glide/glide3x/h5/minihwc/minihwc.c:4675-4676: if (GETENV("FX_GLIDE_REFRESH")) refresh = atoi(GETENV("FX_GLIDE_REFRESH")); (hwcGetenv: process env first, then HKCU, then HKLM regPath)
+
+## GAMERES (agent 1.90.2/1.91.0) best real rate per resolution (EDID-capped) at the resolutions these titles use
+  .123 DELL P2312H  LCD vmax 76 | desktop 1920x1080@60 | wide 1920x1080 @60 | q3mode 7 | 1152x864@75 1024x768@75 1280x960@75 1920x1080@60 | hz_launcher(FR_HZ) 60
+  .145 DELL E2414H  LCD vmax 76 | desktop 1920x1080@60 | wide 1920x1080 @60 | q3mode 7 | 1152x864@75 1024x768@75 1280x960@75 1920x1080@60 | hz_launcher(FR_HZ) 60
+  .195 HP 2511      LCD vmax 76 | desktop 1920x1080@60 | wide 1920x1080 @60 | q3mode 6 | 1152x864@- 1024x768@60 1280x960@60 1920x1080@60 | hz_launcher(FR_HZ) 60
+  .240 DELL E2313H  LCD vmax 76 | desktop 1920x1080@60 | wide 1920x1080 @60 | q3mode 7 | 1152x864@75 1024x768@75 1280x960@75 1920x1080@60 | hz_launcher(FR_HZ) 60
+  .124 HP P1120     CRT vmax 160 | desktop 1280x1024@85 | wide 1280x960 @85 | q3mode 7 | 1152x864@85 1024x768@85 1280x960@85 1920x1080@- | hz_launcher(FR_HZ) 85
+
+## Deployed? (DIRLIST C:\Games, case-insensitive) - .243 (Win98 P166) has none of the five: []

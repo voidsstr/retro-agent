@@ -1,0 +1,36 @@
+# 2026-09-29 04:28:00
+LAUNCH 640 480 24 -c -cb 75 -pace 5 -hold 2 -tag vmc
+status 0
+{"pid":1736,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 640 480 24 -c -cb 75 -pace 5 -hold 2 -tag vmc"}
+# 2026-09-29 04:31:35
+LAUNCH 1024 768 24 -c -pace 5 -hold 2 -tag vmc102476824
+status 0
+{"pid":516,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 1024 768 24 -c -pace 5 -hold 2 -tag vmc102476824"}
+# 2026-09-29 04:31:57
+LAUNCH 800 600 24 -c -pace 5 -hold 2 -tag vmc80060024
+status 0
+{"pid":1044,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 800 600 24 -c -pace 5 -hold 2 -tag vmc80060024"}
+# 2026-09-29 04:32:19
+LAUNCH 1152 864 8 -c -pace 5 -hold 2 -tag vmc11528648
+status 0
+{"pid":828,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 1152 864 8 -c -pace 5 -hold 2 -tag vmc11528648"}
+# 2026-09-29 04:32:55
+LAUNCH 1024 768 16 -d -pace 5 -hold 2 -tag vmd
+status 0
+{"pid":976,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 1024 768 16 -d -pace 5 -hold 2 -tag vmd"}
+# 2026-09-29 04:34:16
+LAUNCH 800 600 24 -c -pace 5 -hold 2 -tag vmfrr80060024
+status 0
+{"pid":868,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 800 600 24 -c -pace 5 -hold 2 -tag vmfrr80060024"}
+# 2026-09-29 04:34:36
+LAUNCH 1152 864 8 -c -pace 5 -hold 2 -tag vmfrr11528648
+status 0
+{"pid":1936,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 1152 864 8 -c -pace 5 -hold 2 -tag vmfrr11528648"}
+# 2026-09-29 04:35:12
+LAUNCH 1280 1024 8 -c -pace 5 -hold 2 -tag vmfrr1280
+status 0
+{"pid":1792,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 1280 1024 8 -c -pace 5 -hold 2 -tag vmfrr1280"}
+# 2026-09-29 04:35:48
+LAUNCH 1280 1024 8 -c -pace 5 -hold 2 -tag vmfrr1280b
+status 0
+{"pid":468,"command":"C:\\RETRO_AGENT\\modetest\\modetest.exe 1280 1024 8 -c -pace 5 -hold 2 -tag vmfrr1280b"}

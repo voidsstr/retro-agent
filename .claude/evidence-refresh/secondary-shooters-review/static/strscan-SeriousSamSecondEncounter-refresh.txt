@@ -1,0 +1,30 @@
+Bin/Engine.dll  A@0x183742  QueryPerformanceFrequency
+Bin/Engine.dll  A@0x1b132c  user void RefreshTextures(void);
+Bin/Engine.dll  A@0x1b184c  persistent user INDEX gap_iRefreshRate;
+Bin/Engine.dll  A@0x1b7b48  persistent user FLOAT ser_tmSyncCheckFrequency;
+Bin/EntitiesMP.dll  A@0x1bd542  ?GetAttackMoveFrequency@CEnemyBase@@UAEMM@Z
+Bin/EntitiesMP.dll  A@0x1d8878  Walk sound frequency
+Bin/EntitiesMP.dll  A@0x1defa4  m_fMoveFrequency = %g
+Bin/EntitiesMP.dll  A@0x1dfe9c  Shake frequency Y
+Bin/EntitiesMP.dll  A@0x1dfec4  Shake frequency B
+Bin/EntitiesMP.dll  A@0x1dfeec  Shake frequency Z
+Bin/EntitiesMP.dll  A@0x1e3278  Watcher frequency
+Bin/EntitiesMP.dll  A@0x1e32a8  Move frequency
+Bin/EntitiesMP.dll  A@0x1e38c4  Growth frequency
+Bin/EntitiesMP.dll  A@0x1ef4fc  user INDEX cht_bRefresh;
+Bin/GameMP.dll  A@0x2bedc  refresh
+Bin/GameMP.dll  A@0x2bee4  cht_bRefresh
+Bin/SeriousSam.exe  A@0x32814  RefreshTextures();
+Bin/SeriousSam.exe  A@0x35084  ETRSFREQUENCY
+Bin/SeriousSam.exe  A@0x35224  ETRSREFRESH
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1965dc  ?GetAttackMoveFrequency@CEnemyBase@@UAEMM@Z
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b4188  m_fMoveFrequency = %g
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b5024  Shake frequency Y
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b504c  Shake frequency B
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b5074  Shake frequency Z
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b8438  Watcher frequency
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b8468  Move frequency
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1b8a84  Growth frequency
+Mods/Warped/Bin/EntitiesSWD.dll  A@0x1c37cc  user INDEX cht_bRefresh;
+Mods/Warped/Bin/GameSWD.dll  A@0x2afa0  refresh
+Mods/Warped/Bin/GameSWD.dll  A@0x2afa8  cht_bRefresh

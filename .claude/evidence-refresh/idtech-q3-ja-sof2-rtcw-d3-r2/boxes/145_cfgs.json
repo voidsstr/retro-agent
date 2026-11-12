@@ -1,0 +1,52 @@
+{
+ "_ip": "192.168.1.145",
+ "_at": "2026-09-29 03:59:04 EDT",
+ "DOWNLOAD C:\\Games\\Quake3-TeamArena\\baseq3\\fleetres.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_Quake3-TeamArena_baseq3_fleetres.cfg",
+  "bytes": 259,
+  "md5": "1374d0c0e076af61802eeebfe482ab1e"
+ },
+ "DOWNLOAD C:\\Games\\Quake3-TeamArena\\missionpack\\fleetres.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_Quake3-TeamArena_missionpack_fleetres.cfg",
+  "bytes": 259,
+  "md5": "1374d0c0e076af61802eeebfe482ab1e"
+ },
+ "DOWNLOAD C:\\Games\\Quake3-TeamArena\\baseq3\\autoexec.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_Quake3-TeamArena_baseq3_autoexec.cfg",
+  "bytes": 2653,
+  "md5": "540f6b4d116c9df9211de479f34ae7df"
+ },
+ "DOWNLOAD C:\\Games\\Quake3-TeamArena\\Play Quake III Arena.bat": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_Quake3-TeamArena_Play_Quake_III_Arena.bat",
+  "bytes": 1432,
+  "md5": "3d45f45125fc7114075199d9a749f8ae"
+ },
+ "DOWNLOAD C:\\Games\\JediAcademy\\base\\fleetres.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_JediAcademy_base_fleetres.cfg",
+  "bytes": 259,
+  "md5": "1374d0c0e076af61802eeebfe482ab1e"
+ },
+ "DOWNLOAD C:\\Games\\SoldierOfFortune2\\base\\fleetres.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_SoldierOfFortune2_base_fleetres.cfg",
+  "bytes": 265,
+  "md5": "870814c92ea59e2949e501ff0e7871a3"
+ },
+ "DOWNLOAD C:\\Games\\ReturnToCastleWolfenstein\\Main\\fleetres.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_ReturnToCastleWolfenstein_Main_fleetres.cfg",
+  "bytes": 246,
+  "md5": "39ca79fe933539c4578cb0f0b3127027"
+ },
+ "DOWNLOAD C:\\Games\\ReturnToCastleWolfenstein\\Main\\autoexec.cfg": {
+  "status": 1,
+  "saved": "/home/voidsstr/development/retro-agent/.claude/evidence-refresh/idtech-q3-ja-sof2-rtcw-d3-r2/boxes/files/145_C_Games_ReturnToCastleWolfenstein_Main_autoexec.cfg",
+  "bytes": 1863,
+  "md5": "bd5be88652f53cfe10ef8fafb136defc"
+ }
+}

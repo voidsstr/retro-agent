@@ -1,0 +1,183 @@
+Tom Clancy's Rainbow Six (GOG, v1.04 shell) RainbowSix.exe
+In-game Options->VIDEO->RESOLUTION radio labels (pointer table 0x8a53a0):
+  008a5450 -> 320x240 LOW
+  008a5444 -> 640x480 MED
+  008a5434 -> 800x600 HIGH
+Registry: HKLM\SOFTWARE\Red Storm Entertainment\Tom Clancy's Rainbow Six  VideoResolution REG_SZ (default '640x480' at 0x89944c); all RegCreateKeyExA calls use HKEY_LOCAL_MACHINE (0x80000002).
+
+== VideoResolution parse: split at 'x', atoi both halves, any nonzero pair accepted, else 'GAMEMODE: Invalid screen size'
+0040e5e0: push     -1
+0040e5e2: push     0x822790
+0040e5e7: mov      eax, dword ptr fs:[0]
+0040e5ed: push     eax
+0040e5ee: mov      dword ptr fs:[0], esp
+0040e5f5: sub      esp, 0x24
+0040e5f8: mov      eax, dword ptr [0x8aebdc]
+0040e5fd: push     ebp
+0040e5fe: push     esi
+0040e5ff: push     edi
+0040e600: mov      ecx, dword ptr [eax + 0x10]
+0040e603: add      ecx, 0x334
+0040e609: push     ecx
+0040e60a: lea      ecx, [esp + 0x1c]
+0040e60e: call     0x425700
+0040e613: lea      edx, [esp + 0x18]
+0040e617: lea      ecx, [esp + 0xc]
+0040e61b: push     edx
+0040e61c: mov      dword ptr [esp + 0x3c], 0
+0040e624: call     0x425700
+0040e629: xor      ebp, ebp
+0040e62b: push     0x78
+0040e62d: push     ebp
+0040e62e: lea      ecx, [esp + 0x14]
+0040e632: mov      byte ptr [esp + 0x40], 1
+0040e637: xor      edi, edi
+0040e639: call     0x425fb0
+0040e63e: mov      esi, eax
+0040e640: cmp      esi, -1
+0040e643: je       0x40e69d
+0040e645: lea      eax, [esp + 0x24]
+0040e649: push     esi
+0040e64a: push     eax
+0040e64b: lea      ecx, [esp + 0x14]
+0040e64f: call     0x425d90
+0040e654: mov      ecx, dword ptr [eax + 4]
+0040e657: push     ecx
+0040e658: call     0x633da0
+0040e65d: add      esp, 4
+0040e660: lea      ecx, [esp + 0x24]
+0040e664: mov      edi, eax
+0040e666: call     0x425730
+0040e66b: lea      ecx, [esp + 0xc]
+0040e66f: call     0x425b30
+0040e674: sub      eax, esi
+0040e676: lea      edx, [esp + 0x24]
+0040e67a: dec      eax
+0040e67b: lea      ecx, [esp + 0xc]
+0040e67f: push     eax
+0040e680: push     edx
+0040e681: call     0x425dc0
+0040e686: mov      eax, dword ptr [eax + 4]
+0040e689: push     eax
+0040e68a: call     0x633da0
+0040e68f: add      esp, 4
+0040e692: lea      ecx, [esp + 0x24]
+0040e696: mov      ebp, eax
+0040e698: call     0x425730
+0040e69d: test     ebp, ebp
+0040e69f: je       0x40e6be
+0040e6a1: test     edi, edi
+0040e6a3: je       0x40e6be
+0040e6a5: mov      ecx, dword ptr [0x8aebdc]
+0040e6ab: mov      edx, dword ptr [ecx + 4]
+0040e6ae: mov      dword ptr [edx + 0x14], edi
+0040e6b1: mov      eax, dword ptr [0x8aebdc]
+0040e6b6: mov      ecx, dword ptr [eax + 4]
+0040e6b9: mov      dword ptr [ecx + 0x18], ebp
+0040e6bc: jmp      0x40e706
+0040e6be: lea      edx, [esp + 0x18]
+0040e6c2: push     0x898634  " specified."
+0040e6c7: push     edx
+0040e6c8: push     0x898610  "GAMEMODE: Invalid screen size of "
+0040e6cd: mov      ecx, 0x8b3db4
+0040e6d2: call     0x630ac0
+0040e6d7: push     eax
+0040e6d8: call     0x425f90
+0040e6dd: add      esp, 8
+0040e6e0: mov      ecx, eax
+0040e6e2: call     0x630ac0
+0040e6e7: push     0x4049a0
+0040e6ec: push     0xa
+0040e6ee: mov      ecx, eax
+
+== Renderer::EnumerateDisplayModes: IDirectDraw::EnumDisplayModes(0, NULL, 0, callback 0x497dd0)
+0046ea50: push     ebx
+0046ea51: push     esi
+0046ea52: mov      esi, ecx
+0046ea54: push     edi
+0046ea55: xor      edi, edi
+0046ea57: mov      eax, dword ptr [esi + 0x240]
+0046ea5d: push     0x497dd0
+0046ea62: push     edi
+0046ea63: mov      dword ptr [esi + 0x258], edi
+0046ea69: mov      ecx, dword ptr [eax]
+0046ea6b: push     edi
+0046ea6c: push     edi
+0046ea6d: push     eax
+0046ea6e: call     dword ptr [ecx + 0x20]
+0046ea71: cmp      eax, edi
+0046ea73: mov      dword ptr [esi + 0x1800], eax
+0046ea79: je       0x46ea99
+0046ea7b: push     eax
+0046ea7c: push     0x89e3ac  "EnumerateDisplayModes()"
+0046ea81: push     0x89e34c  "C:\Develop\Common\Renderer\renderer.cpp"
+0046ea86: push     0x265
+0046ea8b: mov      dword ptr [esi + 0x258], edi
+0046ea91: call     0x473760
+0046ea96: add      esp, 0x10
+0046ea99: mov      edx, dword ptr [esi + 0x258]
+0046ea9f: .byte    0x33
+
+== callback 0x497dd0: DROPS every mode with dwWidth > 1024 (0x400) or dwHeight > 768 (0x300); max 50 (0x32) modes
+00497dd0: mov      eax, dword ptr [esp + 4]
+00497dd4: mov      ecx, dword ptr [eax + 0xc]
+00497dd7: cmp      ecx, 0x400
+00497ddd: ja       0x497e42
+00497ddf: cmp      dword ptr [eax + 8], 0x300
+00497de6: ja       0x497e42
+00497de8: mov      edx, dword ptr [0x8bb8e8]
+00497dee: shl      edx, 4
+00497df1: mov      dword ptr [edx + 0x8bb8f0], ecx
+00497df7: mov      ecx, dword ptr [0x8bb8e8]
+00497dfd: mov      edx, dword ptr [eax + 8]
+00497e00: shl      ecx, 4
+00497e03: mov      dword ptr [ecx + 0x8bb8f4], edx
+00497e09: mov      ecx, dword ptr [0x8bb8e8]
+00497e0f: mov      edx, dword ptr [eax + 0x54]
+00497e12: shl      ecx, 4
+00497e15: mov      dword ptr [ecx + 0x8bb8f8], edx
+00497e1b: mov      eax, dword ptr [0x8bb8e8]
+00497e20: shl      eax, 4
+00497e23: xor      ecx, ecx
+00497e25: mov      byte ptr [eax + 0x8bb8fc], 0
+00497e2c: mov      eax, dword ptr [0x8bb8e8]
+00497e31: inc      eax
+00497e32: cmp      eax, 0x32
+00497e35: mov      dword ptr [0x8bb8e8], eax
+00497e3a: setne    cl
+00497e3d: mov      eax, ecx
+00497e3f: ret      8
+
+== mode lookup: exact (w,h,bpp) over that capped list, else 'Unable to find a display mode to match request'
+0046ff5c: mov      edx, dword ptr [ebp + 8]
+0046ff5f: push     ebx
+0046ff60: mov      ebx, dword ptr [ebp + 0x10]
+0046ff63: push     esi
+0046ff64: push     edi
+0046ff65: mov      esi, ecx
+0046ff67: mov      ecx, dword ptr [ebp + 0xc]
+0046ff6a: xor      edi, edi
+0046ff6c: mov      dword ptr [ebp - 0x10], esp
+0046ff6f: mov      dword ptr [ebp - 0x18], esi
+0046ff72: mov      byte ptr [esi + 0xfe9], 0
+0046ff79: mov      dword ptr [ebp - 4], edi
+0046ff7c: cmp      edi, dword ptr [esi + 0x258]
+0046ff82: jge      0x46ffaf
+0046ff84: lea      eax, [edi + 0x26]
+0046ff87: shl      eax, 4
+0046ff8a: cmp      dword ptr [eax + esi], edx
+0046ff8d: jne      0x46ffa6
+0046ff8f: mov      eax, edi
+0046ff91: shl      eax, 4
+0046ff94: add      eax, esi
+0046ff96: cmp      dword ptr [eax + 0x264], ecx
+0046ff9c: jne      0x46ffa6
+0046ff9e: cmp      dword ptr [eax + 0x268], ebx
+0046ffa4: je       0x46ffa9
+0046ffa6: inc      edi
+0046ffa7: jmp      0x46ff7c
+0046ffa9: cmp      edi, dword ptr [esi + 0x258]
+0046ffaf: jne      0x46fff8
+0046ffb1: mov      eax, 0x5a3
+0046ffb6: mov      ecx, 0x89eb88  "Unable to find a display mode to match request"
+0046ffbb: .byte    0xba

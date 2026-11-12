@@ -1,0 +1,14 @@
+logfile opened on Tue Sep 29 00:52:48 2026
+
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+QKEY found.
+----- Client Initialization Complete -----
+----- R_Init -----
+SDL_Init( SDL_INIT_VIDEO ) FAILED (No available video device)
+Setting r_mode -1 failed, falling back on r_mode 3
+SDL_Init( SDL_INIT_VIDEO ) FAILED (No available video device)
+----- CL_Shutdown -----
+RE_Shutdown( 1 )
+-----------------------

@@ -1,0 +1,3 @@
+DeusEx/SYSTEM/GLIDEDRV.DLL	W	0xfb58	Glide: Refresh %i failed, falling back...
+DeusEx/SYSTEM/GLIDEDRV.DLL	W	0xfd04	RefreshRate
+DeusEx/SYSTEM/GLIDEDRV.DLL	W	0xfe0c	RefreshRates

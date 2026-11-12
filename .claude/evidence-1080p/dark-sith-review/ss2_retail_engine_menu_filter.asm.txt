@@ -1,0 +1,115 @@
+# System Shock 2 RETAIL 1.0 engine, decrypted copy found on the share:
+#   Files/Games/Windows XP/System_Shock_2.zip (== Multiplayer/System_Shock_2.zip, 512,266,038 B) -> SYSTEMSHOCK2.bin (2014, MODE2/2352)
+#   -> /CRACK/SHOCK2.EXE  2,881,536 B  md5 ce16f131d4d068cb09d342c966c5677d  PE ts 0x378f54fa (1999-07-16), entry 0x60cc90 in .text, no stxt
+#   (same image's /SHOCK/SHOCK2.EXE + SHOCK2.ICD are byte-identical to the staged tree's loader + encrypted ICD)
+# Analysed read-only here; NOT a recommendation to stage a crack.
+## grd_mode_info at 0x6a973c: 87 entries (w,h,bpp); max 1600x1200; no 16:9/16:10 entry; has 1920x1080: False
+## Options->Video list builder (hw: 3D device mode list, bpp==16; sw: static list 0x69d240, bpp==8):
+005632c0: sub esp, 0x4c
+005632c3: push ebx
+005632c4: push ebp
+005632c5: push esi
+005632c6: push edi
+005632c7: mov ebp, ecx
+005632c9: call 0x411050
+005632ce: mov esi, eax
+005632d0: mov eax, dword ptr [ebp + 0x1578]
+005632d6: xor ebx, ebx
+005632d8: dec eax
+005632d9: push ebx
+005632da: push ebx
+005632db: push 0x69d2b4  ; "d3d_driver_index"
+005632e0: mov dword ptr [esp + 0x20], eax
+005632e4: call 0x5b31c0
+005632e9: add esp, 0xc
+005632ec: test al, al
+005632ee: je 0x563304
+005632f0: lea ecx, [esp + 0x14]
+005632f4: push ecx
+005632f5: push 1
+005632f7: push 0x69d2b4  ; "d3d_driver_index"
+005632fc: call 0x5b3180
+00563301: add esp, 0xc
+00563304: mov edx, dword ptr [esp + 0x14]
+00563308: push edx
+00563309: call 0x5d7100
+0056330e: mov ecx, dword ptr [ebp + 0x1578]
+00563314: add esp, 4
+00563317: cmp ecx, ebx
+00563319: jle 0x56333b
+0056331b: test byte ptr [esi + 0x10], 4
+0056331f: je 0x56333b
+00563321: mov ecx, dword ptr [ebp + 0x12b4]
+00563327: mov edx, dword ptr [eax + 0x18]
+0056332a: mov dword ptr [esp + 0x18], 0x10
+00563332: lea eax, [edx + ecx*2]
+00563335: mov dword ptr [esp + 0x10], eax
+00563339: jmp 0x563354
+0056333b: mov ecx, dword ptr [ebp + 0x12b4]
+00563341: mov dword ptr [esp + 0x18], 8
+00563349: lea edx, [ecx*2 + 0x69d240]
+00563350: mov dword ptr [esp + 0x10], edx
+00563354: mov eax, dword ptr [esi + 0xc]
+00563357: mov ecx, dword ptr [esi + 8]
+0056335a: mov edx, dword ptr [esi + 4]
+0056335d: push eax
+0056335e: push ecx
+0056335f: push edx
+00563360: lea eax, [esp + 0x48]
+00563364: push 0x69d4c0  ; "%dx%dx%d"
+00563369: push eax
+0056336a: call 0x60acd0
+0056336f: add esp, 0x14
+00563372: lea eax, [ebp + 0x12bc]
+00563378: mov dword ptr [ebp + 0x12b0], 0xc
+00563382: push 0xc
+00563384: push eax
+00563385: call 0x5c27e0
+0056338a: add esp, 8
+0056338d: mov dword ptr [ebp + 0x12b8], ebx
+00563393: mov ecx, dword ptr [esp + 0x10]
+00563397: xor edi, edi
+00563399: mov ax, word ptr [ecx]
+0056339c: cmp ax, 0xffff
+005633a0: je 0x5634bf
+005633a6: cmp ebx, 0xc
+005633a9: jge 0x5634bf
+005633af: movsx eax, ax
+005633b2: mov ecx, dword ptr [esp + 0x18]
+005633b6: xor edx, edx
+005633b8: lea eax, [eax + eax*2]
+005633bb: shl eax, 2
+005633be: mov dl, byte ptr [eax + 0x6a9740]
+005633c4: cmp edx, ecx
+005633c6: jne 0x5634b8
+005633cc: cmp word ptr [eax + 0x6a973c], 0x280
+005633d5: jl 0x5634b8
+005633db: mov cx, word ptr [eax + 0x6a973e]
+005633e2: cmp cx, 0x1e0
+005633e7: jl 0x5634b8
+005633ed: cmp cx, 0x300
+005633f2: jg 0x5634b8
+005633f8: movsx edx, word ptr [eax + 0x6a973e]
+005633ff: xor ecx, ecx
+00563401: mov cl, byte ptr [eax + 0x6a9740]
+00563407: movsx eax, word ptr [eax + 0x6a973c]
+0056340e: push ecx
+0056340f: push edx
+00563410: push eax
+00563411: lea ecx, [esp + 0x28]
+00563415: push 0x69d4c0  ; "%dx%dx%d"
+0056341a: push ecx
+0056341b: call 0x60acd0
+## config reader: game_ prefix -> %sscreen_size/%sscreen_depth/... (0x410f96 -> 0x43c070); default ScrnMode 0x65ab38 = (7, 640, 480, 8, 13)
+00410f96: call 0x411050
+00410f9b: mov ecx, 5
+00410fa0: mov esi, eax
+00410fa2: lea edi, [esp + 8]
+00410fa6: lea edx, [esp + 8]
+00410faa: push 0x65ab08  ; "game_"
+00410faf: push edx
+00410fb0: rep movsd dword ptr es:[edi], dword ptr [esi]
+00410fb2: call 0x43c070
+00410fb7: add esp, 8
+00410fba: lea eax, [esp + 8]
+00410fbe: push eax

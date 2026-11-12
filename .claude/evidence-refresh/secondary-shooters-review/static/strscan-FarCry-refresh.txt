@@ -1,0 +1,267 @@
+FLEETRES.EXE  A@0x4dfc  native     : %dx%d @%dHz  aspect %s  size %dx%dcm  input %s  vmax %dHz
+FLEETRES.EXE  A@0x4e68  desktop now: %dx%d %dbpp @%dHz  aspect 
+FLEETRES.EXE  A@0x4f8a  set "FR_HZ=%d"
+Bin32/Cry3DEngine.dll  A@0x86e78  rc.exe "%s" /GeomName=%s /Stripify=%d /LoadAdditinalInfo=%d /KeepInLocalSpace=%d /StaticCGF=1 /refresh
+Bin32/Cry3DEngine.dll  A@0x8bfd8  1 - full LOD, 0.5 - scale frequency and count down twice
+Bin32/CryGame.dll  A@0x6bfeb  Phhz
+Bin32/CryGame.dll  A@0xf1820  CScriptObjectGame::RefreshServerList
+Bin32/CryGame.dll  A@0xf1c40  Refreshing server list...
+Bin32/CryGame.dll  A@0xf1c70  RefreshNETServerList
+Bin32/CryGame.dll  A@0xf33fc  RefreshServerList
+Bin32/CryGame.dll  A@0x101384  g_GC_Frequence
+Bin32/CryGame.dll  A@0x1013de  Usage: g_GC_Frequence 1000
+Bin32/CryGame.dll  A@0x10214c  Refresh for lan
+Bin32/CryGame.dll  A@0x113230  QueryPerformanceFrequency
+Bin32/CryNetwork.dll  A@0x68922  hZ\X4d
+Bin32/CryNetwork.dll  A@0x9c59a  QueryPerformanceFrequency
+Bin32/CrySoundSystem.dll  A@0x37940  _CS_SetFrequency@8
+Bin32/CrySystem.dll  A@0x56d3d  hZ#U6hP
+Bin32/CrySystem.dll  A@0x6a8c8  CPU Speed (estimated): %f MHz
+Bin32/CrySystem.dll  A@0x6b026  Y?Memory usage (refresh )
+Bin32/CrySystem.dll  A@0x6b040  Memory usage (refresh*)
+Bin32/CrySystem.dll  A@0x6bdce  I@~MHz
+Bin32/CrySystem.dll  A@0x72208  <CrySystem> (CXConsoleVariable::Refresh) Unknown console variable type
+Bin32/CrySystem.dll  A@0x79118  CScriptObjectSound::SetSoundFrequency
+Bin32/CrySystem.dll  A@0x79c28  SetSoundFrequency
+Bin32/CrySystem.dll  A@0x8439c  QueryPerformanceFrequency
+Bin32/Editor.exe  A@0x6039f  QVWhZ
+Bin32/Editor.exe  A@0x77a1d  Hz!7
+Bin32/Editor.exe  A@0x77d2b  Hz!7
+Bin32/Editor.exe  A@0xf31a7  7hHZ"7
+Bin32/Editor.exe  A@0x205420  Heightmap Coordinates: HX:%g HY:%g HZ:%g
+Bin32/Editor.exe  A@0x22a5da  #=RefreshAccessibility Failed.
+Bin32/Editor.exe  A@0x245a60  HZ$7
+Bin32/Editor.exe  A@0x245a86  '7hZ$7
+Bin32/Editor.exe  A@0x255a78  hZ%7
+Bin32/Editor.exe  A@0x257ac8  hz%7
+Bin32/Editor.exe  A@0x275135  z!7hz!7Pz!7X
+Bin32/Editor.exe  A@0x2f896b  ynWnaEnaFm`EtjShZ=pM
+Bin32/Editor.exe  A@0x30522f  =M$=O$=P$=P$=O$>N$>O$@R%@W)H]0Lc6Ph:Ti;Ri;Md7F]/BY+GY-HZ/GZ/EV,CS+BR*BO)CP)BO*AO*>N&>L$=N$<L$=J$=J$=J%?K'BK*@K)>J&>J$?K&?K'=J&=I$<H$:E"9D
+Bin32/Editor.exe  A@0x30cd3b  =F(>D&=C$;?%;?$;="=>$?=$A>(E?*ID/JE0IC0IC/JE0JF/LG2LF6LF6NF6LF5NH6NG6OH7QK:TM?UPDXQFYTI\XI`YMb[L^VG^UEaVHaVH`WGaYHcYHe[Ig]Jg]Ih]KiaLmhPkdLjcJibKidKfbJdcHgdI`cFV
+Bin32/Editor.exe  A@0x319bc0  :>$=E'=H);I):H*:I+<K,=L,=O1?R4ET7HZ=M[AR^GS^GT\IT\FQYCOW?IW9GP3EP2BN0?K,=I(=H&=I)AM.IQ4JS7KU8FQ3CO.@N*?N)>O+=P+=N)=O+=O+>M+=K'9K$7J$5G"5G"5F
+Bin32/Editor.exe  A@0x31e951  GWlFP`FQ`-:P&3Q8E\P]mT`qTbrTcrU`sT_rUcvXhz]r
+Bin32/Editor.exe  A@0x323d0a  N;*[WPbtOdvUhz(TQ
+Bin32/Editor.exe  A@0x325829  YX}USxNOrHNnFMjDKhEIeAHa>E[:@T4=O+;G)7B';?(;=)=A->C1>E1=A/<=+;:*;<*;<);=)<>*=>*<>+<>*=A,=B,?F.=K1?R6EZ<H`AKgGIhEDi@CjACjFBiF=h=;f;=d9<b9=b8<`9>`:<`9<`7:^79Z46T1
+Bin32/Editor.exe  A@0x3288b9  'LUhz
+Bin32/Editor.exe  A@0x329eef  ]izQ\o?H_25P).H)/G,5I.;K/;K+9J)6F#0B#/>$/=$/<$0>#0@&1B'1?&/>&.>'/>&/>'-?,2B19G6<J;?PAFVDIZ?CU7;N58K23H89JCHXNTaaluhz~dv~ex~f|
+Bin32/Editor.exe  A@0x32c2c6  )5';F4EW*6F1>NJ]lJ]l8HZ&6H
+Bin32/Editor.exe  A@0x33b3e2  K[zHZ{K]~I^}>Tx5MqPh
+Bin32/Editor.exe  A@0x34fda7  3>'AP+IY.L],HZ+CU&>R0J_.H^?c
+Bin32/Editor.exe  A@0x35e805  fhz\r
+Bin32/Editor.exe  A@0x35e8e3  WRwHZ|Fd
+Bin32/Editor.exe  A@0x364aab  jhz\exT
+Bin32/Editor.exe  A@0x367f2d  eR0hZ/YN
+Bin32/Editor.exe  A@0x37a7b8  eN,mUHz[
+Bin32/Editor.exe  W@0x3b950a  Feature Size (Frequency)
+Bin32/Editor.exe  W@0x3bf6a0  Frequency
+Bin32/Editor.exe  W@0x3c5d1a  Refresh All...
+Bin32/Editor.exe  W@0x3c6e22  Refresh Preview
+Bin32/FarCryConfigEng.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigEng.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigEng.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigEng.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigEng.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigEng.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigEng.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigEng.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigEng.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigEng.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigEng.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigEng.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigEng.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigEng.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigEng.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigEng.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigEng.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigEng.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigEng.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigEng.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigEng.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigEng.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigFre.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigFre.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigFre.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigFre.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigFre.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigFre.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigFre.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigFre.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigFre.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigFre.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigFre.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigFre.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigFre.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigFre.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigFre.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigFre.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigFre.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigFre.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigFre.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigFre.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigFre.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigFre.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigGer.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigGer.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigGer.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigGer.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigGer.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigGer.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigGer.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigGer.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigGer.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigGer.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigGer.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigGer.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigGer.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigGer.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigGer.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigGer.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigGer.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigGer.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigGer.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigGer.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigGer.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigGer.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigIta.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigIta.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigIta.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigIta.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigIta.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigIta.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigIta.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigIta.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigIta.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigIta.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigIta.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigIta.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigIta.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigIta.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigIta.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigIta.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigIta.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigIta.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigIta.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigIta.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigIta.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigIta.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigJap.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigJap.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigJap.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigJap.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigJap.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigJap.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigJap.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigJap.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigJap.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigJap.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigJap.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigJap.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigJap.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigJap.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigJap.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigJap.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigJap.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigJap.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigJap.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigJap.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigJap.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigJap.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigPol.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigPol.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigPol.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigPol.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigPol.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigPol.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigPol.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigPol.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigPol.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigPol.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigPol.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigPol.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigPol.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigPol.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigPol.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigPol.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigPol.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigPol.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigPol.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigPol.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigPol.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigPol.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigRus.dll  A@0x103a3   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigRus.dll  A@0x10676  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigRus.dll  A@0x1e0b7  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigRus.dll  A@0x1f100  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigRus.dll  A@0x1f268  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigRus.dll  A@0x1f3d0  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigRus.dll  A@0x1f538  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigRus.dll  A@0x1f6a0  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigRus.dll  A@0x1f808  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigRus.dll  A@0x1f970  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigRus.dll  A@0x1fad8  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigRus.dll  A@0x1fc40  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigRus.dll  A@0x1fda8  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigRus.dll  A@0x20219  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigRus.dll  A@0x20e40   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigRus.dll  A@0x2297d  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigRus.dll  A@0x22ae5  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigRus.dll  A@0x22c4d  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigRus.dll  A@0x22db5  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigRus.dll  A@0x22f1d  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigRus.dll  A@0x23082  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigRus.dll  A@0x231d2  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigSpa.dll  A@0x1035b   -.=XY@]`CZ`I`eAZ`HZ^LajUpvXv
+Bin32/FarCryConfigSpa.dll  A@0x1062e  1HJDY]HZ`G\bRkwSt~Uu~Qs{Vr
+Bin32/FarCryConfigSpa.dll  A@0x1e06f  /=2K\-CZ)BZ$:J(<L!9P$;N2HZ"8G*AO*>O%8D
+Bin32/FarCryConfigSpa.dll  A@0x1f0b8  HZ\H\\H\\H\\I\^K]^K__K__L_aL_aNaaNaaNacPbdPbdPdePdePdeQdfSffSffSggUhhViiWjjViiWjjXklYllXklZmnZmnZmn[oo[oo\op^qq^qq^qq^rr^rrattattattbuvbuvbuvdwxdwxdwxdwxK[]CSVD
+Bin32/FarCryConfigSpa.dll  A@0x1f220  EYYFYZHZ\HZ\H\\I\^I\^I\^K]^K__L_aL_aNaaNaaNacPbdPbdPbdPdeQdfQdfQdfSfgSggSghViiViiViiWjjWjjXklXklZmnZmn[oo[oo[oo\op\op^qq^rr^rr`st`st`stattbuvbuvcwwdwxcwwcwwdwxf
+Bin32/FarCryConfigSpa.dll  A@0x1f388  EWYEYYEYYFYZHZ\HZ\H\\H\\I\^K]^K]^K__K__L_aL_aNaaNacNacPbdPbdPdeQdfQdeSfgSfgSggSghViiViiWjjXklXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rrattattattbuvbuvcwwcwwcwwd
+Bin32/FarCryConfigSpa.dll  A@0x1f4f0  CVWCVWEWYEYYFYZFYZHZ\HZ\H\\H\\I\^K]^K__K__K__L_aL_aL_aNacNacPbdPbdPdePdeQdfSffSggSggUhhUhhViiWjjWjjXklXklXklYllZmn[oo[oo[oo\op\op^qq^qq^rr`st`st`stattbuvbuvcwwc
+Bin32/FarCryConfigSpa.dll  A@0x1f658  BTVCVVCVWCVWEWYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNacPbdPbdPdePdePdeQdfSfgSggSggSghUhhViiWjjWjjXklXklXklZmnZmnZmn[oo[oo\op\op^qq^rr^rr^rr`stattattattb
+Bin32/FarCryConfigSpa.dll  A@0x1f7c0  BTVBTVCVVCVWCVWEWYEYYEYYEYYFYZHZ\HZ\H\\H\\I\^I\^K]^K__K__L_aNaaNaaNaaPbdPbdPbdPdeQdeQdfSffSfgSggUhhViiViiViiWjjXklXklYllYllZmn[oo[oo[oo\op\op^qq^qq^rr^rr`st`sta
+Bin32/FarCryConfigSpa.dll  A@0x1f928  ASSATTBTVBTVCVVCVWCVWEWYEWYEWYFYZFYZHZ\HZ\HZ\H\\I\^I\^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdeQdfSffSggUhhUhhViiViiWjjWjjXklYllYllYll[oo[oo[oo\op\op^qq^qq^rr^rr`
+Bin32/FarCryConfigSpa.dll  A@0x1fa90  @QSASSASSATTATTBTVCVVCVVCVWEWYEYYEYYEYYFYZFYZHZ\H\\H\\H\\K]^K]^K__K__L_aL_aNaaNacPbdPbdPdePdePdeQdfQdfSfgSggSghUhhViiWjjWjjXklXklXklYllZmnZmn[oo\op[oo\op\op^qq^
+Bin32/FarCryConfigSpa.dll  A@0x1fbf8  ?QQ?QQ@QSASSASSATTATTBTVCVVCVWCVWEWYEWYEYYEYYFYZFYZHZ\HZ\H\\I\^K]^K]^K__K__L_aNaaNaaNacNacPbdPbdPdePdeQdfQdfSfgSggSggViiViiViiWjjXklXklYllYllYllZmn[oo[oo\op\op^
+Bin32/FarCryConfigSpa.dll  A@0x1fd60  >PQ>PQ?QQ@QS@QSASSATTATTBTVBTVCVVCVVCVWEWYEWYEWYEYYFYZFYZHZ\H\\H\\I\^I\^K]^K__L_aL_aL_aL_aNaaNacPbdPbdPdePdeQdfSfgSfgSfgSghUhhViiViiWjjXklXklYllYllZmnZmnZmn[oo[
+Bin32/FarCryConfigSpa.dll  A@0x201d1  -9;EWYEWYFYZFYZFYZHZ\G[[
+Bin32/FarCryConfigSpa.dll  A@0x20df8   &'g{{h{|j}~j}~hz{+3>
+Bin32/FarCryConfigSpa.dll  A@0x22935  "#)9;)9;*:;+:<+:<+;<+<=+<=+=>,=?,=?-=@.>@.>@.?A.?A/AB0BC0BC1CD1CD2CE2CE3EF3EF4FG4FG5GH5HH6II7IJ8IJ8IJ9JK9JK9KL:LM:LM;MN;MN=OP=OP=OP>PQ?QQ@QS@QSASSASSASSATTBTVCV
+Bin32/FarCryConfigSpa.dll  A@0x22a9d  !"(79)8:)9;)9;)9;+:<+:<+;<+;=+<>+=>,=?,=?->@-=@.?@.AA.?A/AB/AB0CC1CD2CE2CE3DF3DF3EF4FG4FG4GG5GH6HI7IJ7IJ8IK9JK9JK9KM:LM;MN;MN<NN=OP=OP=OP>PQ?QQ?QQ@QSASSASSATTAT
+Bin32/FarCryConfigSpa.dll  A@0x22c05  !"'78'78(89)9:)8:)9;)9;+:<+:<+;=+;=+<=+=>+=>-=@->@.>@.>@.?A/AB/BB/BB1CD1CD1CD2CE3DF3DF3EF3EF4FG4GG6HI6HI7IJ7IJ8JK9JK9KL9KL:LM:LM;MN;MN<NN=OP=OP>PQ?QQ?QQ@QS@QSAS
+Bin32/FarCryConfigSpa.dll  A@0x22d6d  !"&68&68'78(89(89)8:)9;)9;*:;*:;+:<+:<+;=+<=+<>,=?,=?-=@.>@.>@.?A/AB0BC/AB0BC1CD1CD2CE2CE3DF3EF4FG4FG5GH6HI6HI7IJ7IJ8IK9JL9KL9KL9KL;MN;MN<NN<NN=OP>PQ>PQ?QQ?QQ@Q
+Bin32/FarCryConfigSpa.dll  A@0x22ed5  "%&57&57&78'78'78(89(89(89)8:)9;)9;*:;+:<+;<+;=+<=+<>,=?,=?-=@.>@.>@.?A.?A/BB0BC1CD1CD1CD2CE2DE3EF3EF3EF4FG5GH5GH6HI7IJ8IJ8IK9JL9JK:LM:LM:LM;MN<NN=OP=OP>PQ>PQ?Q
+Bin32/FarCryConfigSpa.dll  A@0x2303a  (1!02$45&57&57&57&68&68'78(79(79)8:)8:)9;*:;+:<+:<+:<+;=+;=+=>,=?,=?-=@.>@.>@.?A.?A/AB/AB0BC1CD2CE2CE3DF3EF3EF3FF4FG5GH5HH6HI7IJ8IK8JK9JL9KL9KL:LM:LM;MN<NN<NN=O
+Bin32/FarCryConfigSpa.dll  A@0x2318a  /1 02 02!12!12!23"23"23#24$35$35$45%46%56&57&57&68'78'78(79(79(79)8:)9;*:;*:;+:<+:<+;=+<>+=>,=?,=?-=@-=@.>@.?A.?A/BB0CC0CC1CD1CD2DE3EF3DF3EF4FG4FG5GH5GH6HI7IJ8I
+Bin32/FarCryConfigurator.exe  A@0x47c4e  hZ|D
+Bin32/FarCryConfigurator.exe  A@0x5f4e8  QueryPerformanceFrequency
+Bin32/FarCry_WinSV.exe  A@0x32b0  Set the maximum update frequency (per second) for the dedicated server. Higher values may improve the network quality.
+Bin32/MFC71.dll  A@0x43a61  g"|hZ
+Bin32/MFC71.dll  A@0xc7a5d  hz |
+Bin32/MFC71.dll  A@0xd5a54  hZ!|
+Bin32/XRenderD3D9.dll  A@0x81aa7  8hhz
+Bin32/XRenderD3D9.dll  A@0x19de0c  ERROR_SYNC_FOREGROUND_REFRESH_REQUIRED
+Bin32/XRenderD3D9.dll  A@0x1a8f5c  WBEM_E_REFRESHER_BUSY
+Bin32/binkw32.dll  A@0x7171  F95hZ
+Bin32/binkw32.dll  A@0x42e8a  QueryPerformanceFrequency
+Bin32/cg.dll  A@0x4ec9a  G$hZ
+Bin32/cgD3D9.dll  A@0x302e4  The driver does not enumerate display mode refresh rates.
+Bin32/cgD3D9d.dll  A@0x302e4  The driver does not enumerate display mode refresh rates.
+Bin32/cgc.exe  A@0x256ca  G$hZ
+Bin32/crysound.dll  A@0x17235  t0hz
+Bin32/crysound.dll  A@0x39a42  QueryPerformanceFrequency
+Bin32/crysound.dll  A@0x3b068  _CS_GetFrequency@4
+Bin32/crysound.dll  A@0x3b5e0  _CS_SetFrequency@8
+Bin32/crysound.dll  A@0x3b5f3  _CS_SetFrequencyEx@8
+Bin32/fxc.exe  A@0x41404  2hhz
+Bin32/fxc.exe  A@0x4162c  2hhz
+Bin32/goggame.dll  A@0x24605  HZ{R
+Bin32/goggame.dll  A@0x3ae59  B8Hz
+Bin32/mfc71u.dll  A@0x921a  hz[%|
+Bin32/mfc71u.dll  A@0x32199  -(|hz.|
+Bin32/mfc71u.dll  A@0x44e54  hZ)|
+Bin32/mfc71u.dll  A@0x76bdb  hHz,|P
+Bin32/rc.exe  A@0x14d90  refresh
+Pb/pbsv.dll  A@0x4be44  pb_sv_httpRefresh
+Pb/pbsv.dll  A@0x4f8cc  <font size=3 color=#%s>This page auto-refreshes every %d seconds
+Pb/pbsv.dll  A@0x4fa5c  <head> <meta http-equiv=refresh content="%d; url=http://%s:%d/pbsvweb/%s&webkey=%s"> </head>
+Pb/pbsv.dll  A@0x50bc8  <tr><td>pb_sv_httpRefresh</td><td><input type=number name=pb_sv_httpRefresh maxlength=3 size=3 value=%d></td></tr>

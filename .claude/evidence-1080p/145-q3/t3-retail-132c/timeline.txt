@@ -1,0 +1,20 @@
+00:11:04 UIKEY SHIFT -> 0 OK
+00:11:04 LAUNCH EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" "Play Quake III Arena - retail 1.32c.bat" -> 0 
+00:11:04 t+0s running=False fg=('Shell_TrayWnd', '') wins=[('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:08 t+4s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:12 t+8s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:16 t+12s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:20 t+16s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:20 GAMERES desktop {'persisted': '1920x1080', 'persisted_hz': 60, 'live': '1920x1080', 'bpp': 32}
+00:11:20 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:11:22 SCREENSHOT /home/voidsstr/development/retro-agent/.claude/evidence-1080p/145-q3/t3-retail-132c/gdi-screenshot-t14.png (1920, 1080) extrema ((0, 255), (0, 254), (0, 152))
+00:11:26 t+22s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:30 t+26s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:30 GAMERES desktop {'persisted': '1920x1080', 'persisted_hz': 60, 'live': '1920x1080', 'bpp': 32}
+00:11:30 DISPLAYCFG {"width":1920,"height":1080,"bpp":32,"refresh":60}
+00:11:33 SCREENSHOT /home/voidsstr/development/retro-agent/.claude/evidence-1080p/145-q3/t3-retail-132c/gdi-screenshot-t26.png (1920, 1080) extrema ((0, 255), (0, 254), (0, 152))
+00:11:37 t+32s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:41 t+36s running=True fg=('Quake 3: Arena', 'Quake 3: Arena') wins=[('Quake 3: Arena', 'Quake 3: Arena', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:45 t+40s running=False fg=('ConsoleWindowClass', 'Retro Remote Agent Version 1.91.0') wins=[('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:11:45 process gone
+00:11:45 end of watch; running at end = False

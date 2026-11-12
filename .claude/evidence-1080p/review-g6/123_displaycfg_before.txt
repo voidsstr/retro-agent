@@ -1,0 +1,2 @@
+status 0
+{"width":640,"height":480,"bpp":32,"refresh":60}

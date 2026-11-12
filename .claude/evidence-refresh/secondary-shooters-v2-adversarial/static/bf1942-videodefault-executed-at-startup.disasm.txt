@@ -1,0 +1,57 @@
+# BF1942.exe (md5 a56d63e8) - Settings/VideoDefault.con IS executed at every start, BEFORE Settings/Video.con (adversarial review 2026-09-29)
+# console object [0x9a9420] built at 0x856720 (ctor 0x5a2230, vtable 0x9033a8); vtable+0x20 = 0x5a1590 = run a .con file ('.con' appended, 'Settings/' prefix, 'Could not open file: ')
+## 0x462f50 (setup-time video init; GetVersionExA, GlobalMemoryStatus, HKCU\SOFTWARE\Battlefield 1942\Initiated created unconditionally) -> runs Settings/VideoDefault.con at 0x46315b
+0046301b: push     0x8d5ccc  ; "SOFTWARE"
+00463025: call     dword ptr [0x8c3010]
+0046302d: jne      0x463058
+00463038: push     0x8d5cb0  ; "Battlefield 1942\Initiated"
+0046303e: call     dword ptr [0x8c3008]
+0046304f: call     edi
+00463056: call     edi
+00463136: push     0x8d5c94  ; "Settings/VideoDefault.con"
+0046314f: call     0x445ad0
+0046315b: call     dword ptr [edi + 0x20]
+## caller: setup routine 0x455db0 calls 0x462f50 at 0x456762 (after the 'Renderer:' log line)
+0045674c: call     dword ptr [0x8c311c]
+00456756: call     dword ptr [0x8c311c]
+00456762: call     0x462f50
+00456769: je       0x456892
+## startup order: 0x455db0 (setup -> VideoDefault.con) THEN 0x4544c0 (-> 0x452400 -> 0x44f350 settings loader -> Settings/Video.con -> run Profiles/Default/Video.con -> game.setGameDisplayMode)
+004571fb: mov      byte ptr [0x971eaa], 1
+00457202: call     0x455db0
+00457207: test     al, al
+00457209: je       0x45794a
+0045720f: push     esi
+00457210: lea      ecx, [esp + 0x11c]
+00457217: call     dword ptr [0x8c3114]
+0045721d: mov      ecx, edi
+0045721f: call     0x4544c0
+00457224: test     al, al
+0045834e: call     0x455db0
+004583e0: call     0x454be0
+004583f6: call     0x4544c0
+## settings loader 0x44f350 strings
+0044fe57: push     0x8d2ea8  ; "Settings/Profile.con"
+0044fe9e: push     0x8d2e94  ; "Settings/Video.con"
+0044fee5: push     0x8d2e80  ; "Settings/Sound.con"
+0044ff2c: push     0x8d2e64  ; "Settings/GeneralOptions.con"
+## options-menu mode list 0x6b0520: runs Settings/Video.con then Settings/VideoDefault.con, then lists modes as '%dx%dx%d @ %d' only when allowAllRefreshRates (0x444180) is set
+006b060c: push     0x8d2e94  ; "Settings/Video.con"
+006b0625: call     0x445ad0
+006b0631: call     dword ptr [esi + 0x20]
+006b076a: push     0x8d5c94  ; "Settings/VideoDefault.con"
+006b0783: call     0x445ad0
+006b078f: call     dword ptr [esi + 0x20]
+006b07fe: call     0x7d4e50
+006b080b: call     dword ptr [eax + 0x34]
+006b0818: call     dword ptr [edx + 0x38]
+006b0825: jle      0x6b09ec
+006b0846: call     dword ptr [0x8c3244]
+006b0852: call     0x444180
+006b0865: je       0x6b0898
+006b0876: push     0x91e24c  ; "%dx%dx%d @ %d"
+006b087c: call     0x580eb0
+006b0889: call     dword ptr [0x8c3138]
+006b0896: jmp      0x6b08bc
+006b089f: push     0x917d04  ; "%dx%dx%d"
+006b08a5: call     0x580eb0

@@ -1,0 +1,106 @@
+# UT2004 D3DDrv.dll: DesiredRefreshRate @+0x4190 (UIntProperty), OverrideDesktopRefreshRate @+0x416c (UBOOL).
+# SetRes (0x10011909): wanted = (DesiredRefreshRate > 60 || OverrideDesktopRefreshRate) ? DesiredRefreshRate : 0;
+# mode search keeps the min-error mode (ties broken toward refresh == wanted); then pp.FullScreen_RefreshRateInHz (+0x46ec) = wanted ? mode.RefreshRate : 0 (0x10011a15..0x10011a2d).
+# Log line 0x10061f70: 'Best-match display mode: %ix%ix%i@%i' prints the ENUMERATED mode's rate, not what was requested.
+   0x10011909  mov    eax, dword ptr [esi + 0x4190]
+   0x1001190f  cmp    eax, 0x3c
+   0x10011912  mov    byte ptr [ebp - 4], 3
+   0x10011916  mov    dword ptr [ebp - 0x1c], edi
+   0x10011919  mov    dword ptr [ebp - 0x14], 0x7fffffff
+   0x10011920  ja     0x1001192d
+   0x10011922  cmp    dword ptr [esi + 0x416c], edi
+   0x10011928  mov    dword ptr [ebp - 0x20], edi
+   0x1001192b  je     0x10011930
+   0x1001192d  mov    dword ptr [ebp - 0x20], eax
+   0x10011930  xor    eax, eax
+   0x10011932  mov    dword ptr [ebp - 0x18], eax
+   0x10011935  cmp    eax, dword ptr [esi + 0x46a0]
+   0x1001193b  jge    0x100119a8
+   0x1001193d  mov    edx, dword ptr [esi + 0x469c]
+   0x10011943  shl    eax, 4
+   0x10011946  add    edx, eax
+   0x10011948  mov    eax, dword ptr [edx]
+   0x1001194a  sub    eax, ebx
+   0x1001194c  jns    0x10011950
+   0x1001194e  neg    eax
+   0x10011950  mov    ebx, eax
+   0x10011952  mov    eax, dword ptr [edx + 4]
+   0x10011955  sub    eax, ecx
+   0x10011957  jns    0x1001195b
+   0x10011959  neg    eax
+   0x1001195b  mov    edi, eax
+   0x1001195d  mov    eax, dword ptr [edx + 0xc]
+   0x10011960  call   0x1000e6d0
+   0x10011965  mov    ecx, eax
+   0x10011967  sub    ecx, dword ptr [ebp + 0x18]
+   0x1001196a  jns    0x1001196e
+   0x1001196c  neg    ecx
+   0x1001196e  add    ecx, edi
+   0x10011970  mov    edi, dword ptr [ebp - 0x14]
+   0x10011973  add    ecx, ebx
+   0x10011975  cmp    ecx, edi
+   0x10011977  jl     0x10011989
+   0x10011979  cmp    ecx, edi
+   0x1001197b  jne    0x10011997
+   0x1001197d  mov    edi, dword ptr [ebp - 0x20]
+   0x10011980  test   edi, edi
+   0x10011982  je     0x10011989
+   0x10011984  cmp    dword ptr [edx + 8], edi
+   0x10011987  jne    0x10011997
+   0x10011989  cmp    eax, dword ptr [ebp + 0x18]
+   0x1001198c  jne    0x10011997
+   0x1001198e  mov    eax, dword ptr [ebp - 0x18]
+   0x10011991  mov    dword ptr [ebp - 0x1c], eax
+   0x10011994  mov    dword ptr [ebp - 0x14], ecx
+   0x10011997  mov    eax, dword ptr [ebp - 0x18]
+   0x1001199a  mov    ecx, dword ptr [ebp + 0x10]
+   0x1001199d  mov    ebx, dword ptr [ebp + 0xc]
+   0x100119a0  inc    eax
+   0x100119a1  mov    dword ptr [ebp - 0x18], eax
+   0x100119a4  xor    edi, edi
+   0x100119a6  jmp    0x10011935
+   0x100119a8  cmp    dword ptr [ebp - 0x14], 0x7fffffff
+   0x100119af  jne    0x100119be
+   0x100119b1  push   1
+   0x100119b3  push   edi
+   0x100119b4  push   0x10061fc0
+   0x100119b9  jmp    0x100118ef
+   0x100119be  mov    eax, dword ptr [ebp - 0x1c]
+   0x100119c1  mov    ecx, dword ptr [esi + 0x469c]
+   0x100119c7  shl    eax, 4
+   0x100119ca  lea    edx, [ecx + eax]
+   0x100119cd  mov    eax, edx
+   0x100119cf  mov    ecx, dword ptr [eax]
+   0x100119d1  mov    dword ptr [ebp - 0x34], ecx
+   0x100119d4  mov    ecx, dword ptr [eax + 4]
+   0x100119d7  mov    dword ptr [ebp - 0x30], ecx
+   0x100119da  mov    ecx, dword ptr [eax + 8]
+   0x100119dd  mov    dword ptr [ebp - 0x2c], ecx
+   0x100119e0  mov    eax, dword ptr [eax + 0xc]
+   0x100119e3  mov    dword ptr [ebp - 0x28], eax
+   0x100119e6  mov    eax, dword ptr [edx + 0xc]
+   0x100119e9  call   0x1000e6d0
+   0x100119ee  mov    ecx, dword ptr [edx + 4]
+   0x100119f1  mov    dword ptr [ebp + 0x18], eax
+   0x100119f4  mov    eax, dword ptr [edx]
+   0x100119f6  mov    ebx, 1
+   0x100119fb  cmp    eax, ebx
+   0x100119fd  mov    dword ptr [ebp + 0xc], eax
+   0x10011a00  mov    dword ptr [ebp + 0x10], ecx
+   0x10011a03  mov    dword ptr [ebp - 0x14], eax
+   0x10011a06  jge    0x10011a0b
+   0x10011a08  mov    dword ptr [ebp - 0x14], ebx
+   0x10011a0b  cmp    ecx, ebx
+   0x10011a0d  mov    dword ptr [ebp - 0x18], ecx
+   0x10011a10  jge    0x10011a15
+   0x10011a12  mov    dword ptr [ebp - 0x18], ebx
+   0x10011a15  cmp    dword ptr [ebp - 0x20], edi
+   0x10011a18  mov    dword ptr [esi + 0x46d8], ebx
+   0x10011a1e  mov    ecx, dword ptr [edx + 0xc]
+   0x10011a21  mov    dword ptr [ebp - 0x1c], ecx
+   0x10011a24  je     0x10011a2b
+   0x10011a26  mov    eax, dword ptr [edx + 8]
+   0x10011a29  jmp    0x10011a2d
+   0x10011a2b  xor    eax, eax
+   0x10011a2d  mov    dword ptr [esi + 0x46ec], eax
+   0x10011a33  mov    eax, dword ptr [edx + 8]

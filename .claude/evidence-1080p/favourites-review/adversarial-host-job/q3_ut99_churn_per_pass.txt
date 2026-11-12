@@ -1,0 +1,8 @@
+# per-pass write counts from journalctl --user -u retro-gameindex (host time)
+2026-09-28 23:58:00 wrote=17 q3=7 ut99=9 busy=0
+2026-09-29 00:03:00 wrote=16 q3=7 ut99=9 busy=3
+2026-09-29 00:08:00 wrote=16 q3=7 ut99=9 busy=3
+2026-09-29 00:13:00 wrote=7 q3=7 ut99=0 busy=3
+2026-09-29 00:18:00 wrote=16 q3=7 ut99=9 busy=4
+2026-09-29 00:23:00 wrote=16 q3=7 ut99=9 busy=4
+2026-09-29 00:28:00 wrote=7 q3=7 ut99=0 busy=2

@@ -1,0 +1,84 @@
+# Descent3 source release (github.com/DescentDevelopers/Descent3 @ df209742) - config.cpp Video_res_list + video menu
+#else
+tVideoResolution Video_res_list[N_SUPPORTED_VIDRES] = {
+	{512,384},
+	{640,480},
+	{800,600},
+	{960,720},
+	{1024,768},
+	{1280,960},
+	{1600,1200},
+	{640,480}			// custom
+};
+#endif
+
+int Game_video_resolution = 1;
+#else
+		resolution = sheet->AddFirstLongRadioButton("512x384");
+		sheet->AddLongRadioButton("640x480");
+		sheet->AddLongRadioButton("800x600");
+		sheet->AddLongRadioButton("960x720");
+		sheet->AddLongRadioButton("1024x768");
+		sheet->AddLongRadioButton("1280x960");
+		sheet->AddLongRadioButton("1600x1200");
+#endif
+		*resolution = iTemp;
+		
+#if    !(defined(MACINTOSH)||defined(__LINUX__))
+	// renderer bit depth
+
+# init.cpp -Width/-Height and -aspect
+	int widtharg = FindArg("-Width");
+	int heightarg = FindArg("-Height");
+	if(widtharg)
+	{
+		Video_res_list[N_SUPPORTED_VIDRES-1].width = atoi(GameArgs[widtharg+1]);
+		Game_video_resolution = N_SUPPORTED_VIDRES-1;
+	}
+	if(heightarg)
+	{
+		Video_res_list[N_SUPPORTED_VIDRES-1].height = atoi(GameArgs[heightarg+1]);
+		Game_video_resolution = N_SUPPORTED_VIDRES-1;
+	}
+	//Check for aspect ratio override
+	int t = FindArg("-aspect");
+	if (t) {
+		extern void g3_SetAspectRatio(float);
+		float aspect = atof(GameArgs[t+1]);
+		if (aspect > 0.0)
+			g3_SetAspectRatio(aspect);
+
+# renderer/HardwareSetup.cpp g3_StartFrame aspect
+
+	//Compute aspect ratio for this window
+	float screen_aspect = rend_GetAspectRatio();
+	if( sAspect != 0.0f )
+	{
+		//check for user override
+		screen_aspect = screen_aspect * 4.0f / 3.0f / sAspect;
+	}
+	float s = screen_aspect * (float) Window_height / (float) Window_width;
+
+	if( s <= 0.0f )//JEFF: Should this have been 1.0f?
+	{
+		//scale x
+		Matrix_scale.x = s;
+		Matrix_scale.y = 1.0f;
+	}
+	else 
+	{
+		Matrix_scale.y = 1.0f / s;
+
+# renderer/Direct3D.cpp d3d_GetAspectRatio
+float d3d_GetAspectRatio ()
+{
+	float aspect_ratio = (float)((3.0 * D3D_state.screen_width)/(4.0 * D3D_state.screen_height));
+	return aspect_ratio;
+}
+# renderer/HardwareOpenGL.cpp rend_GetAspectRatio
+// Returns the aspect ratio of the physical screen
+float rend_GetAspectRatio(void)
+{
+	float aspect_ratio = (float)((3.0f * OpenGL_state.screen_width)/(4.0f * OpenGL_state.screen_height));
+	return aspect_ratio;
+}

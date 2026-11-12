@@ -1,0 +1,3 @@
+UnrealTournament436/System/GlideDrv.dll	W	0xeb8c	Glide: Refresh %i failed, falling back...
+UnrealTournament436/System/GlideDrv.dll	W	0xed38	RefreshRate
+UnrealTournament436/System/GlideDrv.dll	W	0xee40	RefreshRates

@@ -1,0 +1,279 @@
+Hunk_Clear: reset the hunk ok
+...detecting CPU, found AMD w/ 3DNow!
+
+------- Input Initialization -------
+No window for DirectInput mouse init, delaying
+Joystick is not active.
+------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode -1: 1920 1080 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1920x1080)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 8 )
+...103 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 2 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...ignoring GL_S3_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...WGL_3DFX_gamma_control not found
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: ATI Radeon HD 3850 AGP
+GL_VERSION: 3.3.11672 Compatibility Profile Context
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+locked hardware.  ok
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0xae78060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: nsc-b20c188e96d
+IP: 192.168.1.123
+Working directory: C:\Games\Quake3-TeamArena
+Proceeding with delayed mouse init
+Initializing DirectInput...
+DirectInput initialized.
+]/condump q3tl3menu.txt
+Dumped console text to q3tl3menu.txt.
+Scanning for servers on the local network...
+trying levelshots/MPTERRA1.TGA...
+Requesting servers from the master...
+CL_ServersResponsePacket
+99 servers parsed (total 99)
+CL_ServersResponsePacket
+99 servers parsed (total 198)
+CL_ServersResponsePacket
+99 servers parsed (total 297)
+CL_ServersResponsePacket
+99 servers parsed (total 396)
+CL_ServersResponsePacket
+99 servers parsed (total 495)
+CL_ServersResponsePacket
+99 servers parsed (total 594)
+CL_ServersResponsePacket
+99 servers parsed (total 693)
+CL_ServersResponsePacket
+99 servers parsed (total 792)
+CL_ServersResponsePacket
+99 servers parsed (total 891)
+CL_ServersResponsePacket
+42 servers parsed (total 933)
+trying levelshots/3LEVEL2-WFA.TGA...
+trying levelshots/CPM24.TGA...
+trying levelshots/Q3WXS1.TGA...
+Resolving update.quake3arena.com
+update.quake3arena.com resolved to 192.246.40.56:27951
+192.168.1.132:27961 resolved to 192.168.1.132:27961
+----- FS_Startup -----
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+    on the pure list
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+    on the pure list
+C:\Games\Quake3-TeamArena/baseq3
+
+----------------------
+8146 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: ATI Radeon HD 3850 AGP
+GL_VERSION: 3.3.11672 Compatibility Profile Context
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 594408 bytes of code
+ui loaded in 1963008 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm.
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 5380768 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3059 faces, 206 meshes, 40 trisurfs, 53 flares
+CL_InitCGame:  1.72 seconds
+108 msec to draw all images
+Com_TouchMemory: 0 msec
+UnnamedPlayer entered the game
+Angel was electrocuted by Hunter
+Major was kicked
+Angel: Amazing what hunter will do to impress a girl
+UnnamedPlayer was electrocuted by Hunter
+Gorre ate Angel's rocket
+Gorre: My shot must have bounced off your head, angel and fragged me.
+Hunter almost dodged Angel's rocket
+Hunter: Impressive, perhaps ... to some.
+Angel was machinegunned by Hunter
+Hunter was machinegunned by Gorre
+Angel: That rocked hunter!
+]/gfxinfo
+
+GL_VENDOR: ATI Technologies Inc.
+GL_RENDERER: ATI Radeon HD 3850 AGP
+GL_VERSION: 3.3.11672 Compatibility Profile Context
+GL_EXTENSIONS: GL_ARB_multitexture GL_EXT_texture_env_add
+GL_EXT_compiled_vertex_array GL_S3_s3tc
+GL_MAX_TEXTURE_SIZE: 8192
+GL_MAX_ACTIVE_TEXTURES_ARB: 8
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1920 x 1080 fullscreen hz:60
+GAMMA: hardware w/ 1 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 0
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+]/condump q3tl3game.txt
+Dumped console text to q3tl3game.txt.
+

@@ -1,0 +1,18 @@
+# 2026-09-29T04:09:13-04:00 apply.py --check
+staged tree: /mnt/retro-share/Files/Games-Library/Descent3
+pilot files (*.plt, case-insensitive): ['sdf.plt']
+sdf.plt: 1770 B md5 b03f1b0f19e6d430f3d64b8c426f4da6 -> original
+  version 0x2A name 'sdf' ship 'Pyro-GL' hud_mode 2 window 640x480 at 0x1F/0x23
+  would patch -> md5 a42937534d704dce2374df0a0deea849 (bytes 0x1F..0x26: 80020000e0010000 -> 0010000000100000)
+check: OK
+# cmp original vs built (1-indexed octal)
+  32 200   0
+  33   2  20
+  36 340   0
+  37   1  20
+# cmp hw-verified rvw.plt vs built: differs only in the pilot name
+   5 162 163
+   6 166 144
+   7 167 146
+# pytest
+...............                                                          [100%]

@@ -1,0 +1,398 @@
+--- /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-build-favourites/builder-version/db.py	2026-09-29 05:29:55.386674839 -0400
++++ scripts/gameindex/db.py	2026-09-29 05:42:54.468797039 -0400
+@@ -211,7 +211,8 @@
+ 
+ 
+ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
+-                 local_only=False, strict_accepts=False, incumbent=None):
++                 local_only=False, strict_accepts=False, incumbent=None,
++                 incumbent_fresh_s=3600):
+     """Live servers for an engine, our own first, then busiest-and-closest.
+ 
+     `accepts`, when given, is the set of gamenames the asking TITLE can
+@@ -230,6 +231,26 @@
+     every box was rewritten on every pass - a steady state that never said
+     "unchanged".
+ 
++    "Alive" for an incumbent is judged over `incumbent_fresh_s` (an hour - the
++    horizon `prune_servers` keeps a row for), not the 15 minutes a NEWCOMER
++    must have been seen in. Discovery does not re-probe every server every
++    pass: what the masters return varies (the 05:34 pass on 2026-09-29 was
++    handed 389 addresses, the passes either side 862), a third of what they
++    list does not answer any one probe, and the 32-port bot farms answer a
++    burst of queries partially - so a live server's last_seen routinely sits
++    15-60 minutes old
++    (measured on the live DB 2026-09-29 05:04 and 05:24: 34-40 Q3 rows that
++    reported players sat in that band). With the 15-minute rule an incumbent
++    fell out whenever a pass happened to miss it, the file was rewritten, and
++    a sibling port of the same host took its place: replaying the boxes' own
++    files through five sampled real passes (05:04-05:39) rewrote all 7 Q3
++    autoexecs in three of them, every time for incumbents 15-30 minutes old
++    that still reported players (-50.116.39.92:32025 +:32022, then -:32022).
++    With the hour: one rewrite, for a server unseen for over an hour.
++    An incumbent still needs people on at its LAST observation (or to be a
++    curated seed): one that emptied is replaced on the next pass, one that
++    stopped answering at the latest when its row is pruned.
++
+     The line is drawn at "did we choose this address". For our own servers and
+     a hand-kept seed list we know exactly what is running, so handing a
+     Counter-Strike client the Specialists server, a Quake III client the
+@@ -257,8 +278,14 @@
+     UT99's favourites flipped between the two on every other pass on every
+     box. Seeds are chosen by hand; each one is its own server.
+     """
++    now_t = time.time()
+     cutoff = time.strftime("%Y-%m-%d %H:%M:%S",
+-                           time.localtime(time.time() - fresh_s))
++                           time.localtime(now_t - fresh_s))
++    # A row old enough to be only an INCUMBENT's is fetched too, and filtered
++    # below: only a server the box already lists may be that stale.
++    fetch_cutoff = cutoff if incumbent is None else time.strftime(
++        "%Y-%m-%d %H:%M:%S",
++        time.localtime(now_t - max(fresh_s, incumbent_fresh_s)))
+     # Rank on BUCKETED liveliness, not the raw numbers.
+     #
+     # There are ~575 live Quake III servers and only 16 slots, so the cut is
+@@ -281,11 +308,14 @@
+         " AND (is_local=1 OR (last_seen >= ?"
+         "      AND (source='seed' OR players > 0)))"
+         " ORDER BY is_local DESC, (players/4) DESC, (ping_ms/25) ASC, addr ASC",
+-        (engine, cutoff)).fetchall()
++        (engine, fetch_cutoff)).fetchall()
+     eligible = []
+     for r in rows:
+         if local_only and not r["is_local"]:
+             continue
++        if not r["is_local"] and (r["last_seen"] or "") < cutoff and \
++                not (incumbent is not None and incumbent(r)):
++            continue           # seen too long ago for anything but an incumbent
+         curated = bool(r["is_local"]) or (r["source"] or "") == "seed"
+         gamename = (r["gamename"] or "").strip().lower()
+         if accepts and curated:
+--- /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-build-favourites/builder-version/favorites.py	2026-09-29 05:29:55.386733695 -0400
++++ scripts/gameindex/favorites.py	2026-09-29 05:35:01.965412610 -0400
+@@ -949,8 +949,10 @@
+     "sof2":
+         "there IS a fleet SoF2 server (sof2-server, 192.168.1.132:20100, "
+         "verified two-box 2026-08-31) but SoF2's browser keeps its favourites "
+-        "in the ENGINE's list - sof2mp.exe names servercache.dat and the "
+-        "staged tree carries base\\servercache.dat - not in cvars a config "
++        "in the ENGINE's list - sof2mp.exe names servercache.dat, its MP UI "
++        "(base\\mp.pk3 vm/sof2mp_ui.qvm) has addFavorite and no server%d, and "
++        "the game writes the file at its tree root on the boxes (none is "
++        "staged) - not in cvars a config "
+         "could set, and that file is a binary struct dump whose layout nobody "
+         "has verified for sof2mp.exe. Writing a guess into it is worse than "
+         "this sentence. Join it from the console: connect "
+@@ -1591,8 +1593,10 @@
+     `existing` is the file's bytes, or None when there is no file yet. Returns
+     (new bytes, summary) - new is None when the file already says exactly
+     this, which is what "unchanged" means here: the same entries, ours marked,
+-    in the same order. hostName and the ping fields are the GAME's to update,
+-    so they are never a reason to write.
++    in the same order - or, with no file yet, when there is nothing of ours to
++    put in one. hostName and the ping fields are the GAME's to update, so they
++    are never a reason to write. A wanted server that could not be added is
++    in summary["full"] / summary["skipped"]; `sc_missing` words it.
+ 
+     Preserved byte for byte: the header's numglobalservers, all 4096 global
+     records, and every favourite we did not add. Ours that are no longer
+@@ -1644,6 +1648,7 @@
+     ours = [sc_addr(r) for r in kept if sc_is_ours(r)]
+     summary = {
+         "favourites": [sc_addr(r) or "(non-IPv4)" for r in kept],
++        "wanted": [a for a, _ in wanted],
+         "ours": ours, "added": added, "dropped": dropped, "full": full,
+         "skipped": skipped, "theirs": len(kept) - len(ours),
+         "numglobal": nglobal,
+@@ -1651,9 +1656,45 @@
+             "%s%s" % ("*" if sc_is_ours(r) else "", sc_addr(r) or r[:32].hex())
+             for r in kept)),
+     }
+-    if existing is not None and not added and not dropped:
++    # Nothing to add and nothing to take away: the file on the box (or its
++    # absence) already says it. With no file yet that also means NOT creating
++    # one - an empty servercache.dat seeded for a list we could not fill (a
++    # hostname address, say) would be a write that put nothing of ours there.
++    if not added and not dropped:
+         return None, summary
+     fav_blob = b"".join(kept) + bytes(SC_REC * (SC_OTHER - len(kept)))
+     new = struct.pack("<iii", nglobal, len(kept), SC_SIZE) + globals_blob + fav_blob
+     assert len(new) == SC_LEN
+     return new, summary
++
++
++def sc_missing(summary):
++    """Why a server we wanted is NOT in the list after the merge, or "".
++
++    Never "unchanged" and never a plain "wrote": a list that is full of the
++    player's own 128 favourites, or an address this file cannot hold, leaves
++    the fleet server out - and a report that says "unchanged" there is the
++    project's recurring shape, a tool reporting success while the thing it
++    exists to do did not happen.
++    """
++    out = []
++    if summary.get("full"):
++        out.append("NOT ADDED %s - the favourites list is full (%d entries, "
++                   "the player's own)" % (", ".join(summary["full"]), SC_OTHER))
++    if summary.get("skipped"):
++        out.append("NOT ADDED %s - not an IPv4 address:port, and that is all "
++                   "servercache.dat can hold" % ", ".join(summary["skipped"]))
++    return "; ".join(out)
++
++
++def sc_listing(summary):
++    """Which wanted servers the list holds, and whose entry each one is."""
++    ours = set(summary.get("ours") or ())
++    present = set(summary.get("favourites") or ())
++    theirs = [a for a in summary.get("wanted") or () if a in present and a not in ours]
++    parts = []
++    if summary.get("ours"):
++        parts.append("ours: " + ", ".join(summary["ours"]))
++    if theirs:
++        parts.append("already the player's own: " + ", ".join(theirs))
++    return "; ".join(parts) or "none of ours"
+--- /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-build-favourites/builder-version/sync.py	2026-09-29 05:29:55.386771183 -0400
++++ scripts/gameindex/sync.py	2026-09-29 05:30:30.367557084 -0400
+@@ -850,14 +850,24 @@
+     h = summary["hash"]
+     n = len(summary["ours"])
+     detail = f"{n} servers -> {path}"
++    # A server we wanted that the merge could not put in the list - the list
++    # is full of the player's own, or the address has no IPv4 form - is never
++    # reported as "unchanged" or as a clean "wrote". Saying "unchanged" there
++    # is the shape this project keeps paying for: success reported, the fleet
++    # server absent from the player's Favorites, and nothing saying so.
++    missing = favorites.sc_missing(summary)
+     if new is None:
++        if missing:
++            return [(key, engine, f"skipped: {path}: {missing} - nothing else "
++                                  f"to change ({favorites.sc_listing(summary)})")]
+         _record_one(con, ip, key, home, h, detail)
+-        return [(key, engine, f"unchanged: {path} ({h}) - ours: "
+-                              f"{', '.join(summary['ours']) or 'none'}")]
++        return [(key, engine, f"unchanged: {path} ({h}) - "
++                              f"{favorites.sc_listing(summary)}")]
+     if dry_run:
+         return [(key, engine, f"WOULD write {n} servers -> {path} "
+                               f"(+{len(summary['added'])} "
+-                              f"-{len(summary['dropped'])})")]
++                              f"-{len(summary['dropped'])})"
++                              + (f"; {missing}" if missing else ""))]
+ 
+     # PROCLIST was read before this box's other files were written; a game
+     # started since would load a file that is half ours. Ask again - it costs
+@@ -891,7 +901,8 @@
+     _record_one(con, ip, key, home, h, detail, force=True)
+     return [(key, engine, f"wrote {n} servers -> {path} ({h}); kept "
+                           f"{summary['theirs']} of the player's own favourites "
+-                          f"and {summary['numglobal']} cached internet servers")]
++                          f"and {summary['numglobal']} cached internet servers"
++                          + (f"; {missing}" if missing else ""))]
+ 
+ 
+ # --- one pass ----------------------------------------------------------------
+--- /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-build-favourites/builder-version/README.md	2026-09-29 05:29:55.386833814 -0400
++++ scripts/gameindex/README.md	2026-09-29 05:42:54.468942545 -0400
+@@ -139,7 +139,17 @@
+   tabs looked like a revert. Now:
+   - **incumbents stay** - a server the box already lists keeps its place while
+     it is alive and eligible; the ranking only fills vacancies
+-    (`db.best_servers(incumbent=...)`);
++    (`db.best_servers(incumbent=...)`). "Alive" for an incumbent means seen
++    in the last HOUR with people on at that observation - the horizon
++    `prune_servers` keeps a row for - not the 15 minutes a newcomer needs:
++    discovery does not re-probe every server every pass (what the masters
++    return varies - 389 addresses on one pass, 862 either side - a third of
++    it does not answer any one probe, and the bot farms answer bursts
++    partially), and with the
++    15-minute rule a pass that merely missed a listed server rewrote every
++    Q3 file (the boxes' files replayed through five sampled real passes,
++    05:04-05:39 on 2026-09-29: all 7 Q3 autoexecs rewritten in three of them;
++    judged over the hour, one rewrite - a server unseen for over an hour);
+   - **slots are stable** - a kept server keeps its exact `serverN`/`adrN`
+     slot or its place in the list, so one server leaving changes one line;
+   - **"unchanged" means the GAME would see nothing new** - the same servers
+@@ -215,7 +225,16 @@
+   cached internet servers are carried through byte for byte;
+ - **never while any Quake III client runs**, PROCLIST asked again right before
+   the upload, and the upload **read back** - anything but an exact match is
+-  `FAILED`, not `wrote`.
++  `FAILED`, not `wrote`;
++- **a fleet server it could not add is said so** - a list already holding 128
++  of the player's own favourites, or an address with no IPv4 form, gives
++  `skipped: ... NOT ADDED <addr> - <why>`, never `unchanged`; and with no file
++  yet, nothing is created unless something of ours goes in it.
++- **Only ioquake3 reads this file.** On a box where `FLEETGL.BAT` picks the
++  retail `quake3.exe` (a Voodoo 2 within its 800x600 ceiling) Team Arena runs
++  on the retail engine, whose homepath is the install directory - it never
++  sees `%APPDATA%\Quake3\servercache.dat`, so there Team Arena's Favorites
++  stay empty (harmless; no LCD box takes that path).
+ 
+ ## A service, not a timer
+ 
+--- /home/voidsstr/development/retro-agent/.claude/evidence-1080p/review-build-favourites/builder-version/test_patch_favourites.py	2026-09-29 05:29:55.386856726 -0400
++++ tests/python/test_patch_favourites.py	2026-09-29 05:42:59.697779984 -0400
+@@ -35,6 +35,7 @@
+ import struct
+ import sys
+ import threading
++import time
+ 
+ import pytest
+ 
+@@ -1158,3 +1159,154 @@
+     assert i > 0
+     # the push of that string's address follows `cmp eax,2Dh; je; push 2Dh`
+     assert bytes.fromhex("83f82d74106a2d50") in hw
++
++
++# =============================================================================
++# 6. adversarial review, 2026-09-29 - two defects found after the build
++# =============================================================================
++#
++# (a) Team Arena: a fleet server the merge could NOT put in the list (the
++#     player's 128 favourites fill it, or the address is a hostname) was
++#     reported "unchanged: ... ours: none" - success, with the server absent
++#     from the Favorites tab and nothing saying so. And with no file yet the
++#     writer created an EMPTY servercache.dat for a list it could not fill.
++# (b) Q3 favourites still churned on real data: replaying the captured box
++#     files against two DB snapshots 20 minutes apart (05:04 / 05:24) rewrote
++#     every Q3 autoexec on every LCD box, because two incumbents had simply
++#     not been re-probed in the last 15 minutes (what the masters return
++#     varies pass to pass - 389 addresses at 05:34, 862 either side - and a
++#     third of it does not answer any one probe) and dropped out, and a
++#     sibling port of the same host took the slot. An incumbent is now judged
++#     alive over the hour prune_servers keeps a row for.
++
++SC_PATH = (r"C:\Documents and Settings\Administrator\Application Data\Quake3"
++           r"\servercache.dat")
++
++
++def test_a_full_list_is_reported_as_not_added_never_as_unchanged(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    full = [player_added("10.0.%d.%d:27960" % (i // 250, i % 250 + 1), "p")
++            for i in range(128)]
++    box, path = ta_box(files={SC_PATH: with_favourites(empty_cache(), full)})
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith(f"skipped: {path}: NOT ADDED {ME}:27962 - the "
++                           f"favourites list is full"), n
++    assert not n[0].startswith("unchanged")
++    assert not [c for c in box.uploads() if "servercache" in c]
++    assert box.get(path) == with_favourites(empty_cache(), full), "untouched"
++
++
++def test_an_address_the_file_cannot_hold_is_reported_and_no_empty_file_made(
++        con, monkeypatch):
++    """RETRO_FLEET_HOST may name the host; servercache.dat holds 4 IP bytes."""
++    db.upsert_servers(con, "q3", [srow("fleethost:27962", "missionpack",
++                                       "TA", 0, 1, "local")])
++    index_q3(con)
++    box, path = ta_box()              # Quake3\ exists, no servercache.dat yet
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith(f"skipped: {path}: NOT ADDED fleethost:27962 - "
++                           f"not an IPv4"), n
++    assert box.get(path) is None, \
++        "an empty servercache.dat seeded for a list we could not fill"
++
++
++def test_sc_merge_creates_no_file_with_nothing_of_ours_to_put_in_it():
++    new, summary = favorites.sc_merge(None, [srow("myhost:27962", "missionpack",
++                                                  local=1, source="local")])
++    assert new is None
++    assert "NOT ADDED myhost:27962" in favorites.sc_missing(summary)
++    # ...while a representable one still creates the file, as before
++    new, summary = favorites.sc_merge(None, TA)
++    assert new is not None and favorites.sc_missing(summary) == ""
++
++
++def test_the_players_own_copy_of_the_fleet_server_is_named(con, monkeypatch):
++    local_q3(con)
++    index_q3(con)
++    theirs = player_added(f"{ME}:27962", "added by hand")
++    box, path = ta_box(files={SC_PATH: with_favourites(empty_cache(), [theirs])})
++    n = ta_notes(push(con, box, monkeypatch))
++    assert n[0].startswith(f"unchanged: {path}"), n
++    assert f"already the player's own: {ME}:27962" in n[0], n
++
++
++def _age(con, addr, minutes, engine="q3"):
++    t = time.strftime("%Y-%m-%d %H:%M:%S",
++                      time.localtime(time.time() - minutes * 60))
++    con.execute("UPDATE servers SET last_seen=? WHERE engine=? AND addr=?",
++                (t, engine, addr))
++    con.commit()
++
++
++def test_an_incumbent_a_pass_missed_is_kept_but_a_newcomer_that_old_is_not(con):
++    db.upsert_servers(con, "q3", [srow("1.1.1.1:27960", players=4),
++                                  srow("2.2.2.2:27960", players=30)])
++    _age(con, "1.1.1.1:27960", 30)
++    _age(con, "2.2.2.2:27960", 30)
++    inc = [r["addr"] for r in db.best_servers(
++        con, "q3", incumbent=lambda r: r["addr"] == "1.1.1.1:27960")]
++    assert inc == ["1.1.1.1:27960"], "listed, alive half an hour ago: kept"
++    assert db.best_servers(con, "q3") == [], \
++        "a server nobody lists must have been seen in the last 15 minutes"
++
++
++def test_an_incumbent_gone_for_an_hour_or_last_seen_empty_is_replaced(con):
++    db.upsert_servers(con, "q3", [srow("1.1.1.1:27960", players=4),
++                                  srow("3.3.3.3:27960", players=0),
++                                  srow("2.2.2.2:27960", players=6)])
++    _age(con, "1.1.1.1:27960", 70)             # past the prune horizon
++    _age(con, "3.3.3.3:27960", 20)             # answered - empty
++    listed = {"1.1.1.1:27960", "3.3.3.3:27960"}
++    got = [r["addr"] for r in db.best_servers(
++        con, "q3", incumbent=lambda r: r["addr"] in listed)]
++    assert got == ["2.2.2.2:27960"]
++
++
++def test_a_pass_that_missed_listed_servers_does_not_rewrite_the_file(
++        con, monkeypatch):
++    """The 05:04 -> 05:24 replay, in miniature: five of the listed internet
++    servers were not re-probed by the latest discovery, so their rows are 25
++    minutes old. Nothing a player could see changed - the file must not."""
++    local_q3(con)
++    db.upsert_servers(con, "q3", [srow(f"10.0.0.{i}:27960", players=8)
++                                  for i in range(1, 25)])
++    index_q3(con)
++    box = FakeBox(files={Q3CFG: STAGED_AUTOEXEC}, dirs=[Q3DIR + r"\baseq3"],
++                  appdata=None)
++    first = push(con, box, monkeypatch)
++    assert any(n.startswith("wrote 16 servers") for n in notes(first))
++    listed = favorites.incumbents("q3", box.get(Q3CFG).decode("latin-1"))
++    missed = sorted(listed - {f"{ME}:27961"})[:5]
++    for a in missed:
++        _age(con, a, 25)
++    box.sent.clear()
++    second = push(con, box, monkeypatch)
++    q3 = [n for k, e, n in second if e == "q3"]
++    assert q3 and q3[0].startswith(f"unchanged: {Q3CFG}"), q3
++    assert not box.uploads()
++    # ...and once they have really gone (an hour unseen) the file follows.
++    for a in missed:
++        _age(con, a, 70)
++    third = push(con, box, monkeypatch)
++    q3 = [n for k, e, n in third if e == "q3"]
++    assert q3 and q3[0].startswith("wrote 16 servers"), q3
++    now = favorites.incumbents("q3", box.get(Q3CFG).decode("latin-1"))
++    assert not (set(missed) & now)
++
++
++def test_the_sof2_reason_matches_the_staged_tree():
++    """The SoF2 reason said "the staged tree carries base\\servercache.dat".
++    It does not (case-insensitive, whole tree): the game writes the file at
++    its tree root on the boxes. The mechanism half of the reason stands - the
++    MP UI is Team Arena's lineage, addFavorite and no server%d."""
++    need_share()
++    tree = LIBRARY / "SoldierOfFortune2"
++    staged = [p for p in tree.rglob("*") if p.name.lower() == "servercache.dat"]
++    assert staged == [], staged
++    why = favorites.UNWRITABLE["sof2"]
++    assert "staged tree carries" not in why and "none is staged" in why
++    import zipfile
++    ui = zipfile.ZipFile(tree / "base" / "mp.pk3").read("vm/sof2mp_ui.qvm")
++    assert b"addFavorite" in ui and b"server%d" not in ui
++    assert b"servercache.dat" in (tree / "sof2mp.exe").read_bytes()

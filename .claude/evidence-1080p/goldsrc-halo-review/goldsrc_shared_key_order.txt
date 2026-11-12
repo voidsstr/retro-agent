@@ -1,0 +1,129 @@
+# HKCU\Software\Valve\Half-Life\Settings is written by THREE things on every full GAMESYNC, in this order
+# 1) GAMESYNC walks titles in _priority.txt order (gamesync.c reads it, line ~5298):
+3:CounterStrike16
+8:HalfLife1
+# 2) per title: gs_copy_tree() ok -> gs_merge_reg(install.reg) -> gameres_apply_title() (agent/src/gamesync.c):
+            int gr_absent = 0;
+            ok_titles++;
+            gs_merge_reg(dst, titles[i]);
+            /*
+             * THE RESOLUTION PASS RUNS AFTER gs_merge_reg(), AND THE ORDER IS
+             * THE POINT. A staged install.reg is a byte-identical constant
+             * shipped to eight different monitors, and Half-Life's pins
+             * HKCU\Software\Valve\Half-Life\Settings ScreenWidth to 1024 -
+             * the one key every GoldSrc title on the box shares, there being
+             * no Software\Valve\CounterStrike key at all. Merging it and then
+             * leaving it is how a 1080p machine gets re-pinned to 1024x768 on
+             * every single sync, with the launcher unable to undo something
+             * written after it ran. Anything that later re-orders these two
+             * calls silently restores that bug.
+             */
+            gr_changed += gameres_apply_title(dst, titles[i], &gr_absent);
+            gr_absent_t += gr_absent;
+# 3) the values each writer sets:
+## CounterStrike16/install.reg (merged, then CS16's GAMERES rows run right after):
+"ScreenWidth"=dword:00000320
+"ScreenHeight"=dword:00000258
+"ScreenBPP"=dword:00000020
+"ScreenWindowed"=dword:00000000
+"EngineModeW"=dword:00000320
+"EngineModeH"=dword:00000258
+"EngineModeBPP"=dword:00000020
+"EngineModeWindowed"=dword:00000000
+## agent/shared/gameres.h CounterStrike16 rows:
+   663:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "ScreenWidth",      "dword:%W%" },
+   664:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "ScreenHeight",     "dword:%H%" },
+   665:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "ScreenBPP",        "dword:32" },
+   666:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "ScreenWindowed",   "dword:0" },
+   667:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "EngineModeW",      "dword:%W%" },
+   668:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "EngineModeH",      "dword:%H%" },
+   669:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "EngineModeBPP",    "dword:32" },
+   670:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "EngineModeWindowed", "dword:0" },
+   671:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "EngineType",       "dword:1" },
+   676:{ "CounterStrike16", GR_OP_REG, "HKCU", "Software\\Valve\\Half-Life\\Settings", "EngineGLDriver",   "sz:Default" },
+## HalfLife1/install.reg (merged LATER in the same sync; HalfLife1 has no GAMERES rows):
+"ScreenWidth"=dword:00000400
+"ScreenHeight"=dword:00000300
+"ScreenBPP"=dword:00000020
+"ScreenWindowed"=dword:00000000
+"EngineModeW"=dword:00000400
+"EngineModeH"=dword:00000300
+"EngineModeBPP"=dword:00000020
+"EngineModeWindowed"=dword:00000000
+# => after a full sync the key ends at 1024x768 (HalfLife1/install.reg), and the CS16 pass reports >=4 changed values
+#    (800x600 -> 1920x1080 for ScreenWidth/Height + EngineModeW/H) on EVERY sync of a 1080p box. Neither GoldSrc launcher
+#    depends on the key: both pass -w/-h, which both engines let override the registry (see below).
+
+# Which binary reads which value (strings -a + strings -a -el, grep -i -E exact names, uniq -c):
+## won_hl.exe
+      3 EngineGLDriver
+      3 EngineModeBPP
+      3 EngineModeH
+      3 EngineModeW
+      4 EngineType
+      2 LauncherWidth
+## cs_hl.exe
+      1 EngineD3D
+      1 ScreenBPP
+      1 ScreenHeight
+      1 ScreenWidth
+## cs_hw.dll
+      3 EngineD3D
+      3 ScreenBPP
+      3 ScreenHeight
+      3 ScreenWidth
+
+# build 4554 hw.dll CVideoMode_Common::Init switch strings (VA -> string):
+  0x1e8ca38 -width  0x1e8ca40 -w  0x1e8ca44 -height  0x1e8ca4c -h  0x1e8ca50 -forceres (see steam_goldsrc4554_mode_list.asm.txt, 0x1dc694d-0x1dc69f1)
+# build 4554 EnumDisplayModes call 0x1dc7ee0: dwFlags=0 (no DDEDM_REFRESHRATES) -> one callback per (w,h,bpp), so the 32-entry AddMode cap is not reached (11-14 accepted per box, probe_*.txt gs4554_32)
+ 1dc7ee0:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+ 1dc7ee4:	68 10 7f dc 01       	push   0x1dc7f10
+ 1dc7ee9:	a3 88 86 44 02       	mov    ds:0x2448688,eax
+ 1dc7eee:	8b 41 04             	mov    eax,DWORD PTR [ecx+0x4]
+ 1dc7ef1:	68 88 86 44 02       	push   0x2448688
+ 1dc7ef6:	6a 00                	push   0x0
+ 1dc7ef8:	8b 08                	mov    ecx,DWORD PTR [eax]
+ 1dc7efa:	6a 00                	push   0x0
+ 1dc7efc:	50                   	push   eax
+ 1dc7efd:	ff 51 20             	call   DWORD PTR [ecx+0x20]
+ 1dc7f00:	c2 04 00             	ret    0x4
+
+# WON hl.exe 1.1.0.8 -w/-h lookup 0x413dc0: matches entry bpp against EngineModeBPP from the registry (32) while DirectDraw entries were
+# enumerated at [0x4e1f30]=16 (no -24bpp/-32bpp on the staged launchers) -> falls back to the last same-width fullscreen entry (1280x960)
+# and 0x413e1b sets 0x4e3190 to 16. Whether the engine then switches at 16 or 32 bpp was NOT traced (the registry load at 0x423fb0 also
+# writes 0x4e3190 and its order relative to this function was not established) - a possible 16-bit colour side issue, UNVERIFIED.
+# It does not change the resolution answer: the chosen entry is 1280x960 either way.
+  413dc0:	a1 c8 a8 4e 00       	mov    eax,ds:0x4ea8c8
+  413dc5:	33 c9                	xor    ecx,ecx
+  413dc7:	3b c7                	cmp    eax,edi
+  413dc9:	7e 31                	jle    0x413dfc
+  413dcb:	ba 34 6e 4e 00       	mov    edx,0x4e6e34
+  413dd0:	8b 7c 24 14          	mov    edi,DWORD PTR [esp+0x14]
+  413dd4:	39 7a fc             	cmp    DWORD PTR [edx-0x4],edi
+  413dd7:	75 18                	jne    0x413df1
+  413dd9:	39 1a                	cmp    DWORD PTR [edx],ebx
+  413ddb:	75 14                	jne    0x413df1
+  413ddd:	8b 7a 04             	mov    edi,DWORD PTR [edx+0x4]
+  413de0:	8b e9                	mov    ebp,ecx
+  413de2:	3b fe                	cmp    edi,esi
+  413de4:	75 0b                	jne    0x413df1
+  413de6:	8b 3d 90 31 4e 00    	mov    edi,DWORD PTR ds:0x4e3190
+  413dec:	39 7a 1c             	cmp    DWORD PTR [edx+0x1c],edi
+  413def:	74 0b                	je     0x413dfc
+  413df1:	41                   	inc    ecx
+  413df2:	81 c2 2c 01 00 00    	add    edx,0x12c
+  413df8:	3b c8                	cmp    ecx,eax
+  413dfa:	7c d4                	jl     0x413dd0
+  413dfc:	3b c8                	cmp    ecx,eax
+  413dfe:	75 09                	jne    0x413e09
+  413e00:	8b cd                	mov    ecx,ebp
+  413e02:	41                   	inc    ecx
+  413e03:	f7 d9                	neg    ecx
+  413e05:	1b c9                	sbb    ecx,ecx
+  413e07:	23 cd                	and    ecx,ebp
+  413e09:	8b 15 30 1f 4e 00    	mov    edx,DWORD PTR ds:0x4e1f30
+  413e0f:	89 1d 88 31 4e 00    	mov    DWORD PTR ds:0x4e3188,ebx
+  413e15:	89 35 8c 31 4e 00    	mov    DWORD PTR ds:0x4e318c,esi
+  413e1b:	89 15 90 31 4e 00    	mov    DWORD PTR ds:0x4e3190,edx
+  413e21:	89 0d 10 6e 4e 00    	mov    DWORD PTR ds:0x4e6e10,ecx
+  413e27:	89 0d 84 31 4e 00    	mov    DWORD PTR ds:0x4e3184,ecx

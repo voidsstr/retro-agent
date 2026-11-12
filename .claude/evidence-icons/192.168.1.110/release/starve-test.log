@@ -1,0 +1,20 @@
+upload 0 b'OK 10'
+launch {"pid":1272,"command":"wscript.exe //B //Nologo C:\\RETRO_AGENT\\spin.vbs"}
+wscript running: [{'pid': 1440, 'name': 'wscript.exe', 'threads': 3, 'parent_pid': 1272}]
+RESET OK marker cleared START OK started
+14:27:49 done starved_s 0 stalled_s 0 since_prog 0 cpu -1 | complete - 51 title(s)
+14:27:59 done starved_s 0 stalled_s 0 since_prog 0 cpu -1 | complete - 51 title(s)
+14:28:09 done starved_s 0 stalled_s 0 since_prog 0 cpu -1 | complete - 51 title(s)
+14:28:19 done starved_s 0 stalled_s 0 since_prog 0 cpu -1 | complete - 51 title(s)
+14:28:29 sizing starved_s 8 stalled_s 8 since_prog 3 cpu 100 | profiling this machine for the capability gate
+14:28:39 sizing starved_s 18 stalled_s 18 since_prog 13 cpu 100 | profiling this machine for the capability gate
+14:28:49 sizing starved_s 28 stalled_s 28 since_prog 8 cpu 100 | reading the monitor
+14:28:59 sizing starved_s 38 stalled_s 38 since_prog 18 cpu 100 | reading the monitor
+14:29:09 sizing starved_s 48 stalled_s 48 since_prog 28 cpu 100 | reading the monitor
+14:29:19 sizing starved_s 58 stalled_s 58 since_prog 6 cpu 100 | enumerating library
+14:29:29 sizing starved_s 68 stalled_s 68 since_prog 16 cpu 100 | enumerating library - STARVED OF CPU: no progress for 68 s of the last 68 s, CPU 100% busy - GAMESYNC runs at idle priority by design, so a busy CPU (a running game is the usual cause) stops it until the CPU frees up
+killing spinner: SUCCESS: The process "wscript.exe" with PID 1440 has been terminated.
+14:29:43 sizing starved_s 72 stalled_s 72 since_prog 0 cpu 100 | sizing Tribes2 (51 of 52) - STARVED OF CPU: no progress for 72 s of the last 82 s, CPU 100% busy - GAMESYNC runs at idle priority by design, so a busy CPU (a running game is the usual cause) stops it until the CPU frees up
+14:29:53 copying starved_s 72 stalled_s 72 since_prog 0 cpu 100 | copying RainbowSix - STARVED OF CPU: no progress for 72 s of the last 92 s, CPU 100% busy - GAMESYNC runs at idle priority by design, so a busy CPU (a running game is the usual cause) stops it until the CPU frees up
+14:30:03 done starved_s 72 stalled_s 72 since_prog 0 cpu 100 | complete - 51 title(s)
+delete vbs OK

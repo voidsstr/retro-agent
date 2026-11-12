@@ -1,0 +1,37 @@
+{
+ "ip": "192.168.1.123",
+ "t": "2026-09-29 04:28:39 EDT",
+ "out": {
+  "GAMERES": {
+   "status": 0,
+   "text": "{\"panel\":{\"edid\":true,\"name\":\"DELL P2312H\",\"pnpid\":\"DEL4076\",\"type\":\"LCD\",\"digital\":false,\"native\":\"1920x1080\",\"native_hz\":60,\"vmax_hz\":76,\"size_cm\":\"51x29\"},\"desktop\":{\"persisted\":\"1920x1080\",\"persisted_hz\":60,\"live\":\"1920x1080\",\"bpp\":32},\"cap\":\"0x0\",\"target\":{\"wide\":\"1920x1080\",\"four_three\":\"1280x960\",\"aspect\":\"16:9\",\"hz\":60,\"hz_four_three\":75,\"hz_desktop\":60,\"hz_launcher\":60,\"fov\":106,\"q2mode\":8,\"q3mode\":7,\"d3_aspect\":1,\"dosbox_fullresolution\":\"desktop\"},\"modes\":[\"640x480@75\",\"720x480@60\",\"800x600@75\",\"848x480@75\",\"1024x768@75\",\"1152x864@75\",\"1280x720@75\",\"1280x768@75\",\"1280x800@75\",\"1280x960@75\",\"1280x1024@75\",\"1360x768@75\",\"1440x900@75\",\"1680x1050@75\",\"1920x1080@60\"],\"rules\":80}"
+  },
+  "DISPLAYCFG get": {
+   "status": 0,
+   "text": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}"
+  },
+  "HWPROFILE": {
+   "status": 0,
+   "text": "{\"profile_hash\":\"e633518d4747e4f2\",\"profile_version\":1,\"hostname\":\"NSC-B20C188E96D\",\"agent_version\":\"1.91.0\",\"reported_at\":\"2026-09-29 04:26:31\",\"cpu\":{\"vendor\":\"AuthenticAMD\",\"brand\":\"AMD Athlon(tm) 64 Processor 4000+\",\"family\":15,\"model\":39,\"stepping\":1,\"mhz\":2400,\"mhz_source\":\"registry\",\"count\":1,\"feature_bits\":319,\"features\":[\"fpu\",\"mmx\",\"cmov\",\"3dnow\",\"sse\",\"sse2\",\"sse3\"]},\"ram_mb\":2047,\"gpu\":{\"name\":\"ATI Radeon HD 3850 AGP\",\"pci_ven\":\"0x1002\",\"pci_dev\":\"0x9515\",\"hardware_id\":\"PCI\\\\VEN_1002&DEV_9515&SUBSYS_0028174B&REV_00\",\"vram_mb\":512,\"driver_version\":\"8.970.100.0\",\"driver_date\":\"4-24-2013\",\"feature_level\":\"sm3.0\",\"feature_level_num\":5,\"source\":\"EnumDisplayDevices(active)\"},\"os\":{\"product\":\"Windows XP\",\"version\":\"5.1.2600\",\"service_pack\":\"Service Pack 3\",\"level\":\"winxp\",\"level_num\":3},\"host_policy\":{\"modern\":false,\"managed\":true},\"directx\":{\"version\":\"4.09.00.0904\",\"major\":9},\"capabilities\":{\"disc_mount\":true,\"disc_mount_evidence\":\"d347bus\",\"glide\":false,\"glide_evidence\":\"\",\"bits\":1},\"display\":{\"width\":1920,\"height\":1080,\"bpp\":32,\"panel_w\":1920,\"panel_h\":1080,\"panel_source\":\"registry\",\"edid_w\":1920,\"edid_h\":1080,\"panel_hz\":60,\"panel_digital\":0,\"panel_name\":\"DELL P2312H\"},\"disk\":[{\"root\":\"C:\\\\\",\"free_mb\":183081,\"total_mb\":244197}],\"video_cards\":[{\"instance\":\"0000\",\"name\":\"ATI Radeon HD 3850 AGP\",\"pci_ven\":\"0x1002\",\"pci_dev\":\"0x9515\",\"hardware_id\":\"pci\\\\ven_1002&dev_9515\",\"driver_version\":\"8.970.100.0\",\"driver_date\":\"4-24-2013\",\"attached_to_desktop\":true}],\"accelerators\":[],\"network\":{\"interfaces\":[{\"description\":\"Marvell Yukon 88E8001/8003/8010 PCI Gigabit Ethernet Controller - Packet Scheduler Miniport\",\"mac\":\"00-13-D4-A4-A4-13\",\"ipv4\":[\"192.168.1.123\"]}],\"source\":\"GetAdaptersInfo\"}}"
+  },
+  "REGREAD HKLM Software\\RetroAgent": {
+   "status": 0,
+   "text": "{\"root\":\"HKLM\",\"path\":\"Software\\\\RetroAgent\",\"values\":[{\"name\":\"LastUpdateVer\",\"type\":\"REG_SZ\",\"data\":\"1.91.0\"},{\"name\":\"HwPublished\",\"type\":\"REG_SZ\",\"data\":\"2026-09-28 23:45:15 ok\"},{\"name\":\"DriverUpdateBoot\",\"type\":\"REG_SZ\",\"data\":\"2026-09-28 23:44 0 installed, 0 device(s) looked at; store \\\\\\\\192.168.1.122\\\\files\\\\Files\\\\OS\\\\XPSP3-FLEET\\\\$OEM$\\\\$1\\\\D\"}],\"subkeys\":[]}"
+  },
+  "REGREAD HKCU Software\\Valve\\Half-Life\\Settings": {
+   "status": 0,
+   "text": "{\"root\":\"HKCU\",\"path\":\"Software\\\\Valve\\\\Half-Life\\\\Settings\",\"values\":[{\"name\":\"Version\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"LauncherBPP\",\"type\":\"REG_DWORD\",\"data\":16},{\"name\":\"LauncherWidth\",\"type\":\"REG_DWORD\",\"data\":640},{\"name\":\"LauncherHeight\",\"type\":\"REG_DWORD\",\"data\":480},{\"name\":\"EngineGLDriver\",\"type\":\"REG_SZ\",\"data\":\"Default\"},{\"name\":\"EngineD3DDevice\",\"type\":\"REG_SZ\",\"data\":\"Default\"},{\"name\":\"EngineType\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"EngineModeW\",\"type\":\"REG_DWORD\",\"data\":1920},{\"name\":\"EngineModeH\",\"type\":\"REG_DWORD\",\"data\":1080},{\"name\":\"EngineModeBPP\",\"type\":\"REG_DWORD\",\"data\":32},{\"name\":\"EngineModeCaptured\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"A3D Support\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"EngineAllowWindowed\",\"type\":\"REG_DWORD\",\"data\":1},{\"name\":\"EngineModeWindowed\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"CPUMHZ\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"User Token 2\",\"type\":\"REG_SZ\",\"data\":\"\"},{\"name\":\"User Token 3\",\"type\":\"REG_SZ\",\"data\":\"\"},{\"name\":\"EngineDLL\",\"type\":\"REG_SZ\",\"data\":\"hw.dll\"},{\"name\":\"ScreenWindowed\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"CrashInitializingVideoMode\",\"type\":\"REG_DWORD\",\"data\":0},{\"name\":\"ScreenWidth\",\"type\":\"REG_DWORD\",\"data\":1920},{\"name\":\"ScreenHeight\",\"type\":\"REG_DWORD\",\"data\":1080},{\"name\":\"ScreenBPP\",\"type\":\"REG_DWORD\",\"data\":32},{\"name\":\"Key\",\"type\":\"REG_SZ\",\"data\":\"<REDACTED:fleet-gamekey-half-life-goty>\"},{\"name\":\"LAN Sort Order\",\"type\":\"REG_SZ\",\"data\":\"1;\"},{\"name\":\"Mod Sort Order\",\"type\":\"REG_SZ\",\"data\":\"1;\"},{\"name\":\"Logo\",\"type\":\"REG_SZ\",\"data\":\"chick1.bmp\"},{\"name\":\"Logo Color\",\"type\":\"REG_SZ\",\"data\":\"Orange\"}],\"subkeys\":[]}"
+  },
+  "DIRLIST C:\\Documents and Settings": {
+   "status": 0,
+   "text": "[{\"name\":\"Administrator\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-01 16:11:32\",\"hidden\":false,\"readonly\":false},{\"name\":\"All Users\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 03:35:21\",\"hidden\":false,\"readonly\":false},{\"name\":\"Default User\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 03:35:59\",\"hidden\":true,\"readonly\":false},{\"name\":\"LocalService\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 03:38:29\",\"hidden\":true,\"readonly\":false},{\"name\":\"NetworkService\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-08-29 03:38:27\",\"hidden\":true,\"readonly\":false}]"
+  }
+ },
+ "files": {
+  "C:\\Documents and Settings\\Administrator\\Local Settings\\Temp\\fleetres.cmd": {
+   "status": 1,
+   "len": 509,
+   "text": "set \"FR_W=1920\"\r\nset \"FR_H=1080\"\r\nset \"FR_BPP=32\"\r\nset \"FR_HZ=60\"\r\nset \"FR_ASPECT=16:9\"\r\nset \"FR_PANEL=LCD\"\r\nset \"FR_NATIVE_W=1920\"\r\nset \"FR_NATIVE_H=1080\"\r\nset \"FR_DESK_W=1920\"\r\nset \"FR_DESK_H=1080\"\r\nset \"FR_LIVE_W=1920\"\r\nset \"FR_LIVE_H=1080\"\r\nset \"FR_FOV=106\"\r\nset \"FR_W43=1280\"\r\nset \"FR_H43=960\"\r\nset \"FR_Q2MODE=8\"\r\nset \"FR_Q3MODE=7\"\r\nset \"FR_WIDE=1\"\r\nset \"FR_DOSFULLRES=desktop\"\r\nset \"FR_MON=DELL P2312H\"\r\nset \"FR_EDID=1\"\r\nset \"FR_GLIDE=0\"\r\nset \"FR_GLIDEDEV=none\"\r\nset \"FR_UE1DEV=D3DDrv.D3DRenderDevice\"\r\n"
+  }
+ }
+}

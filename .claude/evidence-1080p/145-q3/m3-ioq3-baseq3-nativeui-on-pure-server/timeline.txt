@@ -1,0 +1,10 @@
+00:23:31 UIKEY SHIFT -> 0 OK
+00:23:31 LAUNCH EXEC cmd /c start "" /D "C:\Games\Quake3-TeamArena" "Play Quake III Arena.bat" -> 0 
+00:23:31 t+0s running=False fg=('ConsoleWindowClass', '') wins=[('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:35 t+4s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:39 t+8s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:43 t+12s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:47 t+16s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:51 t+20s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:55 t+24s running=True fg=('SDL_app', 'ioquake3') wins=[('SDL_app', 'ioquake3', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080}), ('Progman', 'Program Manager', {'left': 0, 'top': 0, 'right': 1920, 'bottom': 1080})]
+00:23:59 end of watch; running at end = True

@@ -1,0 +1,2 @@
+# 192.168.1.243  GAMERES  status=0  2026-09-29 00:26:24
+{"panel":{"edid":false,"name":"","pnpid":"","type":"CRT","digital":false,"native":"0x0","native_hz":0,"vmax_hz":0,"size_cm":"0x0"},"desktop":{"persisted":"1024x768","persisted_hz":75,"live":"1024x768","bpp":8},"cap":"0x0","target":{"wide":"1024x768","four_three":"1024x768","aspect":"4:3","hz":75,"hz_four_three":75,"hz_desktop":75,"hz_launcher":75,"fov":90,"q2mode":6,"q3mode":6,"d3_aspect":0,"dosbox_fullresolution":"original"},"modes":["640x480@0","800x600@0","1024x768@75"],"rules":80}

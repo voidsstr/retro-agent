@@ -1,0 +1,28 @@
+q3-ta-menus build, 2026-09-29 ~04:25. Built on the dev host only; nothing was published and no box was touched.
+
+Output: ~/.retro-fleet/patch-out/q3-ta-menus/zz-fleetres-menus.pk3
+  md5 627013444d74562c7ed28ed9caa895f2, 28914 bytes. STORED zip with a fixed
+  time, so it is reproducible (two builds gave identical bytes).
+  ui/system.menu         4cd05af14011932c330157015f687b01  15166  (from ff72065... 14259)
+  ui/ingame_system.menu  b3466223d6cd10eeba56d09a47bb24b9  13504  (from 1f024f1... 12623)
+Source: missionpack/pak0.pk3 e8ba9e3bf06210930bc0e7fdbcdd01c2 (351623691 bytes). pak1-3 carry neither member.
+
+Design decisions (details are in the apply.py docstring):
+- The Video Mode lists gain "Native" -1 as their FIRST entry.
+- Three decoration text items show r_customwidth, the separator ("*" in the
+  main menu, "x" in game) and r_customheight. They are gated by cvarTest r_mode
+  showCvar { "-1" ; "-1.000000" }.
+  - Item_Text_Paint paints a cvar-only item's value, but Item_SetTextExtents
+    aligns by textWidth(item->text), which is 0 when text is NULL. Such an item
+    is therefore always left-anchored, so the x positions are pinned.
+  - An EDITFIELD without text would paint the value twice.
+  - botlib concatenates adjacent strings, so the ';' in the gate list is required.
+  - The UI writes r_mode with force (not latched) as "%i", so the gate follows
+    a click at once (.240 54-B-condump-rmode.txt: r_mode "1" after one click).
+- The Quality (ui_glCustom) itemDef is removed from both files.
+- Layout was checked against the glyph advances in pak0's fontImage_12/16.dat.
+  Worst case: a 3 px gap for a 2560 width. Tallest height ends at x 254 in game,
+  against the frame at 261.
+- The validator (a botlib+ui_shared mimic) parses all 53 stock TA menus with no
+  errors. Top-level brace imbalance is compared relative to the original,
+  because 21 stock files are unbalanced at the top level, which the game ignores.

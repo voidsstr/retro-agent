@@ -1,0 +1,96 @@
+    LoadFavorites = function ()
+        if (count(UI.PageMultiplayer.FavServers) > 0) then
+            for ServerIndex=1, count(UI.PageMultiplayer.FavServers) do
+                UI.PageMultiplayer.FavServers[ServerIndex] = nil;
+            end
+        end
+        
+        UI.PageMultiplayer.szLoadFileName = "profiles/server/fav_server.cfg";
+        
+        local hfile = openfile(UI.PageMultiplayer.szLoadFileName, "r");
+
+        if (hfile) then
+            closefile(hfile);
+
+            Script:LoadScript(UI.PageMultiplayer.szLoadFileName, 1);
+        end
+    end,
+    
+    DeleteServerFromFavorites = function() 
+
+		UI.PageMultiplayer.LoadFavorites();
+
+        UI.PageMultiplayer.szSaveFileName = "profiles/server/fav_server.cfg";        
+
+        local hFile = openfile (UI.PageMultiplayer.szSaveFileName, "r");
+        local TempSelection = tonumber(getglobal("g_FavServerIP"));
+
+        local NumOfFavs = count(UI.PageMultiplayer.FavServers);
+        NumOfFavs = NumOfFavs + 1;
+
+        local MyIPIwant = UI.PageNETServerList.Servers[TempSelection].IP;
+        setglobal("g_FavServerIP", MyIPIwant);
+
+        if (hFile) then
+            closefile(hFile);
+
+            hFile = openfile(UI.PageMultiplayer.szSaveFileName, "w");
+            
+            local MyIndex = 1;
+            
+            if (count(UI.PageMultiplayer.FavServers) > 0) then
+                for ServerIndex=1, count(UI.PageMultiplayer.FavServers) do
+                    local TestIP = UI.PageMultiplayer.FavServers[ServerIndex];
+                    
+                    if (TestIP ~= MyIPIwant) then
+                        write(hFile, "UI.PageMultiplayer.FavServers["..MyIndex.."] = "..format('%q', TestIP).."\n");
+                        MyIndex = MyIndex + 1;
+                    end
+                end
+            end
+            closefile(hFile);
+        end
+
+        UI.PageMultiplayer.CurrentList.RefreshList();
+    end,    
+
+    SaveServerToFavorites = function() 
+        UI.PageMultiplayer.LoadFavorites();
+
+        UI.PageMultiplayer.szSaveFileName = "profiles/server/fav_server.cfg";        
+
+        
+        local TempSelection = tonumber(getglobal("g_FavServerIP"));
+        local bDuplicate = 0;
+        local NumOfFavs = count(UI.PageMultiplayer.FavServers);
+        
+        NumOfFavs = NumOfFavs + 1;
+
+        local MyIPIwant = UI.PageNETServerList.Servers[TempSelection].IP;
+        setglobal("g_FavServerIP", MyIPIwant);
+
+
+        hFile = openfile(UI.PageMultiplayer.szSaveFileName, "w");
+
+        if (count(UI.PageMultiplayer.FavServers) > 0) then
+            for ServerIndex=1, count(UI.PageMultiplayer.FavServers) do
+                local TestIP = UI.PageMultiplayer.FavServers[ServerIndex];
+                if (TestIP == MyIPIwant) then
+                    bDuplicate = 1;
+                end
+                write(hFile, "UI.PageMultiplayer.FavServers["..ServerIndex.."] = "..format('%q', TestIP).."\n");
+            end
+            if (bDuplicate == 0) then
+                write(hFile, "UI.PageMultiplayer.FavServers["..NumOfFavs.."] = "..format('%q', MyIPIwant).."\n");
+            end
+        else
+            write(hFile, "UI.PageMultiplayer.FavServers[1] = "..format('%q', MyIPIwant).."\n");
+        end
+        closefile(hFile);
+
+        UI.PageMultiplayer.LoadFavorites();        
+    end, 
+
+	JoinServerIP = function(Sender)
+		UI.JoinIPBox(Localize("Join").." "..Localize("IP"), "Please enter the server IP and Port to join", UI.PageMultiplayer.ConnectIP);
+	end,

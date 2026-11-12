@@ -1,0 +1,15 @@
+displaycfg before {"width":1920,"height":1080,"bpp":32,"refresh":60}
+launch: cmd /c start "" /D "C:\Games\ReturnToCastleWolfenstein" "C:\Games\ReturnToCastleWolfenstein\WolfMP.exe" +set logfile 2 +set r_mode 7 +set r_fullscreen 1
+exec rc 0 
+t=5s windows: []
+t=10s windows: [('Wolfenstein', 'Wolfenstein', {'left': 0, 'top': 0, 'right': 640, 'bottom': 480})]
+t=15s windows: [('Wolfenstein', 'Wolfenstein', {'left': 0, 'top': 0, 'right': 640, 'bottom': 480})]
+t=20s windows: [('Wolfenstein', 'Wolfenstein', {'left': 0, 'top': 0, 'right': 640, 'bottom': 480})]
+t=25s windows: [('Wolfenstein', 'Wolfenstein', {'left': 0, 'top': 0, 'right': 640, 'bottom': 480})]
+t=30s windows: [('Wolfenstein', 'Wolfenstein', {'left': 0, 'top': 0, 'right': 640, 'bottom': 480})]
+t=35s windows: [('Wolfenstein', 'Wolfenstein', {'left': 0, 'top': 0, 'right': 640, 'bottom': 480})]
+displaycfg during {"width":640,"height":480,"bpp":32,"refresh":60}
+screenshot (640, 480)
+taskkill SUCCESS: The process "WolfMP.exe" with PID 2364 has been terminated.
+games after kill []
+displaycfg after {"width":1920,"height":1080,"bpp":32,"refresh":60}

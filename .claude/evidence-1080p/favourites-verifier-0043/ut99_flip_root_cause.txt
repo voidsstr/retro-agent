@@ -1,0 +1,28 @@
+UT99 favourites flip - reproduction, generated 2026-09-29 00:40:13
+existing = .123 C:\Games\UnrealTournament436\System\UnrealTournament.ini downloaded read-only 00:2x (hash 738eb44e1c7fd490)
+render with current DB pick           : 738eb44e1c7fd490
+same pick, 85.214.243.170:9000 wins    : 3d42db42c12ea0a0
+journal: .123 UT436 written 3d42db42c12ea0a0 at 23:54:07, 00:04:07, 00:19:07 and 738eb44e1c7fd490 at 23:59:07, 00:09:07, 00:24:07
+the two same-host rows (best_servers dedupes by host IP; tie-break is players/4 then ping_ms/25 then addr):
+   {'addr': '85.214.243.170:7777', 'hostname': 'Barbies Monsterhunt World', 'players': 3, 'ping_ms': 2666, 'ping_bucket': 106, 'player_bucket': 0, 'last_seen': '2026-09-29 00:38:52'}
+   {'addr': '85.214.243.170:9000', 'hostname': 'Barbies Monsterhunt Tank World', 'players': 0, 'ping_ms': 2671, 'ping_bucket': 106, 'player_bucket': 0, 'last_seen': '2026-09-29 00:38:52'}
+ping_ms of every GameSpy-probed unreal row (the 2.5 s per-read timeout dominates it - it is not a ping):
+   108.61.109.162:7777 2540
+   130.61.36.168:7777 2628
+   139.162.235.20:7777 2617
+   173.199.111.57:7777 2630
+   185.242.112.2:6677 2644
+   192.168.1.132:7790 26
+   192.168.1.132:7797 2526
+   192.168.1.132:7807 40
+   192.223.24.67:7777 2540
+   194.164.194.68:7787 2631
+   209.38.218.216:2250 2629
+   23.92.16.218:7777 2549
+   31.220.4.155:2250 2616
+   37.153.1.43:7777 2666
+   66.85.80.155:7797 2539
+   74.91.116.164:7777 2553
+   74.91.119.21:7777 2525
+   85.214.243.170:7777 2666
+   85.214.243.170:9000 2671

@@ -1,0 +1,14 @@
+DOWNLOAD C:\RETRO_AGENT\HANDOFF.TXT | status 1 
+ [52086597 ms] handoff9x 1.0
+[52086656 ms] take C:\RETRO_AGENT\RA190.EXE: waiting for the agent's mutex to free - send RESTART now
+[52086694 ms] mutex seen held by the running agent
+[52090548 ms] mutex freed after 3854 ms
+[52090562 ms] mutex TAKEN after 3868 ms - RESTART's relaunch will exit
+[52110601 ms] mutex released - starting the target minimized
+[52110673 ms] started C:\RETRO_AGENT\RA190.EXE (pid 4294717375)
+[52135697 ms] C:\RETRO_AGENT\RA190.EXE still running after 25 s (exit code 259)
+[52135714 ms] done - the target is the running agent
+WINLIST | status 0 
+ {"windows":[{"hwnd":"000001F8","title":"START C:\\RETRO_AGENT\\retro_agent.exe","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"00000BD4","title":"Retro Remote Agent Version 1.90.0","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"0000016C","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1024,"bottom":768},"visible":true}]}
+PROCLIST: [('KERNEL32.DLL', 4279214187, 4), ('MSGSRV32.EXE', 4294940635, 1), ('MPREXE.EXE', 4294959435, 1), ('MSTASK.EXE', 4294838943, 2), ('EXPLORER.EXE', 4294952163, 5), ('TASKMON.EXE', 4294900803, 1), ('SYSTRAY.EXE', 4294780563, 1), ('RETRO_AGENT.EXE', 4294817635, 3), ('WINOA386.MOD', 4294776395, 1), ('RETRO_CHAT.EXE', 4294814819, 4), ('RETRO_CHAT.EXE', 4294795095, 4), ('RA190.EXE', 4294717375, 9), ('WINOA386.MOD', 4294827807, 1)]
+DESK: ['Online Services', 'Retro Agent.lnk', 'Retro Chat.lnk', 'Quake - Software Renderer.pif', 'Quake - 3dfx Voodoo.pif', 'Hexen II - Software Renderer.pif', 'Hexen II - 3dfx Voodoo.pif', 'Quake II.pif', 'Quake II - 3dfx Voodoo.pif']

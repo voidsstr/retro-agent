@@ -1,0 +1,17 @@
+# Q3 favourites a baseq3 box gets right now (db.best_servers, read-only DB), and a getstatus sample, 2026-09-29 00:45:21
+192.168.1.132:27961 LOCAL
+135.125.234.220:27960 db players 19 | now lines 19 ping-0 9 | !         Retro FFA | ['Gravity', '^1h^3ate^7me', 'Bulletproof', '^5high^7.^5volt']
+155.138.197.166:2020 db players 14 | now lines 14 ping-0 0 |      22RETRO|FFA | ['^7Wiley', '^4>>^8FOrWArD^4>>', '^7Erb^1an^7Legend', '^2www.q3retro.com']
+185.183.162.207:27112 db players 20 | now lines 20 ping-0 19 | TOP-CLAN.ru*FREEZE* | ['Gorre', 'Grunt', 'Biker', 'Wrack']
+190.104.185.85:27960 db players 15 | now lines 15 ping-0 15 | Friends Party Q3A Server | ['Razor', 'Bones', 'Slash', 'Stripe']
+198.74.54.53:2020 db players 16 | now lines 14 ping-0 0 |   77Q3RETRO.COM|CTF | ['^4B^13^4ND^13^4R', '^3Quansah', '^4>>^8FOrWArD^4>>', '^1V!PER']
+204.93.96.19:27960 db players 18 | now lines 19 ping-0 4 | {CROM} CTF | ['Biker', 'Phobos', 'Orbb', 'Hunter']
+207.148.22.206:27960 db players 13 | now lines 13 ping-0 4 | WarServeR CTF - New Jersey | ['^3[Ludicrous]^1Speed', '^4B^13^4ND^13^4R', '^1Vivaldi', '^2b^1e^2ll^1a^2t^1o^2r']
+217.155.181.75:27961 db players 14 | now lines 14 ping-0 14 | Alpina CTF | ['Mecha Red', '^1C^7rash', '^5Smeg^2Head', '^2M^7ongo']
+45.231.132.51:27300 db players 12 | now lines 12 ping-0 3 |     22GENESIS FFA | ['Lucy', 'Cadavre', '^6Lock', 'FFA4EVER']
+45.32.237.139:27960 db players 15 | now lines 15 ping-0 15 | ! Freon ! | ['^0wura^6wura', '^1Q U ^3A K E', 'ormy^1!', '^0DRANZER * DIE']
+5.178.110.76:27960 db players 14 | now lines 14 ping-0 14 | kull Server Kalhozn | ['Lucy', 'Hunter', 'Visor', 'Stripe']
+50.116.39.92:32023 db players 14 | now lines 14 ping-0 0 | *A51* FFA | ['^2warped^4spider', '^4S^7leep^4S^7ter', '^0qog^5!^7wallab^1i', '^1Tezcatlipoca']
+51.38.148.31:27950 db players 12 | now lines 12 ping-0 12 | Freeze Tag | ['Gorre', 'Xaero', 'Sorlag', 'Gorre']
+88.99.66.204:27962 db players 12 | now lines 12 ping-0 12 | CTF 24/7 | ['Daemia', 'Visor', 'Grunt', 'Grunt']
+97.90.63.254:27961 db players 12 | now lines 12 ping-0 12 | Guild Of Slackers Arena *Wes | ['Hunter', 'Zael', '^2Sleeper', 'Doom']

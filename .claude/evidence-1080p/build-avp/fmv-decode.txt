@@ -1,0 +1,27 @@
+# full decode of every built FMV with ffmpeg 7.0.2 (johnvansickle static, from the imageio-ffmpeg 0.6.0 wheel), -xerror: stops at the first decode error
+BUILT  AlienIntro.bik rc=0  errors=[]
+BUILT  AlienOutro.bik rc=0  errors=[]
+BUILT  IntroSound.smk rc=0  errors=[]
+BUILT  logos.bik rc=0  errors=[]
+BUILT  MarineIntro.bik rc=0  errors=[]
+BUILT  MarineOutro.bik rc=0  errors=[]
+BUILT  Menubackground.bik rc=0  errors=[]
+BUILT  PredatorIntro.bik rc=0  errors=[]
+BUILT  PredatorOutro.bik rc=0  errors=[]
+# negative control: the same files AS STAGED (obfuscated)
+STAGED logos.bik rc=0 -> Error opening input files: Invalid data found when processing input
+STAGED IntroSound.smk rc=0 -> Error opening input files: Invalid data found when processing input
+# positive control: a message*.smk that was never obfuscated
+PLAIN message25.smk rc=0 errors=[]
+# decoded video frame count per built FMV (ffmpeg -map 0:v:0 -f null, every frame decoded) vs the frame count in the file's own header
+AlienIntro.bik decoded_frame=809 header_frames=809
+AlienOutro.bik decoded_frame=1000 header_frames=1000
+IntroSound.smk decoded_frame=953 header_frames=953
+logos.bik decoded_frame=236 header_frames=236
+MarineIntro.bik decoded_frame=728 header_frames=728
+MarineOutro.bik decoded_frame=451 header_frames=451
+Menubackground.bik decoded_frame=110 header_frames=110
+PredatorIntro.bik decoded_frame=440 header_frames=440
+PredatorOutro.bik decoded_frame=642 header_frames=642
+STAGED (obfuscated) logos.bik: ffmpeg exit=183 (non-zero = cannot even open it)
+STAGED (obfuscated) IntroSound.smk: ffmpeg exit=183 (non-zero = cannot even open it)

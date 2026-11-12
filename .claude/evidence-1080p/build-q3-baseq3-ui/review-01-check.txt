@@ -1,0 +1,8 @@
+pak8.pk3        d8b96d429ca4a9c289071cb7e77e14d2  454478 B  (vm/ui.qvm 3e6b8fadb2a970c2b754e48e63a054d7)
+quake3.exe      b5cf3dd55e045aac6096ff97379d0cab  872448 B
+ioquake3.x86.exe 12f99bc0f9ba416ee477a4f13de8feaa  1363456 B
+baseq3 pk3s     pak0.pk3, pak1.pk3, pak2.pk3, pak3.pk3, pak4.pk3, pak5.pk3, pak6.pk3, pak7.pk3, pak8.pk3
+zz-fleetres-ui.pk3 not on the share yet
+server baseq3   /home/voidsstr/q3a-server/.q3a/baseq3: pak0.pk3, pak1.pk3, pak2.pk3, pak3.pk3, pak4.pk3, pak5.pk3, pak6.pk3, pak7.pk3, pak8.pk3
+check: OK - every recorded original matches
+check exit=0

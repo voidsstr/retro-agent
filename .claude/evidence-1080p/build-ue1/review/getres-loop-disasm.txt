@@ -1,0 +1,356 @@
+====================================================================================================
+UnrealGold/System/D3DDrv.dll size 208896 PE CheckSum 0x0 SecurityDir (0, 0) sections [('.text', '0x1000', '0x1000'), ('.rdata', '0x18000', '0x18000'), ('.data', '0x2a000', '0x2a000'), ('.idata', '0x30000', '0x2f000'), ('.reloc', '0x32000', '0x31000')]
+edit @0x64f5 -> VA 0x100064f5 in .text
+  10006465  09 00                    or dword ptr [eax], eax
+  10006467  00 8b c7 c1 e0 05        add byte ptr [ebx + 0x5e0c1c7], cl
+  1000646d  2b c7                    sub eax, edi
+  1000646f  c1 e0 02                 shl eax, 2
+  10006472  83 7c 02 54 10           cmp dword ptr [edx + eax + 0x54], 0x10
+  10006477  75 6b                    jne 0x100064e4
+  10006479  03 c2                    add eax, edx
+  1000647b  89 4d ec                 mov dword ptr [ebp - 0x14], ecx
+  1000647e  89 4d d8                 mov dword ptr [ebp - 0x28], ecx
+  10006481  8b 50 08                 mov edx, dword ptr [eax + 8]
+  10006484  8b 40 0c                 mov eax, dword ptr [eax + 0xc]
+  10006487  89 55 e8                 mov dword ptr [ebp - 0x18], edx
+  1000648a  89 45 d4                 mov dword ptr [ebp - 0x2c], eax
+  1000648d  df 6d e8                 fild qword ptr [ebp - 0x18]
+  10006490  df 6d d4                 fild qword ptr [ebp - 0x2c]
+  10006493  c7 45 c4 00 00 00 00     mov dword ptr [ebp - 0x3c], 0
+  1000649a  d9 5d bc                 fstp dword ptr [ebp - 0x44]
+  1000649d  d9 5d c0                 fstp dword ptr [ebp - 0x40]
+  100064a0  3b 4d cc                 cmp ecx, dword ptr [ebp - 0x34]
+  100064a3  7d 30                    jge 0x100064d5
+  100064a5  8d 14 49                 lea edx, [ecx + ecx*2]
+  100064a8  d9 04 93                 fld dword ptr [ebx + edx*4]
+  100064ab  d8 5d bc                 fcomp dword ptr [ebp - 0x44]
+  100064ae  8d 14 93                 lea edx, [ebx + edx*4]
+  100064b1  df e0                    fnstsw ax
+  100064b3  f6 c4 40                 test ah, 0x40
+  100064b6  74 1a                    je 0x100064d2
+  100064b8  d9 42 04                 fld dword ptr [edx + 4]
+  100064bb  d8 5d c0                 fcomp dword ptr [ebp - 0x40]
+  100064be  df e0                    fnstsw ax
+  100064c0  f6 c4 40                 test ah, 0x40
+  100064c3  74 0d                    je 0x100064d2
+  100064c5  d9 42 08                 fld dword ptr [edx + 8]
+  100064c8  d8 5d c4                 fcomp dword ptr [ebp - 0x3c]
+  100064cb  df e0                    fnstsw ax
+  100064cd  f6 c4 40                 test ah, 0x40
+  100064d0  75 12                    jne 0x100064e4
+  100064d2  41                       inc ecx
+  100064d3  eb cb                    jmp 0x100064a0
+  100064d5  8d 45 bc                 lea eax, [ebp - 0x44]
+  100064d8  8d 4d c8                 lea ecx, [ebp - 0x38]
+  100064db  50                       push eax
+  100064dc  e8 5a ac ff ff           call 0x1000113b
+  100064e1  8b 5d c8                 mov ebx, dword ptr [ebp - 0x38]
+  100064e4  47                       inc edi
+  100064e5  33 c9                    xor ecx, ecx
+  100064e7  e9 6a ff ff ff           jmp 0x10006456
+  100064ec  33 ff                    xor edi, edi
+  100064ee  8b 45 cc                 mov eax, dword ptr [ebp - 0x34]
+  100064f1  3b f8                    cmp edi, eax
+  100064f3  7d 60                    jge 0x10006555
+  100064f5  83 ff 10                 cmp edi, 0x10   <== EDIT
+  100064f8  7d 5b                    jge 0x10006555
+  100064fa  8d 0c 7f                 lea ecx, [edi + edi*2]
+  100064fd  8d 34 8b                 lea esi, [ebx + ecx*4]
+  10006500  8b 4d e4                 mov ecx, dword ptr [ebp - 0x1c]
+  10006503  db 81 b4 09 00 00        fild dword ptr [ecx + 0x9b4]
+  10006509  d8 1e                    fcomp dword ptr [esi]
+  1000650b  df e0                    fnstsw ax
+  1000650d  f6 c4 01                 test ah, 1
+  10006510  75 40                    jne 0x10006552
+  10006512  db 81 b8 09 00 00        fild dword ptr [ecx + 0x9b8]
+  10006518  d8 5e 04                 fcomp dword ptr [esi + 4]
+  1000651b  df e0                    fnstsw ax
+  1000651d  f6 c4 01                 test ah, 1
+  10006520  75 30                    jne 0x10006552
+  10006522  85 ff                    test edi, edi
+  10006524  bb 24 ac 02 10           mov ebx, 0x1002ac24
+  10006529  75 05                    jne 0x10006530
+  1000652b  bb 14 ac 02 10           mov ebx, 0x1002ac14
+  10006530  d9 46 04                 fld dword ptr [esi + 4]
+  10006533  e8 2a e3 00 00           call 0x10014862
+  10006538  d9 06                    fld dword ptr [esi]
+  1000653a  50                       push eax
+  1000653b  e8 22 e3 00 00           call 0x10014862
+  10006540  8b 55 0c                 mov edx, dword ptr [ebp + 0xc]
+  10006543  50                       push eax
+  10006544  53                       push ebx
+  10006545  52                       push edx
+  10006546  ff 15 fc 05 03 10        call dword ptr [0x100305fc]
+  1000654c  8b 5d c8                 mov ebx, dword ptr [ebp - 0x38]
+  1000654f  83 c4 10                 add esp, 0x10
+  10006552  47                       inc edi
+  10006553  eb 99                    jmp 0x100064ee
+  10006555  50                       push eax
+  10006556  6a 00                    push 0
+  10006558  8d 4d c8                 lea ecx, [ebp - 0x38]
+  1000655b  c6 45 fc 02              mov byte ptr [ebp - 4], 2
+  1000655f  e8 eb ab ff ff           call 0x1000114f
+  10006564  8b 45 c8                 mov eax, dword ptr [ebp - 0x38]
+  10006567  c6 45 fc 00              mov byte ptr [ebp - 4], 0
+  1000656b  85 c0                    test eax, eax
+  1000656d  74 0e                    je 0x1000657d
+  1000656f  8b 0d d0 04 03 10        mov ecx, dword ptr [0x100304d0]
+  10006575  50                       push eax
+  10006576  8b 09                    mov ecx, dword ptr [ecx]
+  10006578  8b 11                    mov edx, dword ptr [ecx]
+  1000657a  ff 52 08                 call dword ptr [edx + 8]
+  1000657d  b8 01 00 00 00           mov eax, 1
+  10006582  8b 4d f4                 mov ecx, dword ptr [ebp - 0xc]
+====================================================================================================
+DeusEx/SYSTEM/D3DDRV.DLL size 212992 PE CheckSum 0x0 SecurityDir (0, 0) sections [('.text', '0x1000', '0x1000'), ('.rdata', '0x18000', '0x18000'), ('.data', '0x2a000', '0x2a000'), ('.idata', '0x30000', '0x2f000'), ('.reloc', '0x33000', '0x32000')]
+edit @0x62ce -> VA 0x100062ce in .text
+  1000623e  40                       inc eax
+  1000623f  09 00                    or dword ptr [eax], eax
+  10006241  00 8b c6 c1 e0 05        add byte ptr [ebx + 0x5e0c1c6], cl
+  10006247  2b c6                    sub eax, esi
+  10006249  c1 e0 02                 shl eax, 2
+  1000624c  83 7c 02 54 10           cmp dword ptr [edx + eax + 0x54], 0x10
+  10006251  75 6c                    jne 0x100062bf
+  10006253  8b ca                    mov ecx, edx
+  10006255  8b 54 08 08              mov edx, dword ptr [eax + ecx + 8]
+  10006259  03 c1                    add eax, ecx
+  1000625b  33 c9                    xor ecx, ecx
+  1000625d  89 55 dc                 mov dword ptr [ebp - 0x24], edx
+  10006260  89 4d e0                 mov dword ptr [ebp - 0x20], ecx
+  10006263  8b 40 0c                 mov eax, dword ptr [eax + 0xc]
+  10006266  89 4d d8                 mov dword ptr [ebp - 0x28], ecx
+  10006269  df 6d dc                 fild qword ptr [ebp - 0x24]
+  1000626c  89 45 d4                 mov dword ptr [ebp - 0x2c], eax
+  1000626f  89 4d c4                 mov dword ptr [ebp - 0x3c], ecx
+  10006272  df 6d d4                 fild qword ptr [ebp - 0x2c]
+  10006275  d9 5d bc                 fstp dword ptr [ebp - 0x44]
+  10006278  d9 5d c0                 fstp dword ptr [ebp - 0x40]
+  1000627b  3b 4d cc                 cmp ecx, dword ptr [ebp - 0x34]
+  1000627e  7d 30                    jge 0x100062b0
+  10006280  8d 14 49                 lea edx, [ecx + ecx*2]
+  10006283  d9 04 93                 fld dword ptr [ebx + edx*4]
+  10006286  d8 5d bc                 fcomp dword ptr [ebp - 0x44]
+  10006289  8d 14 93                 lea edx, [ebx + edx*4]
+  1000628c  df e0                    fnstsw ax
+  1000628e  f6 c4 40                 test ah, 0x40
+  10006291  74 1a                    je 0x100062ad
+  10006293  d9 42 04                 fld dword ptr [edx + 4]
+  10006296  d8 5d c0                 fcomp dword ptr [ebp - 0x40]
+  10006299  df e0                    fnstsw ax
+  1000629b  f6 c4 40                 test ah, 0x40
+  1000629e  74 0d                    je 0x100062ad
+  100062a0  d9 42 08                 fld dword ptr [edx + 8]
+  100062a3  d8 5d c4                 fcomp dword ptr [ebp - 0x3c]
+  100062a6  df e0                    fnstsw ax
+  100062a8  f6 c4 40                 test ah, 0x40
+  100062ab  75 12                    jne 0x100062bf
+  100062ad  41                       inc ecx
+  100062ae  eb cb                    jmp 0x1000627b
+  100062b0  8d 45 bc                 lea eax, [ebp - 0x44]
+  100062b3  8d 4d c8                 lea ecx, [ebp - 0x38]
+  100062b6  50                       push eax
+  100062b7  e8 70 ae ff ff           call 0x1000112c
+  100062bc  8b 5d c8                 mov ebx, dword ptr [ebp - 0x38]
+  100062bf  46                       inc esi
+  100062c0  e9 6b ff ff ff           jmp 0x10006230
+  100062c5  33 ff                    xor edi, edi
+  100062c7  8b 45 cc                 mov eax, dword ptr [ebp - 0x34]
+  100062ca  3b f8                    cmp edi, eax
+  100062cc  7d 60                    jge 0x1000632e
+  100062ce  83 ff 10                 cmp edi, 0x10   <== EDIT
+  100062d1  7d 5b                    jge 0x1000632e
+  100062d3  8d 0c 7f                 lea ecx, [edi + edi*2]
+  100062d6  8d 34 8b                 lea esi, [ebx + ecx*4]
+  100062d9  8b 4d ec                 mov ecx, dword ptr [ebp - 0x14]
+  100062dc  db 81 c4 09 00 00        fild dword ptr [ecx + 0x9c4]
+  100062e2  d8 1e                    fcomp dword ptr [esi]
+  100062e4  df e0                    fnstsw ax
+  100062e6  f6 c4 01                 test ah, 1
+  100062e9  75 40                    jne 0x1000632b
+  100062eb  db 81 c8 09 00 00        fild dword ptr [ecx + 0x9c8]
+  100062f1  d8 5e 04                 fcomp dword ptr [esi + 4]
+  100062f4  df e0                    fnstsw ax
+  100062f6  f6 c4 01                 test ah, 1
+  100062f9  75 30                    jne 0x1000632b
+  100062fb  85 ff                    test edi, edi
+  100062fd  bb bc ab 02 10           mov ebx, 0x1002abbc
+  10006302  75 05                    jne 0x10006309
+  10006304  bb ac ab 02 10           mov ebx, 0x1002abac
+  10006309  d9 46 04                 fld dword ptr [esi + 4]
+  1000630c  e8 21 e7 00 00           call 0x10014a32
+  10006311  d9 06                    fld dword ptr [esi]
+  10006313  50                       push eax
+  10006314  e8 19 e7 00 00           call 0x10014a32
+  10006319  8b 55 0c                 mov edx, dword ptr [ebp + 0xc]
+  1000631c  50                       push eax
+  1000631d  53                       push ebx
+  1000631e  52                       push edx
+  1000631f  ff 15 14 06 03 10        call dword ptr [0x10030614]
+  10006325  8b 5d c8                 mov ebx, dword ptr [ebp - 0x38]
+  10006328  83 c4 10                 add esp, 0x10
+  1000632b  47                       inc edi
+  1000632c  eb 99                    jmp 0x100062c7
+  1000632e  50                       push eax
+  1000632f  6a 00                    push 0
+  10006331  8d 4d c8                 lea ecx, [ebp - 0x38]
+  10006334  c6 45 fc 02              mov byte ptr [ebp - 4], 2
+  10006338  e8 08 ae ff ff           call 0x10001145
+  1000633d  8b 45 c8                 mov eax, dword ptr [ebp - 0x38]
+  10006340  c6 45 fc 00              mov byte ptr [ebp - 4], 0
+  10006344  85 c0                    test eax, eax
+  10006346  74 0e                    je 0x10006356
+  10006348  8b 0d e8 04 03 10        mov ecx, dword ptr [0x100304e8]
+  1000634e  50                       push eax
+  1000634f  8b 09                    mov ecx, dword ptr [ecx]
+  10006351  8b 11                    mov edx, dword ptr [ecx]
+  10006353  ff 52 08                 call dword ptr [edx + 8]
+  10006356  b8 01 00 00 00           mov eax, 1
+  1000635b  8b 4d f4                 mov ecx, dword ptr [ebp - 0xc]
+====================================================================================================
+UnrealTournament436/System/D3DDrv.dll size 217088 PE CheckSum 0x0 SecurityDir (0, 0) sections [('.text', '0x1000', '0x1000'), ('.rdata', '0x19000', '0x19000'), ('.data', '0x2b000', '0x2b000'), ('.idata', '0x31000', '0x30000'), ('.reloc', '0x34000', '0x33000')]
+edit @0x659f -> VA 0x1000659f in .text
+  1000650f  09 00                    or dword ptr [eax], eax
+  10006511  00 8b c7 c1 e0 05        add byte ptr [ebx + 0x5e0c1c7], cl
+  10006517  2b c7                    sub eax, edi
+  10006519  c1 e0 02                 shl eax, 2
+  1000651c  83 7c 02 54 10           cmp dword ptr [edx + eax + 0x54], 0x10
+  10006521  75 6b                    jne 0x1000658e
+  10006523  03 c2                    add eax, edx
+  10006525  89 4d e0                 mov dword ptr [ebp - 0x20], ecx
+  10006528  89 4d d8                 mov dword ptr [ebp - 0x28], ecx
+  1000652b  8b 50 08                 mov edx, dword ptr [eax + 8]
+  1000652e  8b 40 0c                 mov eax, dword ptr [eax + 0xc]
+  10006531  89 55 dc                 mov dword ptr [ebp - 0x24], edx
+  10006534  89 45 d4                 mov dword ptr [ebp - 0x2c], eax
+  10006537  df 6d dc                 fild qword ptr [ebp - 0x24]
+  1000653a  df 6d d4                 fild qword ptr [ebp - 0x2c]
+  1000653d  c7 45 c4 00 00 00 00     mov dword ptr [ebp - 0x3c], 0
+  10006544  d9 5d bc                 fstp dword ptr [ebp - 0x44]
+  10006547  d9 5d c0                 fstp dword ptr [ebp - 0x40]
+  1000654a  3b 4d cc                 cmp ecx, dword ptr [ebp - 0x34]
+  1000654d  7d 30                    jge 0x1000657f
+  1000654f  8d 14 49                 lea edx, [ecx + ecx*2]
+  10006552  d9 04 93                 fld dword ptr [ebx + edx*4]
+  10006555  d8 5d bc                 fcomp dword ptr [ebp - 0x44]
+  10006558  8d 14 93                 lea edx, [ebx + edx*4]
+  1000655b  df e0                    fnstsw ax
+  1000655d  f6 c4 40                 test ah, 0x40
+  10006560  74 1a                    je 0x1000657c
+  10006562  d9 42 04                 fld dword ptr [edx + 4]
+  10006565  d8 5d c0                 fcomp dword ptr [ebp - 0x40]
+  10006568  df e0                    fnstsw ax
+  1000656a  f6 c4 40                 test ah, 0x40
+  1000656d  74 0d                    je 0x1000657c
+  1000656f  d9 42 08                 fld dword ptr [edx + 8]
+  10006572  d8 5d c4                 fcomp dword ptr [ebp - 0x3c]
+  10006575  df e0                    fnstsw ax
+  10006577  f6 c4 40                 test ah, 0x40
+  1000657a  75 12                    jne 0x1000658e
+  1000657c  41                       inc ecx
+  1000657d  eb cb                    jmp 0x1000654a
+  1000657f  8d 45 bc                 lea eax, [ebp - 0x44]
+  10006582  8d 4d c8                 lea ecx, [ebp - 0x38]
+  10006585  50                       push eax
+  10006586  e8 b5 ab ff ff           call 0x10001140
+  1000658b  8b 5d c8                 mov ebx, dword ptr [ebp - 0x38]
+  1000658e  47                       inc edi
+  1000658f  33 c9                    xor ecx, ecx
+  10006591  e9 6a ff ff ff           jmp 0x10006500
+  10006596  33 ff                    xor edi, edi
+  10006598  8b 45 cc                 mov eax, dword ptr [ebp - 0x34]
+  1000659b  3b f8                    cmp edi, eax
+  1000659d  7d 60                    jge 0x100065ff
+  1000659f  83 ff 10                 cmp edi, 0x10   <== EDIT
+  100065a2  7d 5b                    jge 0x100065ff
+  100065a4  8d 0c 7f                 lea ecx, [edi + edi*2]
+  100065a7  8d 34 8b                 lea esi, [ebx + ecx*4]
+  100065aa  8b 4d ec                 mov ecx, dword ptr [ebp - 0x14]
+  100065ad  db 81 c8 09 00 00        fild dword ptr [ecx + 0x9c8]
+  100065b3  d8 1e                    fcomp dword ptr [esi]
+  100065b5  df e0                    fnstsw ax
+  100065b7  f6 c4 01                 test ah, 1
+  100065ba  75 40                    jne 0x100065fc
+  100065bc  db 81 cc 09 00 00        fild dword ptr [ecx + 0x9cc]
+  100065c2  d8 5e 04                 fcomp dword ptr [esi + 4]
+  100065c5  df e0                    fnstsw ax
+  100065c7  f6 c4 01                 test ah, 1
+  100065ca  75 30                    jne 0x100065fc
+  100065cc  85 ff                    test edi, edi
+  100065ce  bb a0 bc 02 10           mov ebx, 0x1002bca0
+  100065d3  75 05                    jne 0x100065da
+  100065d5  bb 90 bc 02 10           mov ebx, 0x1002bc90
+  100065da  d9 46 04                 fld dword ptr [esi + 4]
+  100065dd  e8 b0 ee 00 00           call 0x10015492
+  100065e2  d9 06                    fld dword ptr [esi]
+  100065e4  50                       push eax
+  100065e5  e8 a8 ee 00 00           call 0x10015492
+  100065ea  8b 55 0c                 mov edx, dword ptr [ebp + 0xc]
+  100065ed  50                       push eax
+  100065ee  53                       push ebx
+  100065ef  52                       push edx
+  100065f0  ff 15 18 16 03 10        call dword ptr [0x10031618]
+  100065f6  8b 5d c8                 mov ebx, dword ptr [ebp - 0x38]
+  100065f9  83 c4 10                 add esp, 0x10
+  100065fc  47                       inc edi
+  100065fd  eb 99                    jmp 0x10006598
+  100065ff  50                       push eax
+  10006600  6a 00                    push 0
+  10006602  8d 4d c8                 lea ecx, [ebp - 0x38]
+  10006605  c6 45 fc 02              mov byte ptr [ebp - 4], 2
+  10006609  e8 46 ab ff ff           call 0x10001154
+  1000660e  8b 45 c8                 mov eax, dword ptr [ebp - 0x38]
+  10006611  c6 45 fc 00              mov byte ptr [ebp - 4], 0
+  10006615  85 c0                    test eax, eax
+  10006617  74 0e                    je 0x10006627
+  10006619  8b 0d f0 14 03 10        mov ecx, dword ptr [0x100314f0]
+  1000661f  50                       push eax
+  10006620  8b 09                    mov ecx, dword ptr [ecx]
+  10006622  8b 11                    mov edx, dword ptr [ecx]
+  10006624  ff 52 08                 call dword ptr [edx + 8]
+  10006627  b8 01 00 00 00           mov eax, 1
+  1000662c  8b 4d f4                 mov ecx, dword ptr [ebp - 0xc]
+==========================================================================================
+UnrealGold/System/D3DDrv.dll function prologue at file 0x63f0 (VA 0x100063f0); edit at +0x105
+every cmp/sub/test against 0x10 from the prologue to the end of the print loop:
+   10006472 cmp dword ptr [edx + eax + 0x54], 0x10
+   100064f5 cmp edi, 0x10
+==========================================================================================
+DeusEx/SYSTEM/D3DDRV.DLL function prologue at file 0x61b0 (VA 0x100061b0); edit at +0x11e
+every cmp/sub/test against 0x10 from the prologue to the end of the print loop:
+   1000624c cmp dword ptr [edx + eax + 0x54], 0x10
+   100062ce cmp edi, 0x10
+==========================================================================================
+UnrealTournament436/System/D3DDrv.dll function prologue at file 0x6480 (VA 0x10006480); edit at +0x11f
+every cmp/sub/test against 0x10 from the prologue to the end of the print loop:
+   1000651c cmp dword ptr [edx + eax + 0x54], 0x10
+   1000659f cmp edi, 0x10
+==========================================================================================
+DeusEx D3DDRV.DLL: all '83 ff 10' occurrences: ['0x62ce', '0x8d91']
+  10008d61  c0 74 37 8b 48         sal byte ptr [edi + esi - 0x75], 0x48
+  10008d66  14 85                  adc al, 0x85
+  10008d68  c9                     leave 
+  10008d69  75 2b                  jne 0x10008d96
+  10008d6b  8b 4d ec               mov ecx, dword ptr [ebp - 0x14]
+  10008d6e  8b 89 80 b5 04 00      mov ecx, dword ptr [ecx + 0x4b580]
+  10008d74  2b 48 0c               sub ecx, dword ptr [eax + 0xc]
+  10008d77  83 f9 01               cmp ecx, 1
+  10008d7a  7f 1a                  jg 0x10008d96
+  10008d7c  8b 4d ec               mov ecx, dword ptr [ebp - 0x14]
+  10008d7f  8b 89 84 b5 04 00      mov ecx, dword ptr [ecx + 0x4b584]
+  10008d85  2b 48 10               sub ecx, dword ptr [eax + 0x10]
+  10008d88  3b ca                  cmp ecx, edx
+  10008d8a  7e 04                  jle 0x10008d90
+  10008d8c  8b f0                  mov esi, eax
+  10008d8e  8b d1                  mov edx, ecx
+  10008d90  47                     inc edi
+  10008d91  83 ff 10               cmp edi, 0x10   <== other 83 ff 10
+  10008d94  7f 05                  jg 0x10008d9b
+  10008d96  8b 40 08               mov eax, dword ptr [eax + 8]
+  10008d99  eb c5                  jmp 0x10008d60
+  10008d9b  c7 45 fc 01 00 00 00   mov dword ptr [ebp - 4], 1
+  10008da2  c6 45 fc 04            mov byte ptr [ebp - 4], 4
+  10008da6  85 f6                  test esi, esi
+  10008da8  75 18                  jne 0x10008dc2
+  10008daa  68 bc 06 00 00         push 0x6bc
+UnrealGold/System/D3DDrv.dll all '83 ff 10': ['0x64f5']
+UnrealTournament436/System/D3DDrv.dll all '83 ff 10': ['0x659f']

@@ -1,0 +1,92 @@
+Staged missionpack/pak3.pk3 vm/ui.qvm (md5 59cb82218d1d32472851380488501feb), disassembled 2026-09-29 by the q3-ta-menus review.
+QVM header (magic, instructionCount, codeLength, dataLength, litLength, bssLength): (309466180, 82636, 247948, 11772, 19568, 1876716)
+
+== Item_Text_Paint (instr 54289): flags(+68) & WRAPPED/AUTOWRAPPED, then text(+224)==0 -> cvar(+264)==0 ? return : DC->getCVarString(cvar, buf, 1024) [DC global @3140, member +88]
+  54289 ENTER    1096
+  54290 LOCAL    1104
+  54291 LOAD4    
+  54292 CONST    68
+  54293 ADD      
+  54294 LOAD4    
+  54295 CONST    262144
+  54296 BAND     
+  54297 CONST    0
+  54298 EQ       54307
+  54299 LOCAL    1104
+  54300 LOAD4    
+  54301 ARG      8
+  54302 CONST    54032
+  54303 CALL     
+  54304 POP      
+  54305 CONST    54442
+  54306 JUMP     
+  54307 LOCAL    1104
+  54308 LOAD4    
+  54309 CONST    68
+  54310 ADD      
+  54311 LOAD4    
+  54312 CONST    524288
+  54313 BAND     
+  54314 CONST    0
+  54315 EQ       54324
+  54316 LOCAL    1104
+  54317 LOAD4    
+  54318 ARG      8
+  54319 CONST    53606
+  54320 CALL     
+  54321 POP      
+  54322 CONST    54442
+  54323 JUMP     
+  54324 LOCAL    1104
+  54325 LOAD4    
+  54326 CONST    224
+  54327 ADD      
+  54328 LOAD4    
+  54329 CONST    0
+  54330 NE       54362
+  54331 LOCAL    1104
+  54332 LOAD4    
+  54333 CONST    264
+  54334 ADD      
+  54335 LOAD4    
+  54336 CONST    0
+  54337 NE       54340
+  54338 CONST    54442
+  54339 JUMP     
+  54340 LOCAL    1104
+  54341 LOAD4    
+  54342 CONST    264
+  54343 ADD      
+  54344 LOAD4    
+  54345 ARG      8
+  54346 LOCAL    68
+  54347 ARG      12
+  54348 CONST    1024
+  54349 ARG      16
+  54350 CONST    3140
+  54351 LOAD4    
+  54352 CONST    88
+  54353 ADD      
+  54354 LOAD4    
+  54355 CALL     
+  54356 POP      
+  54357 LOCAL    40
+  54358 LOCAL    68
+  54359 STORE4   
+  54360 CONST    54369
+  54361 JUMP     
+  54362 LOCAL    40
+  54363 LOCAL    1104
+  54364 LOAD4    
+  54365 CONST    224
+  54366 ADD      
+  54367 LOAD4    
+  54368 STORE4   
+  54369 LOCAL    1104
+
+== UI_Update (func @15101): the ui_glCustom presets call syscall -7 (UI_CVAR_SETVALUE) with "r_mode" (string @16261)
+  15474 CONST 16261 | ARG 8 | CONST 1082130432(=4.0f) | ARG 12 | CONST -7 | CALL 
+  15574 CONST 16261 | ARG 8 | CONST 1077936128(=3.0f) | ARG 12 | CONST -7 | CALL 
+  15674 CONST 16261 | ARG 8 | CONST 1077936128(=3.0f) | ARG 12 | CONST -7 | CALL 
+  15767 CONST 16261 | ARG 8 | CONST 1077936128(=3.0f) | ARG 12 | CONST -7 | CALL 
+  string @16261 = 'r_mode'

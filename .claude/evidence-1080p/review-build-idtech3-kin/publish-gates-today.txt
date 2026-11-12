@@ -1,0 +1,14 @@
+PUBLISH_GATES against the share as it is on 2026-09-29 (read-only; --publish was NOT run):
+ JediAcademy/base/zz_fleet_video.pk3                  OPEN
+ ReturnToCastleWolfenstein/Main/zz_fleet_video.pk3    REFUSED (28 reasons)
+     - ReturnToCastleWolfenstein/Host RTCW - LAN.bat: lacks '+set r_mode -1 '
+     - ReturnToCastleWolfenstein/Host RTCW - LAN.bat: lacks '+set r_customwidth %FR_W%'
+     - ReturnToCastleWolfenstein/Host RTCW - LAN.bat: lacks '+set r_customheight %FR_H%'
+     - ReturnToCastleWolfenstein/Host RTCW - LAN.bat: lacks 'echo seta r_mode "-1"'
+     - ... 24 more
+ SoldierOfFortune2/base/zz_fleet_video.pk3            REFUSED (13 reasons)
+     - SoldierOfFortune2/Play Soldier of Fortune II - Multiplayer.bat: lacks '+set r_mode -1 '
+     - SoldierOfFortune2/Play Soldier of Fortune II - Multiplayer.bat: lacks '+set r_customwidth %FR_W%'
+     - SoldierOfFortune2/Play Soldier of Fortune II - Multiplayer.bat: lacks '+set r_customheight %FR_H%'
+     - SoldierOfFortune2/Play Soldier of Fortune II - Multiplayer.bat: lacks 'echo seta r_mode "-1"'
+     - ... 9 more

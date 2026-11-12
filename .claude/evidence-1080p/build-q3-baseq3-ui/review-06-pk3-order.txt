@@ -1,0 +1,5 @@
+# review: pk3 load order - the engines' own FS_PathCmp (compiled from id GPL dbe4ddb code/qcommon/files.c; ioquake3 1.36-era 06954842 uses the same paksort=FS_PathCmp) vs the key apply.py uses
+engine order (last = searched first): ['pak0.pk3', 'PAK8.pk3', 'ZZ-a.pk3', 'zz-fleetres-ui.pk3', 'zz-fleetres-u_.pk3', 'zz-[.pk3', 'zz-^.pk3', 'zz.pk3', 'zz.pk3x', 'zzz.pk3', 'zz_x.pk3']
+fixed key  == engine: True
+OLD lower() key == engine: False -> ['pak0.pk3', 'PAK8.pk3', 'zz-[.pk3', 'zz-^.pk3', 'ZZ-a.pk3', 'zz-fleetres-u_.pk3', 'zz-fleetres-ui.pk3', 'zz.pk3', 'zz.pk3x', 'zz_x.pk3', 'zzz.pk3']
+zz-fleetres-u_.pk3 shadows ours in the engine: True | old key said: False

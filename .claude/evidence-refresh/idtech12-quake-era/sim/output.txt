@@ -1,0 +1,18 @@
+.123   no cap (Q2/SiN/SoF)        cap=   0x0     FR_W/H=1920x1080(best  60 Hz)  FR_W43/H43=1280x960 (best  75 Hz)  Q2MODE=8 (1280x960 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.123   Quake1 -cap 1280 960       cap=1280x960   FR_W/H=1280x720 (best  75 Hz)  FR_W43/H43= 800x600 (best  75 Hz)  Q2MODE=4 (800x600 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.123   HexenII -cap 1024 768      cap=1024x768   FR_W/H= 848x480 (best  75 Hz)  FR_W43/H43= 640x480 (best  75 Hz)  Q2MODE=3 (640x480 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.124   no cap (Q2/SiN/SoF)        cap=   0x0     FR_W/H=1280x960 (best  85 Hz)  FR_W43/H43=1280x960 (best  85 Hz)  Q2MODE=8 (1280x960 best 85 Hz)  FR_HZ=85 DESKHZ=85
+.124   Quake1 -cap 1280 960       cap=1280x960   FR_W/H=1280x960 (best  85 Hz)  FR_W43/H43=1280x960 (best  85 Hz)  Q2MODE=8 (1280x960 best 85 Hz)  FR_HZ=85 DESKHZ=85
+.124   HexenII -cap 1024 768      cap=1024x768   FR_W/H=1024x768 (best  85 Hz)  FR_W43/H43=1024x768 (best  85 Hz)  Q2MODE=6 (1024x768 best 85 Hz)  FR_HZ=85 DESKHZ=85
+.145   no cap (Q2/SiN/SoF)        cap=   0x0     FR_W/H=1920x1080(best  60 Hz)  FR_W43/H43=1280x960 (best  75 Hz)  Q2MODE=8 (1280x960 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.145   Quake1 -cap 1280 960       cap=1280x960   FR_W/H=1280x720 (best  60 Hz)  FR_W43/H43= 800x600 (best  75 Hz)  Q2MODE=4 (800x600 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.145   HexenII -cap 1024 768      cap=1024x768   FR_W/H=1024x768 (best  75 Hz)  FR_W43/H43=1024x768 (best  75 Hz)  Q2MODE=6 (1024x768 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.195   no cap (Q2/SiN/SoF)        cap=   0x0     FR_W/H=1920x1080(best  60 Hz)  FR_W43/H43=1280x960 (best  60 Hz)  Q2MODE=8 (1280x960 best 60 Hz)  FR_HZ=60 DESKHZ=60
+.195   Quake1 -cap 1280 960       cap=1280x960   FR_W/H=1280x720 (best  60 Hz)  FR_W43/H43= 800x600 (best  60 Hz)  Q2MODE=4 (800x600 best 60 Hz)  FR_HZ=60 DESKHZ=60
+.195   HexenII -cap 1024 768      cap=1024x768   FR_W/H=1024x768 (best  60 Hz)  FR_W43/H43=1024x768 (best  60 Hz)  Q2MODE=6 (1024x768 best 60 Hz)  FR_HZ=60 DESKHZ=60
+.240   no cap (Q2/SiN/SoF)        cap=   0x0     FR_W/H=1920x1080(best  60 Hz)  FR_W43/H43=1280x960 (best  75 Hz)  Q2MODE=8 (1280x960 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.240   Quake1 -cap 1280 960       cap=1280x960   FR_W/H=1280x720 (best  75 Hz)  FR_W43/H43= 800x600 (best  75 Hz)  Q2MODE=4 (800x600 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.240   HexenII -cap 1024 768      cap=1024x768   FR_W/H= 848x480 (best  75 Hz)  FR_W43/H43= 640x480 (best  75 Hz)  Q2MODE=3 (640x480 best 75 Hz)  FR_HZ=60 DESKHZ=60
+.243   no cap (Q2/SiN/SoF)        cap=   0x0     FR_W/H=1024x768 (best  75 Hz)  FR_W43/H43=1024x768 (best  75 Hz)  Q2MODE=6 (1024x768 best 75 Hz)  FR_HZ=75 DESKHZ=75
+.243   Quake1 -cap 1280 960       cap=1280x960   FR_W/H=1024x768 (best  75 Hz)  FR_W43/H43=1024x768 (best  75 Hz)  Q2MODE=6 (1024x768 best 75 Hz)  FR_HZ=75 DESKHZ=75
+.243   HexenII -cap 1024 768      cap=1024x768   FR_W/H=1024x768 (best  75 Hz)  FR_W43/H43=1024x768 (best  75 Hz)  Q2MODE=6 (1024x768 best 75 Hz)  FR_HZ=75 DESKHZ=75

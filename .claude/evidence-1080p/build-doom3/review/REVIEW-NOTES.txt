@@ -1,0 +1,47 @@
+DOOM 3 1.3 zz_fleetvideo.pk4 - adversarial review, 2026-09-29 (build phase; nothing published)
+
+SOURCE READ (id's GPL release, github.com/id-Software/DOOM-3, neo/...):
+  framework/FileSystem.cpp  AddGameDirectory      pakfiles.Sort() then each pak inserted right AFTER
+                                                  its directory -> last sorted name searched first
+  idlib/containers/StrList.h idListSortCompare     ( *a )->Icmp( **b )  -> case-insensitive sort
+  framework/FileSystem.cpp  pureExclusions        "/", "\\", ".pda", ".gui", ".pd", ".lang", sound/VO
+                            GetPackStatus         all members excluded -> PURE_NEVER
+                            UpdatePureServerChecksums  skips PURE_NEVER
+                            OpenFileReadFlags     pure filter: skip only if != PURE_NEVER and not listed
+                            Path_f                "path" prints search order and on/not on the pure list
+  framework/async/AsyncServer.cpp ExecuteMapChange si_pure -> UpdatePureServerChecksums after map load
+  game/gamesys/SysCvar.cpp  si_pure default "1"; r_aspectRatio 0..2 (game DLL)
+  game/MultiplayerGame.cpp  Reset                 FindGui("guis/mpmain.gui") - read at map load
+  framework/Session.cpp     StartMenu             FindGui("guis/mainmenu.gui")
+  ui/RegExp.cpp             idRegisterList::AddReg  STRING regs (incl. "choices"): GetString(whole token)
+  ui/ChoiceWindow.cpp       UpdateChoicesAndVals  values: "-" sets negNum -> "-1"
+                            UpdateChoice          choiceType 1: Icmp(cvar string, values[i]); no match -> 0
+  renderer/RenderSystem_init.cpp r_mode (no min/max), r_customWidth 720 / r_customHeight 486 defaults,
+                            R_GetModeInfo(-1) -> r_customWidth/Height
+  framework/Common.cpp      Init: first-run (no config.spec) Com_ExecMachineSpec_f sets r_mode 3/4/5
+                            after session->Init; AddStartupCommands then re-buffers every command-line
+                            line (incl. "set r_mode -1") when CDKeysAreValid(false) is true.
+
+RETAIL 1.3 BINARY (Doom3/DOOM3.exe md5 7cd77c22...): doom3exe-1.3-strings.txt - the exclusion strings
+  sit together at .rdata 0x352868-0x352880 (".pda" ".gui" ".pd" "sound/VO"), plus the path/pure-list
+  strings; "value count unequal to choices count" (ChoiceWindow) present.
+
+STAGED TREE:
+  base/pak007.pk4 6319f086f930ec1618ab09b4c20c268c 192031 B; members, CRCs, md5s and the four anchor
+  offsets as the builder claimed (indep-pak007-anchors.txt). #str_04222 in pak007 strings/english.lang
+  = "640x480;800x600;1024x768;1152x864;1280x1024;1600x1200". Only guis/mainmenu.gui and guis/mpmain.gui
+  mention r_mode in ANY base or d3xp pk4; pak007 is the last pak shipping each.
+  "Host DOOM 3 - LAN.bat" = listen server (+spawnServer) with NO si_pure -> default 1 = PURE.
+  ~/doom3-server: +set si_pure 0 (entry.sh, running copy == repo copy).
+
+BUILT (~/.retro-fleet/patch-out/doom3/Doom3/base/zz_fleetvideo.pk4) 9608103a37eb82327c49b35905431f48
+  69,371 B, identical over 3 rebuilds. Byte diff vs pak007 members: one contiguous region per GUI =
+  the two anchor lines; line counts equal; mainmenu LF / mpmain CRLF preserved; 2 members, deflate,
+  flag 0, no extras, no data descriptors (indep-bytediff-and-zip.txt). PURE_NEVER.
+
+CONCLUSIONS THAT CHANGED THE REPORT:
+  - the pk4 is PURE_NEVER: never on a pure list, still used on a pure server. The builder's
+    "excluded on a pure server" risk and "--install-server keeps a pure server's list" rationale were
+    wrong. The property is load-bearing because every fleet LAN game (Host launcher) is PURE: a
+    non-GUI member would put the pk4 on the host's list (mpmain.gui is read at map load) and lock out
+    boxes without it. --build now refuses that.

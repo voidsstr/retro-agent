@@ -1,0 +1,25 @@
+<stdin>:5: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+===== HalfLife1/hl.exe base 0x400000 linked 2001-09-11T19:18:51 size 942080
+  DDRAW.dll      DirectDrawEnumerateA DirectDrawCreate
+  KERNEL32.dll   GetProcAddress LoadLibraryA
+  USER32.dll     ChangeDisplaySettingsA
+  all dlls: WONAuth.dll WONCrypt.dll vgui.dll DDRAW.dll WINMM.dll KERNEL32.dll USER32.dll GDI32.dll comdlg32.dll WINSPOOL.DRV ADVAPI32.dll SHELL32.dll COMCTL32.dll WSOCK32.dll WININET.dll
+===== HalfLife1/hw.dll base 0x10000000 linked 2001-09-21T00:58:21 size 1175552
+  DDRAW.dll      DirectDrawCreate
+  KERNEL32.dll   LoadLibraryA GetProcAddress
+  all dlls: DDRAW.dll WINMM.dll WSOCK32.dll KERNEL32.dll USER32.dll GDI32.dll ADVAPI32.dll ole32.dll VERSION.dll vgui.dll WONAuth.dll WONCrypt.dll
+===== HalfLife1/sw.dll base 0x10000000 linked 2001-09-15T04:54:03 size 1056768
+  KERNEL32.dll   GetProcAddress LoadLibraryA
+  all dlls: WINMM.dll WSOCK32.dll KERNEL32.dll USER32.dll GDI32.dll ADVAPI32.dll VERSION.dll vgui.dll WONAuth.dll WONCrypt.dll ole32.dll
+===== CounterStrike16/hl.exe base 0x1400000 linked 2008-10-22T04:43:06 size 86077
+  KERNEL32.dll   LoadLibraryA GetProcAddress
+  all dlls: WSOCK32.dll KERNEL32.dll USER32.dll ADVAPI32.dll
+===== CounterStrike16/hw.dll base 0x1d00000 linked 2009-06-15T23:05:48 size 1840440
+  DDRAW.dll      DirectDrawCreate
+  KERNEL32.dll   LoadLibraryA GetProcAddress
+  USER32.dll     ChangeDisplaySettingsA
+  all dlls: DINPUT.dll DDRAW.dll WINMM.dll WSOCK32.dll KERNEL32.dll USER32.dll GDI32.dll ADVAPI32.dll ole32.dll VERSION.dll vgui.dll mss32.dll WININET.dll steam_api_c.dll OLEAUT32.dll WS2_32.dll
+===== CounterStrike16/sw.dll base 0x1d00000 linked 2009-06-15T23:05:33 size 1672504
+  DDRAW.dll      DirectDrawCreate
+  KERNEL32.dll   GetProcAddress LoadLibraryA
+  all dlls: DINPUT.dll DDRAW.dll WINMM.dll WSOCK32.dll KERNEL32.dll USER32.dll GDI32.dll ADVAPI32.dll ole32.dll VERSION.dll vgui.dll mss32.dll WININET.dll steam_api_c.dll OLEAUT32.dll WS2_32.dll

@@ -1,0 +1,172 @@
+# Halo PC 1.10 (halo.exe md5 b7aa8f68829a33a9f0b87ec81425f5db) - where the menu's VRAM cap variable 0x722bb0 comes from
+# Mode-list filter 0x4bac03: VRAM-cap path taken when MaximumResolution (0x69fe3c) is its default 0x1000 OR '-vidmode' (0x66b174) is on the command line.
+# config.txt keyword -> handler table at 0x69fe40 (name ptr, handler):
+  0x69fe3c MaximumResolution default = 0x1000
+  ForceShader                      -> 0x57d0c0
+  DisableDriverManagement          -> 0x57d240
+  LinearTextureAddressing          -> 0x57d120
+  LinearTextureAddressingZoom      -> 0x57d150
+  LinearTextureAddressingSun       -> 0x57d160
+  MaximumResolution                -> 0x57d080
+  UseFixedFunction                 -> 0x57d170
+  UnsupportedCard                  -> 0x57d1c0
+  DisableRenderTargets             -> 0x57d180
+  DisableAlphaRenderTargets        -> 0x57d190
+  DisableBuffering                 -> 0x57d110
+  UseAlternateConvolveMask         -> 0x57d1a0
+  OldDriver                        -> 0x57d1d0
+  EnableStopStart                  -> 0x57d1e0
+  HeadRelativeSpeech               -> 0x57d1f0
+  OldSoundDriver                   -> 0x57d200
+  InvalidDriver                    -> 0x57d210
+  InvalidSoundDriver               -> 0x57d220
+  SafeMode                         -> 0x57d230
+  DisableSpecular                  -> 0x57d140
+  UseAnisotropicFilter             -> 0x57d130
+  UMA                              -> 0x57d250
+  MinMaxBlendOpIsBroken            -> 0x57d2a0
+  DecalZBiasValue                  -> 0x57d2b0
+  DecalSlopeZBiasValue             -> 0x57d2e0
+  TransparentDecalZBiasValue       -> 0x57d310
+  TransparentDecalSlopeZBiasValue  -> 0x57d340
+  PrototypeCard                    -> 0x57d1b0
+
+# 'UMA' handler 0x57d250: RAM-derived value (only for cards config.txt flags UMA - here only Intel's Unknown entry)
+  57d250:	a1 a8 2b 72 00       	mov    eax,ds:0x722ba8
+  57d255:	83 f8 40             	cmp    eax,0x40
+  57d258:	c7 05 b0 2b 72 00 00 	mov    DWORD PTR ds:0x722bb0,0x800000
+  57d25f:	00 80 00 
+  57d262:	72 0a                	jb     0x57d26e
+  57d264:	c7 05 b0 2b 72 00 00 	mov    DWORD PTR ds:0x722bb0,0x1000000
+  57d26b:	00 00 01 
+  57d26e:	3d 80 00 00 00       	cmp    eax,0x80
+  57d273:	72 0a                	jb     0x57d27f
+  57d275:	c7 05 b0 2b 72 00 00 	mov    DWORD PTR ds:0x722bb0,0x2000000
+  57d27c:	00 00 02 
+  57d27f:	3d 00 01 00 00       	cmp    eax,0x100
+  57d284:	b0 01                	mov    al,0x1
+  57d286:	72 0a                	jb     0x57d292
+  57d288:	c7 05 b0 2b 72 00 00 	mov    DWORD PTR ds:0x722bb0,0x4000000
+  57d28f:	00 00 04 
+  57d292:	c3                   	ret
+
+# 0x57d479/0x57d4ac: 0x722bb0 = video memory of the DirectDraw device whose name matches D3D9 GetAdapterIdentifier().DeviceName (default: entry 0)
+  57d461:	8b 8d 74 fe ff ff    	mov    ecx,DWORD PTR [ebp-0x18c]
+  57d467:	89 0d a0 2b 72 00    	mov    DWORD PTR ds:0x722ba0,ecx
+  57d46d:	8b 95 78 fe ff ff    	mov    edx,DWORD PTR [ebp-0x188]
+  57d473:	89 15 a4 2b 72 00    	mov    DWORD PTR ds:0x722ba4,edx
+  57d479:	a1 f0 fd 6e 00       	mov    eax,ds:0x6efdf0
+  57d47e:	a3 b0 2b 72 00       	mov    ds:0x722bb0,eax
+  57d483:	33 f6                	xor    esi,esi
+  57d485:	a1 b4 2b 72 00       	mov    eax,ds:0x722bb4
+  57d48a:	85 c0                	test   eax,eax
+  57d48c:	76 2f                	jbe    0x57d4bd
+  57d48e:	bf f0 fd 6e 00       	mov    edi,0x6efdf0
+  57d493:	8d 8d 54 fe ff ff    	lea    ecx,[ebp-0x1ac]
+  57d499:	51                   	push   ecx
+  57d49a:	8d 57 e0             	lea    edx,[edi-0x20]
+  57d49d:	52                   	push   edx
+  57d49e:	e8 e8 b8 0a 00       	call   0x628d8b
+  57d4a3:	83 c4 08             	add    esp,0x8
+  57d4a6:	85 c0                	test   eax,eax
+  57d4a8:	75 07                	jne    0x57d4b1
+  57d4aa:	8b 07                	mov    eax,DWORD PTR [edi]
+  57d4ac:	a3 b0 2b 72 00       	mov    ds:0x722bb0,eax
+  57d4b1:	46                   	inc    esi
+  57d4b2:	83 c7 34             	add    edi,0x34
+  57d4b5:	3b 35 b4 2b 72 00    	cmp    esi,DWORD PTR ds:0x722bb4
+  57d4bb:	72 d6                	jb     0x57d493
+
+# per-device measurement 0x57dae3..0x57dc44: min over GetAvailableVidMem totals for caps 0x4200, 0x10007000, 0x10005000, 0x10004040, rounded up (<=16MB: 8MB steps, <=64MB: 32MB steps, else 64MB steps, cap 2GB)
+  57db4e:	89 5c 24 1c          	mov    DWORD PTR [esp+0x1c],ebx
+  57db52:	89 6c 24 30          	mov    DWORD PTR [esp+0x30],ebp
+  57db56:	8b 08                	mov    ecx,DWORD PTR [eax]
+  57db58:	50                   	push   eax
+  57db59:	83 ce ff             	or     esi,0xffffffff
+  57db5c:	ff 51 5c             	call   DWORD PTR [ecx+0x5c]
+  57db5f:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  57db63:	3b c3                	cmp    eax,ebx
+  57db65:	76 07                	jbe    0x57db6e
+  57db67:	83 f8 ff             	cmp    eax,0xffffffff
+  57db6a:	73 02                	jae    0x57db6e
+  57db6c:	8b f0                	mov    esi,eax
+  57db6e:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  57db72:	8d 54 24 1c          	lea    edx,[esp+0x1c]
+  57db76:	52                   	push   edx
+  57db77:	8d 54 24 14          	lea    edx,[esp+0x14]
+  57db7b:	52                   	push   edx
+  57db7c:	8d 54 24 2c          	lea    edx,[esp+0x2c]
+  57db80:	52                   	push   edx
+  57db81:	c7 44 24 30 00 70 00 	mov    DWORD PTR [esp+0x30],0x10007000
+  57db88:	10 
+  57db89:	8b 08                	mov    ecx,DWORD PTR [eax]
+  57db8b:	50                   	push   eax
+  57db8c:	ff 51 5c             	call   DWORD PTR [ecx+0x5c]
+  57db8f:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  57db93:	3b c3                	cmp    eax,ebx
+  57db95:	76 06                	jbe    0x57db9d
+  57db97:	3b c6                	cmp    eax,esi
+  57db99:	73 02                	jae    0x57db9d
+  57db9b:	8b f0                	mov    esi,eax
+  57db9d:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  57dba1:	8d 54 24 1c          	lea    edx,[esp+0x1c]
+  57dba5:	52                   	push   edx
+  57dba6:	8d 54 24 14          	lea    edx,[esp+0x14]
+  57dbaa:	52                   	push   edx
+  57dbab:	8d 54 24 2c          	lea    edx,[esp+0x2c]
+  57dbaf:	52                   	push   edx
+  57dbb0:	c7 44 24 30 00 50 00 	mov    DWORD PTR [esp+0x30],0x10005000
+  57dbb7:	10 
+  57dbb8:	8b 08                	mov    ecx,DWORD PTR [eax]
+  57dbba:	50                   	push   eax
+  57dbbb:	ff 51 5c             	call   DWORD PTR [ecx+0x5c]
+  57dbbe:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  57dbc2:	3b c3                	cmp    eax,ebx
+  57dbc4:	76 06                	jbe    0x57dbcc
+  57dbc6:	3b c6                	cmp    eax,esi
+  57dbc8:	73 02                	jae    0x57dbcc
+  57dbca:	8b f0                	mov    esi,eax
+  57dbcc:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  57dbd0:	8d 54 24 1c          	lea    edx,[esp+0x1c]
+  57dbd4:	52                   	push   edx
+  57dbd5:	8d 54 24 14          	lea    edx,[esp+0x14]
+  57dbd9:	52                   	push   edx
+  57dbda:	8d 54 24 2c          	lea    edx,[esp+0x2c]
+  57dbde:	52                   	push   edx
+  57dbdf:	c7 44 24 30 40 40 00 	mov    DWORD PTR [esp+0x30],0x10004040
+  57dbe6:	10 
+  57dbe7:	8b 08                	mov    ecx,DWORD PTR [eax]
+  57dbe9:	50                   	push   eax
+  57dbea:	ff 51 5c             	call   DWORD PTR [ecx+0x5c]
+  57dbed:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  57dbf1:	3b c3                	cmp    eax,ebx
+  57dbf3:	76 06                	jbe    0x57dbfb
+  57dbf5:	3b c6                	cmp    eax,esi
+  57dbf7:	73 02                	jae    0x57dbfb
+  57dbf9:	8b f0                	mov    esi,eax
+  57dbfb:	81 fe 00 00 00 01    	cmp    esi,0x1000000
+  57dc01:	77 0d                	ja     0x57dc10
+  57dc03:	8d 86 ff ff 7f 00    	lea    eax,[esi+0x7fffff]
+  57dc09:	25 00 00 80 ff       	and    eax,0xff800000
+  57dc0e:	eb 2f                	jmp    0x57dc3f
+  57dc10:	81 fe 00 00 00 04    	cmp    esi,0x4000000
+  57dc16:	77 0d                	ja     0x57dc25
+  57dc18:	8d 86 ff ff ff 01    	lea    eax,[esi+0x1ffffff]
+  57dc1e:	25 00 00 00 fe       	and    eax,0xfe000000
+  57dc23:	eb 1a                	jmp    0x57dc3f
+  57dc25:	81 fe 00 00 00 80    	cmp    esi,0x80000000
+  57dc2b:	76 07                	jbe    0x57dc34
+  57dc2d:	b8 00 00 00 80       	mov    eax,0x80000000
+  57dc32:	eb 0b                	jmp    0x57dc3f
+  57dc34:	8d 86 ff ff ff 03    	lea    eax,[esi+0x3ffffff]
+  57dc3a:	25 00 00 00 fc       	and    eax,0xfc000000
+  57dc3f:	8b cf                	mov    ecx,edi
+  57dc41:	6b c9 34             	imul   ecx,ecx,0x34
+  57dc44:	89 81 f0 fd 6e 00    	mov    DWORD PTR [ecx+0x6efdf0],eax
+
+# staged Halo/config.txt (md5 4e33300ccf55cad277f2e48bb4d55c4f): every UMA / MaximumResolution line (grep -n -i); UMA sits only under Vendor 0x8086 Intel 'Unknown'
+11:// MaximumResolution           - Limits maximum resolution of card to width specified ie: MaximumResolution = 800.
+149:Vendor = 0x1002  "ATI"
+602:Vendor = 0x10de  "nVidia"
+808:Vendor = 0x8086  "Intel"
+823:	UMA

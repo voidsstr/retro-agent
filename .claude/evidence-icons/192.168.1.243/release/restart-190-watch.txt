@@ -1,0 +1,26 @@
+14:23:16 >> WINLIST 0 {"windows":[{"hwnd":"000001F8","title":"START C:\\RETRO_AGENT\\retro_agent.exe","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"00000A88","title":"Retro Remote Agent Version 1.90.0","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"0000016C","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1024,"bottom":768},"visible":true}]}
+14:23:16 >> LAUNCH C:\RETRO_AGENT\HANDOFF9.EXE watch C:\RETRO_AGENT\RA190.EXE 0 {"pid":4294731487,"command":"C:\\RETRO_AGENT\\HANDOFF9.EXE watch C:\\RETRO_AGENT\\RA190.EXE"}
+HANDOFF.TXT: [51038524 ms] handoff9x 1.0
+[51038588 ms] watch C:\RETRO_AGENT\RA190.EXE: waiting for the agent's mutex to free - send RESTART now
+[51038618 ms] mutex seen held by the running agent
+
+14:23:19 >> RESTART 0 OK restarting
+14:23:50 {9898: 'PONG', '9898_ver': '1.90.0', 9897: 'PONG', '9897_ver': '1.90.0'}
+DOWNLOAD C:\RETRO_AGENT\HANDOFF.TXT | status 1 
+ [51038524 ms] handoff9x 1.0
+[51038588 ms] watch C:\RETRO_AGENT\RA190.EXE: waiting for the agent's mutex to free - send RESTART now
+[51038618 ms] mutex seen held by the running agent
+[51042372 ms] mutex freed after 3754 ms
+[51049112 ms] an agent holds the mutex again after 10494 ms - nothing to do
+
+
+DOWNLOAD C:\RETRO_AGENT\restart.bat | status 1 
+ @echo off
+ping -n 4 127.0.0.1 > nul
+start /m C:\RETRO_~1\RA190.EXE
+
+
+WINLIST | status 0 
+ {"windows":[{"hwnd":"000001F8","title":"START C:\\RETRO_AGENT\\retro_agent.exe","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"00000AE0","title":"Retro Remote Agent Version 1.90.0","class":"tty","rect":{"left":3000,"top":3000,"right":3160,"bottom":3024},"visible":true},{"hwnd":"0000016C","title":"Program Manager","class":"Progman","rect":{"left":0,"top":0,"right":1024,"bottom":768},"visible":true}]}
+
+PROCLIST: [('KERNEL32.DLL', 4279214187, 4, 2123309635), ('MSGSRV32.EXE', 4294940635, 1, 4279214187), ('MPREXE.EXE', 4294959435, 1, 4294940635), ('MSTASK.EXE', 4294838943, 2, 4294959435), ('EXPLORER.EXE', 4294952163, 4, 4294940635), ('TASKMON.EXE', 4294900803, 1, 4294952163), ('SYSTRAY.EXE', 4294780563, 1, 4294952163), ('RETRO_AGENT.EXE', 4294817635, 3, 4294776823), ('WINOA386.MOD', 4294776395, 1, 4294817635), ('RETRO_CHAT.EXE', 4294814819, 4, 4294776395), ('RETRO_CHAT.EXE', 4294795095, 4, 4294776395), ('RA190.EXE', 4294708239, 9, 4294825591), ('WINOA386.MOD', 4294730391, 1, 4294708239)]

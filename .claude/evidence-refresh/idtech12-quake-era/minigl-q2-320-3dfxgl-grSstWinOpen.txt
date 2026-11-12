@@ -1,0 +1,70 @@
+thunks: {'0x1000e232': '_grSstWinOpen@28'}
+==== call _grSstWinOpen@28 at 0x100034c5
+   0x1000347a: sub byte ptr [edi], cl
+   0x1000347c: scasd eax, dword ptr es:[edi]
+   0x1000347d: mov ecx, 0x4c8b03e0
+   0x10003483: and al, 0x34
+   0x10003485: shl ecx, 0x14
+   0x10003488: cmp eax, ecx
+   0x1000348a: mov eax, dword ptr [0x1001c184]
+   0x1000348f: jle 0x10003499
+   0x10003491: mov dword ptr [eax + 0x468c], edx
+   0x10003497: jmp 0x100034a3
+   0x10003499: mov dword ptr [eax + 0x468c], 3
+   0x100034a3: push 1
+   0x100034a5: mov eax, dword ptr [0x1001c184]
+   0x100034aa: mov ecx, dword ptr [eax + 0x468c]
+   0x100034b0: mov edx, dword ptr [eax + 0x46bc]
+   0x100034b6: push ecx
+   0x100034b7: push 1
+   0x100034b9: push 0
+   0x100034bb: mov ecx, dword ptr [eax + 0x46a8]
+   0x100034c1: push 0
+   0x100034c3: push edx
+   0x100034c4: push ecx
+   0x100034c5: call 0x1000e232
+==== call _grSstWinOpen@28 at 0x1000b9f6
+   0x1000b9ab: stc 
+   0x1000b9ac: add byte ptr [edx], 0
+   0x1000b9af: add byte ptr [edi + 0x18], bh
+   0x1000b9b2: cmp eax, 0x1e0
+   0x1000b9b7: jg 0x1000b9ca
+   0x1000b9b9: mov eax, dword ptr [0x1001c184]
+   0x1000b9be: mov dword ptr [eax + 0x46bc], 7
+   0x1000b9c8: jmp 0x1000b9d9
+   0x1000b9ca: mov eax, dword ptr [0x1001c184]
+   0x1000b9cf: mov dword ptr [eax + 0x46bc], 8
+   0x1000b9d9: push 1
+   0x1000b9db: mov eax, dword ptr [0x1001c184]
+   0x1000b9e0: push 2
+   0x1000b9e2: push 1
+   0x1000b9e4: push 0
+   0x1000b9e6: mov ecx, dword ptr [eax + 0x46bc]
+   0x1000b9ec: push 0
+   0x1000b9ee: mov edx, dword ptr [eax + 0x46a8]
+   0x1000b9f4: push ecx
+   0x1000b9f5: push edx
+   0x1000b9f6: call 0x1000e232
+==== call _grSstWinOpen@28 at 0x1000ba81
+   0x1000ba36: inc esi
+   0x1000ba37: add byte ptr [eax], al
+   0x1000ba39: mov eax, dword ptr [esp + 0x10]
+   0x1000ba3d: mov ebx, dword ptr [esp + 8]
+   0x1000ba41: mov edx, dword ptr [0x1001c184]
+   0x1000ba47: sub eax, ebx
+   0x1000ba49: mov dword ptr [edx + 0x46b8], eax
+   0x1000ba4f: call 0x1000e250
+   0x1000ba54: mov eax, dword ptr [0x1001c184]
+   0x1000ba59: push 1
+   0x1000ba5b: push 2
+   0x1000ba5d: push 1
+   0x1000ba5f: mov dword ptr [eax + 0x46bc], 0xff
+   0x1000ba69: push 0
+   0x1000ba6b: mov eax, dword ptr [0x1001c184]
+   0x1000ba70: push 0
+   0x1000ba72: nop 
+   0x1000ba73: mov edx, dword ptr [eax + 0x46a8]
+   0x1000ba79: mov ecx, dword ptr [eax + 0x46bc]
+   0x1000ba7f: push ecx
+   0x1000ba80: push edx
+   0x1000ba81: call 0x1000e232

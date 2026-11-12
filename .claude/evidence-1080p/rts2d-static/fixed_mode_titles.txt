@@ -1,0 +1,212 @@
+# Fixed-mode titles: where the mode comes from, in the STAGED binaries (capstone), 2026-09-29
+
+## StarCraft 1.16.1 (StarCraft.exe md5 50d53a3bb45e2ab6f03c92bf6d5dec30, identical in BroodWar\) - the ONLY IDirectDraw::SetDisplayMode (vtbl+0x54) call passes immediates 640/480/8
+  0041da34: a1085e6d00               mov eax, dword ptr [0x6d5e08]
+  0041da39: 8b08                     mov ecx, dword ptr [eax]
+  0041da3b: 6a08                     push 8
+  0041da3d: 68e0010000               push 0x1e0
+  0041da42: 6880020000               push 0x280
+  0041da47: 50                       push eax
+  0041da48: ff5154                   call dword ptr [ecx + 0x54]
+## ...and its storm.dll display init is called with 640x480 too:
+  0041d528: 6a10                     push 0x10
+  0041d52a: 6a10                     push 0x10
+  0041d52c: 68e0010000               push 0x1e0
+  0041d531: 6880020000               push 0x280
+  0041d536: e8ef48ffff               call 0x411e2a
+
+## Warcraft II BNE 2.02b (Warcraft II BNE.exe md5 c158c81d18ad885270e545648b505ea5) - SetDisplayMode(640,480,8), only call site
+  0048c484: a1746e4d00               mov eax, dword ptr [0x4d6e74]
+  0048c489: 6a08                     push 8
+  0048c48b: 68e0010000               push 0x1e0
+  0048c490: 6880020000               push 0x280
+  0048c495: 8b08                     mov ecx, dword ptr [eax]
+  0048c497: 50                       push eax
+  0048c498: ff5154                   call dword ptr [ecx + 0x54]
+
+## Warcraft: Orcs & Humans WAR.EXE (DOS4GW LE) - VGA mode 13h set: 'mov eax,13h; int 10h' at file offset 0x3474f; no VESA 4F02h (b8024f0000 / 66b8024f) anywhere
+   mov eax,13h;int 10h ['0x3474f']
+   mov eax,4f02h []
+   mov ax,4f02h []
+
+## Master of Orion II ORION2.EXE: version string + VESA code (640x480 SVGA); no user-facing resolution/video option string
+7645:Ver 1.40b23
+7876:You must run VESA.COM.
+12219:Test_For_Vesa
+12228:Set_Video_Mode_Vesa
+23432:Test_For_Vesa_
+23435:Set_Video_Mode_Vesa_
+
+## Postal (GOG SDL2 build): Disp_Init 0x42f4e0 - '-resolution WxH' else '-windowed' (1024x768) else 0x0
+  0042f4e0: 6848254f00               push 0x4f2548
+  0042f4e5: e8960d0000               call 0x430280
+  0042f4ea: 83c404                   add esp, 4
+  0042f4ed: 85c0                     test eax, eax
+  0042f4ef: 7441                     je 0x42f532
+  0042f4f1: 8b0d58075300             mov ecx, dword ptr [0x530758]
+  0042f4f7: 8b448104                 mov eax, dword ptr [ecx + eax*4 + 4]
+  0042f4fb: 85c0                     test eax, eax
+  0042f4fd: 7433                     je 0x42f532
+  0042f4ff: 681c705300               push 0x53701c
+  0042f504: 6818705300               push 0x537018
+  0042f509: 6854254f00               push 0x4f2554
+  0042f50e: 50                       push eax
+  0042f50f: e8cc010a00               call 0x4cf6e0
+  0042f514: 83c410                   add esp, 0x10
+  0042f517: 83f802                   cmp eax, 2
+  0042f51a: 7416                     je 0x42f532
+  0042f51c: c7051c70530000000000     mov dword ptr [0x53701c], 0
+  0042f526: c7051870530000000000     mov dword ptr [0x537018], 0
+  0042f530: eb12                     jmp 0x42f544
+  0042f532: 833d1870530000           cmp dword ptr [0x537018], 0
+  0042f539: 7e09                     jle 0x42f544
+  0042f53b: 833d1c70530000           cmp dword ptr [0x53701c], 0
+  0042f542: 7f3b                     jg 0x42f57f
+  0042f544: 685c254f00               push 0x4f255c
+  0042f549: e8320d0000               call 0x430280
+  0042f54e: 83c404                   add esp, 4
+  0042f551: 85c0                     test eax, eax
+  0042f553: 7416                     je 0x42f56b
+  0042f555: c7051870530000040000     mov dword ptr [0x537018], 0x400
+  0042f55f: c7051c70530000030000     mov dword ptr [0x53701c], 0x300
+  0042f569: eb14                     jmp 0x42f57f
+  0042f56b: c7051870530000000000     mov dword ptr [0x537018], 0
+  0042f575: c7051c70530000000000     mov dword ptr [0x53701c], 0
+## rspSetVideoMode 0x42fc50: 0x0 requested size -> flags 0x1001 SDL_WINDOW_FULLSCREEN_DESKTOP; SDL_RenderSetLogicalSize(display area)
+  0042fcf8: e883050000               call 0x430280
+  0042fcfd: 8b1518705300             mov edx, dword ptr [0x537018]
+  0042fd03: 83c408                   add esp, 8
+  0042fd06: 85c0                     test eax, eax
+  0042fd08: 7516                     jne 0x42fd20
+  0042fd0a: 85d2                     test edx, edx
+  0042fd0c: 740d                     je 0x42fd1b
+  0042fd0e: 39351c705300             cmp dword ptr [0x53701c], esi
+  0042fd14: be01000000               mov esi, 1
+  0042fd19: 7505                     jne 0x42fd20
+  0042fd1b: be01100000               mov esi, 0x1001
+  0042fd20: 803d5879530000           cmp byte ptr [0x537958], 0
+  0042fd27: 7406                     je 0x42fd2f
+  0042fd29: 81ce00010000             or esi, 0x100
+  0042fd2f: a134705300               mov eax, dword ptr [0x537034]
+  0042fd34: b9c7cd4e00               mov ecx, 0x4ecdc7
+  0042fd39: 56                       push esi
+  0042fd3a: ff351c705300             push dword ptr [0x53701c]
+  0042fd40: 85c0                     test eax, eax
+  0042fd42: 52                       push edx
+  0042fd43: 680000ff1f               push 0x1fff0000
+  0042fd48: 0f45c8                   cmovne ecx, eax
+  0042fd4b: 680000ff1f               push 0x1fff0000
+  0042fd50: 51                       push ecx
+  0042fd51: e8a2f90900               call 0x4cf6f8
+## mode list = ONE entry, SDL_GetDesktopDisplayMode(0) (fallback 640x480)
+  0042fa45: 8d45ec                   lea eax, [ebp - 0x14]
+  0042fa48: 50                       push eax
+  0042fa49: 6a00                     push 0
+  0042fa4b: e8a2fc0900               call 0x4cf6f2
+  0042fa50: 83c408                   add esp, 8
+  0042fa53: 85c0                     test eax, eax
+  0042fa55: 7531                     jne 0x42fa88
+  0042fa57: 8b75f0                   mov esi, dword ptr [ebp - 0x10]
+  0042fa5a: 57                       push edi
+  0042fa5b: 8b7df4                   mov edi, dword ptr [ebp - 0xc]
+  0042fa5e: 6a08                     push 8
+  0042fa60: e846e90700               call 0x4ae3ab
+  0042fa65: 8bd8                     mov ebx, eax
+  0042fa67: 6a10                     push 0x10
+  0042fa69: 668933                   mov word ptr [ebx], si
+  0042fa6c: 66897b02                 mov word ptr [ebx + 2], di
+  0042fa70: c7430408000100           mov dword ptr [ebx + 4], 0x10008
+  0042fa77: e82fe90700               call 0x4ae3ab
+  0042fa7c: 83c408                   add esp, 8
+  0042fa7f: 5f                       pop edi
+  0042fa80: 85c0                     test eax, eax
+  0042fa82: 743c                     je 0x42fac0
+  0042fa84: 8918                     mov dword ptr [eax], ebx
+  0042fa86: eb26                     jmp 0x42faae
+  0042fa88: 6a08                     push 8
+  0042fa8a: e81ce90700               call 0x4ae3ab
+  0042fa8f: 8bf0                     mov esi, eax
+  0042fa91: 6a10                     push 0x10
+  0042fa93: c7068002e001             mov dword ptr [esi], 0x1e00280
+  0042fa99: c7460408000100           mov dword ptr [esi + 4], 0x10008
+## SetupVideo 0x423200: display width = desk_w*480/desk_h when desktop > 640x480 (1920x1080 -> 853)
+  00423233: 668b4d84                 mov cx, word ptr [ebp - 0x7c]
+  00423237: b8e0010000               mov eax, 0x1e0
+  0042323c: 56                       push esi
+  0042323d: 8b750c                   mov esi, dword ptr [ebp + 0xc]
+  00423240: 57                       push edi
+  00423241: 8b7d10                   mov edi, dword ptr [ebp + 0x10]
+  00423244: 663bc8                   cmp cx, ax
+  00423247: 7e14                     jle 0x42325d
+  00423249: 668b4588                 mov ax, word ptr [ebp - 0x78]
+  0042324d: ba80020000               mov edx, 0x280
+  00423252: 663bc2                   cmp ax, dx
+  00423255: 7e06                     jle 0x42325d
+  00423257: 98                       cwde 
+  00423258: 0fbfc9                   movsx ecx, cx
+  0042325b: eb06                     jmp 0x423263
+  0042325d: 0fbfc6                   movsx eax, si
+  00423260: 0fbfcf                   movsx ecx, di
+  00423263: 69c0e0010000             imul eax, eax, 0x1e0
+  00423269: 99                       cdq 
+  0042326a: f7f9                     idiv ecx
+  0042326c: 66837d0800               cmp word ptr [ebp + 8], 0
+## POSTAL.INI [Video] defaults: DeviceWidth 640, DeviceHeight 480, UseCurrentDeviceDimensions 1
+  004234e1: 8d4580                   lea eax, [ebp - 0x80]
+  004234e4: 50                       push eax
+  004234e5: 6880020000               push 0x280
+  004234ea: 68a0d54e00               push 0x4ed5a0
+  004234ef: 68acd54e00               push 0x4ed5ac
+  004234f4: 8d8d58ffffff             lea ecx, [ebp - 0xa8]
+  004234fa: e8b1e40200               call 0x4519b0
+  004234ff: 8d4584                   lea eax, [ebp - 0x7c]
+  00423502: 50                       push eax
+  00423503: 68e0010000               push 0x1e0
+  00423508: 68b4d54e00               push 0x4ed5b4
+  0042350d: 68acd54e00               push 0x4ed5ac
+  00423512: 8d8d58ffffff             lea ecx, [ebp - 0xa8]
+  00423518: e893e40200               call 0x4519b0
+  0042351d: 8d857cffffff             lea eax, [ebp - 0x84]
+  00423523: 50                       push eax
+  00423524: 6a01                     push 1
+  00423526: 68c4d54e00               push 0x4ed5c4
+  0042352b: 68acd54e00               push 0x4ed5ac
+  00423530: 8d8d58ffffff             lea ecx, [ebp - 0xa8]
+  00423536: e875e40200               call 0x4519b0
+## menu strings - OPTIONS > VIDEO has only GAMMA:
+CONTROLS
+MULTIPLAYER
+PERFORMANCE
+DIFFICULTY
+CROSSHAIR
+KID MODE
+DIFFICULTY
+SOUND TEST
+SPECIAL KEYS
+  0 thru 9 - PLAY A SOUND
+  A thru Z - PLAY A SOUND
+  TAB - NEXT SET OF SOUNDS
+EXIT
+AUDIO
+MIXER
+SOUND TEST
+LANGUAGE
+PAIN FREQ.
+English
+Japanese
+VIDEO
+GAMMA
+CONTROLS
+KEYBOARD SETUP
+MOUSE SETUP
+X CONTROLLER SETUP
+TURNING SPEEDS
+USE MOUSE
+CLASSIC MOUSE
+HORIZ MOUSE SENS.
+VERT MOUSE SENS.
+KEYBOARD SETUP
+MOUSE SETUP
+X CONTROLLER SETUP
+PERFORMANCE
+TRANSPARENCY

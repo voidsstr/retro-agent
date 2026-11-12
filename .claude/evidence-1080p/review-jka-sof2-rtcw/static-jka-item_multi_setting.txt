@@ -1,0 +1,158 @@
+JKA Item_Multi_Setting: what the Video Mode line shows when r_mode/ui_r_mode matches no cvarFloatList entry
+MP: base/assets3.pk3 uix86.dll (1.01, 348160 B). Function at 0x4001CB50; no-match return at 0x4001CC19 = mov eax,0x40032d93
+  4001cb50: sub     esp, 0x804
+  4001cb56: mov     eax, dword ptr [esp + 0x808]
+  4001cb5d: push    ebx
+  4001cb5e: push    esi
+  4001cb5f: mov     esi, dword ptr [eax + 0x238]
+  4001cb65: test    esi, esi
+  4001cb67: push    edi
+  4001cb68: mov     dword ptr [esp + 0xc], 0
+  4001cb70: je      0x4001cc17
+  4001cb76: mov     ecx, dword ptr [esi + 0x184]
+  4001cb7c: test    ecx, ecx
+  4001cb7e: mov     eax, dword ptr [eax + 0x128]
+  4001cb84: je      0x4001cba3
+  4001cb86: test    eax, eax
+  4001cb88: je      0x4001cbb7
+  4001cb8a: mov     edx, dword ptr [0x403ddcc4]
+  4001cb90: push    0x800
+  4001cb95: lea     ecx, [esp + 0x14]
+  4001cb99: push    ecx
+  4001cb9a: push    eax
+  4001cb9b: call    dword ptr [edx + 0x78]
+  4001cb9e: add     esp, 0xc
+  4001cba1: jmp     0x4001cbb7
+  4001cba3: test    eax, eax
+  4001cba5: je      0x4001cbb7
+  4001cba7: push    eax
+  4001cba8: mov     eax, dword ptr [0x403ddcc4]
+  4001cbad: call    dword ptr [eax + 0x7c]
+  4001cbb0: fstp    dword ptr [esp + 0x10]
+  4001cbb4: add     esp, 4
+  4001cbb7: mov     eax, dword ptr [esi + 0x180]
+  4001cbbd: xor     edi, edi
+  4001cbbf: test    eax, eax
+  4001cbc1: jle     0x4001cc17
+  4001cbc3: lea     ebx, [esi + 0x100]
+  4001cbc9: lea     esp, [esp]
+  4001cbd0: mov     eax, dword ptr [esi + 0x184]
+  4001cbd6: test    eax, eax
+  4001cbd8: je      0x4001cbfc
+  4001cbda: mov     ecx, dword ptr [ebx - 0x80]
+  4001cbdd: push    ecx
+  4001cbde: lea     edx, [esp + 0x14]
+  4001cbe2: push    edx
+  4001cbe3: call    0x40003590
+  4001cbe8: add     esp, 8
+  4001cbeb: test    eax, eax
+  4001cbed: jne     0x4001cc09
+  4001cbef: mov     eax, dword ptr [esi + edi*4]
+  4001cbf2: pop     edi
+  4001cbf3: pop     esi
+  4001cbf4: pop     ebx
+  4001cbf5: add     esp, 0x804
+  4001cbfb: ret     
+  4001cbfc: fld     dword ptr [ebx]
+  4001cbfe: fcomp   dword ptr [esp + 0xc]
+  4001cc02: fnstsw  ax
+  4001cc04: test    ah, 0x44
+  4001cc07: jnp     0x4001cbef
+  4001cc09: mov     eax, dword ptr [esi + 0x180]
+  4001cc0f: inc     edi
+  4001cc10: add     ebx, 4
+  4001cc13: cmp     edi, eax
+  4001cc15: jl      0x4001cbd0
+  4001cc17: pop     edi
+  4001cc18: pop     esi
+  4001cc19: mov     eax, 0x40032d93
+  4001cc1e: pop     ebx
+  4001cc1f: add     esp, 0x804
+  4001cc25: ret     
+bytes at 0x40032d93 (file 0x32d93): b'instant\x00\x00MAS' -> the NUL after 'instant' = empty string ""
+
+SP: jasp.exe (JA v1.0.1.0). Function at 0x4A0BB0; no-match return at 0x4A0C7C = mov eax,0x5037a0
+  004a0bb0: sub     esp, 0x404
+  004a0bb6: push    ebx
+  004a0bb7: push    esi
+  004a0bb8: mov     esi, dword ptr [eax + 0x248]
+  004a0bbe: test    esi, esi
+  004a0bc0: push    edi
+  004a0bc1: mov     dword ptr [esp + 0xc], 0
+  004a0bc9: je      0x4a0c7a
+  004a0bcf: mov     ecx, dword ptr [esi + 0x304]
+  004a0bd5: test    ecx, ecx
+  004a0bd7: je      0x4a0bfc
+  004a0bd9: mov     eax, dword ptr [eax + 0x134]
+  004a0bdf: test    eax, eax
+  004a0be1: je      0x4a0c1e
+  004a0be3: mov     edx, dword ptr [0xf871dc]
+  004a0be9: push    0x400
+  004a0bee: lea     ecx, [esp + 0x14]
+  004a0bf2: push    ecx
+  004a0bf3: push    eax
+  004a0bf4: call    dword ptr [edx + 0x34]
+  004a0bf7: add     esp, 0xc
+  004a0bfa: jmp     0x4a0c1e
+  004a0bfc: mov     ecx, dword ptr [eax + 0x134]
+  004a0c02: test    ecx, ecx
+  004a0c04: je      0x4a0c14
+  004a0c06: mov     eax, dword ptr [0xf871dc]
+  004a0c0b: push    ecx
+  004a0c0c: call    dword ptr [eax + 0x38]
+  004a0c0f: add     esp, 4
+  004a0c12: jmp     0x4a0c1a
+  004a0c14: fild    dword ptr [eax + 0x250]
+  004a0c1a: fstp    dword ptr [esp + 0xc]
+  004a0c1e: mov     eax, dword ptr [esi + 0x300]
+  004a0c24: xor     edi, edi
+  004a0c26: test    eax, eax
+  004a0c28: jle     0x4a0c7a
+  004a0c2a: lea     ebx, [esi + 0x200]
+  004a0c30: mov     eax, dword ptr [esi + 0x304]
+  004a0c36: test    eax, eax
+  004a0c38: je      0x4a0c5f
+  004a0c3a: mov     eax, dword ptr [ebx - 0x100]
+  004a0c40: push    eax
+  004a0c41: lea     ecx, [esp + 0x14]
+  004a0c45: push    ecx
+  004a0c46: call    0x4eb4f6
+  004a0c4b: add     esp, 8
+  004a0c4e: test    eax, eax
+  004a0c50: jne     0x4a0c6c
+  004a0c52: mov     eax, dword ptr [esi + edi*4]
+  004a0c55: pop     edi
+  004a0c56: pop     esi
+  004a0c57: pop     ebx
+  004a0c58: add     esp, 0x404
+  004a0c5e: ret     
+  004a0c5f: fld     dword ptr [ebx]
+  004a0c61: fcomp   dword ptr [esp + 0xc]
+  004a0c65: fnstsw  ax
+  004a0c67: test    ah, 0x44
+  004a0c6a: jnp     0x4a0c52
+  004a0c6c: mov     eax, dword ptr [esi + 0x300]
+  004a0c72: inc     edi
+  004a0c73: add     ebx, 4
+  004a0c76: cmp     edi, eax
+  004a0c78: jl      0x4a0c30
+  004a0c7a: pop     edi
+  004a0c7b: pop     esi
+  004a0c7c: mov     eax, 0x5037a0
+  004a0c81: pop     ebx
+  004a0c82: add     esp, 0x404
+bytes at 0x5037a0 (file 0x1037a0): b'_grip\x00\x00\x00\x00\x00' -> empty string ""
+
+Video Quality presets (ui_r_glCustom) overwrite ui_r_mode, which Apply copies to r_mode:
+  4000b706: push    0x40800000   ; float 4
+  4000b70b: push    0x4003da9c   ; "ui_r_mode"
+  4000b710: call    0x40026ab0
+  4000b7ab: push    0x40400000   ; float 3
+  4000b7b0: push    0x4003da9c   ; "ui_r_mode"
+  4000b7b5: call    0x40026ab0
+  4000b84d: push    0x40400000   ; float 3
+  4000b852: push    0x4003da9c   ; "ui_r_mode"
+  4000b857: call    0x40026ab0
+  4000b8e6: push    0x40400000   ; float 3
+  4000b8eb: push    0x4003da9c   ; "ui_r_mode"
+  4000b8f0: call    0x40026ab0

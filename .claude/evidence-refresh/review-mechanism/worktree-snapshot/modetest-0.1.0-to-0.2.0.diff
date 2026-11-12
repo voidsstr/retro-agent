@@ -1,0 +1,1285 @@
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tools/modetest/modetest.c	2026-09-29 01:10:19.000000000 -0400
++++ tools/modetest/modetest.c	2026-09-29 04:42:54.130483603 -0400
+@@ -65,8 +65,31 @@
+  *       4 a test's own mode change failed (still restored); 5 watchdog.
+  *
+  * BUILD: tools/modetest/build.sh - CRT-free, -march=pentium, imports only
+- * KERNEL32/USER32/GDI32; ADVAPI32, ddraw.dll and d3d9.dll are resolved at run
+- * time. The build script checks the import table and the CMOV count.
++ * KERNEL32/USER32/GDI32, and only the functions on its Win95/98-era allowlist;
++ * ADVAPI32, ddraw.dll and d3d9.dll are resolved at run time. The build script
++ * checks the import table and the CMOV count.
++ *
++ * THREADS (0.2.0, review of 2026-09-29). Three things run beside the main one:
++ *   - the WATCHDOG. It takes the run over rather than racing it: it raises
++ *     g_takeover, then waits for g_mt_lock - the lock every switch holds from
++ *     the pace gate to the switch's own stamp - so the main thread is never in
++ *     the middle of a switch when the watchdog makes one, and parks at its
++ *     next attempt. vcr_pace.h's bookkeeping (depth / armed) is not
++ *     thread-safe; before this a watchdog restore could interleave with a main
++ *     thread's pace wait, read a stale depth + armed pair, and let a switch
++ *     through with no floor at all. A main thread stuck INSIDE a switch (a
++ *     hung driver call) keeps the lock: the watchdog then ends the run without
++ *     a give-back of its own (XP reverts the mode as the process goes, paced by
++ *     vcr_pace's exit hold; Win9x does NOT revert - the log says so).
++ *   - the VBLANK WORKER. The scanout is timed on a thread the main one waits
++ *     for with a timeout, so a WaitForVerticalBlank that never returns cannot
++ *     hang the run (or -list, which has no watchdog); an abandoned worker ends
++ *     every later measurement in that run. It runs at HIGHEST priority on NT
++ *     only: on Win9x the agent serves every client from ONE normal-priority
++ *     thread, and 2.5 s of HIGHEST-priority polling starves it.
++ *   - CreateThread gets a real lpThreadId: Win95/98 FAIL the call with NULL
++ *     (error 87), which is how the agent's own helper threads once silently
++ *     never started on .243 - and how this tool's watchdog would have.
+  *
+  * NOT RUN ON ANY BOX YET (2026-09-29). The per-box plan is in
+  * tools/modetest/run_modetest.py, which refuses to run without --go.
+@@ -81,7 +104,7 @@
+ 
+ #include "modetest_logic.h"
+ 
+-#define MODETEST_VERSION "0.1.0"
++#define MODETEST_VERSION "0.2.0"
+ 
+ #ifndef ENUM_CURRENT_SETTINGS
+ #define ENUM_CURRENT_SETTINGS  ((DWORD)-1)
+@@ -136,6 +159,10 @@
+ static HANDLE g_out;
+ static DWORD  g_t0;
+ static char   g_logbuf[1100], g_fmtbuf[1030];
++/* the watchdog logs too: one line at a time, or two threads garble each
++ * other's lines - including the "exit N" line the host's runner looks for */
++static CRITICAL_SECTION g_logcs;
++static int    g_logcs_ok;
+ 
+ static void mt_write(const char *s, int n)
+ {
+@@ -150,12 +177,17 @@
+ {
+     va_list ap;
+     int n;
++    if (g_logcs_ok)
++        EnterCriticalSection(&g_logcs);
+     va_start(ap, fmt);
+     wvsprintfA(g_fmtbuf, fmt, ap);                  /* user32: caps at 1024 */
+     va_end(ap);
++    g_fmtbuf[1000] = 0;                             /* room for the prefix + CRLF */
+     n = wsprintfA(g_logbuf, "[%7lu ms] %s\r\n", (unsigned long)(GetTickCount() - g_t0),
+                   g_fmtbuf);
+     mt_write(g_logbuf, n);
++    if (g_logcs_ok)
++        LeaveCriticalSection(&g_logcs);
+ }
+ 
+ /* vcr_pace.h reports through this instead of fprintf(stderr) */
+@@ -240,8 +272,20 @@
+ static int  g_nobpp, g_novb, g_dry, g_list, g_restore_only;
+ static int  g_pace_s = MT_PACE_DEF_S, g_hold_s = MT_HOLD_DEF_S, g_op_maxhz;
+ static int  g_switches, g_restore_failed, g_test_failed;
++static int  g_test_switches;            /* switches that were NOT give-backs */
+ static volatile LONG g_done;
+ static DWORD g_cap_ms;
++static int  g_is9x;                     /* Windows 95/98/Me */
++/* THE SWITCH LOCK (process-local): held from the pace gate to the switch's
++ * own stamp, by whichever thread switches. vcr_pace.h's bookkeeping is not
++ * thread-safe; this is what lets the watchdog take a run over without racing
++ * it (see THREADS at the top). */
++static HANDLE g_mt_lock;
++static volatile LONG g_takeover;        /* the watchdog owns the run now */
++static DWORD g_wd_tid;                  /* the watchdog's thread id      */
++static volatile LONG g_exiting;
++#define MT_TAKEOVER_MS 45000u           /* longest the watchdog waits for a
++                                         * switch in flight to finish      */
+ 
+ /* ------------------------------------------------------------------ */
+ /* modes                                                                */
+@@ -471,28 +515,39 @@
+ /* ------------------------------------------------------------------ */
+ /* the measured refresh                                                 */
+ /* ------------------------------------------------------------------ */
+-#define MT_VB_SAMPLES 73
++#define MT_VB_SAMPLES    73
++#define MT_VB_TIMEOUT_MS 8000u  /* DirectDrawCreate + 2.5 s of sampling + margin */
+ static double g_iv[MT_VB_SAMPLES];
++static int    g_vb_dead;        /* a worker was abandoned: no more timing this run */
+ 
+-/* Time the scanout. dd may be an object the caller holds (exclusive mode);
+- * NULL = make a DDSCL_NORMAL one for the measurement. *ddfreq gets
+- * GetMonitorFrequency (or -1). Returns milli-Hz, 0 = not measurable. */
+-static unsigned long mt_measure_vblank(LPDIRECTDRAW dd, int *ddfreq, const char **how)
++/* One measurement's inputs and outputs. STATIC on purpose: an abandoned
++ * worker may still write it after the main thread has moved on. */
++static struct {
++    LPDIRECTDRAW  dd;           /* in: the caller's object (exclusive), or NULL */
++    int           ddfreq;       /* out: GetMonitorFrequency, -1 = none          */
++    const char   *how;          /* out */
++    unsigned long mhz;          /* out: 0 = not measurable                      */
++} g_vbjob;
++
++/* Time the scanout (the worker's body). dd may be an object the caller holds
++ * (exclusive mode); NULL = make a DDSCL_NORMAL one for the measurement.
++ *
++ * Each sample waits for the END of a blank and then for the start of the
++ * next, when the driver supports DDWAITVB_BLOCKEND: a BLOCKBEGIN that answers
++ * at once while the beam is still inside the blank (legal for a driver that
++ * tests "in vblank" rather than the edge) would otherwise alternate ~0 and
++ * one frame, and the median check would refuse the whole run as unmeasured. */
++static DWORD WINAPI mt_vb_worker(LPVOID unused)
+ {
+     LARGE_INTEGER qf, t0, t1, start;
+-    LPDIRECTDRAW own = NULL;
+-    int n = 0, prio;
+-    HANDLE th = GetCurrentThread();
+-    unsigned long mhz = 0;
++    LPDIRECTDRAW own = NULL, dd = g_vbjob.dd;
++    int n = 0, use_end;
+     double lim;
++    (void)unused;
+ 
+-    *ddfreq = -1;
+-    *how = "none";
+-    if (g_novb)
+-        return 0;
+     if (!dd) {
+         if (!p_DirectDrawCreate || p_DirectDrawCreate(NULL, &own, NULL) != DD_OK || !own) {
+-            *how = "no DirectDraw";
++            g_vbjob.how = "no DirectDraw";
+             return 0;
+         }
+         IDirectDraw_SetCooperativeLevel(own, NULL, DDSCL_NORMAL);
+@@ -501,20 +556,25 @@
+     {
+         DWORD f = 0;
+         if (IDirectDraw_GetMonitorFrequency(dd, &f) == DD_OK)
+-            *ddfreq = (int)f;
++            g_vbjob.ddfreq = (int)f;
+     }
+     if (!QueryPerformanceFrequency(&qf) || qf.QuadPart <= 0) {
+-        *how = "no QueryPerformanceFrequency";
++        g_vbjob.how = "no QueryPerformanceFrequency";
+         goto out;
+     }
+     lim = (double)qf.QuadPart * 2.5;                /* never more than 2.5 s */
+-    prio = GetThreadPriority(th);
+-    SetThreadPriority(th, THREAD_PRIORITY_HIGHEST);
++    /* HIGHEST only on NT. On Win9x the agent serves every client from one
++     * normal-priority thread: 2.5 s of HIGHEST-priority polling starves it. */
++    if (!g_is9x)
++        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+     QueryPerformanceCounter(&start);
++    use_end = IDirectDraw_WaitForVerticalBlank(dd, DDWAITVB_BLOCKEND, NULL) == DD_OK;
+     if (IDirectDraw_WaitForVerticalBlank(dd, DDWAITVB_BLOCKBEGIN, NULL) == DD_OK) {
+-        *how = "WaitForVerticalBlank";
++        g_vbjob.how = use_end ? "WaitForVerticalBlank END+BEGIN" : "WaitForVerticalBlank BEGIN";
+         QueryPerformanceCounter(&t0);
+         while (n < MT_VB_SAMPLES) {
++            if (use_end && IDirectDraw_WaitForVerticalBlank(dd, DDWAITVB_BLOCKEND, NULL) != DD_OK)
++                break;
+             if (IDirectDraw_WaitForVerticalBlank(dd, DDWAITVB_BLOCKBEGIN, NULL) != DD_OK)
+                 break;
+             QueryPerformanceCounter(&t1);
+@@ -527,13 +587,13 @@
+         /* no blocking wait: poll GetVerticalBlankStatus for 0 -> 1 edges */
+         BOOL in = FALSE, was = TRUE;
+         int have = 0;
+-        *how = "GetVerticalBlankStatus poll";
++        g_vbjob.how = "GetVerticalBlankStatus poll";
+         for (;;) {
+             QueryPerformanceCounter(&t1);
+             if ((double)(t1.QuadPart - start.QuadPart) > lim || n >= MT_VB_SAMPLES)
+                 break;
+             if (IDirectDraw_GetVerticalBlankStatus(dd, &in) != DD_OK) {
+-                *how = "no vertical-blank support";
++                g_vbjob.how = "no vertical-blank support";
+                 break;
+             }
+             if (in && !was) {
+@@ -545,12 +605,69 @@
+             was = in;
+         }
+     }
+-    SetThreadPriority(th, prio);
+-    mhz = mt_vblank_mhz(g_iv, n, (double)qf.QuadPart);
++    g_vbjob.mhz = mt_vblank_mhz(g_iv, n, (double)qf.QuadPart);
+ out:
+     if (own)
+         IDirectDraw_Release(own);
+-    return mhz;
++    return 0;
++}
++
++static void mt_pump(void);
++
++/* Time the scanout on the worker, waiting at most MT_VB_TIMEOUT_MS. *ddfreq
++ * gets GetMonitorFrequency (or -1). Returns milli-Hz, 0 = not measurable. */
++static unsigned long mt_measure_vblank(LPDIRECTDRAW dd, int *ddfreq, const char **how)
++{
++    HANDLE th;
++    DWORD tid = 0, w;
++
++    *ddfreq = -1;
++    *how = "none";
++    if (g_novb)
++        return 0;
++    if (g_vb_dead) {
++        *how = "skipped - an earlier measurement never returned";
++        return 0;
++    }
++    g_vbjob.dd = dd;
++    g_vbjob.ddfreq = -1;
++    g_vbjob.how = "none";
++    g_vbjob.mhz = 0;
++    th = CreateThread(NULL, 0, mt_vb_worker, NULL, 0, &tid);   /* &tid: Win9x */
++    if (!th) {
++        *how = "no worker thread";
++        return 0;
++    }
++    /* wait PUMPING: in tests C/D this thread owns a fullscreen window, and one
++     * that stops answering messages for 5 s is ghosted by XP */
++    {
++        DWORD t0 = GetTickCount(), el;
++        for (;;) {
++            el = GetTickCount() - t0;
++            if (el >= MT_VB_TIMEOUT_MS) {
++                w = WAIT_TIMEOUT;
++                break;
++            }
++            w = MsgWaitForMultipleObjects(1, &th, FALSE, MT_VB_TIMEOUT_MS - el, QS_ALLINPUT);
++            if (w == WAIT_OBJECT_0 + 1) {
++                mt_pump();
++                continue;
++            }
++            break;                          /* WAIT_OBJECT_0, WAIT_TIMEOUT or failed */
++        }
++    }
++    CloseHandle(th);
++    if (w != WAIT_OBJECT_0) {
++        g_vb_dead = 1;
++        mt_logf("!!! the vblank measurement did not return within %lu ms - abandoned; no "
++                "more timing this run (a WaitForVerticalBlank that never returns)",
++                (unsigned long)MT_VB_TIMEOUT_MS);
++        *how = "TIMED OUT - abandoned";
++        return 0;
++    }
++    *ddfreq = g_vbjob.ddfreq;
++    *how = g_vbjob.how;
++    return g_vbjob.mhz;
+ }
+ 
+ typedef struct {
+@@ -603,22 +720,68 @@
+ /* ------------------------------------------------------------------ */
+ /* switching - every one through vcr_pace.h                             */
+ /* ------------------------------------------------------------------ */
+-static int mt_switch_begin(const char *what)
++/* A thread that must not switch any more: the watchdog owns the run. It ends
++ * the process; nothing this thread could do next would be paced or ours. */
++static void mt_park(void)
++{
++    for (;;)
++        Sleep(1000);
++}
++
++/*
++ * Before any switch. Takes g_mt_lock and keeps it until mt_switch_end(), so
++ * the pace gate's wait, the switch and its stamp are one unit no other thread
++ * of this process can interleave with. giveback: a restore / RestoreDisplay-
++ * Mode / device release - never refused by the per-run count
++ * (mt_switch_allowed), still paced. 1 = switch now, then mt_switch_end().
++ */
++static int mt_switch_begin(const char *what, int giveback)
+ {
+-    if (g_switches >= MT_MAX_SWITCHES + 2) {        /* +2: restores are never refused by count */
++    if (g_mt_lock)
++        WaitForSingleObject(g_mt_lock, INFINITE);
++    if (g_takeover && GetCurrentThreadId() != g_wd_tid) {
++        if (g_mt_lock)
++            ReleaseMutex(g_mt_lock);
++        mt_park();                          /* the watchdog ends the process */
++    }
++    if (!mt_switch_allowed(g_test_switches, giveback)) {
+         mt_logf("SWITCH REFUSED (%s): per-run switch limit reached", what);
++        if (g_mt_lock)
++            ReleaseMutex(g_mt_lock);
+         return 0;
+     }
+     if (!vcr_pace_before_switch()) {
+         mt_logf("SWITCH REFUSED (%s): vcr_pace: %s", what,
+                 g_vcr_pace_why ? g_vcr_pace_why : "?");
++        if (g_mt_lock)
++            ReleaseMutex(g_mt_lock);
+         return 0;
+     }
++    /* the pace wait can take a whole floor: a watchdog that fired meanwhile
++     * gets the lock BEFORE this test switch, not after it. vcr_pace_cancel
++     * keeps the pre-stamp, so the watchdog's give-back waits a floor from it. */
++    if (g_takeover && GetCurrentThreadId() != g_wd_tid) {
++        vcr_pace_cancel();
++        if (g_mt_lock)
++            ReleaseMutex(g_mt_lock);
++        mt_park();
++    }
+     g_switches++;
+-    mt_logf("SWITCH %d: %s", g_switches, what);
++    if (!giveback)
++        g_test_switches++;
++    mt_logf("SWITCH %d: %s%s", g_switches, what, giveback ? " (give-back)" : "");
+     return 1;
+ }
+ 
++/* After the switch: stamp it (temp = 1 when a temporary mode is now held)
++ * and hand the switch lock back. */
++static void mt_switch_end(int temp)
++{
++    vcr_pace_after_switch_ex(temp);
++    if (g_mt_lock)
++        ReleaseMutex(g_mt_lock);
++}
++
+ static void mt_pump(void)
+ {
+     MSG msg;
+@@ -668,7 +831,7 @@
+ 
+     memset(&cur, 0, sizeof cur);
+     for (tries = 0; tries < 3; tries++) {
+-        if (mt_switch_begin(why))
++        if (mt_switch_begin(why, 1))
+             break;
+         Sleep(5000);
+     }
+@@ -678,15 +841,21 @@
+          * paces the revert XP makes as the process goes */
+         mt_logf("########################################################");
+         mt_logf("## RESTORE NOT ATTEMPTED - the pace gate refused 3 times");
+-        mt_logf("## ending now: XP reverts a CDS_FULLSCREEN / exclusive");
+-        mt_logf("## mode at exit (vcr_pace holds it for the floor first).");
+-        mt_logf("## CHECK THE SCREEN (DISPLAYCFG get); modetest -restore");
++        if (g_is9x) {
++            mt_logf("## WINDOWS 9x DOES NOT REVERT A CDS_FULLSCREEN MODE WHEN");
++            mt_logf("## THE PROCESS ENDS: the screen STAYS in the test mode.");
++            mt_logf("## LAUNCH modetest -restore (or a person at the box).");
++        } else {
++            mt_logf("## ending now: XP reverts a CDS_FULLSCREEN / exclusive");
++            mt_logf("## mode at exit (vcr_pace holds it for the floor first).");
++            mt_logf("## CHECK THE SCREEN (DISPLAYCFG get); modetest -restore");
++        }
+         mt_logf("########################################################");
+         g_restore_failed = 1;
+         mt_exit(3);
+     }
+     r = ChangeDisplaySettingsA(NULL, 0);
+-    vcr_pace_after_restore();
++    mt_switch_end(0);
+     mt_logf("restore: ChangeDisplaySettings(NULL, 0) -> %ld (%s)", (long)r, mt_cds_name(r));
+     if (mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) && mt_live_is_persisted(&cur, &g_reg)) {
+         mt_logf("restore: VERIFIED %dx%dx%d@%d (persisted %dx%dx%d@%d)", cur.w, cur.h,
+@@ -695,9 +864,9 @@
+     }
+     mt_logf("restore: live %dx%dx%d@%d is NOT the persisted %dx%dx%d@%d - explicit retry",
+             cur.w, cur.h, cur.bpp, cur.hz, g_reg.w, g_reg.h, g_reg.bpp, g_reg.hz);
+-    if (mt_switch_begin("restore (explicit persisted DEVMODE)")) {
++    if (mt_switch_begin("restore (explicit persisted DEVMODE)", 1)) {
+         r = mt_cds(g_reg.w, g_reg.h, g_reg.bpp, mt_hz_is_real(g_reg.hz) ? g_reg.hz : 0, 1, 0);
+-        vcr_pace_after_restore();
++        mt_switch_end(0);
+         mt_logf("restore: explicit -> %ld (%s)", (long)r, mt_cds_name(r));
+         if (mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) && mt_live_is_persisted(&cur, &g_reg)) {
+             mt_logf("restore: VERIFIED on the second attempt");
+@@ -813,10 +982,10 @@
+     mt_logf("=== TEST A: ChangeDisplaySettings %dx%dx%d, NO rate (dmFields %s), "
+             "CDS_FULLSCREEN - what WON hl.exe / GLQuake ask for", g_W, g_H, g_BPP,
+             g_nobpp ? "W|H" : "W|H|BPP");
+-    if (!mt_switch_begin("A: no-rate request"))
++    if (!mt_switch_begin("A: no-rate request", 0))
+         return;
+     r = mt_cds(g_W, g_H, g_BPP, 0, !g_nobpp, CDS_FULLSCREEN);
+-    vcr_pace_after_switch();
++    mt_switch_end(1);
+     t = GetTickCount();
+     mt_logf("A: ChangeDisplaySettings -> %ld (%s)", (long)r, mt_cds_name(r));
+     mt_observe(NULL, &o);
+@@ -832,17 +1001,19 @@
+     mt_obs_t o;
+     LONG r;
+     DWORD t;
++    int pre_hz;
+     mt_logf("=== TEST B: pre-switch %dx%dx%d@%d (CDS_FULLSCREEN), then the NO-rate "
+             "request again - does a game's request keep the pre-switched rate?",
+             g_W, g_H, g_BPP, g_b_hz);
+-    if (!mt_switch_begin("B1: at-rate pre-switch"))
++    if (!mt_switch_begin("B1: at-rate pre-switch", 0))
+         return;
+     r = mt_cds(g_W, g_H, g_BPP, g_b_hz, 1, CDS_FULLSCREEN);
+-    vcr_pace_after_switch();
++    mt_switch_end(1);
+     t = GetTickCount();
+     mt_logf("B1: ChangeDisplaySettings(@%d) -> %ld (%s)", g_b_hz, (long)r, mt_cds_name(r));
+     mt_observe(NULL, &o);
+     mt_result("B", "prerate", g_b_hz, &o, mt_cds_name(r));
++    pre_hz = mt_observed_hz(o.eds.hz, o.vb_mhz);
+     if (r != DISP_CHANGE_SUCCESSFUL) {
+         g_test_failed = 1;
+         mt_hold(t);
+@@ -850,20 +1021,18 @@
+         return;
+     }
+     mt_hold(t);
+-    if (mt_switch_begin("B2: the game's no-rate request")) {
++    if (mt_switch_begin("B2: the game's no-rate request", 0)) {
+         r = mt_cds(g_W, g_H, g_BPP, 0, !g_nobpp, CDS_FULLSCREEN);
+-        vcr_pace_after_switch();
++        mt_switch_end(1);
+         t = GetTickCount();
+         mt_logf("B2: ChangeDisplaySettings(no rate) -> %ld (%s)", (long)r, mt_cds_name(r));
+         mt_observe(NULL, &o);
+         mt_result("B", "norate_after_prerate", 0, &o, mt_cds_name(r));
+-        if (mt_hz_is_real(o.eds.hz) || o.vb_mhz) {
+-            int got = o.vb_mhz ? mt_mhz_to_hz(o.vb_mhz) : o.eds.hz;
+-            mt_logf("B VERDICT: the no-rate request %s the pre-switched %d Hz (now %d Hz)",
+-                    got == g_b_hz ? "KEPT" : "DID NOT KEEP", g_b_hz, got);
+-        } else {
+-            mt_logf("B VERDICT: UNMEASURED - neither the driver nor the scanout gave a rate");
+-        }
++        mt_logf("B VERDICT: %s - pre-switch asked %d Hz and landed on %d Hz, the no-rate "
++                "request then landed on %d Hz (0 = unmeasured)",
++                mt_keep_verdict_name(mt_keep_verdict(g_b_hz, pre_hz,
++                                                     mt_observed_hz(o.eds.hz, o.vb_mhz))),
++                g_b_hz, pre_hz, mt_observed_hz(o.eds.hz, o.vb_mhz));
+         if (r != DISP_CHANGE_SUCCESSFUL)
+             g_test_failed = 1;
+         mt_hold(t);
+@@ -881,7 +1050,7 @@
+     HRESULT hr;
+     mt_obs_t o;
+     DWORD t;
+-    int fg;
++    int fg, pre_hz = 0, switched = 0;
+ 
+     mt_logf("=== TEST %s: DirectDraw exclusive SetDisplayMode(%d, %d, %d, refresh 0)%s",
+             tag, g_W, g_H, g_BPP, prehz ? " after a CDS pre-switch" : "");
+@@ -899,16 +1068,17 @@
+     }
+     if (prehz) {
+         LONG r;
+-        if (!mt_switch_begin("CB1: at-rate pre-switch")) {
++        if (!mt_switch_begin("CB1: at-rate pre-switch", 0)) {
+             mt_kill_window();
+             return;
+         }
+         r = mt_cds(g_W, g_H, g_BPP, prehz, 1, CDS_FULLSCREEN);
+-        vcr_pace_after_switch();
++        mt_switch_end(1);
+         t = GetTickCount();
+         mt_logf("CB1: ChangeDisplaySettings(@%d) -> %ld (%s)", prehz, (long)r, mt_cds_name(r));
+         mt_observe(NULL, &o);
+         mt_result("CB", "prerate", prehz, &o, mt_cds_name(r));
++        pre_hz = mt_observed_hz(o.eds.hz, o.vb_mhz);
+         mt_hold(t);
+         if (r != DISP_CHANGE_SUCCESSFUL) {
+             g_test_failed = 1;
+@@ -936,31 +1106,33 @@
+         goto done;
+     }
+     if (mt_switch_begin(prehz ? "CB2: DirectDraw SetDisplayMode rate 0"
+-                              : "C1: DirectDraw SetDisplayMode rate 0")) {
++                              : "C1: DirectDraw SetDisplayMode rate 0", 0)) {
++        switched = 1;
+         hr = IDirectDraw2_SetDisplayMode(dd2, (DWORD)g_W, (DWORD)g_H, (DWORD)g_BPP, 0, 0);
+-        vcr_pace_after_switch();
++        mt_switch_end(1);
+         t = GetTickCount();
+         mt_logf("%s: SetDisplayMode(..., 0) -> 0x%08lx", tag, (unsigned long)hr);
+         mt_pump();
+         mt_observe(dd1, &o);
+         mt_result(tag, prehz ? "ddraw_rate0_after_prerate" : "ddraw_rate0", 0, &o,
+                   hr == DD_OK ? "DD_OK" : "DDERR");
+-        if (prehz && (mt_hz_is_real(o.eds.hz) || o.vb_mhz)) {
+-            int got = o.vb_mhz ? mt_mhz_to_hz(o.vb_mhz) : o.eds.hz;
+-            mt_logf("CB VERDICT: DirectDraw's rate-0 request %s the pre-switched %d Hz "
+-                    "(now %d Hz)", got == prehz ? "KEPT" : "DID NOT KEEP", prehz, got);
+-        }
++        if (prehz)
++            mt_logf("CB VERDICT: %s - pre-switch asked %d Hz and landed on %d Hz, "
++                    "DirectDraw's rate-0 request then landed on %d Hz (0 = unmeasured)",
++                    mt_keep_verdict_name(mt_keep_verdict(prehz, pre_hz,
++                                                         mt_observed_hz(o.eds.hz, o.vb_mhz))),
++                    prehz, pre_hz, mt_observed_hz(o.eds.hz, o.vb_mhz));
+         if (hr != DD_OK)
+             g_test_failed = 1;
+         mt_hold(t);
+-        if (!mt_switch_begin("C: DirectDraw RestoreDisplayMode")) {
++        if (!mt_switch_begin("C: DirectDraw RestoreDisplayMode", 1)) {
+             /* refused on the way OUT: no other give-back route (a Release or
+              * DDSCL_NORMAL would revert the mode unpaced) - end the run */
+             g_restore_failed = 1;
+             mt_exit(3);
+         }
+         hr = IDirectDraw2_RestoreDisplayMode(dd2);
+-        vcr_pace_after_switch();            /* still maybe a temporary mode (CB) */
++        mt_switch_end(1);                   /* still maybe a temporary mode (CB) */
+         mt_logf("%s: RestoreDisplayMode -> 0x%08lx", tag, (unsigned long)hr);
+     }
+     IDirectDraw2_SetCooperativeLevel(dd2, g_wnd, DDSCL_NORMAL);
+@@ -972,13 +1144,18 @@
+     mt_kill_window();
+     {
+         mt_mode_t cur;
+-        if (prehz || !mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) ||
+-            !mt_live_is_persisted(&cur, &g_reg))
++        /* CB always gives its pre-switch back; C only what its own
++         * SetDisplayMode may have left (a mode it did not make is not ours) */
++        if (prehz || (switched && (!mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) ||
++                                   !mt_live_is_persisted(&cur, &g_reg))))
+             mt_restore(prehz ? "CB: restore" : "C: corrective restore");
+-        else {
++        else if (switched) {
+             mt_mark_given_back();
+             mt_logf("%s: DirectDraw gave the persisted mode back - verified, no restore "
+                     "needed", tag);
++        } else {
++            mt_logf("%s: no DirectDraw mode was set - the screen is still at its persisted "
++                    "mode", tag);
+         }
+     }
+ }
+@@ -996,7 +1173,7 @@
+     DWORD t;
+     UINT i, n;
+     static char rates[400];
+-    int k = 0, listed = 0;
++    int k = 0, listed = 0, switched = 0, created = 0;
+ 
+     mt_logf("=== TEST D: Direct3D 9 fullscreen CreateDevice %dx%d, "
+             "FullScreen_RefreshRateInHz 0 (D3DPRESENT_RATE_DEFAULT)", g_W, g_H);
+@@ -1042,14 +1219,16 @@
+     pp.Windowed = FALSE;
+     pp.FullScreen_RefreshRateInHz = 0;
+     pp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+-    if (mt_switch_begin("D1: Direct3D 9 CreateDevice rate 0")) {
++    if (mt_switch_begin("D1: Direct3D 9 CreateDevice rate 0", 0)) {
++        switched = 1;
+         hr = IDirect3D9_CreateDevice(d3d, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_wnd,
+                                      D3DCREATE_SOFTWARE_VERTEXPROCESSING, &pp, &dev);
+-        vcr_pace_after_switch();
++        mt_switch_end(1);
+         t = GetTickCount();
+         mt_logf("D: CreateDevice -> 0x%08lx", (unsigned long)hr);
+         mt_pump();
+         if (hr == D3D_OK && dev) {
++            created = 1;
+             memset(&dm, 0, sizeof dm);
+             IDirect3DDevice9_GetDisplayMode(dev, 0, &dm);
+             mt_logf("D: device reports %ux%u @%u Hz", dm.Width, dm.Height, dm.RefreshRate);
+@@ -1066,12 +1245,12 @@
+         mt_result("D", "d3d9_rate0", 0, &o, hr == D3D_OK ? "D3D_OK" : "D3DERR");
+         mt_hold(t);
+         if (dev) {
+-            if (!mt_switch_begin("D2: Direct3D 9 device released")) {
++            if (!mt_switch_begin("D2: Direct3D 9 device released", 1)) {
+                 g_restore_failed = 1;               /* no unpaced Release: end, */
+                 mt_exit(3);                         /* the exit hold paces XP's revert */
+             }
+             IDirect3DDevice9_Release(dev);
+-            vcr_pace_after_switch();
++            mt_switch_end(1);
+             dev = NULL;
+         }
+     }
+@@ -1079,11 +1258,15 @@
+     mt_kill_window();
+     {
+         mt_mode_t cur;
+-        if (!mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) || !mt_live_is_persisted(&cur, &g_reg))
++        if (!switched)
++            mt_logf("D: the pace gate refused the device - nothing to give back");
++        else if (!mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) || !mt_live_is_persisted(&cur, &g_reg))
+             mt_restore("D: corrective restore");
+         else {
+             mt_mark_given_back();
+-            mt_logf("D: Direct3D gave the persisted mode back - verified");
++            mt_logf(created ? "D: Direct3D gave the persisted mode back - verified"
++                            : "D: CreateDevice failed and the screen is still at its "
++                              "persisted mode - verified");
+         }
+     }
+ }
+@@ -1237,8 +1420,16 @@
+ /* ------------------------------------------------------------------ */
+ /* main                                                                 */
+ /* ------------------------------------------------------------------ */
++/* ONE thread runs the exit sequence (the atexit handlers are vcr_pace's exit
++ * hold); a second caller parks and ExitProcess takes it. Once the watchdog
++ * owns the run the main thread never exits by itself either: the watchdog's
++ * give-back decides the exit code and ends the process. */
+ static void mt_exit(int code)
+ {
++    if (g_takeover && GetCurrentThreadId() != g_wd_tid)
++        mt_park();
++    if (InterlockedExchange(&g_exiting, 1))
++        mt_park();
+     InterlockedExchange(&g_done, 1);
+     mt_logf("exit %d (switches made: %d)", code, g_switches);
+     while (g_atexit_n > 0)                          /* vcr_pace's exit hold, if armed */
+@@ -1248,19 +1439,71 @@
+     ExitProcess((UINT)code);
+ }
+ 
++/*
++ * The run overran its budget. TAKE IT OVER, do not race it: raise g_takeover
++ * (the main thread parks at its next switch or exit), then wait for g_mt_lock,
++ * which the main thread holds only from a pace gate to that switch's stamp.
++ *   - got it: no switch is in flight and none can start; give back what THIS
++ *     RUN changed, if the screen is off its persisted mode (mt_should_giveback),
++ *     through the same paced path as every other restore, and end;
++ *   - did not get it within MT_TAKEOVER_MS: the main thread is stuck INSIDE a
++ *     switch (a driver call that never returned). A second switch now would be
++ *     unpaced and may collide with that one: end instead - XP reverts a
++ *     CDS_FULLSCREEN / exclusive mode as the process goes, and vcr_pace's exit
++ *     hold paces it; Windows 9x does not revert, and the log says so.
++ */
+ static DWORD WINAPI mt_watchdog(LPVOID unused)
+ {
++    DWORD w;
++    mt_mode_t cur;
+     (void)unused;
+     Sleep(g_cap_ms);
+     if (g_done)
+         return 0;
+-    mt_logf("WATCHDOG: the run exceeded its %lu s budget - restoring and ending",
++    InterlockedExchange(&g_takeover, 1);
++    mt_logf("WATCHDOG: the run exceeded its %lu s budget - taking it over",
+             (unsigned long)(g_cap_ms / 1000u));
+-    mt_restore("watchdog restore");
++    w = g_mt_lock ? WaitForSingleObject(g_mt_lock, MT_TAKEOVER_MS) : WAIT_OBJECT_0;
++    if (w == WAIT_TIMEOUT || w == WAIT_FAILED) {
++        mt_logf("########################################################");
++        mt_logf("## WATCHDOG: the main thread is stuck INSIDE a mode switch");
++        mt_logf("## (%lu s) - ending WITHOUT a give-back of its own.",
++                (unsigned long)(MT_TAKEOVER_MS / 1000u));
++        if (g_is9x)
++            mt_logf("## WINDOWS 9x DOES NOT REVERT the mode at exit: CHECK THE SCREEN.");
++        else
++            mt_logf("## XP reverts the mode as the process ends (exit hold paces it).");
++        mt_logf("########################################################");
++        g_restore_failed = 1;
++        mt_exit(5);
++    }
++    memset(&cur, 0, sizeof cur);                    /* an unreadable mode reads "off" */
++    mt_get_mode(ENUM_CURRENT_SETTINGS, &cur);
++    if (mt_should_giveback(g_switches, &cur, &g_reg))
++        mt_restore("watchdog restore");
++    else
++        mt_logf("WATCHDOG: %s - no give-back needed",
++                g_switches ? "the screen is at its persisted mode"
++                           : "this run switched nothing");
+     mt_exit(5);
+     return 0;
+ }
+ 
++/* Start the watchdog. 0 = it could not be started, and a run that switches
++ * modes must not start without it. lpThreadId is REQUIRED on Win95/98 - a
++ * NULL there fails the call with error 87. */
++static int mt_start_watchdog(void)
++{
++    HANDLE th = CreateThread(NULL, 0, mt_watchdog, NULL, 0, &g_wd_tid);
++    if (!th) {
++        mt_logf("REFUSED: the watchdog thread could not start (error %lu) - no switch is "
++                "made without one", (unsigned long)GetLastError());
++        return 0;
++    }
++    CloseHandle(th);
++    return 1;
++}
++
+ static int mt_main(void)
+ {
+     OSVERSIONINFOA vi;
+@@ -1268,6 +1511,8 @@
+ 
+     g_t0 = GetTickCount();
+     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
++    InitializeCriticalSection(&g_logcs);
++    g_logcs_ok = 1;
+     mt_open_log();
+     mt_split_args();
+     mt_logf("==== modetest %s  (%s)", MODETEST_VERSION, GetCommandLineA());
+@@ -1276,8 +1521,15 @@
+     memset(&vi, 0, sizeof vi);
+     vi.dwOSVersionInfoSize = sizeof vi;
+     GetVersionExA(&vi);
++    g_is9x = vi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
+     mt_logf("OS: platform %lu, %lu.%lu build %lu %s", vi.dwPlatformId, vi.dwMajorVersion,
+             vi.dwMinorVersion, vi.dwBuildNumber & 0xFFFF, vi.szCSDVersion);
++    /* process-local, unnamed: the pace gate's own mutex is the cross-process one */
++    g_mt_lock = CreateMutexA(NULL, FALSE, NULL);
++    if (!g_mt_lock) {
++        mt_logf("REFUSED: no switch lock (CreateMutex error %lu)", (unsigned long)GetLastError());
++        return 2;
++    }
+ 
+     if (!mt_parse())
+         return 2;
+@@ -1290,13 +1542,26 @@
+         return 2;
+     }
+ 
+-    mt_enum_modes();
+-    g_have_reg = mt_get_mode(ENUM_REGISTRY_SETTINGS, &g_reg);
++    /*
++     * The persisted mode, read the way the two writers read it (live, then
++     * registry: agent/src/gameres.c gameres_probe, fleetres.c main). An XP box
++     * whose registry holds NO DefaultSettings.* - the build VM, measured
++     * 2026-09-29 - answers ENUM_REGISTRY_SETTINGS with TRUE and an all-zero
++     * DEVMODE. The writers then take the live SIZE and NO rate (reg_hz 0:
++     * FR_HZ falls back to 60, the no-EDID per-target rate is 0). modetest
++     * falls back to the live mode for its own checks, and says so - 0.1.0
++     * printed that zero answer as a real persisted "@60" (the live rate).
++     */
++    memset(&g_reg, 0, sizeof g_reg);
+     if (!mt_get_mode(ENUM_CURRENT_SETTINGS, &g_live)) {
+         mt_logf("REFUSED: cannot read the live mode");
+         return 2;
+     }
+-    if (!g_have_reg || g_reg.w < 320)
++    g_have_reg = mt_get_mode(ENUM_REGISTRY_SETTINGS, &g_reg) && g_reg.w >= 320;
++    mt_logf("registry  : ENUM_REGISTRY_SETTINGS -> %dx%dx%d@%d%s", g_reg.w, g_reg.h, g_reg.bpp,
++            g_reg.hz, g_have_reg ? "" : "  (empty: the writers see NO persisted rate here)");
++    mt_enum_modes();
++    if (!g_have_reg)
+         g_reg = g_live;                             /* the live mode is all we have */
+     mt_probe_edid();
+     mt_logf("live      : %dx%dx%d @%d Hz", g_live.w, g_live.h, g_live.bpp, g_live.hz);
+@@ -1329,6 +1594,12 @@
+         ms = 60000u + (DWORD)(mt_plan_switches(g_tests) + 2) *
+                           ((DWORD)g_pace_s * 1000u + (DWORD)g_hold_s * 1000u + 4000u);
+         g_cap_ms = ms > 600000u ? 600000u : ms;
++#ifdef MT_TEST_CAP_MS
++        /* TEST BUILDS ONLY (never shipped): a short budget, so the watchdog's
++         * take-over can be exercised in the build VM */
++        g_cap_ms = MT_TEST_CAP_MS;
++        mt_logf("TEST BUILD: watchdog budget forced to %lu ms", (unsigned long)g_cap_ms);
++#endif
+     }
+ 
+     if (g_restore_only) {
+@@ -1336,7 +1607,8 @@
+             mt_logf("-restore: the screen is already at its persisted mode - no switch made");
+             return 0;
+         }
+-        CreateThread(NULL, 0, mt_watchdog, NULL, 0, NULL);
++        if (!mt_start_watchdog())
++            return 2;
+         return mt_restore("operator -restore") ? 0 : 3;
+     }
+ 
+@@ -1346,6 +1618,8 @@
+         rc = MT_E_LIVE_NOT_PERSISTED;
+     if (rc == MT_OK && mt_plan_switches(g_tests) > MT_MAX_SWITCHES)
+         rc = MT_E_TOO_MANY_SWITCHES;
++    if (rc == MT_OK)
++        rc = mt_check_nobpp(g_nobpp, g_BPP, &g_reg);
+     if (rc == MT_OK) {
+         int hz;
+         rc = mt_check_request(g_modes, g_nmodes, &g_reg, g_edid_ok ? g_edid_vmax : 0,
+@@ -1371,7 +1645,8 @@
+         return 0;
+     }
+ 
+-    CreateThread(NULL, 0, mt_watchdog, NULL, 0, NULL);
++    if (!mt_start_watchdog())
++        return 2;
+     if (g_tests & MT_T_A)  mt_test_a();
+     if (g_tests & MT_T_B)  mt_test_b();
+     if (g_tests & MT_T_C)  mt_test_c(0);
+@@ -1380,8 +1655,14 @@
+ 
+     {
+         mt_mode_t cur;
+-        if (mt_get_mode(ENUM_CURRENT_SETTINGS, &cur) && !mt_live_is_persisted(&cur, &g_reg))
++        memset(&cur, 0, sizeof cur);
++        mt_get_mode(ENUM_CURRENT_SETTINGS, &cur);
++        if (mt_should_giveback(g_switches, &cur, &g_reg))
+             mt_restore("final check found the screen off its persisted mode");
++        else if (!mt_live_is_persisted(&cur, &g_reg))
++            mt_logf("final: the screen is %dx%dx%d@%d, NOT its persisted mode - and this run "
++                    "switched nothing, so it is someone else's; left alone", cur.w, cur.h,
++                    cur.bpp, cur.hz);
+         else
+             mt_logf("final: the screen is at its persisted mode %dx%dx%d@%d", cur.w, cur.h,
+                     cur.bpp, cur.hz);
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tools/modetest/modetest_logic.h	2026-09-29 00:53:48.000000000 -0400
++++ tools/modetest/modetest_logic.h	2026-09-29 04:15:21.492893360 -0400
+@@ -30,7 +30,10 @@
+  *   - refuse to start when the LIVE mode is not the PERSISTED one: something
+  *     else (a game, another session) owns the screen right now;
+  *   - pace: >= MT_PACE_MIN_S between switches (plus vcr_pace.h's cross-process
+- *     floor in the exe), and a bounded number of switches per run.
++ *     floor in the exe), and a bounded number of TEST switches per run - a
++ *     give-back is never refused by that count (mt_switch_allowed);
++ *   - give back only what this run took (mt_should_giveback);
++ *   - -nobpp only at the persisted depth (mt_check_nobpp).
+  */
+ #ifndef MODETEST_LOGIC_H
+ #define MODETEST_LOGIC_H
+@@ -64,7 +67,11 @@
+     MT_E_NO_RATE,           /* "max": nothing real listed under the ceiling */
+     MT_E_LIVE_NOT_PERSISTED,/* the screen is not in its persisted mode      */
+     MT_E_BPP,               /* depth other than 8/16/24/32                  */
+-    MT_E_TOO_MANY_SWITCHES  /* the plan exceeds MT_MAX_SWITCHES             */
++    MT_E_TOO_MANY_SWITCHES, /* the plan exceeds MT_MAX_SWITCHES             */
++    MT_E_NOBPP_DEPTH,       /* -nobpp with a depth that is not the persisted
++                             * one: the OS fills the depth in itself, so the
++                             * mode it lands on is not the one checked      */
++    MT_E_LAST = MT_E_NOBPP_DEPTH
+ };
+ 
+ static const char *mt_reason(int r)
+@@ -81,6 +88,8 @@
+     case MT_E_LIVE_NOT_PERSISTED: return "live mode is not the persisted mode - the screen is in use";
+     case MT_E_BPP:                return "depth must be 8, 16, 24 or 32";
+     case MT_E_TOO_MANY_SWITCHES:  return "plan exceeds the per-run switch limit";
++    case MT_E_NOBPP_DEPTH:        return "-nobpp needs BPP = the persisted depth (the OS keeps "
++                                         "that depth, so any other BPP checks the wrong mode)";
+     default:                      return "unknown";
+     }
+ }
+@@ -214,6 +223,43 @@
+     return MT_OK;
+ }
+ 
++/*
++ * -nobpp sends W|H only (Quake II ref_gl's 0x180000) and the OS fills in the
++ * depth itself - from the persisted mode. mt_check_request() validated
++ * W x H x BPP, so unless BPP IS the persisted depth the mode the OS lands on
++ * is one nothing checked against the driver's list (review 2026-09-29).
++ */
++static int mt_check_nobpp(int nobpp, int bpp, const mt_mode_t *reg)
++{
++    return (nobpp && bpp != reg->bpp) ? MT_E_NOBPP_DEPTH : MT_OK;
++}
++
++/*
++ * THE PER-RUN SWITCH LIMIT COUNTS TEST SWITCHES ONLY. A give-back (a restore,
++ * RestoreDisplayMode, a device release) is never refused by a count: refusing
++ * it strands the screen in a test mode - on Win9x for good, because nothing
++ * reverts a CDS_FULLSCREEN mode when the process ends there. It still goes
++ * through the pace gate. (Until 2026-09-29 one counter covered both and the
++ * restore could be refused after MT_MAX_SWITCHES + 2 switches, contradicting
++ * the comment above it.)
++ */
++static int mt_switch_allowed(int test_switches_made, int giveback)
++{
++    return giveback || test_switches_made < MT_MAX_SWITCHES;
++}
++
++/*
++ * Should a watchdog or the final check put the persisted mode back? Only when
++ * THIS RUN switched something and the screen is not in its persisted mode. A
++ * run that never switched gives nothing back: a mode it did not make belongs
++ * to whoever made it (a game the 1080p workflow started mid-run), and yanking
++ * it is the fault, not the fix.
++ */
++static int mt_should_giveback(int switches_made, const mt_mode_t *live, const mt_mode_t *reg)
++{
++    return switches_made > 0 && !mt_live_is_persisted(live, reg);
++}
++
+ /* ------------------------------------------------------------------ */
+ /* the plan                                                             */
+ /* ------------------------------------------------------------------ */
+@@ -312,4 +358,46 @@
+     return (have_eds || have_vb) ? 1 : 0;
+ }
+ 
++/* The rate an observation vouches for: the timed scanout when there is one
++ * (a driver can report one rate and scan out another; Win9x reports 0), else
++ * a REAL reported rate, else 0 = unmeasured. */
++static int mt_observed_hz(int eds_hz, unsigned long vb_mhz)
++{
++    if (vb_mhz)
++        return mt_mhz_to_hz(vb_mhz);
++    return mt_hz_is_real(eds_hz) ? eds_hz : 0;
++}
++
++/*
++ * Test B / CB: did the no-rate request KEEP the pre-switched rate? The answer
++ * is only meaningful when the PRE-SWITCH ITSELF landed on the rate it asked
++ * for - a driver that turned "@75" into 60 makes "the no-rate request then
++ * gave 60" a statement about nothing. (Until 2026-09-29 the verdict compared
++ * the no-rate result with the REQUESTED rate and would have printed "DID NOT
++ * KEEP" for a pre-switch that never happened.)
++ */
++#define MT_V_UNMEASURED  0      /* one of the two observations has no rate  */
++#define MT_V_PRE_MISSED  1      /* the pre-switch did not land on want_hz   */
++#define MT_V_KEPT        2
++#define MT_V_NOT_KEPT    3
++
++static int mt_keep_verdict(int want_hz, int pre_hz, int post_hz)
++{
++    if (!pre_hz || !post_hz)
++        return MT_V_UNMEASURED;
++    if (pre_hz != want_hz)
++        return MT_V_PRE_MISSED;
++    return post_hz == pre_hz ? MT_V_KEPT : MT_V_NOT_KEPT;
++}
++
++static const char *mt_keep_verdict_name(int v)
++{
++    switch (v) {
++    case MT_V_KEPT:       return "KEPT";
++    case MT_V_NOT_KEPT:   return "DID NOT KEEP";
++    case MT_V_PRE_MISSED: return "INVALID - the pre-switch itself did not land on its rate";
++    default:              return "UNMEASURED - no rate from the driver or the scanout";
++    }
++}
++
+ #endif /* MODETEST_LOGIC_H */
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tools/modetest/run_modetest.py	2026-09-29 01:23:22.000000000 -0400
++++ tools/modetest/run_modetest.py	2026-09-29 04:44:26.004695050 -0400
+@@ -135,9 +135,15 @@
+             {"args": "1024 768 32 -a -b 85", "switches": 5, "fg": False,
+              "why": "win32k's pick among vcr-kmd's 60/70/75/85 for a no-rate "
+                     "request, and whether a pre-switched 85 survives it"},
+-            {"args": "1152 864 32 -a", "switches": 2, "fg": False,
+-             "why": "vcr-kmd lists 1152x864 with 75 FIRST (vcr_timings DMT row), then "
+-                    "60/70/85: lowest (60) vs first-listed (75) vs kept (85)"},
++            {"args": "800 600 32 -a", "switches": 2, "fg": False,
++             "why": "who picks the rate for a no-rate request on vcr-kmd. In the XP build "
++                    "VM (2026-09-29, MS Cirrus driver) win32k gave 60 at every size that "
++                    "lists 60 - not the lowest (56 at 800x600), not the first listed, not "
++                    "the registry's 75 or the current 85 - and the request FAILED at a size "
++                    "listing no 60. If win32k hands the driver 60, vcr-kmd sets 60 here; if "
++                    "it hands 0/1, vcr-kmd's own pick_refresh takes the LOWEST listed rate: "
++                    "56 (DMT 800x600@56). The flight recorder's DrvEnablePDEV line shows "
++                    "which. Needs 800x600x32@56 in step 0's -list (EDID-filtered)"},
+             {"args": "1280 960 32 -c", "switches": 3, "fg": True,
+              "why": "the DirectDraw rate-0 path on vcr-kmd's own DDraw HAL"},
+         ],
+@@ -163,13 +169,30 @@
+ 
+ HOLD_S = 4
+ 
++# What modetest may still spend AFTER its own watchdog fires, and the host must
++# therefore wait out before anything kills it (review 2026-09-29):
++#   45 s   MT_TAKEOVER_MS - the watchdog waits for a switch in flight
++#   75 s   mt_restore: 3 tries x (VCR_PACE_LOCK_MS 20 s + 5 s) when the pace
++#          lock is busy
++#   30 s   the explicit-DEVMODE retry (a floor + the switch)
++#   28 s   the exit hold: VCR_PACE_LOCK_MS 20 s + an 8 s floor
++# The old margin (60 s past the watchdog) was shorter than the give-back path
++# itself, so EXECW could tree-kill modetest in the middle of it - an UNPACED
++# revert on a CRT, the one thing the pace gate exists to prevent.
++GIVEBACK_WORST_S = 200
++
++
++def tool_cap(b, s):
++    """modetest's own watchdog budget (modetest.c mt_main: 60 s + (switches + 2)
++    x (pace + hold + 4) s)."""
++    return 60 + (s["switches"] + 2) * (b.get("pace", 6) + HOLD_S + 4)
++
+ 
+ def step_budget(b, s):
+-    """Seconds the host allows a step. modetest's own watchdog ends a run at
+-    60 + (switches + 2) * (pace + hold + 4) s (modetest.c mt_main); the agent's
+-    EXECW must outlast it by a clear margin, or the agent tree-kills the tool
+-    mid-restore - an UNPACED revert on a CRT."""
+-    return 120 + (s["switches"] + 2) * (b.get("pace", 6) + HOLD_S + 4)
++    """Seconds the host allows a step: the tool's watchdog plus everything the
++    tool may still do after it fires. EXECW (clamped to 900 s by the agent)
++    must never be what ends modetest."""
++    return tool_cap(b, s) + GIVEBACK_WORST_S
+ 
+ 
+ def step_args(box, step, tag):
+@@ -242,6 +265,23 @@
+     return out
+ 
+ 
++def screen_is_persisted(displaycfg_text, persisted):
++    """Is DISPLAYCFG get's answer the box's persisted mode? The same rule as
++    modetest_logic.h mt_live_is_persisted: W x H x BPP must match, and the rate
++    too when BOTH are real (Win9x reports 0 for the live rate = unknown). An
++    answer that does not parse is NOT a pass."""
++    try:
++        d = json.loads(displaycfg_text[displaycfg_text.index("{"):])
++    except (ValueError, TypeError):
++        return False
++    w, h, bpp, hz = persisted
++    if (d.get("width"), d.get("height"), d.get("bpp")) != (w, h, bpp):
++        return False
++    live = d.get("refresh", 0) or 0
++    real = lambda x: 50 <= x < 200
++    return not (real(live) and real(hz) and live != hz)
++
++
+ # ----------------------------------------------------------------------------
+ # preflight (read-only) and go
+ # ----------------------------------------------------------------------------
+@@ -337,7 +377,13 @@
+         if b["os"] == "win98" or s["fg"]:
+             st, out = await _cmd(c, "LAUNCH " + line)
+         else:
+-            st, out = await _cmd(c, "EXECW %d %s" % (budget, line))
++            # the agent answers EXECW only when modetest has exited: the CLIENT
++            # must wait that long too. send_command's default is 60 s, and a
++            # timeout there closed the connection and lost the whole step's
++            # evidence (and the post-check below) on any step over a minute.
++            raw_st, raw = await c.send_command("EXECW %d %s" % (budget, line),
++                                               timeout=budget + 60)
++            st, out = raw_st, raw.decode("ascii", errors="replace")
+         with open(os.path.join(outdir, "start.txt"), "w") as f:
+             f.write("status %s\n%s\n" % (st, out))
+         deadline = time.time() + budget + 30
+@@ -356,9 +402,16 @@
+         with open(os.path.join(outdir, "modetest.log"), "w") as f:
+             f.write(text)
+         res["displaycfg_after"] = dc
++        # THE POST-CONDITION, from the agent - not the tool's own word for it.
++        res["screen_after_ok"] = screen_is_persisted(dc, b["persisted"])
+         with open(os.path.join(outdir, "result.json"), "w") as f:
+             json.dump(res, f, indent=1)
+         print(json.dumps(res, indent=1))
++        if not res["screen_after_ok"]:
++            print("!!! THE SCREEN IS NOT AT ITS PERSISTED MODE %dx%dx%d@%d AFTER THE STEP "
++                  "(DISPLAYCFG: %s) - look at the screen, then LAUNCH `%s -restore`"
++                  % (b["persisted"] + (dc.strip(), REMOTE_EXE)))
++            return 3
+         if res.get("exit") is None:
+             print("!!! NO EXIT LINE within the budget - look at the screen, then "
+                   "`modetest -restore` (LAUNCH) if it is not the persisted mode")
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tools/modetest/build.sh	2026-09-29 00:53:48.000000000 -0400
++++ tools/modetest/build.sh	2026-09-29 04:21:32.098407737 -0400
+@@ -47,6 +47,36 @@
+            fail=1 ;;
+     esac
+ done
++# Every IMPORTED FUNCTION must be on this list, each one a Win95/98-era export
++# of its DLL. A DLL-name check alone would pass an NT-only KERNEL32 entry point
++# (TryEnterCriticalSection, SignalObjectAndWait, ...) - and on Win98 one
++# unresolved import kills the exe at load, before any log line exists. A new
++# import fails the build until someone checks it against Win98 SE and adds it.
++allowed="CloseHandle CreateDirectoryA CreateFileA CreateMutexA CreateThread
++EnterCriticalSection ExitProcess GetCommandLineA GetCurrentThread
++GetCurrentThreadId GetFileAttributesA GetLastError GetModuleFileNameA
++GetModuleHandleA GetProcAddress GetStdHandle GetSystemTimeAsFileTime GetTickCount
++GetVersionExA InitializeCriticalSection LeaveCriticalSection LoadLibraryA
++QueryPerformanceCounter QueryPerformanceFrequency ReadFile ReleaseMutex SetErrorMode
++SetFilePointer SetThreadPriority SetUnhandledExceptionFilter Sleep
++WaitForSingleObject WriteFile lstrcmpiA lstrcpyA lstrcpynA
++AttachThreadInput BringWindowToTop ChangeDisplaySettingsA CreateWindowExA
++DefWindowProcA DestroyWindow DispatchMessageA EnumDisplaySettingsA GetDC
++GetForegroundWindow GetSystemMetrics GetWindowThreadProcessId MsgWaitForMultipleObjects
++PeekMessageA
++RegisterClassA ReleaseDC SetCursor SetFocus SetForegroundWindow ShowWindow
++TranslateMessage UpdateWindow wsprintfA wvsprintfA
++GetDeviceCaps GetStockObject"
++funcs=$($OBJDUMP -p "$OUT" | awk '/DLL Name:/ {inimp=1; next}
++    inimp && /^\t[0-9a-f]+ +<none> +[0-9a-f]+ +/ {print $4}' | sort -u)
++for f in $funcs; do
++    case " $(echo $allowed) " in
++        *" $f "*) ;;
++        *) echo "BUILD FAILED: $OUT imports $f - not on the Win95/98 allowlist in build.sh" >&2
++           fail=1 ;;
++    esac
++done
++[ -n "$funcs" ] || { echo "BUILD FAILED: could not read $OUT's imported functions" >&2; fail=1; }
+ cmov=$($OBJDUMP -d -M intel --no-show-raw-insn "$OUT" | grep -cE '\bcmov' || true)
+ if [ "$cmov" -gt 2 ]; then
+     echo "BUILD FAILED: $OUT has $cmov CMOV instructions - a Pentium P54C faults on the first" >&2
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tests/native/test_modetest_logic.c	2026-09-29 00:55:16.000000000 -0400
++++ tests/native/test_modetest_logic.c	2026-09-29 04:19:46.987696670 -0400
+@@ -194,9 +194,64 @@
+ TEST(every_refusal_names_its_reason)
+ {
+     int r;
+-    for (r = MT_E_NOT_LISTED; r <= MT_E_TOO_MANY_SWITCHES; r++)
++    for (r = MT_E_NOT_LISTED; r <= MT_E_LAST; r++)
+         CHECK(mt_reason(r)[0] && mt_reason(r)[0] != 'u', "a refusal the log cannot name");
+     CHECK(mt_reason(MT_E_NO_CEILING)[1] == 'm', "'max' needs a ceiling");
++    CHECK(MT_E_LAST >= MT_E_NOBPP_DEPTH, "MT_E_LAST must name the last refusal");
++}
++
++/* Review 2026-09-29: -nobpp sends W|H and the OS fills in the PERSISTED depth,
++ * so a BPP other than that one validated a mode the OS never sets. */
++TEST(nobpp_is_only_allowed_at_the_persisted_depth)
++{
++    CHECK_EQ_I(mt_check_nobpp(0, 16, &REG124), MT_OK);          /* not -nobpp */
++    CHECK_EQ_I(mt_check_nobpp(1, 32, &REG124), MT_OK);          /* = persisted 32 */
++    CHECK_EQ_I(mt_check_nobpp(1, 16, &REG124), MT_E_NOBPP_DEPTH);
++    CHECK_EQ_I(mt_check_nobpp(1, 8, &REG243), MT_OK);           /* .243 is 8 bpp */
++    CHECK_EQ_I(mt_check_nobpp(1, 16, &REG243), MT_E_NOBPP_DEPTH);
++}
++
++/* Review 2026-09-29: the old single counter refused EVERY switch after
++ * MT_MAX_SWITCHES + 2 - restores included - so a long run could end with
++ * "RESTORE NOT ATTEMPTED", and on Win9x nothing reverts the mode at exit. */
++TEST(a_give_back_is_never_refused_by_the_switch_count)
++{
++    CHECK(mt_switch_allowed(0, 0), "the first test switch");
++    CHECK(mt_switch_allowed(MT_MAX_SWITCHES - 1, 0), "the last test switch");
++    CHECK(!mt_switch_allowed(MT_MAX_SWITCHES, 0), "one test switch too many");
++    CHECK(mt_switch_allowed(MT_MAX_SWITCHES, 1), "a restore after the limit");
++    CHECK(mt_switch_allowed(MT_MAX_SWITCHES + 50, 1), "a restore long after it");
++}
++
++/* Review 2026-09-29: the watchdog and the final check used to restore whenever
++ * the screen was off its persisted mode - including when THIS run had switched
++ * nothing, i.e. a mode some game (the 1080p workflow's) had set mid-run. */
++TEST(only_what_this_run_switched_is_given_back)
++{
++    mt_mode_t game = { 640, 480, 32, 60 }, home = { 1280, 1024, 32, 85 };
++    mt_mode_t unread = { 0, 0, 0, 0 };
++    CHECK(!mt_should_giveback(0, &game, &REG124), "switched nothing: not ours to undo");
++    CHECK(mt_should_giveback(3, &game, &REG124), "switched and left off: give it back");
++    CHECK(!mt_should_giveback(3, &home, &REG124), "switched and home again: nothing to do");
++    CHECK(mt_should_giveback(1, &unread, &REG124), "an unreadable mode after a switch: restore");
++    CHECK(!mt_should_giveback(0, &unread, &REG124), "an unreadable mode, no switch: hands off");
++}
++
++/* Review 2026-09-29: "DID NOT KEEP" was printed from the REQUESTED pre-switch
++ * rate, so a driver that turned "@75" into 60 produced a verdict about a
++ * pre-switch that never happened. */
++TEST(a_keep_verdict_needs_a_pre_switch_that_landed)
++{
++    CHECK_EQ_I(mt_observed_hz(60, 74990), 75);      /* the scanout wins        */
++    CHECK_EQ_I(mt_observed_hz(85, 0), 85);          /* else a real report      */
++    CHECK_EQ_I(mt_observed_hz(0, 0), 0);            /* Win9x, no timing        */
++    CHECK_EQ_I(mt_observed_hz(1, 0), 0);            /* a sentinel is not a rate */
++    CHECK_EQ_I(mt_keep_verdict(75, 75, 75), MT_V_KEPT);
++    CHECK_EQ_I(mt_keep_verdict(75, 75, 60), MT_V_NOT_KEPT);
++    CHECK_EQ_I(mt_keep_verdict(75, 60, 60), MT_V_PRE_MISSED);   /* the old code: "DID NOT KEEP" */
++    CHECK_EQ_I(mt_keep_verdict(75, 0, 60), MT_V_UNMEASURED);
++    CHECK_EQ_I(mt_keep_verdict(75, 75, 0), MT_V_UNMEASURED);
++    CHECK(mt_keep_verdict_name(MT_V_PRE_MISSED)[0] == 'I', "INVALID, said so");
+ }
+ 
+ TEST(a_run_plans_a_bounded_number_of_switches)
+@@ -221,4 +276,8 @@
+     RUN(a_reported_rate_that_disagrees_with_the_scanout_is_flagged);
+     RUN(every_refusal_names_its_reason);
+     RUN(a_run_plans_a_bounded_number_of_switches);
++    RUN(nobpp_is_only_allowed_at_the_persisted_depth);
++    RUN(a_give_back_is_never_refused_by_the_switch_count);
++    RUN(only_what_this_run_switched_is_given_back);
++    RUN(a_keep_verdict_needs_a_pre_switch_that_landed);
+ })
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tests/python/test_modetest_plan.py	2026-09-29 01:23:22.000000000 -0400
++++ tests/python/test_modetest_plan.py	2026-09-29 04:47:03.072755663 -0400
+@@ -99,14 +99,72 @@
+ 
+ def test_the_host_outlasts_the_tools_own_watchdog():
+     """If the agent's EXECW timed out first it would tree-kill modetest in the
+-    middle of a restore: XP then reverts the mode at once, unpaced, on a CRT."""
++    middle of a restore: XP then reverts the mode at once, unpaced, on a CRT.
++
++    Review 2026-09-29: 'outlasts the watchdog' is not enough - after the
++    watchdog fires, modetest still waits for a switch in flight
++    (MT_TAKEOVER_MS), may retry a busy pace lock three times and runs the exit
++    hold. The old margin (60 s) was shorter than that path."""
+     src = open(os.path.join(REPO, "tools", "modetest", "modetest.c")).read()
+     assert "ms = 60000u + (DWORD)(mt_plan_switches(g_tests) + 2) *" in src
++    takeover_s = int(re.search(r"#define MT_TAKEOVER_MS (\d+)u", src).group(1)) // 1000
++    pace_h = open(os.path.join(REPO, "voodoo-cleanroom", "vcr-kmd", "tools",
++                               "vcr_pace.h")).read()
++    lock_s = int(re.search(r"#define VCR_PACE_LOCK_MS\s+(\d+)u", pace_h).group(1)) // 1000
++    worst_after = takeover_s + 3 * (lock_s + 5) + 30 + (lock_s + 8)
++    assert rm.GIVEBACK_WORST_S >= worst_after, (rm.GIVEBACK_WORST_S, worst_after)
+     for ip, b in rm.PLAN.items():
+         pace = b.get("pace", 6)
+         for s in b["steps"]:
+             tool_cap = 60 + (s["switches"] + 2) * (pace + rm.HOLD_S + 4)
+-            assert rm.step_budget(b, s) >= tool_cap + 30, (ip, s["args"])
++            assert rm.tool_cap(b, s) == tool_cap, (ip, s["args"])
++            assert rm.step_budget(b, s) >= tool_cap + worst_after, (ip, s["args"])
++            assert rm.step_budget(b, s) <= 900, (ip, s["args"], "EXECW clamps at 15 min")
++
++
++def test_the_execw_client_waits_as_long_as_the_agent():
++    """The agent answers EXECW when modetest exits; send_command's default
++    timeout is 60 s. The client must be told the budget, or a step over a
++    minute raises, closes the connection and loses its evidence."""
++    src = open(os.path.join(REPO, "tools", "modetest", "run_modetest.py")).read()
++    assert re.search(r'send_command\("EXECW %d %s" % \(budget, line\),\s*'
++                     r'timeout=budget \+ 60\)', src)
++
++
++def test_the_runner_checks_the_screen_itself_after_every_step():
++    ok = '{"width":1920,"height":1080,"bpp":32,"refresh":60}'
++    assert rm.screen_is_persisted(ok, (1920, 1080, 32, 60))
++    assert not rm.screen_is_persisted(ok.replace("1920", "1280").replace("1080", "960"),
++                                      (1920, 1080, 32, 60))
++    assert not rm.screen_is_persisted(ok.replace(":60", ":75"), (1920, 1080, 32, 60))
++    # Win9x: the live rate reads 0 = unknown, not different
++    w98 = '{"width":1024,"height":768,"bpp":8,"refresh":0,"registry_refresh":75}'
++    assert rm.screen_is_persisted(w98, (1024, 768, 8, 75))
++    assert not rm.screen_is_persisted("ERR something", (1024, 768, 8, 75))
++    src = open(os.path.join(REPO, "tools", "modetest", "run_modetest.py")).read()
++    assert 'res["screen_after_ok"] = screen_is_persisted(dc, b["persisted"])' in src
++
++
++def test_every_createthread_passes_a_thread_id_for_win9x():
++    """Win95/98 FAIL CreateThread with lpThreadId = NULL (error 87) - the agent's
++    helper threads once silently never started on .243 that way. modetest 0.1.0
++    started its WATCHDOG like that, so on the one Win98 box in the plan the run
++    would have had no watchdog at all (review 2026-09-29)."""
++    src = open(os.path.join(REPO, "tools", "modetest", "modetest.c")).read()
++    calls = re.findall(r"CreateThread\(([^;]*?)\);", src, flags=re.S)
++    assert calls, "CreateThread calls not found - the parser is broken"
++    for args in calls:
++        last = args.split(",")[-1].strip()
++        assert last not in ("NULL", "0"), "CreateThread(..., %s): NULL thread id" % last
++    # and a switching run refuses to start without its watchdog
++    assert "if (!mt_start_watchdog())" in src
++
++
++def test_the_shipped_build_has_no_test_hooks():
++    """MT_TEST_CAP_MS shortens the watchdog budget for the build-VM test of the
++    take-over; build.sh must never define it."""
++    build = open(os.path.join(REPO, "tools", "modetest", "build.sh")).read()
++    assert "MT_TEST_CAP_MS" not in build
+ 
+ 
+ def test_windows_11_is_never_planned():
+--- /tmp/claude-1000/-home-voidsstr-development-retro-agent/51aba7ad-1963-4ba5-80a1-3b4e9fa29fcb/scratchpad/orig/tests/python/test_fleetres_refresh_mirror.py	2026-09-29 01:04:21.000000000 -0400
++++ tests/python/test_fleetres_refresh_mirror.py	2026-09-29 04:23:43.566297126 -0400
+@@ -127,6 +127,39 @@
+         assert "FR_%s=" % tok in fr, "FLEETRES does not publish FR_%s" % tok
+ 
+ 
++def test_fr_hz_is_the_agents_formula():
++    """FR_HZ (launcher) and %FRHZ% (agent) land in the SAME id Tech 3 line,
++    r_displayRefresh. Review 2026-09-29: they were two formulas - FLEETRES
++    fell back to the LIVE rate and allowed up to 240, gameres.h to 60 and
++    199 - so a box with a 0/1 "default" registry rate got a different number
++    from each writer and the file fought forever. One function now."""
++    fr = _strip_comments(_src(FLEETRES))
++    h = _strip_comments(_src(GAMERES_H))
++    assert re.search(r'printf\("set \\"FR_HZ=%d\\"\\n",\s*gr_fr_hz\(reg_hz\)\);', fr)
++    assert "t->fr_hz = gr_fr_hz(reg_hz);" in h
++    fn = h[h.index("GR_FN int gr_fr_hz("):]
++    fn = fn[:fn.index("\n}\n")]
++    assert "gr_hz_is_real(reg_hz) ? reg_hz : 60" in fn
++    assert "desk_hz" not in fr[fr.index('"set \\"FR_HZ='):][:200], (
++        "FR_HZ must not fall back to the live rate: the agent cannot see it")
++
++
++def test_both_writers_retry_the_enumeration_on_the_same_condition():
++    """The per-adapter retry adds rates to the list; if one writer retried and
++    the other did not, their rate lists - and so their numbers - differ.
++    gameres.c retries on its rate list's size before the two seeds; FLEETRES
++    must decide on its rate list too (rl.n), not its own mode list."""
++    fr = _strip_comments(_src(FLEETRES))
++    gc = _strip_comments(_src(GAMERES_C))
++    assert "if (c->modes.n < 4) {" in gc
++    assert "if (rl.n < 4) {" in fr
++    assert "if (g_nmodes < 4) {" not in fr
++    # the retry is decided BEFORE the live/persisted seeds in both
++    assert fr.index("if (rl.n < 4) {") < fr.index("gr_modes_add(&rl, desk_w, desk_h, 0);")
++    assert gc.index("if (c->modes.n < 4) {") < gc.index(
++        "gr_modes_add(&c->modes, c->live_w, c->live_h, 0);")
++
++
+ def test_no_edid_never_claims_the_drivers_unclamped_best():
+     """The rule in words, pinned in the source the agent compiles: without a
+     measured ceiling only the persisted desktop's own rate is vouched for."""

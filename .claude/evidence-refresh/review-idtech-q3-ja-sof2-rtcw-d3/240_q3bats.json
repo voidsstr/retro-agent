@@ -1,0 +1,8 @@
+{
+ "_ip": "192.168.1.240",
+ "_at": "2026-09-29 01:07:10",
+ "DIRLIST C:\\Games\\Quake3-TeamArena\\Play*": {
+  "status": 0,
+  "text": "[{\"name\":\"Play Quake III Arena (retail 1.32c).bat\",\"is_dir\":false,\"size\":1000,\"modified\":\"2026-08-29 20:58:46\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Quake III Arena - retail 1.32c.bat\",\"is_dir\":false,\"size\":2162,\"modified\":\"2026-09-04 15:13:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Quake III Arena.bat\",\"is_dir\":false,\"size\":1432,\"modified\":\"2026-09-04 15:13:57\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Team Arena.bat\",\"is_dir\":false,\"size\":1594,\"modified\":\"2026-09-04 15:13:57\",\"hidden\":false,\"readonly\":false}]"
+ }
+}

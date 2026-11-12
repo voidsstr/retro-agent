@@ -1,0 +1,66 @@
+#### /mnt/retro-share/Files/Games-Library/ReturnToCastleWolfenstein/WolfSP.exe  image base 0x400000
+
+== cvar r_displayRefresh: exact string at ['0x4ed53c']
+   code refs to the string: ['0x446e57']
+   registration near 0x446e57 -> stored in global 0x1184474
+  00446e46: inc     ebp
+  00446e47: sbb     byte ptr [ecx], al
+  00446e49: call    dword ptr [0x117371c]
+  00446e4f: push    0x20
+  00446e51: push    0x4db764
+  00446e56: push    0x4ed53c
+  00446e5b: mov     dword ptr [0x11843e0], eax
+  00446e60: call    dword ptr [0x117371c]
+  00446e66: push    1
+  00446e68: push    0x43480000
+  00446e6d: push    0
+  00446e6f: push    eax
+  00446e70: mov     dword ptr [0x1184474], eax
+  00446e75: call    0x447750
+  00446e7a: add     esp, 0x40
+  00446e7d: push    0x220
+  00446e82: push    0x4db764
+  00446e87: push    0x4ed52c
+  00446e8c: call    dword ptr [0x117371c]
+  00446e92: push    0x20
+  00446e94: push    0x4de6cc
+   every code ref to 0x1184474: ['0x446e71', '0x465436']
+   --- ref 0x446e71
+  00446e51: push    0x4db764
+  00446e56: push    0x4ed53c
+  00446e5b: mov     dword ptr [0x11843e0], eax
+  00446e60: call    dword ptr [0x117371c]
+  00446e66: push    1
+  00446e68: push    0x43480000
+  00446e6d: push    0
+  00446e6f: push    eax
+  00446e70: mov     dword ptr [0x1184474], eax
+  00446e75: call    0x447750
+  00446e7a: add     esp, 0x40
+  00446e7d: push    0x220
+  00446e82: push    0x4db764
+  00446e87: push    0x4ed52c
+  00446e8c: call    dword ptr [0x117371c]
+  00446e92: push    0x20
+  00446e94: push    0x4de6cc
+  00446e99: push    0x4ed518
+  00446e9e: mov     dword ptr [0x1184524], eax
+  00446ea3: call    dword ptr [0x117371c]
+  00446ea9: push    0x20
+   --- ref 0x465436
+  00465435: or      eax, 0x1184474
+  0046543a: mov     word ptr [esp + 0x38], 0x94
+  00465441: mov     dword ptr [esp + 0x84], eax
+  00465448: mov     dword ptr [esp + 0x3c], 0x180000
+  00465450: mov     eax, dword ptr [ecx + 0x20]
+  00465453: test    eax, eax
+  00465455: je      0x465466
+  00465457: mov     dword ptr [esp + 0x8c], eax
+  0046545e: mov     dword ptr [esp + 0x3c], 0x580000
+  00465466: test    esi, esi
+  00465468: je      0x4654a2
+  0046546a: mov     eax, dword ptr [0x109bd50]
+
+== ChangeDisplaySettingsA (IAT 0x4d72b8) call sites: ['0x465504', '0x465526', '0x46582a', '0x466334']
+
+== EnumDisplaySettingsA (IAT 0x4d72bc) call sites: ['0x4655c5', '0x4656ac', '0x4656ed']

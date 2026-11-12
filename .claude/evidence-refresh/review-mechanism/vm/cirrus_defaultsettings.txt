@@ -1,0 +1,4 @@
+  InstalledDisplayDrivers = 76 67 61 00 63 69 72 72 75 73 00 76 67 61 32 35 36 00 76 67 61 36 34 6B 00 00
+  Device Description = Cirrus Logic 5446 Compatible Graphics Adapter
+0 {"root":"HKLM","path":"SYSTEM\\CurrentControlSet\\Hardware Profiles\\Current\\System\\CurrentControlSet\\Control\\VIDEO\\{D985F314-A3F4-4A3A-BC02-5B230BCC479B}\\0000","values":[{"name":"Attach.ToDes
+  Attach.ToDesktop = 1

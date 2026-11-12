@@ -1,0 +1,15 @@
+# fleetbook.db compat_render rows (read-only query 2026-09-29), source 'perbox' = scripts/perbox/measure.py:
+# DISPLAYCFG get taken while the launched title was running (desktop_mode_after). .246 = today's .195 (ADMIN-PC, HP 2511).
+# .124 rows are from the GeForce2 era and are NOT evidence for today's V5 6000 stack. .240's GPU has changed since (now Radeon X1600).
+UnrealGold          .123 1920x1080@60 verified | .240 1920x1080@60 verified | .246 1920x1080@60 verified
+UnrealTournament    .123 1920x1080@60 verified | .240 1920x1080@60 verified | .246 1920x1080 verified (D3D9Drv)
+UnrealTournament436 .123 1920x1080@60 verified | .240 1920x1080@60 runs      | .246 1920x1080 verified (join)
+UT2004              .123 1920x1080@60 verified | .240 1920x1080@60 verified | .246 1920x1080@60 verified
+DeusEx              .123 1920x1080@60 verified | .240 1920x1080@60 runs      | .246 1920x1080@60 verified
+Descent3            .123 640x480@60 verified   | .240 1920x1080@60 verified | .246 640x480@60 verified
+Shogo               .123 1920x1080@60 verified | .240 1920x1080@60 runs      | .246 1920x1080@60 verified
+FarCry              .123 1920x1080@60 verified | .240 1920x1080@60 verified | .246 1920x1080@60 verified
+Halo                .123 1920x1080@60 runs     | .240 1920x1080@60 verified | .246 1920x1080@60 verified
+MaxPayne            .123 failed (no process)   | .240 failed (no process)   | .246 1920x1080@60 verified (screenshot 246_MaxPayne_Play_Max_Payne.png)
+RedFaction          .123 failed                | .240 failed                | .246 640x480@60 verified
+Turok2              .123/.240/.246 1920x1080@60 'verified' - NOT the game's mode (Video_D3D's list tops at 1280x1024): DISPLAYCFG read the desktop

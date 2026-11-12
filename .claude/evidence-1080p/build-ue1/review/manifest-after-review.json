@@ -1,0 +1,119 @@
+{
+ "key": "ue1",
+ "built": "2026-09-29T08:28:36Z",
+ "library": "/mnt/retro-share/Files/Games-Library",
+ "outputs": [
+  {
+   "title": "UnrealGold",
+   "share_path": "Files/Games-Library/UnrealGold/System/D3DDrv.dll",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealGold/System/D3DDrv.dll",
+   "md5": "c51ba326f6a287f2e29ec3cc7dcb5e01",
+   "size": 208896,
+   "original_md5": "f924e209e7bc23b90b6f0360174683d3",
+   "original_size": 208896,
+   "original_local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/originals/UnrealGold/System/D3DDrv.dll",
+   "backup_share_path": "Files/Games-Library/_patches/UnrealGold/originals-2026-09-29/System/D3DDrv.dll",
+   "required": true,
+   "edits": [
+    {
+     "offset": 25845,
+     "before": "83ff10",
+     "after": "83ff7f",
+     "what": "D3DDrv GetRes print loop: cmp edi,0x10 -> cmp edi,0x7f"
+    }
+   ],
+   "built": "2026-09-29T08:28:36Z"
+  },
+  {
+   "title": "DeusEx",
+   "share_path": "Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/D3DDRV.DLL",
+   "md5": "deff85e5e043b700567db9377c45b0ee",
+   "size": 212992,
+   "original_md5": "6179c83ce1d7516908e5442ebfb4d154",
+   "original_size": 212992,
+   "original_local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/originals/DeusEx/SYSTEM/D3DDRV.DLL",
+   "backup_share_path": "Files/Games-Library/_patches/DeusEx/originals-2026-09-29/SYSTEM/D3DDRV.DLL",
+   "required": true,
+   "edits": [
+    {
+     "offset": 25294,
+     "before": "83ff10",
+     "after": "83ff7f",
+     "what": "D3DDrv GetRes print loop: cmp edi,0x10 -> cmp edi,0x7f (the file's other 83 ff 10, @0x8d91, is an unrelated jg loop - untouched)"
+    }
+   ],
+   "built": "2026-09-29T08:28:36Z"
+  },
+  {
+   "title": "DeusEx",
+   "share_path": "Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/DeusEx/SYSTEM/DEUSEX.U",
+   "md5": "4e18e635d2dc0df2069171c72ec89eff",
+   "size": 5386972,
+   "original_md5": "d343da03a6d311ee412dfae4b52ff975",
+   "original_size": 5386972,
+   "original_local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/originals/DeusEx/SYSTEM/DEUSEX.U",
+   "backup_share_path": "Files/Games-Library/_patches/DeusEx/originals-2026-09-29/SYSTEM/DEUSEX.U",
+   "required": true,
+   "edits": [
+    {
+     "offset": 4589518,
+     "before": "10",
+     "after": "28",
+     "what": "GetScreenResolutions: JumpIfNot(Less_IntInt(ResNum, IntConstByte 16)) -> IntConstByte 40 (= ArrayCount(enumText))"
+    }
+   ],
+   "built": "2026-09-29T08:28:36Z",
+   "package_guid": "6bcadecaffb7b34e92b50c1f8eccec21",
+   "package_generations": [
+    [
+     21422,
+     12872
+    ]
+   ]
+  },
+  {
+   "title": "UnrealTournament436",
+   "share_path": "Files/Games-Library/UnrealTournament436/System/D3DDrv.dll",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/patched/UnrealTournament436/System/D3DDrv.dll",
+   "md5": "35a4f321d06bf6da519b2d023be4eaa2",
+   "size": 217088,
+   "original_md5": "dd6e3692f8ead5e1df88716024bc25d1",
+   "original_size": 217088,
+   "original_local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/originals/UnrealTournament436/System/D3DDrv.dll",
+   "backup_share_path": "Files/Games-Library/_patches/UnrealTournament436/originals-2026-09-29/System/D3DDrv.dll",
+   "required": false,
+   "edits": [
+    {
+     "offset": 26015,
+     "before": "83ff10",
+     "after": "83ff7f",
+     "what": "D3DDrv GetRes print loop: cmp edi,0x10 -> cmp edi,0x7f (optional: staged renderer is OpenGLDrv)"
+    }
+   ],
+   "built": "2026-09-29T08:28:36Z"
+  }
+ ],
+ "notes": [
+  {
+   "title": "DeusEx",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/notes/DeusEx/PATCH-NOTES-ue1.txt",
+   "md5": "5f97e695c99563085f2fbedcfdd2607d",
+   "share_path": "Files/Games-Library/_patches/DeusEx/originals-2026-09-29/PATCH-NOTES-ue1.txt"
+  },
+  {
+   "title": "UnrealGold",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/notes/UnrealGold/PATCH-NOTES-ue1.txt",
+   "md5": "4be74b9cb1e4f607578044afcfc829b1",
+   "share_path": "Files/Games-Library/_patches/UnrealGold/originals-2026-09-29/PATCH-NOTES-ue1.txt"
+  },
+  {
+   "title": "UnrealTournament436",
+   "local_path": "/home/voidsstr/.retro-fleet/patch-out/ue1/notes/UnrealTournament436/PATCH-NOTES-ue1.txt",
+   "md5": "5c79ac83b14c91c5e91ac7851128480a",
+   "share_path": "Files/Games-Library/_patches/UnrealTournament436/originals-2026-09-29/PATCH-NOTES-ue1.txt"
+  }
+ ],
+ "deploy": "publish, then GAMESYNC RESET + GAMESYNC START on every box; verify by DOWNLOAD + md5 on each box (same-size edits)"
+}

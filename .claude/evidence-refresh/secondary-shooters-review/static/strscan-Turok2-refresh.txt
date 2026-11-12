@@ -1,0 +1,73 @@
+Cms32_nt.dll  A@0x2d60  5Y6hz#9f
+Cms32_nt.dll  A@0x4889  ZHz)
+FLEETRES.EXE  A@0x4dfc  native     : %dx%d @%dHz  aspect %s  size %dx%dcm  input %s  vmax %dHz
+FLEETRES.EXE  A@0x4e68  desktop now: %dx%d %dbpp @%dHz  aspect 
+FLEETRES.EXE  A@0x4f8a  set "FR_HZ=%d"
+RTserverdll.dll  A@0x1e018  QueryPerformanceFrequency
+RTserverdll.dll  A@0x1e8d8  refresh client %d complete.
+RTserverdll.dll  A@0x1ea48  Refreshing client %d world...
+Turok2English.exe  A@0xfea7e  QueryPerformanceFrequency
+Turok2English.exe  A@0x11c58c  11khz Uncompressed
+Turok2English.exe  A@0x11c6c0  11khz
+Turok2English.exe  A@0x11c6d4  22khz
+Turok2English.exe  A@0x12c619  4'Hz
+Turok2English.exe  W@0x13d064  &22 kHz Compressed
+Turok2English.exe  W@0x13d0a8  &11 kHz Compressed
+Turok2English.exe  W@0x13d0ec  11 kHz &Uncompressed
+Turok2English.exe  W@0x13eb62  Sample &Frequency
+Turok2English.exe  W@0x13eb8a  11KHz
+Turok2English.exe  W@0x13eb9a  22KHz
+Turok2English.exe  A@0x1b46bf  HZ][ZZ^\
+Turok2English.exe  A@0x1f8690  HHHZ'
+Turok2English.exe  A@0x2025f1  4UXXXXX$!XZZ``ZZZ`OHZ`c`ZZZZZUHOXZZXOXZZZcU
+Turok2English.exe  A@0x202895  4ZZXO`Z5UXOOOOXO HH&HZ$
+Turok2English.exe  A@0x20d7be  T$$HZ`V!
+Turok2MPEnglish.exe  A@0xffa7e  QueryPerformanceFrequency
+Turok2MPEnglish.exe  A@0x11d8a4  11khz Uncompressed
+Turok2MPEnglish.exe  A@0x11d9d8  11khz
+Turok2MPEnglish.exe  A@0x11d9ec  22khz
+Turok2MPEnglish.exe  A@0x12d749  4'Hz
+Turok2MPEnglish.exe  W@0x13e064  &22 kHz Compressed
+Turok2MPEnglish.exe  W@0x13e0a8  &11 kHz Compressed
+Turok2MPEnglish.exe  W@0x13e0ec  11 kHz &Uncompressed
+Turok2MPEnglish.exe  W@0x13fb62  Sample &Frequency
+Turok2MPEnglish.exe  W@0x13fb8a  11KHz
+Turok2MPEnglish.exe  W@0x13fb9a  22KHz
+Turok2MPEnglish.exe  A@0x1b56bf  HZ][ZZ^\
+Turok2MPEnglish.exe  A@0x1f9690  HHHZ'
+Turok2MPEnglish.exe  A@0x2035f1  4UXXXXX$!XZZ``ZZZ`OHZ`c`ZZZZZUHOXZZXOXZZZcU
+Turok2MPEnglish.exe  A@0x203895  4ZZXO`Z5UXOOOOXO HH&HZ$
+Turok2MPEnglish.exe  A@0x20e7be  T$$HZ`V!
+Video_3DFx.dll  A@0x1722c  Refresh
+Video_3DFx.dll  A@0x17414  120Hz
+Video_3DFx.dll  A@0x1741c  100Hz
+Video_3DFx.dll  A@0x17424  90Hz
+Video_3DFx.dll  A@0x1742c  85Hz
+Video_3DFx.dll  A@0x17434  80Hz
+Video_3DFx.dll  A@0x1743c  75Hz
+Video_3DFx.dll  A@0x17444  72Hz
+Video_3DFx.dll  A@0x1744c  70Hz
+Video_3DFx.dll  A@0x17454  60Hz
+Video_3DFx.dll  A@0x1d57b  nnnYnYmmYlYllYkkkOkkWkjjWjWeeeefffffdddsddbdbbb[a[aa`a``````p`___`^^^^^hhh^ZhZ]Z
+cms32_95.dll  A@0x275f  MGhz
+gspylite.exe  A@0x333fc  Uhz@C
+gspylite.exe  A@0x61640  hZ"F
+gspylite.exe  A@0xb3990  No Local Servers Found. Click refresh to try again
+gspylite.exe  A@0xb3bcc  Master server did not respond. Click Refresh to try again
+gspylite.exe  A@0xb96c0  refresh_butt
+gspylite.exe  A@0xb983b  refresh_timer8
+gspylite.exe  A@0xb98cc  refresh_buttClick
+gspylite.exe  A@0xb9ad8  refresh_timerTimer
+gspylite.exe  A@0xded3b  hZ@;4$
+gspylite.exe  A@0xe73b9  HZ=!%$
+gspylite.exe  A@0xf6eab  refresh_butt
+gspylite.exe  A@0x10dc14  $4,4MABte]zqff]WwhZ
+gspylite.exe  A@0x11314a  3- [P5lgC0, 4+#A8-H@1@9,>9,A:.VO>RN=OI8JB5daHz
+gspylite.exe  A@0x1309e4  refresh_butt
+gspylite.exe  A@0x130a14  9Reload the server list and refresh all of the information
+gspylite.exe  A@0x132773  refresh_buttClick
+gspylite.exe  A@0x1456e1  refresh_timer
+gspylite.exe  A@0x14570d  refresh_timerTimer
+gspylite.exe  A@0x15130a  -HZ*
+gspylite.exe  A@0x155458  2WhZ
+gspylite.exe  A@0x15ef5d  QWo0$H02A^hz^}

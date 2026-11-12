@@ -1,0 +1,22 @@
+{
+ "DIRLIST C:\\Games\\SoldierOfFortune\\base": {
+  "status": 0,
+  "text": "[{\"name\":\"autoexec.cfg\",\"is_dir\":false,\"size\":2407,\"modified\":\"2026-08-30 04:42:43\",\"hidden\":false,\"readonly\":false},{\"name\":\"fleetres.cfg\",\"is_dir\":false,\"size\":98,\"modified\":\"2026-09-28 10:28:07\",\"hidden\":false,\"readonly\":false},{\"name\":\"gamex86.dll\",\"is_dir\":false,\"size\":1421312,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"lancheck.cfg\",\"is_dir\":false,\"size\":75,\"modified\":\"2026-09-28 10:28:07\",\"hidden\":false,\"readonly\":false},{\"name\":\"pak0.pak\",\"is_dir\":false,\"size\":705825871,\"modified\":\"2026-08-27 16:08:01\",\"hidden\":false,\"readonly\":false},{\"name\":\"pak1.pak\",\"is_dir\":false,\"size\":20517183,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"player.dll\",\"is_dir\":false,\"size\":98304,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\SoldierOfFortune\\user": {
+  "status": 0,
+  "text": "[{\"name\":\"config.cfg\",\"is_dir\":false,\"size\":6541,\"modified\":\"2026-09-28 10:38:09\",\"hidden\":false,\"readonly\":false},{\"name\":\"save\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-28 10:28:19\",\"hidden\":false,\"readonly\":false},{\"name\":\"scrnshot\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-28 10:36:17\",\"hidden\":false,\"readonly\":false},{\"name\":\"sof.log\",\"is_dir\":false,\"size\":3519,\"modified\":\"2026-09-28 10:38:09\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\SoldierOfFortune": {
+  "status": 0,
+  "text": "[{\"name\":\"a3dapi.dll\",\"is_dir\":false,\"size\":290816,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"A3Dsnd.dll\",\"is_dir\":false,\"size\":102400,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"base\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-28 05:32:09\",\"hidden\":false,\"readonly\":false},{\"name\":\"configsheet.cpp\",\"is_dir\":false,\"size\":199,\"modified\":\"2026-09-28 10:38:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"Defsnd.dll\",\"is_dir\":false,\"size\":77824,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"EaxMan.dll\",\"is_dir\":false,\"size\":61440,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"EAXSnd.dll\",\"is_dir\":false,\"size\":77824,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"FFC10.dll\",\"is_dir\":false,\"size\":126976,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"FLEETRES.BAT\",\"is_dir\":false,\"size\":4117,\"modified\":\"2026-08-30 16:57:04\",\"hidden\":false,\"readonly\":false},{\"name\":\"FLEETRES.EXE\",\"is_dir\":false,\"size\":30208,\"modified\":\"2026-08-31 09:30:03\",\"hidden\":false,\"readonly\":false},{\"name\":\"install.reg\",\"is_dir\":false,\"size\":556,\"modified\":\"2026-08-30 04:14:52\",\"hidden\":false,\"readonly\":false},{\"name\":\"kver.pub\",\"is_dir\":false,\"size\":816,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"LANCHECK.BAT\",\"is_dir\":false,\"size\":104,\"modified\":\"2026-09-28 10:28:07\",\"hidden\":false,\"readonly\":false},{\"name\":\"launch.txt\",\"is_dir\":false,\"size\":854,\"modified\":\"2026-08-31 15:36:41\",\"hidden\":false,\"readonly\":false},{\"name\":\"Play Soldier of Fortune.bat\",\"is_dir\":false,\"size\":837,\"modified\":\"2026-08-30 04:42:43\",\"hidden\":false,\"readonly\":false},{\"name\":\"README-FLEET.txt\",\"is_dir\":false,\"size\":9678,\"modified\":\"2026-09-01 02:32:10\",\"hidden\":false,\"readonly\":false},{\"name\":\"ref_gl.dll\",\"is_dir\":false,\"size\":225280,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"requires.json\",\"is_dir\":false,\"size\":935,\"modified\":\"2026-09-28 10:39:37\",\"hidden\":false,\"readonly\":false},{\"name\":\"SoF.exe\",\"is_dir\":false,\"size\":2052096,\"modified\":\"2026-08-27 16:08:02\",\"hidden\":false,\"readonly\":false},{\"name\":\"user\",\"is_dir\":true,\"size\":0,\"modified\":\"2026-09-28 10:28:19\",\"hidden\":false,\"readonly\":false}]"
+ },
+ "DIRLIST C:\\Games\\Quake2Complete\\baseq2\\qconsole.log": {
+  "status": 0,
+  "text": "[]"
+ },
+ "DIRLIST C:\\Games\\SiNGold\\base\\qconsole.log": {
+  "status": 0,
+  "text": "[]"
+ }
+}

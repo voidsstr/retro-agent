@@ -1,0 +1,102 @@
+== Quake1/GLQUAKE.EXE bcf40493
+-current
+QueryPerformanceFrequency
+r_norefresh
+vid_mode
+== Quake1/WINQUAKE.EXE 0b62b82d
+DDERR_NOVSYNCHW
+QueryPerformanceFrequency
+vid_mode
+== Quake1/QUAKE.EXE e3e7fcc9
+F,	hz<
+PhZ)
+tJhz
+vid_mode
+== Quake1/VOODOO/OPENGL32.DLL 332ee07b
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== Quake2Complete/quake2.exe 57dd2cf4
+Couldn't fall back to software refresh!
+FX_GLIDE_NO_SPLASH=0
+gl_mode
+s_khz
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+vid_ref
+== Quake2Complete/ref_gl.dll b6d33427
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== Quake2Complete/ref_soft.dll 203dc879
+DDERR_NOVSYNCHW
+sw_mode
+== Quake2Complete/3dfxgl.dll 332ee07b
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== HexenII/glh2.exe c450ea8a
+-current
+QueryPerformanceFrequency
+r_norefresh
+vid_mode
+== HexenII/h2.exe 7ad8abed
+QueryPerformanceFrequency
+vid_mode
+== SiNGold/sin.exe 8d320d7f
+Base F0 in 0.1Hz
+Couldn't fall back to software refresh!
+FX_GLIDE_NO_SPLASH=0
+gl_mode
+Setting frequency from "%f" to "%f"
+s_khz
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+sw_mode
+vid_ref
+== SiNGold/ref_gl.dll 050bdfd6
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== SiNGold/ref_gl_amd.dll 4dd5b116
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+SST_GAMMA=%f
+SSTV2_GAMMA=%f
+vid_ref
+wglSwapIntervalEXT
+== SiNGold/ref_soft_real.dll d5320ca5
+DDERR_NOVSYNCHW
+sw_mode
+== SiNGold/3dfxgl.dll 226edb25
+FX_GLIDE_ALLOC_COLOR
+QueryPerformanceFrequency
+SST_DUALHEAD=1
+wglSwapIntervalEXT
+== SoldierOfFortune/SoF.exe 2f4db377
+FX_GLIDE_NO_SPLASH=0
+refresh
+Speed     : %d MHz
+vid_modes
+vid_ref
+== SoldierOfFortune/ref_gl.dll e0454d95
+gl_displayrefresh
+gl_ext_swapinterval
+gl_mode
+gl_swapinterval
+r_norefresh
+vid_ref
+wglSwapIntervalEXT

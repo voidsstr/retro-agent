@@ -1,0 +1,184 @@
+# /mnt/retro-share/Files/Games-Library/UnrealTournament436/System/OpenGlDrv.dll md5 12031672ff432601cf638efe2e26acd6 (retail 436, staged GameRenderDevice)
+# GetRes: Modes.Z == Viewport->ColorBytes*8, skip 320x200 (0x43a00000,0x43480000) and 640x400, AddUnique, appQsort, print all - NO cap
+[wide] string at file 0x14b58 VA 0x10014b58
+   ref at VA 0x10006ef4
+      10006ee4: xor byte ptr [ebp - 0x39c4effe], ah
+      10006eea: jne 0x1000710e
+      10006ef0: lea edx, [ebp + 8]
+   >> 10006ef3: push 0x10014b58
+      10006ef8: push edx
+      10006ef9: call dword ptr [0x1002a454]
+      10006eff: add esp, 8
+      10006f02: cmp eax, esi
+      10006f04: je 0x10007126
+      10006f0a: mov dword ptr [ebp - 0x28], esi
+      10006f0d: mov dword ptr [ebp - 0x24], esi
+      10006f10: mov dword ptr [ebp - 0x20], esi
+      10006f13: mov byte ptr [ebp - 4], 1
+      10006f17: xor ebx, ebx
+      10006f19: cmp ebx, dword ptr [edi + 0xc0]
+      10006f1f: jge 0x10006fe1
+      10006f25: mov ecx, dword ptr [edi + 0xbc]
+      10006f2b: mov edx, dword ptr [edi + 0xc8]
+      10006f31: mov eax, ebx
+      10006f33: shl eax, 4
+      10006f36: add ecx, eax
+      10006f38: mov eax, dword ptr [edx + 0x78]
+      10006f3b: shl eax, 3
+      10006f3e: mov dword ptr [ebp - 0x14], eax
+      10006f41: fild dword ptr [ebp - 0x14]
+      10006f44: fcomp dword ptr [ecx + 8]
+      10006f47: fnstsw ax
+      10006f49: test ah, 0x40
+      10006f4c: je 0x10006fd9
+      10006f52: cmp dword ptr [ecx], 0x43a00000
+      10006f58: jne 0x10006f63
+      10006f5a: cmp dword ptr [ecx + 4], 0x43480000
+      10006f61: je 0x10006fd9
+      10006f63: cmp dword ptr [ecx], 0x44200000
+      10006f69: jne 0x10006f74
+      10006f6b: cmp dword ptr [ecx + 4], 0x43c80000
+      10006f72: je 0x10006fd9
+      10006f74: fld dword ptr [ecx + 4]
+      10006f77: mov ecx, dword ptr [ecx]
+      10006f79: mov dword ptr [ebp - 0x3c], 0
+      10006f80: fstp dword ptr [ebp - 0x40]
+      10006f83: mov dword ptr [ebp - 0x44], ecx
+      10006f86: mov dword ptr [ebp - 0x38], 0
+      10006f8d: cmp esi, dword ptr [ebp - 0x24]
+      10006f90: jge 0x10006fad
+      10006f92: mov eax, dword ptr [ebp - 0x28]
+      10006f95: mov ecx, esi
+      10006f97: lea edx, [ebp - 0x44]
+      10006f9a: shl ecx, 4
+      10006f9d: push edx
+      10006f9e: add ecx, eax
+      10006fa0: call dword ptr [0x1002a368]
+      10006fa6: test eax, eax
+      10006fa8: jne 0x10006fd9
+      10006faa: inc esi
+      10006fab: jmp 0x10006f8d
+      10006fad: push 0x10
+      10006faf: push 1
+      10006fb1: lea ecx, [ebp - 0x28]
+      10006fb4: call dword ptr [0x1002a3f8]
+      10006fba: mov ecx, dword ptr [ebp - 0x28]
+      10006fbd: shl eax, 4
+      10006fc0: add eax, ecx
+      10006fc2: mov ecx, dword ptr [ebp - 0x44]
+      10006fc5: mov dword ptr [eax], ecx
+      10006fc7: mov edx, dword ptr [ebp - 0x40]
+      10006fca: mov dword ptr [eax + 4], edx
+      10006fcd: mov ecx, dword ptr [ebp - 0x3c]
+      10006fd0: mov dword ptr [eax + 8], ecx
+      10006fd3: mov edx, dword ptr [ebp - 0x38]
+      10006fd6: mov dword ptr [eax + 0xc], edx
+      10006fd9: inc ebx
+      10006fda: xor esi, esi
+      10006fdc: jmp 0x10006f19
+      10006fe1: mov eax, dword ptr [ebp - 0x24]
+      10006fe4: mov ecx, dword ptr [ebp - 0x28]
+      10006fe7: push 0x10001069
+      10006fec: push 0x10
+      10006fee: push eax
+      10006fef: push ecx
+      10006ff0: call dword ptr [0x1002a44c]
+      10006ff6: add esp, 0x10
+      10006ff9: lea ecx, [ebp - 0x34]
+      10006ffc: call dword ptr [0x1002a3c8]
+      10007002: mov ebx, dword ptr [0x1002a448]
+      10007008: mov byte ptr [ebp - 4], 2
+      1000700c: xor edi, edi
+      1000700e: cmp edi, dword ptr [ebp - 0x24]
+      10007011: jge 0x1000707c
+      10007013: mov eax, dword ptr [ebp - 0x28]
+      10007016: mov edx, edi
+      10007018: shl edx, 4
+      1000701b: fld dword ptr [edx + eax + 4]
+      1000701f: lea esi, [edx + eax]
+      10007022: call 0x1000c360
+      10007027: fld dword ptr [esi]
+      10007029: push eax
+      1000702a: call 0x1000c360
+      1000702f: push eax
+      10007030: lea ecx, [ebp - 0x40]
+      10007033: push 0x10014b48
+      10007038: push ecx
+      10007039: call ebx
+      1000703b: add esp, 0x10
+      1000703e: mov ecx, dword ptr [eax + 4]
+      10007041: mov byte ptr [ebp - 4], 3
+      10007045: test ecx, ecx
+      10007047: je 0x1000704d
+      10007049: mov eax, dword ptr [eax]
+      1000704b: jmp 0x10007052
+      1000704d: mov eax, 0x1002910c
+      10007052: push eax
+      10007053: lea ecx, [ebp - 0x34]
+      10007056: call dword ptr [0x1002a444]
+      1000705c: push 0
+      1000705e: push 2
+      10007060: lea ecx, [ebp - 0x40]
+      10007063: mov byte ptr [ebp - 4], 4
+      10007067: call dword ptr [0x1002a440]
+      1000706d: lea ecx, [ebp - 0x40]
+      10007070: mov byte ptr [ebp - 4], 2
+      10007074: call 0x100010c8
+      10007079: inc edi
+      1000707a: jmp 0x1000700e
+      1000707c: lea edx, [ebp - 0x40]
+      1000707f: push 1
+      10007081: push edx
+      10007082: lea ecx, [ebp - 0x34]
+      10007085: call dword ptr [0x1002a43c]
+      1000708b: mov ecx, dword ptr [eax + 4]
+      1000708e: mov byte ptr [ebp - 4], 5
+      10007092: test ecx, ecx
+# Modes filled by EnumDisplaySettingsA(NULL,i) loop, no filter:
+100014aa:	mov    %esi,-0x3c(%ebp)
+100014ad:	mov    %eax,-0x4(%ebp)
+100014b0:	mov    %eax,0x48(%esi)
+100014b3:	mov    %eax,0x4c(%esi)
+100014b6:	movl   $0x1,0x50(%esi)
+100014bd:	mov    %eax,0x54(%esi)
+100014c0:	mov    %edx,-0x18(%ebp)
+100014c3:	mov    0x1002a3fc,%ecx
+100014c9:	cmp    %eax,(%ecx)
+100014cb:	jne    0x100015e5
+100014d1:	lea    -0x118(%ebp),%eax
+100014d7:	mov    %eax,-0x14(%ebp)
+100014da:	mov    $0x94,%ecx
+100014df:	mov    -0x14(%ebp),%edi
+100014e2:	xor    %eax,%eax
+100014e4:	mov    %ecx,%ebx
+100014e6:	shr    $0x2,%ecx
+100014e9:	and    $0x3,%ebx
+100014ec:	rep stos %eax,%es:(%edi)
+100014ee:	mov    %ebx,%ecx
+100014f0:	rep stos %al,%es:(%edi)
+100014f2:	lea    -0x118(%ebp),%ecx
+100014f8:	movw   $0x94,-0xf4(%ebp)
+10001501:	push   %ecx
+10001502:	push   %edx
+10001503:	push   $0x0
+10001505:	call   *0x1002a620
+1000150b:	test   %eax,%eax
+1000150d:	je     0x10001627
+10001513:	mov    -0xa0(%ebp),%edx
+10001519:	mov    -0xb0(%ebp),%eax
+1000151f:	mov    -0xa8(%ebp),%ecx
+10001525:	mov    %edx,-0x80(%ebp)
+10001528:	xor    %edx,%edx
+1000152a:	mov    %eax,-0x68(%ebp)
+1000152d:	mov    -0xac(%ebp),%eax
+10001533:	mov    %edx,-0x7c(%ebp)
+10001536:	fildll -0x80(%ebp)
+10001539:	mov    %edx,-0x64(%ebp)
+1000153c:	mov    %ecx,-0x60(%ebp)
+1000153f:	fildll -0x68(%ebp)
+
+# UT436 D3DDrv.dll (NOT the staged renderer, reachable via the in-game video-driver button) has the same 16-bpp + 16-entry cap:
+[wide] string at file 0x2bcb0 VA 0x1002bcb0
+   ref at VA 0x100064db
+      1000651c: cmp dword ptr [edx + eax + 0x54], 0x10
+      1000659f: cmp edi, 0x10

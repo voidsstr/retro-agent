@@ -1,0 +1,23 @@
+ioquake3.x86.exe (md5 12f99bc0f9ba416ee477a4f13de8feaa, 'ioq3 1.36'): r_displayRefresh is registered and never read
+0x52cbb6 (match 0x52cbb6): b'r_displayRefresh'
+code refs to the name string:
+0x4d6bca  004d6bc7: mov dword ptr [esp], 0x52cbb6
+registration: Cvar_Get(name@0x52cbb6, default@0x52c9e1, 0x20 CVAR_LATCH) -> [0x1d9f7c0], then Cvar_CheckRange(cvar, 0, 200.0f=0x43480000, integral)
+004d6bc7: mov      dword ptr [esp], 0x52cbb6
+004d6bce: mov      edx, 0x20
+004d6bd3: mov      dword ptr [esp + 8], edx
+004d6bd7: mov      dword ptr [0x1d9f3e0], eax
+004d6bdc: mov      eax, 0x52c9e1
+004d6be1: mov      dword ptr [esp + 4], eax
+004d6be5: call     dword ptr [0x1da25d0]
+004d6beb: mov      dword ptr [esp + 0xc], ebx
+004d6bef: mov      ebx, 0x43480000
+004d6bf4: mov      dword ptr [esp + 8], ebx
+004d6bf8: mov      dword ptr [esp + 4], esi
+004d6bfc: mov      esi, 0x220
+EVERY code ref to the cvar_t* global 0x1d9f7c0 (only the store):
+0x4d6c05  004d6c04: mov dword ptr [0x1d9f7c0], eax
+imports: ChangeDisplaySettingsA/EnumDisplaySettingsA:
+(none) - the mode set is SDL_SetVideoMode:
+== sdl.dll!SDL_SetVideoMode IAT 0x1de6670
+   00510af0: jmp dword ptr [0x1de6670]

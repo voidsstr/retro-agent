@@ -1,0 +1,383 @@
+====================================================================================================
+PE SiNGold/ref_gl_amd.dll imagebase 0x12000000
+import slots: {'0x1203301c': 'KERNEL32.dll!LoadLibraryA', '0x12033030': 'KERNEL32.dll!GetProcAddress', '0x12033128': 'USER32.dll!ChangeDisplaySettingsA'}
+  string b'ChangeDisplaySettingsA' at VA 0x12033e44
+----------------------------------------------------------------------------------------------------
+SITE 0x120169c1  USER32.dll!ChangeDisplaySettingsA  (mov ebx,[slot] @0x120169b1 then call ebx)
+   0x120168b8: mov eax, dword ptr [esp + 0xc]
+   0x120168bc: mov ecx, dword ptr [esp + 0x10]
+   0x120168c0: mov edx, dword ptr [esp + esi*4 + 0x14]
+   0x120168c4: push edx
+   0x120168c5: push eax
+   0x120168c6: push ecx
+   0x120168c7: push 0x1203bda0
+   0x120168cc: push 0
+   0x120168ce: call dword ptr [0x12063278]
+   0x120168d4: mov eax, dword ptr [0x12061e2c]
+   0x120168d9: add esp, 0x14
+   0x120168dc: test eax, eax
+   0x120168de: je 0x120168e5
+   0x120168e0: call 0x12016bb0
+   0x120168e5: test esi, esi
+   0x120168e7: je 0x12016b51
+   0x120168ed: push 0x1203bd84
+   0x120168f2: push 0
+   0x120168f4: call dword ptr [0x12063278]
+   0x120168fa: mov edx, dword ptr [esp + 0x18]
+   0x120168fe: mov esi, dword ptr [0x12063144]
+   0x12016904: mov ecx, 0x27
+   0x12016909: xor eax, eax
+   0x1201690b: lea edi, [esp + 0x24]
+   0x1201690f: add esp, 8
+   0x12016912: rep stosd dword ptr es:[edi], eax
+   0x12016914: mov eax, dword ptr [esp + 0xc]
+   0x12016918: mov word ptr [esp + 0x40], 0x9c
+   0x1201691f: mov dword ptr [esp + 0x88], edx
+   0x12016926: mov dword ptr [esp + 0x8c], eax
+   0x1201692d: mov dword ptr [esp + 0x44], 0x180000
+   0x12016935: fld dword ptr [esi + 0x14]
+   0x12016938: fcomp dword ptr [0x12033170]
+   0x1201693e: fnstsw ax
+   0x12016940: test ah, 0x40
+   0x12016943: jne 0x12016977
+   0x12016945: fld dword ptr [esi + 0x14]
+   0x12016948: call 0x120258b0
+   0x1201694d: mov dword ptr [esp + 0x84], eax
+   0x12016954: mov dword ptr [esp + 0x44], 0x1c0000
+   0x1201695c: fld dword ptr [esi + 0x14]
+   0x1201695f: call 0x120258b0
+   0x12016964: push eax
+   0x12016965: push 0x1203bd68
+   0x1201696a: push 0
+   0x1201696c: call dword ptr [0x12063278]
+   0x12016972: add esp, 0xc
+   0x12016975: jmp 0x120169a4
+   0x12016977: push 0
+   0x12016979: call dword ptr [0x12033120]
+   0x1201697f: mov esi, eax
+   0x12016981: push 0xc
+   0x12016983: push esi
+   0x12016984: call dword ptr [0x12033008]
+   0x1201698a: push eax
+   0x1201698b: push 0x1203bd40
+   0x12016990: push 0
+   0x12016992: call dword ptr [0x12063278]
+   0x12016998: add esp, 0xc
+   0x1201699b: push esi
+   0x1201699c: push 0
+   0x1201699e: call dword ptr [0x12033124]
+   0x120169a4: push 0x1203bd2c
+   0x120169a9: push 0
+   0x120169ab: call dword ptr [0x12063278]
+   0x120169b1: mov ebx, dword ptr [0x12033128]
+   0x120169b7: add esp, 8
+   0x120169ba: lea ecx, [esp + 0x1c]
+   0x120169be: push 4
+   0x120169c0: push ecx
+   0x120169c1: call ebx
+   0x120169c3: test eax, eax
+   0x120169c5: jne 0x12016a1f
+----------------------------------------------------------------------------------------------------
+SITE 0x12016b65  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x12016a8b: jne 0x12016aa4
+   0x12016a8d: fld dword ptr [ecx + 0x14]
+   0x12016a90: call 0x120258b0
+   0x12016a95: mov dword ptr [esp + 0x84], eax
+   0x12016a9c: mov dword ptr [esp + 0x44], 0x1c0000
+   0x12016aa4: lea ecx, [esp + 0x1c]
+   0x12016aa8: push 4
+   0x12016aaa: push ecx
+   0x12016aab: call ebx
+   0x12016aad: test eax, eax
+   0x12016aaf: je 0x12016b07
+   0x12016ab1: push 0x1203bcec
+   0x12016ab6: push 0
+   0x12016ab8: call dword ptr [0x12063278]
+   0x12016abe: push 0x1203bcd0
+   0x12016ac3: push 0
+   0x12016ac5: call dword ptr [0x12063278]
+   0x12016acb: add esp, 0x10
+   0x12016ace: push 0
+   0x12016ad0: push 0
+   0x12016ad2: call ebx
+   0x12016ad4: mov eax, dword ptr [esp + 0x10]
+   0x12016ad8: mov ecx, dword ptr [esp + 0xc]
+   0x12016adc: push 0
+   0x12016ade: mov dword ptr [esi], eax
+   0x12016ae0: push ecx
+   0x12016ae1: mov dword ptr [edi], ecx
+   0x12016ae3: push eax
+   0x12016ae4: mov dword ptr [0x12063444], 0
+   0x12016aee: call 0x12016670
+   0x12016af3: add esp, 0xc
+   0x12016af6: neg eax
+   0x12016af8: sbb eax, eax
+   0x12016afa: pop edi
+   0x12016afb: pop esi
+   0x12016afc: add eax, 2
+   0x12016aff: pop ebx
+   0x12016b00: add esp, 0xac
+   0x12016b06: ret 
+   0x12016b07: push 0x1203bcc8
+   0x12016b0c: push 0
+   0x12016b0e: call dword ptr [0x12063278]
+   0x12016b14: mov edx, dword ptr [esp + 0x14]
+   0x12016b18: mov eax, dword ptr [esp + 0x18]
+   0x12016b1c: push 1
+   0x12016b1e: push edx
+   0x12016b1f: push eax
+   0x12016b20: call 0x12016670
+   0x12016b25: add esp, 0x14
+   0x12016b28: test eax, eax
+   0x12016b2a: jne 0x12016b3b
+   0x12016b2c: pop edi
+   0x12016b2d: pop esi
+   0x12016b2e: mov eax, 2
+   0x12016b33: pop ebx
+   0x12016b34: add esp, 0xac
+   0x12016b3a: ret 
+   0x12016b3b: pop edi
+   0x12016b3c: pop esi
+   0x12016b3d: mov dword ptr [0x12063444], 1
+   0x12016b47: xor eax, eax
+   0x12016b49: pop ebx
+   0x12016b4a: add esp, 0xac
+   0x12016b50: ret 
+   0x12016b51: push 0x1203bcd0
+   0x12016b56: push 0
+   0x12016b58: call dword ptr [0x12063278]
+   0x12016b5e: add esp, 8
+   0x12016b61: push 0
+   0x12016b63: push 0
+   0x12016b65: call dword ptr [0x12033128]
+   0x12016b6b: mov ecx, dword ptr [esp + 0xbc]
+   0x12016b72: mov eax, dword ptr [esp + 0x10]
+----------------------------------------------------------------------------------------------------
+SITE 0x12016c7b  USER32.dll!ChangeDisplaySettingsA  (call [slot])
+   0x12016ba3: add eax, 2
+   0x12016ba6: pop ebx
+   0x12016ba7: add esp, 0xac
+   0x12016bad: ret 
+   0x12016bae: nop 
+   0x12016baf: nop 
+   0x12016bb0: mov eax, dword ptr [0x12061934]
+   0x12016bb5: push esi
+   0x12016bb6: xor esi, esi
+   0x12016bb8: cmp eax, esi
+   0x12016bba: je 0x12016bd3
+   0x12016bbc: push esi
+   0x12016bbd: push esi
+   0x12016bbe: call eax
+   0x12016bc0: test eax, eax
+   0x12016bc2: jne 0x12016bd3
+   0x12016bc4: push 0x1203be50
+   0x12016bc9: push esi
+   0x12016bca: call dword ptr [0x12063278]
+   0x12016bd0: add esp, 8
+   0x12016bd3: mov ecx, dword ptr [0x12061e30]
+   0x12016bd9: cmp ecx, esi
+   0x12016bdb: je 0x12016c02
+   0x12016bdd: mov eax, dword ptr [0x120618a0]
+   0x12016be2: cmp eax, esi
+   0x12016be4: je 0x12016bfc
+   0x12016be6: push ecx
+   0x12016be7: call eax
+   0x12016be9: test eax, eax
+   0x12016beb: jne 0x12016bfc
+   0x12016bed: push 0x1203be20
+   0x12016bf2: push esi
+   0x12016bf3: call dword ptr [0x12063278]
+   0x12016bf9: add esp, 8
+   0x12016bfc: mov dword ptr [0x12061e30], esi
+   0x12016c02: mov eax, dword ptr [0x12061e28]
+   0x12016c07: cmp eax, esi
+   0x12016c09: je 0x12016c31
+   0x12016c0b: push eax
+   0x12016c0c: mov eax, dword ptr [0x12061e2c]
+   0x12016c11: push eax
+   0x12016c12: call dword ptr [0x12033124]
+   0x12016c18: test eax, eax
+   0x12016c1a: jne 0x12016c2b
+   0x12016c1c: push 0x1203bdf4
+   0x12016c21: push esi
+   0x12016c22: call dword ptr [0x12063278]
+   0x12016c28: add esp, 8
+   0x12016c2b: mov dword ptr [0x12061e28], esi
+   0x12016c31: mov eax, dword ptr [0x12061e2c]
+   0x12016c36: cmp eax, esi
+   0x12016c38: je 0x12016c47
+   0x12016c3a: push eax
+   0x12016c3b: call dword ptr [0x12033118]
+   0x12016c41: mov dword ptr [0x12061e2c], esi
+   0x12016c47: mov eax, dword ptr [0x12061e44]
+   0x12016c4c: cmp eax, esi
+   0x12016c4e: je 0x12016c5f
+   0x12016c50: push eax
+   0x12016c51: call 0x12026220
+   0x12016c56: add esp, 4
+   0x12016c59: mov dword ptr [0x12061e44], esi
+   0x12016c5f: mov ecx, dword ptr [0x12061e20]
+   0x12016c65: push ecx
+   0x12016c66: push 0x1203bcc4
+   0x12016c6b: call dword ptr [0x1203311c]
+   0x12016c71: cmp dword ptr [0x12063444], esi
+   0x12016c77: je 0x12016c87
+   0x12016c79: push esi
+   0x12016c7a: push esi
+   0x12016c7b: call dword ptr [0x12033128]
+   0x12016c81: mov dword ptr [0x12063444], esi
+   0x12016c87: pop esi
+----------------------------------------------------------------------------------------------------
+SITE 0x12018c1b  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x12018c84  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018c9c  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018cb3  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018ccb  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018ce3  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018cfa  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018d12  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018d2a  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018d41  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018d59  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018d71  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018d88  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018da0  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018db8  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018dcf  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018de7  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018dff  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018e16  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018e2e  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018e46  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018e5d  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018e75  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018e8d  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018ea4  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018ebc  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018ed4  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018eeb  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f03  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f1b  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f32  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f4a  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f62  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f79  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018f91  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018fa9  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018fc0  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018fd8  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12018ff0  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019007  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201901f  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019037  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201904e  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019066  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201907e  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019095  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120190ad  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120190c5  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120190dc  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120190f4  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201910c  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019123  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201913b  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019153  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201916a  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019182  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201919a  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120191b1  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120191c9  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120191e1  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x120191f8  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019210  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019228  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201923f  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019257  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1201926f  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12019286  KERNEL32.dll!GetProcAddress  (mov esi,[slot] @0x12018c6e then call esi)
+----------------------------------------------------------------------------------------------------
+SITE 0x12027145  KERNEL32.dll!GetProcAddress  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1202fb23  KERNEL32.dll!LoadLibraryA  (call [slot])
+----------------------------------------------------------------------------------------------------
+SITE 0x1202fb3b  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x1202fb2f then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1202fb4c  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x1202fb2f then call edi)
+----------------------------------------------------------------------------------------------------
+SITE 0x1202fb59  KERNEL32.dll!GetProcAddress  (mov edi,[slot] @0x1202fb2f then call edi)
+----------------------------------------------------------------------------------------------------
+every immediate with bit 0x400000 set (and the next insn):
+   0x12003454: and eax, 0xfffff8   | next: add ebx, eax
+   0x12003726: and eax, 0xfffff8   | next: add ebx, eax
+   0x1200599c: and edi, 0xffffff   | next: xor edi, ebp
+   0x12006728: and ecx, 0xffffff   | next: mov dword ptr [0x120cce5c], ecx
+   0x1200de21: mov dword ptr [0x12062ca0], 0xf00000   | next: jmp 0x1200df01
+   0x12026403: test edx, 0xff0000   | next: je 0x12026417
+   0x1202775e: push 0x400000   | next: push 0
+   0x120277d3: lea eax, [esi + 0x400000]   | next: lea ecx, [ebp + 0x18]

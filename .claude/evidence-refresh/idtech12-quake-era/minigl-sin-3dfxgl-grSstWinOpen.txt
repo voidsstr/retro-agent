@@ -1,0 +1,23 @@
+thunks: {'0x1000e660': '_grSstWinOpen@28'}
+==== call _grSstWinOpen@28 at 0x100036df
+   0x10003694: and al, 0x30
+   0x10003696: shl eax, 0x14
+   0x10003699: cmp ebx, eax
+   0x1000369b: jle 0x100036ae
+   0x1000369d: mov eax, dword ptr [0x1001c1dc]
+   0x100036a2: mov dword ptr [eax + 0x468c], 2
+   0x100036ac: jmp 0x100036bd
+   0x100036ae: mov eax, dword ptr [0x1001c1dc]
+   0x100036b3: mov dword ptr [eax + 0x468c], 3
+   0x100036bd: push 1
+   0x100036bf: mov eax, dword ptr [0x1001c1dc]
+   0x100036c4: mov ecx, dword ptr [eax + 0x468c]
+   0x100036ca: mov edx, dword ptr [eax + 0x46bc]
+   0x100036d0: push ecx
+   0x100036d1: push 1
+   0x100036d3: push 0
+   0x100036d5: mov ecx, dword ptr [eax + 0x46a8]
+   0x100036db: push 0
+   0x100036dd: push edx
+   0x100036de: push ecx
+   0x100036df: call 0x1000e660

@@ -1,0 +1,137 @@
+# original Shadow Warrior ResChange/F5 (kept commented-out in jonof/jfsw src/draw.c)
+void CheatResChange(void)
+    {
+    extern char permanentupdate;
+    int i;
+
+    // needs to be called from drawscreen - crashes otherwise
+
+    //cycle through all vesa modes, then screen-buffer mode
+    if (vidoption == 1)
+        {
+        for(i=0;i < validmodecnt;i++)
+            {
+            if ((validmodexdim[i] == xdim) && (validmodeydim[i] == ydim))
+                {
+                if (i == validmodecnt-1)
+                    COVERsetgamemode(2,320L,200L);
+                else
+                    COVERsetgamemode(1,validmodexdim[i+1],validmodeydim[i+1]);
+                break;
+                }
+            }
+        }
+    else
+        {
+        if (validmodecnt > 0)
+            COVERsetgamemode(1,validmodexdim[0],validmodeydim[0]);
+        }
+
+    permanentupdate = 0;
+
+    SetupAspectRatio();
+    SetRedrawScreen(Player + myconnectindex);
+
+    sprintf(ds,"%d x %d mode selected.", xdim, ydim);
+    PutStringInfo(Player + myconnectindex, ds);
+
+void ResChange(void)
+    {
+    extern char permanentupdate;
+    int i;
+
+    static short sw_res[5];
+    static short res_ndx=0;
+
+    // clear pages before and after res set for good measure
+    for (i = 0; i < numpages; i++)
+        {
+        clearview(0);
+        nextpage();
+        }
+
+    // needs to be called from drawscreen - crashes otherwise
+
+    if (res_ndx == 0)
+        {
+        // choose resolutions for shadow warrior
+        for(i=0; i < validmodecnt; i++)
+            {
+            if (validmodexdim[i] + validmodeydim[i] == 320 + 200)
+                sw_res[res_ndx++] = i;
+            else
+            if (validmodexdim[i] + validmodeydim[i] == 640 + 400)
+                sw_res[res_ndx++] = i;
+            else
+            if (validmodexdim[i] + validmodeydim[i] == 640 + 480)
+                sw_res[res_ndx++] = i;
+            else
+            if (validmodexdim[i] + validmodeydim[i] == 800 + 600)
+                sw_res[res_ndx++] = i;
+            }
+        }
+
+    //cycle through all sw modes, then screen-buffer mode
+    if (vidoption == 1)
+        {
+        for(i = 0; i < res_ndx; i++)
+            {
+            if ((validmodexdim[sw_res[i]] == xdim) && (validmodeydim[sw_res[i]] == ydim))
+                {
+                if (i >= res_ndx-1)
+                    COVERsetgamemode(2, 320L, 200L);
+                else
+                    COVERsetgamemode(1, validmodexdim[sw_res[i+1]], validmodeydim[sw_res[i+1]]);
+                break;
+                }
+            }
+
+
+        // if did not find current res then reset to 320x200
+        if (i >= res_ndx)
+            COVERsetgamemode(2, 320L, 200L);
+        }
+    else
+        {
+        if (validmodecnt > 0)
+            COVERsetgamemode(1, validmodexdim[0], validmodeydim[0]);
+        }
+
+    permanentupdate = 0;
+
+    for (i = 0; i < numpages; i++)
+        {
+        clearview(0);
+        nextpage();
+        }
+
+    SetupAspectRatio();
+    SetRedrawScreen(Player + myconnectindex);
+
+    sprintf(ds,"%d x %d mode selected.", xdim, ydim);
+    PutStringInfo(Player + myconnectindex, ds);
+}
+        ScreenDidCapture = TRUE;
+        }
+    }
+
+VOID DrawCheckKeys(PLAYERp pp)
+    {
+    /* JonoF: Who really needs this now?
+    extern BOOL ResCheat;
+    extern BOOL PauseKeySet;
+
+    if (KEY_PRESSED(KEYSC_F5) && !(KEY_PRESSED(KEYSC_RSHIFT) || KEY_PRESSED(KEYSC_LSHIFT) || KEY_PRESSED(KEYSC_ALT) || KEY_PRESSED(KEYSC_RALT)) && !PauseKeySet)
+        {
+        KEY_PRESSED(KEYSC_F5) = 0;
+        ResChange();
+        }
+
+    if (ResCheat)
+        {
+        ResCheat = FALSE;
+        CheatResChange(); // allow all modes when cheating
+        }
+    */
+
+318:    {"swres",       ResCheatOn, 0},

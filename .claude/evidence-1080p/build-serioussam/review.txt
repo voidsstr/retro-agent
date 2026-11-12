@@ -1,0 +1,115 @@
+serioussam - ADVERSARIAL REVIEW, 2026-09-29 ~04:35 (building only; nothing
+published, no box touched, no service restarted, share read-only throughout)
+
+VERDICT: the Engine.dll patch is correct as built. The startup-script design
+is right. apply.py had four defects and one wrong shipped comment, all fixed
+in provisioning/patches/serioussam/apply.py; the startup md5s changed as a
+result. The engine md5s did not change.
+
+OUTPUTS NOW (~/.retro-fleet/patch-out/serioussam, rebuilt twice, byte-identical)
+  TFE Bin/Engine.dll            6281c69e... -> 7158150f6ba8981f6c4d141e0a379f58  1560576 B (unchanged)
+  TSE Bin/Engine.dll            230c1b52... -> 4bdeec64bb57c0bd09d20319d195e08e  1929274 B (unchanged)
+  TFE Scripts/Game_startup.ini  cf9c168d... -> dc8292081b7a038acc9f6def8e9f1aac  499 B (was c7410f66..., 412 B)
+  TSE Scripts/Game_startup.ini  fb6e5696... -> 7e38c3e47336da600a196bf5a06cca55  637 B (was cce33f9a..., 550 B)
+  check.txt / manifest.json in this dir are the regenerated ones; the builder's
+  are kept as check-builder-0412.txt / manifest-builder-0412.json.
+
+VERIFIED INDEPENDENTLY (pefile + capstone, not the builder's parser)
+  * The originals on the share have the md5s and sizes claimed. Both are PE32
+    and neither has a security directory, so no Authenticode signature is
+    invalidated.
+  * The tables at TFE 0x159200 (22 pairs, count word 0x1592b0 = 22) and TSE
+    0x1ad6d0 (23 pairs, end pointer 0x601ad788) are as claimed, and both sit
+    in .data.
+  * A brute-force scan of every dword in each file finds only these
+    references to the table region, all relocated:
+      TFE: base (0x3ad9a), count (0x3ad7b, 0x3ae30), 0x602192b4 (0x3ad68).
+           The last is the "ETRSCurrent display" TRANS string passed to
+           CPrintF, not an entry.
+      TSE: base (0x3a8a2, 0x3ab19) and end (0x3a91e, 0x3abcc). 0x3a7f8 is the
+           same TRANS string at the end address. 0x371ee is an fdivr by the
+           float 1.0 just before the table.
+    No relocation overlaps a patched entry.
+  * Loops, by disassembly:
+      TFE 0x600fad99: stride 8, count re-read every pass, CDS_TEST (6) with
+                      DM_PELSWIDTH|HEIGHT|DISPLAYFLAGS.
+      TSE OpenGL 0x6003a8a1 and D3D 0x6003ab16: stride 8 up to 0x601ad788.
+    TSE stores results in a 25-slot array (count at adapter+0x12c). 23 entries
+    before and after the patch, so the overflow margin is unchanged.
+  * The byte diff of each patched Engine.dll against its original is exactly
+    the three 8-byte slots plus the 4-byte PE checksum. pefile agrees the new
+    checksums are valid (0x1884e3, 0x1e6d99).
+  * Both SeriousSam.exe files take the fullscreen list from Engine's
+    EnumDisplayModes, so the table is the one source of the menu list.
+
+STARTUP-SCRIPT DESIGN - checked
+  * Include syntax: Croteam's own scripts nest includes three deep with
+    single-backslash paths, e.g. Addons\Default.ini -> GLSettings\Initial.ini.
+    Both Engine.dll files carry "Script files nested too deeply" and
+    "Cannot load script file".
+  * A missing Game_FleetRes.ini is non-fatal. The catch paths (TSE 0x6013c2d8,
+    TFE 0x601d2f88) call CShell::ErrorF, which only CPrintFs (no FatalError
+    call), then do BEGIN(INITIAL) and continue scanning.
+  * Order: CGame::Initialize includes PersistentSymbols.ini first (client
+    only), then always includes Game_startup.ini.
+      TSE GameMP.dll: 0x608f2565, then 0x608f2602.
+      TFE Game.dll:   0x604b0286, then 0x604b0323.
+    Game_FleetRes.ini therefore runs last.
+  * In TSE, sam_strIntroLevel and sam_strGameName are PERSISTENT. Every box
+    that ran with the truncated script has persisted TFE's defaults, and the
+    restored shipped lines override them at the next start.
+  * PROVEN LIVE: an undeclared identifier does not stop later lines. The
+    dev-host ssam-tse-server logs "Game_startup.ini(3): Identifier
+    'sam_strTechTestLevel' is not declared" 140 times. A read-only \status\
+    query on UDP 25611 still answers gamename=serioussamse. Only line 4 of
+    that file sets it; DedicatedServer.exe's own default is "serioussam", and
+    it never loads PersistentSymbols. So the builder's "keep gfx_iRefreshRate
+    last because of the error flag" is harmless but not load-bearing.
+  * DedicatedServer.exe also runs Game_startup.ini. The box-hosted TSE LAN
+    server (the Host launcher) has therefore been advertising TFE's gamename
+    "serioussam" since the launcher truncated the file. The include design
+    restores "serioussamse" (predicted; the hw plan checks it read-only).
+  * FLEETRES vs GAMERES: gr_w_cfg compares SETTING lines with comments
+    excluded, and it CREATES a missing cfg when Scripts\ exists. The launcher
+    echo lines and gr_cfg_body("ssam") carry the same four settings, so there
+    is no fight. Game_FleetRes.ini is not staged, so GAMESYNC never touches
+    it.
+  * Multiplayer:
+      - The TFE server log shows a real join ("Sent CRC challenge (7k)" then
+        "CRC check OK").
+      - Both server trees' Engine.dll are byte-identical to the library.
+      - No engine file stream opens Bin\*.dll.
+      - A dedicated server never enumerates display modes.
+    Server-side change needed: none.
+
+FIXED IN apply.py (and its test)
+  1. --install-server overwrote Bin\Engine.dll IN PLACE (shutil.copyfile
+     truncates the same inode). The ssam-* servers are Wine processes that
+     bind-mount the tree and have it mapped, so that risked a SIGBUS. It now
+     writes a temp file, verifies it, and os.replace()s it (new inode), after
+     checking the pins and the backup.
+  2. After --publish, --build crashed ("unexpected original") and the share
+     tests turned into skips. The original is now read from
+     _patches/<Title>/originals-2026-09-29/, verified against the pin. A
+     patched library copy with no valid backup FAILS.
+  3. --publish now refuses, before the first write, any manifest entry that
+     is not the reviewed (original, patched) md5 pin.
+     --check / build_one now also fail if a rebuild is not the pinned md5.
+  4. --build refuses an OUTDIR inside any git work tree. Verified: it refused
+     .claude/evidence-1080p/..., which is inside the main repo.
+  5. The shipped include comment told TFE readers about "the TSE lines above"
+     and carried parentheses. It is now title-neutral, with no backslash,
+     quote or parenthesis. This is why the startup md5s changed.
+  Also: the docstring's "no fleet box can ever pass" DualHead claim now cites
+  the inventory check (no 102B/Matrox in any published record) and names the
+  cost if one appears.
+
+TESTS
+  python3 -m pytest -q tests/python/test_patch_serioussam.py
+    share mounted:           25 passed
+    share absent (simulated
+    by pointing LIB at a
+    missing path):           19 passed, 6 SKIPPED loudly ("SHARE NOT
+                             MOUNTED ... NOT checked")
+  apply.py --check: rc=0, every output "= the pinned md5".
+  apply.py --check --library /nonexistent: rc=2.

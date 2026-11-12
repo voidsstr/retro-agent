@@ -1,0 +1,32 @@
+UnrealGold/System/D3DDrv.dll  [required]  /mnt/retro-share/Files/Games-Library/UnrealGold/System/D3DDrv.dll
+  size 208896  md5 f924e209e7bc23b90b6f0360174683d3  -> ORIGINAL
+  @0x64f5 holds 83 ff 10 (original 83ff10, patched 83ff7f): D3DDrv GetRes print loop: cmp edi,0x10 -> cmp edi,0x7f
+  0x64f5 -> VA 0x100064f5 in .text (executable); PE CheckSum 0, no signature
+  context ff 8b 45 cc 3b f8 7d 60 83 ff 10 7d 5b 8d 0c 7f
+  would become md5 c51ba326f6a287f2e29ec3cc7dcb5e01 (= recorded patched md5)
+  OK
+DeusEx/SYSTEM/D3DDRV.DLL  [required]  /mnt/retro-share/Files/Games-Library/DeusEx/SYSTEM/D3DDRV.DLL
+  size 212992  md5 6179c83ce1d7516908e5442ebfb4d154  -> ORIGINAL
+  @0x62ce holds 83 ff 10 (original 83ff10, patched 83ff7f): D3DDrv GetRes print loop: cmp edi,0x10 -> cmp edi,0x7f (the file's other 83 ff 10, @0x8d91, is an unrelated jg loop - untouched)
+  0x62ce -> VA 0x100062ce in .text (executable); PE CheckSum 0, no signature
+  context ff 8b 45 cc 3b f8 7d 60 83 ff 10 7d 5b 8d 0c 7f
+  would become md5 deff85e5e043b700567db9377c45b0ee (= recorded patched md5)
+  OK
+DeusEx/SYSTEM/DEUSEX.U  [required]  /mnt/retro-share/Files/Games-Library/DeusEx/SYSTEM/DEUSEX.U
+  size 5386972  md5 d343da03a6d311ee412dfae4b52ff975  -> ORIGINAL
+  @0x4607ce holds 10 (original 10, patched 28): GetScreenResolutions: JumpIfNot(Less_IntInt(ResNum, IntConstByte 16)) -> IntConstByte 40 (= ArrayCount(enumText))
+  package v68 GUID 6bcadecaffb7b34e92b50c1f8eccec21 generations [[21422, 12872]] (names 12872, exports 21422, imports 3336)
+  MenuChoice_Resolution.GetScreenResolutions = export #20668 (0-based; object ref 20669), serial 0x460754..0x46086c (280 B); edit inside it
+  loop test 07 4b 01 96 00 4b 5f 2c 10 16 once, at 0x4607c6
+  would become md5 4e18e635d2dc0df2069171c72ec89eff (= recorded patched md5)
+  OK
+UnrealTournament436/System/D3DDrv.dll  [optional]  /mnt/retro-share/Files/Games-Library/UnrealTournament436/System/D3DDrv.dll
+  size 217088  md5 dd6e3692f8ead5e1df88716024bc25d1  -> ORIGINAL
+  @0x659f holds 83 ff 10 (original 83ff10, patched 83ff7f): D3DDrv GetRes print loop: cmp edi,0x10 -> cmp edi,0x7f (optional: staged renderer is OpenGLDrv)
+  0x659f -> VA 0x1000659f in .text (executable); PE CheckSum 0, no signature
+  context ff 8b 45 cc 3b f8 7d 60 83 ff 10 7d 5b 8d 0c 7f
+  would become md5 35a4f321d06bf6da519b2d023be4eaa2 (= recorded patched md5)
+  OK
+
+check: all files verified
+rc=0
