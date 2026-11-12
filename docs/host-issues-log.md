@@ -140,6 +140,7 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+<<<<<<< Updated upstream
 ### 2026-11-12 18:48:25: power-key shutdown of the 11-11 Xid boot after ~26.5 h without the GPU (operator)
 
 - **Boot ID:** `64f0fa51…` (11-11 10:56:55 → 11-12 18:48:25) → `d779ac03…`
@@ -148,6 +149,19 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   short`, so the operator pressed the power button to recover the GPU from the
   11-11 16:16 Xid 79. This was not a crash.
 - **After (18:53):** GPU back, 400 W cap, kernel 7.0.0-43, driver 595.99.02.
+=======
+### 2026-11-12 18:48:25: power-button cycle ends the 11-11 Xid boot after ~26.5 h without the GPU
+
+- **Boot ID:** `64f0fa51…` (11-11 10:56:55 → 11-12 18:48:25) → `d779ac03…`
+  (18:49:07). The last line of the old boot is `systemd-logind: Power key
+  pressed short`: the operator pressed the power button. Its journal ends
+  there, with no clean shutdown target in it.
+- **Load in the GPU-less window:** ollama on CPU (HTTP 500s), swap ~94 % full,
+  about one article per site in 24 h (seen while writing the host-standup
+  runbook).
+- **After (18:49):** RTX 5090 back, cap 400 W, still kernel 7.0.0-43 / driver
+  595.99.02. Recovered by the cold cycle, as every Xid 79 before it.
+>>>>>>> Stashed changes
 
 ### 2026-11-11 16:16:16: Xid 79 5 h 19 min after the cold cycle (7th since 10-08), box up on the iGPU, GPU gone, NOT yet recovered
 
