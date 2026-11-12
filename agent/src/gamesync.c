@@ -52,6 +52,7 @@
 #include "../shared/regmerge.h"
 #include "../shared/deskview.h"
 #include "../shared/deskset.h"
+#include "../shared/toolpath.h"
 #include "../shared/gsstall.h"
 #include "../shared/piffull.h"
 
@@ -3449,9 +3450,51 @@ static void gs_tool_shortcut(const char *exe, const char *name, const char *icon
     }
 }
 
+/* gs_tool_leaf / gs_tool_sibling - resolve a tool that ships beside the agent.
+ * Preference order and the path arithmetic live in agent/shared/toolpath.h so
+ * tests/native/test_toolpath.c exercises the real code. */
+static const char *gs_tool_leaf(const char *leaf, char *buf, size_t cap)
+{
+    char exe[MAX_PATH], dir[MAX_PATH], beside[MAX_PATH], fixed[MAX_PATH];
+    DWORD n;
+    int have_beside = 0, b_ok = 0, f_ok = 0;
+
+    buf[0] = 0;
+    n = GetModuleFileNameA(NULL, exe, sizeof(exe));
+    if (n > 0 && n < sizeof(exe) && tp_dir_of(exe, dir, sizeof(dir)))
+        have_beside = tp_join(dir, leaf, beside, sizeof(beside));
+    if (!tp_join(TP_FIXED_DIR, leaf, fixed, sizeof(fixed)))
+        fixed[0] = 0;
+
+    b_ok = have_beside && gs_file_exists(beside);
+    f_ok = fixed[0] && gs_file_exists(fixed);
+
+    if (tp_pick(b_ok, f_ok, have_beside) == TP_PICK_BESIDE)
+        lstrcpynA(buf, beside, (int)cap);
+    else
+        lstrcpynA(buf, fixed, (int)cap);
+
+    /* Say which copy won, but only when it is not the historical default -
+     * a silent resolution is exactly what hid this bug for months. */
+    if (buf[0] && b_ok && have_beside && lstrcmpiA(buf, fixed) != 0)
+        log_msg(LOG_GS, "tool %s resolved beside the agent: %s", leaf, buf);
+    return buf;
+}
+
+static const char *gs_tool_sibling(const char *exe, const char *leaf,
+                                   char *buf, size_t cap)
+{
+    char dir[MAX_PATH];
+
+    buf[0] = 0;
+    if (exe && *exe && tp_dir_of(exe, dir, sizeof(dir)))
+        tp_join(dir, leaf, buf, cap);
+    return buf;
+}
+
 void gs_place_tool_shortcuts(void)
 {
-    char exe[MAX_PATH];
+    char exe[MAX_PATH], chat[MAX_PATH], fxexe[MAX_PATH], fxico[MAX_PATH];
     DWORD n;
     int   we_initialised = 0;
 
@@ -3481,16 +3524,37 @@ void gs_place_tool_shortcuts(void)
     if (n > 0 && n < sizeof(exe))
         gs_tool_shortcut(exe, "Retro Agent", NULL);
 
-    gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat", NULL);
+    /* ...AND THE SAME IS TRUE OF EVERYTHING THAT SHIPS BESIDE IT. The two
+     * lines below used to name C:\RETRO_AGENT outright, three lines under a
+     * comment explaining why that is the wrong thing to do.
+     *
+     * autoupdate.c has always had this right: update_retro_chat() installs,
+     * updates and RELAUNCHES the chat client at "<install_dir>\retro_chat.exe",
+     * derived from the running agent. So on a box installed anywhere but C:,
+     * the chat client runs perfectly and simply has no desktop icon - and
+     * gs_tool_shortcut() returns silently when the exe is absent ("not
+     * installed here - not an error"), so NOTHING in the log said so. Found on
+     * .186 (2026-11-08), a Win7 box running the whole stack from D:\RETRO_AGENT:
+     * 97 game icons on the desktop and no Retro Chat.
+     *
+     * gs_tool_leaf() prefers the agent's own directory and falls back to
+     * C:\RETRO_AGENT, so a box that really does keep its tools there (every
+     * box fxpanel_ensure() has ever copied 3dfxctl.exe onto - FXP_DEST is
+     * still that fixed path) behaves exactly as before. */
+    gs_tool_shortcut(gs_tool_leaf("retro_chat.exe", chat, sizeof(chat)),
+                     "Retro Chat", NULL);
 
     /* The 3dfx Control Panel (scripts/3dfx/3dfxctl), wearing the 3dfx logo.
      * fxpanel_ensure() copies it onto a box whose card it serves; everywhere
      * else the exe is absent and this is a no-op. Without this line the
      * desktop shortcut lasted only until the next sync's sweep - .124 lost it
      * to two quiet GAMESYNCs on 2026-09-29. The icon is a separate file with
-     * a new name because XP caches icons by path (3dfxctl.exe's old icon). */
-    gs_tool_shortcut("C:\\RETRO_AGENT\\3dfxctl.exe", "3dfx Control Panel",
-                     "C:\\RETRO_AGENT\\3dfxlogo.ico");
+     * a new name because XP caches icons by path (3dfxctl.exe's old icon).
+     * The icon is resolved beside whichever copy of the exe we found, so the
+     * pair can never be split across two directories. */
+    gs_tool_shortcut(gs_tool_leaf("3dfxctl.exe", fxexe, sizeof(fxexe)),
+                     "3dfx Control Panel",
+                     gs_tool_sibling(fxexe, "3dfxlogo.ico", fxico, sizeof(fxico)));
 
     if (we_initialised && g_gs_CoUninitialize)
         g_gs_CoUninitialize();

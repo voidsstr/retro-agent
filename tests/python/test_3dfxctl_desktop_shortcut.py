@@ -22,8 +22,26 @@ def _body(name):
 
 def test_the_agent_places_and_claims_the_panel_shortcut():
     body = _body("gs_place_tool_shortcuts")
-    assert re.search(r'gs_tool_shortcut\("C:\\\\RETRO_AGENT\\\\3dfxctl\.exe", "3dfx Control Panel",\s*'
-                     r'"C:\\\\RETRO_AGENT\\\\3dfxlogo\.ico"\);', body)
+    # agent 1.98.1: the path is no longer a literal. It is resolved beside the
+    # running agent first and falls back to C:\RETRO_AGENT (toolpath.h), because
+    # .186 runs the stack from D:\RETRO_AGENT and the literal gave that box no
+    # Retro Chat icon at all. The icon must come from the SAME directory as the
+    # exe that won, or the pair could be split across two drives.
+    assert re.search(r'gs_tool_shortcut\(gs_tool_leaf\("3dfxctl\.exe", fxexe, sizeof\(fxexe\)\),\s*'
+                     r'"3dfx Control Panel",\s*'
+                     r'gs_tool_sibling\(fxexe, "3dfxlogo\.ico", fxico, sizeof\(fxico\)\)\);', body)
+
+
+def test_the_panel_path_is_not_hard_coded_again():
+    r"""The regression this replaced: a literal C:\RETRO_AGENT target."""
+    body = _body("gs_place_tool_shortcuts")
+    assert "C:\\\\RETRO_AGENT" not in body, (
+        "gs_place_tool_shortcuts() names a fixed C:\\RETRO_AGENT path again - "
+        "a box installed on another volume (D: on .186) silently gets no icon, "
+        "because gs_tool_shortcut() treats a missing exe as 'not installed here'. "
+        "Resolve it with gs_tool_leaf() instead."
+    )
+    assert "TP_FIXED_DIR" in GS, "the C:\\RETRO_AGENT fallback must still exist"
 
 
 def test_same_name_and_path_as_the_push_tool():
