@@ -32,6 +32,14 @@ typedef struct {
      * Rows that omit this field get 0 from C's initializer rules, so a NEW
      * command defaults to ALLOWED. If you add one that reconfigures the host,
      * set this to 1 - tests/python/test_hostpolicy.py pins the current set.
+     *
+     * 2 = THE GAMES LANE. The command stages or configures the GAME LIBRARY
+     * and nothing else about the host, so it is also allowed on a modern box
+     * carrying ManageGamesOnly=1 (hostpolicy.h). Only GAMESYNC and GAMERES
+     * qualify: both write inside the games folder, each title's own registry
+     * keys and its resolution - which is the whole of "put the retro games on
+     * my modern PC". Anything that touches the THEME, the WALLPAPER, the
+     * DESKTOP LAYOUT, how the box BOOTS or its DRIVERS stays 1.
      */
     int         reconfigures_host;
 } cmd_entry_t;
@@ -75,9 +83,9 @@ static const cmd_entry_t commands[] = {
     { "SERVICE",   1, NULL,              handle_service, 0 },
     { "SMARTINFO",  0, handle_smartinfo,  NULL, 0 },
     { "GAMEINDEX",  1, NULL,              handle_gameindex, 0 },
-    { "GAMESYNC",   1, NULL,              handle_gamesync, 1 },
+    { "GAMESYNC",   1, NULL,              handle_gamesync, 2 },
     { "ICONARRANGE",1, NULL,           handle_iconarrange, 1 },
-    { "GAMERES",    1, NULL,               handle_gameres, 1 },
+    { "GAMERES",    1, NULL,               handle_gameres, 2 },
     { "DRVUPDATE",  1, NULL,             handle_drvupdate, 1 },
     { "HWPROFILE",  1, NULL,             handle_hwprofile, 0 },
     { "HWPUBLISH",  1, NULL,             handle_hwpublish, 0 },
@@ -189,14 +197,20 @@ void handle_command(SOCKET sock, const char *cmd, DWORD cmd_len)
              * each has a genuinely read-only mode worth keeping, so they carry
              * the same guard on their modifying branch instead.)
              */
-            if (entry->reconfigures_host && !host_manages_this_box()) {
+            if (entry->reconfigures_host &&
+                !(entry->reconfigures_host == 2 ? host_games_allowed()
+                                                : host_manages_this_box())) {
                 char why[256];
                 _snprintf(why, sizeof(why) - 1,
                           "%s refused: this is modern Windows and the retro agent "
                           "does not reconfigure it. Set HKLM\\%s\\%s (DWORD) to 1 "
-                          "to manage this box anyway.",
+                          "to manage this box anyway%s.",
                           entry->name, HOSTPOLICY_OVERRIDE_KEY,
-                          HOSTPOLICY_OVERRIDE_VALUE);
+                          HOSTPOLICY_OVERRIDE_VALUE,
+                          entry->reconfigures_host == 2
+                              ? ", or " HOSTPOLICY_GAMES_VALUE "=1 to allow the "
+                                "games and nothing else"
+                              : "");
                 why[sizeof(why) - 1] = 0;
                 log_msg(LOG_MAIN, "%s", why);
                 send_error_response(sock, why);

@@ -54,6 +54,7 @@
 #include "../shared/deskset.h"
 #include "../shared/gsstall.h"
 #include "../shared/piffull.h"
+#include "../shared/shortcutdir.h"
 
 #include <windows.h>
 #include <string.h>
@@ -2976,6 +2977,78 @@ static int gs_desktop_dir(char *out, DWORD cch)
     return 0;
 }
 
+/* ---- ShortcutFolder: one folder on the desktop, not 150 loose icons -------
+ * HKLM\Software\RetroAgent\ShortcutFolder (REG_SZ) names a folder on the
+ * desktop that every shortcut this module writes goes into - the games AND the
+ * operator's tools. Absent or empty = the desktop itself, as before. The name
+ * is validated by agent/shared/shortcutdir.h, which refuses a PATH: one
+ * registry value must not be able to aim the end-of-run sweep (which deletes)
+ * at a system directory.
+ *
+ * A configured value that is REFUSED falls back to the desktop and SAYS SO.
+ * Silently meaning "the desktop" is how 150 icons come back on a box that
+ * asked for a folder - the complaint this answers. */
+static int gs_shortcut_folder(char *out, DWORD cch)
+{
+    HKEY  h;
+    char  v[SCD_NAME_MAX + 8];
+    DWORD type = 0, sz = sizeof(v) - 1;
+    int   have = 0;
+
+    out[0] = 0;
+    memset(v, 0, sizeof(v));
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ,
+                      &h) == ERROR_SUCCESS) {
+        have = RegQueryValueExA(h, "ShortcutFolder", NULL, &type, (LPBYTE)v,
+                                &sz) == ERROR_SUCCESS && type == REG_SZ;
+        RegCloseKey(h);
+    }
+    v[sizeof(v) - 1] = 0;
+    if (!have || !v[0])
+        return 0;                         /* not configured - the desktop */
+    if (!scd_name_ok(v)) {
+        log_msg(LOG_GS, "ShortcutFolder \"%.70s\" is not a usable folder NAME "
+                        "(a path, an illegal character, or a trailing space or "
+                        "dot Windows would strip) - shortcuts go on the desktop",
+                v);
+        return 0;
+    }
+    lstrcpynA(out, v, (int)cch);
+    return 1;
+}
+
+/* Where a shortcut goes: the ShortcutFolder when one is configured (created if
+ * it is not there yet), otherwise the desktop exactly as before. */
+static int gs_link_dir(char *out, DWORD cch)
+{
+    char desk[MAX_PATH], name[SCD_NAME_MAX + 8], dir[MAX_PATH];
+
+    if (!gs_desktop_dir(desk, sizeof(desk)))
+        return 0;
+    if (!gs_shortcut_folder(name, sizeof(name)) ||
+        !scd_join(desk, name, dir, sizeof(dir))) {
+        lstrcpynA(out, desk, (int)cch);
+        return 1;
+    }
+    if (!gs_file_exists(dir) && !CreateDirectoryA(dir, NULL) &&
+        GetLastError() != ERROR_ALREADY_EXISTS) {
+        log_msg(LOG_GS, "ShortcutFolder: could not create %s (%lu) - shortcuts "
+                        "go on the desktop", dir, GetLastError());
+        lstrcpynA(out, desk, (int)cch);
+        return 1;
+    }
+    lstrcpynA(out, dir, (int)cch);
+    return 1;
+}
+
+/* 1 when the shortcuts live in a folder rather than on the desktop. Then the
+ * desktop is NOT ours: it is neither sampled, nor swept, nor re-arranged. */
+static int gs_links_in_folder(void)
+{
+    char name[SCD_NAME_MAX + 8];
+    return gs_shortcut_folder(name, sizeof(name));
+}
+
 /* Find real icon artwork for a shortcut whose target may be a .bat.
  *
  * A .bat has no icon resources at all, so a shortcut pointing its icon at one
@@ -3418,7 +3491,7 @@ static void gs_tool_shortcut(const char *exe, const char *name, const char *icon
         log_msg(LOG_GS, "%s: no shell link support - no shortcut", name);
         return;
     }
-    if (!gs_desktop_dir(desktop, sizeof(desktop))) {
+    if (!gs_link_dir(desktop, sizeof(desktop))) {
         log_msg(LOG_GS, "%s: cannot locate the desktop - no shortcut", name);
         return;
     }
@@ -3533,6 +3606,21 @@ static void gs_desk_snapshot(void)
 {
     char desk[MAX_PATH], userdesk[MAX_PATH];
 
+    /* SHORTCUTS IN A FOLDER: SAMPLE AND SWEEP THE FOLDER, NEVER THE DESKTOP.
+     * The sweep moves every .lnk/.pif/.url this run did not put back into
+     * C:\retro-desktop-backup. That is right on a fleet box, whose desktop is
+     * ours to curate, and it is vandalism on a machine where the desktop
+     * belongs to somebody - which is precisely the kind of machine that asks
+     * for a folder (.139, the Win11 copier host, 2026-11-08). Scoping the
+     * sample to the folder keeps the stale-shortcut cleanup working inside it
+     * and makes touching either desktop impossible rather than unlikely. */
+    if (gs_links_in_folder()) {
+        if (gs_link_dir(desk, sizeof(desk))) {
+            lstrcpynA(g_gs_desk_common, desk, sizeof(g_gs_desk_common));
+            gs_desk_scan_dir(desk, DS_COMMON);
+        }
+        return;                       /* g_gs_desk_user stays empty on purpose */
+    }
     if (gs_desktop_dir(desk, sizeof(desk))) {
         lstrcpynA(g_gs_desk_common, desk, sizeof(g_gs_desk_common));
         gs_desk_scan_dir(desk, DS_COMMON);
@@ -4245,7 +4333,7 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
         slash--;
     *slash = 0;
 
-    if (!gs_ole_load() || !gs_desktop_dir(desktop, sizeof(desktop)))
+    if (!gs_ole_load() || !gs_link_dir(desktop, sizeof(desktop)))
         return;
     _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, disp);
     lnk[sizeof(lnk) - 1] = 0;
@@ -5679,7 +5767,12 @@ static void gs_run(const char *library)
     /* The operator's own tools: rewritten in place if they moved, otherwise
      * claimed as they are - either way the end-of-run sweep keeps them. */
     gs_place_tool_shortcuts();
-    gs_stage_wallpapers(library);
+    /* The fleet wallpapers (26 MB into C:\retro-wall) are COSMETIC, and the
+     * games lane (ManageGamesOnly, hostpolicy.h) exists for a modern box that
+     * wants the library and nothing else. retrowall never applies them there,
+     * so staging them would only spend the disk the library needs. */
+    if (host_manages_this_box())
+        gs_stage_wallpapers(library);
 
     EnterCriticalSection(&g_gs_lock);
     memset(&g_gs, 0, sizeof(g_gs));
@@ -6158,7 +6251,15 @@ static void gs_run(const char *library)
      * the counter: icons added, plus icons that were there and really went. */
     gs_desk_settle_lnks();
 
-    if (gs_desk_changed()) {
+    if (gs_desk_changed() && gs_links_in_folder()) {
+        /* The icons went into a FOLDER, so the desktop's layout is not ours to
+         * re-pack - and auto-arranging somebody's desktop because we added one
+         * folder to it is a change nobody asked for. The folder's own window
+         * keeps whatever view the shell gives it. */
+        log_msg(LOG_GS, "shortcut folder changed (%ld file(s) written, %ld "
+                        "new/removed shortcut(s)) - the desktop layout is left "
+                        "alone", gs_desk_files(), gs_desk_lnks());
+    } else if (gs_desk_changed()) {
         log_msg(LOG_GS, "desktop changed (%ld file(s) written, %ld new/removed "
                         "shortcut(s)) - arranging icons",
                 gs_desk_files(), gs_desk_lnks());
@@ -6270,9 +6371,10 @@ static int gs_start(const char *library)
     /* Never copy the retro library onto a modern Windows host (see
      * gamesync_thread). The GAMESYNC command is already refused there by the
      * command table; this covers every other caller. */
-    if (!host_manages_this_box()) {
+    if (!host_games_allowed()) {
         log_msg(LOG_GS, "not starting: modern Windows host is not managed "
-                "(HKLM\\Software\\RetroAgent\\ManageModernWindows=1 overrides)");
+                "(HKLM\\Software\\RetroAgent\\ManageModernWindows=1 manages it "
+                "fully; ManageGamesOnly=1 allows the games and nothing else)");
         return 0;
     }
 

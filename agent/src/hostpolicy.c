@@ -31,6 +31,7 @@ typedef LONG (WINAPI *RtlGetVersion_t)(HP_RTL_OSVERSIONINFOW *);
 /* -1 = not yet computed. */
 static int  g_modern    = -1;
 static int  g_managed   = -1;
+static int  g_games    = -1;   /* games lane (ManageGamesOnly) */
 static DWORD g_major    = 0;
 static DWORD g_minor    = 0;
 static DWORD g_build    = 0;
@@ -111,8 +112,8 @@ int host_is_modern_windows(void)
     return g_modern;
 }
 
-/* HKLM\Software\RetroAgent\ManageModernWindows == 1 */
-static int override_set(void)
+/* HKLM\Software\RetroAgent\<name> == 1 */
+static int flag_set(const char *name)
 {
     HKEY  k;
     DWORD val = 0, sz = sizeof(val), type = 0;
@@ -121,12 +122,17 @@ static int override_set(void)
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, HOSTPOLICY_OVERRIDE_KEY, 0,
                       KEY_QUERY_VALUE, &k) != ERROR_SUCCESS)
         return 0;
-    if (RegQueryValueExA(k, HOSTPOLICY_OVERRIDE_VALUE, NULL, &type,
+    if (RegQueryValueExA(k, name, NULL, &type,
                          (LPBYTE)&val, &sz) == ERROR_SUCCESS &&
         type == REG_DWORD && val == 1)
         on = 1;
     RegCloseKey(k);
     return on;
+}
+
+static int override_set(void)
+{
+    return flag_set(HOSTPOLICY_OVERRIDE_VALUE);
 }
 
 int host_manages_this_box(void)
@@ -153,6 +159,29 @@ int host_manages_this_box(void)
         g_managed = 0;
     }
     return g_managed;
+}
+
+int host_games_allowed(void)
+{
+    if (g_games >= 0)
+        return g_games;
+
+    if (host_manages_this_box()) {
+        g_games = 1;                      /* fully managed: everything is on */
+    } else if (flag_set(HOSTPOLICY_GAMES_VALUE)) {
+        log_msg(LOG_POLICY, "modern Windows (%lu.%lu build %lu) with HKLM\\%s\\%s=1 "
+                            "- the GAMES may be deployed here; nothing else about "
+                            "this host is touched (no theme, wallpaper, "
+                            "screensaver, desktop sweep, icon arrange, autologon "
+                            "or driver install)",
+                (unsigned long)g_major, (unsigned long)g_minor,
+                (unsigned long)g_build,
+                HOSTPOLICY_OVERRIDE_KEY, HOSTPOLICY_GAMES_VALUE);
+        g_games = 1;
+    } else {
+        g_games = 0;
+    }
+    return g_games;
 }
 
 /*

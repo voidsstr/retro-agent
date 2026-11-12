@@ -130,10 +130,64 @@ def test_startup_appliers_are_guarded(path, func, what):
     s = read(SRC / path)
     body = _function_body(s, func)
     assert body is not None, f"{func} not found in {path}"
-    assert "host_policy_skip" in body or "host_manages_this_box" in body, (
+    assert ("host_policy_skip" in body or "host_manages_this_box" in body
+            or "host_games_allowed" in body), (
         f"{func} ({what}) runs without consulting hostpolicy - it would apply "
         f"on a Windows 11 box"
     )
+
+
+# The GAMES LANE (ManageGamesOnly, agent 1.99.0). These entry points may settle
+# for host_games_allowed() instead of host_manages_this_box(), because all they
+# touch is the game library: the copy, each title's own install.reg, its
+# resolution and its key binds. EVERY OTHER PATH ABOVE MUST STILL DEMAND FULL
+# MANAGEMENT - the lane exists so "put the retro games on my Windows 11 box"
+# does not cost the operator their theme, their wallpaper and their own desktop
+# shortcuts (the sweep MOVES those), and a path that quietly joined this list
+# would give all of that away again.
+GAMES_LANE_OK = {
+    ("gamesync.c", "gs_start"),
+    ("qbinds.c", "qbinds_apply_title"),
+}
+
+
+@pytest.mark.parametrize(
+    "path,func",
+    [(p, f) for p, f, _ in [
+        ("retrowall.c", "retrowall_apply_startup", ""),
+        ("retrowall.c", "retrowall_thread", ""),
+        ("sysfix.c", "sysfix_apply_startup", ""),
+        ("gamesync.c", "gamesync_thread", ""),
+        ("watchdog.c", "watchdog_thread", ""),
+        ("autoupdate.c", "update_retro_chat", ""),
+        ("clockfix.c", "clockfix_thread", ""),
+        ("monpower.c", "monpower_apply_startup", ""),
+        ("qbinds.c", "qbinds_startup", ""),
+        ("ipxsetup.c", "ipxsetup_thread", ""),
+    ]],
+)
+def test_only_the_games_lane_may_settle_for_host_games_allowed(path, func):
+    """A host-changing path must not accept the narrow games flag."""
+    assert (path, func) not in GAMES_LANE_OK
+    body = _function_body(read(SRC / path), func)
+    assert body is not None, f"{func} not found in {path}"
+    if "host_games_allowed" in body:
+        raise AssertionError(
+            f"{func} ({path}) accepts ManageGamesOnly. That flag means 'the "
+            f"games and nothing else' - this path changes the HOST, so it must "
+            f"ask host_manages_this_box()/host_policy_skip()."
+        )
+
+
+def test_the_games_lane_paths_really_use_it():
+    """...and the two that are supposed to be in the lane actually are."""
+    for path, func in sorted(GAMES_LANE_OK):
+        body = _function_body(read(SRC / path), func)
+        assert body is not None, f"{func} not found in {path}"
+        assert "host_games_allowed" in body, (
+            f"{func} ({path}) is meant to work on a ManageGamesOnly box and "
+            f"does not consult host_games_allowed()"
+        )
 
 
 # Commands that RECONFIGURE THE HOST as a fleet box. Deliberately NOT the
@@ -151,16 +205,29 @@ EXPECTED_RECONFIGURING = {
 }
 
 
-def _flagged_commands():
+# Of those, the ones whose whole effect is the GAME LIBRARY, so they are also
+# allowed on a modern box carrying ManageGamesOnly=1 (flag 2, agent 1.99.0).
+EXPECTED_GAMES_LANE = {"GAMESYNC", "GAMERES"}
+
+
+def _flagged_commands(flags=("1", "2")):
     s = read(HANDLERS_C)
     start = s.index("static const cmd_entry_t commands[] = {")
     end = s.index("};", start)
     found = set()
     for line in s[start:end].split("\n"):
         m = re.match(r'\s*\{\s*"([A-Z_]+)"\s*,.*,\s*(\d)\s*\}\s*,?\s*$', line)
-        if m and m.group(2) == "1":
+        if m and m.group(2) in flags:
             found.add(m.group(1))
     return found
+
+
+def test_the_games_lane_is_exactly_gamesync_and_gameres():
+    """Both directions. An EXTRA lane-2 row hands a modern box something that
+    changes it for a flag that promises only the games; a MISSING one means
+    'put the retro games on my Win11 PC' needs the all-or-nothing override,
+    which also skins the box."""
+    assert _flagged_commands(flags=("2",)) == EXPECTED_GAMES_LANE
 
 
 def test_reconfiguring_commands_are_flagged():
@@ -179,6 +246,10 @@ def test_dispatch_enforces_the_flag():
     assert body is not None
     assert "reconfigures_host" in body and "host_manages_this_box" in body, (
         "handle_command does not check the flag; every flagged command would run"
+    )
+    assert "host_games_allowed" in body, (
+        "handle_command does not act on the lane-2 flag, so GAMESYNC and "
+        "GAMERES are refused on a ManageGamesOnly box the setting exists for"
     )
 
 
@@ -275,9 +346,12 @@ def test_gamesync_thread_asks_the_policy_before_doing_anything():
 
 
 def test_gs_start_asks_the_policy_before_starting_a_worker():
+    """gs_start is in the GAMES LANE (1.99.0) - a modern box with
+    ManageGamesOnly=1 may sync the library - but it must still ask BEFORE it
+    spawns the worker, or a refused box copies 59 GB and is told afterwards."""
     body = _function_body(read(SRC / "gamesync.c"), "gs_start")
     assert body is not None
-    assert body.index("host_manages_this_box") < body.index("CreateThread(")
+    assert body.index("host_games_allowed") < body.index("CreateThread(")
 
 
 def test_hwprofile_reports_the_host_policy():

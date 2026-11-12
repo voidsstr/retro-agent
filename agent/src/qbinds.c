@@ -452,7 +452,11 @@ int qbinds_apply_title(const char *dst_dir, const char *title, int *not_executed
 
     if (not_executed)
         *not_executed = 0;
-    if (!t || !host_manages_this_box())
+    /* The games lane (ManageGamesOnly) covers this: FLEETKEY.CFG is written
+     * inside the title's own gamedir, like the resolution pass beside it, and
+     * is part of what makes a staged Quake work as the fleet expects. Nothing
+     * about the HOST changes. */
+    if (!t || !host_games_allowed())
         return 0;
     qbinds_init();
     mode = qb_switch(&present, &raw);

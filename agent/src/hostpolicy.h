@@ -51,6 +51,24 @@
 #define HOSTPOLICY_OVERRIDE_KEY   "Software\\RetroAgent"
 #define HOSTPOLICY_OVERRIDE_VALUE "ManageModernWindows"
 
+/* HKLM\Software\RetroAgent\ManageGamesOnly (DWORD) - THE NARROW LANE.
+ *
+ * 1 = on a modern box, permit the GAMES and nothing else: the GAMESYNC and
+ * GAMERES commands, the library copy, each title's install.reg and its
+ * per-monitor resolution. Everything that changes the HOST stays refused -
+ * no theme, no wallpaper, no screensaver, no desktop sweep, no icon
+ * re-arrange, no autologon, no driver installs - and no startup pass runs
+ * at all, so a reboot changes nothing and the sync is on demand only.
+ *
+ * It exists because the full override is all-or-nothing, and "put the retro
+ * games on my Windows 11 desktop machine" is a reasonable ask that must not
+ * cost the operator their theme, their wallpaper and their own desktop
+ * shortcuts (the sweep MOVES those). Pair it with ShortcutFolder
+ * (agent/shared/shortcutdir.h) so the icons land in one folder.
+ *
+ * Absent or 0 (the default) = hands off, as before. */
+#define HOSTPOLICY_GAMES_VALUE    "ManageGamesOnly"
+
 /* The first Windows major version treated as "modern". 10 covers Windows 10
  * and 11 (Windows 11 still reports major 10; it is identified by build >=
  * 22000, which does not matter here - both are modern). Windows 7 is 6.1 and
@@ -74,6 +92,20 @@ int host_is_modern_windows(void);
  * Result is computed once and cached, so callers in hot paths are free.
  */
 int host_manages_this_box(void);
+
+/*
+ * 1 = the GAMES may be deployed here: either this box is fully managed, or it
+ * is a modern box with ManageGamesOnly=1. NEVER a licence to change anything
+ * else about the host - every other caller must keep asking
+ * host_manages_this_box().
+ *
+ * Cached like the rest, so the registry is read once per process. A box whose
+ * flag is set while the agent is running therefore needs a RESTART, which is
+ * deliberate: the flag decides what a whole run of the agent may do, and
+ * re-reading it mid-run would let a GAMESYNC start under one policy and finish
+ * under another.
+ */
+int host_games_allowed(void);
 
 /*
  * Guard for a named piece of host-changing work.

@@ -2966,6 +2966,53 @@ no driver or setting, so this is outside the rule below. Verified on `.124`:
 files removed, restart -> both copied, logo on the desktop; second restart ->
 nothing copied, shortcut untouched.
 
+## The GAMES LANE: a modern box may hold the library and nothing else (agent 1.99.0)
+
+**"Put the retro games on my Windows 11 PC" must not cost the operator their
+theme, their wallpaper and their own desktop shortcuts.** The section above is
+all-or-nothing: `ManageModernWindows=1` turns the whole fleet treatment on,
+including the desktop **sweep**, which MOVES every `.lnk`/`.pif`/`.url` it does
+not recognise into `C:\retro-desktop-backup`. Two narrow settings replace that
+blunt choice. Both default to absent = today's behaviour exactly.
+
+| `HKLM\Software\RetroAgent\...` | effect |
+|---|---|
+| **`ManageGamesOnly`** (DWORD 1) | on a modern box, permits **only** the games: the `GAMESYNC` and `GAMERES` commands, the library copy, each title's own `install.reg`, its resolution and its `FLEETKEY.CFG`. No theme, wallpaper, screensaver, desktop sweep, icon arrange, autologon or driver install - and **no startup pass runs at all**, so a reboot changes nothing and the sync is on demand only. |
+| **`ShortcutFolder`** (REG_SZ) | a folder **NAME** on the desktop that every shortcut GAMESYNC writes goes into - the games AND the agent/chat/3dfx tools. Works on any box, modern or not. |
+
+- **The command table's `reconfigures_host` now has a THIRD value**: `2` = the
+  games lane, allowed when `host_games_allowed()`. Only `GAMESYNC` and
+  `GAMERES` carry it. Anything that touches the theme, the wallpaper, the
+  desktop layout, how the box boots or its drivers stays `1`.
+  `tests/python/test_hostpolicy.py` pins **both** sets in both directions, and
+  asserts that no other startup path accepts the narrow flag.
+- **`ShortcutFolder` is a NAME, not a path** (`agent/shared/shortcutdir.h`,
+  `tests/native/test_shortcutdir.c`). A path is refused, because the sweep
+  follows wherever this points and it deletes: one registry value must not be
+  able to aim it at `C:\Windows\System32` by typo. A **trailing space or dot**
+  is refused too - Windows silently strips those when it creates the directory,
+  so the folder we then sweep is not the folder we made and every run re-adds
+  every shortcut to a directory it cannot see.
+- **A folder means the DESKTOP IS NOT OURS.** `gs_desk_snapshot()` samples the
+  **folder** instead of either desktop (so the sweep's stale-shortcut cleanup
+  still works, inside it, and cannot reach a real desktop), and the auto-arrange
+  pass is skipped - re-packing somebody's desktop because we added one folder to
+  it is a change nobody asked for. Pinned by
+  `tests/python/test_shortcut_folder.py`.
+- **A refused or absent value falls back to the desktop LOUDLY**, with a log
+  line naming the value. Silently meaning "the desktop" is how 150 icons come
+  back on the box that asked for a folder.
+- **The flags are cached per process**, like `host_manages_this_box()`, so
+  setting one needs an agent `RESTART` - deliberate: the flag decides what a
+  whole run may do.
+
+**Live on `.139`** (DESKTOP-CH9EU7O, Win11, the copier host) since 2026-11-08,
+at the user's request: `ManageGamesOnly=1`, `ShortcutFolder=Retro Games`. Its
+one disk has ~32 GB free against a 59 GB library, so the 18 largest titles are
+`no` in `scripts/gamegate/overrides.txt` under profile hash
+`a5d9dc4bc339847e` - an explicit, reversible skip list rather than whatever the
+per-title fit check happened to drop.
+
 ## 3dfx DRIVERS ARE NEVER CHANGED AUTOMATICALLY (agent 1.87.0+) (REQUIRED)
 
 **User directive, 2026-09-27: the agent keeps a box's drivers correct "except
