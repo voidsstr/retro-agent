@@ -15,6 +15,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "../shared/aigate.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -22,30 +23,80 @@
 #define INFER_SPAWN_WAIT_MS 400
 #define INFER_SPAWN_TRIES 8
 
-/* Opt-in gate (2026-07-23): the AI engine (retro-infer.exe) must NOT run by
- * default — on the single-core vintage fleet boxes it steals cycles from games/
- * benchmarks. It is enabled explicitly via the AI_ENABLE command (which the
- * retro chat interaction issues) and persisted in the registry so it survives
- * reboots. Absent/0 => disabled; infer_ensure() refuses to spawn. */
+/* Opt-in gate (2026-07-23), hard-locked 2026-11-08 (1.99.0). The AI engine
+ * (retro-infer.exe) must NOT run by default - on the single-core vintage fleet
+ * boxes it steals cycles from games/benchmarks. Since 1.99.0 the opt-in flag
+ * is no longer sufficient on its own: the box must ALSO be allowed, and
+ * nothing in the agent ever writes that permission. Decisions and the full
+ * rationale live in agent/shared/aigate.h. */
 #define AI_ENABLE_KEY   "Software\\RetroAgent"
 #define AI_ENABLE_VALUE "AIEngine"
+#define AI_ALLOW_VALUE  "AIEngineAllowed"
 
 static SOCKET g_infer_sock = INVALID_SOCKET;
 
-/* Is the AI engine enabled? Reads HKLM\Software\RetroAgent\AIEngine (REG_DWORD);
- * default 0 (disabled) when the value is absent. */
-int ai_engine_enabled(void)
+/* Read one HKLM\Software\RetroAgent DWORD. A value that is absent, or that
+ * is present with the WRONG TYPE, reads as not present - a REG_SZ "1" is not
+ * a permission. */
+static ai_regflag_t ai_read_flag(const char *name)
 {
+    ai_regflag_t f;
     HKEY h;
-    DWORD type, val = 0, size = sizeof(val);
+    DWORD type = 0, val = 0, size = sizeof(val);
+
+    f.present = 0;
+    f.value = 0;
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, AI_ENABLE_KEY, 0, KEY_QUERY_VALUE, &h)
             == ERROR_SUCCESS) {
-        if (RegQueryValueExA(h, AI_ENABLE_VALUE, NULL, &type, (BYTE *)&val, &size)
-                != ERROR_SUCCESS || type != REG_DWORD)
-            val = 0;
+        if (RegQueryValueExA(h, name, NULL, &type, (BYTE *)&val, &size)
+                == ERROR_SUCCESS && type == REG_DWORD) {
+            f.present = 1;
+            f.value = (unsigned long)val;
+        }
         RegCloseKey(h);
     }
-    return val != 0;
+    return f;
+}
+
+/* Is this box ALLOWED to run the AI engine at all? Absent/0 => no. Shipped
+ * default, so a freshly imaged or freshly updated box is locked with nobody
+ * having to set anything. NOTHING in the agent writes this value. */
+static int ai_engine_allowed(void)
+{
+    return ai_gate_allowed(ai_read_flag(AI_ALLOW_VALUE));
+}
+
+/* Is the AI engine runnable right now? Requires BOTH the permission and the
+ * opt-in flag. Callers (infer_ensure, the status thread) use this one. */
+int ai_engine_enabled(void)
+{
+    return ai_gate_may_run(ai_read_flag(AI_ALLOW_VALUE),
+                           ai_read_flag(AI_ENABLE_VALUE));
+}
+
+/* Why the engine is in the state it is - one stable line for the log, the
+ * console and the AI_ENABLE error text. */
+static const char *ai_engine_why(void)
+{
+    return ai_gate_why(ai_read_flag(AI_ALLOW_VALUE),
+                       ai_read_flag(AI_ENABLE_VALUE));
+}
+
+/* Record what this start's AI pass decided, so the post-condition can be READ
+ * off the box (REGREAD HKLM Software\RetroAgent) instead of inferred from a
+ * log that rotates. Same convention as PostSkipBoot / GameResBoot /
+ * MonitorPowerBoot. */
+#define AI_BOOT_VALUE "AIEngineBoot"
+
+static void ai_engine_note_boot(const char *what)
+{
+    HKEY h;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, AI_ENABLE_KEY, 0, NULL, 0,
+                        KEY_SET_VALUE, NULL, &h, NULL) == ERROR_SUCCESS) {
+        RegSetValueExA(h, AI_BOOT_VALUE, 0, REG_SZ, (const BYTE *)what,
+                       (DWORD)strlen(what) + 1);
+        RegCloseKey(h);
+    }
 }
 
 /* Persist the enable flag. */
@@ -127,6 +178,14 @@ static int stage_engine_from_share(void)
     DWORD lsz, rsz;
     HKEY hk;
 
+    /* Never pull the engine onto a box that is not allowed to run it. The
+     * callers already check, but this is the one function that puts the
+     * binary on disk, so it refuses on its own account too. */
+    if (!ai_engine_allowed()) {
+        log_msg(LOG_FILE, "AI: not staging the engine - %s", ai_engine_why());
+        return 0;
+    }
+
     agent_dir(local, MAX_PATH);
     strcat(local, "retro-infer.exe");
 
@@ -187,6 +246,91 @@ static int stage_engine_from_share(void)
     }
     log_msg(LOG_FILE, "AI: engine staged (%lu bytes)", (unsigned long)rsz);
     return 1;
+}
+
+/* Best-effort kill of any retro-infer.exe, however it was started (a stray
+ * instance from an earlier enable no longer answers its socket). Ignores the
+ * result: there is usually nothing to kill, and that is the healthy case. */
+static void ai_taskkill_engine(void)
+{
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    char cmd[] = "taskkill /f /im retro-infer.exe";
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    memset(&pi, 0, sizeof(pi));
+    if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW,
+                       NULL, NULL, &si, &pi)) {
+        WaitForSingleObject(pi.hProcess, 3000);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+}
+
+/* Undo a previous enable: stop the engine, clear the AIEngine flag and DELETE
+ * the staged retro-infer.exe. Called at every start while the lock is in
+ * force, and by AI_DISABLE.
+ *
+ * It reports what it ACTUALLY removed, not what it meant to - `detail` is
+ * written for the log and for AI_DISABLE's reply, and a failed delete says so
+ * with its error code rather than being folded into a reassuring summary.
+ * Returns the number of things removed (0 on a box that was already clean,
+ * which is what a settled box must read). */
+static int ai_engine_purge(char *detail, int cap)
+{
+    char exe[MAX_PATH + 32];
+    HKEY h;
+    int removed = 0;
+    int flag_cleared = 0, exe_deleted = 0;
+    DWORD exe_err = 0;
+    int had_exe = 0;
+
+    if (g_infer_sock != INVALID_SOCKET) {
+        frame_send(g_infer_sock, "SHUTDOWN", 8);
+        infer_disconnect();
+    }
+    ai_taskkill_engine();
+
+    /* the opt-in flag: delete it outright rather than writing 0, so the
+     * steady state is "absent" - the shipped default */
+    if (ai_read_flag(AI_ENABLE_VALUE).present) {
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, AI_ENABLE_KEY, 0, KEY_SET_VALUE,
+                          &h) == ERROR_SUCCESS) {
+            if (RegDeleteValueA(h, AI_ENABLE_VALUE) == ERROR_SUCCESS) {
+                flag_cleared = 1;
+                removed++;
+            }
+            RegCloseKey(h);
+        }
+    }
+
+    /* the binary: this is what makes re-enabling instant, so it goes */
+    agent_dir(exe, MAX_PATH);
+    strcat(exe, "retro-infer.exe");
+    if (GetFileAttributesA(exe) != 0xFFFFFFFF) {
+        had_exe = 1;
+        SetFileAttributesA(exe, FILE_ATTRIBUTE_NORMAL);
+        if (DeleteFileA(exe)) {
+            exe_deleted = 1;
+            removed++;
+        } else {
+            exe_err = GetLastError();
+        }
+    }
+
+    if (detail && cap > 0) {
+        _snprintf(detail, cap,
+                  "AIEngine flag %s, retro-infer.exe %s%s",
+                  flag_cleared ? "cleared" : "already absent",
+                  exe_deleted ? "deleted" :
+                      (had_exe ? "DELETE FAILED" : "not present"),
+                  had_exe && !exe_deleted ? " (see error below)" : "");
+        detail[cap - 1] = '\0';
+    }
+    if (had_exe && !exe_deleted)
+        log_msg(LOG_FILE, "AI: could NOT delete %s: error %lu", exe,
+                (unsigned long)exe_err);
+    return removed;
 }
 
 static int infer_try_connect(void)
@@ -302,6 +446,13 @@ static void infer_proxy(SOCKET sock, const char *cmd,
 {
     char *reply = NULL;
     DWORD reply_len = 0;
+    /* Say WHY. "AI engine unavailable" is true of a locked box, a box with no
+     * binary staged and a crashed engine alike, and they need different
+     * answers from the operator. */
+    if (!ai_engine_enabled()) {
+        send_error_response(sock, ai_engine_why());
+        return;
+    }
     if (infer_roundtrip(cmd, payload, payload_len, &reply, &reply_len) != 0) {
         send_error_response(sock, "AI engine unavailable");
         return;
@@ -388,6 +539,10 @@ void handle_ai_hello(SOCKET sock)
     char *merged;
     DWORD i, jend = 0;
 
+    if (!ai_engine_enabled()) {
+        send_error_response(sock, ai_engine_why());
+        return;
+    }
     if (infer_roundtrip("HELLO", NULL, 0, &reply, &reply_len) != 0) {
         send_error_response(sock, "AI engine unavailable");
         return;
@@ -424,12 +579,35 @@ DWORD WINAPI ai_status_thread(LPVOID param)
     char gpu[512];
     (void)param;
     Sleep(3000);   /* let listeners + shell settle */
-    /* Opt-in gate: do NOT stage or probe (which would spawn) the engine at boot
-     * unless it has been explicitly enabled. Keeps the vintage boxes idle. */
+
+    /* HARD LOCK (1.99.0). While this box is not allowed to run the engine we
+     * do not merely decline to start it - we UNDO any earlier enable: stop a
+     * stray instance, clear the AIEngine flag and delete the staged binary.
+     * "Off by default" that leaves yesterday's enable and yesterday's
+     * executable in place is not off.
+     *
+     * Deliberately NOT hostpolicy-guarded: the two boxes actually carrying a
+     * staged retro-infer.exe on 2026-11-08 were .145 and .139, and .139 is a
+     * modern Windows host. Deleting a file the agent staged into its own
+     * directory is self-maintenance, not reconfiguring someone's PC.
+     * tests/python/test_aigate_agent.py pins that both ways. */
+    if (ai_gate_should_purge(ai_read_flag(AI_ALLOW_VALUE))) {
+        char detail[256];
+        int removed = ai_engine_purge(detail, sizeof(detail));
+        char note[400];
+        _snprintf(note, sizeof(note), "%s: %d removed (%s)",
+                  ai_engine_why(), removed, detail);
+        note[sizeof(note) - 1] = '\0';
+        con_printf("AI: %s\n", note);
+        log_msg(LOG_MAIN, "AI: %s", note);
+        ai_engine_note_boot(note);
+        return 0;
+    }
+    /* Allowed, but not switched on. */
     if (!ai_engine_enabled()) {
-        con_printf("AI: engine disabled by default - enable via AI_ENABLE "
-                   "(retro chat)\n");
-        log_msg(LOG_MAIN, "AI: engine disabled by default (AIEngine reg flag 0)");
+        con_printf("AI: %s\n", ai_engine_why());
+        log_msg(LOG_MAIN, "AI: %s", ai_engine_why());
+        ai_engine_note_boot(ai_engine_why());
         return 0;
     }
     /* self-heal: pull the engine binary from the share if it isn't staged */
@@ -639,6 +817,23 @@ void handle_ai_restart(SOCKET sock)
  * by the retro chat interaction; the engine is OFF until this is called. */
 void handle_ai_enable(SOCKET sock)
 {
+    /* REFUSE, loudly. Setting the flag and answering OK on a locked box would
+     * report success and change nothing - the exact shape this project keeps
+     * paying for. The only way in is to set the permission by hand:
+     *   REGWRITE HKLM Software\\RetroAgent AIEngineAllowed REG_DWORD 1
+     * There is no command for it on purpose (cf. drvsafe.h / ALLOW3DFX). */
+    if (!ai_gate_may_enable(ai_read_flag(AI_ALLOW_VALUE))) {
+        char msg[320];
+        _snprintf(msg, sizeof(msg),
+                  "%s - refusing. The engine stays off and its binary stays "
+                  "removed. To allow it on this box: REGWRITE HKLM "
+                  "Software\\RetroAgent AIEngineAllowed REG_DWORD 1, then "
+                  "AI_ENABLE again.", ai_engine_why());
+        msg[sizeof(msg) - 1] = '\0';
+        log_msg(LOG_FILE, "AI: AI_ENABLE refused - %s", ai_engine_why());
+        send_error_response(sock, msg);
+        return;
+    }
     ai_engine_set_flag(1);
     log_msg(LOG_FILE, "AI: engine ENABLED via AI_ENABLE");
     if (infer_ensure() == 0)
@@ -652,26 +847,17 @@ void handle_ai_enable(SOCKET sock)
  * The default state; call this to reclaim CPU on the vintage boxes. */
 void handle_ai_disable(SOCKET sock)
 {
-    ai_engine_set_flag(0);
-    if (g_infer_sock != INVALID_SOCKET) {
-        frame_send(g_infer_sock, "SHUTDOWN", 8);
-        infer_disconnect();
-    }
-    {
-        /* best-effort taskkill of any stray engine (ignore result) */
-        STARTUPINFOA si;
-        PROCESS_INFORMATION pi;
-        char cmd[] = "taskkill /f /im retro-infer.exe";
-        memset(&si, 0, sizeof(si));
-        si.cb = sizeof(si);
-        memset(&pi, 0, sizeof(pi));
-        if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW,
-                           NULL, NULL, &si, &pi)) {
-            WaitForSingleObject(pi.hProcess, 3000);
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-    }
-    log_msg(LOG_FILE, "AI: engine DISABLED via AI_DISABLE");
-    send_text_response(sock, "OK AI engine disabled and stopped");
+    char detail[256];
+    char msg[320];
+    int removed;
+
+    /* 1.99.0: disabling also REMOVES - the flag and the staged binary - so a
+     * box that has been turned off cannot be turned back on in one command.
+     * Reports the post-condition, not "OK". */
+    removed = ai_engine_purge(detail, sizeof(detail));
+    _snprintf(msg, sizeof(msg), "OK AI engine disabled and stopped; %d "
+              "removed (%s)", removed, detail);
+    msg[sizeof(msg) - 1] = '\0';
+    log_msg(LOG_FILE, "AI: engine DISABLED via AI_DISABLE - %s", detail);
+    send_text_response(sock, msg);
 }
