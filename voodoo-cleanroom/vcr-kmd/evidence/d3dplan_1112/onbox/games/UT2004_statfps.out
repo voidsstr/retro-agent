@@ -1,0 +1,7 @@
+10:40:21 launched UT2004_statfps: {"pid":480,"command":"C:\\vcr\\onbox\\UT2004_statfps.bat"}
+10:41:07    40s alive=['UT2004.exe'] shot=(0, 255) mean=31.0 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:41:23    60s alive=['UT2004.exe'] shot=(0, 0) mean=0.0 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:41:44    80s alive=['UT2004.exe'] shot=(0, 255) mean=30.6 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:42:04   100s alive=['UT2004.exe', 'find.exe', 'tasklist.exe'] shot=(0, 255) mean=117.0 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:42:32   console exit -> gone
+10:42:40   after: display {"width":1280,"height":1024,"bpp":32,"refresh":85} dialogs []

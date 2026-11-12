@@ -1,0 +1,143 @@
+{
+ "name": "UT2004_statfps",
+ "dir": "C:\\Games\\UT2004\\System",
+ "exe": "UT2004.exe",
+ "args": "DM-Antalus?spectatoronly=true?numbots=8?quickstart=true?attractcam=true -exec=C:\\vcr\\onbox\\ut2004_statfps.txt",
+ "t_start": "2026-11-12 10:40:21",
+ "display_before": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}",
+ "foreground_before": {
+  "hwnd": "0020002E",
+  "pid": 1504,
+  "class": "ConsoleWindowClass",
+  "title": "Retro Remote Agent Version 1.100.1"
+ },
+ "upload": "OK 182",
+ "launch": "{\"pid\":480,\"command\":\"C:\\\\vcr\\\\onbox\\\\UT2004_statfps.bat\"}",
+ "samples": [
+  {
+   "at": 40,
+   "t": 45.7,
+   "alive": [
+    "UT2004.exe"
+   ],
+   "shot": {
+    "file": "UT2004_statfps_040s.png",
+    "size": [
+     1280,
+     1024
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 31.0
+   },
+   "foreground": {
+    "class": "UT2004UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2004",
+    "pid": 1888
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 60,
+   "t": 61.4,
+   "alive": [
+    "UT2004.exe"
+   ],
+   "shot": {
+    "file": "UT2004_statfps_060s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     0
+    ],
+    "luma_mean": 0.0
+   },
+   "foreground": {
+    "class": "UT2004UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2004",
+    "pid": 1888
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 80,
+   "t": 82.7,
+   "alive": [
+    "UT2004.exe"
+   ],
+   "shot": {
+    "file": "UT2004_statfps_080s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 30.6
+   },
+   "foreground": {
+    "class": "UT2004UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2004",
+    "pid": 1888
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 100,
+   "t": 102.5,
+   "alive": [
+    "UT2004.exe",
+    "find.exe",
+    "tasklist.exe"
+   ],
+   "shot": {
+    "file": "UT2004_statfps_100s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 117.0
+   },
+   "foreground": {
+    "class": "UT2004UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2004",
+    "pid": 1888
+   },
+   "new_dialogs": []
+  }
+ ],
+ "exited_by_itself": false,
+ "t_exit_or_close": 102.6,
+ "console_exit_focus": {
+  "class": "UT2004UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2004",
+  "pid": 1888
+ },
+ "closed_by_console_exit": true,
+ "display_after": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}",
+ "dialogs_after": [],
+ "after_shot": {
+  "file": "UT2004_statfps_after.png",
+  "size": [
+   1280,
+   1024
+  ],
+  "luma_extrema": [
+   0,
+   255
+  ],
+  "luma_mean": 20.3
+ },
+ "t_end": "2026-11-12 10:42:40"
+}

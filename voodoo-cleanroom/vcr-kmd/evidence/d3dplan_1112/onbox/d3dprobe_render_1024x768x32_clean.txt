@@ -1,0 +1,68 @@
+START 2026-11-12 10:12:32
+plan: d3dprobe render fullscreen at 1024x768x32@100 (the highest refresh the driver lists there: the default refresh lets it pick)   81.43 kHz 100.04 Hz  113.4 MHz
+  monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 22, "zfmt": 77, "noz": 0, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "second clear", "x": 200, "y": 60, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "flat", "at": "inside", "x": 128, "y": 128, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "flat", "at": "outside", "x": 8, "y": 8, "got": "000000", "want": "000000", "ok": 1}, {"test": "flat", "at": "left edge in", "x": 33, "y": 128, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "flat", "at": "right edge out", "x": 225, "y": 128, "got": "000000", "want": "000000", "ok": 1}, {"test": "gouraud", "at": "near red corner", "x": 34, "y": 34, "got": "f90202", "want": "ff0000", "ok": 1}, {"test": "gouraud", "at": "near green corner", "x": 221, "y": 34, "got": "01fb02", "want": "00ff00", "ok": 1}, {"test": "gouraud", "at": "near blue corner", "x": 34, "y": 221, "got": "0102fb", "want": "0000ff", "ok": 1}, {"test": "gouraudb", "at": "near blue corner", "x": 34, "y": 34, "got": "0202f9", "want": "0000ff", "ok": 1}, {"test": "gouraudb", "at": "near red corner", "x": 221, "y": 34, "got": "fb0201", "want": "ff0000", "ok": 1}, {"test": "gouraudb", "at": "near green corner", "x": 34, "y": 221, "got": "02fb01", "want": "00ff00", "ok": 1}, {"test": "gouraudb", "at": "near white corner", "x": 221, "y": 221, "got": "fbfbf7", "want": "ffffff", "ok": 1}, {"test": "tex", "at": "cell (0,0)", "x": 45, "y": 45, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex", "at": "cell (1,0)", "x": 69, "y": 45, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex", "at": "cell (1,1)", "x": 69, "y": 69, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex", "at": "last cell", "x": 213, "y": 213, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "modulate", "at": "cell (0,0)", "x": 45, "y": 45, "got": "800000", "want": "800000", "ok": 1}, {"test": "modulate", "at": "cell (1,0)", "x": 69, "y": 45, "got": "000080", "want": "000080", "ok": 1}, {"test": "modulate", "at": "cell (1,1)", "x": 69, "y": 69, "got": "800000", "want": "800000", "ok": 1}, {"test": "modulate", "at": "last cell", "x": 213, "y": 213, "got": "800000", "want": "800000", "ok": 1}, {"test": "blend", "at": "50% red over blue", "x": 128, "y": 128, "got": "80007f", "want": "80007f", "ok": 1}, {"test": "blend", "at": "outside", "x": 8, "y": 8, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "ztest", "at": "far quad hidden", "x": 180, "y": 128, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "ztest", "at": "near quad drawn", "x": 64, "y": 128, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "bigtex", "at": "cell (0,0)", "x": 35, "y": 35, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "bigtex", "at": "cell (1,0)", "x": 41, "y": 35, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "bigtex", "at": "cell (1,1)", "x": 41, "y": 41, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "bigtex", "at": "last cell", "x": 221, "y": 221, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "fogtable", "at": "no fog", "x": 48, "y": 128, "got": "fe0000", "want": "ff0000", "ok": 1}, {"test": "fogtable", "at": "half fog", "x": 128, "y": 128, "got": "7e0080", "want": "80007f", "ok": 1}, {"test": "fogtable", "at": "all fog", "x": 208, "y": 128, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "fogvertex", "at": "no fog", "x": 48, "y": 128, "got": "fe0000", "want": "ff0000", "ok": 1}, {"test": "fogvertex", "at": "half fog", "x": 128, "y": 128, "got": "7f007f", "want": "80007f", "ok": 1}, {"test": "fogvertex", "at": "all fog", "x": 208, "y": 128, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex2mod", "at": "red cell", "x": 45, "y": 45, "got": "840000", "want": "840000", "ok": 1}, {"test": "tex2mod", "at": "blue cell", "x": 69, "y": 45, "got": "000084", "want": "000084", "ok": 1}, {"test": "tex2add", "at": "red cell", "x": 45, "y": 45, "got": "ff4100", "want": "ff4000", "ok": 1}, {"test": "tex2add", "at": "blue cell", "x": 69, "y": 45, "got": "0041ff", "want": "0041ff", "ok": 1}], "readback": "backbuffer", "pass": 40, "fail": 0, "skipped": 0, "max_texture": 2048, "focus_lost": false}
+d3dprobe render: fullscreen 1024x768x32
+adapter "vcr-kmd Voodoo 5 6000 (open driver)" driver vcrdd.dll 6.14.1.1; desktop 1280x1024 fmt 22
+GetDeviceCaps(HAL) 00000000
+CreateDevice(HAL, fullscreen, back buffer 1024x768 fmt 22, z fmt 77)
+device created
+MaxTexture 2048x2048
+test clear
+  clear corner (0,0): got ff0000 want ff0000 tol 8 -> ok
+  clear centre (128,128): got ff0000 want ff0000 tol 8 -> ok
+  clear second clear (200,60): got 0000ff want 0000ff tol 8 -> ok
+test flat
+  flat inside (128,128): got 00ff00 want 00ff00 tol 8 -> ok
+  flat outside (8,8): got 000000 want 000000 tol 8 -> ok
+  flat left edge in (33,128): got 00ff00 want 00ff00 tol 8 -> ok
+  flat right edge out (225,128): got 000000 want 000000 tol 8 -> ok
+test gouraud
+  gouraud near red corner (34,34): got f90202 want ff0000 tol 24 -> ok
+  gouraud near green corner (221,34): got 01fb02 want 00ff00 tol 24 -> ok
+  gouraud near blue corner (34,221): got 0102fb want 0000ff tol 24 -> ok
+test gouraudb
+  gouraudb near blue corner (34,34): got 0202f9 want 0000ff tol 24 -> ok
+  gouraudb near red corner (221,34): got fb0201 want ff0000 tol 24 -> ok
+  gouraudb near green corner (34,221): got 02fb01 want 00ff00 tol 24 -> ok
+  gouraudb near white corner (221,221): got fbfbf7 want ffffff tol 24 -> ok
+test tex
+  tex cell (0,0) (45,45): got ff0000 want ff0000 tol 12 -> ok
+  tex cell (1,0) (69,45): got 0000ff want 0000ff tol 12 -> ok
+  tex cell (1,1) (69,69): got ff0000 want ff0000 tol 12 -> ok
+  tex last cell (213,213): got ff0000 want ff0000 tol 12 -> ok
+test modulate
+  modulate cell (0,0) (45,45): got 800000 want 800000 tol 12 -> ok
+  modulate cell (1,0) (69,45): got 000080 want 000080 tol 12 -> ok
+  modulate cell (1,1) (69,69): got 800000 want 800000 tol 12 -> ok
+  modulate last cell (213,213): got 800000 want 800000 tol 12 -> ok
+test blend
+  blend 50% red over blue (128,128): got 80007f want 80007f tol 20 -> ok
+  blend outside (8,8): got 0000ff want 0000ff tol 8 -> ok
+test ztest
+  ztest far quad hidden (180,128): got 00ff00 want 00ff00 tol 8 -> ok
+  ztest near quad drawn (64,128): got 0000ff want 0000ff tol 8 -> ok
+test bigtex
+  bigtex cell (0,0) (35,35): got ff0000 want ff0000 tol 12 -> ok
+  bigtex cell (1,0) (41,35): got 0000ff want 0000ff tol 12 -> ok
+  bigtex cell (1,1) (41,41): got ff0000 want ff0000 tol 12 -> ok
+  bigtex last cell (221,221): got ff0000 want ff0000 tol 12 -> ok
+test present
+  present: windowed only
+test fogtable
+  fogtable no fog (48,128): got fe0000 want ff0000 tol 12 -> ok
+  fogtable half fog (128,128): got 7e0080 want 80007f tol 40 -> ok
+  fogtable all fog (208,128): got 0000ff want 0000ff tol 12 -> ok
+test fogvertex
+  fogvertex no fog (48,128): got fe0000 want ff0000 tol 12 -> ok
+  fogvertex half fog (128,128): got 7f007f want 80007f tol 40 -> ok
+  fogvertex all fog (208,128): got 0000ff want 0000ff tol 12 -> ok
+test tex2mod
+  tex2mod red cell (45,45): got 840000 want 840000 tol 14 -> ok
+  tex2mod blue cell (69,45): got 000084 want 000084 tol 14 -> ok
+test tex2add
+  tex2add red cell (45,45): got ff4100 want ff4000 tol 14 -> ok
+  tex2add blue cell (69,45): got 0041ff want 0041ff tol 14 -> ok
+RESULT {"mode":"render","adapter":"vcr-kmd Voodoo 5 6000 (open driver)","window":"fullscreen","fmt":22,"zfmt":77,"noz":0,"checks":[{"test":"clear","at":"corner","x":0,"y":0,"got":"ff0000","want":"ff0000","ok":1},{"test":"clear","at":"centre","x":128,"y":128,"got":"ff0000","want":"ff0000","ok":1},{"test":"clear","at":"second clear","x":200,"y":60,"got":"0000ff","want":"0000ff","ok":1},{"test":"flat","at":"inside","x":128,"y":128,"got":"00ff00","want":"00ff00","ok":1},{"test":"flat","at":"outside","x":8,"y":8,"got":"000000","want":"000000","ok":1},{"test":"flat","at":"left edge in","x":33,"y":128,"got":"00ff00","want":"00ff00","ok":1},{"test":"flat","at":"right edge out","x":225,"y":128,"got":"000000","want":"000000","ok":1},{"test":"gouraud","at":"near red corner","x":34,"y":34,"got":"f90202","want":"ff0000","ok":1},{"test":"gouraud","at":"near green corner","x":221,"y":34,"got":"01fb02","want":"00ff00","ok":1},{"test":"gouraud","at":"near blue corner","x":34,"y":221,"got":"0102fb","want":"0000ff","ok":1},{"test":"gouraudb","at":"near blue corner","x":34,"y":34,"got":"0202f9","want":"0000ff","ok":1},{"test":"gouraudb","at":"near red corner","x":221,"y":34,"got":"fb0201","want":"ff0000","ok":1},{"test":"gouraudb","at":"near green corner","x":34,"y":221,"got":"02fb01","want":"00ff00","ok":1},{"test":"gouraudb","at":"near white corner","x":221,"y":221,"got":"fbfbf7","want":"ffffff","ok":1},{"test":"tex","at":"cell (0,0)","x":45,"y":45,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex","at":"cell (1,0)","x":69,"y":45,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex","at":"cell (1,1)","x":69,"y":69,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex","at":"last cell","x":213,"y":213,"got":"ff0000","want":"ff0000","ok":1},{"test":"modulate","at":"cell (0,0)","x":45,"y":45,"got":"800000","want":"800000","ok":1},{"test":"modulate","at":"cell (1,0)","x":69,"y":45,"got":"000080","want":"000080","ok":1},{"test":"modulate","at":"cell (1,1)","x":69,"y":69,"got":"800000","want":"800000","ok":1},{"test":"modulate","at":"last cell","x":213,"y":213,"got":"800000","want":"800000","ok":1},{"test":"blend","at":"50% red over blue","x":128,"y":128,"got":"80007f","want":"80007f","ok":1},{"test":"blend","at":"outside","x":8,"y":8,"got":"0000ff","want":"0000ff","ok":1},{"test":"ztest","at":"far quad hidden","x":180,"y":128,"got":"00ff00","want":"00ff00","ok":1},{"test":"ztest","at":"near quad drawn","x":64,"y":128,"got":"0000ff","want":"0000ff","ok":1},{"test":"bigtex","at":"cell (0,0)","x":35,"y":35,"got":"ff0000","want":"ff0000","ok":1},{"test":"bigtex","at":"cell (1,0)","x":41,"y":35,"got":"0000ff","want":"0000ff","ok":1},{"test":"bigtex","at":"cell (1,1)","x":41,"y":41,"got":"ff0000","want":"ff0000","ok":1},{"test":"bigtex","at":"last cell","x":221,"y":221,"got":"ff0000","want":"ff0000","ok":1},{"test":"fogtable","at":"no fog","x":48,"y":128,"got":"fe0000","want":"ff0000","ok":1},{"test":"fogtable","at":"half fog","x":128,"y":128,"got":"7e0080","want":"80007f","ok":1},{"test":"fogtable","at":"all fog","x":208,"y":128,"got":"0000ff","want":"0000ff","ok":1},{"test":"fogvertex","at":"no fog","x":48,"y":128,"got":"fe0000","want":"ff0000","ok":1},{"test":"fogvertex","at":"half fog","x":128,"y":128,"got":"7f007f","want":"80007f","ok":1},{"test":"fogvertex","at":"all fog","x":208,"y":128,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex2mod","at":"red cell","x":45,"y":45,"got":"840000","want":"840000","ok":1},{"test":"tex2mod","at":"blue cell","x":69,"y":45,"got":"000084","want":"000084","ok":1},{"test":"tex2add","at":"red cell","x":45,"y":45,"got":"ff4100","want":"ff4000","ok":1},{"test":"tex2add","at":"blue cell","x":69,"y":45,"got":"0041ff","want":"0041ff","ok":1}],"readback":"backbuffer","pass":40,"fail":0,"skipped":0,"max_texture":2048,"focus_lost":false}
+
+rc=0 END 2026-11-12 10:12:38

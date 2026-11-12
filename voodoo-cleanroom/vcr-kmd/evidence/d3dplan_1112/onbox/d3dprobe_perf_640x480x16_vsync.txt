@@ -1,0 +1,13 @@
+START 2026-11-12 10:13:58
+plan: d3dprobe perf fullscreen at 640x480x16@120 (the highest refresh the driver lists there: the default refresh lets it pick)   61.81 kHz 120.02 Hz   52.4 MHz
+  monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+{"mode": "perf", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "frames": 300, "frames_run": 300, "tris_per_frame": 200, "fps": 85.1, "tris_s": 17029, "focus_lost": false}
+d3dprobe perf: fullscreen 640x480x16
+adapter "vcr-kmd Voodoo 5 6000 (open driver)" driver vcrdd.dll 6.14.1.1; desktop 1280x1024 fmt 22
+GetDeviceCaps(HAL) 00000000
+CreateDevice(HAL, fullscreen, back buffer 640x480 fmt 23, z fmt 80)
+device created
+MaxTexture 2048x2048
+RESULT {"mode":"perf","adapter":"vcr-kmd Voodoo 5 6000 (open driver)","frames":300,"frames_run":300,"tris_per_frame":200,"fps":85.1,"tris_s":17029,"focus_lost":false}
+
+rc=0 END 2026-11-12 10:14:04

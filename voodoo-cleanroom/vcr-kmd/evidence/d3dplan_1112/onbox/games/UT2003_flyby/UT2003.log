@@ -1,0 +1,254 @@
+Log: Log file open, 11/12/26 10:23:42
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows XP 5.1 (Build: 2600)
+Init: Version: 2225 (121.29)
+Init: Compiled: Apr 16 2003 22:59:27
+Init: Command line:  dm-antalus?game=engine.gameinfo exec=..\Benchmark\Stuff\flybyexec.txt -benchmark -seconds=77 -nosound
+Init: Base directory: C:\Games\UT2003\System\
+Init: Character set: Unicode
+Init: Build label: UT2003 Build UT2003_Build_[2003-04-07_17.42]
+Log: Bound to Window.dll
+Log: Bound to Core.dll
+Log: Bound to Engine.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX SSE
+Init: CPU Speed=2006.734370 MHz
+Init: Memory total: Phys=261608K Pagef=634780K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: Physical Memory: 255 MByte
+Init: D3D Device: Video memory on board: 58
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Client initialized
+Log: Bound to D3DDrv.dll
+Init: Direct3D adapters detected:
+Log: 	vcrdd.dll/vcr-kmd Voodoo 5 6000 (open driver)
+Init: D3D Driver: MaxTextureBlendStages=2
+Init: D3D Driver: MaxSimultaneousTextures=2
+Init: D3D Driver: MaxActiveLights=8
+Init: D3D Driver: MaxPrimitiveCount=65535
+Init: D3D Driver: MaxVertexIndex=65535
+Init: D3D Driver: MaxStreams=16
+Init: D3D Driver: MaxStreamStride=255
+Init: D3D Driver: MaxVertexShaderConst=0
+Init: D3D Driver: VertexShaderVersion=0.0
+Init: D3D Driver: PixelShaderVersion=0.0
+Init: D3D Driver: WARNING : no AGP support detected
+Init: D3D Driver: Using w- pixel fog
+Init: D3D Driver: Supports BLENDDIFFUSEALPHA
+Init: Unreal Engine Direct3D support - internal version: SB3
+Init: D3D Device: szDriver=vcrdd.dll
+Init: D3D Device: szDescription=vcr-kmd Voodoo 5 6000 (open driver)
+Init: D3D Device: wProduct=6
+Init: D3D Device: wVersion=14
+Init: D3D Device: wSubVersion=1
+Init: D3D Device: wBuild=1
+Init: D3D Device: dwVendorId=4634
+Init: D3D Device: dwDeviceId=9
+Init: D3D Device: dwSubSysId=70170
+Init: D3D Device: dwRevision=1
+Init: D3D Detected: 3dfx video card
+Init: D3D Device: not using cubemaps
+Log: (Karma): Beginning Karma for game.
+Log: (Karma): Creating MeAssetDB.
+Log: (Karma): Loading: Alien.ka
+Log: (Karma): Loading: Bot.ka
+Log: (Karma): Loading: Human.ka
+Log: (Karma): Loading: intro.ka
+Log: (Karma): Loading: jugg.ka
+Log: (Karma): Finished Creating MeAssetDB (12 Assets).
+Log: LoadMap: Entry
+Log: Bound to XGame.dll
+Log: Bound to Fire.dll
+Log: Bound to Editor.dll
+Log: Static mesh batches: 0 vertex bytes, 0 index bytes
+Log: Game class is 'GameInfo'
+Log: Level is Level Entry.myLevel
+Log: Bringing Level Entry.myLevel up for play (0) appSeconds: 0.000337...
+ScriptLog: Base Mutator is Entry.Mutator
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: 0 ANTIPORTALS
+Log: Browse: dm-antalus?Name=Player?Class=Engine.Pawn?Character=Gorge?team=255?game=engine.gameinfo
+Log: LoadMap: dm-antalus?Name=Player?Class=Engine.Pawn?Character=Gorge?team=255?game=engine.gameinfo
+Log: (Karma): Initialising Karma for Level.
+Log: (Karma): Autodetecting CPU for SSE
+Log: (Karma): Using SSE Optimizations
+Log: Static mesh batches: 2745936 vertex bytes, 380904 index bytes
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 21454->21396; refs: 259379
+Log: Game class is 'GameInfo'
+Log: Level is Level dm-antalus.myLevel
+Log: Bringing Level dm-antalus.myLevel up for play (0) appSeconds: 0.000052...
+ScriptLog: Base Mutator is dm-antalus.Mutator
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: 14 ANTIPORTALS
+Log: Bound to XInterface.dll
+Log: Bound to IpDrv.dll
+Log: Bound to UWeb.dll
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: PlayerController got player WindowsViewport
+Log: No ScoreBoardType specified in GameInfo
+ScriptLog: New Player Player id= eb01c977c6498afa70b358fdfb22373a
+Init: Input system initialized for WindowsViewport
+Log: Opened viewport
+Log: Enter SetRes: 640x480 Fullscreen 1
+Init: Best-match display mode: 640x480x16@120
+Log: Using back-buffer format 23(16-bit)
+Log: Using depth-buffer format 80(16-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Init: D3D Driver: CreateDevice: will use software transform and lighting.
+Init: D3D Driver: CreateDevice: will use software vertex processing
+Init: D3D Device: Device doesn't support D3DVTXPCAPS_MATERIALSOURCE7
+Log: Creating IME context.
+Log: OS doesn't support IME.
+Init: Game engine initialized
+Log: Startup time: 2.816984 seconds
+Log: FactoryCreateText: TextBuffer with TextBufferFactory (0 1 ..\Benchmark\Stuff\flybyexec.txt)
+Log: Execing ..\Benchmark\Stuff\flybyexec.txt
+Log: Precaching: dm-antalus.LevelInfo0
+Log: Allocating 16384 byte dynamic index buffer.
+Log: Allocating 65536 byte dynamic vertex buffer.
+Log: Finished precaching geometry in 1.675 seconds
+Log: Finished precaching textures in 3.087 seconds
+Log: Closing by request
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Window.dll
+Log: Unbound to Core.dll
+Log: Unbound to Engine.dll
+Log: 253830.7ms Unloading: Package Engine
+Log: 253833.6ms Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to D3DDrv.dll
+Log: 256376.5ms Unloading: Package Packages
+Log: 256376.7ms Unloading: Package Entry
+Log: Unbound to XGame.dll
+Log: 256376.8ms Unloading: Package XGame
+Log: 256377.2ms Unloading: Package TauntPack
+Log: 256377.3ms Unloading: Package UnrealGame
+Log: 256378.3ms Unloading: Package Gameplay
+Log: 256378.4ms Unloading: Package AnnouncerMain
+Log: 256378.5ms Unloading: Package GameSounds
+Log: 256378.6ms Unloading: Package InterfaceContent
+Log: 256378.7ms Unloading: Package intro_characters
+Log: 256378.7ms Unloading: Package PlayerSounds
+Log: 256378.8ms Unloading: Package NewDeath
+Log: 256378.9ms Unloading: Package XEffects
+Log: 256379.1ms Unloading: Package XEffectMat
+Log: 256379.1ms Unloading: Package EpicParticles
+Log: 256379.2ms Unloading: Package WeaponSounds
+Log: 256379.3ms Unloading: Package BloodFX
+Log: 256379.3ms Unloading: Package ParticleMeshes
+Log: 256379.4ms Unloading: Package AWGlobal
+Log: 256379.4ms Unloading: Package UCGeneric
+Log: 256379.5ms Unloading: Package CubeMaps
+Log: 256379.6ms Unloading: Package XGameShaders
+Log: 256379.6ms Unloading: Package PlayerSkins
+Log: 256379.7ms Unloading: Package Shiptech
+Log: 256379.7ms Unloading: Package XGameTextures
+Log: 256379.8ms Unloading: Package TeamSymbols_UT2003
+Log: 256379.8ms Unloading: Package AlleriaArchitecture
+Log: 256379.9ms Unloading: Package TowerTerrain
+Log: 256379.9ms Unloading: Package AbaddonArchitecture
+Log: 256379.9ms Unloading: Package AbaddonTerrain
+Log: 256380.0ms Unloading: Package AbaddonArchitecture-epic
+Log: 256380.0ms Unloading: Package SkyRenders
+Log: 256380.1ms Unloading: Package dom-goose
+Log: 256380.1ms Unloading: Package FireEngine
+Log: Unbound to Fire.dll
+Log: 256380.2ms Unloading: Package Fire
+Log: 256380.2ms Unloading: Package MikeDemoLevel
+Log: 256380.3ms Unloading: Package ArboreaArchitecture
+Log: 256380.3ms Unloading: Package H_E_L_Ltx
+Log: 256380.4ms Unloading: Package Egypt_tech_Epic
+Log: 256380.4ms Unloading: Package ArboreaTerrain
+Log: 256380.5ms Unloading: Package PickupSkins
+Log: 256380.5ms Unloading: Package XGameShadersB
+Log: 256380.6ms Unloading: Package DefaultFluid
+Log: 256380.6ms Unloading: Package EmitterTextures
+Log: 256380.7ms Unloading: Package GeneralAmbience
+Log: Unbound to Editor.dll
+Log: 256381.1ms Unloading: Package Editor
+Log: 256381.2ms Unloading: Package WeaponStaticMesh
+Log: 256381.3ms Unloading: Package WeaponSkins
+Log: 256381.4ms Unloading: Package XGame_rc
+Log: 256381.4ms Unloading: Package SC_Volcano_T
+Log: 256381.4ms Unloading: Package XPickups
+Log: 256381.5ms Unloading: Package PickupSounds
+Log: 256381.5ms Unloading: Package E_Pickups
+Log: 256381.6ms Unloading: Package XPickups_rc
+Log: 256381.6ms Unloading: Package XGame_StaticMeshes
+Log: 256381.7ms Unloading: Package DanFX
+Log: 256381.7ms Unloading: Package Phobos2_cp
+Log: 256381.7ms Unloading: Package CP_Effects1
+Log: 256381.8ms Unloading: Package TeamSymbols
+Log: 256381.8ms Unloading: Package GeneralImpacts
+Log: 256381.9ms Unloading: Package DeRez
+Log: 256381.9ms Unloading: Package MenuSounds
+Log: 256382.0ms Unloading: Package Jugg
+Log: 256423.3ms Unloading: Package dm-antalus
+Log: 256424.2ms Unloading: Package ArboreaLanscape
+Log: 256424.3ms Unloading: Package XWeapons
+Log: 256424.8ms Unloading: Package XWeapons_rc
+Log: 256424.9ms Unloading: Package Weapons
+Log: 256425.0ms Unloading: Package InstagibEffects
+Log: 256425.0ms Unloading: Package IndoorAmbience
+Log: 256425.1ms Unloading: Package AntalusStatic
+Log: 256425.1ms Unloading: Package AntalusTextures
+Log: 256425.2ms Unloading: Package ArboreaHardware
+Log: 256425.2ms Unloading: Package ArboreaHardwareBrush
+Log: 256425.3ms Unloading: Package AlleriaTerrain
+Log: 256425.3ms Unloading: Package OutdoorAmbience
+Log: 256425.4ms Unloading: Package cp_wasteland
+Log: 256425.5ms Unloading: Package cf_tex02
+Log: 256425.5ms Unloading: Package BarrensTerrain
+Log: 256425.5ms Unloading: Package Face3_deco
+Log: 256425.6ms Unloading: Package BarrensArchitecture-epic
+Log: 256425.6ms Unloading: Package BarrensArchitecture
+Log: 256425.7ms Unloading: Package cf_tex01
+Log: 256425.7ms Unloading: Package AW-Alleria
+Log: 256425.8ms Unloading: Package Pipe_Set
+Log: 256425.8ms Unloading: Package TowerStatic
+Log: 256425.8ms Unloading: Package cassTextures2
+Log: 256425.9ms Unloading: Package Shiptech2
+Log: 256425.9ms Unloading: Package HumanoidArchitecture
+Log: (Karma): Terminating Karma for Level.
+Log: (Karma): Level Karma Terminated.
+Log: (Karma): Ending Karma for game.
+Log: (Karma): Destroying Geometry Manager.
+Log: (Karma): Destroying Asset Database.
+Log: (Karma): Destroying Framework.
+Log: 256480.7ms Unloading: Package UT2003Fonts
+Log: Unbound to XInterface.dll
+Log: 256481.2ms Unloading: Package XInterface
+Log: Unbound to IpDrv.dll
+Log: 256482.5ms Unloading: Package IpDrv
+Log: 256482.6ms Unloading: Package Laddershots
+Log: 256482.7ms Unloading: Package ExitScreen
+Log: Unbound to UWeb.dll
+Log: 256482.7ms Unloading: Package UWeb
+Log: 256482.8ms Unloading: Package Crosshairs
+Log: 256482.8ms Unloading: Package ServerIcons
+Log: 256482.9ms Unloading: Package MenuEffects
+Log: 256482.9ms Unloading: Package LastManStanding
+Log: 256482.9ms Unloading: Package SinglePlayerThumbs
+Log: Garbage: objects: 25833->0; refs: 259379
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Log: Waiting for file streaming thread to finish...
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.115M /  2.121M
+Uninitialized: Peak Memory  185.822M /  187.898M
+Uninitialized: Allocs         646 Current /  1256334 Total
+Uninitialized: Log file closed, 11/12/26 10:28:19

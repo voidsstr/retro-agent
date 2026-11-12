@@ -1,0 +1,141 @@
+{
+ "name": "UT2003_flyby",
+ "dir": "C:\\Games\\UT2003\\Benchmark",
+ "exe": "..\\System\\ut2003.exe",
+ "args": "dm-antalus?game=engine.gameinfo exec=..\\Benchmark\\Stuff\\flybyexec.txt -benchmark -seconds=77 -nosound",
+ "t_start": "2026-11-12 10:23:26",
+ "display_before": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}",
+ "foreground_before": {
+  "hwnd": "0020002E",
+  "pid": 1504,
+  "class": "ConsoleWindowClass",
+  "title": "Retro Remote Agent Version 1.100.1"
+ },
+ "upload": "OK 187",
+ "launch": "{\"pid\":1796,\"command\":\"C:\\\\vcr\\\\onbox\\\\UT2003_flyby.bat\"}",
+ "samples": [
+  {
+   "at": 30,
+   "t": 30.4,
+   "alive": [
+    "UT2003.exe"
+   ],
+   "shot": {
+    "file": "UT2003_flyby_030s.png",
+    "size": [
+     640,
+     480
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 207.7
+   },
+   "foreground": {
+    "class": "UT2003UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2003",
+    "pid": 208
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 60,
+   "t": 60.5,
+   "alive": [
+    "UT2003.exe"
+   ],
+   "shot": {
+    "file": "UT2003_flyby_060s.png",
+    "size": [
+     640,
+     480
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 24.3
+   },
+   "foreground": {
+    "class": "UT2003UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2003",
+    "pid": 208
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 90,
+   "t": 90.5,
+   "alive": [
+    "UT2003.exe"
+   ],
+   "shot": {
+    "file": "UT2003_flyby_090s.png",
+    "size": [
+     640,
+     480
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 22.8
+   },
+   "foreground": {
+    "class": "UT2003UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2003",
+    "pid": 208
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 120,
+   "t": 120.5,
+   "alive": [
+    "UT2003.exe"
+   ],
+   "shot": {
+    "file": "UT2003_flyby_120s.png",
+    "size": [
+     640,
+     480
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 60.0
+   },
+   "foreground": {
+    "class": "UT2003UnrealWWindowsViewportWindow",
+    "title": "Unreal Tournament 2003",
+    "pid": 208
+   },
+   "new_dialogs": []
+  }
+ ],
+ "exited_by_itself": false,
+ "t_exit_or_close": 270.7,
+ "console_exit_focus": {
+  "class": "UT2003UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2003",
+  "pid": 208
+ },
+ "closed_by_console_exit": true,
+ "display_after": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}",
+ "dialogs_after": [],
+ "after_shot": {
+  "file": "UT2003_flyby_after.png",
+  "size": [
+   1280,
+   1024
+  ],
+  "luma_extrema": [
+   0,
+   255
+  ],
+  "luma_mean": 20.3
+ },
+ "t_end": "2026-11-12 10:28:14"
+}

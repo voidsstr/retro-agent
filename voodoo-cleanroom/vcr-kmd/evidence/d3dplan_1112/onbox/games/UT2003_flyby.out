@@ -1,0 +1,7 @@
+10:23:26 launched UT2003_flyby: {"pid":1796,"command":"C:\\vcr\\onbox\\UT2003_flyby.bat"}
+10:23:57    30s alive=['UT2003.exe'] shot=(0, 255) mean=207.7 fg=UT2003UnrealWWindowsViewportWindow/Unreal Tournament 2003 dialogs=[]
+10:24:27    60s alive=['UT2003.exe'] shot=(0, 255) mean=24.3 fg=UT2003UnrealWWindowsViewportWindow/Unreal Tournament 2003 dialogs=[]
+10:24:57    90s alive=['UT2003.exe'] shot=(0, 255) mean=22.8 fg=UT2003UnrealWWindowsViewportWindow/Unreal Tournament 2003 dialogs=[]
+10:25:27   120s alive=['UT2003.exe'] shot=(0, 255) mean=60.0 fg=UT2003UnrealWWindowsViewportWindow/Unreal Tournament 2003 dialogs=[]
+10:28:06   console exit -> gone
+10:28:14   after: display {"width":1280,"height":1024,"bpp":32,"refresh":85} dialogs []

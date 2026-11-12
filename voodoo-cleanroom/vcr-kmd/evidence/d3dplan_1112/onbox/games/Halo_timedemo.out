@@ -1,0 +1,8 @@
+10:29:53 launched Halo_timedemo: {"pid":1604,"command":"C:\\vcr\\onbox\\Halo_timedemo.bat"}
+10:30:25    30s alive=['halo.exe'] shot=(0, 255) mean=37.4 fg=Halo/Halo dialogs=[]
+10:30:56    60s alive=['halo.exe'] shot=(0, 255) mean=19.2 fg=Halo/Halo dialogs=[]
+10:31:26    90s alive=['halo.exe'] shot=(0, 255) mean=17.7 fg=Halo/Halo dialogs=[]
+10:31:55   120s alive=['halo.exe'] shot=(0, 255) mean=14.7 fg=Halo/Halo dialogs=[]
+10:32:56   180s alive=['halo.exe'] shot=(0, 247) mean=22.3 fg=Halo/Halo dialogs=[]
+10:37:58   still running after the wait: {968: 'halo.exe'} - WM_CLOSE by pid
+10:38:11   after: display {"width":1280,"height":1024,"bpp":32,"refresh":85} dialogs []

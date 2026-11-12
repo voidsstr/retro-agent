@@ -1,0 +1,3 @@
+0 {"cmd":"reg","ok":true,"offset":"0","index":"0","value":"0000001f"}
+80024 {"cmd":"reg","ok":true,"offset":"80024","index":"0","value":"00000000"}
+8002c {"cmd":"reg","ok":true,"offset":"8002c","index":"0","value":"00000000"}

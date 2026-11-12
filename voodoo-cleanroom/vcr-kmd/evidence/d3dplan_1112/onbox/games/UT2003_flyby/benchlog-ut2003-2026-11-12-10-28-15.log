@@ -1,0 +1,121 @@
+Log: Log file open, 11/12/26 10:23:42
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows XP 5.1 (Build: 2600)
+Init: Version: 2225 (121.29)
+Init: Compiled: Apr 16 2003 22:59:27
+Init: Command line:  dm-antalus?game=engine.gameinfo exec=..\Benchmark\Stuff\flybyexec.txt -benchmark -seconds=77 -nosound
+Init: Base directory: C:\Games\UT2003\System\
+Init: Character set: Unicode
+Init: Build label: UT2003 Build UT2003_Build_[2003-04-07_17.42]
+Log: Bound to Window.dll
+Log: Bound to Core.dll
+Log: Bound to Engine.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX SSE
+Init: CPU Speed=2006.734370 MHz
+Init: Memory total: Phys=261608K Pagef=634780K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: Physical Memory: 255 MByte
+Init: D3D Device: Video memory on board: 58
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Client initialized
+Log: Bound to D3DDrv.dll
+Init: Direct3D adapters detected:
+Log: 	vcrdd.dll/vcr-kmd Voodoo 5 6000 (open driver)
+Init: D3D Driver: MaxTextureBlendStages=2
+Init: D3D Driver: MaxSimultaneousTextures=2
+Init: D3D Driver: MaxActiveLights=8
+Init: D3D Driver: MaxPrimitiveCount=65535
+Init: D3D Driver: MaxVertexIndex=65535
+Init: D3D Driver: MaxStreams=16
+Init: D3D Driver: MaxStreamStride=255
+Init: D3D Driver: MaxVertexShaderConst=0
+Init: D3D Driver: VertexShaderVersion=0.0
+Init: D3D Driver: PixelShaderVersion=0.0
+Init: D3D Driver: WARNING : no AGP support detected
+Init: D3D Driver: Using w- pixel fog
+Init: D3D Driver: Supports BLENDDIFFUSEALPHA
+Init: Unreal Engine Direct3D support - internal version: SB3
+Init: D3D Device: szDriver=vcrdd.dll
+Init: D3D Device: szDescription=vcr-kmd Voodoo 5 6000 (open driver)
+Init: D3D Device: wProduct=6
+Init: D3D Device: wVersion=14
+Init: D3D Device: wSubVersion=1
+Init: D3D Device: wBuild=1
+Init: D3D Device: dwVendorId=4634
+Init: D3D Device: dwDeviceId=9
+Init: D3D Device: dwSubSysId=70170
+Init: D3D Device: dwRevision=1
+Init: D3D Detected: 3dfx video card
+Init: D3D Device: not using cubemaps
+Log: (Karma): Beginning Karma for game.
+Log: (Karma): Creating MeAssetDB.
+Log: (Karma): Loading: Alien.ka
+Log: (Karma): Loading: Bot.ka
+Log: (Karma): Loading: Human.ka
+Log: (Karma): Loading: intro.ka
+Log: (Karma): Loading: jugg.ka
+Log: (Karma): Finished Creating MeAssetDB (12 Assets).
+Log: LoadMap: Entry
+Log: Bound to XGame.dll
+Log: Bound to Fire.dll
+Log: Bound to Editor.dll
+Log: Static mesh batches: 0 vertex bytes, 0 index bytes
+Log: Game class is 'GameInfo'
+Log: Level is Level Entry.myLevel
+Log: Bringing Level Entry.myLevel up for play (0) appSeconds: 0.000337...
+ScriptLog: Base Mutator is Entry.Mutator
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: 0 ANTIPORTALS
+Log: Browse: dm-antalus?Name=Player?Class=Engine.Pawn?Character=Gorge?team=255?game=engine.gameinfo
+Log: LoadMap: dm-antalus?Name=Player?Class=Engine.Pawn?Character=Gorge?team=255?game=engine.gameinfo
+Log: (Karma): Initialising Karma for Level.
+Log: (Karma): Autodetecting CPU for SSE
+Log: (Karma): Using SSE Optimizations
+Log: Static mesh batches: 2745936 vertex bytes, 380904 index bytes
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 21454->21396; refs: 259379
+Log: Game class is 'GameInfo'
+Log: Level is Level dm-antalus.myLevel
+Log: Bringing Level dm-antalus.myLevel up for play (0) appSeconds: 0.000052...
+ScriptLog: Base Mutator is dm-antalus.Mutator
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: 14 ANTIPORTALS
+Log: Bound to XInterface.dll
+Log: Bound to IpDrv.dll
+Log: Bound to UWeb.dll
+ScriptLog: Team 255
+ScriptLog: Login: Player
+Log: PlayerController got player WindowsViewport
+Log: No ScoreBoardType specified in GameInfo
+ScriptLog: New Player Player id= eb01c977c6498afa70b358fdfb22373a
+Init: Input system initialized for WindowsViewport
+Log: Opened viewport
+Log: Enter SetRes: 640x480 Fullscreen 1
+Init: Best-match display mode: 640x480x16@120
+Log: Using back-buffer format 23(16-bit)
+Log: Using depth-buffer format 80(16-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Init: D3D Driver: CreateDevice: will use software transform and lighting.
+Init: D3D Driver: CreateDevice: will use software vertex processing
+Init: D3D Device: Device doesn't support D3DVTXPCAPS_MATERIALSOURCE7
+Log: Creating IME context.
+Log: OS doesn't support IME.
+Init: Game engine initialized
+Log: Startup time: 2.816984 seconds
+Log: FactoryCreateText: TextBuffer with TextBufferFactory (0 1 ..\Benchmark\Stuff\flybyexec.txt)
+Log: Execing ..\Benchmark\Stuff\flybyexec.txt
+Log: Precaching: dm-antalus.LevelInfo0
+Log: Allocating 16384 byte dynamic index buffer.
+Log: Allocating 65536 byte dynamic vertex buffer.
+Log: Finished precaching geometry in 1.675 seconds
+Log: Finished precaching textures in 3.087 seconds
+Log: Closing by request
+Log: appRequestExit(0)

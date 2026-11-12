@@ -1,0 +1,74 @@
+START 2026-11-12 10:13:17
+plan: d3dprobe render fullscreen at 1024x768x32@100 (the highest refresh the driver lists there: the default refresh lets it pick)   81.43 kHz 100.04 Hz  113.4 MHz
+  monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 22, "zfmt": 77, "noz": 0, "checks": [{"test": "dxt1_decode", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt3_decode", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_decode", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt1_decode1", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_decode1", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "rgb565_decode", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "rgb565_decode1", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_a@0,0", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_a@240,112", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_a@480,224", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_b@0,0", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_b@240,240", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_b@480,480", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_c@0,0", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_c@496,240", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_big_c@992,480", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "dxt5_512x128_def", "error": "LockRect 8876086c", "ok": 0}, {"test": "dxt5_128_def", "error": "LockRect 8876086c", "ok": 0}, {"test": "tex8888_512x128_def", "error": "LockRect 8876086c", "ok": 0}, {"test": "dxt5_512x128_upd", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt5_512x128_upd", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x128_upd", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x128_upd", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x128_upd", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex8888_512x128_copy", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex8888_512x128_copy", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512x128_copy", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512x128_copy", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512x128_copy", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "texhigh", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "texhigh", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "texhigh", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "texhigh", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "texhigh", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "texhigh", "note": "after 20480 KB"}, {"test": "texhigh_dxt5_512", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "texhigh_dxt5_512", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "texhigh_dxt5_512", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "texhigh_dxt5_512", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "texhigh_dxt5_512", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "texhigh_dxt5_decode", "at": "every texel", "rgb_wrong": 0, "alpha_wrong": 0, "ok": 1}, {"test": "texhigh_dxt5", "note": "after 20480 KB"}], "readback": "backbuffer", "pass": 37, "fail": 3, "skipped": 0, "max_texture": 2048, "focus_lost": false}
+d3dprobe render: fullscreen 1024x768x32
+adapter "vcr-kmd Voodoo 5 6000 (open driver)" driver vcrdd.dll 6.14.1.1; desktop 1280x1024 fmt 22
+GetDeviceCaps(HAL) 00000000
+CreateDevice(HAL, fullscreen, back buffer 1024x768 fmt 22, z fmt 77)
+device created
+MaxTexture 2048x2048
+test dxt1_decode
+  dxt1_decode: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt3_decode
+  dxt3_decode: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt5_decode
+  dxt5_decode: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt1_decode1
+  dxt1_decode1: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt5_decode1
+  dxt5_decode1: 0 of 1024 rgb texels wrong, 0 alpha
+test rgb565_decode
+  rgb565_decode: 0 of 1024 rgb texels wrong, 0 alpha
+test rgb565_decode1
+  rgb565_decode1: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt5_big_a
+  dxt5_big_a@0,0: 0 of 1024 rgb texels wrong, 0 alpha
+  dxt5_big_a@240,112: 0 of 1024 rgb texels wrong, 0 alpha
+  dxt5_big_a@480,224: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt5_big_b
+  dxt5_big_b@0,0: 0 of 1024 rgb texels wrong, 0 alpha
+  dxt5_big_b@240,240: 0 of 1024 rgb texels wrong, 0 alpha
+  dxt5_big_b@480,480: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt5_big_c
+  dxt5_big_c@0,0: 0 of 1024 rgb texels wrong, 0 alpha
+  dxt5_big_c@496,240: 0 of 1024 rgb texels wrong, 0 alpha
+  dxt5_big_c@992,480: 0 of 1024 rgb texels wrong, 0 alpha
+test dxt5_512x128_def
+  dxt5_512x128_def: LockRect 8876086c
+test dxt5_128_def
+  dxt5_128_def: LockRect 8876086c
+test tex8888_512x128_def
+  tex8888_512x128_def: LockRect 8876086c
+test dxt5_512x128_upd
+  dxt5_512x128_upd: LockRect pitch 2048 (a block row is 2048)
+  dxt5_512x128_upd cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt5_512x128_upd cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x128_upd cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x128_upd cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x128_upd last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex8888_512x128_copy
+  tex8888_512x128_copy cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex8888_512x128_copy cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512x128_copy cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512x128_copy cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512x128_copy last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test texhigh
+  texhigh: 160 fill textures, 20480 KB drawn before the probe
+  texhigh cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  texhigh cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  texhigh cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  texhigh cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  texhigh last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test texhigh_dxt5
+  texhigh: 160 fill textures, 20480 KB drawn before the probe
+  texhigh_dxt5_512: LockRect pitch 2048 (a block row is 2048)
+  texhigh_dxt5_512 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  texhigh_dxt5_512 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  texhigh_dxt5_512 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  texhigh_dxt5_512 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  texhigh_dxt5_512 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+  texhigh_dxt5_decode: 0 of 1024 rgb texels wrong, 0 alpha
+RESULT {"mode":"render","adapter":"vcr-kmd Voodoo 5 6000 (open driver)","window":"fullscreen","fmt":22,"zfmt":77,"noz":0,"checks":[{"test":"dxt1_decode","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt3_decode","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_decode","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt1_decode1","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_decode1","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"rgb565_decode","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"rgb565_decode1","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_a@0,0","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_a@240,112","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_a@480,224","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_b@0,0","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_b@240,240","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_b@480,480","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_c@0,0","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_c@496,240","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_big_c@992,480","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"dxt5_512x128_def","error":"LockRect 8876086c","ok":0},{"test":"dxt5_128_def","error":"LockRect 8876086c","ok":0},{"test":"tex8888_512x128_def","error":"LockRect 8876086c","ok":0},{"test":"dxt5_512x128_upd","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt5_512x128_upd","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x128_upd","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x128_upd","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x128_upd","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex8888_512x128_copy","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex8888_512x128_copy","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512x128_copy","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512x128_copy","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512x128_copy","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"texhigh","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"texhigh","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"texhigh","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"texhigh","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"texhigh","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"texhigh","note":"after 20480 KB"},{"test":"texhigh_dxt5_512","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"texhigh_dxt5_512","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"texhigh_dxt5_512","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"texhigh_dxt5_512","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"texhigh_dxt5_512","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"texhigh_dxt5_decode","at":"every texel","rgb_wrong":0,"alpha_wrong":0,"ok":1},{"test":"texhigh_dxt5","note":"after 20480 KB"}],"readback":"backbuffer","pass":37,"fail":3,"skipped":0,"max_texture":2048,"focus_lost":false}
+
+rc=1 END 2026-11-12 10:13:24

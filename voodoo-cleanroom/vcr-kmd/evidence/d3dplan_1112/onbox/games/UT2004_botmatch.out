@@ -1,0 +1,10 @@
+10:16:33 launched UT2004_botmatch: {"pid":1164,"command":"C:\\vcr\\onbox\\UT2004_botmatch.bat"}
+/home/voidsstr/development/retro-agent/.claude/worktrees/v56k-bench/voodoo-cleanroom/vcr-kmd/evidence/d3dplan_1112/onbox/gamerun.py:101: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  "luma_mean": round(sum(g.getdata()) / (img.size[0] * img.size[1]), 1)}
+10:17:02    25s alive=['UT2004.exe'] shot=(0, 255) mean=31.0 fg=#32770/ dialogs=[]
+10:17:20    45s alive=['UT2004.exe'] shot=(0, 255) mean=40.3 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:17:40    65s alive=['UT2004.exe'] shot=(0, 255) mean=154.9 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:18:05    90s alive=['UT2004.exe', 'find.exe', 'tasklist.exe'] shot=(0, 255) mean=28.3 fg=UT2004UnrealWWindowsViewportWindow/Unreal Tournament 2004 dialogs=[]
+10:20:36   still running after the wait: {480: 'UT2004.exe'} - WM_CLOSE by pid
+10:20:57   ignored WM_CLOSE: {480: 'UT2004.exe'} - forcing by pid
+10:21:17   after: display {"width":1280,"height":1024,"bpp":32,"refresh":85} dialogs []

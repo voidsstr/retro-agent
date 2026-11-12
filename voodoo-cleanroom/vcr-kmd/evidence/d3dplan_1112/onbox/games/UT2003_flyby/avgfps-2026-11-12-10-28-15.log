@@ -1,0 +1,9 @@
+UT2003 Build UT2003_Build_[2003-04-07_17.42]
+Windows XP 5.1 (Build: 2600)
+AuthenticAMD PentiumPro-class processor @ 2007 MHz with 255MB RAM
+vcr-kmd Voodoo 5 6000 (open driver) (1)
+
+ dm-antalus?game=engine.gameinfo exec=..\Benchmark\Stuff\flybyexec.txt -benchmark -seconds=77 -nosound
+
+2.067308 / 9.411991 / 1.#INF00 fps         rand[14022]
+Score = 9.419253

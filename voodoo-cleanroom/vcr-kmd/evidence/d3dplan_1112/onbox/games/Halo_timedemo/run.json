@@ -1,0 +1,164 @@
+{
+ "name": "Halo_timedemo",
+ "dir": "C:\\Games\\Halo",
+ "exe": "halo.exe",
+ "args": "-novideo -vidmode 1280,960,85 -timedemo",
+ "t_start": "2026-11-12 10:29:53",
+ "display_before": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}",
+ "foreground_before": {
+  "hwnd": "0020002E",
+  "pid": 1504,
+  "class": "ConsoleWindowClass",
+  "title": "Retro Remote Agent Version 1.100.1"
+ },
+ "upload": "OK 101",
+ "launch": "{\"pid\":1604,\"command\":\"C:\\\\vcr\\\\onbox\\\\Halo_timedemo.bat\"}",
+ "samples": [
+  {
+   "at": 30,
+   "t": 32.1,
+   "alive": [
+    "halo.exe"
+   ],
+   "shot": {
+    "file": "Halo_timedemo_030s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 37.4
+   },
+   "foreground": {
+    "class": "Halo",
+    "title": "Halo",
+    "pid": 968
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 60,
+   "t": 62.7,
+   "alive": [
+    "halo.exe"
+   ],
+   "shot": {
+    "file": "Halo_timedemo_060s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 19.2
+   },
+   "foreground": {
+    "class": "Halo",
+    "title": "Halo",
+    "pid": 968
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 90,
+   "t": 92.7,
+   "alive": [
+    "halo.exe"
+   ],
+   "shot": {
+    "file": "Halo_timedemo_090s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 17.7
+   },
+   "foreground": {
+    "class": "Halo",
+    "title": "Halo",
+    "pid": 968
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 120,
+   "t": 122.4,
+   "alive": [
+    "halo.exe"
+   ],
+   "shot": {
+    "file": "Halo_timedemo_120s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     255
+    ],
+    "luma_mean": 14.7
+   },
+   "foreground": {
+    "class": "Halo",
+    "title": "Halo",
+    "pid": 968
+   },
+   "new_dialogs": []
+  },
+  {
+   "at": 180,
+   "t": 183.2,
+   "alive": [
+    "halo.exe"
+   ],
+   "shot": {
+    "file": "Halo_timedemo_180s.png",
+    "size": [
+     1280,
+     960
+    ],
+    "luma_extrema": [
+     0,
+     247
+    ],
+    "luma_mean": 22.3
+   },
+   "foreground": {
+    "class": "Halo",
+    "title": "Halo",
+    "pid": 968
+   },
+   "new_dialogs": []
+  }
+ ],
+ "exited_by_itself": false,
+ "t_exit_or_close": 485.4,
+ "close": [
+  "968: SUCCESS: The process with PID 968 has been terminated."
+ ],
+ "closed_by_wm_close": true,
+ "display_after": "{\"width\":1280,\"height\":1024,\"bpp\":32,\"refresh\":85}",
+ "dialogs_after": [],
+ "after_shot": {
+  "file": "Halo_timedemo_after.png",
+  "size": [
+   1280,
+   1024
+  ],
+  "luma_extrema": [
+   0,
+   255
+  ],
+  "luma_mean": 20.3
+ },
+ "t_end": "2026-11-12 10:38:11"
+}

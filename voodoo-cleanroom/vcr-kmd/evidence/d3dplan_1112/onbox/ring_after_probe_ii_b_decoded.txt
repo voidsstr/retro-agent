@@ -1,0 +1,22 @@
+# boot_count=69 version=1 next_seq=25137 (21 entries)
+ 25117 83172.112s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25118 83262.362s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25119 83262.409s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25120 83352.643s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25121 83352.690s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25122 83442.924s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25123 83442.987s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25124 83533.221s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25125 83533.268s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25126 83583.987s   dd dbg DD_GET_MODES       000000cc 0000af50 00000000 00000000  DrvGetModes
+ 25127 83584.284s   dd inf DD_DDRAW           00000008 7de41f80 00000074 88760028  GetDriverInfo 7de41f80
+ 25128 83584.284s   dd dbg DD_DDRAW           0000000e 0000075c 00000000 00000000  DestroyDDLocal: pid 1884, flips of 0
+ 25129 83584.284s   dd dbg DD_GET_MODES       000000cc 0000af50 00000000 00000000  DrvGetModes
+ 25130 83584.284s   dd dbg DD_GET_MODES       000000cc 0000af50 00000000 00000000  DrvGetModes
+ 25131 83584.284s   dd dbg DD_DDRAW           0000000e 0000075c 00000000 00000000  DestroyDDLocal: pid 1884, flips of 0
+ 25132 83584.284s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25133 83584.284s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25134 83584.284s   dd inf DD_DDRAW           00000008 7de41f80 00000074 88760028  GetDriverInfo 7de41f80
+ 25135 83584.284s   dd dbg DD_DDRAW           0000000e 0000075c 00000000 00000000  DestroyDDLocal: pid 1884, flips of 0
+ 25136 83623.549s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied
+ 25137 83623.596s   mp dbg CURSOR             00000001 03aff000 023602b6 080c0081  cursor applied

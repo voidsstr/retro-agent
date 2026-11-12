@@ -1,0 +1,123 @@
+START 2026-11-12 10:12:57
+plan: d3dprobe render fullscreen at 1024x768x32@100 (the highest refresh the driver lists there: the default refresh lets it pick)   81.43 kHz 100.04 Hz  113.4 MHz
+  monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 22, "zfmt": 77, "noz": 0, "checks": [{"test": "mip", "at": "192 px: level 0", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "mip", "at": "32 px: level 1", "x": 128, "y": 128, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "mip", "at": "16 px: level 2", "x": 128, "y": 128, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "mip2048", "at": "level 0 (2048)", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "mip2048", "at": "level 1 (1024)", "x": 128, "y": 128, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "mip2048", "at": "level 2 (512)", "x": 128, "y": 128, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "mip2048", "at": "level 3 (256, the base)", "x": 128, "y": 128, "got": "ffff00", "want": "ffff00", "ok": 1}, {"test": "mip2048", "at": "level 4 (128)", "x": 128, "y": 128, "got": "ff00ff", "want": "ff00ff", "ok": 1}, {"test": "tex512", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex512", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex512", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex512", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex512", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex1024", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex1024", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex1024", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex1024", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex1024", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex2048", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex2048", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex2048", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex2048", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex2048", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex8888", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex8888", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex8888_256", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex8888_256", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_256", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_256", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_256", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex8888_512", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex8888_512", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "tex8888_512x128", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "tex8888_512x128", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512x128", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512x128", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "tex8888_512x128", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt1", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt1", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt1", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt1", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt1", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt3", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt3", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt3", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt3", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt3", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt5", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt5", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt1_512", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt1_512", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt1_512", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt1_512", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt1_512", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt5_512", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt5_512", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt5_512x256", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt5_512x256", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x256", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x256", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x256", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt5_512x128", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt5_512x128", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x128", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x128", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_512x128", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}, {"test": "dxt5_256x128", "at": "cell (0,0)", "x": 44, "y": 44, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "dxt5_256x128", "at": "cell (1,0)", "x": 68, "y": 44, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_256x128", "at": "cell (2,3)", "x": 92, "y": 116, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_256x128", "at": "cell (6,7)", "x": 188, "y": 212, "got": "0000ff", "want": "0000ff", "ok": 1}, {"test": "dxt5_256x128", "at": "last cell (7,7)", "x": 212, "y": 212, "got": "00ff00", "want": "00ff00", "ok": 1}], "readback": "backbuffer", "pass": 83, "fail": 0, "skipped": 0, "max_texture": 2048, "focus_lost": false}
+d3dprobe render: fullscreen 1024x768x32
+adapter "vcr-kmd Voodoo 5 6000 (open driver)" driver vcrdd.dll 6.14.1.1; desktop 1280x1024 fmt 22
+GetDeviceCaps(HAL) 00000000
+CreateDevice(HAL, fullscreen, back buffer 1024x768 fmt 22, z fmt 77)
+device created
+MaxTexture 2048x2048
+test mip
+  7 levels
+  mip 192 px: level 0 (128,128): got ff0000 want ff0000 tol 12 -> ok
+  mip 32 px: level 1 (128,128): got 00ff00 want 00ff00 tol 12 -> ok
+  mip 16 px: level 2 (128,128): got 0000ff want 0000ff tol 12 -> ok
+test mip2048
+  12 levels
+  mip2048 level 0 (2048) (128,128): got ff0000 want ff0000 tol 12 -> ok
+  mip2048 level 1 (1024) (128,128): got 00ff00 want 00ff00 tol 12 -> ok
+  mip2048 level 2 (512) (128,128): got 0000ff want 0000ff tol 12 -> ok
+  mip2048 level 3 (256, the base) (128,128): got ffff00 want ffff00 tol 12 -> ok
+  mip2048 level 4 (128) (128,128): got ff00ff want ff00ff tol 12 -> ok
+test tex512
+  tex512 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex512 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex512 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex512 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex512 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex1024
+  tex1024 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex1024 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex1024 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex1024 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex1024 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex2048
+  tex2048 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex2048 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex2048 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex2048 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex2048 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex8888
+  tex8888 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex8888 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex8888 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex8888 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex8888 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex8888_256
+  tex8888_256 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex8888_256 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_256 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_256 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_256 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex8888_512
+  tex8888_512 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex8888_512 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test tex8888_512x128
+  tex8888_512x128 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  tex8888_512x128 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512x128 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512x128 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  tex8888_512x128 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt1
+  dxt1: LockRect pitch 256 (a block row is 256)
+  dxt1 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt1 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt1 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt1 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt1 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt3
+  dxt3: LockRect pitch 512 (a block row is 512)
+  dxt3 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt3 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt3 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt3 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt3 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt5
+  dxt5: LockRect pitch 512 (a block row is 512)
+  dxt5 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt5 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt5 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt5 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt5 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt1_512
+  dxt1_512: LockRect pitch 1024 (a block row is 1024)
+  dxt1_512 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt1_512 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt1_512 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt1_512 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt1_512 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt5_512
+  dxt5_512: LockRect pitch 2048 (a block row is 2048)
+  dxt5_512 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt5_512 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt5_512x256
+  dxt5_512x256: LockRect pitch 2048 (a block row is 2048)
+  dxt5_512x256 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt5_512x256 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x256 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x256 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x256 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt5_512x128
+  dxt5_512x128: LockRect pitch 2048 (a block row is 2048)
+  dxt5_512x128 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt5_512x128 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x128 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x128 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_512x128 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+test dxt5_256x128
+  dxt5_256x128: LockRect pitch 1024 (a block row is 1024)
+  dxt5_256x128 cell (0,0) (44,44): got ff0000 want ff0000 tol 12 -> ok
+  dxt5_256x128 cell (1,0) (68,44): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_256x128 cell (2,3) (92,116): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_256x128 cell (6,7) (188,212): got 0000ff want 0000ff tol 12 -> ok
+  dxt5_256x128 last cell (7,7) (212,212): got 00ff00 want 00ff00 tol 12 -> ok
+RESULT {"mode":"render","adapter":"vcr-kmd Voodoo 5 6000 (open driver)","window":"fullscreen","fmt":22,"zfmt":77,"noz":0,"checks":[{"test":"mip","at":"192 px: level 0","x":128,"y":128,"got":"ff0000","want":"ff0000","ok":1},{"test":"mip","at":"32 px: level 1","x":128,"y":128,"got":"00ff00","want":"00ff00","ok":1},{"test":"mip","at":"16 px: level 2","x":128,"y":128,"got":"0000ff","want":"0000ff","ok":1},{"test":"mip2048","at":"level 0 (2048)","x":128,"y":128,"got":"ff0000","want":"ff0000","ok":1},{"test":"mip2048","at":"level 1 (1024)","x":128,"y":128,"got":"00ff00","want":"00ff00","ok":1},{"test":"mip2048","at":"level 2 (512)","x":128,"y":128,"got":"0000ff","want":"0000ff","ok":1},{"test":"mip2048","at":"level 3 (256, the base)","x":128,"y":128,"got":"ffff00","want":"ffff00","ok":1},{"test":"mip2048","at":"level 4 (128)","x":128,"y":128,"got":"ff00ff","want":"ff00ff","ok":1},{"test":"tex512","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex512","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex512","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex512","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex512","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex1024","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex1024","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex1024","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex1024","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex1024","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex2048","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex2048","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex2048","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex2048","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex2048","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex8888","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex8888","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex8888_256","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex8888_256","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_256","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_256","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_256","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex8888_512","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex8888_512","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"tex8888_512x128","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"tex8888_512x128","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512x128","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512x128","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"tex8888_512x128","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt1","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt1","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt1","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt1","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt1","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt3","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt3","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt3","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt3","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt3","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt5","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt5","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt1_512","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt1_512","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt1_512","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt1_512","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt1_512","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt5_512","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt5_512","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt5_512x256","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt5_512x256","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x256","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x256","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x256","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt5_512x128","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt5_512x128","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x128","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x128","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_512x128","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1},{"test":"dxt5_256x128","at":"cell (0,0)","x":44,"y":44,"got":"ff0000","want":"ff0000","ok":1},{"test":"dxt5_256x128","at":"cell (1,0)","x":68,"y":44,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_256x128","at":"cell (2,3)","x":92,"y":116,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_256x128","at":"cell (6,7)","x":188,"y":212,"got":"0000ff","want":"0000ff","ok":1},{"test":"dxt5_256x128","at":"last cell (7,7)","x":212,"y":212,"got":"00ff00","want":"00ff00","ok":1}],"readback":"backbuffer","pass":83,"fail":0,"skipped":0,"max_texture":2048,"focus_lost":false}
+
+rc=0 END 2026-11-12 10:13:03

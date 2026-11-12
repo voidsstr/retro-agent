@@ -1,0 +1,77 @@
+Log: Log file open, 11/12/26 10:38:55
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows XP 5.1 (Build: 2600)
+Init: Version: 3369 (128.29)
+Init: Compiled: Nov 23 2005 16:23:34
+Init: Command line:  DM-Antalus?spectatoronly=true?numbots=8?quickstart=true?attractcam=true -exec=C:\vcr\onbox\ut2004_statfps.txt
+Init: Character set: Unicode
+Init: Base directory: C:\Games\UT2004\System\
+Init: Ini:UT2004.ini   UserIni:User.ini
+Init: Build label: UT2004 Build UT2004_Build_[2005-11-23_16.22]
+Init: Object subsystem initialized
+Log: Splash screen filename is '..\Help\UT2004Logo.bmp'
+Log: 	vcrdd.dll/vcr-kmd Voodoo 5 6000 (open driver)
+Log: Game class is 'GameInfo'
+Log: Bringing Level Entry.myLevel up for play (0) appSeconds: 13.154000...
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: Browse: DM-Antalus?Name=NSC-C543575F526?Class=Engine.Pawn?Character=Jakob?team=255?spectatoronly=true?numbots=8?quickstart=true?attractcam=true
+Log: Collecting garbage
+Log: Purging garbage
+Log: Garbage: objects: 33412->33352; refs: 389766
+Log: Game class is 'xDeathMatch'
+Log: Fixing up DM-Antalus
+Log: Bringing Level DM-Antalus.myLevel up for play (0) appSeconds: 28.526000...
+Log: (Karma): Autodetecting CPU for SSE
+Log: (Karma): Using SSE Optimizations
+ScriptLog: GameInfo::InitGame : bEnableStatLogging False
+Log: ALAudio: Using DirectSound to record audio.
+ScriptLog: New Player NSC-C543575F526 id=041fbee373f9fc6e5dedc6810ce480f2
+Log: Opened viewport
+Log: Enter SetRes: 1280x960 Fullscreen 1
+Log: Using back-buffer format 23(16-bit)
+Log: Using depth-buffer format 80(16-bit)
+Log: Creating device
+Log: xD3DHelper::Init (QuadEmulation)
+Log: OS doesn't support IME.
+Log: Startup time: 45.649000 seconds
+Log: FactoryCreateText: TextBuffer with TextBufferFactory (0 1 C:\vcr\onbox\ut2004_statfps.txt)
+Log: Execing C:\vcr\onbox\ut2004_statfps.txt
+ScriptLog: START MATCH
+Log: Precaching: DM-Antalus.LevelInfo0
+Log: Static mesh batches: 2745936 vertex bytes, 380904 index bytes
+Log: Allocating 16384 byte dynamic index buffer.
+Log: Finished precaching geometry in 3.944 seconds
+Log: Finished precaching textures in 11.701 seconds
+Log: Closing by request
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Window.dll
+Log: Unbound to Core.dll
+Log: Unbound to Engine.dll
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to D3DDrv.dll
+Log: Unbound to XGame.dll
+Log: Unbound to IpDrv.dll
+Log: Unbound to Editor.dll
+Log: Unbound to Fire.dll
+Log: Unbound to XInterface.dll
+Log: Unbound to UWeb.dll
+Log: Unbound to Onslaught.dll
+Log: (Karma): Level Karma Terminated.
+Log: Unbound to ALAudio.dll
+Log: Waiting for file streaming thread to finish...
+Exit: OpenAL Audio subsystem shut down.
+Log: Garbage: objects: 36555->0; refs: 389766
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Log: FileManager: Reading 0 GByte 94 MByte 727 KByte 983 Bytes from HD took 50.016685 seconds (49.955685 reading, 0.061000 seeking).
+Log: FileManager: 3.140001 seconds spent with misc. duties
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  0.225M /  3.309M
+Uninitialized: Peak Memory  190.334M /  192.195M
+Uninitialized: Allocs         741 Current /  817533 Total
+Uninitialized: Log file closed, 11/12/26 10:41:02
