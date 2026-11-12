@@ -879,6 +879,53 @@ _RTCW_LAN_FIX = [
 ]
 
 
+
+# --------------------------------------------------------------------------
+# GOLDSRC TAKES ITS REFRESH ON THE COMMAND LINE - -freq, not a cvar.
+#
+# The _refresh_fix comment above is right that GoldSrc has no refresh CVAR, and
+# wrong to conclude from that that the desktop rate carries it: hw.dll parses
+# `-freq` (checked in CounterStrike16\hw.dll; hl.exe itself only knows -full),
+# and the engine sets a mode of its OWN - FR_W x FR_H - which on a 4:3 CRT is
+# not the desktop's mode at all. Measured on .186 (Gateway VX1120): desktop
+# 1280x1024@100, CS at 1280x960, where the panel also does 100 - but nothing
+# was asking for it, so the rate at that mode was the driver's own choice.
+#
+# FR_HZW is the panel's best rate AT FR_W x FR_H (gr_target_hz in
+# agent/shared/gameres.h, clamped to the driver's enumerated list and the EDID
+# vertical maximum), so it can never name a rate the monitor cannot sync.
+# 0 means NO MEASUREMENT: pass no rate at all, never a 0 and never a 60 of our
+# own - which is why this is a batch variable and not a bare %FR_HZW%.
+#
+# Not FR_HZ: that is the persisted DESKTOP rate, and the whole point here is
+# that the game does not run at the desktop's resolution. There is no shared
+# file for the two writers to fight over - GAMERES writes no GoldSrc refresh -
+# so the "both writers emit FR_HZ" rule does not reach this line.
+#
+# `old` keeps its trailing CRLF, so it is not a substring of `new` and repair()
+# applies it exactly once.
+# --------------------------------------------------------------------------
+_GOLDSRC_FREQ_BLOCK = (
+    'rem GoldSrc has no refresh cvar - hw.dll takes -freq on the command line,\r\n'
+    'rem and the desktop rate does not carry because the engine sets its own\r\n'
+    'rem mode. FR_HZW is the panel best rate at FR_W x FR_H; 0 means it was\r\n'
+    'rem never measured, so pass nothing rather than a 0 or a 60 of our own.\r\n'
+    'set "FR_FREQ="\r\n'
+    'if not "%FR_HZW%"=="" if not "%FR_HZW%"=="0" set "FR_FREQ=-freq %FR_HZW%"\r\n'
+)
+
+
+def _goldsrc_freq_fix(line, tail=""):
+    """line: the shipped `start "" hl.exe ...` line, without its CRLF.
+
+    `tail` is the part of that line that must stay LAST - GoldSrc's `+connect
+    <addr>` is a console command with an argument, so a switch is appended
+    before it, not after the address.
+    """
+    old = line + tail + '\r\n'
+    return [(old, _GOLDSRC_FREQ_BLOCK + line + ' %FR_FREQ%' + tail + '\r\n')]
+
+
 TITLES = {
     # SERIOUS SAM - both Encounters. Croteam Serious Engine 1.
     #
@@ -1512,7 +1559,9 @@ TITLES = {
             "Play Counter-Strike.bat": rec(
                 'cd /d "%~dp0"', [CALL],
                 (re.escape('start "" hl.exe -game cstrike -full'),
-                 'start "" hl.exe -game cstrike -full -w %FR_W% -h %FR_H%')),
+                 _GOLDSRC_FREQ_BLOCK.replace("\r\n", "\n")
+                 + 'start "" hl.exe -game cstrike -full -w %FR_W% '
+                   '-h %FR_H% %FR_FREQ%')),
         },
     },
     "Thief2": {
@@ -1786,6 +1835,7 @@ def _refresh_fix(mod, tail):
     return [(full + after, full + rate + after)]
 
 
+
 _REFRESH = {
     "Quake3-TeamArena": {
         "Play Quake III Arena.bat": _refresh_fix("baseq3", "fov"),
@@ -1808,6 +1858,22 @@ _REFRESH = {
         "Join RTCW - LAN.bat": _refresh_fix("Main", ""),
     },
 }
+
+_GOLDSRC = {
+    "CounterStrike16": {
+        "Play Counter-Strike.bat": _goldsrc_freq_fix(
+            'start "" hl.exe -game cstrike -full -gl -w %FR_W% -h %FR_H%'),
+        "Play Half-Life Deathmatch.bat": _goldsrc_freq_fix(
+            'start "" hl.exe -game valve -full -gl -w %FR_W% -h %FR_H%',
+            ' +connect 192.168.1.132:27020'),
+    },
+}
+for _t, _fixes in _GOLDSRC.items():
+    _spec = TITLES[_t]
+    _spec.setdefault("fix", {})
+    for _name, _pairs in _fixes.items():
+        _spec["fix"].setdefault(_name, []).extend(_pairs)
+
 
 for _t, _fixes in _REFRESH.items():
     _spec = TITLES[_t]
