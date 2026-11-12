@@ -60,6 +60,28 @@ static int opl_present(void)
     return (s1 & 0xE0) == 0x00 && (s2 & 0xE0) == 0xC0;
 }
 
+/* SB16 mixer 80h/81h: the IRQ and DMA channels the card is really using - on
+ * a PnP card, whatever the BIOS (or Windows) assigned, which a game's own
+ * config (BLASTER, DESCENT.CFG) must match or its sound driver waits forever
+ * for an interrupt that goes elsewhere. */
+static void sb16_irq_dma(unsigned base)
+{
+    int irq, dma, i;
+    static const int irqs[4] = {2, 5, 7, 10};
+    static const int dmas[8] = {0, 1, -1, 3, -1, 5, 6, 7};
+    outp(base + 4, 0x80); irq = inp(base + 5);
+    outp(base + 4, 0x81); dma = inp(base + 5);
+    printf("SBCHK: mixer 80h=%02Xh 81h=%02Xh -> IRQ", irq, dma);
+    for (i = 0; i < 4; i++)
+        if (irq & (1 << i))
+            printf(" %d", irqs[i]);
+    printf(", DMA");
+    for (i = 0; i < 8; i++)
+        if ((dma & (1 << i)) && dmas[i] >= 0)
+            printf(" %d", dmas[i]);
+    printf("\n");
+}
+
 int main(void)
 {
     unsigned ver = 0;
@@ -69,5 +91,7 @@ int main(void)
     if (dsp)
         printf(" (DSP version %u.%02u)", ver >> 8, ver & 0xFF);
     printf("; OPL FM at 388h %s\n", fm ? "PRESENT" : "NOT FOUND");
+    if (dsp && (ver >> 8) >= 4)
+        sb16_irq_dma(0x220);
     return dsp ? (fm ? 0 : 2) : 1;
 }
