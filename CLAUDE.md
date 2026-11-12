@@ -1513,12 +1513,53 @@ Comparison write-up: `retro-3dfx/DRIVER-STACK-ASSESSMENT.md` (commit `1768c53`).
 >   claim — never by a live agent count.
 
 Current fleet is on **192.168.1.0/24** (see "Per-box console accounts" above for
-the full list). Verified boxes:
+the full list).
 
-| IP | Hostname | OS | Hardware Notes |
-|----|----------|----|----|
-| 192.168.1.124 | ADMIN | Windows XP SP3 | **NVIDIA GeForce2 GTS** (`10DE:0150`, NV15) on **ForceWare 71.89** — the Voodoo 3 was removed 2026-08-11 and the whole 3dfx stack purged. 383MB RAM, single CPU (440BX/PIII class), dual-boot: **XP on D:**, Win98 on C: (games live on both volumes). |
-| 192.168.1.171 | NSC-5B996B81319 | Windows XP SP3 | **Pentium 4 2.8GHz**, 509MB, Dell i865G. 2D is the onboard **Intel 865G**; 3D is a **3dfx Voodoo 2** (12MB). ⚠️ **A Voodoo 2 NEVER shows as a display adapter** — its INF is `Class=MEDIA`, so `VIDEODIAG` and every display-class scan report only the Intel chip and the card looks absent. Detect it with `REGREAD HKLM SYSTEM\CurrentControlSet\Enum\PCI` → `VEN_121A&DEV_0002` (NB `VEN_1102&DEV_0002` is a Creative SB Live!, not a Voodoo). Two identical cards share ONE device key with separate instance subkeys, so descend a level to count them. **This box also answers slowly — use ≥8s TCP timeouts or sweeps miss it entirely.** |
+> ### ⚠️ A BOX'S 3dfx CARD IS OFTEN NOT THE CARD DRIVING THE DISPLAY
+>
+> This table used to name each machine by its Voodoo, and that misled a whole
+> staging session on 2026-08-30. **`.133` and `.143` both render on a GeForce**;
+> the Voodoo5 is a second adapter in the same box. Three machines carry a
+> DX9-or-better GPU that nothing in these docs mentioned, and reasoning from the
+> old table would have wrongly refused two 2004 titles on five of eight boxes.
+>
+> **Measure, don't recall: `VIDEODIAG` for the adapter, `DISPLAYCFG get` for the
+> mode, and `REGREAD HKLM HARDWARE\DESCRIPTION\System\CentralProcessor\0` for
+> `~MHz` + `ProcessorNameString`** (`SYSINFO` gives no clock at all). Everything
+> below was measured that way on 2026-08-30 and carries a date for that reason.
+
+Measured 2026-08-30, all eight boxes live:
+
+| IP | Hostname | CPU | RAM | Display GPU (PCI id) | Mode | Free | OS |
+|----|----------|-----|-----|----------------------|------|------|----|
+| .123 | NSC-B20C188E96D | Athlon 64 4000+ 2403 MHz | 2047 MB | **Radeon HD 3850 AGP** (`1002:9515`) | 1920x1080 | 204 GB | XP SP3 |
+| .124 | ADMIN / NSC-CABE14B7486 | PIII 845 MHz | 511 MB | GeForce2 GTS (`10DE:0150`) — no programmable shaders | 1024x768 | 101 GB | XP SP3, dual-boot Win98 |
+| .133 | P3-DUAL | dual PIII 701 MHz | **255 MB** | **GeForce4 Ti 4600** (`10DE:0250`) — the V5 6000 is a 2nd adapter | 1024x768 | 904 GB | XP SP3 |
+| .143 | 1GHZ | Athlon 1000 MHz (**K7, family 6 model 2 — no SSE**) | 511 MB | **GeForce 6800** (`10DE:0041`) — the V5 5500 is a 2nd adapter | 1024x768 | 153 GB | XP SP3 |
+| .145 | DELL | Core i5-2400 3093 MHz | 2047 MB | GeForce 8400GS (`10DE:10C3`) + Intel HD | 1920x1080 | 148 GB | XP SP3 |
+| .171 | NSC-5B996B81319 | Pentium 4 2793 MHz | 509 MB | Intel 865G (`8086:2572`) — no HW T&L | 1280x1024 | 58 GB | XP SP3 |
+| .240 | USER-41EA3B3330 | Athlon 64 3300+ 2403 MHz | 1534 MB | **Radeon 9800 XT** (`1002:4E4A`) | 1920x1080 | **17 GB** | XP SP3 |
+| .246 | ADMIN-PC | Core i5-2400 3093 MHz | 2047 MB | Radeon HD 6xxx (`1002:68F9`) | 1920x1080 | 151 GB | **Windows 7** |
+
+Per-box traps worth keeping:
+
+- **.171's Voodoo 2 NEVER shows as a display adapter.** Its INF is `Class=MEDIA`,
+  so `VIDEODIAG` and every display-class scan report only the Intel chip and the
+  card looks absent. Detect it with `REGREAD HKLM SYSTEM\CurrentControlSet\Enum\PCI`
+  → `VEN_121A&DEV_0002` (NB `VEN_1102&DEV_0002` is a Creative SB Live!, not a
+  Voodoo). Two identical cards share ONE device key with separate instance
+  subkeys, so descend a level to count them. **This box also answers slowly —
+  use ≥8s TCP timeouts or sweeps miss it entirely.**
+- **.124** had its Voodoo 3 removed 2026-08-11 and the whole 3dfx stack purged;
+  it is on ForceWare 71.89. XP is on **D:**, Win98 on C:, and games live on both.
+- **.145's `DISPLAYCFG get` reports 640x480x16 while the desktop is really
+  1920x1080** — it reads the inactive Intel HD, not the 8400GS that is driving
+  the panel. Cross-check against a `WINLIST` Program Manager rect before
+  believing a suspiciously small mode on a dual-adapter box.
+- **.133 has 255 MB of RAM**, one megabyte under the 256 MB floor that several
+  2004 titles publish. That is not a rounding artifact — it is the number the
+  capability gate sees.
+- **.240 is the only disk-constrained machine still in service** at 17 GB free.
 
 Legacy rows below are from an older 10.0.0.0/24 network and are **not** current:
 
