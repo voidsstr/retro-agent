@@ -1,10 +1,10 @@
 {
   "title": "Soldier of Fortune - host a LAN game",
-  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2MODE%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo set vid_fullscreen \"1\"",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo set vid_fullscreen \"1\"",
   "vars": {
     "GTITLE": "Soldier of Fortune - Host LAN",
     "GAME": "%~dp0SoF.exe",
-    "GAMEARGS": "+set gl_mode %FR_Q2MODE% +set deathmatch 1 +set maxclients 8 +set dedicated 0 +map dm/nycdm1",
+    "GAMEARGS": "+set gl_mode %FR_Q2WIDE% +set deathmatch 1 +set maxclients 8 +set dedicated 0 +map dm/nycdm1",
     "IMAGE": "%~dp0_disc\\sof.cue",
     "VOLID": "SOF",
     "MARKER": "BIN\\SOF.DBD",
@@ -12,5 +12,5 @@
   },
   "autokill": "LAUNCH.EXE AUTORUN.EXE demo32.exe",
   "prelaunch": "rem (none)",
-  "_note": "NOT CURRENTLY STAGED - kept as the record of a REFUTED hypothesis. The image these mount was staged on 2026-08-31 and removed again the same day: a SOF-labelled retail image mounted on .143 (DAEMON Tools 3.47) and on .246 (WinCDEmu) still produced the game's own 'WON Error! Please insert the SOF CD', which is the IDENTICAL message a box with no mounter at all (.123) produces. Same failure with and without the disc, so the disc is not the gate. Do not re-stage the 795 MB image on the strength of the volume-label theory - see Games-Library/SoldierOfFortune/README-FLEET.txt. SoF 1's CD check fires only when the game goes MULTIPLAYER; single player runs with no disc at all, which is why 'Play Soldier of Fortune.bat' does NOT mount and still works on a box with no mounter."
+  "_note": "STAGED 2026-11-12. SoF's CD check (CDTOKEN, SoF.exe 0x2006bcb0) first opens FFC11.DLL beside the exe - absent, the token is 0 and EVERY level load fails ('WON Error! Please insert the SOF CD'), disc or not. That is why mounting a SOF image on 2026-08-31 'changed nothing': FFC11.DLL (retail disc SETUP\\FFC11.DLL, 120,012 B, md5 1b14f9765f52381d84ace85a49304461) was never staged. With it, the token needs the mounted retail image WITH its audio track (MCI cdaudio track count and lengths), so the image is sof.cue + sof.bin (both tracks), never an .iso."
 }

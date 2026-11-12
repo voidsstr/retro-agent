@@ -1,0 +1,16 @@
+{
+  "title": "Soldier of Fortune",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo set vid_fullscreen \"1\"",
+  "vars": {
+    "GTITLE": "Soldier of Fortune",
+    "GAME": "%~dp0SoF.exe",
+    "GAMEARGS": "+set gl_mode %FR_Q2WIDE%",
+    "IMAGE": "%~dp0_disc\\sof.cue",
+    "VOLID": "SOF",
+    "MARKER": "BIN\\SOF.DBD",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "LAUNCH.EXE AUTORUN.EXE demo32.exe",
+  "prelaunch": "rem (none)",
+  "_note": "STAGED 2026-11-12. SoF's CD check (CDTOKEN, SoF.exe 0x2006bcb0) first opens FFC11.DLL beside the exe - absent, the token is 0 and EVERY level load fails ('WON Error! Please insert the SOF CD'), disc or not. That is why mounting a SOF image on 2026-08-31 'changed nothing': FFC11.DLL (retail disc SETUP\\FFC11.DLL, 120,012 B, md5 1b14f9765f52381d84ace85a49304461) was never staged. With it, the token needs the mounted retail image WITH its audio track (MCI cdaudio track count and lengths), so the image is sof.cue + sof.bin (both tracks), never an .iso."
+}

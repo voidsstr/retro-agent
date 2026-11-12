@@ -2504,7 +2504,10 @@ TITLES = {
         },
     },
     "SoldierOfFortune": {
-        "new": {"Play Soldier of Fortune.bat": ("SoF.exe", "base")},
+        # NO "new" ENTRY since 2026-11-12: every SoF launcher now MOUNTS the
+        # retail image (no level loads without FFC11.DLL + the mounted disc's
+        # audio track), so all three are generated from
+        # provisioning/discmount/specs/SoldierOfFortune-{Play,Host,Join}.json.
         "launch_txt_line0": ("Play Soldier of Fortune.bat",
                              "Soldier of Fortune", "SoF.exe"),
         "cfg_exec": ["base/autoexec.cfg"],

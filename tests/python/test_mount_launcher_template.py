@@ -157,6 +157,9 @@ SHIPPED = [
     ('SystemShock2.json', 'SystemShock2/Play System Shock 2.bat'),
     ('JediAcademy.json', 'JediAcademy/Play Jedi Academy.bat'),
     ('JediAcademy-Multiplayer.json', 'JediAcademy/Play Jedi Academy - Multiplayer.bat'),
+    ('SoldierOfFortune-Play.json', 'SoldierOfFortune/Play Soldier of Fortune.bat'),
+    ('SoldierOfFortune-Host.json', 'SoldierOfFortune/Host Soldier of Fortune - LAN.bat'),
+    ('SoldierOfFortune-Join.json', 'SoldierOfFortune/Join Soldier of Fortune - LAN.bat'),
 ]
 
 

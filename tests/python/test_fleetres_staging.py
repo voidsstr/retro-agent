@@ -276,8 +276,17 @@ def test_patched_idtech2_gl_launchers_all_take_q2wide():
     # the 'new' launchers are rewritten whole from NEW_Q2 + q2_cfg
     assert '+set gl_mode %FR_Q2WIDE%' in sf.NEW_Q2
     assert '%FR_Q2MODE%' not in sf.NEW_Q2
-    for t in ('SiNGold', 'SoldierOfFortune'):
-        assert sf.TITLES[t]['new']
+    assert sf.TITLES['SiNGold']['new']
+    # SoF's launchers mount its disc, so they come from the discmount specs
+    # - never from a 'new' recipe here
+    assert 'new' not in sf.TITLES['SoldierOfFortune']
+    import json
+    for n in ('Play', 'Host', 'Join'):
+        sp = json.load(open(os.path.join(REPO, 'provisioning', 'discmount', 'specs',
+                                         'SoldierOfFortune-%s.json' % n)))
+        t = sp['fleetres_block'] + '\n' + sp['vars']['GAMEARGS']
+        assert 'set gl_mode "%FR_Q2WIDE%"' in t and '+set gl_mode %FR_Q2WIDE%' in t, n
+        assert '%FR_Q2MODE%' not in t, n
 
 
 def test_sin_software_renderer_never_gets_mode_9():
