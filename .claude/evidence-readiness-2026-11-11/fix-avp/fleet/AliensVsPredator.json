@@ -1,0 +1,94 @@
+{
+ "game": "AliensVsPredator",
+ "time": "2026-11-12T07:54:52",
+ "roster": null,
+ "packets": null,
+ "port": null,
+ "host": "192.168.1.132",
+ "boxes": {
+  "110": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_110.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "123": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_123.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "133": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_133.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "143": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_143.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "171": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_171.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "184": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_184.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  },
+  "240": {
+   "running": [
+    "avp.exe"
+   ],
+   "foreground": "AvP",
+   "shot": "AliensVsPredator_240.jpg",
+   "black": false,
+   "on_server": false,
+   "packets": null,
+   "frame": "gdi",
+   "host": false
+  }
+ }
+}

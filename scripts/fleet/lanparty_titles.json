@@ -1321,13 +1321,20 @@
   "recipes": [
    "SoldierOfFortune"
   ],
-  "title": "Soldier of Fortune (launch check - known broken)",
-  "mode": "broken_known",
+  "title": "Soldier of Fortune (staged Host/Join mount launchers)",
+  "mode": "peer_box_host",
+  "host": {
+   "box": "123",
+   "bat": "@echo off\ncall \"C:\\Games\\SoldierOfFortune\\Host Soldier of Fortune - LAN.bat\"\n",
+   "exe": [
+    "SoF.exe"
+   ],
+   "wait": 60
+  },
   "bats": [
    {
     "boxes": [
      "110",
-     "123",
      "124",
      "133",
      "143",
@@ -1335,8 +1342,12 @@
      "184",
      "240"
     ],
-    "bat": "@echo off\ncd /d \"C:\\Games\\SoldierOfFortune\"\nif exist \"user\\sof.log\" del /q \"user\\sof.log\"\ncall FLEETRES.BAT\ncd /d \"C:\\Games\\SoldierOfFortune\"\n> \"base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\n>>\"base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\n>>\"base\\fleetres.cfg\" echo set vid_fullscreen \"1\"\nstart \"\" SoF.exe +set gl_mode %FR_Q2WIDE% +set vid_fullscreen 1 +set logfile 2 +set developer 1 +set name {name} +set deathmatch 1 +set maxclients 16 +map dm/nycdm1\n"
+    "bat": "@echo off\ncall \"C:\\Games\\SoldierOfFortune\\Join Soldier of Fortune - LAN.bat\" {host}\n"
    }
+  ],
+  "query": [
+   "q2",
+   28910
   ],
   "exe": [
    "SoF.exe"

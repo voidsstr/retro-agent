@@ -68,8 +68,8 @@ Tool: `scripts/fleet/lanparty.py` with launchers from `scripts/fleet/lanparty_ti
 | Thief2 | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
 | SystemShock2 | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
 | MaxPayne | SP | SP | blk | SP | SP | SP | SP | - | SP | - | 0 |
-| AliensVsPredator | FAIL | FAIL | blk | FAIL | FAIL | FAIL | FAIL | - | FAIL | - | 0 |
-| SoldierOfFortune | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | FAIL | - | FAIL | - | 0 |
+| AliensVsPredator | SP† | SP† | blk | SP† | SP† | SP† | SP† | - | SP† | - | 0 |
+| SoldierOfFortune | MP† | MP† | MP† | MP† | MP† | MP† | MP† | - | MP† | - | 8† |
 | HiddenAndDangerous | SP | SP | blk | FAIL | SP | FAIL | SP | - | SP | - | 0 |
 | DieByTheSword | - | - | - | - | - | - | - | - | - | blk | 0 |
 | RogueSquadron | - | - | - | - | - | - | - | - | - | blk | 0 |
@@ -90,8 +90,12 @@ Why the gaps:
 - **Half-Life (WON)**: one shared CD key = 5 players per game, so it ran in two waves of 5.
 - **Tribes 2**: proven on a temporary `-nologin` server (`tribes2-lan`, :28001). The main
   `tribes2-server` runs `-online` (TribesNext auth), which no box can join without an account.
-- **AvP / SoF FAIL**: library defects. AvP is the disc's still-obfuscated loose files. SoF lacks
-  FFC11.DLL and the retail disc.
+- † **AvP and SoF were FAIL in the round and FIXED IN THE LIBRARY on 2026-11-12.**
+  - **SoF:** FFC11.DLL, the retail image and three mount launchers (Play, Host - LAN, Join - LAN) are
+    staged. All 8 boxes were in one deathmatch, .123 hosting, every joiner on the staged Join
+    shortcut.
+  - **AvP:** 154 obfuscated disc files were decoded in place. All 7 boxes reach the profile menu. Its
+    multiplayer is DirectPlay through menus and still needs a person (or a lobby launcher).
 - **Hidden and Dangerous .133/.171**: the profile panel never fully draws (menu text and border
   missing). Its MP is 4-player co-op and needs a person.
 - Newly proven automatable (were "needs a person"): Carmageddon 2 (menu join by drag),
