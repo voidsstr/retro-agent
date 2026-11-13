@@ -140,6 +140,26 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-12 20:04:08: Xid 79 1 h 15 min after the 18:48 power-key recovery (8th since 10-08); box up GPU-less ~13.8 h; hard power-off 11-13 09:51
+
+- **Boot ID:** `d779ac03…` (11-12 18:49:07 → 11-13 09:51:42) → `a5726a7e…`
+  (09:52:26).
+- **Signature 1:** `NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the bus`,
+  then Xid 154 (`Node Reboot Required`) and `uvm ... global fatal error 0x60`;
+  ~9,900 `nvidia-modeset: Error while waiting for GPU progress` lines until the
+  end of the boot.
+- **Load:** ollama active (162 ollama journal lines in the 2 min before the
+  drop). Same caps as the 11-12 entry: 400 W, 210–2400 MHz lock, x16 Gen5,
+  kernel 7.0.0-43, driver 595.99.02.
+- **End of boot:** no shutdown sequence or `Power key` line; the journal stops
+  at 09:51:42 mid-error, so it was most likely a hard power-off (operator cold
+  cycle, unproven).
+- **After (09:54):** GPU back (50 W idle, 400 W limit, x16), 0 Xid this boot.
+  The KTLO loop on this host did not tick during the GPU-less window (its
+  01:57Z wakeup never fired).
+- Shortest drop-to-recovery interval yet (75 min). The open physical items in
+  the Current state table remain the next step (unproven).
+
 ### 2026-11-12 18:48:25: power-key shutdown of the 11-11 Xid boot after ~26.5 h without the GPU (operator)
 
 - **Boot ID:** `64f0fa51…` (11-11 10:56:55 → 11-12 18:48:25) → `d779ac03…`
