@@ -1285,3 +1285,25 @@ def test_validator_is_silent_on_the_fixed_ue2_settings(tmp_path):
     d = _title(tmp_path, "UT2003", {"System/UT2003.ini": _UE2_FIXED,
                                     "System/Core.u": b"x"})
     assert vl.ue2_config_problems(str(d / "System")) == []
+
+
+def test_won_halflife_is_capped_at_1280x960():
+    """WON Half-Life 1.1.0.8 falls back to a 400x300 WINDOW above 1280x960.
+
+    Measured on .139 (2560x1440) 2026-11-12: -w 1024/1280 went fullscreen,
+    -w 1440 -h 1080 and -w 1600 -h 1200 came up as a 400x300 window with the
+    map running. Every HalfLife1 launcher must clamp FR_W43/FR_H43 before
+    hl.exe starts - and do it numerically safely when FR_W43 is empty."""
+    t = sf.TITLES["HalfLife1"]
+    files = {pb["file"] for pb in t["post"] if pb["marker"] == "WON_HL_CAP"}
+    assert files == {"Half-Life.bat", "Opposing Force.bat", "Blue Shift.bat",
+                     "Team Fortress Classic.bat", "Deathmatch Classic.bat"}
+    lines = sf.won_hl_cap()
+    body = "\n".join(lines)
+    # height first, while the width test is still true
+    assert lines.index('if %FR_W43%0 GTR 12800 set FR_H43=960') < \
+        lines.index('if %FR_W43%0 GTR 12800 set FR_W43=1280')
+    # a bare "if %FR_W43% GTR" is a syntax error when the variable is empty
+    assert "if %FR_W43% GTR" not in body
+    for pb in t["post"]:
+        assert pb["before"] == 'start "" hl.exe'

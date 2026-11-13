@@ -745,6 +745,23 @@ def halo_boxkey():
             'scripts/halo/assign_keys.py' % k]
 
 
+def won_hl_cap():
+    """WON Half-Life 1.1.0.8 cannot open a mode wider than 1280x960.
+
+    MEASURED on .139 (Windows 10, GTX 1070 Ti, LG 2560x1440) 2026-11-12:
+    `hl.exe -nosierra -full -gl -toconsole -w W -h H +map c1a0` went
+    fullscreen at 1024x768 and at 1280x960 (DISPLAYCFG read the mode back),
+    and at 1440x1080 and 1600x1200 it silently fell back to a 400x300 WINDOW
+    on the desktop - map running, no error. The launcher hands it FR_W43, which
+    is 1600x1200 on a 1440p panel and 1440x1080 on a 1080p one, so every
+    Half-Life shortcut on those boxes came up as a postage stamp. -soft and
+    -d3d were not the fix (the 640x480 launcher menu works in all three);
+    the mode was. Clamp to the largest mode measured to work."""
+    return ['rem ---- WON_HL_CAP - see stage-fleetres.py won_hl_cap ----',
+            'if %FR_W43%0 GTR 12800 set FR_H43=960',
+            'if %FR_W43%0 GTR 12800 set FR_W43=1280']
+
+
 def halo_novideo():
     """Halo's intro movies are skipped where vcr-kmd drives the screen.
 
@@ -2128,6 +2145,10 @@ TITLES = {
             for n in ("Half-Life.bat", "Opposing Force.bat", "Blue Shift.bat",
                       "Team Fortress Classic.bat", "Deathmatch Classic.bat")
         },
+        "post": [{"file": n, "marker": "WON_HL_CAP", "before": 'start "" hl.exe',
+                  "lines": won_hl_cap()}
+                 for n in ("Half-Life.bat", "Opposing Force.bat", "Blue Shift.bat",
+                           "Team Fortress Classic.bat", "Deathmatch Classic.bat")],
     },
     "HexenII": {
         # glh2.exe is a GLQuake derivative and was assumed to share GLQuake's
