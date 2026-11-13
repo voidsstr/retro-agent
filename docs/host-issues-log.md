@@ -140,6 +140,30 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-13 09:51:42: abrupt end of the 11-12 Xid boot after ~13.8 h without the GPU (most likely the operator's cold cycle)
+
+- **Boot ID:** `d779ac03…` (11-12 18:49:07 → 11-13 09:51:42) → `a5726a7e…`
+  (09:52:26).
+- The journal simply stops: no `Power key pressed`, no shutdown targets, last
+  lines are the repeating `nvidia-modeset: ERROR: GPU:0: Error while waiting
+  for GPU progress` (9,925 of them in that boot). Read as a hold-the-button
+  power-off; unproven.
+- **After (09:54):** GPU back at x16, 400 W cap, kernel 7.0.0-43, driver
+  595.99.02.
+
+### 2026-11-12 20:04:08: Xid 79 1 h 15 min after the power-key restart (8th since 10-08)
+
+- **Boot ID:** `d779ac03…` (up since 11-12 18:49:07). Box stayed up on the
+  iGPU (signature 1).
+- **Signature 1:** `NVRM: Xid (PCI:0000:01:00): 79, GPU has fallen off the
+  bus`, then `Xid 154 ... recovery action ... Node Reboot Required` and GSP
+  `rpcSendMessage failed with status 0x0000000f` in the same second.
+- **Load:** light. In the minute before, the journal shows mostly the CS
+  servers (`hlds_run`) and two ollama lines; no heavy generation logged.
+- **Cap in effect:** 400 W + the 210–2400 MHz lock, x16 at Gen5 (still not
+  pinned to Gen4), kernel 7.0.0-43, driver 595.99.02. The shortest
+  time-to-fault yet after a cold start. The Gen4 pin is still the open item.
+
 ### 2026-11-12 18:48:25: power-key shutdown of the 11-11 Xid boot after ~26.5 h without the GPU (operator)
 
 - **Boot ID:** `64f0fa51…` (11-11 10:56:55 → 11-12 18:48:25) → `d779ac03…`
