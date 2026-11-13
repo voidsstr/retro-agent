@@ -1,0 +1,694 @@
+Winsock Initialized
+Console initialized.
+------- Loading ref_soft.dll -------
+PackFile: ./baseq2/pak0.pak : pics/conchars.pcx
+PackFile: ./baseq2/pak0.pak : pics/colormap.pcx
+setting mode 0: 320 240 FS
+Shutting down SW imp
+Initializing DirectDraw
+...loading DDRAW.DLL: ok
+...creating DirectDraw object: ok
+...setting exclusive mode: ok
+...finding display mode
+...setting linear mode: failed
+...attempting ModeX 320x240: failed SDM - DDERR_UNSUPPORTED
+*** DDraw init failure ***
+...restoring display mode
+...restoring normal coop mode
+...releasing lpDirectDraw
+...freeing library
+Shutting down SW imp
+...destroying window
+808k surface cache
+ref_soft::R_BeginFrame() - fullscreen unavailable in this mode
+setting mode 0: 320 240 W
+Shutting down SW imp
+...destroying window
+808k surface cache
+ref_soft version: SOFT 0.01
+------------------------------------
+
+------- sound initialization -------
+Initializing DirectSound
+...loading dsound.dll: ok
+...creating DS object: ok
+Creating DS buffers
+...setting EXCLUSIVE coop level: ok
+...creating primary buffer: ok
+...setting primary sound format: ok
+...creating secondary buffer: ok
+...using secondary sound buffer
+   2 channel(s)
+   16 bits/sample
+   11025 bytes/sec
+...completed successfully
+dsound init succeeded
+sound sampling rate: 11025
+------------------------------------
+CDAudio: drive not ready
+CD Audio Initialized
+
+joystick not found -- no valid joysticks (a5)
+
+FindFile: ./baseq2/autoexec.cfg
+execing autoexec.cfg
+FindFile: ./baseq2/fleetkey.cfg
+execing fleetkey.cfg
+FindFile: ./baseq2/fleetres.cfg
+execing fleetres.cfg
+LoadLibrary (./baseq2/gamex86.dll)
+==== InitGame ====
+------- Server Initialization -------
+SpawnServer: idlog.cin
+0 entities inhibited
+0 teams with 0 entities
+-------------------------------------
+====== Quake2 Initialized ======
+
+Shutting down SW imp
+...destroying window
+Destroying DS buffers
+...setting NORMAL coop level
+...stopping and releasing sound buffer
+...releasing primary buffer
+------- Loading ref_gl.dll -------
+ref_gl version: GL 0.01
+PackFile: ./baseq2/pak0.pak : pics/colormap.pcx
+Initializing OpenGL display
+...setting mode 9: 1920 1080 FS
+...attempting fullscreen
+...using desktop display depth of 32
+...calling CDS: ok
+Creating DS buffers
+...setting EXCLUSIVE coop level: ok
+...creating primary buffer: ok
+...creating secondary buffer: ok
+...using secondary sound buffer
+GL PFD: color(32-bits) Z(24-bit)
+GL_VENDOR: NVIDIA Corporation
+GL_RENDERER: NVIDIA GeForce GTX 1070 Ti/PCIe/SSE2
+GL_VERSION: 4.6.0 NVIDIA 582.28
+GL_EXTENSIONS: GL_ARB_depth_texture GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_imaging GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_shader_objects GL_ARB_shading_language_100 GL_ARB_shadow GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_mirrored_repeat GL_ARB_texture_non_power_of_two GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_window_pos GL_ATI_draw_buffers GL_ATI_texture_float GL_ATI_texture_mirror_once GL_S3_s3tc GL_EXT_texture_env_add GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_Cg_shader GL_EXT_depth_bounds_test GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_two_side GL_EXT_stencil_wrap GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_vertex_array GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_KTX_buffer_region GL_NV_blend_square GL_NV_copy_depth_to_color GL_NV_depth_clamp GL_NV_fence GL_NV_float_buffer GL_NV_fog_distance GL_NV_fragment_program GL_NV_fragment_program_option GL_NV_fragment_program2 GL_NV_half_float GL_NV_light_max_exponent GL_NV_multisample_filter_hint GL_NV_occlusion_query GL_NV_packed_depth_stencil GL_NV_pixel_data_range GL_NV_point_sprite GL_NV_primitive_restart GL_NV_register_combiners GL_NV_register_combiners2 GL_NV_texgen_reflection GL_NV_texture_compression_vtc GL_NV_texture_env_combine4 GL_NV_texture_rectangle GL_NV_texture_shader GL_NV_texture_shader2 GL_NV_texture_shader3 GL_NV_vertex_array_range GL_NV_vertex_array_range2 GL_NV_vertex_program GL_NV_vertex_program1_1 GL_NV_vertex_program2 GL_NV_vertex_program2_option GL_NV_vertex_program3 GL_NVX_conditional_render GL_SGIS_generate_mipmap GL_SGIS_texture_lod GL_SGIX_depth_texture GL_SGIX_shadow GL_SUN_slice_accum GL_WIN_swap_hint WGL_EXT_swap_control 
+...allowing CDS
+...enabling GL_EXT_compiled_vertex_array
+...enabling WGL_EXT_swap_control
+...using GL_EXT_point_parameters
+...GL_EXT_shared_texture_palette not found
+...GL_SGIS_multitexture not found
+PackFile: ./baseq2/pak0.pak : pics/colormap.pcx
+PackFile: ./baseq2/pak0.pak : pics/conchars.pcx
+------------------------------------
+PackFile: ./baseq2/pak0.pak : pics/conback.pcx
+S_Update_ : overflow
+Packet loopback : connect
+SVC_DirectConnect ()
+loopback: client_connect
+New() from Player
+Serverdata packet received.
+FindFile: ./baseq2/video/idlog.cin
+Shutting down sound system
+Destroying DS buffers
+...setting NORMAL coop level
+...stopping and releasing sound buffer
+...releasing primary buffer
+...releasing DS object
+...freeing DSOUND.DLL
+
+------- sound initialization -------
+Initializing DirectSound
+...loading dsound.dll: ok
+...creating DS object: ok
+Creating DS buffers
+...setting EXCLUSIVE coop level: ok
+...creating primary buffer: ok
+...creating secondary buffer: ok
+...using secondary sound buffer
+...completed successfully
+sound sampling rate: 22050
+------------------------------------
+PackFile: ./baseq2/pak0.pak : sound/world/ric1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/ric2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/ric3.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/lashit.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark5.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark6.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark7.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/railgf1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/rocklx1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/grenlx1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/xpld_wat.wav
+PackFile: ./baseq2/pak0.pak : sound/player/land1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/fall2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/fall1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step3.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step4.wav
+FindFile: can't find sound/weapons/tesla.wav
+Couldn't load sound/weapons/tesla.wav
+FindFile: can't find sound/weapons/disrupthit.wav
+Couldn't load sound/weapons/disrupthit.wav
+S_Update_ : overflow
+Shutting down sound system
+Destroying DS buffers
+...setting NORMAL coop level
+...stopping and releasing sound buffer
+...releasing primary buffer
+...releasing DS object
+...freeing DSOUND.DLL
+
+------- sound initialization -------
+Initializing DirectSound
+...loading dsound.dll: ok
+...creating DS object: ok
+Creating DS buffers
+...setting EXCLUSIVE coop level: ok
+...creating primary buffer: ok
+...creating secondary buffer: ok
+...using secondary sound buffer
+...completed successfully
+sound sampling rate: 11025
+------------------------------------
+PackFile: ./baseq2/pak0.pak : sound/world/ric1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/ric2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/ric3.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/lashit.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark5.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark6.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark7.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/railgf1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/rocklx1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/grenlx1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/xpld_wat.wav
+PackFile: ./baseq2/pak0.pak : sound/player/land1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/fall2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/fall1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step3.wav
+PackFile: ./baseq2/pak0.pak : sound/player/step4.wav
+FindFile: can't find sound/weapons/tesla.wav
+Couldn't load sound/weapons/tesla.wav
+FindFile: can't find sound/weapons/disrupthit.wav
+Couldn't load sound/weapons/disrupthit.wav
+S_Update_ : overflow
+Nextserver() from Player
+------- Server Initialization -------
+SpawnServer: demo1.dm2
+0 entities inhibited
+0 teams with 0 entities
+-------------------------------------
+stufftext: changing
+
+stufftext: reconnect
+
+
+Changing map...
+reconnecting...
+New() from Player
+PackFile: ./baseq2/pak0.pak : demos/demo1.dm2
+Serverdata packet received.
+
+
+
+
+Installation
+stufftext: precache
+
+PackFile: ./baseq2/pak0.pak : maps/base2.bsp
+FindFile: can't find sound/weapons/tesla.wav
+Couldn't load sound/weapons/tesla.wav
+FindFile: can't find sound/weapons/disrupthit.wav
+Couldn't load sound/weapons/disrupthit.wav
+PackFile: ./baseq2/pak0.pak : sound/player/fry.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/w_pkup.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/blastf1a.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/lasfly.wav
+PackFile: ./baseq2/pak0.pak : sound/player/lava1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/lava2.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/pc_up.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/talk1.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/udeath.wav
+PackFile: ./baseq2/pak0.pak : sound/items/respawn1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/death1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/death2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/death3.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/death4.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/fall1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/fall2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/gurp1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/gurp2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/jump1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain25_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain25_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain50_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain50_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain75_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain75_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain100_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/male/pain100_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/death1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/death2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/death3.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/death4.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/fall1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/fall2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/gurp1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/gurp2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/jump1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain25_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain25_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain50_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain50_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain75_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain75_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain100_1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/female/pain100_2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/gasp1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/gasp2.wav
+PackFile: ./baseq2/pak0.pak : sound/player/watr_in.wav
+PackFile: ./baseq2/pak0.pak : sound/player/watr_out.wav
+PackFile: ./baseq2/pak0.pak : sound/player/watr_un.wav
+PackFile: ./baseq2/pak0.pak : sound/player/u_breath1.wav
+PackFile: ./baseq2/pak0.pak : sound/player/u_breath2.wav
+PackFile: ./baseq2/pak0.pak : sound/items/pkup.wav
+PackFile: ./baseq2/pak0.pak : sound/world/land.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/h2ohit1.wav
+PackFile: ./baseq2/pak0.pak : sound/items/damage.wav
+PackFile: ./baseq2/pak0.pak : sound/items/protect.wav
+PackFile: ./baseq2/pak0.pak : sound/items/protect4.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/noammo.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/inflies1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/death1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunpain2.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunpain1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunidle1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunatck1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunsrch1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/sight1.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunatck2.wav
+PackFile: ./baseq2/pak0.pak : sound/gunner/gunatck3.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infpain1.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infpain2.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infdeth1.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infdeth2.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infatck1.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infatck3.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infatck2.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/melee2.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infsght1.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infsrch1.wav
+PackFile: ./baseq2/pak0.pak : sound/infantry/infidle1.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solidle1.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solsght1.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solsrch1.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solpain2.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/soldeth2.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solatck2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/v_bas6.wav
+PackFile: ./baseq2/pak0.pak : sound/world/flyby1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/v_bas1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/v_bas3.wav
+PackFile: ./baseq2/pak0.pak : sound/world/explod1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/v_bas2.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/am_pkup.wav
+PackFile: ./baseq2/pak0.pak : sound/items/n_health.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/shotgf1b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/shotgr1b.wav
+PackFile: ./baseq2/pak0.pak : sound/world/wind2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/battle2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/battle3.wav
+PackFile: ./baseq2/pak0.pak : sound/world/explod2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/battle1.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/ar2_pkup.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/hgrent1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/hgrena1b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/hgrenc1b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/hgrenb1a.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/hgrenb2a.wav
+PackFile: ./baseq2/pak0.pak : sound/items/l_health.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solpain3.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/soldeth3.wav
+PackFile: ./baseq2/pak0.pak : sound/soldier/solatck3.wav
+PackFile: ./baseq2/pak0.pak : sound/world/lite_on2.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flysght1.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flysrch1.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flypain1.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flypain2.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flyatck2.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flyatck1.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flydeth1.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flyatck3.wav
+PackFile: ./baseq2/pak0.pak : sound/flyer/flyidle1.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/secret.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb12.wav
+PackFile: ./baseq2/pak0.pak : sound/world/comp_hum2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb7.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb15.wav
+PackFile: ./baseq2/pak0.pak : sound/world/drip_amb.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb10.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb6.wav
+PackFile: ./baseq2/pak0.pak : sound/world/spark2.wav
+PackFile: ./baseq2/pak0.pak : sound/world/turbine1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/comp_hum1.wav
+PackFile: ./baseq2/pak0.pak : sound/world/comp_hum3.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb5.wav
+PackFile: ./baseq2/pak0.pak : sound/world/amb14.wav
+PackFile: ./baseq2/pak0.pak : sound/world/water1.wav
+PackFile: ./baseq2/pak0.pak : sound/doors/dr1_strt.wav
+PackFile: ./baseq2/pak0.pak : sound/doors/dr1_mid.wav
+PackFile: ./baseq2/pak0.pak : sound/doors/dr1_end.wav
+PackFile: ./baseq2/pak0.pak : sound/items/s_health.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/ar1_pkup.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/sshotf1b.wav
+PackFile: ./baseq2/pak0.pak : sound/switches/butn2.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/machgf1b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/machgf2b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/machgf3b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/machgf4b.wav
+PackFile: ./baseq2/pak0.pak : sound/weapons/machgf5b.wav
+PackFile: ./baseq2/pak0.pak : sound/plats/pt1_strt.wav
+PackFile: ./baseq2/pak0.pak : sound/plats/pt1_mid.wav
+PackFile: ./baseq2/pak0.pak : sound/plats/pt1_end.wav
+PackFile: ./baseq2/pak0.pak : sound/misc/talk.wav
+PackFile: ./baseq2/pak0.pak : sound/items/damage2.wav
+PackFile: ./baseq2/pak0.pak : sound/items/damage3.wav
+Map: base2PackFile: ./baseq2/pak0.pak : maps/base2.bsp
+PackFile: ./baseq2/pak1.pak : textures/e1u1/clip.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_9.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal3_3.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/flat1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/exit1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal3_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate2_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/basemap.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate2_8.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ggrat12_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal2_4.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/floor3_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal1_8.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/flat1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/floor3_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ceil1_8.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ggrat4_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wtroof4_8.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wslt1_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/bluwter.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wtroof4_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal14_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate1_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/support1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/crate1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/crate1_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/crate1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ceil1_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/florr1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/exitsymbol2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wtroof1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/endsign2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/endsign5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/endsign6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/endsign3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wGRATE1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_3.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/FLAT1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ceil1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ggrat4_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal3_7.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/ceil1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/broken2_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal1_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate2_5.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/sky1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wsupprt1_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal3_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ceil1_1.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/grate2_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_8.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ggrat4_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ceil1_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/exitdr01_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal3_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box3_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box3_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/PIP04_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/PIP04_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/PIP04_6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/PIP04_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wmtal3_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wtroof4_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wtroof4_6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wtroof4_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wslt1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wslt1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wslt1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/baslt3_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/c_met5_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ggrat2_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/c_met7_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/c_met7_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/c_met8_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wbasic1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/c_met5_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/crate1_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wgrate1_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wbasic1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wswall1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wswall1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp3_8.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp4_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp5_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp3_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp3_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp3_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/ggrat2_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/+0cgrate1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/+1cgrate1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/cgrbase1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box3_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box1_6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/yellow1_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/baselt_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/pipe1_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp5_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/comp1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box3_4.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box3_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box3_6.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/floor3_2.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/grate1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grate2_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/rocks19_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/c_met51a.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal2_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/metal3_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wslt1_5.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/trigger.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u2/basic1_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wbasic1_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/exitdr01_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/box1_1.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/btactmach2.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/btactmach3.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/btactmach0.wal
+PackFile: ./baseq2/pak1.pak : textures/e1u1/btactmach1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/origin.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/arrowup0.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/arrowup1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/arrowup2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/arrowup3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/btelev_up.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/btelev_up3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx3_2.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx3_3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx3_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_7.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/plite1_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/dr04_1.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/wslt1_6.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/lever3.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/lever8.wal
+PackFile: ./baseq2/pak0.pak : textures/e1u1/grnx2_5.wal
+                                     picsPackFile: ./baseq2/pak0.pak : pics/num_0.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_1.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_2.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_3.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_4.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_5.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_6.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_7.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_8.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_9.pcx
+PackFile: ./baseq2/pak0.pak : pics/num_minus.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_0.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_1.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_2.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_3.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_4.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_5.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_6.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_7.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_8.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_9.pcx
+PackFile: ./baseq2/pak0.pak : pics/anum_minus.pcx
+PackFile: ./baseq2/pak0.pak : pics/ch1.pcx
+                                     PackFile: ./baseq2/pak0.pak : models/objects/explode/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/explode/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/smoke/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/smoke/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/flash/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/flash/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/parasite/segment/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/parasite/segment/skin.pcx
+FindFile: can't find models/ctf/segment/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/parasite/tip/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/parasite/tip/base.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin1.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin2.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin3.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin4.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin5.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin6.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/r_explode/skin7.pcx
+PackFile: ./baseq2/pak0.pak : sprites/s_bfg2.sp2
+PackFile: ./baseq2/pak0.pak : sprites/s_bfg2_0.pcx
+PackFile: ./baseq2/pak0.pak : sprites/s_bfg2_1.pcx
+PackFile: ./baseq2/pak0.pak : sprites/s_bfg2_2.pcx
+PackFile: ./baseq2/pak0.pak : sprites/s_bfg2_3.pcx
+PackFile: ./baseq2/pak0.pak : models/items/armor/effect/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/armor/effect/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/laser/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/laser/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/grenade2/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/grenade2/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/weapons/v_machn/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/v_machn/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/weapons/v_handgr/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/v_handgr/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/weapons/v_shotg2/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/v_shotg2/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/bone/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/bone/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/sm_meat/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/sm_meat/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/bone2/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/bone2/skin.pcx
+PackFile: ./baseq2/pak0.pak : pics/w_machinegun.pcx
+PackFile: ./baseq2/pak0.pak : pics/a_bullets.pcx
+PackFile: ./baseq2/pak0.pak : pics/i_health.pcx
+PackFile: ./baseq2/pak0.pak : pics/a_grenades.pcx
+FindFile: can't find models/objects/r_explode2/tris.md2
+FindFile: can't find models/proj/lightning/tris.md2
+FindFile: can't find models/proj/beam/tris.md2
+FindFile: can't find models/proj/widowbeam/tris.md2
+maps/base2.bsp                                     models/weapons/v_blast/tris.md2PackFile: ./baseq2/pak0.pak : models/weapons/v_blast/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/v_blast/skin.pcx
+                                     models/objects/gibs/sm_meat/tris.md2                                     models/objects/gibs/arm/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/gibs/arm/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/arm/skin.pcx
+                                     models/objects/gibs/bone/tris.md2                                     models/objects/gibs/bone2/tris.md2                                     models/objects/gibs/chest/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/gibs/chest/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/chest/skin.pcx
+                                     models/objects/gibs/skull/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/gibs/skull/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/skull/skin.pcx
+                                     models/objects/gibs/head2/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/gibs/head2/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/head2/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/head2/player.pcx
+                                     models/monsters/gunner/tris.md2PackFile: ./baseq2/pak0.pak : models/monsters/gunner/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/gunner/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/gunner/pain.pcx
+                                     models/monsters/infantry/tris.md2PackFile: ./baseq2/pak0.pak : models/monsters/infantry/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/infantry/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/infantry/pain.pcx
+                                     models/monsters/soldier/tris.md2PackFile: ./baseq2/pak0.pak : models/monsters/soldier/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/soldier/skin_lt.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/soldier/skin_ltp.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/soldier/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/soldier/pain.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/soldier/skin_ss.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/soldier/skin_ssp.pcx
+                                     models/objects/laser/tris.md2                                     models/deadbods/dude/tris.md2PackFile: ./baseq2/pak0.pak : models/deadbods/dude/tris.md2
+PackFile: ./baseq2/pak0.pak : models/deadbods/dude/dead1.pcx
+                                     models/items/ammo/shells/medium/tris.PackFile: ./baseq2/pak0.pak : models/items/ammo/shells/medium/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/ammo/shells/medium/skin.pcx
+                                     models/items/healing/medium/tris.md2PackFile: ./baseq2/pak0.pak : models/items/healing/medium/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/healing/medium/skin.pcx
+                                     models/weapons/g_shotg/tris.md2PackFile: ./baseq2/pak0.pak : models/weapons/g_shotg/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/g_shotg/skin.pcx
+                                     models/weapons/v_shotg/tris.md2PackFile: ./baseq2/pak0.pak : models/weapons/v_shotg/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/v_shotg/skin.pcx
+                                     weapons/v_shotg/flash2/tris.md2FindFile: can't find weapons/v_shotg/flash2/tris.md2
+                                     models/items/armor/shard/tris.md2PackFile: ./baseq2/pak0.pak : models/items/armor/shard/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/armor/shard/skin.pcx
+                                     models/items/ammo/bullets/medium/trisPackFile: ./baseq2/pak0.pak : models/items/ammo/bullets/medium/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/ammo/bullets/medium/skin.pcx
+                                     models/items/ammo/grenades/medium/triPackFile: ./baseq2/pak0.pak : models/items/ammo/grenades/medium/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/ammo/grenades/medium/skin.pcx
+                                     models/weapons/v_handgr/tris.md2                                     models/items/healing/large/tris.md2PackFile: ./baseq2/pak0.pak : models/items/healing/large/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/healing/large/skin.pcx
+                                     models/monsters/flyer/tris.md2PackFile: ./baseq2/pak0.pak : models/monsters/flyer/tris.md2
+PackFile: ./baseq2/pak0.pak : models/monsters/flyer/skin.pcx
+PackFile: ./baseq2/pak0.pak : models/monsters/flyer/pain.pcx
+                                     models/items/healing/stimpack/tris.mdPackFile: ./baseq2/pak0.pak : models/items/healing/stimpack/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/healing/stimpack/skin.pcx
+                                     models/items/armor/jacket/tris.md2PackFile: ./baseq2/pak0.pak : models/items/armor/jacket/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/armor/jacket/skin.pcx
+                                     models/objects/debris1/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/debris1/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/debris1/skin.pcx
+                                     models/objects/debris2/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/debris2/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/debris2/skin.pcx
+                                     models/objects/debris3/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/debris3/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/debris3/skin.pcx
+                                     models/objects/barrels/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/barrels/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/barrels/skin.pcx
+                                     models/weapons/g_shotg2/tris.md2PackFile: ./baseq2/pak0.pak : models/weapons/g_shotg2/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/g_shotg2/skin.pcx
+                                     models/weapons/v_shotg2/tris.md2                                     models/weapons/g_machn/tris.md2PackFile: ./baseq2/pak0.pak : models/weapons/g_machn/tris.md2
+PackFile: ./baseq2/pak0.pak : models/weapons/g_machn/skin.pcx
+                                     models/weapons/v_machn/tris.md2                                     models/objects/gibs/head/tris.md2PackFile: ./baseq2/pak0.pak : models/objects/gibs/head/tris.md2
+PackFile: ./baseq2/pak0.pak : models/objects/gibs/head/skin.pcx
+                                     models/items/quaddama/tris.md2PackFile: ./baseq2/pak0.pak : models/items/quaddama/tris.md2
+PackFile: ./baseq2/pak0.pak : models/items/quaddama/skin.pcx
+                                     imagesPackFile: ./baseq2/pak0.pak : pics/i_help.pcx
+PackFile: ./baseq2/pak0.pak : pics/help.pcx
+PackFile: ./baseq2/pak0.pak : pics/field_3.pcx
+PackFile: ./baseq2/pak0.pak : pics/w_blaster.pcx
+PackFile: ./baseq2/pak0.pak : pics/a_shells.pcx
+PackFile: ./baseq2/pak0.pak : pics/w_shotgun.pcx
+PackFile: ./baseq2/pak0.pak : pics/i_jacketarmor.pcx
+PackFile: ./baseq2/pak0.pak : pics/w_sshotgun.pcx
+PackFile: ./baseq2/pak0.pak : pics/p_quad.pcx
+                                     client 0FindFile: ./baseq2/players/male/tris.md2
+FindFile: can't find players/male/skin.pcx
+Bad pcx file players/male/skin.pcx
+FindFile: ./baseq2/players/male/grunt.pcx
+FindFile: ./baseq2/players/male/weapon.md2
+FindFile: ./baseq2/players/male/weapon.pcx
+FindFile: can't find players/male/skin_i.pcx
+Bad pcx file players/male/skin_i.pcx
+                                     FindFile: ./baseq2/players/male/grunt_i.pcx
+skyPackFile: ./baseq2/pak0.pak : env/unit1_rt.tga
+PackFile: ./baseq2/pak0.pak : env/unit1_bk.tga
+PackFile: ./baseq2/pak0.pak : env/unit1_lf.tga
+PackFile: ./baseq2/pak0.pak : env/unit1_ft.tga
+PackFile: ./baseq2/pak0.pak : env/unit1_up.tga
+PackFile: ./baseq2/pak0.pak : env/unit1_dn.tga
+                                     CDAudio: drive not ready
+S_Update_ : overflow

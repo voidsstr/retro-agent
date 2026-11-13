@@ -1,0 +1,2 @@
+Q2-noext|30|C:\RETRO_AGENT\q2t.bat +set gl_ext_pointparameters 0 +set gl_ext_compiled_vertex_array 0 +set gl_ext_multitexture 0 +set gl_ext_swapinterval 0 +set gl_ext_palettedtexture 0
+Q2-nopp|30|C:\RETRO_AGENT\q2t.bat +set gl_ext_pointparameters 0

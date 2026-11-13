@@ -1,0 +1,3 @@
+Q2-soft|30|C:\RETRO_AGENT\q2t.bat +set vid_ref soft
+Q2-gl3|30|C:\RETRO_AGENT\q2t.bat +set gl_mode 3
+Q2-glmap|30|C:\RETRO_AGENT\q2t.bat +set gl_mode 9 +map base1

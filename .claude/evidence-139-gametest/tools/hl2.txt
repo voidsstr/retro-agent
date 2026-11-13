@@ -1,0 +1,3 @@
+HL-soft|30|C:\RETRO_AGENT\hlt.bat -nosierra -full -soft -w 640 -h 480
+HL-d3d|30|C:\RETRO_AGENT\hlt.bat -nosierra -full -d3d -w 1600 -h 1200
+HL-gl1024|30|C:\RETRO_AGENT\hlt.bat -nosierra -full -gl -w 1024 -h 768

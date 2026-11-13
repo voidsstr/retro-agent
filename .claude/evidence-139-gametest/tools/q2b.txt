@@ -1,0 +1,1 @@
+Q2-nocd-nosnd|30|C:\RETRO_AGENT\q2t.bat +set logfile 2 +set cd_nocd 1 +set s_initsound 0

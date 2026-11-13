@@ -1,0 +1,2 @@
+2026-11-12 19:40 HalfLife1: WON_HL_CAP clamps the 4:3 mode at 1280x960 (WON hl.exe falls to a 400x300 window above it, .139); RedneckRampage Route 66 conf runs ROUTE66.EXE, not the SETUP-first ROUTE66M.EXE
+2026-10-04 16:35 Serious Sam TFE+TSE: launchers write gap_iRefreshRate (TSE) and ogl_bExclusive=1 where the 3dfx card drives the screen, TFE GLSettings.lst knows our Mesa ICD, TFE demos re-dated (verified on .124)

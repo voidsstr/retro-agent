@@ -1,0 +1,1 @@
+Get-WinEvent -FilterHashtable @{LogName='Application';Id=1000;StartTime=(Get-Date).AddDays(-2)} -ErrorAction SilentlyContinue | ForEach-Object { $p=$_.Properties; "{0} | {1} | mod {2} {3} | code {4} | off {5}" -f $_.TimeCreated,$p[0].Value,$p[3].Value,$p[4].Value,$p[6].Value,$p[7].Value } | Select-Object -First 40

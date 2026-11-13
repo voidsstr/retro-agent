@@ -1,0 +1,2 @@
+HLeng-gl1280|35|C:\RETRO_AGENT\hlt.bat -nosierra -full -gl -w 1280 -h 960 -toconsole +map c1a0
+HLeng-gl1440|35|C:\RETRO_AGENT\hlt.bat -nosierra -full -gl -w 1440 -h 1080 -toconsole +map c1a0
