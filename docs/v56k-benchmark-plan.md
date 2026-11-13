@@ -96,6 +96,18 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-11-13) - Direct3D: limitations investigated, fix plan written; no driver change yet
+
+**The plan is [`voodoo-cleanroom/vcr-kmd/docs/d3d-plan.md`](../voodoo-cleanroom/vcr-kmd/docs/d3d-plan.md)**;
+its evidence is `vcr-kmd/evidence/d3dplan_1112/`. On 11-12, `.124` ran the first in-game D3D frames on vcr-kmd
+(UT2004 botmatch, UT2003 flyby at 9.41 fps, Halo timedemo). It also showed that a Glide command FIFO left
+enabled by a killed client silently drops every D3D triangle (9/40 passing), and that a 32 bpp target with
+a D16 Z is refused although the runtime reports the pair as matching. The plan has 97 gaps: 6 are P0, and
+they cover stability (stale FIFO, Glide residue) plus confetti mip chains, the Halo X8R8G8B8 squares and
+the UE2 white sky. The verify stage was cut short by the usage limit: designs after G30 have no skeptic
+review yet. **Next:** milestone M0 (allocation table, counters, boot 0, d3dprobe caps additions), then
+G01. `.124` was left at 1280x1024x32@85, idle, Diag unchanged.
+
 ### Resume point (2026-11-08 07:45) - D3D on `.124`: three HAL bugs fixed (half-pixel centre, texture alignment, 16 bpp over a 32-bit Z) - UT2003 and Rainbow Six fixed
 
 **Sweep 2026-11-08 00:48** (`vcr-kmd/evidence/d3dtune_1014/sweep_1108/`, AvP

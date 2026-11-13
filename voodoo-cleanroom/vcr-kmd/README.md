@@ -757,6 +757,9 @@ probably reads 0 through the blank.
 
 ## Roadmap
 
+> **Direct3D:** the investigated limitations and the prioritised fix plan (2026-11-13) are in
+> [`docs/d3d-plan.md`](docs/d3d-plan.md); it supersedes the Direct3D bullets below where they differ.
+
 1. ~~**V5 desktop**~~ — done 2026-09-26: 123/123 vendor modes.
 2. ~~**Glide single chip**~~ — done 2026-09-26: the whole stack ours.
 3. ~~**Four-chip SLI**~~ — done 2026-09-26 (above). **AA** (cfg 1, 3, 4, 6,
