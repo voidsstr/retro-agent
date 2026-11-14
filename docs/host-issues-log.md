@@ -154,8 +154,9 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   agents failed in the first minutes of the new boot on network bring-up (DNS
   resolved the Postgres host to the router 192.168.1.254; a blob connect
   timeout); both were reset and re-run.
-- Three Xid 79s in ~28 h (11-12 16:16 → 11-13 18:23), at 26.5 h, 75 min and
-  8.5 h after recovery. Same caps and versions as the 11-12 20:04 entry. The
+- Two Xid 79s in ~22 h (11-12 20:04 and 11-13 18:23), 75 min and 8.5 h after
+  each recovery; the one before (11-11 16:16) came 5 h 19 min after its cold
+  cycle. Same caps and versions as the 11-12 20:04 entry. The
   open physical items in the Current state table remain the next step
   (unproven).
 
