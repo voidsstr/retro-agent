@@ -483,6 +483,45 @@ async def unmanaged_modern_host(c, greeting):
             "treated as a modern host (the fleet has no Windows 8 boxes)")
 
 
+async def modern_host_scope(c, greeting):
+    """(why, games_root): why to skip the box, or None; and on a games-only
+    modern box the ONE folder writes may land in.
+
+    A shared Windows 10/11 PC set `ModernGamesOnly`=1 (agent 1.100.0, `.139`)
+    asked for the fleet's games and nothing else: GAMESYNC installs them under
+    its GamesDir and configures them there. A title's favourites file is part
+    of that title, so it may be written - but only inside GamesDir. Anything
+    outside it (Team Arena's servercache.dat under %APPDATA%) is still the
+    user's own and is never touched. Without `games_only` this is exactly
+    unmanaged_modern_host.
+    """
+    why = await unmanaged_modern_host(c, greeting)
+    if not why or "not managed" not in why:
+        return why, None
+    try:
+        hp = json.loads(await c.command_text("HWPROFILE", timeout=60)).get("host_policy") or {}
+    except Exception:  # noqa: BLE001
+        return why, None
+    if not hp.get("games_only"):
+        return why, None
+    root = "C:\\Games"
+    try:
+        reg = json.loads(await c.command_text("REGREAD HKLM Software\\RetroAgent", timeout=30))
+        for v in reg.get("values", []):
+            if v.get("name", "").lower() == "gamesdir" and str(v.get("data", "")).strip():
+                root = str(v["data"]).strip()
+    except Exception:  # noqa: BLE001 - unreadable: refuse rather than guess
+        return why + " (games-only, but its GamesDir could not be read)", None
+    return None, root.rstrip("\\")
+
+
+def inside_games_root(path, root):
+    """Case-insensitive: is `path` inside the folder `root`?"""
+    p = path.replace("/", "\\").lower()
+    r = root.replace("/", "\\").rstrip("\\").lower() + "\\"
+    return p.startswith(r)
+
+
 def _exe_name(g):
     return str(g["exe"] or "").replace("/", "\\").rsplit("\\", 1)[-1].lower()
 
@@ -559,7 +598,7 @@ async def push_favorites(con, ip, dry_run=False):
         return [("-", "-", "no games indexed for this box yet - nothing to write")]
 
     async def work(c, greeting):
-        why = await unmanaged_modern_host(c, greeting)
+        why, games_root = await modern_host_scope(c, greeting)
         if why:
             results.append(("*", "-", f"skipped: {why}"))
             return
@@ -576,6 +615,12 @@ async def push_favorites(con, ip, dry_run=False):
         for t in targets:
             path, engine, pol = t["path"], t["engine"], t["pol"]
             keys = "+".join(t["keys"])
+            if games_root and not inside_games_root(path, games_root):
+                results.append((keys, engine,
+                                f"skipped: {path} is outside {games_root} - on "
+                                f"a games-only modern host only the games' own "
+                                f"folders are ours"))
+                continue
             src = pol["servers_from"]
             pick = dict(limit=pol["slots"], accepts=pol.get("accepts"),
                         local_only=pol["local_only"],
@@ -700,8 +745,17 @@ async def push_favorites(con, ip, dry_run=False):
             results.append((keys, engine,
                             f"wrote {len(servers)} servers -> {path} ({h})"))
 
-        results.extend(await push_servercache(c, con, ip, games, running,
-                                              dry_run))
+        if games_root:
+            # servercache.dat lives in the USER's %APPDATA%, never in the
+            # games folder - on a games-only modern host it is not ours.
+            results.append(("missionpack", "q3cache",
+                            f"skipped: Team Arena's servercache.dat is under "
+                            f"%APPDATA%, outside {games_root} - on a "
+                            f"games-only modern host only the games' own "
+                            f"folders are ours"))
+        else:
+            results.extend(await push_servercache(c, con, ip, games, running,
+                                                  dry_run))
 
     try:
         await _agent(ip, work, timeout=30.0)

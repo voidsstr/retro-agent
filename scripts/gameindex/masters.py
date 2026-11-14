@@ -212,8 +212,45 @@ def _nq_probe(addr, game=b"QUAKE"):
 # --- Quake II ----------------------------------------------------------------
 # master.q2servers.com wants a plain "query" on 27900 and often does not answer
 # from a residential IP. Kept, but treated as best-effort.
-Q2_MASTERS = [("master.q2servers.com", 27900, b"query"),
+# master.quakeservers.net is the one that answers (76 servers on 2026-11-13,
+# when both others returned nothing and the fleet's Q2 list held only .132).
+Q2_MASTERS = [("master.quakeservers.net", 27900, b"query"),
+              ("master.q2servers.com", 27900, b"query"),
               ("q2master.hardcore.rocks", 27900, b"query")]
+
+
+# Hand-kept seeds, probed every pass like UNREAL_SEEDS: `source="seed"`
+# lets them into a box's address book while ALIVE, even with nobody playing
+# (a master's own rows need players > 0, and on 2026-11-13 exactly one
+# stock-joinable public Q2 server had a player). Every one was answering
+# with a game dir the favourites filter accepts (baseq2/openffa/opentdm/
+# tourney) when added; a dead one just costs a timeout.
+Q2_SEEDS = [
+    "162.35.121.120:27910",   # Smack Down Hotel (baseq2, q2proded)
+    "149.28.241.196:27910",   # QuakeHub.net DM - Dallas (baseq2)
+    "108.16.94.227:27910",    # [Q2] Nano's Frag Factory FFA (baseq2)
+    "74.91.117.176:27910",    # Seattle FFA (OSP Tourney, R1Q2)
+    "130.162.236.198:27910",  # #strafejumpdie EU - classic DM (OpenFFA)
+    "77.87.3.130:27910",      # Chill & Frag [PL] TDM (OpenTDM)
+    "185.157.244.204:27915",  # BaseQ.fr | Free For All (OpenFFA)
+]
+
+
+def _q2_list():
+    """The master's addresses plus the seeds, seeds first, no duplicates."""
+    out, seen = [], set()
+    for a in Q2_SEEDS + _collect(Q2_MASTERS, _parse_q2_master):
+        if a not in seen:
+            seen.add(a)
+            out.append(a)
+    return out
+
+
+def _q2_any_probe(addr):
+    r = _q2_probe(addr)
+    if r and addr in Q2_SEEDS:
+        r["source"] = "seed"
+    return r
 
 
 def _parse_q2_master(data):
@@ -226,6 +263,12 @@ def _parse_q2_master(data):
         if port and not ip.startswith("0."):
             out.append(f"{ip}:{port}")
     return out
+
+
+def _q2_gamedir(info):
+    """No `gamedir`/`game` key means stock baseq2."""
+    gd = (info.get("gamedir") or info.get("game") or "").strip().lower()
+    return gd or "baseq2"
 
 
 def _q2_probe(addr):
@@ -245,7 +288,9 @@ def _q2_probe(addr):
         "bots": len(lines) - humans,
         "maxplayers": int(info.get("maxclients", "0") or 0),
         "ping_ms": rtt,
-        "gamename": info.get("gamename", "baseq2"),
+        # The GAME DIRECTORY, not the free-text `gamename` ("OSP Tourney DM
+        # v(2.75)", "OpenFFA"): the directory is what a client must have.
+        "gamename": _q2_gamedir(info),
         "passworded": 1 if info.get("needpass", "0") not in ("0", "") else 0,
         "source": "q2master",
     }
@@ -733,8 +778,7 @@ def _collect(masters, parser):
 ENGINES = {
     "q3":      dict(list=lambda: _collect(Q3_MASTERS, _parse_getservers),
                     probe=_q3_probe, supported=True),
-    "q2":      dict(list=lambda: _collect(Q2_MASTERS, _parse_q2_master),
-                    probe=_q2_probe, supported=True),
+    "q2":      dict(list=_q2_list, probe=_q2_any_probe, supported=True),
     "qw":      dict(list=lambda: _collect(QW_MASTERS, _parse_qw_master),
                     probe=_qw_probe, supported=True),
     # The Steam master is listed but NOT usable from here: every

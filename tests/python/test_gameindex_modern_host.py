@@ -17,13 +17,18 @@ import sync  # noqa: E402
 
 
 class FakeConn:
-    def __init__(self, hwprofile=None, fail=False):
+    def __init__(self, hwprofile=None, fail=False, reg=None, reg_fail=False):
         self.hwprofile, self.fail, self.asked = hwprofile, fail, []
+        self.reg, self.reg_fail = reg if reg is not None else {"values": []}, reg_fail
 
     async def command_text(self, cmd, timeout=30):
         self.asked.append(cmd)
         if self.fail:
             raise RuntimeError("no answer")
+        if cmd.startswith("REGREAD"):
+            if self.reg_fail:
+                raise RuntimeError("no answer")
+            return json.dumps(self.reg)
         return json.dumps(self.hwprofile)
 
 
@@ -64,5 +69,59 @@ def test_push_favorites_consults_the_policy_before_writing():
     src = (Path(sync.__file__)).read_text()
     body = src[src.index("async def push_favorites("):]
     body = body[:body.index("\n# --- one pass")]
-    assert body.index("unmanaged_modern_host(") < body.index('UPLOAD {path}'), \
+    assert body.index("modern_host_scope(") < body.index('UPLOAD {path}'), \
         "the host-policy check must come before any UPLOAD"
+
+
+# --- games-only modern hosts (ModernGamesOnly=1, .139) ----------------------
+
+def scope(greeting, conn):
+    return asyncio.run(sync.modern_host_scope(conn, greeting))
+
+
+GAMES_ONLY = {"host_policy": {"modern": True, "managed": False, "games_only": True}}
+
+
+def test_games_only_box_may_write_inside_games_dir_only():
+    why, root = scope("RETRO DESKTOP-CH9EU7O Win6.2", FakeConn(GAMES_ONLY))
+    assert why is None and root == "C:\\Games"
+    assert sync.inside_games_root("C:\\Games\\Quake2\\baseq2\\autoexec.cfg", root)
+    assert sync.inside_games_root("c:/games/Quake2/baseq2/autoexec.cfg", root)
+    assert not sync.inside_games_root(
+        "C:\\Users\\x\\AppData\\Roaming\\Quake3\\servercache.dat", root)
+    assert not sync.inside_games_root("C:\\GamesOther\\a.cfg", root)
+
+
+def test_games_only_box_honours_gamesdir():
+    reg = {"values": [{"name": "GamesDir", "type": "REG_SZ", "data": "D:\\Retro\\"}]}
+    why, root = scope("RETRO X Win10.0", FakeConn(GAMES_ONLY, reg=reg))
+    assert why is None and root == "D:\\Retro"
+
+
+def test_games_only_with_unreadable_registry_writes_nothing():
+    why, root = scope("RETRO X Win10.0", FakeConn(GAMES_ONLY, reg_fail=True))
+    assert why and root is None
+
+
+def test_plain_unmanaged_box_is_still_skipped():
+    why, root = scope("RETRO WHITEBEAST Win6.2",
+                      FakeConn({"host_policy": {"modern": True, "managed": False}}))
+    assert "not managed" in why and root is None
+
+
+def test_push_favorites_filters_targets_by_games_root():
+    src = (Path(sync.__file__)).read_text()
+    body = src[src.index("async def push_favorites("):]
+    body = body[:body.index("\n# --- one pass")]
+    assert body.index("inside_games_root(") < body.index('UPLOAD {path}')
+
+
+def test_games_only_never_reaches_the_appdata_servercache():
+    # 2026-11-13: the first games-only pass on .139 wrote Team Arena's
+    # servercache.dat into C:\\Users\\<user>\\AppData - push_servercache ran
+    # outside the per-title loop that checked the games folder.
+    src = (Path(sync.__file__)).read_text()
+    body = src[src.index("async def push_favorites("):]
+    body = body[:body.index("\n# --- one pass")]
+    call = body.index("await push_servercache(")
+    assert body.rindex("if games_root:", 0, call) < call

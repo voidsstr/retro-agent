@@ -856,9 +856,19 @@ TITLES = {
                         filename="servercache.dat", accepts={"missionpack"},
                         strict_accepts=True, derived_from=("ioquake3",),
                         requires_subdir="missionpack"),
-    "quake2":    dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
-    "q2pro":     dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
-    "yquake2":   dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
+    # Strict for every Q2 client: most public Q2 servers run a content mod
+    # (Action Quake, LOX, maracoop, D-Day) a stock client cannot join. These
+    # game dirs need nothing beyond baseq2's content - OpenFFA, OpenTDM and
+    # OSP Tourney are server-side game modules. (masters._q2_gamedir)
+    "quake2":    dict(engine="q2", subdir="baseq2",
+                      accepts={"baseq2", "openffa", "opentdm", "tourney"},
+                      strict_accepts=True),
+    "q2pro":     dict(engine="q2", subdir="baseq2",
+                      accepts={"baseq2", "openffa", "opentdm", "tourney"},
+                      strict_accepts=True),
+    "yquake2":   dict(engine="q2", subdir="baseq2",
+                      accepts={"baseq2", "openffa", "opentdm", "tourney"},
+                      strict_accepts=True),
 
     # The Unreal family's ini sits in System\ NEXT TO the exe, and the agent
     # already reports `dir` as that System directory - it indexes a game by
