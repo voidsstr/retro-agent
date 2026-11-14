@@ -1,0 +1,19 @@
+sv_public 0
+sv_name "Retro Fleet Co-op"
+sv_rcon 1
+sv_rcon_password retroadmin
+sv_timelimit 0
+sv_maxplayers 16
+allow_client_side_weapon_projectiles 1
+load
+sv_mapcycle_add "a10_coop_evolved" "coop"
+sv_mapcycle_add "a30_coop_evolved" "coop"
+sv_mapcycle_add "a50_coop_evolved" "coop"
+sv_mapcycle_add "b30_coop_evolved" "coop"
+sv_mapcycle_add "b40_coop_evolved" "coop"
+sv_mapcycle_add "c10_coop_evolved" "coop"
+sv_mapcycle_add "c20_coop_evolved" "coop"
+sv_mapcycle_add "c40_coop_evolved" "coop"
+sv_mapcycle_add "d20_coop_evolved" "coop"
+sv_mapcycle_add "d40_coop_evolved" "coop"
+sv_mapcycle_begin

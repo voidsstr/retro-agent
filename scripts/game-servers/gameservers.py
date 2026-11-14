@@ -790,6 +790,38 @@ def probe_carma2(port, timeout=DEFAULT_TIMEOUT, host=None):
     return None
 
 
+def probe_halo(port, timeout=DEFAULT_TIMEOUT, host=None):
+    """Halo PC / Halo CE: GameSpy 2 query on the GAME port (2302).
+
+    \xFE\xFD\x00 + a 4-byte id + \xFF\xFF\xFF asks for the server, player
+    and team blocks; the reply echoes the id and then NUL-separated key/value
+    pairs, ending at an empty key. Halo has no bots: the campaign AI on the
+    Coop Evolved maps is not a player, so `numplayers` is people.
+    """
+    data, rtt = _ask(port, b"\xfe\xfd\x00\x52\x45\x54\x52\xff\xff\xff",
+                     timeout, host)
+    if not data or len(data) < 6 or data[0:1] != b"\x00":
+        return None
+    f = data[5:].split(b"\x00")
+    kv = {}
+    for i in range(0, len(f) - 1, 2):
+        if not f[i]:
+            break
+        kv[f[i].decode("latin-1")] = f[i + 1].decode("latin-1", "replace")
+    if "hostname" not in kv:
+        return None
+    out = {"name": kv["hostname"], "map": kv.get("mapname", "?"), "rtt_ms": rtt,
+           "version": kv.get("gamever")}
+    for src, dst in (("numplayers", "players"), ("maxplayers", "max_players")):
+        try:
+            out[dst] = int(kv[src])
+        except (KeyError, ValueError):
+            pass
+    if "players" in out:
+        out["humans"], out["bots"] = out["players"], 0
+    return out
+
+
 PROBES = {
     "a2s": probe_a2s,
     "q3": probe_q3,
@@ -808,6 +840,7 @@ PROBES = {
     "d3": probe_d3,
     "udp_bound": probe_udp_bound,
     "carma2": probe_carma2,
+    "halo": probe_halo,
 }
 
 
@@ -925,6 +958,12 @@ SERVERS = [
     # "join" is the IPXWrapper port, not something anyone types.
     {"unit": "carmageddon2-server", "label": "Carmageddon 2",  "engine": "ipxwrapper",
      "probe": "carma2", "port": 54792, "join": 54792, "slow_start_sec": 180},
+    # Halo Custom Edition 1.0.10 + Coop Evolved (2026-11-13): SAPP's
+    # haloceded.exe under Wine in Docker, with the Mimic + Coop Evolved Lua
+    # scripts that sync the campaign AI. GameSpy 2 on the game port.
+    # scripts/game-servers/haloce/.
+    {"unit": "haloce-coop-server", "label": "Halo CE Co-op",  "engine": "halo",
+     "probe": "halo", "port": 2302, "join": 2302, "slow_start_sec": 120},
     # Docker, not systemd: Tribes 2 needs a 2001 userland. See docker_states().
     {"unit": "tribes2-server",     "label": "Tribes 2",        "engine": "t2",
      "probe": "t2",  "port": 28000, "join": 28000, "manager": "docker"},

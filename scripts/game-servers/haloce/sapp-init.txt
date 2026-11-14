@@ -1,0 +1,11 @@
+lua 1
+antihalofp 1
+antilagspawn 0
+antiglitch 0
+no_lead 1
+disable_timer_offsets 1
+msg_prefix "Server: "
+network_thread 0
+auto_update 0
+lua_load mimic_server
+lua_load coop_evolved_server

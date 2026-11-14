@@ -65,6 +65,10 @@ HALO_MPC = "69771"
 HALO_SKU = "Z08-00030"
 HALO_OEM = "OEM-1208613"
 
+# Registry keys the --reg stanza writes: Halo PC, and Halo Custom Edition
+# (Games-Library/HaloCE, 2026-11-13).
+REG_KEYS = ("Halo", "Halo CE")
+
 
 def encode_key(key):
     """25-character product key -> the 15 raw bytes stored at blob offset 52."""
@@ -200,9 +204,15 @@ def main():
     blob = build(key)
     if a.reg:
         print("REGEDIT4\r\n")
-        print("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft Games\\Halo]")
-        print(reg_lines(blob))
-        print('"ProductId"="%s"' % product_id(key))
+        # Halo Custom Edition reads the SAME key family (its mgspid.dll carries
+        # MPC 69771 / SKU Z08-00030) from its own key, so the box's key file
+        # carries both: one per-box key keeps a box distinct in Halo PC AND in
+        # Halo CE co-op, where the server refuses a second player on a key too.
+        for sub in REG_KEYS:
+            print("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft Games\\%s]" % sub)
+            print(reg_lines(blob))
+            print('"ProductId"="%s"' % product_id(key))
+            print("")
     else:
         sys.stdout.write(blob.hex())
     return 0

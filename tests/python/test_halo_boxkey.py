@@ -134,7 +134,10 @@ def test_the_shipped_map_gives_every_box_its_own_key():
     # the library key is what every UNASSIGNED box plays on; -2 is REJECTED
     assert "fleet-gamekey-halo-pc" not in names
     assert "fleet-gamekey-halo-pc-2" not in names
-    assert "NSC-C543575F526" in mp          # .124, the V5 6000 box (2026-09-28)
+    # .124 (NSC-C543575F526, Pentium III, no SSE2 - Halo is gated off it) gave
+    # its key to .186 for the 2026-11-13 three-box Halo CE co-op game.
+    assert "NSC-C543575F526" not in mp
+    assert "PENTIUM-D-PC" in mp
 
 
 def test_a_map_naming_one_key_twice_is_refused(tmp_path):

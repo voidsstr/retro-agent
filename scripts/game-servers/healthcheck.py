@@ -219,6 +219,13 @@ def carma2(port):                   # Carmageddon 2: the game's own join handsha
     return "%s | %s | %s remote player(s)" % (r["name"], r.get("map") or "?",
                                             r.get("players", "?"))
 
+def halo(port):                     # Halo PC / CE: GameSpy 2 on the game port
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from gameservers import probe_halo
+    r = probe_halo(port, host=HOST)
+    if not r: return None
+    return "%s | map=%s | %s player(s)" % (r["name"], r["map"], r.get("players", "?"))
+
 CHECKS = [
     ("cs16-server",        "CS 1.6",              27018, a2s),
     ("  \\_ a2s proxy",    "CS 1.6 browser",      27015, a2s),
@@ -267,6 +274,7 @@ CHECKS = [
     # network game under Wine in docker; IPXWrapper over UDP 54792.
     ("carmageddon2-server","Carmageddon 2 (IPX/UDP)", 54792, carma2),
     ("tribes2-server",     "Tribes 2",            28000, t2),
+    ("haloce-coop-server", "Halo CE Co-op (Coop Evolved)", 2302, halo),
     # Wine-in-docker Windows servers. They were live on this host and absent
     # from THIS list, so the "one-shot check of every server" quietly checked
     # 18 of 20 -- an outage on either would have been invisible here.

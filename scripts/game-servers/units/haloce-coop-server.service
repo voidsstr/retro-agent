@@ -1,0 +1,17 @@
+[Unit]
+Description=Halo CE Coop Evolved Dedicated Server (haloceded + SAPP, Wine in Docker) - NSC Retro Fleet
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/haloce-server
+ExecStart=/home/voidsstr/haloce-server/_run/run-haloce-server.sh
+ExecStop=/usr/bin/docker stop -t 10 hcesrv
+Restart=always
+RestartSec=20
+StandardOutput=append:/home/voidsstr/haloce-server/server.log
+StandardError=append:/home/voidsstr/haloce-server/server.log
+
+[Install]
+WantedBy=default.target
