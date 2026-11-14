@@ -140,6 +140,27 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-13 19:05:44: Xid 79 38 min after the restart (10th since 10-08), then a restart at 19:09:30 that brought the GPU back
+
+- **Boot ID:** `86461650…` (18:27:26 → 19:09:30) → `d74eb0df…` (19:10:22).
+- **Signature 1:** Xid 79 and Xid 154 (`Node Reboot Required`), with GSP `rpcSendMessage failed ... 0x0000000f`
+  in the same second. ollama then logged `unable to refresh free memory` and kept generating on the CPU at
+  about 3.3 tok/s, which is the CPU fallback. At 19:09:30 ptyxis segfaulted in `libnvidia-glcore.so.595.99.02`,
+  and the journal ends in the same second, with no shutdown targets. Read as the operator's
+  cold power-off; unproven.
+- **The shortest interval yet**, 38 min after the 18:27 boot. 400 W cap, clock lock, kernel 7.0.0-43, driver
+  595.99.02, x16. ollama had a model loaded and was serving.
+- **After (19:12):** `nvidia-smi -L` sees the RTX 5090, 400 W, x16 (Gen 1 at idle).
+
+### 2026-11-13 18:23:55: Xid 79 8.5 h into the 09:52 boot (9th since 10-08)
+
+- **Boot ID:** `a5726a7e…` (09:52:26 → 18:26:30) → `86461650…` (18:27:26). The journal ends at 18:26:30
+  with no shutdown targets, so this was a cold cycle about 2.5 min after the drop (operator; unproven).
+- **Signature 1:** Xid 79 and Xid 154, GSP `rpcSendMessage failed ... 0x0000000f` in the same second.
+  The reusable-agents timers were running (`agent-aisleprompt-recipe-image-archiver` exited 1 at 18:22:46,
+  one minute earlier); no ollama generation was logged in the three minutes before.
+- Same mitigations as above. The PCIe Gen4 BIOS pin is still not applied.
+
 ### 2026-11-13 09:51:42: abrupt end of the 11-12 Xid boot after ~13.8 h without the GPU (most likely the operator's cold cycle)
 
 - **Boot ID:** `d779ac03…` (11-12 18:49:07 → 11-13 09:51:42) → `a5726a7e…`
