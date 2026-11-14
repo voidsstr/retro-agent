@@ -140,6 +140,18 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-13 19:05:44: Xid 79 38 min after the 18:27 power cycle (10th since 10-08); power-cycled ~4 min later
+
+- **Boot ID:** `86461650…` (18:27:26 → 19:09:30) → `d74eb0df…` (19:10:22).
+- **Signature 1:** `Xid ... 79, GPU has fallen off the bus`, then Xid 154.
+- **Load:** ollama inference in progress: 442 ollama journal lines in the 2 min
+  before the drop, the last `print_timing` at 19:05:39 (5 s before).
+- **After (19:12):** GPU back (51 W, 400 W limit), 0 Xid this boot.
+- Three drops in ~23 h, 75 min, 8.5 h and 38 min after each recovery; this one
+  under inference load. Same caps and versions as the 11-12 20:04 entry. The
+  open physical items in the Current state table (Gen4 pin in BIOS, 12V-2x6
+  connector, separate PSU cables) remain the next step (unproven).
+
 ### 2026-11-13 18:23:55: Xid 79 8.5 h after the 09:52 cold cycle (9th since 10-08); power-cycled 2.5 min later
 
 - **Boot ID:** `a5726a7e…` (11-13 09:52:26 → 18:26:30) → `86461650…`
