@@ -460,12 +460,23 @@ def test_share_is_in_the_deployed_state():
         bdata = open(b, "rb").read()
         assert len(bdata) == s["size"] and P.md5(bdata) == s["md5"]
     for d in P.DERIVED:
-        live = P.ci_path(LIB, "%s/%s" % (d["title"], d["rel"]))
+        # agent 1.101.0: added files live ONLY under fleetres-res/wide/
+        live = P.ci_path(LIB, "%s/%s/%s" % (d["title"], P.WIDE_DIR, d["rel"]))
         assert live and P.md5(open(live, "rb").read()) == EXPECTED_OUTPUT_MD5[(d["title"], d["rel"])]
+        assert P.ci_path(LIB, "%s/%s" % (d["title"], d["rel"])) is None, \
+            "%s/%s at its ACTIVE name: GAMESYNC would recopy it to every 4:3 box " \
+            "the agent removed it from, every sync" % (d["title"], d["rel"])
+    for s in P.EXES:
+        # both copies GAMERES GR_OP_VARIANT chooses between
+        st = P.ci_path(LIB, "%s/%s/%s" % (s["title"], P.STOCK_DIR, s["rel"]))
+        wd = P.ci_path(LIB, "%s/%s/%s" % (s["title"], P.WIDE_DIR, s["rel"]))
+        assert st and P.md5(open(st, "rb").read()) == s["md5"]
+        assert wd and P.md5(open(wd, "rb").read()) == EXPECTED_OUTPUT_MD5[(s["title"], s["rel"])]
     states = {(w["title"], w["rel"]): w["state"] for w in P.load_originals(LIB)}
     assert all(states[(s["title"], s["rel"])] == "ALREADY PATCHED on the share; backup verified"
                for s in P.EXES)
-    assert all(states[(d["title"], d["rel"])] == "ALREADY PUBLISHED on the share" for d in P.DERIVED)
+    assert all(states[(d["title"], d["rel"])] == "ALREADY PUBLISHED on the share"
+               for d in P.DERIVED)
     assert P.cmd_check(LIB) == 0
 
 
@@ -549,10 +560,10 @@ def test_publish_plan_backs_up_each_replaced_original_first(synth, tmp_path, mon
         pre + "SiNGold/sin.exe",
         pre + "_patches/SoldierOfFortune/originals-2026-09-29/SoF.exe",
         pre + "SoldierOfFortune/SoF.exe",
-        pre + "SiNGold/base/menus/main.mnu",
-        pre + "SiNGold/2015/menus/main.mnu",
-        pre + "SiNGold/ctf/menus/main.mnu",
-        pre + "SoldierOfFortune/base/pak2.pak",
+        pre + "SiNGold/fleetres-res/wide/base/menus/main.mnu",
+        pre + "SiNGold/fleetres-res/wide/2015/menus/main.mnu",
+        pre + "SiNGold/fleetres-res/wide/ctf/menus/main.mnu",
+        pre + "SoldierOfFortune/fleetres-res/wide/base/pak2.pak",
     ]
     # each backup is the STAGED original, each put is our built output
     assert calls[0][0].startswith(str(synth)) and calls[1][0].startswith(out)
@@ -625,7 +636,7 @@ def test_a_changed_exe_is_never_overwritten_even_with_a_backup(synth):
 def test_a_truncated_new_file_is_put_again_and_a_foreign_one_refused(synth, tmp_path, monkeypatch):
     out = {(x["title"], x["rel"]): x for x in P.load_originals(str(synth))}
     menu = out[("SiNGold", "ctf/menus/main.mnu")]["data"]
-    dst = synth / "SiNGold" / "ctf" / "menus" / "main.mnu"
+    dst = synth / "SiNGold" / "fleetres-res" / "wide" / "ctf" / "menus" / "main.mnu"
     dst.parent.mkdir(parents=True)
     dst.write_bytes(menu[:1000])
     w = {(x["title"], x["rel"]): x for x in P.load_originals(str(synth))}[("SiNGold", "ctf/menus/main.mnu")]
@@ -636,7 +647,7 @@ def test_a_truncated_new_file_is_put_again_and_a_foreign_one_refused(synth, tmp_
     calls = []
     monkeypatch.setattr(P, "sharewrite", lambda l, d, dry: calls.append(d) or 0)
     assert P.cmd_publish(str(synth), str(tmp_path / "o"), dry=True) == 0
-    assert "Files/Games-Library/SiNGold/ctf/menus/main.mnu" in calls
+    assert "Files/Games-Library/SiNGold/fleetres-res/wide/ctf/menus/main.mnu" in calls
     dst.write_bytes(b"somebody else's menu")
     with pytest.raises(P.PatchError):
         P.load_originals(str(synth))

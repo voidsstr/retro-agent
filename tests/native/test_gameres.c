@@ -335,8 +335,8 @@ TEST(t_rules_wellformed)
               "r->title must be present");
         CHECK((r->file) != NULL,
               "r->file must be present");
-        CHECK((r->op) <= (GR_OP_CFG),
-              "r->op must not exceed GR_OP_CFG");
+        CHECK((r->op) <= (GR_OP_VARIANT),
+              "r->op must not exceed GR_OP_VARIANT");
 
         /* Every argument a rule carries must expand, and must FIT. A rule that
          * silently truncated would ship half a resolution. */
@@ -558,6 +558,56 @@ TEST(t_q2wide_per_box)
     gr_decide(&p, &l, 1280, 960, 0, 32, 0, 0, &t);
     CHECK(t.q2wide != 9, "a no-EDID box is a 4:3 tube - never mode 9");
     CHECK_EQ_I(t.q2wide, t.q2mode);
+}
+
+/* GR_OP_VARIANT (agent 1.101.0): the STOCK id Tech 2 exe - whose menu lists
+ * its own default modes up to 1600x1200 - on every box that is not handed
+ * gl_mode 9; the 1920x1080-patched one only where it is. User, 2026-11-13,
+ * .123's no-EDID CRT: "make sure the default resolutions are available - not
+ * the 1080p ones". One decision with the cfg rows, so never stock+9. */
+TEST(t_variant_follows_q2wide)
+{
+    static const int lcd[][3] = {
+        {640,480,60},{800,600,60},{1024,768,60},{1280,720,60},{1280,960,60},
+        {1280,1024,60},{1440,900,60},{1680,1050,60},{1920,1080,60}
+    };
+    static const int tube[][3] = {
+        {640,480,85},{800,600,85},{1024,768,85},{1152,864,85},{1280,960,85},
+        {1280,1024,85},{1600,1200,85}
+    };
+    gr_modes_t l; gr_target_t t; gr_panel_t p;
+    size_t i;
+
+    /* the old wide answer: a 1080p LCD -> the patched exe */
+    p = panel_1080p();
+    gr_modes_reset(&l); l.hz_cap = p.vmax;
+    for (i = 0; i < sizeof(lcd) / sizeof(lcd[0]); i++)
+        gr_modes_add(&l, lcd[i][0], lcd[i][1], lcd[i][2]);
+    gr_decide(&p, &l, 1920, 1080, 60, 32, 0, 0, &t);
+    CHECK(gr_variant_want_wide(t.q2wide), "1080p LCD -> wide exe");
+
+    /* .123 since 2026-11-13: no EDID, desktop 1280x1024, driver lists 1080p
+     * anyway (no monitor ranges) -> STOCK, never the 1920x1080 table */
+    p = panel_none();
+    gr_modes_reset(&l);
+    for (i = 0; i < sizeof(lcd) / sizeof(lcd[0]); i++)
+        gr_modes_add(&l, lcd[i][0], lcd[i][1], lcd[i][2]);
+    gr_decide(&p, &l, 1280, 1024, 100, 32, 0, 0, &t);
+    CHECK(!gr_variant_want_wide(t.q2wide), "no-EDID CRT -> stock exe");
+
+    /* a 4:3 tube at 1600x1200: stock (its own entry 9 IS 1600x1200) */
+    memset(&p, 0, sizeof(p));
+    p.ok = 1; p.native_w = 1600; p.native_h = 1200; p.native_hz = 85;
+    p.vmax = 160; p.hcm = 40; p.vcm = 30;
+    gr_modes_reset(&l); l.hz_cap = p.vmax;
+    for (i = 0; i < sizeof(tube) / sizeof(tube[0]); i++)
+        gr_modes_add(&l, tube[i][0], tube[i][1], tube[i][2]);
+    gr_decide(&p, &l, 1600, 1200, 85, 32, 0, 0, &t);
+    CHECK(!gr_variant_want_wide(t.q2wide), "4:3 tube -> stock exe");
+
+    /* the rule itself, both values */
+    CHECK(gr_variant_want_wide(9), "9 -> wide");
+    CHECK(!gr_variant_want_wide(8), "8 -> stock (OLD-BUGGY: the library's one exe was wide everywhere)");
 }
 
 TEST(t_kv_line_is_composed)
@@ -1292,6 +1342,7 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_goldsrc_reaches_the_panel);
     RUN(t_idtech3_split);
     RUN(t_q2wide_per_box);
+    RUN(t_variant_follows_q2wide);
     RUN(t_kv_line_is_composed);
     RUN(t_refresh_is_per_resolution);
     RUN(t_refresh_is_clamped_to_the_edid);

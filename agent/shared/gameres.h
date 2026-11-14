@@ -877,8 +877,26 @@ enum {
     GR_OP_KV,        /* replace/append  arg1=arg2  (no [section] header)     */
     GR_OP_REG,       /* file = "HKLM"|"HKCU", arg1 = subkey, arg2 = value    */
                      /* name, arg3 = "dword:<data>" or "sz:<data>"           */
-    GR_OP_CFG        /* rewrite the whole file; arg1 is the body, '\n'-sep   */
+    GR_OP_CFG,       /* rewrite the whole file; arg1 is the body, '\n'-sep   */
+    GR_OP_VARIANT    /* `file` becomes the copy at arg1 (16:9 1080 box) or   */
+                     /* at arg2 (every other box); arg2 "" = the file must  */
+                     /* NOT exist there - deleted only while it is byte-    */
+                     /* identical to arg1, i.e. only while it is ours.       */
 };
+
+/*
+ * GR_OP_VARIANT's one decision: does this box get the WIDE copy? Exactly when
+ * the cfg rows hand the patched id Tech 2 exes gl_mode 9 (gr_q2wide: a 16:9
+ * target that reaches 1920x1080 and a driver that offers it). Any other box -
+ * a 4:3 CRT, a 5:4 panel, a box capped below 1080 - gets the STOCK files, so
+ * the game's own menu lists its own default modes (1600x1200 at entry 9), not
+ * a 1920x1080 it must never pick. User, 2026-11-13, on .123's CRT: "just make
+ * sure the default resolutions are available - not the 1080p ones".
+ */
+GR_FN int gr_variant_want_wide(int q2wide)
+{
+    return q2wide == 9;
+}
 
 typedef struct {
     const char *title;      /* library title directory, exact case          */
@@ -988,6 +1006,19 @@ GR_DATA const gr_rule_t gr_rules[] = {
 { "SiNGold",          GR_OP_CFG, "base\\fleetres.cfg", "idtech2", NULL, NULL },
 { "SiNGold",          GR_OP_CFG, "2015\\fleetres.cfg", "idtech2", NULL, NULL },
 { "SoldierOfFortune", GR_OP_CFG, "base\\fleetres.cfg", "idtech2", NULL, NULL },
+/* ...and WHICH exe: the library ships both the stock files and the patched
+ * (1920x1080-at-9) ones under fleetres-res\, and the active name is set per
+ * box. The menu files the patch ADDS (SiN's loose main.mnu, SoF's pak2.pak)
+ * exist only on a wide box. Rows are paired with the cfg rows above: one
+ * decision (gr_variant_want_wide(q2wide)), so a box can never run the stock
+ * exe with gl_mode 9 or the wide exe while its menu says 1600x1200. */
+{ "Quake2Complete",   GR_OP_VARIANT, "quake2.exe",            "fleetres-res\\wide\\quake2.exe",            "fleetres-res\\stock\\quake2.exe", NULL },
+{ "SiNGold",          GR_OP_VARIANT, "sin.exe",               "fleetres-res\\wide\\sin.exe",               "fleetres-res\\stock\\sin.exe",    NULL },
+{ "SiNGold",          GR_OP_VARIANT, "base\\menus\\main.mnu", "fleetres-res\\wide\\base\\menus\\main.mnu", "",                                NULL },
+{ "SiNGold",          GR_OP_VARIANT, "2015\\menus\\main.mnu", "fleetres-res\\wide\\2015\\menus\\main.mnu", "",                                NULL },
+{ "SiNGold",          GR_OP_VARIANT, "ctf\\menus\\main.mnu",  "fleetres-res\\wide\\ctf\\menus\\main.mnu",  "",                                NULL },
+{ "SoldierOfFortune", GR_OP_VARIANT, "SoF.exe",               "fleetres-res\\wide\\SoF.exe",               "fleetres-res\\stock\\SoF.exe",    NULL },
+{ "SoldierOfFortune", GR_OP_VARIANT, "base\\pak2.pak",        "fleetres-res\\wide\\base\\pak2.pak",        "",                                NULL },
 
 /* --- Serious Engine 1. The mode lives in two files and only one is ours:
  * PersistentSymbols.ini is where the engine SAVES on exit, so anything staged

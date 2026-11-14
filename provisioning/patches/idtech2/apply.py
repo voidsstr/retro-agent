@@ -74,6 +74,13 @@ SHARE_LIBRARY = "/mnt/retro-share/" + SHARE_PREFIX
 LIBRARY = os.environ.get("RETRO_LIBRARY", SHARE_LIBRARY)
 DEFAULT_OUT = os.path.expanduser("~/.retro-fleet/patch-out/%s" % KEY)
 BACKUP_TAG = "originals-2026-09-29"
+# Since agent 1.101.0 (GAMERES GR_OP_VARIANT) the files the patch ADDS live
+# only under <Title>/fleetres-res/wide/ - the agent puts them in place on a
+# 16:9 1080 box and removes them on every other one. Shipped at their active
+# names, GAMESYNC would recopy each one a 4:3 box had removed, every sync.
+# The exes are shipped at BOTH fleetres-res/stock/ and fleetres-res/wide/.
+WIDE_DIR = "fleetres-res/wide"
+STOCK_DIR = "fleetres-res/stock"
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", "..", ".."))
 SHAREWRITE = os.path.join(REPO, "scripts", "fleet", "sharewrite.py")
@@ -652,7 +659,8 @@ def load_originals(lib):
                          % (spec["rel"], spec["numitems_before"]))
             if len(out) - len(entry) != (1 if spec["numitems_before"] == 9 else 0):
                 raise PatchError("unexpected size change in %s" % spec["rel"])
-        dest = ci_path(lib, "%s/%s" % (spec["title"], spec["rel"]))
+        home = "%s/%s" % (WIDE_DIR, spec["rel"])
+        dest = ci_path(lib, "%s/%s" % (spec["title"], home))
         damaged = None
         if dest is None:
             state, share_md5 = "absent (new file)", None
@@ -668,7 +676,8 @@ def load_originals(lib):
                 raise PatchError("%s exists on the share and is not our output (md5 %s)"
                                  % (dest, share_md5))
         work.append({
-            "title": spec["title"], "rel": spec["rel"], "kind": spec["kind"],
+            "title": spec["title"], "rel": spec["rel"], "home": home,
+            "kind": spec["kind"],
             "orig_path": None, "orig_md5": None, "orig_size": None,
             "source": {"pak": "%s/%s/%s" % (SHARE_PREFIX, spec["title"], spec["pak"]),
                        "pak_size": spec["pak_size"], "entry": spec["entry"],
@@ -680,7 +689,9 @@ def load_originals(lib):
 
 
 def share_rel(item):
-    return "%s/%s/%s" % (SHARE_PREFIX, item["title"], item["rel"])
+    """Where an output lives on the share: an exe at its own name, an ADDED
+    file under fleetres-res/wide/ (`home`, agent 1.101.0)."""
+    return "%s/%s/%s" % (SHARE_PREFIX, item["title"], item.get("home") or item["rel"])
 
 
 def backup_rel(item):
@@ -763,7 +774,7 @@ def cmd_publish(lib, outdir, dry):
     missing or truncated is recognised by load_originals() and put again."""
     mp = os.path.join(outdir, "manifest.json")
     manifest = json.load(open(mp))
-    work = {(w["title"], w["rel"]): w for w in load_originals(lib)}
+    work = {(w["title"], w.get("home") or w["rel"]): w for w in load_originals(lib)}
     if sorted(work) != sorted((o["title"], o["share_path"][len(SHARE_PREFIX) + 1:].split("/", 1)[1])
                               for o in manifest["outputs"]):
         raise PatchError("%s does not list this script's outputs - rebuild first" % mp)

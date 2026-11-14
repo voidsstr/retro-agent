@@ -745,6 +745,105 @@ static int gr_w_cfg(const char *file, const char *body)
  *
  * Kill switch: HKLM\Software\RetroAgent  RefreshMax (REG_DWORD) = 0.
  */
+/* ---- GR_OP_VARIANT: which copy of a file this box runs -------------------
+ * Byte-compare two files in 64 KB chunks: 1 same, 0 different, -1 either is
+ * missing/unreadable. Chunked so a 2 MB exe never needs a 2 MB buffer on a
+ * 64 MB box. */
+static int gr_files_equal(const char *a, const char *b)
+{
+    HANDLE ha, hb;
+    char *ba, *bb;                      /* per call: APPLY and the startup */
+    DWORD ra, rb;                       /* pass may overlap                */
+    int same = 1;
+    ba = (char *)malloc(65536);
+    bb = (char *)malloc(65536);
+    if (!ba || !bb) { free(ba); free(bb); return -1; }
+    ha = CreateFileA(a, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                     OPEN_EXISTING, 0, NULL);
+    if (ha == INVALID_HANDLE_VALUE) { free(ba); free(bb); return -1; }
+    hb = CreateFileA(b, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                     OPEN_EXISTING, 0, NULL);
+    if (hb == INVALID_HANDLE_VALUE) {
+        CloseHandle(ha); free(ba); free(bb); return -1;
+    }
+    if (GetFileSize(ha, NULL) != GetFileSize(hb, NULL)) same = 0;
+    while (same) {
+        if (!ReadFile(ha, ba, 65536, &ra, NULL)
+            || !ReadFile(hb, bb, 65536, &rb, NULL)) { same = -1; break; }
+        if (ra != rb || memcmp(ba, bb, ra) != 0) { same = 0; break; }
+        if (ra == 0) break;
+    }
+    CloseHandle(ha);
+    CloseHandle(hb);
+    free(ba);
+    free(bb);
+    return same;
+}
+
+/* What `active` is right now: "wide", "stock", "absent" or "other". */
+static const char *gr_variant_state(const char *active, const char *wide,
+                                    const char *stock)
+{
+    if (GetFileAttributesA(active) == 0xFFFFFFFF) return "absent";
+    if (gr_files_equal(active, wide) == 1) return "wide";
+    if (stock[0] && gr_files_equal(active, stock) == 1) return "stock";
+    return "other";
+}
+
+/* Make `active` the copy this box should run.
+ * Returns 1 changed, 0 already right, -1 failed, -2 the variant this box
+ * needs is not in the tree (a library staged before fleetres-res\ existed -
+ * reported ABSENT, never a failure, and nothing is touched). *deleted is set
+ * when the file was removed, which leaves nothing for the ledger. */
+static int gr_w_variant(const char *dst_dir, const char *file,
+                        const char *wide_rel, const char *stock_rel,
+                        int want_wide, int *deleted)
+{
+    char active[MAX_PATH], wide[MAX_PATH], stock[MAX_PATH], tmp[MAX_PATH + 8];
+    const char *src;
+    *deleted = 0;
+    _snprintf(active, sizeof(active) - 1, "%s\\%s", dst_dir, file);
+    active[sizeof(active) - 1] = 0;
+    _snprintf(wide, sizeof(wide) - 1, "%s\\%s", dst_dir, wide_rel);
+    wide[sizeof(wide) - 1] = 0;
+    stock[0] = 0;
+    if (stock_rel[0]) {
+        _snprintf(stock, sizeof(stock) - 1, "%s\\%s", dst_dir, stock_rel);
+        stock[sizeof(stock) - 1] = 0;
+    }
+    if (GetFileAttributesA(wide) == 0xFFFFFFFF
+        || (stock[0] && GetFileAttributesA(stock) == 0xFFFFFFFF))
+        return -2;
+
+    if (!want_wide && !stock[0]) {
+        /* The file must not exist here. Remove it ONLY while it is exactly
+         * ours - anything else is somebody's and stays. */
+        if (GetFileAttributesA(active) == 0xFFFFFFFF) return 0;
+        if (gr_files_equal(active, wide) != 1) return 0;
+        SetFileAttributesA(active, FILE_ATTRIBUTE_NORMAL);
+        if (!DeleteFileA(active)) return -1;
+        *deleted = 1;
+        return GetFileAttributesA(active) == 0xFFFFFFFF ? 1 : -1;
+    }
+
+    src = want_wide ? wide : stock;
+    if (gr_files_equal(active, src) == 1) return 0;
+    /* Copy beside it first, then swap, so a failed copy never leaves a
+     * half-written exe under the name the shortcut starts. A RUNNING exe
+     * cannot be replaced; that fails here and is retried at the next start. */
+    _snprintf(tmp, sizeof(tmp) - 1, "%s.grnew", active);
+    tmp[sizeof(tmp) - 1] = 0;
+    if (!CopyFileA(src, tmp, FALSE)) return -1;
+    if (gr_files_equal(tmp, src) != 1) { DeleteFileA(tmp); return -1; }
+    SetFileAttributesA(active, FILE_ATTRIBUTE_NORMAL);
+    if (GetFileAttributesA(active) != 0xFFFFFFFF && !DeleteFileA(active)) {
+        DeleteFileA(tmp);
+        return -1;
+    }
+    if (!MoveFileA(tmp, active)) return -1;
+    return gr_files_equal(active, src) == 1 ? 1 : -1;
+}
+
 static int gr_raise_desktop_refresh(void)
 {
     DEVMODEA dm, back;
@@ -835,7 +934,7 @@ int gameres_apply_title(const char *dst_dir, const char *title,
 {
     const gr_target_t *t = gameres_target();
     int i, changed = 0, absent = 0, failed = 0;
-    int have_pre;
+    int have_pre, deleted;
     long long pre_size = 0, pre_time = 0;
 
     for (i = 0; i < GR_RULE_COUNT; i++) {
@@ -871,6 +970,7 @@ int gameres_apply_title(const char *dst_dir, const char *title,
         /* The file as it is BEFORE this rule writes it - normally the
          * library's copy exactly as GAMESYNC stamped it - for the ledger. */
         have_pre = gr_stat(path, &pre_size, &pre_time);
+        deleted = 0;
 
         switch (r->op) {
         case GR_OP_INI:
@@ -890,6 +990,10 @@ int gameres_apply_title(const char *dst_dir, const char *title,
                ? -1 : gr_w_line(path, a1, kvline, 1);
             break;
         }
+        case GR_OP_VARIANT:
+            rc = gr_w_variant(dst_dir, r->file, a1, a2,
+                              gr_variant_want_wide(t->q2wide), &deleted);
+            break;
         case GR_OP_CFG: {
             /* A cfg is CREATED if missing - it is our file, not the game's -
              * but only inside a mod directory that exists, or Quake II would
@@ -912,8 +1016,10 @@ int gameres_apply_title(const char *dst_dir, const char *title,
             break;
         }
 
-        if (rc < 0) {
-            if (r->op != GR_OP_CFG
+        if (rc == -2) {
+            absent++;                   /* tree has no fleetres-res\ variants */
+        } else if (rc < 0) {
+            if (r->op != GR_OP_CFG && r->op != GR_OP_VARIANT
                 && GetFileAttributesA(path) == 0xFFFFFFFF) {
                 absent++;               /* this build simply has no such file */
             } else if (r->op == GR_OP_CFG) {
@@ -929,7 +1035,7 @@ int gameres_apply_title(const char *dst_dir, const char *title,
              * handing it to this pass again (grledger.h). A file that did not
              * exist before (a fleetres.cfg this pass creates) has no library
              * copy to protect, so nothing is recorded for it. */
-            if (rc > 0 && have_pre)
+            if (rc > 0 && have_pre && !deleted)
                 gr_ledger_note(path, pre_size, pre_time);
         }
     }
@@ -997,6 +1103,7 @@ static const char *gr_op_name(int op)
     case GR_OP_KV:      return "kv";
     case GR_OP_REG:     return "reg";
     case GR_OP_CFG:     return "cfg";
+    case GR_OP_VARIANT: return "variant";
     default:            return "?";
     }
 }
@@ -1091,6 +1198,38 @@ static void gr_check_rule(const char *dst_dir, const gr_rule_t *r,
                               r->op == GR_OP_KV, c->found, sizeof(c->found),
                               &c->present);
         free(buf);
+        break;
+    }
+    case GR_OP_VARIANT: {
+        /* Judged exactly as gr_w_variant() decides, so APPLY and VERIFY can
+         * never disagree: ok = APPLY would change nothing. */
+        char wide[MAX_PATH], stock[MAX_PATH];
+        const char *have;
+        int want_wide = gr_variant_want_wide(t->q2wide);
+        lstrcpynA(c->key, "copy", sizeof(c->key));
+        lstrcpynA(c->expected, want_wide ? "wide" : (a2[0] ? "stock" : "absent"),
+                  sizeof(c->expected));
+        _snprintf(wide, sizeof(wide) - 1, "%s\\%s", dst_dir, a1);
+        wide[sizeof(wide) - 1] = 0;
+        stock[0] = 0;
+        if (a2[0]) {
+            _snprintf(stock, sizeof(stock) - 1, "%s\\%s", dst_dir, a2);
+            stock[sizeof(stock) - 1] = 0;
+        }
+        if (GetFileAttributesA(wide) == 0xFFFFFFFF
+            || (stock[0] && GetFileAttributesA(stock) == 0xFFFFFFFF)) {
+            c->st = GR_ST_ABSENT;       /* no fleetres-res\ in this tree */
+            break;
+        }
+        have = gr_variant_state(path, wide, stock);
+        lstrcpynA(c->found, have, sizeof(c->found));
+        c->present = strcmp(have, "absent") != 0;
+        if (!strcmp(have, c->expected))
+            c->st = GR_ST_OK;
+        else if (!want_wide && !a2[0] && strcmp(have, "wide") != 0)
+            c->st = GR_ST_OK;           /* not ours: APPLY leaves it alone */
+        else
+            c->st = GR_ST_WRONG;
         break;
     }
     case GR_OP_CFG: {

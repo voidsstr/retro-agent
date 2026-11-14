@@ -29,7 +29,8 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 HEADER = os.path.join(REPO, "agent", "shared", "gameres.h")
 LIB = "/mnt/retro-share/Files/Games-Library"
 
-OPS = ("GR_OP_INI", "GR_OP_SETLINE", "GR_OP_KV", "GR_OP_REG", "GR_OP_CFG")
+OPS = ("GR_OP_INI", "GR_OP_SETLINE", "GR_OP_KV", "GR_OP_REG", "GR_OP_CFG",
+       "GR_OP_VARIANT")
 
 
 def _c_string(tok):
@@ -189,6 +190,14 @@ def test_file_rules_name_a_file_the_library_actually_ships():
         target = os.path.join(LIB, r["title"], rel)
         if r["op"] == "GR_OP_CFG":
             target = os.path.dirname(target)
+        if r["op"] == "GR_OP_VARIANT":
+            # the ACTIVE name may legitimately be absent (a wide-only menu
+            # file); the variants it is set from must be staged
+            for src in (r["arg1"], r["arg2"]):
+                if src and not os.path.exists(os.path.join(
+                        LIB, r["title"], src.replace("\\", "/"))):
+                    missing.append("%s: %s" % (r["title"], src))
+            continue
         if not os.path.exists(target):
             missing.append("%s: %s" % (r["title"], r["file"]))
     assert not missing, "rules pointing at nothing:\n  " + "\n  ".join(missing)
@@ -202,7 +211,7 @@ def test_agent_rules_agree_with_the_staged_launchers():
     files is how a box ends up with a resolution nobody can account for."""
     disagree = []
     for r in RULES:
-        if r["op"] == "GR_OP_REG":
+        if r["op"] in ("GR_OP_REG", "GR_OP_VARIANT"):
             continue
         tdir = os.path.join(LIB, r["title"])
         bats = [f for f in os.listdir(tdir) if f.lower().endswith(".bat")]
@@ -388,3 +397,15 @@ def test_incapable_titles_are_staged():
     have = {d.lower() for d in os.listdir(LIB)}
     for t in _incapable_titles():
         assert t.lower() in have, "%s is not a staged title" % t
+
+
+def test_every_idtech2_cfg_title_has_its_exe_variant():
+    """gl_mode 9 means 1920x1080 only on the PATCHED exe. Every title whose
+    cfg rows write %Q2WIDE% must also have the GR_OP_VARIANT row that picks
+    the exe by the same q2wide, or a 4:3 box keeps the 1080p menu (.123,
+    2026-11-13) and a stock exe could be handed gl_mode 9 = 1600x1200."""
+    cfg = {r["title"] for r in RULES
+           if r["op"] == "GR_OP_CFG" and r["arg1"] == "idtech2"}
+    exe = {r["title"] for r in RULES
+           if r["op"] == "GR_OP_VARIANT" and r["file"].lower().endswith(".exe")}
+    assert cfg and cfg == exe, (cfg, exe)

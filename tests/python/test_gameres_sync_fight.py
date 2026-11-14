@@ -137,7 +137,7 @@ def test_gameres_records_before_and_after_each_write():
     pre = b.index("have_pre = gr_stat(path, &pre_size, &pre_time);")
     assert pre < b.index("switch (r->op) {"), "the 'before' is read BEFORE the writer"
     note = b.index("gr_ledger_note(path, pre_size, pre_time);")
-    assert "if (rc > 0 && have_pre)" in b[note - 80:note], \
+    assert "if (rc > 0 && have_pre" in b[note - 80:note], \
         "record only a real change to a file the library ships"
     # the registry rows never reach the file-ledger code
     reg = b.index("if (r->op == GR_OP_REG) {")
