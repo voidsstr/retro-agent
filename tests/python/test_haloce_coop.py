@@ -40,3 +40,21 @@ def test_probe_halo_rejects_garbage(monkeypatch):
     import gameservers
     monkeypatch.setattr(gameservers, "_ask", lambda *a, **k: (b"\xff\xff", 1.0))
     assert gameservers.probe_halo(2302) is None
+
+
+def _validator():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "vsl_haloce", os.path.join(ROOT, "scripts", "validate-staged-library.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def test_xp_loader_rule_skips_only_titles_gated_off_xp():
+    v = _validator()
+    assert v.title_is_vista_or_later({"min_os": "win7"}) is True
+    assert v.title_is_vista_or_later({"min_os": "vista"}) is True
+    assert v.title_is_vista_or_later({"min_os": "winxp"}) is False
+    assert v.title_is_vista_or_later({}) is False          # no floor: XP gets it
+    assert v.title_is_vista_or_later({"min_os": "bogus"}) is False

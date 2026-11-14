@@ -522,6 +522,17 @@ def iso_volume_label(path):
     return None
 
 
+# The capability gate's OS order (scripts/gamegate/SCHEMA.md, `min_os`).
+OS_ORDER = ("win9x", "win2k", "winxp", "vista", "win7", "win8", "win10")
+
+
+def title_is_vista_or_later(req):
+    """True when the TITLE's own min_os keeps it off every XP box. A per-
+    shortcut min_os does not count: the tree is still copied to XP then."""
+    m = (req or {}).get("min_os")
+    return m in OS_ORDER and OS_ORDER.index(m) >= OS_ORDER.index("vista")
+
+
 def check_title(lib, title):
     """Every check below is a defect that really reached a box."""
     out = []
@@ -957,7 +968,12 @@ def check_title(lib, title):
     # window, no dialog from the program, nothing in its own log, and the
     # launcher's `start ""` throws the exit code away. It presents as "the
     # game does nothing when you double-click it".
-    for root, dirs, files in os.walk(tdir):
+    #
+    # A title whose requires.json says min_os vista or later never reaches an
+    # XP box (the gate refuses it there, as a hard NO), so the XP loader rule
+    # does not apply to it. HaloCE (2026-11-13) is the case: Chimera/Balltze
+    # cannot run on XP at all, and its app-local UCRT DLLs are subsystem 10.0.
+    for root, dirs, files in ([] if title_is_vista_or_later(req) else os.walk(tdir)):
         dirs[:] = [d for d in dirs if not d.startswith("_")]
         for fn in files:
             if not fn.lower().endswith((".exe", ".dll")):
