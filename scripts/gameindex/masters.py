@@ -148,6 +148,11 @@ def _parse_getservers(data):
     return out
 
 
+def _q3_gamedir(info):
+    fs = (info.get("fs_game") or "").strip().lower()
+    return fs or (info.get("gamename") or "").strip().lower()
+
+
 def _q3_probe(addr):
     host, port = addr.rsplit(":", 1)
     data, rtt = _udp(host, int(port), b"\xff\xff\xff\xffgetstatus\n")
@@ -168,7 +173,9 @@ def _q3_probe(addr):
         "bots": len(lines) - humans,
         "maxplayers": int(info.get("sv_maxclients", "0") or 0),
         "ping_ms": rtt,
-        "gamename": info.get("gamename", ""),
+        # fs_game is the folder a client must have; a modded server can still
+        # say gamename "baseq3" in places. Empty fs_game = stock (gamename).
+        "gamename": _q3_gamedir(info),
         "passworded": 1 if info.get("g_needpass", "0") not in ("0", "") else 0,
         "source": "q3master",
     }
@@ -219,12 +226,10 @@ Q2_MASTERS = [("master.quakeservers.net", 27900, b"query"),
               ("q2master.hardcore.rocks", 27900, b"query")]
 
 
-# Hand-kept seeds, probed every pass like UNREAL_SEEDS: `source="seed"`
-# lets them into a box's address book while ALIVE, even with nobody playing
-# (a master's own rows need players > 0, and on 2026-11-13 exactly one
-# stock-joinable public Q2 server had a player). Every one was answering
-# with a game dir the favourites filter accepts (baseq2/openffa/opentdm/
-# tourney) when added; a dead one just costs a timeout.
+# Hand-kept addresses probed every pass besides the master's list. They are
+# NOT curated seeds: like any master row they are listed only while humans
+# are playing (players > 0). Each answered with a game dir the favourites
+# filter accepts when added; a dead one just costs a timeout.
 Q2_SEEDS = [
     "162.35.121.120:27910",   # Smack Down Hotel (baseq2, q2proded)
     "149.28.241.196:27910",   # QuakeHub.net DM - Dallas (baseq2)
@@ -247,10 +252,10 @@ def _q2_list():
 
 
 def _q2_any_probe(addr):
-    r = _q2_probe(addr)
-    if r and addr in Q2_SEEDS:
-        r["source"] = "seed"
-    return r
+    # Seeds are only extra ADDRESSES to ask (in case the master drops one);
+    # like every master row they reach a box only while people are on them.
+    # (User, 2026-11-13: "make sure the servers ... are servers with players".)
+    return _q2_probe(addr)
 
 
 def _parse_q2_master(data):

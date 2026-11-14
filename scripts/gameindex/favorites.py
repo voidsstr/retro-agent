@@ -840,8 +840,14 @@ WRITERS = {
 # A title absent from this table is reported unsupported WITH a reason rather
 # than written with a guess.
 TITLES = {
-    "quake3":    dict(engine="q3", subdir="baseq3", accepts={"baseq3"}),
-    "ioquake3":  dict(engine="q3", subdir="baseq3", accepts={"baseq3"}),
+    # Strict: a modded Q3 server (fs_game osp, cpma, efreeze, excessiveplus,
+    # threewave...) needs the mod's pk3s on the client, and cl_allowDownload
+    # is off by default - the join fails. 2026-11-13: 5 of 16 bookmarks on
+    # each box were mods. masters._q3_gamedir reports fs_game.
+    "quake3":    dict(engine="q3", subdir="baseq3", accepts={"baseq3"},
+                      strict_accepts=True),
+    "ioquake3":  dict(engine="q3", subdir="baseq3", accepts={"baseq3"},
+                      strict_accepts=True),
     "openarena": dict(engine="q3", subdir="baseoa", accepts={"baseoa"}),
     # Quake III: Team Arena. The agent never reports this key: Team Arena is
     # the missionpack\ directory beside an ioquake3 install, so sync.py
@@ -858,16 +864,18 @@ TITLES = {
                         requires_subdir="missionpack"),
     # Strict for every Q2 client: most public Q2 servers run a content mod
     # (Action Quake, LOX, maracoop, D-Day) a stock client cannot join. These
-    # game dirs need nothing beyond baseq2's content - OpenFFA, OpenTDM and
-    # OSP Tourney are server-side game modules. (masters._q2_gamedir)
+    # game dirs need nothing beyond baseq2's content - OpenFFA, OpenTDM,
+    # OSP Tourney and maracoop (`coop`: vanilla/Xatrix/Rogue co-op; a custom
+    # map downloads, allow_download defaults to 1) are server-side game
+    # modules. (masters._q2_gamedir)
     "quake2":    dict(engine="q2", subdir="baseq2",
-                      accepts={"baseq2", "openffa", "opentdm", "tourney"},
+                      accepts={"baseq2", "openffa", "opentdm", "tourney", "coop"},
                       strict_accepts=True),
     "q2pro":     dict(engine="q2", subdir="baseq2",
-                      accepts={"baseq2", "openffa", "opentdm", "tourney"},
+                      accepts={"baseq2", "openffa", "opentdm", "tourney", "coop"},
                       strict_accepts=True),
     "yquake2":   dict(engine="q2", subdir="baseq2",
-                      accepts={"baseq2", "openffa", "opentdm", "tourney"},
+                      accepts={"baseq2", "openffa", "opentdm", "tourney", "coop"},
                       strict_accepts=True),
 
     # The Unreal family's ini sits in System\ NEXT TO the exe, and the agent
