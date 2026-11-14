@@ -3523,6 +3523,23 @@ state 83 ok / 0 wrong / 0 absent across 53 titles. Test:
 `tests/python/test_gameres_startup.py` (it fails when the call is moved below
 the marker return — checked both ways).
 
+### The id Tech 2 EXE is chosen per box too (agent 1.101.0)
+
+Quake II, SiN and Soldier of Fortune have a FIXED mode table in the exe, and
+the library's exes are patched so entry 9 is 1920x1080
+(`provisioning/patches/idtech2`). On a 4:3 box that patch only takes away the
+stock 1600x1200 - `.123`'s no-EDID CRT showed `[1920 1080]` in Quake II's
+menu (2026-11-13). **GAMERES rule op `GR_OP_VARIANT`** now sets each exe to
+`<Title>\fleetres-res\wide\<exe>` where the cfg rows hand `gl_mode 9`
+(`gr_variant_want_wide(q2wide)` - ONE decision, so never stock+9) and to
+`fleetres-res\stock\<exe>` everywhere else. The files the patch ADDS (SiN's
+`menus\main.mnu` x3, SoF's `base\pak2.pak`) live ONLY under
+`fleetres-res\wide\` in the library - shipped at their active names,
+GAMESYNC would recopy each to every 4:3 box the agent removed it from, every
+sync - and a 4:3 box deletes them only while they are byte-identical to ours.
+The library's ACTIVE exes stay patched, so a box still on an older agent sees
+no change. VERIFY reports `op: variant`, `expected`/`found` = wide|stock|absent.
+
 ### GAMERES VERIFY — is every installed title ACTUALLY at its resolution?
 
 `APPLY`'s `values_changed` says the pass ran; it does not say a box is right,
