@@ -140,6 +140,25 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-13 18:23:55: Xid 79 8.5 h after the 09:52 cold cycle (9th since 10-08); power-cycled 2.5 min later
+
+- **Boot ID:** `a5726a7e…` (11-13 09:52:26 → 18:26:30) → `86461650…`
+  (18:27:26).
+- **Signature 1:** `Xid ... 79, GPU has fallen off the bus`, then Xid 154
+  (`Node Reboot Required`).
+- **Load:** no ollama journal lines in the 2 min before the drop (unlike the
+  last two); the drop was not obviously under inference load.
+- **End of boot:** no shutdown sequence logged; the journal stops at 18:26:30,
+  so most likely a quick operator cold cycle (unproven).
+- **After (19:03):** GPU back (16 W idle, 400 W limit), 0 Xid this boot. Two
+  agents failed in the first minutes of the new boot on network bring-up (DNS
+  resolved the Postgres host to the router 192.168.1.254; a blob connect
+  timeout); both were reset and re-run.
+- Three Xid 79s in ~28 h (11-12 16:16 → 11-13 18:23), at 26.5 h, 75 min and
+  8.5 h after recovery. Same caps and versions as the 11-12 20:04 entry. The
+  open physical items in the Current state table remain the next step
+  (unproven).
+
 ### 2026-11-12 20:04:08: Xid 79 1 h 15 min after the 18:48 power-key recovery (8th since 10-08); box up GPU-less ~13.8 h; hard power-off 11-13 09:51
 
 - **Boot ID:** `d779ac03…` (11-12 18:49:07 → 11-13 09:51:42) → `a5726a7e…`
