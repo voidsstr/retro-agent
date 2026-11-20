@@ -32,6 +32,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | `pcie_aspm=off` in GRUB | present, **no effect** (the link can't use ASPM) | 2026-09-16 |
 | PCIe link width | **x16** since the 09-24 17:39 boot (`392ee1f9`, the first boot after the 09-24 mains loss). The kernel's `limited by 32.0 GT/s PCIe x8 link at 0000:00:06.0` line is on every retained boot through 09-23 18:30 (`504edd27`) and on none from 09-24 17:39 on, and sysfs `current_link_width` reads 16 on 09-28. The 09-24 19:18 MCE, both power-offs and the 09-28 Xid 79 all happened at x16, which confirms x8 was not the crash cause (see 09-23) | 2026-09-24 17:39 |
 | Host IP | **Wired `enp129s0` 192.168.1.132 (static, plus DHCP .196) and Wi-Fi `.252`**, wired default route metric 100. The 09-30 Wi-Fi-only switch ("go through wifi for everything") turned off autoconnect on `Profile 1`. Wired came back by hand afterwards (it was up on 10-03), but autoconnect stayed off, so the 10-11 08:26 boot came up with **no .132**. Carmageddon 2 then refused to start (8,600+ restarts), css-server bound Wi-Fi and read as mute, and PXE advertised an address nobody owned. 2026-10-13 09:01: `nmcli device set enp129s0 autoconnect yes` + `nmcli connection modify "Profile 1" connection.autoconnect yes` + `connection up`; all 27 game servers then read UP. To go back to Wi-Fi only: `nmcli connection modify "Profile 1" connection.autoconnect no && nmcli connection down "Profile 1"`, knowing that every .132 consumer breaks. **The RTL8125B is not known to be faulty** - see signature 7 and the 09-30 09:44 entry | 2026-10-13 09:01 |
+| ollama | **stopped 11-13 19:40:06 and disabled** (operator; a host-duties run reports it DOWN, which is expected while this holds). The 11-18 20:41 Xid 79 happened with it off | 2026-11-13 19:40 |
 | Open items | **PCIe Gen4 pin in BIOS (recommended 09-16, still not applied; link still trains Gen5)**; BIOS/ME update check; 12V-2x6 connector at both ends; separate PSU cables vs daisy-chain; PSU wattage; a UPS/meter with logging | |
 
 ---
@@ -139,6 +140,26 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 ---
 
 ## Incident log (newest first)
+
+### 2026-11-18 20:41:36: Xid 79 5 d 1.5 h into the 11-13 19:10 boot (11th since 10-08), the first with ollama STOPPED; box still up without the GPU
+
+- **Boot ID:** `d74eb0df…` (19:10:22 11-13, still running at 11-20 12:10). Not cycled: the box has run
+  ~39.5 h on the iGPU since the drop.
+- **Signature 1:** Xid 79 and Xid 154 (`Node Reboot Required`) at 20:41:36, raised in the context of an
+  `nvidia-smi` ioctl (pid 3331910 - a poller, not a workload), with GSP `Heartbeat timed out` and
+  `Consistently Bad TimeLo value ffffffff` in the same second. No `PCIe Bus Error` in this boot's kernel log.
+- **Load: no GPU tenant was working.** `ollama` had been stopped at 19:40:06 on 11-13 and is disabled
+  (`UnitFileState=disabled`; sudo is needed for that, so it was the operator - not logged by any session).
+  The minute before the drop holds the gameindex favourites pass, the game servers and the
+  reusable-agents timers; no CUDA activity.
+- **What it changes:** every fault since 10-20 had come during ollama generation, which read as a load
+  trigger. This one came with ollama off, so ollama load is **not necessary** for the fault. It may still
+  raise the rate: 5 d 1.5 h is the longest interval since 10-08 (the previous three were 8.5 h, 38 min and
+  1 h 15 min, all with ollama serving). One sample; unproven.
+- **Cap in effect:** 400 W, clock lock 210-2400 MHz, kernel 7.0.0-43, driver 595.99.02, x16.
+- **Evidence now (11-20 12:10):** `nvidia-smi` "Unable to determine the device handle ... No devices were
+  found"; `lspci -vv -s 01:00.0` Region 0 `[virtual]`, Regions 1/3/5 `[disabled]`. Every host duty is up
+  except ollama (disabled). Recovery needs a cold power cycle (signature 1) - the operator's call.
 
 ### 2026-11-13 19:05:44: Xid 79 38 min after the restart (10th since 10-08), then a restart at 19:09:30 that brought the GPU back
 
