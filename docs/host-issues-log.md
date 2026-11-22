@@ -140,6 +140,20 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-22 15:03:13: instant power-off, no panic logged; GPU back after the restart
+
+- **Boot ID:** `d74eb0df…` (11-13 19:10:22 → 11-22 15:03:13) → `40bf3f7c…` (15:08:48).
+- **Signature:** unproven. The previous boot's journal stops mid-stream at
+  15:03:13 on a `hlds_run` (game server) line, with no shutdown sequence, no
+  kernel panic or MCE line and no new `/var/crash` dump. That fits an instant
+  power-off or hard reset rather than a clean reboot.
+- **GPU before:** off the bus since 11-18 20:41 (`Xid 79`, `GPU lost from the
+  bus [NV_ERR_GPU_IS_LOST]`), so it carried no load; ollama and local-image-gen
+  have been disabled since 11-14.
+- **After (15:11):** GPU visible again (400 W limit, 26 °C, D0), 0 Xid or fault
+  lines this boot; ollama and local-image-gen still inactive; 0 failed user units,
+  74 agent timers re-armed. Recorded by the KTLO session.
+
 ### 2026-11-13 19:05:44: Xid 79 38 min after the 18:27 power cycle (10th since 10-08); power-cycled ~4 min later
 
 - **Boot ID:** `86461650…` (18:27:26 → 19:09:30) → `d74eb0df…` (19:10:22).
