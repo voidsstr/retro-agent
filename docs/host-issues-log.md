@@ -141,6 +141,17 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-11-22 15:03:13: abrupt end of the 11-18 Xid boot after ~3 d 18 h without the GPU (most likely the operator's cold cycle); GPU back
+
+- **Boot ID:** `d74eb0df…` (19:10:22 11-13 → 15:03:13 11-22) → `40bf3f7c…` (15:08:48).
+- The journal ends mid-stream (game-server log lines at 15:03:13), with no shutdown or power-off target,
+  the same shape as the earlier recoveries. Read as a cold power cycle by the operator; unproven.
+- **After (15:10):** `nvidia-smi` sees the RTX 5090; `nvidia-power-cap.service` applied 400 W and the
+  210-2400 MHz lock at 15:09:01; x16. No Xid this boot so far. ollama is still disabled (unchanged).
+- **Services:** Docker came up about 1 min late again (containerd at 15:10), so the Wine-in-Docker servers
+  started late; the watchdog restarted `shogo-server` at 15:11:30 and it answered within its 180 s
+  allowance. By about 15:16, 28/28 game servers answered and every host duty was up except ollama.
+
 ### 2026-11-18 20:41:36: Xid 79 5 d 1.5 h into the 11-13 19:10 boot (11th since 10-08), the first with ollama STOPPED; box still up without the GPU
 
 - **Boot ID:** `d74eb0df…` (19:10:22 11-13, still running at 11-20 12:10). Not cycled: the box has run
