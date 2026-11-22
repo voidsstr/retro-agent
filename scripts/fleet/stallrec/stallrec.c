@@ -33,6 +33,17 @@
 #include <stdio.h>
 
 typedef BOOL (WINAPI *GETSYSTIMES)(LPFILETIME, LPFILETIME, LPFILETIME);
+typedef UINT (WINAPI *TIMEPERIOD)(UINT);
+
+/*
+ * THE CLOCK CAN MASQUERADE AS A STALL - this cost a 1.2 MB log of nothing.
+ * XP's default timer tick is 15.6 ms, so Sleep(1) returns in ~15.6 ms and ANY
+ * threshold at or below that flags every single loop iteration: a 25-minute
+ * run on .123 produced 12,944 "stalls" of 15.3-15.9 ms on a box that had not
+ * stalled once. So: pin the tick to 1 ms with timeBeginPeriod, MEASURE the
+ * granularity we actually got, and refuse a threshold that sits inside it.
+ */
+#define GRAN_SAMPLES 200
 
 static double ft_ms(FILETIME a, FILETIME b) /* b - a, in ms */
 {
@@ -51,7 +62,7 @@ int main(int argc, char **argv)
     FILETIME i0, k0, u0, i1, k1, u1;
     FILE *f;
     SYSTEMTIME st;
-    double gap, worst = 0.0, total_lost = 0.0;
+    double gap, worst = 0.0, total_lost = 0.0, granularity = 0.0, floor_ms = 0.0;
     long hits = 0, loops = 0;
     int have_times = 0;
 
@@ -69,14 +80,42 @@ int main(int argc, char **argv)
                                        "GetSystemTimes");
     have_times = (pGST != NULL);
 
+    /* Pin the timer tick to 1 ms if we can, then measure what we really got. */
+    {
+        HMODULE wm = LoadLibraryA("winmm.dll");
+        TIMEPERIOD pBegin = wm ? (TIMEPERIOD)GetProcAddress(wm, "timeBeginPeriod")
+                               : NULL;
+        if (pBegin) pBegin(1);
+    }
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+
+    /* Measure Sleep(1) granularity so the floor below is a fact, not a guess. */
+    {
+        int i;
+        double worst_gran = 0.0;
+        LARGE_INTEGER a, b;
+        QueryPerformanceCounter(&a);
+        for (i = 0; i < GRAN_SAMPLES; i++) {
+            Sleep(1);
+            QueryPerformanceCounter(&b);
+            gap = (double)(b.QuadPart - a.QuadPart) * 1000.0 / (double)freq.QuadPart;
+            if (gap > worst_gran) worst_gran = gap;
+            a = b;
+        }
+        granularity = worst_gran;
+        floor_ms = granularity * 2.0 + 5.0;
+        if (thresh < floor_ms) thresh = floor_ms;
+    }
 
     GetLocalTime(&st);
     fprintf(f, "stallrec: started %04d-%02d-%02d %02d:%02d:%02d  "
                "run=%ds threshold=%.1fms systimes=%s\n",
             st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond,
             secs, thresh, have_times ? "yes" : "no");
+    fprintf(f, "timer granularity measured at %.1f ms -> threshold floor %.1f ms"
+               " (a threshold inside the tick flags every loop)\n",
+            granularity, floor_ms);
     fprintf(f, "a hit = the KERNEL kept a TIME_CRITICAL thread off the CPU "
                "this long. A busy game cannot cause one.\n");
     fflush(f);
