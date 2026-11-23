@@ -141,11 +141,15 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
-### 2026-11-22 15:03:13: abrupt end of the 11-18 Xid boot after ~3 d 18 h without the GPU (most likely the operator's cold cycle); GPU back
+### 2026-11-22 15:03:13: MAINS POWER LOSS ended the 11-18 Xid boot after ~3 d 18 h without the GPU; GPU back
 
 - **Boot ID:** `d74eb0df…` (19:10:22 11-13 → 15:03:13 11-22) → `40bf3f7c…` (15:08:48).
 - The journal ends mid-stream (game-server log lines at 15:03:13), with no shutdown or power-off target,
-  the same shape as the earlier recoveries. Read as a cold power cycle by the operator; unproven.
+  the same shape as the earlier recoveries. First read as the operator's cold cycle. **Corrected
+  2026-11-23: it was a mains power loss.** The fleet box .186 (PENTIUM-D-PC) logged EventLog 6008 "The
+  previous system shutdown at 3:03:24 PM on 11/22/2026 was unexpected" - the same second the host's
+  journal stops, on a separate machine. A cut that drops two machines in the same second is the supply,
+  not a hand on one power button. (No UPS here - see the open items.)
 - **After (15:10):** `nvidia-smi` sees the RTX 5090; `nvidia-power-cap.service` applied 400 W and the
   210-2400 MHz lock at 15:09:01; x16. No Xid this boot so far. ollama is still disabled (unchanged).
 - **Services:** Docker came up about 1 min late again (containerd at 15:10), so the Wine-in-Docker servers
