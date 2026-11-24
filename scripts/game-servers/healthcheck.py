@@ -231,7 +231,8 @@ CHECKS = [
     ("  \\_ a2s proxy",    "CS 1.6 browser",      27015, a2s),
     ("cs16-noblood",       "CS 1.6 No Blood",     27019, a2s),
     ("  \\_ a2s proxy",    "No Blood browser",    27016, a2s),
-    ("specialists-server", "The Specialists",     27017, a2s),
+    ("specialists-server", "The Specialists",     27022, a2s),
+    ("  \\_ a2s proxy",    "Specialists browser", 27017, a2s),
     # CS: Source, added 2026-09-01. srcds (Steam app 232330, SteamCMD anonymous).
     # 27025 because 27015-27021 are taken. Same a2s probe - srcds answers the
     # `A` challenge first and a2s() already echoes it back.

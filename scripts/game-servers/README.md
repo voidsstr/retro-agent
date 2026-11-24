@@ -120,7 +120,7 @@ every bound of the restart policy).
 |---|---|---|---|
 | CS 1.6 vanilla | `cs16-server` | **27018** (browser via proxy **27015**) | `~/hlds-cs16` |
 | CS 1.6 no blood | `cs16-noblood` | **27019** (browser via proxy **27016**) | `~/hlds-cs16-noblood` |
-| The Specialists | `specialists-server` | **27017** | `~/hlds-ts` |
+| The Specialists | `specialists-server` | **27017** (proxy; server 27022) | `~/hlds-ts` |
 | Quake III Arena | `quake3-server` | **27961** | `~/q3a-server` |
 | Quake III: Team Arena | `q3ta-server` | **27962** | `~/q3ta-server` (ioq3ded, `fs_game missionpack`) |
 | Jedi Academy (MP) | `jka-server` | **29070** | `~/jka-server` (OpenJK `openjkded`, built from source) |
@@ -249,7 +249,13 @@ Modern HLDS answers the browser query with an anti-reflection challenge that old
 CS 1.6 clients (the fleet's "BCS Romania" build) never echo back, so the server
 shows as *Not Responding* in the LAN tab. `a2s_oldquery_proxy.py` takes the
 canonical port and does the challenge dance on the client's behalf:
-**27015 → 27018** (vanilla) and **27016 → 27019** (no blood).
+**27015 → 27018** (vanilla) and **27016 → 27019** (no blood), plus
+**27020 → 27021** (HLDM) and, since 2026-11-23, **27017 → 27022** (The
+Specialists, `a2s-proxy-ts`). TS was invisible in the fleet's LAN tab: its ReHLDS
+answered the broadcast with the challenge. Players all arrive from 127.0.0.1
+through the proxy, so `ts/server.cfg` sets `sv_rehlds_maxclients_from_single_ip 32`.
+The units are in `units/a2s-proxy-ts.service` and
+`units/specialists-server.service.d/30-behind-a2s-proxy.conf`.
 
 > The proxy must target the address HLDS actually **bound**. Both CS units run
 > `-ip 192.168.1.132` (never `0.0.0.0`) on this multi-homed host, so a proxy

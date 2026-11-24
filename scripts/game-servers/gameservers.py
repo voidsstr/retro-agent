@@ -857,8 +857,11 @@ SERVERS = [
      "probe": "a2s", "port": 27018, "join": 27015},
     {"unit": "cs16-noblood",       "label": "CS 1.6 no-blood", "engine": "goldsrc",
      "probe": "a2s", "port": 27019, "join": 27016},
+    # The Specialists: query 27022, join 27017 (a2s-proxy-ts) since 2026-11-23.
+    # ReHLDS answered the LAN browser with a challenge the fleet's old GoldSrc
+    # clients never echo, so TS was invisible in their LAN tab.
     {"unit": "specialists-server", "label": "Specialists",     "engine": "goldsrc",
-     "probe": "a2s", "port": 27017, "join": 27017},
+     "probe": "a2s", "port": 27022, "join": 27017},
     # Counter-Strike: Source, added 2026-09-01. srcds from Steam app 232330,
     # fetched with SteamCMD +login anonymous - a DEDICATED SERVER needs no CS:S
     # licence, which is why this exists while every copy of CS:S on the share is
@@ -984,6 +987,7 @@ PROXIES = [
     {"unit": "a2s-proxy-cs16",        "label": "a2s 27015", "port": 27015},
     {"unit": "a2s-proxy-cs16-public", "label": "a2s 27016", "port": 27016},
     {"unit": "a2s-proxy-hldm",        "label": "a2s 27020", "port": 27020},
+    {"unit": "a2s-proxy-ts",          "label": "a2s 27017", "port": 27017},
 ]
 
 

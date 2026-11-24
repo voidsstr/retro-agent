@@ -1,0 +1,12 @@
+[Unit]
+Description=A2S old-query proxy for The Specialists (27017 -> 27022) - GoldSrc clients see TS in the LAN browser
+After=network-online.target specialists-server.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent-private/scripts/game-servers/a2s_oldquery_proxy.py --listen-port 27017 --target 127.0.0.1:27022
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
