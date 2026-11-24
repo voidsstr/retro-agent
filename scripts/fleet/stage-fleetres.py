@@ -1960,6 +1960,18 @@ TITLES = {
         "cfg_strip": ["base/autoexec.cfg"],
         "cfg_semis": ["base/autoexec.cfg", "base/mp/autoexec.cfg"],
     },
+    "MOHAA": {
+        # NO "new" ENTRY - the one launcher is a DISC-MOUNT launcher generated
+        # from provisioning/discmount/specs/MOHAA.json, whose fleetres_block
+        # writes main\fleetres.cfg (r_mode -1 + r_customwidth/height). The
+        # hook that execs it is main\custom.cfg: both Pak0.pk3 and the 1.11
+        # pak6.pk3 ship their own autoexec.cfg, each ending `exec custom.cfg`,
+        # so a loose autoexec.cfg would fight the paks over the binds in it.
+        "launch_txt": [
+            ("Play Medal of Honor.bat", "Medal of Honor Allied Assault",
+             "mohaa.ico"),
+        ],
+    },
     "JediAcademy": {
         # NO "new" ENTRY, DELIBERATELY. Both of this title's launchers are
         # DISC-MOUNT launchers generated from provisioning/discmount/specs/,

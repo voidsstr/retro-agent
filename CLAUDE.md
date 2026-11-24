@@ -758,8 +758,11 @@ outage as the reassuring word "absent", forever and silently.** When you
 install something that was previously excused, delete the excuse in the same
 change.
 
-**`mohaa-server` still has never existed here**, and MOHAA is not a staged
-title either. Do not treat its absence as a regression.
+**`mohaa-server` still has never existed here.** Do not treat its absence as a
+regression. MOHAA itself IS staged since 2026-11-23 (`Games-Library/MOHAA`,
+1.11, disc-mount launcher from `provisioning/discmount/specs/MOHAA.json`), and
+the 1.11 patch ships `MOHAA_server.exe`, which needs no CD, so a server is
+possible.
 
 Which staged title has a dedicated server on this host, which cannot have one,
 and why: [`docs/staged-title-server-matrix.md`](docs/staged-title-server-matrix.md).

@@ -1,0 +1,16 @@
+{
+  "title": "Medal of Honor Allied Assault",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0main\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0main\\fleetres.cfg\" echo seta r_mode \"-1\"\r\n>>\"%~dp0main\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\r\n>>\"%~dp0main\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\r\n>>\"%~dp0main\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0main\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"",
+  "vars": {
+    "GTITLE": "Medal of Honor Allied Assault",
+    "GAME": "%~dp0MOHAA.exe",
+    "GAMEARGS": "+set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_fullscreen 1",
+    "IMAGE": "%~dp0_disc\\MOHAA_CD1.iso",
+    "VOLID": "MOHAA_DISK1",
+    "MARKER": "cgamex86.dll",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "Autorun.exe Setup.exe",
+  "prelaunch": "sc start secdrv >nul 2>&1",
+  "_note": "MOHAA.exe 1.11 is SafeDisc 2.51.021 (discprotect.py), the same generation as MaxPayne 2.51.020, which DAEMON Tools 3.47's emulation satisfies. The image is a plain 2048-byte ISO (label MOHAA_DISK1); MOHAA ran on .124 in 2026-08 with this ISO mounted (docs/game-render-modes.md). cg_fov is not written: Ritual's fork is unverified for it. r_mode -1 / r_customwidth is the id Tech 3 idiom - verify the rendered size on hardware."
+}
