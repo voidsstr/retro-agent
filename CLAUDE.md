@@ -4115,9 +4115,13 @@ and `fleet-cloudflare-r2-s3-endpoint`. The pre-existing
 `fleet-cloudflared-tgz` and `file-cloudflared-cert-pem` are the tunnel client
 and its origin cert — different things, not duplicates.
 
-All are `verified=pending`: transcribed and stored, but nothing has yet
-authenticated with them. **Never echo one into a transcript, a log, a commit,
-or the dashboard.**
+All were stored as `verified=pending`. **`fleet-cloudflare-api-token` was
+checked on 2026-11-24:** it is an active ACCOUNT-owned token (verify it at
+`/accounts/<account id>/tokens/verify`; `/user/tokens/verify` calls it
+"Invalid API Token", which is misleading) that can see **no zones**, so it
+cannot edit DNS for any domain. DNS changes need the user in the Cloudflare
+dashboard, or a new token with Zone DNS Edit. **Never echo one into a
+transcript, a log, a commit, or the dashboard.**
 
 ### ⚠️ `aisleprompt-kv` is a DIFFERENT vault and is not ours
 
