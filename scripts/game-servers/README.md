@@ -279,6 +279,26 @@ patchelf --clear-execstack ~/hlds-ts/ts/dlls/ts_i686.so
 Originals are kept beside them as `*.so.orig`. Expect the same failure on any
 other pre-2008 HL mod game DLL.
 
+### Gotcha: the fleet's TS client drops itself on ReHLDS unless its engine is patched (2026-11-23)
+
+The Specialists 3.0 is staged as `ts\` inside the `CounterStrike16` tree
+(installed in the XP build VM and captured from there). On the first join it
+showed `Your .dll [cl_dlls\client.dll] differs from the server's.`, and the
+server logged `Client sent 'drop'`, although the client's and the server's
+`client.dll` are byte-identical.
+
+- **Client side.** That tree's engine (No-Steam build 4554) checks the
+  client-dll MD5 for every mod except valve, cstrike, cstrike_beta, czero,
+  tfc, dod, ricochet and dmc.
+- **Server side.** ReHLDS never hashes `client.dll`: strace shows no open of
+  it, even with a client connecting.
+
+**Do not "fix" it on the server.** Removing or renaming the server's copy
+changes nothing. The fix is one byte in the staged `hw.dll`/`sw.dll`:
+[`provisioning/patches/goldsrc4554/`](../../provisioning/patches/goldsrc4554/README.md).
+The CS servers are anniversary HLDS and CS is exempt from the check anyway,
+which is why only TS ever hit this.
+
 ### Not installed on this host
 
 `rtcw-server` and `mohaa-server` appear in the game-servers skill's table but

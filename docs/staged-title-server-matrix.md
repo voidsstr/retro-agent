@@ -80,7 +80,7 @@ packet per engine**, which a single `getstatus` sweep does not.
 ## Servers this host runs that no staged title needs
 
 Kept because they are played from other trees or from a mod directory:
-`openarena-server` :27960 · `specialists-server` :27017 ·
+`openarena-server` :27960 · `specialists-server` :27017 (joined from the `CounterStrike16` tree's `ts\` since 2026-11-23) ·
 `hldm-server` :27020 (joined from the `CounterStrike16` tree's engine) ·
 `quakeworld-server` :27502 · `tribes2-server` :28000 (docker).
 

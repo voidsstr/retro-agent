@@ -1272,6 +1272,26 @@ nowhere in writing; it is now.
   through NAT, needs no tap or bridge, and **cannot disturb the physical fleet
   network** — which matters because real machines are usually mid-install.
 - VNC on `:5`; QEMU monitor at `~/retro-vm/mon.sock`.
+- **Activated again on 2026-11-23** (operator's decision), with the private
+  `xp-activation` skill. Its grace had run out, so it sat at "must be
+  activated before you can log on". At the lockout: Yes → telephone → read the
+  Installation ID → `xpcid` → type the Confirmation ID. The QEMU monitor's
+  `sendkey` works there and absolute clicks did not; Tab focuses box A.
+  `ActivationRequired=0` was read back through the agent.
+- **SMB through slirp CORRUPTS LARGE FILES.** Measured 2026-11-23: a 162 MB
+  installer copied from `S:` differed from the share across megabytes of
+  `fc /b`, and failed to install with "contains invalid data". A byte total
+  that matches is not proof.
+  - **Moving payloads in or out:** build a FAT32 image WITH a partition table
+    on the host (`sfdisk` + `mkfs.fat --offset 2048`, `mcopy -i img@@1M`).
+    Hot-plug it from the monitor
+    (`drive_add 0 if=none,id=X,file=...,format=raw` then
+    `device_add usb-storage,id=Y,drive=X`). XP sees a superfloppy as a fixed
+    disk with no volume.
+  - **Verify every file** with `~/retro-vm/ut2003/tools/md5tree.exe`.
+  - **When done:** `diskpart remove`, then `device_del Y`.
+- **Under `EXEC`, `xcopy` and `fc` print nothing and copy or compare nothing**
+  unless given `< nul`. They need a stdin.
 - The guest was installed from **retail** XP media, so its NIC is **rtl8139**;
   an e1000 leaves it with no network at all. (`run-xp.sh` deliberately uses
   e1000 against the FLEET image, because that proves the injected DriverPacks
