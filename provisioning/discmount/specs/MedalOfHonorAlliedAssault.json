@@ -1,0 +1,16 @@
+{
+  "title": "Medal of Honor Allied Assault",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\nif exist \"%~dp0FLEETRES.EXE\" (\r\n  \"%~dp0FLEETRES.EXE\" -setline \"%~dp0main\\newconfig.cfg\" \"seta r_mode\" seta r_mode %FR_Q3MODE%\r\n  \"%~dp0FLEETRES.EXE\" -setline \"%~dp0main\\newconfig.cfg\" \"seta r_colorbits\" seta r_colorbits 16\r\n)",
+  "vars": {
+    "GTITLE": "Medal of Honor Allied Assault",
+    "IMAGE": "%~dp0_disc\\MOHAA_Disc1.iso",
+    "VOLID": "MOHAA_DISK1",
+    "MARKER": "redist\\gamespy\\ArcadeInstallMOHAA108fEA.exe",
+    "GAME": "%~dp0MOHAA.exe",
+    "GAMEARGS": "+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set r_colorbits 16",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "Autorun.exe Setup.exe",
+  "prelaunch": "sc start secdrv >nul 2>&1",
+  "_note": "SafeDisc 2.51.021 in MOHAA.exe - entry point inside stxt371, so the wrapper is LIVE (checked with scripts/fleet/discprotect.py). Same generation as Max Payne 2.51.020, which DAEMON Tools 3.47 satisfies on this fleet, so the mount path is the Max Payne one. The 1.11 patch does NOT drop the wrapper (its MOHAA.exe is still 2.51.021); what 1.11 adds is mohaa_server.exe, which runs with no CD at all. MARKER is the disc's GameSpy Arcade installer - unique to this disc; the SafeDisc files 00000409.016/.256 are on every SafeDisc disc and would match the wrong one. Engine is a 2015/Q3 fork, so resolution is a MODE INDEX (no r_mode -1 custom in this engine generation): FR_Q3MODE, which is 7 (1152x864) on .124. r_colorbits 16 because the 3dfx stack is 16-bit."
+}
