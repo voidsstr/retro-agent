@@ -1450,6 +1450,14 @@ it satisfies all of this:
 10. **Deploy it and look at the desktop.** The icon must be real and the icons
     must sit tidily in the wallpaper's bay. A staged title whose shortcut is a
     generic white page is not finished.
+11. **Curate it for the LAN party voting site.** The site friends use to vote
+    on LAN-party dates and games (private repo `retro-agent-private`,
+    `lanparty/`) builds its game list from this library, and its build
+    **fails on a title it has no curation entry for**, so a new title is
+    missing from the vote until someone adds one to
+    `lanparty/catalog/curation/*.json` (name, LAN status, mods, fleet server),
+    runs `python3 catalog/build_catalog.py` and redeploys. The contract is in
+    `lanparty/catalog/README.md`.
 
 **Then push it to every connected box** — a title staged but not deployed is
 half done.
