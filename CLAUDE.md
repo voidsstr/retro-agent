@@ -4119,9 +4119,13 @@ All were stored as `verified=pending`. **`fleet-cloudflare-api-token` was
 checked on 2026-11-24:** it is an active ACCOUNT-owned token (verify it at
 `/accounts/<account id>/tokens/verify`; `/user/tokens/verify` calls it
 "Invalid API Token", which is misleading) that can see **no zones**, so it
-cannot edit DNS for any domain. DNS changes need the user in the Cloudflare
-dashboard, or a new token with Zone DNS Edit. **Never echo one into a
-transcript, a log, a commit, or the dashboard.**
+cannot edit DNS for any domain. **For DNS use `fleet-cloudflare-dns-token`**
+(added 2026-11-26): a USER token with Zone DNS Edit + Zone Read on the LAN
+party site's zone only (`/user/tokens/verify` works for it), used by
+`retro-agent-private/lanparty/scripts/cloudflare-dns.py`. Another zone means
+widening it in the dashboard or minting a new one - the user creates tokens,
+never an agent. **Never echo one into a transcript, a log, a commit, or the
+dashboard.**
 
 ### ⚠️ `aisleprompt-kv` is a DIFFERENT vault and is not ours
 
