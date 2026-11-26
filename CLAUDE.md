@@ -1456,7 +1456,11 @@ it satisfies all of this:
     **fails on a title it has no curation entry for**, so a new title is
     missing from the vote until someone adds one to
     `lanparty/catalog/curation/*.json` (name, LAN status, mods, fleet server),
-    runs `python3 catalog/build_catalog.py` and redeploys. The contract is in
+    runs `python3 catalog/build_catalog.py` and redeploys. Since 2026-11-26 it
+    also needs the title's **popular mods** researched into
+    `lanparty/catalog/mods/*.json` (with sources; an empty list plus a note is
+    right for a game with none): friends pick those mods at sign-up, and the
+    build fails on a title without that entry too. Both contracts are in
     `lanparty/catalog/README.md`.
 
 **Then push it to every connected box** — a title staged but not deployed is
