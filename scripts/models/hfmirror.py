@@ -67,6 +67,13 @@ CHUNK = 8 << 20
 MAX_TRIES = 3          # per file, per stage
 NET_RETRIES = 40       # transient network errors inside one download
 STAGE_DEPTH = 3        # files waiting between stages (bounds staging disk use)
+# SMB dialect for the WRITES. This NAS offers nothing newer than SMB 2.0.2, and
+# measured 2026-11-24 its 2.0.2 path writes at ~28 MB/s while SMB1 (NT1, which it
+# keeps for the XP fleet) writes at ~60 MB/s - two parallel 2.0.2 writers still
+# made only 28, so it is the server, not the client. Read-back stays on /mnt.
+SMB_PROTO = os.environ.get("HFMIRROR_SMB_PROTO", "NT1")
+# 1 = never write one file while reading back another (one disk head on the NAS)
+NAS_SERIAL = os.environ.get("HFMIRROR_NAS_SERIAL", "0") == "1"
 
 _log_lock = threading.Lock()
 
@@ -268,8 +275,9 @@ def local_free():
 
 
 def smb(auth, commands, timeout_s=300):
-    r = subprocess.run(["smbclient", sharewrite.SERVER, "-A", auth, "-t", str(timeout_s),
-                        "-c", commands], capture_output=True, text=True)
+    proto = ["-m", SMB_PROTO, "--option=client min protocol=%s" % SMB_PROTO] if SMB_PROTO else []
+    r = subprocess.run(["smbclient", sharewrite.SERVER, "-A", auth, "-t", str(timeout_s)] + proto +
+                       ["-c", commands], capture_output=True, text=True)
     out = r.stdout + r.stderr
     return r.returncode, "\n".join(l for l in out.splitlines() if "password" not in l.lower())
 
@@ -348,6 +356,14 @@ class Rate:
             return (b1 - b0) / max(t1 - t0, 1e-6)
 
 
+class _NoLock:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
 class Runner:
     def __init__(self, store, nas):
         self.store, self.nas = store, nas
@@ -361,6 +377,11 @@ class Runner:
         self.current = {"download": None, "upload": None, "verify": None}
         self.items = {}                # repo -> {"meta", "files"}
         self.started = time.time()
+        self.nas_lock = threading.Lock() if NAS_SERIAL else None
+
+    def nas_turn(self):
+        """Serial mode: one NAS operation at a time. Otherwise a no-op context."""
+        return self.nas_lock if self.nas_lock else _NoLock()
 
     # ---- helpers
     def halt(self, why):
@@ -510,7 +531,8 @@ class Runner:
                 ok, out = False, ""
                 for attempt in range(1, MAX_TRIES + 1):
                     t0 = time.time()
-                    ok, out = self.nas.put(local, dest)
+                    with self.nas_turn():
+                        ok, out = self.nas.put(local, dest)
                     if ok:
                         self.rates["upload"].add(f["size"])
                         break
@@ -541,14 +563,17 @@ class Runner:
                 self.finish_item(repo)
                 continue
             self.current["verify"] = dest
-            ok, why = Nas.verify(f, dest, self.rates["verify"].add)
+            with self.nas_turn():
+                ok, why = Nas.verify(f, dest, self.rates["verify"].add)
             tries = 1
             while not ok and local and tries < MAX_TRIES:
                 log("verify FAILED (%s): %s - writing it again" % (why, dest))
-                put_ok, out = self.nas.put(local, dest)
+                with self.nas_turn():
+                    put_ok, out = self.nas.put(local, dest)
                 if not put_ok:
                     log(out[-800:])
-                ok, why = Nas.verify(f, dest, self.rates["verify"].add)
+                with self.nas_turn():
+                    ok, why = Nas.verify(f, dest, self.rates["verify"].add)
                 tries += 1
             self.current["verify"] = None
             if ok:
@@ -830,8 +855,9 @@ def cmd_run(a):
         raise SystemExit("another hfmirror run holds %s" % lockf.name)
     if not os.path.ismount(MNT):
         raise SystemExit("%s is not mounted - cannot verify anything" % MNT)
-    log("run start: NAS free %.0f GB, floor %d GB; staging %s (%.0f GB free)"
-        % (nas_free() / GB, NAS_FLOOR // GB, STAGING, local_free() / GB))
+    log("run start: NAS free %.0f GB, floor %d GB; staging %s (%.0f GB free); SMB %s, %s"
+        % (nas_free() / GB, NAS_FLOOR // GB, STAGING, local_free() / GB, SMB_PROTO or "default",
+           "serial NAS I/O" if NAS_SERIAL else "overlapped NAS I/O"))
     # systemd stops with SIGTERM: unwind, so Auth deletes its 0600 credentials file
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
     with sharewrite.Auth() as auth:
