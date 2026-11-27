@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Mirror Hugging Face model repos onto the NAS - every file verified twice.
 
-    python3 scripts/models/hfmirror.py add <org/repo> [--exclude GLOB ...] [--note TEXT]
+    python3 scripts/models/hfmirror.py add <org/repo> [--include GLOB ...] [--exclude GLOB ...] [--note TEXT]
     python3 scripts/models/hfmirror.py run             # work the queue (resumable)
     python3 scripts/models/hfmirror.py status [--json]
-    python3 scripts/models/hfmirror.py plan <org/repo> [--exclude GLOB ...]   # size only
+    python3 scripts/models/hfmirror.py plan <org/repo> [--include ...] [--exclude ...] [--list]   # size only
 
 WHERE IT WRITES - and nowhere else:
     \\\\192.168.1.122\\files\\Files\\AI-Models\\<org>\\<repo>\\
@@ -128,6 +128,21 @@ def mnt_path(share_rel):
 
 def excluded(name, patterns):
     return any(fnmatch.fnmatch(name, p) for p in patterns or ())
+
+
+def select(files, include=None, exclude=None):
+    """The files a queue item fetches. With `include`, ONLY files matching one of
+    its globs are kept - the safe way to take one quant out of a GGUF repo that
+    holds a dozen, because a quant added to the repo later cannot slip in.
+    `exclude` then removes from what is left. Globs match the full repo path."""
+    keep = []
+    for f in files:
+        if include and not any(fnmatch.fnmatch(f["name"], p) for p in include):
+            continue
+        if excluded(f["name"], exclude):
+            continue
+        keep.append(f)
+    return keep
 
 
 # ---------------------------------------------------------------- hashes
@@ -638,13 +653,19 @@ class Runner:
         meta, files = api_tree(repo, st.get("sha") or it.get("revision") or "main")
         if st.get("sha") and st["sha"] != meta["sha"]:
             raise SystemExit("%s: pinned %s but the API answered %s" % (repo, st["sha"], meta["sha"]))
-        kept = [f for f in files if not excluded(f["name"], it.get("exclude"))]
-        dropped = [f["name"] for f in files if excluded(f["name"], it.get("exclude"))]
+        kept = select(files, it.get("include"), it.get("exclude"))
+        names = {f["name"] for f in kept}
+        dropped = [f["name"] for f in files if f["name"] not in names]
+        planned = it.get("planned_bytes")
+        if planned is not None and planned != sum(f["size"] for f in kept):
+            banner("%s: %d bytes planned at add time, %d now - check the filters"
+                   % (repo, planned, sum(f["size"] for f in kept)))
         for f in kept:
             dest_path(repo, f["name"])          # raises on anything unsafe, before any write
         with self.store.lock:
             st.update({"sha": meta["sha"], "license": meta["license"],
                        "license_name": meta["license_name"], "note": it.get("note"),
+                       "include": it.get("include") or [],
                        "exclude": it.get("exclude") or [], "excluded_files": dropped,
                        "total_bytes": sum(f["size"] for f in kept), "file_count": len(kept),
                        "queued": it.get("added")})
@@ -678,6 +699,7 @@ class Runner:
             "revision:  %s (pinned commit; tree as of %s)" % (st["sha"], self.items[repo]["meta"].get("last_modified")),
             "license:   %s" % lic,
             "files:     %d, %.1f GB" % (len(files), st["total_bytes"] / GB),
+            "included:  %s" % (", ".join(st.get("include") or []) or "everything"),
             "excluded:  %s" % (", ".join(st.get("exclude") or []) or "nothing"),
             "note:      %s" % (st.get("note") or ""),
             "mirrored:  %s by scripts/models/hfmirror.py (retro-agent repo)" % datetime.date.today(),
@@ -797,15 +819,27 @@ class Runner:
 # ---------------------------------------------------------------- commands
 
 def cmd_add(a):
+    """Queue repos PINNED to the commit current now (or --revision), so what runs
+    later is exactly what was planned here, whatever the repo gains meanwhile."""
     q = load_queue()
     for repo in a.repo:
         repo_dir(repo)
         if any(it["repo"] == repo for it in q["items"]):
             print("already queued: %s" % repo)
             continue
-        q["items"].append({"repo": repo, "exclude": a.exclude or [], "note": a.note,
+        meta, files = api_tree(repo, a.revision or "main")
+        kept = select(files, a.include, a.exclude)
+        if not kept:
+            raise SystemExit("%s: the filters keep no files - nothing queued" % repo)
+        for f in kept:
+            dest_path(repo, f["name"])
+        q["items"].append({"repo": repo, "revision": meta["sha"],
+                           "include": a.include or [], "exclude": a.exclude or [],
+                           "note": a.note, "planned_files": len(kept),
+                           "planned_bytes": sum(f["size"] for f in kept),
                            "added": datetime.datetime.now().isoformat(timespec="seconds")})
-        print("queued: %s" % repo)
+        print("queued: %s @ %s: %d file(s), %.2f GB" % (repo, meta["sha"][:12], len(kept),
+                                                      sum(f["size"] for f in kept) / GB))
     save_queue(q)
     return 0
 
@@ -813,12 +847,15 @@ def cmd_add(a):
 def cmd_plan(a):
     tot = 0
     for repo in a.repo:
-        meta, files = api_tree(repo)
-        kept = [f for f in files if not excluded(f["name"], a.exclude)]
+        meta, files = api_tree(repo, a.revision or "main")
+        kept = select(files, a.include, a.exclude)
+        if a.list:
+            for f in kept:
+                print("    %10.3f GB  %s" % (f["size"] / GB, f["name"]))
         b = sum(f["size"] for f in kept)
         tot += b
-        print("%-60s %8.1f GB  %4d files  license=%s  gated=%s"
-              % (repo, b / GB, len(kept), meta["license"], meta["gated"]))
+        print("%-60s %8.2f GB  %4d files  license=%s  gated=%s  @%s"
+              % (repo, b / GB, len(kept), meta["license"], meta["gated"], meta["sha"][:12]))
     print("total %.1f GB; NAS free %.0f GB (floor %d GB)" % (tot / GB, nas_free() / GB, NAS_FLOOR // GB))
     return 0
 
@@ -867,13 +904,17 @@ def cmd_run(a):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("add")
-    p.add_argument("repo", nargs="+")
-    p.add_argument("--exclude", action="append", help="fnmatch glob over repo paths")
-    p.add_argument("--note")
-    p = sub.add_parser("plan")
-    p.add_argument("repo", nargs="+")
-    p.add_argument("--exclude", action="append")
+    for name in ("add", "plan"):
+        p = sub.add_parser(name)
+        p.add_argument("repo", nargs="+")
+        p.add_argument("--include", action="append",
+                       help="fnmatch glob over repo paths; if given, ONLY matching files are fetched")
+        p.add_argument("--exclude", action="append", help="fnmatch glob over repo paths")
+        p.add_argument("--revision", help="commit or branch to pin (default: main, resolved now)")
+        if name == "add":
+            p.add_argument("--note")
+        else:
+            p.add_argument("--list", action="store_true", help="print every file kept")
     sub.add_parser("run")
     p = sub.add_parser("status")
     p.add_argument("--json", action="store_true")
