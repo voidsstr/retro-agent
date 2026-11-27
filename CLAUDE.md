@@ -1195,6 +1195,22 @@ So, when writing to `/mnt/retro-share`:
   on this NAS to Oct 2007, which is cosmetic; a present correct file beats an
   absent one. The mtime caveat is why gvfs is preferred *first*, not a reason
   to keep retrying it.
+* **For BULK writes, tell smbclient to use SMB1: `-m NT1 --option='client min
+  protocol=NT1'`.** The NAS offers nothing newer than SMB 2.0.2 (the `/mnt`
+  kernel mount negotiates `vers=2.0`, 64 KB I/O), and measured 2026-11-24 its
+  2.0.2 path writes at **~28 MB/s** - two parallel writers still made 28, so it
+  is the server - while SMB1, which it keeps for the XP fleet, writes at **~60
+  MB/s**. smbclient's default negotiates 2.0.2. `sharewrite.py` and
+  `stage-new-title.py` still use the default (fine for launchers, slow for a
+  multi-GB title); `scripts/models/hfmirror.py` uses NT1 and mirrored 1.37 TB
+  at an effective 27.6 MB/s with every file read back and hashed. Kernel CIFS
+  READS through `/mnt` run ~59 MB/s.
+* **AI model weights live in `Files\AI-Models\<org>\<repo>`**, mirrored from
+  Hugging Face by `scripts/models/hfmirror.py` (`add` / `run` / `status`;
+  state in `~/.retro-fleet/hfmirror`). Each folder has `SHA256SUMS` and
+  `SOURCE.txt` (pinned commit, licence); `Files\AI-Models\README.txt` indexes
+  them. The tool refuses any path outside that folder and keeps a 500 GB NAS
+  free-space floor.
 * **Regenerated launchers are recoverable** — they come from
   `provisioning/discmount/specs/` plus the template, via
   `scripts/fleet/make-mount-launcher.py`. Nothing was lost above. Tree content
