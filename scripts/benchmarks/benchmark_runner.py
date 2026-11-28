@@ -253,6 +253,40 @@ def split_launch(launch):
     return launch[:idx + 4], launch[idx + 4:].strip()
 
 
+def tpath(title, key, default=None):
+    """A title path with {root} already resolved.
+
+    Every path in a title (workdir, exists_check, launch, result_file, the
+    config target) is the game's root plus a fixed suffix, and the root is the
+    one thing that moves from box to box: the dedicated bench box has
+    C:\\Quake III Arena\\Quake3 while every GAMESYNC-provisioned fleet box has
+    C:\\Games\\<Title>. So the manifest writes {root} and `roots` lists the
+    candidates; resolve_root() picks the one that is really there.
+
+    This replaces `alt_exists_check`, which was a BUG waiting to fire: the
+    runner accepted the alternate path as proof the title was installed and
+    then launched from `workdir` regardless - so a box with UT at C:\\UT
+    passed the install check and every run failed to start, with the summary
+    blaming the game.
+    """
+    v = title.get(key, default)
+    if v is None:
+        return None
+    return v.replace("{root}", title.get("_root", ""))
+
+
+async def resolve_root(conn, title):
+    """First candidate root whose exists_check is really on the box."""
+    cands = title.get("roots")
+    if not cands:
+        return title.get("workdir", "")   # old-style title, nothing to resolve
+    for root in cands:
+        probe = title["exists_check"].replace("{root}", root)
+        if await path_exists(conn, probe):
+            return root
+    return None
+
+
 async def run_one(conn, card, title_id, title, res, colordepth, fsaa, outdir, args):
     w, h = parse_res(res)
     tag = sanitize(f"{card}_{title_id}_{res}_{colordepth}bit_{fsaa}")
@@ -276,21 +310,22 @@ async def run_one(conn, card, title_id, title, res, colordepth, fsaa, outdir, ar
     cfg = title.get("config")
     if cfg:
         try:
-            await upload_text(conn, cfg["target"], render_template(cfg["template"], subs))
+            cfg_target = cfg["target"].replace("{root}", title.get("_root", ""))
+            await upload_text(conn, cfg_target, render_template(cfg["template"], subs))
         except RetroProtocolError as e:
             row["status"] = f"config-upload-failed: {e}"
             return row
 
     # 2. clear any stale result file
-    result_file = title["result_file"].replace("{tag}", tag)
+    result_file = tpath(title, "result_file").replace("{tag}", tag)
     await exec_text(conn, f'del /f /q "{result_file}"')
     # UT/DeusEx write into a Benchmark subdir that may not exist
     await exec_text(conn, f'cmd /c md "{os.path.dirname(result_file)}"')
 
     # 3. launch (wrap in cmd/start so cwd is the game's System dir)
-    exe, exe_args = split_launch(title["launch"])
+    exe, exe_args = split_launch(tpath(title, "launch"))
     exe_args = exe_args.replace("{tag}", tag)
-    launch_cmd = f'cmd /c cd /d "{title["workdir"]}" && start "bench" "{exe}" {exe_args}'
+    launch_cmd = f'cmd /c cd /d "{tpath(title, "workdir")}" && start "bench" "{exe}" {exe_args}'
     try:
         await conn.command_text(f"LAUNCH {launch_cmd}", timeout=CMD_TIMEOUT)
     except RetroProtocolError as e:
@@ -418,11 +453,11 @@ async def amain(args):
         # preflight: which titles are actually installed?
         installed = {}
         for tid, t in titles.items():
-            ok = await path_exists(conn, t["exists_check"])
-            if not ok and t.get("alt_exists_check"):
-                ok = await path_exists(conn, t["alt_exists_check"])
-            installed[tid] = ok
-            log(f"  install {'OK ' if ok else 'MISS'}  {t['name']}")
+            root = await resolve_root(conn, t)
+            t["_root"] = root or (t.get("roots") or [""])[0]
+            installed[tid] = root is not None
+            log(f"  install {'OK ' if root else 'MISS'}  {t['name']}"
+                + (f"  [{root}]" if root else ""))
         run_titles = {k: v for k, v in titles.items() if installed[k] or args.dry_run}
         if not run_titles:
             log("no benchmarked titles are installed on this machine. "
