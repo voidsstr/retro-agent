@@ -103,7 +103,8 @@ pinned by `tests/python/test_server_bots.py`.
 | `ut99-server`, `ut2004-server` | fill to 3 while a human is on | built-in, Adept |
 | `unrealgold-server` | 3, fixed | `InitialBots=3`, Hard |
 | `tribes2-server` | 3, fixed | Classic AI, difficulty 0.75 |
-| `specialists-server`, `rtcw-server`, `sof2-server`, `deusex-server`, `doom3-server`, `shogo-server`, `descent3-server`, `farcry-server`, `ssam-tfe-server`, `ssam-tse-server` | **none possible** | evidence per server in the skill (e.g. TS 3.0's Linux dll answers `addbot` with `Bots only in listen servers.`; RTCW `BotLoadMap: bot library used before being setup`; Deus Ex's own source: `No support done for this one`) |
+| `rtcw-server` | 8, fixed | **Omni-Bot 0.93** (new 2026-11-13), difficulty 2 of 0..5, moveskill 2. The engine CANNOT do this: no bot definitions and no `mp_*.aas` in any pak. Omni-Bot brings its own navigation and its own qagame, run as the mod `omnibot` |
+| `specialists-server`, `sof2-server`, `deusex-server`, `doom3-server`, `shogo-server`, `descent3-server`, `farcry-server`, `ssam-tfe-server`, `ssam-tse-server` | **none possible** | evidence per server in the skill (e.g. TS 3.0's Linux dll answers `addbot` with `Bots only in listen servers.`; Deus Ex's own source: `No support done for this one`) |
 
 ## Counting it honestly
 

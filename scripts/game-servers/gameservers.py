@@ -893,7 +893,10 @@ SERVERS = [
     # ships, and the getinfo reply advertises 60, so the retail LAN browser
     # lists it. 27963 is not arbitrary: the Q3 engine's LAN scan broadcasts to
     # 27960-27963 ONLY, so a server outside that window never self-announces.
-    # RTCW MP shipped no bots, so this count is always human.
+    # RTCW MP shipped no bots - and SINCE 2026-11-13 this server has them
+    # anyway, from Omni-Bot 0.93 (the mod `omnibot`, its own waypoint
+    # navigation and its own qagame). The q3 probe's ping-0 rule counts them,
+    # and the bots' names carry a ^4[BOT]^7 prefix.
     {"unit": "rtcw-server",        "label": "RTCW",            "engine": "q3",
      "probe": "q3",  "port": 27963, "join": 27963},
     {"unit": "quake2-server",      "label": "Quake 2",         "engine": "q2",

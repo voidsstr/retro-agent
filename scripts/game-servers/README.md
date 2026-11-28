@@ -656,3 +656,40 @@ no bots, so its player count is always people.
 Do not read the players' address column as the client's address: they arrive
 through the proxy, so the server shows `192.168.1.132` with a per-client source
 port. Query/connect **27021** directly if you need the real addresses.
+
+## Do all the servers still have bots? `botcheck.py`
+
+```bash
+python3 scripts/game-servers/botcheck.py           # full report
+python3 scripts/game-servers/botcheck.py --quiet   # only problems
+```
+
+"The server has bots" was true of each server on the day it was installed and
+nothing re-checked it. This does, and it keeps four states apart that a single
+"bots: 0" would flatten into one:
+
+| | |
+|---|---|
+| `ok` | bots are in the server right now |
+| `join` | no bots now, **by design** - QuakeWorld, UT99, UT2004 and Tribes 2 only fill when a human arrives. Not a fault. |
+| `?` | could not be asked. **Not the same as "no bots"** |
+| `FAIL` | it should have bots and does not -> exit 1 |
+
+It checks **durability**, not just the moment:
+
+* **linger first.** Without `loginctl enable-linger` no `--user` unit starts
+  until somebody logs in, and every unit still reads `enabled` - so the host
+  comes back from a reboot with every server dead and nothing saying why.
+* **the setting must be in a FILE the server reads at start.** A bot count
+  applied live over rcon survives a map change and dies at the next restart.
+  Bots up + setting not persisted is reported as **FAIL**, not OK.
+* **it asks each engine the question it can answer.** Four engines here do not
+  report bots the usual way: 3zb2's Quake 2 bots are game entities that never
+  appear in `status`, FrikBot's are invisible to the server-info query, the
+  Unreal family reports bots and humans in one number, and the GoldSrc A2S
+  proxies make a real player look local. Counting "players" would be wrong on
+  all four.
+
+Most of its tests in `tests/python/test_server_bots.py` assert the NEGATIVE
+path, because a checker that can only say OK is the failure this repo keeps
+paying for.

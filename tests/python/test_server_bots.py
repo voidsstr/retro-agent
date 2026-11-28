@@ -201,3 +201,166 @@ def test_unreal_gold_server_ini_turns_on_three_hard_bots():
     assert "[UnrealShare.DeathMatchGame]\r\nbMultiPlayerBots=True\r\nInitialBots=3" in out
     assert "[UnrealShare.BotInfo]\r\nDifficulty=2" in out    # 0 Easy .. 2 Hard .. 3 Unreal
     assert msi.server_ini(out) == out
+
+
+# --- RTCW: Omni-Bot (2026-11-13) -------------------------------------------
+#
+# RTCW is the one server here whose ENGINE cannot have bots at any setting:
+# the MP paks carry no bot definitions and no mp_*.aas navigation, and the
+# botlib is never initialised. These pin the install that works anyway, and
+# the two shapes that make it silently NOT work.
+
+def test_rtcw_omnibot_installer_demands_a_64bit_release():
+    """0.86/0.87 ship i386 Linux binaries only - iowolfded.x86_64 cannot load
+    them. The installer must assert the arch, not discover it at runtime."""
+    s = _read("rtcw", "install-omnibot-rtcw.sh")
+    assert 'VER="${2:-0.93}"' in s
+    assert "x86_64.so" in s
+    assert "ELF 64-bit.*x86-64" in s, "the arch check is what stops a 32-bit release"
+
+
+def test_rtcw_omnibot_installer_verifies_the_post_condition():
+    """`systemctl is-active` was true for the whole two months this server had
+    no bots, so an exit code proves nothing here."""
+    s = _read("rtcw", "install-omnibot-rtcw.sh")
+    assert "Omni-bot .* initialized" in s
+    assert "entered the game" in s
+    assert "FAIL: library loaded but no bot joined" in s
+
+
+def test_rtcw_server_cfg_sets_omnibot_before_the_map_loads():
+    """server.cfg ends by starting the rotation with `vstr d1`. omnibot_enable
+    and omnibot_path set AFTER that line are read too late and the bot library
+    never loads - with nothing in the log saying why."""
+    s = _read("rtcw", "server.cfg")
+    enable, path = s.index("omnibot_enable"), s.index("omnibot_path")
+    start = s.rindex("vstr d1")
+    assert enable < start and path < start, "omnibot_* must precede `vstr d1`"
+    cv = _cvars(s)
+    assert cv["omnibot_enable"] == "1"
+    assert cv["omnibot_path"].strip('"').endswith("/omni-bot")
+
+
+def test_rtcw_omnibot_bot_count_and_skill():
+    """8 bots at the EASIEST skill - the fleet asked for bots that play like
+    people rather than like aimbots.
+
+    The range is 1..6 (rtcw_commands.gm clamps -1..7, -1 = random per bot;
+    def_bot.gm documents "between 1 and 6 with 1 being the easiest").  The
+    shipped readme.txt says "0 to 5, default 3" and is stale - the code wins.
+    """
+    s = _read("rtcw", "install-omnibot-rtcw.sh")
+    assert 'MINBOTS="${MINBOTS:-8}"' in s
+    assert 'DIFFICULTY="${DIFFICULTY:-1}"' in s
+    assert 'MOVESKILL="${MOVESKILL:-1}"' in s        # 0 off .. 3 hard, 4 random
+    assert "MinBots = $MINBOTS" in s and "CurrentDifficulty = $DIFFICULTY" in s
+
+
+def test_rtcw_omnibot_profile_is_tuned_off_the_aimbot_defaults():
+    """Difficulty alone does not stop them FEELING like cheats.
+
+    Stock def_bot.gm holds a bot aimed at you for 2 s after you break line of
+    sight - which from the receiving end is being tracked through a wall -
+    sees 4500 units, and turns 720 deg/s (a 180 flick in a quarter second).
+    Those three, not the skill number, are what the complaint is about.
+    """
+    s = _read("rtcw", "install-omnibot-rtcw.sh")
+    for stock, fleet in [("this.MemorySpan = 2.0;", "this.MemorySpan = 1.0;"),
+                         ("this.AimPersistance = 2.0;", "this.AimPersistance = 0.5;"),
+                         ("this.MaxViewDistance = 4500;", "this.MaxViewDistance = 2500;"),
+                         ("this.MaxTurnSpeed = 720.0;", "this.MaxTurnSpeed = 300.0;"),
+                         ("this.AimStiffness = 75.0;", "this.AimStiffness = 40.0;")]:
+        assert stock in s and fleet in s, stock
+    # AimDamping stays 10: lowering stiffness 75 -> 40 moves the aim spring
+    # CLOSER to critical damping, so it damps the oscillation def_bot.gm warns
+    # about. A test that let someone "fix" the warning by cutting damping too
+    # would reintroduce exactly that oscillation.
+    assert "AimDamping" not in s.split("PROF")[1].split("PROF")[0]
+    assert "def_bot.gm is read when a bot JOINS" in s   # why kickall suffices
+
+
+# --- botcheck.py: it must be able to say NO ---------------------------------
+#
+# Most of these assert the NEGATIVE path on purpose. A checker that can only
+# report OK is the exact failure this project keeps paying for, and the three
+# states it keeps apart - populated / on_join / unknown - are three different
+# calls to action that a single "bots: 0" would flatten into one.
+
+def _botcheck():
+    spec = importlib.util.spec_from_file_location(
+        "botcheck", os.path.join(_GS, "botcheck.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_botcheck_calls_a_server_with_no_bots_broken():
+    bc = _botcheck()
+    r = bc.check(dict(unit="nosuch-server", label="X", expect="populated",
+                      want=3, probe=lambda: 0, persist=None))
+    # the unit is not active, so this is UNKNOWN rather than BROKEN - a server
+    # that is DOWN is a different problem from one that lost its bots
+    assert r["verdict"] == bc.UNKNOWN
+
+    bc.unit_state = lambda u, manager="systemd": ("active", "enabled")
+    r = bc.check(dict(unit="nosuch-server", label="X", expect="populated",
+                      want=3, probe=lambda: 0, persist=None))
+    assert r["verdict"] == bc.BROKEN
+    assert "found none" in r["why"]
+
+
+def test_botcheck_separates_unknown_from_zero():
+    """A probe that could not ask must never read as 'no bots'."""
+    bc = _botcheck()
+    bc.unit_state = lambda u, manager="systemd": ("active", "enabled")
+    bc.gameservers_bots = lambda: {}
+    r = bc.check(dict(unit="u", label="X", expect="populated", want=3,
+                      probe=lambda: (_ for _ in ()).throw(OSError("timeout")),
+                      persist=None))
+    assert r["verdict"] == bc.UNKNOWN and r["verdict"] != bc.BROKEN
+
+
+def test_botcheck_flags_bots_that_are_up_but_not_persisted():
+    """The quiet killer: a bot count set LIVE over rcon and never written to a
+    file. It looks perfect until the next restart."""
+    bc = _botcheck()
+    bc.unit_state = lambda u, manager="systemd": ("active", "enabled")
+    r = bc.check(dict(unit="u", label="X", expect="populated", want=3,
+                      probe=lambda: 3,
+                      persist=("/nonexistent/server.cfg", r"^bots")))
+    assert r["verdict"] == bc.BROKEN
+    assert "will NOT come back after a restart" in r["why"]
+
+
+def test_botcheck_on_join_is_not_a_fault():
+    """QuakeWorld/UT99/UT2004/Tribes 2 legitimately show no bots on an empty
+    server. Calling that broken would train everyone to ignore the checker."""
+    bc = _botcheck()
+    bc.unit_state = lambda u, manager="systemd": ("active", "enabled")
+    r = bc.check(dict(unit="u", label="X", expect="on_join", persist=None))
+    assert r["verdict"] == bc.ON_JOIN
+
+
+def test_botcheck_knows_linger_is_the_single_point_of_failure():
+    """Without linger no --user unit starts until somebody logs in, and every
+    one of them still reads `enabled` - so it must be checked explicitly."""
+    s = _read("botcheck.py")
+    assert "enable-linger" in s or "Linger" in s
+    assert "nothing starts until someone logs in" in s
+
+
+def test_botcheck_does_not_read_quake2_or_quake1_bots_from_the_query():
+    """3zb2's bots are game entities and FrikBot's are invisible to the
+    server-info query - asking the usual way reports a healthy server as
+    having none."""
+    s = _read("botcheck.py")
+    assert "3zb2 bots are entities" in s
+    assert "prvm_globalget server bot_count" in s
+
+
+def test_botcheck_counts_goldsrc_bots_by_uniqueid_not_by_player_count():
+    """The A2S proxies on 27015/27016 relay gameplay, so a real player shows
+    up as 127.0.0.1 and would be counted as a local bot."""
+    s = _read("botcheck.py")
+    assert 'uniqueid is literally BOT' in s
+    assert '"BOT" in ln' in s
