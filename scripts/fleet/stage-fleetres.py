@@ -128,12 +128,19 @@ rem                    16:9 panel for a squashed picture
 rem  FR_FOV            hor+ FOV preserving the 4:3 vertical FOV (90 at 4:3)
 rem  FR_DOSFULLRES     DOSBox [sdl] fullresolution: desktop on an LCD,
 rem                    original on a CRT
-rem  FR_GLIDE          1 when this box has REAL 3dfx silicon (VEN_121A in the
-rem                    PCI enum - a Voodoo 2 is Class=MEDIA and never shows up
-rem                    as a display adapter, so nothing else can see it). The
+rem  FR_GLIDEFIT       1 when this box has REAL 3dfx silicon at all (VEN_121A
+rem                    in the PCI enum - a Voodoo 2 is Class=MEDIA and never
+rem                    shows up as a display adapter, so nothing else sees it)
+rem  FR_GLIDE          1 when that silicon is also the thing the MONITOR shows:
+rem                    a Voodoo 1/2 always (3D-only passthrough board), a
+rem                    Banshee/Voodoo 3/4/5 only while it is attached to the
+rem                    desktop, or any card when GlideRender=1 says so. The
 rem                    launcher moves the game-local nGlide glide2x.dll aside
 rem                    when this is 1, because game-local shadows system32 and
 rem                    the wrapper then blocks the card it is standing in for.
+rem                    FITTED BUT NOT SEEN IS NOT 1: .143's V5 5500 sits behind
+rem                    a GeForce 6800, and moving the wrapper aside there left
+rem                    Carmageddon 2 with nothing that can draw (2026-11-23).
 rem  FR_UE1DEV         the UE1 render device to write into the game's .ini
 rem ==========================================================================
 set FR_W=
@@ -150,6 +157,7 @@ set FR_HZ=
 set FR_SE1HZ=
 set FR_EDID=
 set FR_GLIDE=
+set FR_GLIDEFIT=
 set FR_UE1DEV=
 if not defined TEMP set TEMP=%SystemRoot%\\Temp
 if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -cmd %1 %2 %3 > "%TEMP%\\fleetres.cmd"
@@ -170,10 +178,11 @@ rem working FLEETRES.EXE can say a box is old enough for a rate to be safe.
 if not defined FR_SE1HZ set FR_SE1HZ=0
 if not defined FR_EDID set FR_EDID=0
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
-rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
+rem FR_GLIDE defaults to 0 - "no Glide we can see" - deliberately. The wrong way
 rem round would move the nGlide wrapper aside on a box that has nothing else,
 rem costing six machines a working renderer to help two.
 if not defined FR_GLIDE set FR_GLIDE=0
+if not defined FR_GLIDEFIT set FR_GLIDEFIT=%FR_GLIDE%
 if not defined FR_UE1DEV set FR_UE1DEV=D3DDrv.D3DRenderDevice
 """
 

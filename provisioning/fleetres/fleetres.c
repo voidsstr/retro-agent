@@ -420,7 +420,43 @@ static int q3_mode_for(int w, int h)
  * alike; a match is case-insensitive because the key spelling is not ours. */
 static int g_glide_dev[64];
 
-static int glide_probe(char *devout, int devcap)
+/* Is the 3dfx card a 3D-ONLY passthrough board (Voodoo Graphics / Voodoo 2)?
+ * Those have no 2D core at all: the VGA card's output runs through them on a
+ * loopback cable, so Glide draws onto the monitor that is already there and
+ * "is it attached to the desktop" is not a question that can be asked of them
+ * (they are Class=MEDIA and appear in no display enumeration).  A Banshee or
+ * Voodoo 3/4/5 IS a display adapter, and then the question is real - see
+ * glide_on_desktop(). */
+static int glide_dev_is_passthrough(const char *upname)
+{
+    return strstr(upname, "DEV_0001") != NULL    /* Voodoo Graphics */
+        || strstr(upname, "DEV_0002") != NULL;   /* Voodoo 2        */
+}
+
+/* Is a 3dfx DISPLAY adapter the one driving the screen?  EnumDisplayDevices
+ * answers for the display class only, which is why the passthrough boards
+ * above are decided before this is called. */
+static int glide_on_desktop(void)
+{
+    DISPLAY_DEVICEA ad;
+    DWORD a;
+    for (a = 0; a < 16; a++) {
+        memset(&ad, 0, sizeof(ad)); ad.cb = sizeof(ad);
+        if (!EnumDisplayDevicesA(NULL, a, &ad, 0)) break;
+        if (!(ad.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)) continue;
+        {
+            char up[256]; int k;
+            for (k = 0; ad.DeviceID[k] && k < 255; k++)
+                up[k] = (char)((ad.DeviceID[k] >= 'a' && ad.DeviceID[k] <= 'z')
+                               ? ad.DeviceID[k] - 32 : ad.DeviceID[k]);
+            up[k] = 0;
+            if (strstr(up, "VEN_121A")) return 1;
+        }
+    }
+    return 0;
+}
+
+static int glide_probe(char *devout, int devcap, int *passthru)
 {
     static const char *ENUM = "SYSTEM\\CurrentControlSet\\Enum\\PCI";
     HKEY hk;
@@ -429,6 +465,7 @@ static int glide_probe(char *devout, int devcap)
     int found = 0;
 
     if (devout && devcap) devout[0] = 0;
+    if (passthru) *passthru = 0;
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, ENUM, 0, KEY_READ, &hk) != ERROR_SUCCESS)
         return 0;
     for (;; i++) {
@@ -445,6 +482,7 @@ static int glide_probe(char *devout, int devcap)
             up[k] = 0;
             if (strstr(up, "VEN_121A")) {
                 found++;
+                if (passthru && glide_dev_is_passthrough(up)) *passthru = 1;
                 if (devout && devcap && !devout[0]) {
                     strncpy(devout, name, devcap - 1);
                     devout[devcap - 1] = 0;
@@ -629,7 +667,7 @@ int main(int argc, char **argv)
     int t43_w, t43_h;
     int lcd, native_ok;
     int cap_w = 0, cap_h = 0;
-    int glide_n = 0, glide_render = 0;
+    int glide_n = 0, glide_render = 0, glide_pass = 0, glide_see = 0;
     char glide_dev[128];
     static gr_modes_t rl;              /* the same list gameres.c builds, WITH rates */
     gr_panel_t gp;
@@ -788,19 +826,38 @@ int main(int argc, char **argv)
 
     /* Real Glide silicon, and whether this box should RENDER on it.
      *
-     * These are two different questions and conflating them would be wrong on
-     * .143: it has a Voodoo5 5500 fitted, but the monitor is on a GeForce 6800
-     * and the V5 is a second adapter, so rendering through Glide would draw to
-     * a port nobody is looking at.  So:
-     *   FR_GLIDE  = the silicon is present  -> move the game-local nGlide
-     *               wrapper aside so it stops shadowing the real system32
-     *               glide2x.dll.  Measured, and right on every box.
-     *   FR_UE1DEV = which UE1 render device to write.  Glide only when the
-     *               box says its 3dfx card is the one driving the screen:
-     *               HKLM\Software\RetroAgent  GlideRender (REG_DWORD) 1.
-     *               Default is D3D, which is a working renderer on every
-     *               fleet GPU including .171's Intel 865G. */
-    glide_n = glide_probe(glide_dev, sizeof(glide_dev));
+     * These are two different questions and conflating them is wrong on .143:
+     * it has a Voodoo5 5500 fitted, but the monitor is on a GeForce 6800 and
+     * the V5 is a second adapter, so rendering through Glide would draw to a
+     * port nobody is looking at.  So:
+     *   FR_GLIDEFIT = the silicon is PRESENT at all (the PCI enum).
+     *   FR_GLIDE    = the silicon is present AND this box can SEE what Glide
+     *                 draws -> move the game-local nGlide wrapper aside so it
+     *                 stops shadowing the real system32 glide2x.dll.
+     *   FR_UE1DEV   = which UE1 device to write.  Glide only when the box says
+     *                 its 3dfx card is the one driving the screen:
+     *                 HKLM\Software\RetroAgent  GlideRender (REG_DWORD) 1.
+     *                 Default is D3D, which works on every fleet GPU
+     *                 including .171's Intel 865G.
+     *
+     * FR_GLIDE USED TO BE "the silicon is present", and that cost Carmageddon 2
+     * on .143 (2026-11-23): the launcher moved nGlide aside, CARMA2_HW.EXE
+     * loaded the real system32 glide2x.dll, Glide opened the V5 - which is not
+     * the adapter the monitor is on - and BRender stopped with "Unable to
+     * allocate Main Front Screen".  The title has no usable D3D path
+     * (install.reg records Driver=3 crashing), so moving the wrapper aside
+     * left it with no way to draw at all.  With nGlide in place it runs.
+     *
+     * "Can see it" is measured, never assumed, and the two card classes differ:
+     *   Voodoo 1 / Voodoo 2 - 3D-only passthrough, Class=MEDIA, in no display
+     *       enumeration: present IS visible (.243's Voodoo 2, .171's before it).
+     *   Banshee / Voodoo 3 / 4 / 5 - a display adapter: visible only when it
+     *       is ATTACHED_TO_DESKTOP (.124's V5 6000 drives its screen and keeps
+     *       FR_GLIDE=1; .143's V5 5500 does not and now reads 0).
+     * An operator GlideRender=1 forces it on - that flag already means "the
+     * 3dfx card is the one driving the screen", so it answers this question
+     * too, and it is how a box is told about a loopback we cannot see. */
+    glide_n = glide_probe(glide_dev, sizeof(glide_dev), &glide_pass);
     {
         HKEY hk; DWORD v, n2, t;
         if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &hk)
@@ -812,6 +869,8 @@ int main(int argc, char **argv)
         }
     }
     if (glide_render && !glide_n) glide_render = 0;   /* asked for, not fitted */
+    if (glide_n)
+        glide_see = glide_pass || glide_render || glide_on_desktop();
 
     /* LCD test, validated against all eight fleet panels 2026-08-29:
      *   digital input bit, OR (vertical refresh capped at <=76 Hz AND the
@@ -961,6 +1020,14 @@ int main(int argc, char **argv)
                hzq2, hzq3, gr_hz_src_name(src_w > src_43 ? src_w : src_43));
         printf("windows    : NT major %d  Serious Engine gfx_iRefreshRate %d\n",
                os_major(), gr_se1_hz(gr_fr_hz(reg_hz), os_major()));
+        printf("glide seen : %s (%s)\n",
+               glide_see ? "YES - Glide draws where the monitor is"
+                         : "no - the wrapper stays in place",
+               !glide_n ? "no 3dfx silicon"
+                        : glide_pass ? "3D-only passthrough board"
+                        : glide_render ? "GlideRender=1"
+                        : glide_on_desktop() ? "3dfx adapter drives the desktop"
+                        : "3dfx adapter is NOT attached to the desktop");
         printf("glide      : %s%s%s  render device %s\n",
                glide_n ? "3dfx silicon PRESENT " : "no 3dfx silicon",
                glide_n ? glide_dev : "",
@@ -1046,7 +1113,8 @@ int main(int argc, char **argv)
      * inference from the persisted desktop mode plus a 4:3 assumption. Two
      * different confidences should not look identical to a reader. */
     printf("set \"FR_EDID=%d\"\n",    native_ok ? 1 : 0);
-    printf("set \"FR_GLIDE=%d\"\n",   glide_n ? 1 : 0);
+    printf("set \"FR_GLIDE=%d\"\n",   glide_see ? 1 : 0);
+    printf("set \"FR_GLIDEFIT=%d\"\n", glide_n ? 1 : 0);
     printf("set \"FR_GLIDEDEV=%s\"\n", glide_n ? glide_dev : "none");
     printf("set \"FR_UE1DEV=%s\"\n",
            glide_render ? "GlideDrv.GlideRenderDevice" : "D3DDrv.D3DRenderDevice");
