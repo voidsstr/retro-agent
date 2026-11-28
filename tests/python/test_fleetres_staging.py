@@ -803,9 +803,62 @@ def test_only_the_measured_ceilings_carry_a_cap():
     # Quake 1's cap lives in new_launcher's GLQuake branch, not in a recipe.
     if '-cap ' in sf.call_cap(1280, 960):
         capped.add('Quake1')
-    assert capped == {'Quake1'}, (
-        'unexpected resolution cap on %s — a cap must be measured on hardware, '
-        'and the only measured one is GLQuake' % sorted(capped - {'Quake1'}))
+    measured = {'Quake1', 'UnrealGold'}
+    assert capped == measured, (
+        'unexpected resolution cap on %s — a cap must be measured on hardware; '
+        'the measured ones are GLQuake and Unreal Gold'
+        % sorted(capped - measured))
+
+
+def test_unreal_gold_cap_is_the_measured_ue1_ceiling():
+    """Measured on .139 (GTX 1070 Ti, 2560x1440 panel, 2026-11-13).
+
+    Unreal Engine 1's D3D driver does not refuse a fullscreen mode it cannot
+    create - it opens a WINDOW instead, and says nothing. Uncapped, the
+    launcher wrote FullscreenViewportX=2560/Y=1440 with StartupFullscreen=True
+    and the game came up as a 1286x914 window with a title bar, while
+    Unreal.log happily reported `Best-match display mode: 2560x1440x32
+    (Error=0)`. That is the failure this repo keeps paying for: the tool
+    reports success and the picture is wrong.
+
+    The A/B that fixed it (same ini otherwise, Unreal.exe launched directly so
+    the launcher could not reset the value):
+        2560x1440 -> viewport 1302x953, desktop still 2560x1440  = windowed
+        1920x1080 -> viewport 1920x1080, Program Manager 1920x1080 = fullscreen
+    The desktop mode changing is the half that proves a real mode switch
+    rather than a borderless window.
+    """
+    rec = sf.TITLES['UnrealGold']['launchers']['Play Unreal Gold.bat']
+    caps = [l for l in rec['pre'] if '-cap ' in l]
+    assert caps == [sf.call_cap(1920, 1080)], (
+        'Unreal Gold must declare the measured 1920x1080 UE1 ceiling, got %r'
+        % caps)
+
+    src = open(STAGER, encoding='utf-8').read()
+    assert 'Best-match display mode: 2560x1440x32' in src, (
+        'the measurement behind the Unreal Gold cap is no longer recorded')
+
+    # The cap is an ENGINE fact about UE1, not about the ue_ini helper. UT2003
+    # and UT2004 share that helper, are UE2, and were never measured as
+    # limited - capping them by resemblance would cost those boxes resolution.
+    for ue2 in ('UT2003', 'UT2004'):
+        for name, r in sf.TITLES[ue2].get('launchers', {}).items():
+            assert not any('-cap ' in l for l in r['pre']), (
+                '%s/%s gained a cap by resemblance to Unreal Gold' % (ue2, name))
+
+
+def test_unreal_gold_still_writes_startup_fullscreen_every_launch():
+    """The cap only chooses the SIZE. What makes the title fullscreen at all is
+    StartupFullscreen=True, rewritten before every launch because UE1 rewrites
+    its own ini on exit - and a session that ended windowed (the F12
+    EndFullscreen bind is in the stock User.ini) would otherwise make the
+    windowed state permanent."""
+    rec = sf.TITLES['UnrealGold']['launchers']['Play Unreal Gold.bat']
+    body = "\n".join(rec['pre'])
+    assert 'StartupFullscreen True' in body, (
+        'Unreal Gold no longer forces StartupFullscreen at launch')
+    for key in ('FullscreenViewportX %FR_W%', 'FullscreenViewportY %FR_H%'):
+        assert key in body, 'Unreal Gold no longer sets %s' % key
 
 
 def test_glquake_cap_is_the_measured_ceiling_not_the_old_guess():

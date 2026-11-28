@@ -2040,10 +2040,52 @@ TITLES = {
             "lines": ue_userini_seed(),
         }],
     },
+    # UNREAL ENGINE 1's D3D DRIVER CANNOT GO FULLSCREEN ABOVE 1920x1080, AND
+    # FAILS SILENTLY INTO A WINDOW (measured on .139, 2026-11-13).
+    #
+    # The uncapped call handed ue_ini FR_W/FR_H = the panel, so on the 2560x1440
+    # box the launcher wrote FullscreenViewportX=2560 / Y=1440 with
+    # StartupFullscreen=True - and Unreal opened a 1286x914 WINDOW, the size of
+    # WindowedViewportX/Y, with a title bar. Nothing reported a failure: the ini
+    # read True, Unreal.log bound D3DDrv.dll and even logged
+    # "Best-match display mode: 2560x1440x32 (Error=0)", and the engine then
+    # fell back to windowed anyway. That is this project's signature shape - the
+    # tool reports success and the picture is wrong - so it is pinned by a test.
+    #
+    # A/B on the same box, same ini otherwise, launching Unreal.exe directly so
+    # the launcher could not reset the value:
+    #     FullscreenViewportX=2560 -> viewport 0,0-1302,953, desktop stayed
+    #                                 2560x1440            = WINDOWED
+    #     FullscreenViewportX=1920 -> viewport 0,0-1920,1080 AND Program Manager
+    #                                 became 1920x1080     = real mode switch
+    # The desktop mode changing is the decisive half: a borderless window would
+    # have left Progman at 2560x1440.
+    #
+    # So the launcher declares the ENGINE CEILING, which is exactly what -cap is
+    # for (Quake1 and HexenII carry one for their own engines). 1920x1080 is the
+    # largest standard 16:9 mode proven to switch here; a box whose panel is
+    # smaller is unaffected, because -cap only ever lowers (.186 is 1920x1080
+    # and its launcher is byte-identical before and after this change).
+    #
+    # Only the UE1 title is capped. UT2003/UT2004 share ue_ini but are UE2 and
+    # are NOT measured as limited - do not "fix" them by resemblance.
     "UnrealGold": {
+        # patch_launcher keys idempotency off the PRESENCE of the FLEETRES call
+        # (MARK), and both the capped and the uncapped call start with it - so
+        # the launcher already on the share is "already current" and the recipe
+        # change above would never have reached a single box. That is the exact
+        # trap MARK's own comment warns about, one step along. The repair pair
+        # is what actually ships it; it errors loudly if neither form is there.
+        "fix": {
+            "Play Unreal Gold.bat": [
+                ('call "%~dp0FLEETRES.BAT"\r\n',
+                 'call "%~dp0FLEETRES.BAT" -cap 1920 1080\r\n'),
+            ],
+        },
         "launchers": {
             "Play Unreal Gold.bat": rec('cd /d "%~dp0System"',
-                                        [CALL] + ue_ini("System\\Unreal.ini")),
+                                        [call_cap(1920, 1080)]
+                                        + ue_ini("System\\Unreal.ini")),
         },
         # The render device is per-box for exactly the reason the resolution
         # is. The staged Unreal.ini asks for SoftDrv in a window and D3DDrv
